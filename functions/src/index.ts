@@ -17,6 +17,9 @@ export * from "./referrals";
 export * from "./purchases";
 export * from "./scheduled";
 export * from "./triggers";
+export * from "./chat";
+export * from "./engagement";
+export * from "./fraud";
 
 // Security cleanup function
 import * as functions from "firebase-functions";

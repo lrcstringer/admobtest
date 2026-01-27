@@ -48,11 +48,14 @@ import '../../presentation/blocs/auth/auth_bloc.dart' as _i141;
 import '../../presentation/blocs/cashout/cashout_bloc.dart' as _i772;
 import '../../presentation/blocs/chat/chat_bloc.dart' as _i142;
 import '../../presentation/blocs/earn/earn_bloc.dart' as _i775;
+import '../../presentation/blocs/home/home_bloc.dart' as _i973;
 import '../../presentation/blocs/pot/pot_bloc.dart' as _i58;
+import '../../presentation/blocs/profile/profile_bloc.dart' as _i344;
 import '../../presentation/blocs/purchase/purchase_bloc.dart' as _i936;
 import '../../presentation/blocs/referral/referral_bloc.dart' as _i595;
 import '../../presentation/blocs/wallet/wallet_bloc.dart' as _i1019;
 import '../network/network_info.dart' as _i932;
+import '../security/security_service.dart' as _i383;
 import 'register_module.dart' as _i291;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -78,6 +81,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i161.InternetConnection>(
       () => registerModule.internetConnection,
     );
+    gh.lazySingleton<_i383.SecurityService>(() => _i383.SecurityService());
     gh.lazySingleton<_i932.NetworkInfo>(
       () => _i932.NetworkInfoImpl(gh<_i161.InternetConnection>()),
     );
@@ -166,8 +170,21 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i271.UserRepository>(),
       ),
     );
+    gh.factory<_i344.ProfileBloc>(
+      () => _i344.ProfileBloc(
+        gh<_i271.UserRepository>(),
+        gh<_i851.WalletRepository>(),
+      ),
+    );
     gh.lazySingleton<_i633.ReferralRepository>(
       () => _i904.ReferralRepositoryImpl(gh<_i9.ReferralRemoteDataSource>()),
+    );
+    gh.factory<_i973.HomeBloc>(
+      () => _i973.HomeBloc(
+        gh<_i851.WalletRepository>(),
+        gh<_i805.EarnRepository>(),
+        gh<_i1010.GamificationRepository>(),
+      ),
     );
     gh.factory<_i142.ChatBloc>(
       () => _i142.ChatBloc(gh<_i1072.ChatRepository>()),
@@ -175,11 +192,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i595.ReferralBloc>(
       () => _i595.ReferralBloc(gh<_i633.ReferralRepository>()),
     );
-    gh.factory<_i1019.WalletBloc>(
-      () => _i1019.WalletBloc(gh<_i851.WalletRepository>()),
-    );
     gh.factory<_i772.CashoutBloc>(
       () => _i772.CashoutBloc(gh<_i851.WalletRepository>()),
+    );
+    gh.factory<_i1019.WalletBloc>(
+      () => _i1019.WalletBloc(gh<_i851.WalletRepository>()),
     );
     gh.factory<_i775.EarnBloc>(
       () => _i775.EarnBloc(gh<_i805.EarnRepository>()),
