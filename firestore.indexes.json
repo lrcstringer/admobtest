@@ -37,29 +37,8 @@
       "collectionGroup": "potEntries",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "date", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "potEntries",
-      "queryScope": "COLLECTION",
-      "fields": [
         { "fieldPath": "oddienceUserId", "order": "ASCENDING" },
         { "fieldPath": "date", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "wallets",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "lifetimeEarned", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "wallets",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "lastEarnedAt", "order": "ASCENDING" }
       ]
     },
     {
@@ -104,13 +83,6 @@
       ]
     },
     {
-      "collectionGroup": "referrals",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "refereeId", "order": "ASCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "potPools",
       "queryScope": "COLLECTION",
       "fields": [
@@ -132,13 +104,6 @@
       "fields": [
         { "fieldPath": "oddienceUserId", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "leaderboard",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "totalScore", "order": "DESCENDING" }
       ]
     },
     {
