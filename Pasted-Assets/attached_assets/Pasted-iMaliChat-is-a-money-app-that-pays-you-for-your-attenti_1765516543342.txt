@@ -1,0 +1,161 @@
+iMaliChat is a money app that pays you for your attention.
+
+You earn tokens by watching short ads and answering tiny surveys – then you can:
+
+build up a wallet balance
+
+climb daily and weekly leaderboards
+
+send and request value with friends
+
+and spend on things like airtime (with more options coming over time)
+
+No gambling, no guessing. Just fair rewards for time you already spend on your phone.
+
+1. Earn tokens from short ads & surveys
+
+Most of what you do in iMaliChat happens in the Earn area.
+
+There you’ll see earn messages from different brands. Each one comes with:
+
+a short ad (text, image, or video), and
+
+a 1-question (or very short) multiple-choice survey.
+
+How it works:
+
+Tap an earn message to open it.
+
+Watch/read the content:
+
+For text or images, there’s a brief 3-second countdown so you actually see it.
+
+For videos, you watch the full video.
+
+Answer the quick survey question(s).
+
+Every time you complete that flow, you earn tokens.
+Tokens are your in-app money – they’re what you use in pots, Money Chat, and spending features.
+
+2. Scores, streaks & leaderboards
+
+Each time you earn, two things happen:
+
+You get tokens → they go into your wallet.
+
+You get score → this is used for leaderboards and prize pots.
+
+The difference:
+
+Tokens = guaranteed value you keep.
+
+Score = how we rank you against other users.
+
+If you come back regularly, you build a streak.
+Streaks boost your score (not your tokens), helping you climb the leaderboard faster.
+
+So the more consistently you use iMaliChat, the better your chances in the pots.
+
+3. Daily & weekly pots (bonus rewards)
+
+On top of your normal tokens, iMaliChat has two extra bonus pots:
+
+a Daily Pot
+
+a Weekly Pot
+
+A small slice of the value from each completed ad + survey goes into these pots. At the end of each period:
+
+The top users on the leaderboard share the pot.
+
+In the Pots section you can always see:
+
+How big today’s and this week’s pots are
+
+How much time is left
+
+Your current rank and score
+
+You’ll always know:
+
+“What’s in the pot, and how close am I to the top?”
+
+4. Your wallet & history
+
+All tokens you earn, win, or spend flow through your wallet.
+
+Inside the wallet you’ll see:
+
+Your current balance (tokens, and where relevant the Rand value)
+
+A transaction history, including:
+
+Earned from ads and surveys
+
+Pot payouts
+
+Money Chat sends/requests
+
+Purchases (like airtime)
+
+If you ever wonder “Where did that come from?” or “Where did it go?”, the wallet history is your answer.
+
+5. Money Chat: move value between people
+
+Money Chat lets you use your balance with people you trust.
+
+In Money Chat you can:
+
+See contacts who are already on iMaliChat
+
+Open a thread with a friend
+
+Send them an amount from your wallet
+
+Request an amount from them
+
+Every send or request shows up as:
+
+a chat-style entry in your Money Chat thread, and
+
+a line in your wallet history, so everything stays transparent.
+
+If someone in your contacts isn’t on iMaliChat yet, you’ll see an Invite option instead of Send/Request.
+
+6. Invite friends & earn together
+
+You can invite friends directly from your phone contacts.
+
+When you invite someone from inside iMaliChat:
+
+We link their phone number to your account in the background (as long as you were the first to invite them).
+
+When they sign up with that number and start using the app:
+
+They get a starter bonus in tokens, and
+
+You get a starter bonus in tokens, and
+
+Over time, your assist score grows as they continue to earn.
+
+In the My Referrals section you can see:
+
+How many people you’ve invited
+
+How many have joined
+
+How many bonus tokens you’ve earned from referrals
+
+Your assist score
+
+The idea is to reward real, active referrals, not spammy invites.
+
+7. Spending your tokens
+
+As your tokens grow, you’ll be able to use them inside the app – starting with things like:
+
+Airtime purchases
+
+Over time, more ways to spend may be added (like data, electricity or partner rewards, depending on your market).
+
+Every spend shows in your wallet history so you always know how your value is being used.

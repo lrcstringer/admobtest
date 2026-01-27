@@ -1,0 +1,235 @@
+Please design and implement the Money Chat UI, including the empty-state, contact list, invite flows, and simple transaction threads.
+
+Use the existing iMaliChat brand: navy background, white text, pink primary actions, yellow accents.
+
+1. Data models
+
+Create TypeScript types in src/types (or similar):
+
+type Contact = {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  isOnImaliChat: boolean;
+  lastActiveAt?: string;    // ISO string or undefined
+};
+
+type MoneyChatThread = {
+  id: string;
+  contactId: string;
+  lastUpdatedAt: string;
+};
+
+type MoneyChatEntry = {
+  id: string;
+  threadId: string;
+  direction: "sent" | "received" | "request_out" | "request_in";
+  amount: number;           // in minor units or tokens
+  currency: "ZAR" | "TOKENS";
+  status: "pending" | "completed" | "declined";
+  createdAt: string;
+  note?: string;
+};
+
+
+Create a fakeApi/moneyChat.ts module that returns:
+
+A list of contacts (some isOnImaliChat: true, some false).
+
+Some mocked threads and entries for testing “recent chats”.
+
+2. Money Chat main screen
+
+Implement MoneyChatListScreen in src/screens and wire it into the bottom tab navigator as the Money Chat tab.
+
+2.1 Initial empty state (no contacts synced yet)
+
+Assume we have a flag in global store like hasSyncedContacts and contacts array.
+
+If !hasSyncedContacts OR contacts.length === 0:
+
+Show an empty state with:
+
+Title: “Send and receive value with your people”
+
+Subtitle (2 lines max): “Sync your contacts to see who’s already on iMaliChat and invite others with one tap.”
+
+Primary pink button: “Sync my contacts”
+
+Secondary text button: “Invite manually”
+
+Tapping “Sync my contacts”:
+
+For now, simulate contact loading:
+
+Call a fakeApi.syncContacts() function that resolves mocked contacts and updates store.
+
+In real world this would request OS permission; add a comment indicating that.
+
+Tapping “Invite manually” can open a simple modal with the user’s invite code / link or just show a placeholder message.
+
+2.2 Contacts loaded state
+
+If hasSyncedContacts === true and contacts.length > 0:
+
+Layout:
+
+At the top, a search bar for filtering contacts by name or number.
+
+Below, three sections (can be collapsed if empty):
+
+Recent chats
+
+Use MoneyChatThread data to show up to ~5 recently active chats.
+
+Each row shows:
+
+Contact name & avatar (initials)
+
+Last activity summary (e.g., “You sent R10 · 2d ago”)
+
+Tapping a row navigates to MoneyChatThreadScreen.
+
+People on iMaliChat
+
+List of contacts where isOnImaliChat === true.
+
+Each row:
+
+Avatar, name
+
+Last active line: e.g. “Last active 3h ago” or “No activity yet”
+
+Right side:
+
+A chevron to open the thread, or
+
+Small “Send” button that goes straight to a send flow (and also opens/creates a thread).
+
+Tapping the row navigates to MoneyChatThreadScreen.
+
+Invite to iMaliChat
+
+List of contacts where isOnImaliChat === false.
+
+Each row:
+
+Name
+
+Phone number (small, muted)
+
+Right side: Invite pill button.
+
+Tapping Invite:
+
+For now, simulate sending an invite with a fakeApi.sendInvite(contactId) call and show a toast/snackbar “Invite sent to {name}”.
+
+Optionally update UI to show “Invited” state.
+
+Use section headers (SectionHeader component) with clear labels:
+
+“Recent chats”
+
+“People on iMaliChat”
+
+“Invite to iMaliChat”
+
+3. Money Chat thread screen
+
+Implement MoneyChatThreadScreen:
+
+Navigation param: threadId or contactId.
+
+If there is no existing thread, create one in local store when screen mounts.
+
+Header:
+
+Back button.
+
+Contact name and small avatar.
+
+Small badge: “On iMaliChat” if isOnImaliChat true, or “Invite pending” if not.
+
+Body:
+
+Scrollable list of MoneyChatEntry objects as chat-style bubbles:
+
+Align sent entries to the right, received to the left.
+
+Each bubble shows:
+
+Amount (e.g. “R10” or “50 tokens”)
+
+Small caption for status:
+
+“Completed”
+
+“Pending request”
+
+“Declined”
+
+Optionally show a small timestamp below each bubble.
+
+Footer actions:
+
+At the bottom:
+
+Two buttons side-by-side or stacked:
+
+Primary pink: “Send”
+
+Secondary outline: “Request”
+
+Tapping “Send” opens MoneyChatSendScreen.
+
+Tapping “Request” opens MoneyChatRequestScreen.
+
+For contacts where isOnImaliChat === false, if user somehow ends up on a thread, show a simple info block at the top:
+
+“{Name} isn’t on iMaliChat yet. Invite them to start sending and receiving value.”
+
+Button: “Invite {Name}” → same sendInvite logic.
+
+4. Send and Request screens
+
+Implement two simple amount entry screens or bottom sheets:
+
+MoneyChatSendScreen
+
+Header: “Send to {Name}”
+
+Big amount input (numeric keypad).
+
+Optional note field.
+
+Show current wallet balance somewhere: “Available: Rxx.xx”.
+
+Primary button: “Send”
+
+On submit:
+
+For now, simulate a successful transaction:
+
+Add a MoneyChatEntry with direction: "sent", status: "completed".
+
+Update wallet balance in store.
+
+Navigate back to MoneyChatThreadScreen.
+
+Optionally trigger a small coin animation.
+
+MoneyChatRequestScreen
+
+Same layout, but:
+
+Header: “Request from {Name}”
+
+Primary button: “Send request”
+
+On submit:
+
+Add a MoneyChatEntry with direction: "request_out", status: "pending".
+
+Navigate back to thread.
+
+Use the existing branding styles: navy background, clean cards, pink primary button, clear labels.

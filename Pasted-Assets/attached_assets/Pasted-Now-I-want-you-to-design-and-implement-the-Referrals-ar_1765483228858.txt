@@ -1,0 +1,150 @@
+Now I want you to design and implement the Referrals area under the Profile tab, in a way that reuses the existing People screen instead of duplicating invite logic.
+
+Context: how referrals work in iMaliChat
+
+Referrals are based on mobile numbers, not referral codes.
+
+When a user invites one of their contacts from inside the app (e.g. via WhatsApp or SMS), the backend records a relationship like:
+
+{invitee_phone_number} → {referrer_user_id}
+
+First-touch wins:
+If that phone number has never been invited before, this user becomes the referrer for that number. If someone tries to invite the same number later, the original referrer is not overwritten.
+
+Later, when someone signs up with their mobile number:
+
+If their number has a referrer recorded:
+
+both the new user and the referrer receive a starter bonus in tokens, and
+
+the referrer’s assist score increases over time as the new user actually uses the app (watches ads, completes surveys, etc.).
+
+The user never enters a referral code; everything is driven by phone-number attribution.
+
+The UI for referrals should reflect this:
+“People I invited first” and “What that’s earned me”, not a code-based system.
+
+Goal: Referrals area under Profile
+
+Under the Profile tab, add a new screen called “My referrals” and integrate it with the existing People screen in Money Chat.
+
+1. My Referrals screen (Profile → My referrals)
+
+This screen is a dashboard and summary of referral activity, not a separate invite engine.
+
+When the user opens My referrals, show:
+
+Referral overview / summary card
+
+A card near the top that briefly explains:
+
+That they can invite friends directly from iMaliChat.
+
+That if someone they invited signs up with their number and starts using the app, both will receive a starter bonus in tokens.
+
+That they are recorded as the referrer only if they were the first person to invite that phone number.
+
+Also include a few key metrics:
+
+“Friends invited: N”
+
+“Friends joined: M”
+
+“Bonus tokens earned from referrals: X”
+
+“Assist score: Y”
+
+All amounts are displayed as tokens, not Rands.
+
+List of people they have referred
+
+Below the summary, show a list of “people you’ve brought to iMaliChat”. This should be driven by the same underlying contacts/referral data as the People screen, but filtered:
+
+Only show records where this user is stored as the referrer for that phone number (the first-touch referrer).
+
+For each item, show:
+
+Contact name
+
+Phone number (small/muted)
+
+Status badge on the right:
+
+“Joined” – this number has an active account.
+
+“Invited” – invite sent, but they haven’t joined yet.
+
+This list is essentially a read-only view of “my referral tree”; no need to invite from here row-by-row.
+
+If they have no referrals yet, show an empty state message like:
+
+“No referrals yet”
+
+“Invite your contacts from the People screen to start earning bonus tokens.”
+
+Primary CTA: Invite friends
+
+On this screen, add a full-width pink button:
+“Invite friends”
+
+Important: this button should reuse the existing People screen, not open a separate, new contacts list.
+
+When the user taps “Invite friends” on My Referrals:
+
+Navigate them into the existing People screen in the Money Chat area, but in a special “invite mode”.
+
+2. Reusing the People screen in “invite mode”
+
+Update the existing People screen under Money Chat so it can operate in two modes:
+
+Normal mode (current behaviour):
+
+Show contacts with actions like “Send”, “Request”, “Invite”, etc.
+
+Invite mode (when navigated from My Referrals):
+
+This is explicitly focused on inviting contacts to iMaliChat for referrals.
+
+In invite mode, the People screen should:
+
+Optionally show a small banner at the top, explaining:
+
+“Select contacts to invite. If they sign up with this number and start using iMaliChat, you’ll both receive a starter bonus in tokens.”
+
+Default the view to:
+
+Show contacts who are not yet on iMaliChat (or make it very easy to filter to them).
+
+Emphasise the “Invite” action for each eligible contact.
+
+When a user taps “Invite” on a contact:
+
+Call whatever invite logic you already use (e.g. open WhatsApp/SMS share and record the backend link between invitee number and referrer).
+
+Update that contact’s status to “Invited”.
+
+Ensure that this same status is reflected later in the My Referrals screen, if this user is the first referrer for that number.
+
+The key idea:
+My Referrals does not implement a second contacts list – it simply summarises the data.
+All inviting happens through the existing People UI, just entered via an “invite friends” CTA from My Referrals.
+
+3. “How referrals work” explainer
+
+On the My Referrals screen, add a smaller text link or button:
+
+“How referrals work”
+
+Tapping this should open a simple modal or full-screen explainer with content like:
+
+“Invite your contacts directly from iMaliChat.”
+
+“When someone you invited signs up using their mobile number and starts using the app, you both receive a starter bonus in tokens.”
+
+“We link the mobile number you invited to your account. If you were the first person to invite that number, you’re recorded as their referrer.”
+
+“As your friends keep watching ads and completing surveys, your assist score grows with their real activity over time.”
+
+“The programme rewards you for bringing active, engaged users – not just for sending lots of invites.”
+
+Include a pink “Got it” / “Close” button to dismiss.

@@ -1,0 +1,364 @@
+import 'dart:async';
+
+import 'package:bloc_test/bloc_test.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+
+import 'package:imalichat/core/error/failures.dart';
+import 'package:imalichat/domain/entities/user.dart';
+import 'package:imalichat/domain/repositories/auth_repository.dart';
+import 'package:imalichat/domain/repositories/user_repository.dart';
+import 'package:imalichat/presentation/blocs/auth/auth_bloc.dart';
+
+import '../../helpers/test_helpers.dart';
+
+class MockAuthRepository extends Mock implements AuthRepository {}
+
+class MockUserRepository extends Mock implements UserRepository {}
+
+void main() {
+  late MockAuthRepository mockAuthRepository;
+  late MockUserRepository mockUserRepository;
+  late StreamController<User?> authStateController;
+
+  setUp(() {
+    mockAuthRepository = MockAuthRepository();
+    mockUserRepository = MockUserRepository();
+    authStateController = StreamController<User?>.broadcast();
+
+    when(() => mockAuthRepository.authStateChanges)
+        .thenAnswer((_) => authStateController.stream);
+  });
+
+  tearDown(() {
+    authStateController.close();
+  });
+
+  group('AuthBloc', () {
+    test('initial state is correct', () {
+      final bloc = AuthBloc(mockAuthRepository, mockUserRepository);
+      expect(bloc.state.status, AuthStatus.initial);
+      expect(bloc.state.user, isNull);
+      expect(bloc.state.isLoading, false);
+      bloc.close();
+    });
+
+    group('CheckAuthStatus', () {
+      blocTest<AuthBloc, AuthState>(
+        'emits [loading, authenticated] when user is found and complete',
+        build: () {
+          when(() => mockAuthRepository.getCurrentUser())
+              .thenAnswer((_) async => Right(TestData.testUser));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        act: (bloc) => bloc.add(const AuthEvent.checkAuthStatus()),
+        expect: () => [
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.loading)
+              .having((s) => s.isLoading, 'isLoading', true),
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.authenticated)
+              .having((s) => s.user, 'user', TestData.testUser)
+              .having((s) => s.isLoading, 'isLoading', false),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'emits [loading, onboardingRequired] when user needs onboarding',
+        build: () {
+          when(() => mockAuthRepository.getCurrentUser())
+              .thenAnswer((_) async => Right(TestData.userNeedsOnboarding));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        act: (bloc) => bloc.add(const AuthEvent.checkAuthStatus()),
+        expect: () => [
+          isA<AuthState>().having((s) => s.status, 'status', AuthStatus.loading),
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.onboardingRequired)
+              .having((s) => s.user, 'user', TestData.userNeedsOnboarding),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'emits [loading, unauthenticated] when no user found',
+        build: () {
+          when(() => mockAuthRepository.getCurrentUser())
+              .thenAnswer((_) async => const Right(null));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        act: (bloc) => bloc.add(const AuthEvent.checkAuthStatus()),
+        expect: () => [
+          isA<AuthState>().having((s) => s.status, 'status', AuthStatus.loading),
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.unauthenticated)
+              .having((s) => s.isLoading, 'isLoading', false),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'emits [loading, unauthenticated] when getCurrentUser fails',
+        build: () {
+          when(() => mockAuthRepository.getCurrentUser())
+              .thenAnswer((_) async => const Left(Failure.network()));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        act: (bloc) => bloc.add(const AuthEvent.checkAuthStatus()),
+        expect: () => [
+          isA<AuthState>().having((s) => s.status, 'status', AuthStatus.loading),
+          isA<AuthState>().having((s) => s.status, 'status', AuthStatus.unauthenticated),
+        ],
+      );
+    });
+
+    group('SendOtp', () {
+      blocTest<AuthBloc, AuthState>(
+        'emits [loading, otpSent, countdown] when sendOtp succeeds',
+        build: () {
+          when(() => mockAuthRepository.sendOtp(phoneNumber: any(named: 'phoneNumber')))
+              .thenAnswer((_) async => const Right('verification_id_123'));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        act: (bloc) => bloc.add(const AuthEvent.sendOtp(phoneNumber: '+27612345678')),
+        expect: () => [
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.loading)
+              .having((s) => s.phoneNumber, 'phoneNumber', '+27612345678'),
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.otpSent)
+              .having((s) => s.verificationId, 'verificationId', 'verification_id_123'),
+          isA<AuthState>()
+              .having((s) => s.resendCountdown, 'resendCountdown', 60),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'emits [loading, error] when sendOtp fails',
+        build: () {
+          when(() => mockAuthRepository.sendOtp(phoneNumber: any(named: 'phoneNumber')))
+              .thenAnswer((_) async => const Left(Failure.invalidPhone()));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        act: (bloc) => bloc.add(const AuthEvent.sendOtp(phoneNumber: 'invalid')),
+        expect: () => [
+          isA<AuthState>().having((s) => s.status, 'status', AuthStatus.loading),
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.error)
+              .having((s) => s.errorMessage, 'errorMessage', isNotNull),
+        ],
+      );
+    });
+
+    group('VerifyOtp', () {
+      blocTest<AuthBloc, AuthState>(
+        'emits [loading, authenticated] when verifyOtp succeeds for complete user',
+        build: () {
+          when(() => mockAuthRepository.verifyOtp(
+                verificationId: any(named: 'verificationId'),
+                otp: any(named: 'otp'),
+              )).thenAnswer((_) async => Right(TestData.testUser));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        act: (bloc) => bloc.add(const AuthEvent.verifyOtp(
+          verificationId: 'verification_id_123',
+          otp: '123456',
+        )),
+        expect: () => [
+          isA<AuthState>().having((s) => s.status, 'status', AuthStatus.loading),
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.authenticated)
+              .having((s) => s.user, 'user', TestData.testUser)
+              .having((s) => s.verificationId, 'verificationId', isNull),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'emits [loading, onboardingRequired] when user needs onboarding',
+        build: () {
+          when(() => mockAuthRepository.verifyOtp(
+                verificationId: any(named: 'verificationId'),
+                otp: any(named: 'otp'),
+              )).thenAnswer((_) async => Right(TestData.userNeedsOnboarding));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        act: (bloc) => bloc.add(const AuthEvent.verifyOtp(
+          verificationId: 'verification_id_123',
+          otp: '123456',
+        )),
+        expect: () => [
+          isA<AuthState>().having((s) => s.status, 'status', AuthStatus.loading),
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.onboardingRequired),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'emits [loading, error] when verifyOtp fails with invalid OTP',
+        build: () {
+          when(() => mockAuthRepository.verifyOtp(
+                verificationId: any(named: 'verificationId'),
+                otp: any(named: 'otp'),
+              )).thenAnswer((_) async => const Left(Failure.invalidOtp()));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        act: (bloc) => bloc.add(const AuthEvent.verifyOtp(
+          verificationId: 'verification_id_123',
+          otp: '000000',
+        )),
+        expect: () => [
+          isA<AuthState>().having((s) => s.status, 'status', AuthStatus.loading),
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.error)
+              .having((s) => s.errorMessage, 'errorMessage', contains('Invalid')),
+        ],
+      );
+    });
+
+    group('ResendOtp', () {
+      blocTest<AuthBloc, AuthState>(
+        'does nothing when countdown is active',
+        build: () => AuthBloc(mockAuthRepository, mockUserRepository),
+        seed: () => const AuthState(resendCountdown: 30),
+        act: (bloc) => bloc.add(const AuthEvent.resendOtp(phoneNumber: '+27612345678')),
+        expect: () => [],
+        verify: (_) {
+          verifyNever(() => mockAuthRepository.sendOtp(phoneNumber: any(named: 'phoneNumber')));
+        },
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'resends OTP when countdown is 0',
+        build: () {
+          when(() => mockAuthRepository.sendOtp(phoneNumber: any(named: 'phoneNumber')))
+              .thenAnswer((_) async => const Right('new_verification_id'));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        seed: () => const AuthState(resendCountdown: 0),
+        act: (bloc) => bloc.add(const AuthEvent.resendOtp(phoneNumber: '+27612345678')),
+        expect: () => [
+          isA<AuthState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<AuthState>()
+              .having((s) => s.verificationId, 'verificationId', 'new_verification_id')
+              .having((s) => s.isLoading, 'isLoading', false),
+          isA<AuthState>()
+              .having((s) => s.resendCountdown, 'resendCountdown', 60),
+        ],
+      );
+    });
+
+    group('SignOut', () {
+      blocTest<AuthBloc, AuthState>(
+        'emits [loading, unauthenticated] when signOut succeeds',
+        build: () {
+          when(() => mockAuthRepository.signOut())
+              .thenAnswer((_) async => const Right(null));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        seed: () => AuthState(user: TestData.testUser, status: AuthStatus.authenticated),
+        act: (bloc) => bloc.add(const AuthEvent.signOut()),
+        expect: () => [
+          isA<AuthState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.unauthenticated)
+              .having((s) => s.user, 'user', isNull),
+        ],
+      );
+
+      blocTest<AuthBloc, AuthState>(
+        'emits error when signOut fails',
+        build: () {
+          when(() => mockAuthRepository.signOut())
+              .thenAnswer((_) async => const Left(Failure.network()));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        seed: () => AuthState(user: TestData.testUser, status: AuthStatus.authenticated),
+        act: (bloc) => bloc.add(const AuthEvent.signOut()),
+        expect: () => [
+          isA<AuthState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<AuthState>()
+              .having((s) => s.isLoading, 'isLoading', false)
+              .having((s) => s.errorMessage, 'errorMessage', isNotNull),
+        ],
+      );
+    });
+
+    group('DeleteAccount', () {
+      blocTest<AuthBloc, AuthState>(
+        'emits [loading, unauthenticated] when deleteAccount succeeds',
+        build: () {
+          when(() => mockAuthRepository.deleteAccount())
+              .thenAnswer((_) async => const Right(null));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        seed: () => AuthState(user: TestData.testUser, status: AuthStatus.authenticated),
+        act: (bloc) => bloc.add(const AuthEvent.deleteAccount()),
+        expect: () => [
+          isA<AuthState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.unauthenticated),
+        ],
+      );
+    });
+
+    group('AcceptTerms', () {
+      blocTest<AuthBloc, AuthState>(
+        'updates user with hasAcceptedTerms = true when acceptTerms succeeds',
+        build: () {
+          when(() => mockUserRepository.acceptTerms())
+              .thenAnswer((_) async => const Right(null));
+          return AuthBloc(mockAuthRepository, mockUserRepository);
+        },
+        seed: () => AuthState(
+          user: TestData.userNeedsOnboarding.copyWith(hasAcceptedTerms: false),
+          status: AuthStatus.onboardingRequired,
+        ),
+        act: (bloc) => bloc.add(const AuthEvent.acceptTerms()),
+        expect: () => [
+          isA<AuthState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<AuthState>()
+              .having((s) => s.isLoading, 'isLoading', false)
+              .having((s) => s.user?.hasAcceptedTerms, 'hasAcceptedTerms', true),
+        ],
+      );
+    });
+
+    group('CompleteOnboarding', () {
+      blocTest<AuthBloc, AuthState>(
+        'emits authenticated when onboarding is completed',
+        build: () => AuthBloc(mockAuthRepository, mockUserRepository),
+        seed: () => AuthState(
+          user: TestData.userNeedsOnboarding.copyWith(hasAcceptedTerms: true),
+          status: AuthStatus.onboardingRequired,
+        ),
+        act: (bloc) => bloc.add(const AuthEvent.completeOnboarding()),
+        expect: () => [
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.authenticated)
+              .having((s) => s.user?.hasCompletedOnboarding, 'hasCompletedOnboarding', true),
+        ],
+      );
+    });
+
+    group('AuthState helpers', () {
+      test('isAuthenticated returns true when user is not null', () {
+        final state = AuthState(user: TestData.testUser);
+        expect(state.isAuthenticated, true);
+      });
+
+      test('isAuthenticated returns false when user is null', () {
+        const state = AuthState();
+        expect(state.isAuthenticated, false);
+      });
+
+      test('needsOnboarding returns true when user needs onboarding', () {
+        final state = AuthState(user: TestData.userNeedsOnboarding);
+        expect(state.needsOnboarding, true);
+      });
+
+      test('otpSent returns true when verificationId is not null', () {
+        const state = AuthState(verificationId: 'verification_id');
+        expect(state.otpSent, true);
+      });
+    });
+  });
+}

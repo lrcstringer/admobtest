@@ -1,0 +1,167 @@
+You are designing the mobile app UI for a product called iMaliChat. This will later be implemented as a React Native + Expo + TypeScript app for Android (Google Play). Please design with a phone-first mindset (portrait, narrow screens, thumb-friendly tap targets).
+
+1. Brand overview
+
+iMaliChat is a gamified wallet app that lets users earn small amounts of money and rewards by watching ads, answering ultra-short surveys, and taking part in daily/weekly prize pots. The brand is about financial empowerment, especially for young, digitally-native users.
+
+Tone & personality
+
+Empowering, confident, serious but bold
+
+Feels like modern fintech + community platform, not like a traditional bank
+
+Accessible, clean, uncluttered
+
+2. Color palette & usage
+
+Use these colors as the base theming:
+
+Primary Navy – #081F40
+
+Main app background
+
+Large blocks, header bars, and overall “canvas” color
+
+Empowerment Pink – #FF338A
+
+Primary action color for buttons (CTA), highlights, pills, toggles
+
+Used for key emphasis like “Earn now”, “Join daily pot”, “Send”
+
+Value Yellow – #FFC107
+
+Secondary highlight color
+
+Use for key graphic elements, progress indicators, subtle accents around value and rewards
+
+Accent colors (optional) – small blocks/indicators in blue, cyan, orange, magenta
+
+Use sparingly in small elements (icons, dots, tags, confetti) to give a multi-faceted/web3/fintech feel
+
+Text White – #FFFFFF
+
+Primary text color
+
+All important copy should have strong contrast on the navy background
+
+Overall look: deep navy base, strong contrast with white type, pink and yellow used as energetic highlight and CTA colors.
+
+3. General design guidelines
+
+Mobile-first layout:
+
+Design for a phone screen height ~800px, width ~360–414px
+
+Large, thumb-friendly buttons with clear touch targets
+
+Style:
+
+Modern fintech, high-contrast, minimal clutter
+
+Rounded cards, subtle shadows, consistent 8px spacing system
+
+Visual hierarchy: big heading, short supporting copy, then clear CTA
+
+Typography:
+
+Clean sans-serif (e.g. Inter, SF Pro, or similar)
+
+Clear hierarchy:
+
+H1: bold, 24–28px
+
+H2: 18–20px
+
+Body: 14–16px
+
+Avoid long paragraphs – use short lines and clear labels
+
+Accessibility:
+
+High contrast text vs background
+
+Avoid tiny text; keep body text >= 14px
+
+Clear focus states for tap targets
+
+4. Screens to start with
+
+Please design the visual layout and component structure (not the backend) for the following screens:
+
+Onboarding screen
+
+Deep navy background
+
+Hero area with a simple abstract shape/wave using Value Yellow and a hint of Pink
+
+Short, bold headline, e.g. “Turn your attention into earning power”
+
+1–2 bullet points or short lines explaining: watch, earn, join pots
+
+Primary pink CTA button: “Get started”
+
+Secondary text button: “Already have an account? Log in”
+
+Home screen
+
+Top area:
+
+Greeting, e.g. “Hi, Fundeka”
+
+Small label/chip showing streak or score
+
+Main card: Wallet balance
+
+On navy, card with slightly lighter navy / subtle gradient
+
+Balance in ZAR, smaller line showing tokens
+
+Use Pink or Yellow accent on one side for a subtle “value spotlight”
+
+Secondary section: Pots overview
+
+Two cards side by side or stacked:
+
+Daily Pot: total amount, time left, “Your rank”
+
+Weekly Pot: total amount, time left
+
+Each card uses Pink/Yellow accents
+
+Primary CTA buttons:
+
+“Earn now” (pink, full-width)
+
+“View pots & leaders” (outline or secondary style)
+
+Bottom: Tab bar with icons and labels for: Home, Earn, Money Chat, Buy, Profile
+
+Earn inbox screen
+
+List of “earn opportunities” as cards:
+
+Brand name, short description, reward amount (tokens)
+
+Small badge for estimated time (“15 sec”)
+
+Pink “Start” button on each card
+
+Use a dark navy background; cards on slightly lighter navy, with Pink/Yellow accents to indicate value.
+
+5. Deliverables
+
+A consistent visual design system for the above screens that can translate directly into React Native components later.
+
+Clearly defined:
+
+Color tokens (e.g. primary, secondary, background, surface, text, accent)
+
+Button styles (primary, secondary)
+
+Card styles (padding, border radius, shadow/outline)
+
+Typography styles (H1, H2, body, caption)
+
+Keep everything in line with the brand tone: Empowering, Tech-Forward, Accessible.
+
+Start by proposing the UI for these three screens (Onboarding, Home, Earn Inbox) with the above constraints, and make sure the design can be easily implemented with React Native components.

@@ -1,0 +1,83 @@
+DIRECT ADVERTISER PORTAL (MVP)
+Overview. Web portal for brands/retailers (and agencies later) to: create an account → set up a campaign → fund a prepaid budget → launch → monitor & export. Campaigns deliver brand threads into users’ Earn Inbox. Payout logic on user side is unchanged except for a higher reward threshold for direct campaigns.
+Roles & Access (MVP)
+•	Org Admin: billing, users, campaigns (full control)
+•	Campaign Manager: create/edit/launch campaigns
+•	Analyst (read-only): view metrics & export
+•	Auth: email + password, email verification
+
+IMC-ADV-001 — Advertiser account (self-serve sign-up)
+Rules
+•	Fields: company name, VAT/Reg no., billing contact, brand name, logo.
+•	Must accept creative policy and POPIA data terms.
+•	Email verification required before creating campaigns.
+
+Given a new brand completes sign-up and verifies email
+When they log in
+Then they land on the Advertiser Dashboard with option New Campaign
+
+IMC-ADV-002 — Prepaid funding (“Advertiser Wallet”)
+Rules
+•	Methods (MVP): EFT (bank transfer). Brand uploads proof of payment; Ops marks as Cleared; balance updated (TBC)
+•	Show: Wallet balance, and Spending to date.
+•	Campaigns can’t go Active if balance < daily cap (total daily user engagements) × CPE (Cost Per Engagement)
+
+Given a brand uploads proof of EFT for R50,000
+When Ops marks the top-up as Cleared
+Then the Advertiser Wallet shows Available: R50,000
+
+IMC-ADV-003 — Campaign wizard (self-serve)
+Step A — Basics
+Fields: name, start/end dates, pricing = CPE, status = Draft
+Step B — Targeting
+Age band(s), gender, province(s). Default = All. 
+Step C — Creative & Survey
+Upload video ≤15s MP4 or image card (1080×1920 or 1200×628). Add up to 20 MCQ (≤4 template options). Creative must pass automated checks (format/length/size) and manual.
+Step D — Budget & Caps
+Total budget, optional daily cap, CPE (must meet floor), Frequency cap/user/day (default 2), pacing = Even.
+Step E — Review & Launch
+Summary page → Activate (if wallet balance sufficient).
+Rules
+•	CPE floor (config): e.g., ≥ R0.10 per MCQ to cover user payout (avg R0.06) + ops/fraud buffer.
+•	Frequency cap respected per campaign; global user cap 30/day always enforced.
+•	Creative labelled Sponsored in Earn thread; brand avatar/name shown.
+Given a Draft campaign with all steps complete and Wallet balance sufficient
+When the brand clicks Activate
+Then status becomes Active and delivery begins to eligible users
+
+IMC-ADV-004 — Delivery & spend
+Rules
+•	Waterfall: For an eligible user at request time, serve highest-CPE Active brand campaign first; otherwise fallback to iMaliChat (AdMob) thread.
+•	Charge model: Deduct CPE only on Completed Engagement (= full video or image ≥3s + survey submit).
+•	Auto-pause: Campaign pauses when Daily cap or Wallet balance or Total budget would be exceeded.
+Given a campaign hits its daily cap
+When additional eligible requests occur
+Then the campaign stops serving until the next day (SAST)
+
+IMC-ADV-005 — Monitoring & reporting
+Rules
+•	Dashboard (hourly refresh): Impressions started, Completed engagements, survey submits & MCQ answer option split, completion rate, Spend today, Spend to date, Remaining budget, Realised CPE.
+•	Breakdowns: Age, gender, province 
+•	Exports: CSV by date range at campaign level (aggregates only; no Personal Identifiers).
+
+Given a running campaign
+When the brand opens Campaign Detail
+Then they see current metrics and can Pause/Resume
+
+IMC-ADV-006 — Policy & quality gates
+Rules
+•	Reward fires only when all are true: paid impression, full ad watched (video) / ≥3s (image), survey submit.
+•	POPIA: only aggregated reporting; no MSISDN/username exposed.
+Given an impression fails IVT
+When the user attempts to finish
+Then no reward is granted and the event is flagged; advertiser is not charged
+
+IMC-ADV-007 — Permissions & audit
+Rules
+•	Org Admin can invite users and assign roles.
+•	Brands can see only their own campaigns and wallet.
+
+Given an Org Admin invites an Analyst
+When the Analyst signs in
+Then they have read-only access to dashboards and exports
+ 

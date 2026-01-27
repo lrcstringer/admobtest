@@ -1,0 +1,185 @@
+Please design and implement the UI for the Earn message detail flow when a user taps on a brand in the Earn message threads.
+
+1. Message card UI (inside Earn inbox/thread)
+
+For the Earn inbox or thread list, design a reusable EarnMessageCard component:
+
+Props include:
+
+brandName, brandLogo, title, description, rewardTokens
+
+expiresInDays (number) and/or isExpired (boolean)
+
+status (one of "available" | "in_progress" | "completed" | "expired")
+
+Layout:
+
+Navy background for the screen, card on slightly lighter navy.
+
+Left: brand logo (small circular avatar) and text stack:
+
+Title (bold)
+
+Short description (1–2 lines max).
+
+Right/top: pill label:
+
+If available: Expires in X days (use a small pill, subtle yellow or neutral).
+
+If expired: Expired pill in grey with reduced opacity.
+
+Bottom of card:
+
+Primary pink button: Earn {rewardTokens} tokens
+
+If isExpired or status === "expired", the button is disabled and visually muted.
+
+If status === "completed", instead of the Earn button show a small green “Completed” chip and a check icon.
+
+Tapping the active Earn button navigates to a new screen EarnDetailScreen.
+
+Please implement this component and use it in the Earn inbox screen with mocked data.
+
+2. Earn detail screen – media + reward flow
+
+Implement EarnDetailScreen with the following behavior and UI:
+
+General layout:
+
+Received via navigation with the selected message data (brand, title, description, media type, rewards, questions).
+
+Top section:
+
+Back button.
+
+Brand name and small logo.
+
+Below: a card showing:
+
+Message title.
+
+A small label: Up to {totalPotentialTokens} tokens.
+
+2.1 Media presentation
+
+The message can contain text, image, or video media.
+
+Handle the UI for each type:
+
+Text media
+
+Show the text content inside a scrollable area with good padding.
+
+Above the text, show a 3-second countdown bar:
+
+A horizontal progress bar that fills from left to right over 3 seconds.
+
+Text underneath: Review this message – unlocking in {countdown} seconds.
+
+While the countdown is active, the user cannot proceed.
+
+When the countdown finishes:
+
+Trigger a coin reward animation (see “Reward animation” below).
+
+Then, if there are linked survey questions, show a “Continue” button that moves to the first survey question.
+
+Image media
+
+Display the image centered in a card with rounded corners.
+
+Above or below the image, show the same 3-second countdown bar and text as for text media.
+
+Same unlock behavior: wait 3 seconds, trigger coin animation, then show a button to proceed to the survey (if any).
+
+Video media
+
+Display a video player component (you can stub it with a placeholder for now, but design it as a proper player with a play/pause icon and progress bar).
+
+Require the full video to be watched before proceeding:
+
+For now, simulate with a progress bar that must reach 100%.
+
+Disable the “Continue” button until the simulated video completes.
+
+When the video completes:
+
+Trigger a coin reward animation, then allow proceed to survey questions.
+
+3. Survey questions (MCQ) UI
+
+If the message has linked survey questions, design a simple MCQ flow inside EarnDetailScreen:
+
+Each question is shown one at a time in a QuestionCard:
+
+Question text at the top.
+
+3–4 options displayed as radio-like selectable rows (full-width touch targets, good spacing).
+
+A pink “Submit answer” button at the bottom.
+
+When the user selects an option and taps “Submit answer”:
+
+Immediately show a coin reward animation and a small inline message such as: +5 tokens earned.
+
+Then either:
+
+move to the next question, or
+
+if it was the last question, show a completion screen.
+
+Completion state:
+
+Show a summary card:
+
+“Nice! You earned {totalEarnedTokens} tokens.”
+
+Smaller text: “Your new balance: {newBalance} tokens.”
+
+Provide buttons:
+
+Primary: “Back to Earn offers” (navigates back to Earn inbox).
+
+Secondary: maybe “Home” (optional).
+
+4. Reward animation (coins)
+
+For each time the user unlocks a reward (after countdown, after each question):
+
+Implement a simple reward animation placeholder:
+
+A coin icon or token icon that:
+
+briefly scales up and fades in,
+
+then floats upward and fades out,
+
+or some simple “burst” effect.
+
+This can later be wired to a Lottie animation; for now use React Native Animated components and a coin icon.
+
+Ensure the animation is:
+
+short (< 1 second),
+
+non-blocking (does not prevent taps),
+
+consistent across all reward events.
+
+5. State and transitions
+
+Clearly represent these states in the UI:
+
+available, in_progress, completed, expired.
+
+Once a user completes an earn session for a message:
+
+The message card in the Earn inbox should show Completed instead of the Earn button.
+
+If the current time is past the expiry time:
+
+isExpired should be true.
+
+The Earn button is disabled and an “Expired” pill is shown.
+
+For now, you can simulate expiry and completion state using mock props and local state.

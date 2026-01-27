@@ -1,0 +1,169 @@
+Please now focus on building out the HOME & NAVIGATION features as described below, using the existing brand system (navy background, pink primary CTA, yellow value accents, white text).
+
+1. Scope: Home tab + Profile + Settings + “How it works”
+
+Implement/adjust the following screens and behavior:
+
+HomeScreen
+
+ProfileScreen
+
+SettingsScreen
+
+HowItWorksModal (explainer for earning model)
+
+Use React Navigation with:
+
+A bottom tab navigator where Home is the default tab.
+
+From Home, users can navigate to Profile and Settings via UI controls (e.g. avatar/profile icon or menu).
+
+2. Home – Welcome screen
+
+Update/implement HomeScreen with the following elements:
+
+Layout:
+
+Full-screen, navy background.
+
+Safe-area aware, scrollable if needed.
+
+Pull-to-refresh behavior to update live values (wallet, rank, pots).
+
+Content blocks:
+
+Top header
+
+Greeting, e.g. “Hi, Fundeka”
+
+Small chip/badge showing streak (e.g. “Streak: 5 days”)
+
+Live rank display (e.g. “Rank #127 today”)
+
+A small avatar or profile icon that navigates to ProfileScreen.
+
+Wallet summary card
+
+Card styled component showing:
+
+Wallet balance in ZAR (e.g. “R 34.50”)
+
+Line below for tokens (e.g. “3450 tokens”)
+
+Use subtle pink/yellow accent edge or icon to indicate “value”.
+
+Values should be driven from a fakeApi.getHomeSummary() call (mocked, but structured as real data).
+
+Pot overview
+
+Section for Today’s Pot and Weekly Pot:
+
+Each card shows:
+
+Pot name (“Today’s pot”, “This week’s pot”)
+
+Total pot amount (in ZAR or tokens – use whatever the store provides)
+
+Time remaining (e.g. “Closes in 5h 23m”)
+
+User’s current rank and score for that pot (for daily at least)
+
+Tapping on pot cards should navigate to existing Pots/Leaderboard screens (or stub routes if not yet built).
+
+Primary actions
+
+Full-width pink primary CTA: “Earn now”
+
+This should navigate to the Earn inbox screen.
+
+Secondary button: “View pots & leaders”
+
+Navigates to pots/leaderboard screen.
+
+“How it works” entry point
+
+At the bottom of the Home screen, include a text link or small button: “How it works”.
+
+Tapping this opens the HowItWorksModal (see below).
+
+3. “How it Works” content
+
+Create a “How it Works” explainer modal, e.g. HowItWorksModal, and open it from the Home screen:
+
+This should explain, using short bullet points:
+
+Ad + survey model:
+
+“80% of surveys pay 5 tokens.”
+
+“20% of surveys pay 10 tokens (every 5th survey is a bonus).”
+
+Streak boosts:
+
+“Streak boosts apply to your score only, not to tokens.”
+
+Reward split:
+
+“Each survey’s value is split 90/5/5 between:
+
+your wallet,
+
+the daily pot,
+
+the weekly pot.”
+
+Daily cap:
+
+“You can earn from up to 30 ads per day.”
+
+Implementation notes:
+
+For now, fetch this content from a fakeApi.getHowItWorks() function that returns structured text or bullet data.
+
+Make it clear in the code (comments and structure) that this content is meant to be remote-configurable later (e.g. coming from backend config, not hard-coded).
+
+Include a close button (“Got it” / “Close”) that dismisses the modal.
+
+4. Profile screen
+
+Implement or update ProfileScreen with:
+
+Profile avatar (placeholder), name, and username or handle.
+
+Show wallet balance again in a smaller card or line for quick reference.
+
+Show the user’s current ranking (at least daily rank).
+
+Buttons/rows for:
+
+“Edit Profile”
+
+“Settings” (navigates to SettingsScreen)
+
+Use the same brand styling: navy background, cards, pink CTAs where appropriate.
+
+5. Settings screen
+
+Implement SettingsScreen with OS-related permission toggles:
+
+Toggle rows for:
+
+“Allow access” (e.g. to network/device info)
+
+“Run in background”
+
+“Notifications”
+
+Each row should include:
+
+A short label
+
+A short tooltip/description line below, for example:
+
+“Required so we can deliver rewards reliably.”
+
+“Running in background helps us update your rank and pots on time.”
+
+Use platform-appropriate switch components (React Native Switch).
+
+For now, simulate the effect of toggles by updating local state and showing a simple alert when a toggle is turned on (e.g. “Would request OS permission here”).

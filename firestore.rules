@@ -1,0 +1,242 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidTimestamp(field) {
+      return field is timestamp;
+    }
+
+    function isValidString(field, minLen, maxLen) {
+      return field is string && field.size() >= minLen && field.size() <= maxLen;
+    }
+
+    function isValidInt(field, min, max) {
+      return field is int && field >= min && field <= max;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      // Users can read their own profile
+      allow read: if isOwner(userId);
+
+      // Users can create their own profile during signup
+      allow create: if isOwner(userId)
+        && isValidString(request.resource.data.displayName, 2, 50)
+        && isValidString(request.resource.data.phoneNumber, 10, 15);
+
+      // Users can update their own profile with restrictions
+      allow update: if isOwner(userId)
+        && isValidString(request.resource.data.displayName, 2, 50)
+        // Prevent changing sensitive fields
+        && request.resource.data.oddienceUserId == resource.data.oddienceUserId
+        && request.resource.data.phoneNumber == resource.data.phoneNumber;
+
+      // Users cannot delete their profile (handled by Cloud Function)
+      allow delete: if false;
+    }
+
+    // Wallets collection
+    match /wallets/{walletId} {
+      // Users can read wallets they own
+      allow read: if isAuthenticated()
+        && resource.data.oddienceUserId == request.auth.uid;
+
+      // Wallets are created by Cloud Functions only
+      allow create: if false;
+
+      // Wallets are updated by Cloud Functions only
+      // This prevents client-side balance manipulation
+      allow update: if false;
+
+      allow delete: if false;
+    }
+
+    // Transactions collection
+    match /transactions/{transactionId} {
+      // Users can read their own transactions
+      allow read: if isAuthenticated()
+        && resource.data.oddienceUserId == request.auth.uid;
+
+      // Transactions are created by Cloud Functions only
+      allow create: if false;
+
+      // Transactions cannot be modified or deleted
+      allow update, delete: if false;
+    }
+
+    // Chat threads collection
+    match /chatThreads/{threadId} {
+      // Users can read threads they participate in
+      allow read: if isAuthenticated()
+        && (resource.data.participant1Id == request.auth.uid
+            || resource.data.participant2Id == request.auth.uid);
+
+      // Users can create threads
+      allow create: if isAuthenticated()
+        && (request.resource.data.participant1Id == request.auth.uid
+            || request.resource.data.participant2Id == request.auth.uid);
+
+      // Threads are updated by Cloud Functions on new messages
+      allow update: if false;
+
+      allow delete: if false;
+    }
+
+    // Chat messages collection
+    match /chatMessages/{messageId} {
+      // Users can read messages in their threads
+      allow read: if isAuthenticated();
+
+      // Users can send messages
+      allow create: if isAuthenticated()
+        && request.resource.data.senderId == request.auth.uid
+        && isValidString(request.resource.data.content, 0, 1000);
+
+      // Messages cannot be modified or deleted
+      allow update, delete: if false;
+    }
+
+    // Pot pools collection
+    match /potPools/{potId} {
+      // Anyone authenticated can read active pots
+      allow read: if isAuthenticated();
+
+      // Pots are managed by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Pot entries collection
+    match /potEntries/{entryId} {
+      // Users can read their own entries
+      allow read: if isAuthenticated()
+        && resource.data.oddienceUserId == request.auth.uid;
+
+      // Entries are created by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Pot winners collection
+    match /potWinners/{winnerId} {
+      // Winners are public (for leaderboard)
+      allow read: if isAuthenticated();
+
+      // Winners are determined by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Leaderboard collection
+    match /leaderboard/{userId} {
+      // Leaderboard is public
+      allow read: if isAuthenticated();
+
+      // Leaderboard is updated by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Referral codes collection
+    match /referralCodes/{codeId} {
+      // Anyone can read referral codes (to validate)
+      allow read: if isAuthenticated();
+
+      // Users can create their own referral code
+      allow create: if isAuthenticated()
+        && request.resource.data.oddienceUserId == request.auth.uid;
+
+      // Codes cannot be modified or deleted
+      allow update, delete: if false;
+    }
+
+    // Referrals collection
+    match /referrals/{referralId} {
+      // Users can read referrals where they are referrer or referee
+      allow read: if isAuthenticated()
+        && (resource.data.referrerId == request.auth.uid
+            || resource.data.refereeId == request.auth.uid);
+
+      // Referrals are processed by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Referral stats collection
+    match /referralStats/{userId} {
+      // Users can read their own stats
+      allow read: if isOwner(userId);
+
+      // Stats are updated by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Cashouts collection
+    match /cashouts/{cashoutId} {
+      // Users can read their own cashouts
+      allow read: if isAuthenticated()
+        && resource.data.oddienceUserId == request.auth.uid;
+
+      // Cashouts are processed by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Purchases collection
+    match /purchases/{purchaseId} {
+      // Users can read their own purchases
+      allow read: if isAuthenticated()
+        && resource.data.oddienceUserId == request.auth.uid;
+
+      // Purchases are processed by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Service providers collection
+    match /serviceProviders/{providerId} {
+      // Anyone authenticated can read providers
+      allow read: if isAuthenticated();
+
+      // Providers are managed by admins only (via console)
+      allow create, update, delete: if false;
+    }
+
+    // Service products collection
+    match /serviceProducts/{productId} {
+      // Anyone authenticated can read products
+      allow read: if isAuthenticated();
+
+      // Products are managed by admins only
+      allow create, update, delete: if false;
+    }
+
+    // Platform stats collection (admin only)
+    match /platformStats/{statId} {
+      // Stats are admin-only
+      allow read, write: if false;
+    }
+
+    // Earnings collection
+    match /earnings/{earningId} {
+      // Users can read their own earnings
+      allow read: if isAuthenticated()
+        && resource.data.oddienceUserId == request.auth.uid;
+
+      // Earnings are created by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Blocked users collection (admin managed)
+    match /blockedUsers/{userId} {
+      allow read, write: if false;
+    }
+
+    // Fraud alerts collection (admin managed)
+    match /fraudAlerts/{alertId} {
+      allow read, write: if false;
+    }
+  }
+}
