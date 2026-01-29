@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:injectable/injectable.dart';
 
 import '../../core/error/exceptions.dart';
@@ -18,9 +17,8 @@ class AuthRepositoryImpl implements AuthRepository {
   final UserRemoteDataSource _userRemoteDataSource;
   final NetworkInfo _networkInfo;
 
-  // Store verification ID temporarily
-  String? _currentVerificationId;
-  int? _resendToken;
+  // Track OTP send time for local cooldown
+  DateTime? _lastOtpSentAt;
 
   AuthRepositoryImpl(
     this._authRemoteDataSource,
@@ -61,40 +59,23 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Left(Failure.network());
     }
 
+    // Check local resend cooldown (60 seconds)
+    if (_lastOtpSentAt != null &&
+        DateTime.now().difference(_lastOtpSentAt!) < const Duration(seconds: 60)) {
+      final remainingSeconds = 60 - DateTime.now().difference(_lastOtpSentAt!).inSeconds;
+      return Left(Failure.auth(
+        message: 'Please wait $remainingSeconds seconds before requesting a new code',
+      ));
+    }
+
     try {
-      String? verificationId;
-      String? errorMessage;
+      await _authRemoteDataSource.sendOtp(phoneNumber: phoneNumber);
+      _lastOtpSentAt = DateTime.now();
 
-      await _authRemoteDataSource.sendOtp(
-        phoneNumber: phoneNumber,
-        forceResendingToken: _resendToken,
-        onAutoVerify: (credential) async {
-          // Auto verification on Android
-          // Will be handled by the bloc
-        },
-        onCodeSent: (verId) {
-          verificationId = verId;
-          _currentVerificationId = verId;
-        },
-        onFailed: (e) {
-          errorMessage = _mapFirebaseAuthError(e);
-        },
-      );
-
-      // Wait a bit for callbacks
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (errorMessage != null) {
-        return Left(Failure.auth(message: errorMessage!));
-      }
-
-      if (verificationId == null && _currentVerificationId == null) {
-        return const Left(Failure.auth(message: 'Failed to send OTP'));
-      }
-
-      return Right(verificationId ?? _currentVerificationId!);
+      // Return phone number as the "verificationId" for compatibility with existing flow
+      return Right(phoneNumber);
     } on AuthException catch (e) {
-      return Left(Failure.auth(message: e.message));
+      return Left(_mapAuthException(e));
     } catch (e) {
       return Left(Failure.auth(message: e.toString()));
     }
@@ -102,7 +83,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> verifyOtp({
-    required String verificationId,
+    required String verificationId, // This is now the phone number
     required String otp,
   }) async {
     if (!await _networkInfo.isConnected) {
@@ -111,7 +92,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     try {
       final userCredential = await _authRemoteDataSource.verifyOtp(
-        verificationId: verificationId,
+        phoneNumber: verificationId, // Use verificationId which is phone number
         otp: otp,
       );
 
@@ -127,7 +108,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (userModel == null) {
         userModel = UserModel(
           oddienceUserId: firebaseUser.uid,
-          phoneNumber: firebaseUser.phoneNumber ?? '',
+          phoneNumber: firebaseUser.phoneNumber ?? verificationId,
           displayName: 'iMali User',
           status: UserStatus.active,
           hasAcceptedTerms: false,
@@ -141,7 +122,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return Right(userModel.toEntity());
     } on AuthException catch (e) {
-      return Left(Failure.auth(message: e.message));
+      return Left(_mapAuthException(e));
     } on ServerException catch (e) {
       return Left(Failure.serverError(message: e.message));
     } catch (e) {
@@ -153,8 +134,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> signOut() async {
     try {
       await _authRemoteDataSource.signOut();
-      _currentVerificationId = null;
-      _resendToken = null;
+      _lastOtpSentAt = null;
       return const Right(null);
     } catch (e) {
       return Left(Failure.auth(message: e.toString()));
@@ -192,20 +172,23 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
-  String _mapFirebaseAuthError(firebase_auth.FirebaseAuthException e) {
-    switch (e.code) {
-      case 'invalid-phone-number':
-        return 'Invalid phone number format';
-      case 'too-many-requests':
-        return 'Too many requests. Please try again later';
-      case 'quota-exceeded':
-        return 'SMS quota exceeded. Please try again later';
-      case 'user-disabled':
-        return 'This account has been disabled';
-      case 'operation-not-allowed':
-        return 'Phone authentication is not enabled';
-      default:
-        return e.message ?? 'Authentication error occurred';
+  /// Map AuthException to appropriate Failure type
+  Failure _mapAuthException(AuthException e) {
+    final message = e.message?.toLowerCase() ?? '';
+
+    if (message.contains('expired')) {
+      return const Failure.otpExpired();
     }
+    if (message.contains('invalid') && message.contains('code')) {
+      return const Failure.invalidOtp();
+    }
+    if (message.contains('too many') || message.contains('attempts')) {
+      return const Failure.tooManyAttempts();
+    }
+    if (message.contains('invalid') && message.contains('phone')) {
+      return Failure.auth(message: e.message);
+    }
+
+    return Failure.auth(message: e.message);
   }
 }

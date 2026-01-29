@@ -5,6 +5,7 @@ import '../../../domain/entities/earn_thread.dart';
 import '../../blocs/earn/earn_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class EarnScreen extends StatefulWidget {
   const EarnScreen({super.key});
@@ -25,11 +26,12 @@ class _EarnScreenState extends State<EarnScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Earn'),
-        actions: [
+      appBar: IMaliAppBar(
+        title: 'Earn',
+        showHomeButton: false,
+        extraActions: [
           IconButton(
-            icon: const Icon(Icons.history),
+            icon: const Icon(Icons.history, color: AppColors.textPrimary),
             onPressed: () => _showHistory(context),
           ),
         ],

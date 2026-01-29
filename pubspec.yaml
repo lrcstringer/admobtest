@@ -74,10 +74,16 @@ dependencies:
   share_plus: ^10.1.3
   url_launcher: ^6.3.1
 
+  # Fonts
+  google_fonts: ^6.2.1
+
   # Misc
   pin_code_fields: ^8.0.1
   flutter_animate: ^4.5.0
   confetti: ^0.7.0
+
+  # Image Picker
+  image_picker: ^1.1.2
 
   # Device Info (for fraud prevention)
   device_info_plus: ^10.1.2
@@ -106,20 +112,26 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # Note: Uncomment assets and fonts when actual files are added
-  # assets:
-  #   - assets/images/
-  #   - assets/icons/
-  #   - assets/animations/
-  #   - assets/fonts/
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/animations/
+    - assets/logo-assets/
+    - assets/botton_nav_bar_icons/
 
+  # Plus Jakarta Sans is loaded via google_fonts package.
+  # To bundle for offline use, download from Google Fonts and uncomment:
   # fonts:
-  #   - family: Outfit
+  #   - family: Plus Jakarta Sans
   #     fonts:
-  #       - asset: assets/fonts/Outfit-Regular.ttf
-  #       - asset: assets/fonts/Outfit-Medium.ttf
+  #       - asset: assets/fonts/PlusJakartaSans-Light.ttf
+  #         weight: 300
+  #       - asset: assets/fonts/PlusJakartaSans-Regular.ttf
+  #       - asset: assets/fonts/PlusJakartaSans-Medium.ttf
   #         weight: 500
-  #       - asset: assets/fonts/Outfit-SemiBold.ttf
+  #       - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
   #         weight: 600
-  #       - asset: assets/fonts/Outfit-Bold.ttf
+  #       - asset: assets/fonts/PlusJakartaSans-Bold.ttf
   #         weight: 700
+  #       - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
+  #         weight: 800

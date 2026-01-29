@@ -238,5 +238,11 @@ service cloud.firestore {
     match /fraudAlerts/{alertId} {
       allow read, write: if false;
     }
+
+    // Verification codes collection (Cloud Functions only)
+    // Used for OTP verification during phone authentication
+    match /verification_codes/{phoneNumber} {
+      allow read, write: if false;
+    }
   }
 }

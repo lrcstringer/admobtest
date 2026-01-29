@@ -836,10 +836,10 @@ class _ReferralScreenState extends State<ReferralScreen> {
                 ? Icon(
                     Icons.emoji_events,
                     color: rank == 1
-                        ? const Color(0xFFFFD700)
+                        ? AppColors.tokenGold
                         : rank == 2
-                            ? const Color(0xFFC0C0C0)
-                            : const Color(0xFFCD7F32),
+                            ? AppColors.tokenSilver
+                            : AppColors.tokenBronze,
                   )
                 : Text(
                     '#$rank',

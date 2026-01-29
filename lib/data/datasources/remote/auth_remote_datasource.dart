@@ -1,9 +1,11 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/exceptions.dart';
 
 /// Remote data source for authentication operations
+/// Uses custom Cloud Functions for OTP verification via MyMobileAPI
 abstract class AuthRemoteDataSource {
   /// Get current Firebase user
   firebase_auth.User? get currentUser;
@@ -11,18 +13,14 @@ abstract class AuthRemoteDataSource {
   /// Stream of auth state changes
   Stream<firebase_auth.User?> get authStateChanges;
 
-  /// Send OTP to phone number
-  Future<String> sendOtp({
+  /// Send OTP to phone number via Cloud Function
+  Future<void> sendOtp({
     required String phoneNumber,
-    required Function(firebase_auth.PhoneAuthCredential) onAutoVerify,
-    required Function(String) onCodeSent,
-    required Function(firebase_auth.FirebaseAuthException) onFailed,
-    int? forceResendingToken,
   });
 
-  /// Verify OTP and sign in
+  /// Verify OTP via Cloud Function and sign in with custom token
   Future<firebase_auth.UserCredential> verifyOtp({
-    required String verificationId,
+    required String phoneNumber,
     required String otp,
   });
 
@@ -39,8 +37,9 @@ abstract class AuthRemoteDataSource {
 @LazySingleton(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final firebase_auth.FirebaseAuth _firebaseAuth;
+  final FirebaseFunctions _functions;
 
-  AuthRemoteDataSourceImpl(this._firebaseAuth);
+  AuthRemoteDataSourceImpl(this._firebaseAuth, this._functions);
 
   @override
   firebase_auth.User? get currentUser => _firebaseAuth.currentUser;
@@ -50,63 +49,96 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       _firebaseAuth.authStateChanges();
 
   @override
-  Future<String> sendOtp({
+  Future<void> sendOtp({
     required String phoneNumber,
-    required Function(firebase_auth.PhoneAuthCredential) onAutoVerify,
-    required Function(String) onCodeSent,
-    required Function(firebase_auth.FirebaseAuthException) onFailed,
-    int? forceResendingToken,
   }) async {
-    String? verificationId;
+    try {
+      print('AuthRemoteDataSource: Calling sendOtp for $phoneNumber');
+      final callable = _functions.httpsCallable('sendOtp');
+      final result = await callable.call<Map<String, dynamic>>({
+        'phoneNumber': phoneNumber,
+      });
 
-    await _firebaseAuth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      timeout: const Duration(seconds: 60),
-      forceResendingToken: forceResendingToken,
-      verificationCompleted: (credential) {
-        onAutoVerify(credential);
-      },
-      verificationFailed: (exception) {
-        onFailed(exception);
-      },
-      codeSent: (verId, resendToken) {
-        verificationId = verId;
-        onCodeSent(verId);
-      },
-      codeAutoRetrievalTimeout: (verId) {
-        verificationId ??= verId;
-      },
-    );
-
-    // Wait a bit for the codeSent callback
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (verificationId == null) {
-      throw const AuthException(message: 'Failed to send OTP');
+      final data = result.data;
+      print('AuthRemoteDataSource: sendOtp response: $data');
+      if (data['success'] != true) {
+        throw AuthException(
+          message: data['message'] as String? ?? 'Failed to send OTP',
+        );
+      }
+    } on FirebaseFunctionsException catch (e) {
+      print('AuthRemoteDataSource: FirebaseFunctionsException: ${e.code} - ${e.message}');
+      throw _mapFunctionsError(e);
+    } catch (e) {
+      print('AuthRemoteDataSource: Unexpected error in sendOtp: $e');
+      throw AuthException(message: 'Failed to send verification code. Please try again.');
     }
-
-    return verificationId!;
   }
 
   @override
   Future<firebase_auth.UserCredential> verifyOtp({
-    required String verificationId,
+    required String phoneNumber,
     required String otp,
   }) async {
     try {
-      final credential = firebase_auth.PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: otp,
-      );
+      final callable = _functions.httpsCallable('verifyOtp');
+      final result = await callable.call<Map<String, dynamic>>({
+        'phoneNumber': phoneNumber,
+        'code': otp,
+      });
 
-      return await _firebaseAuth.signInWithCredential(credential);
-    } on firebase_auth.FirebaseAuthException catch (e) {
-      if (e.code == 'invalid-verification-code') {
-        throw const AuthException(message: 'Invalid OTP code');
-      } else if (e.code == 'session-expired') {
-        throw const AuthException(message: 'OTP has expired. Please request a new one');
+      final data = result.data;
+      if (data['success'] != true) {
+        throw AuthException(
+          message: data['message'] as String? ?? 'Verification failed',
+        );
       }
+
+      final customToken = data['customToken'] as String?;
+      if (customToken == null) {
+        throw const AuthException(message: 'No auth token received');
+      }
+
+      // Sign in with the custom token from Cloud Function
+      return await _firebaseAuth.signInWithCustomToken(customToken);
+    } on FirebaseFunctionsException catch (e) {
+      throw _mapFunctionsError(e);
+    } on firebase_auth.FirebaseAuthException catch (e) {
       throw AuthException(message: e.message ?? 'Authentication failed');
+    }
+  }
+
+  /// Map Cloud Function errors to AuthException
+  AuthException _mapFunctionsError(FirebaseFunctionsException e) {
+    switch (e.code) {
+      case 'invalid-argument':
+        return AuthException(
+          message: e.message ?? 'Invalid phone number or code',
+        );
+      case 'resource-exhausted':
+        return AuthException(
+          message: e.message ?? 'Too many attempts. Please wait and try again.',
+        );
+      case 'failed-precondition':
+        return AuthException(
+          message: e.message ?? 'Verification failed',
+        );
+      case 'not-found':
+        return AuthException(
+          message: e.message ?? 'No verification in progress. Please request a new code.',
+        );
+      case 'deadline-exceeded':
+        return AuthException(
+          message: e.message ?? 'Code has expired. Please request a new one.',
+        );
+      case 'internal':
+        return AuthException(
+          message: e.message ?? 'An error occurred. Please try again.',
+        );
+      default:
+        return AuthException(
+          message: e.message ?? 'Authentication error',
+        );
     }
   }
 

@@ -7,6 +7,7 @@ import '../../../domain/entities/service_provider.dart';
 import '../../blocs/purchase/purchase_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class BuyServicesScreen extends StatefulWidget {
   const BuyServicesScreen({super.key});
@@ -49,21 +50,12 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text(_getAppBarTitle(state)),
-            leading: state.selectedProvider != null
-                ? IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () {
-                      context
-                          .read<PurchaseBloc>()
-                          .add(const PurchaseEvent.resetSelection());
-                    },
-                  )
-                : null,
-            actions: [
+          appBar: IMaliAppBar(
+            title: _getAppBarTitle(state),
+            showHomeButton: false,
+            extraActions: [
               IconButton(
-                icon: const Icon(Icons.history),
+                icon: const Icon(Icons.history, color: AppColors.textPrimary),
                 onPressed: () => _showHistorySheet(context),
               ),
             ],

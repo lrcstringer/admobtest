@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -17,38 +16,27 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1200),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-      ),
-    );
-
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-      ),
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
 
     _controller.forward();
 
-    // Check auth status after animation
-    Future.delayed(const Duration(milliseconds: 2000), () {
-      if (mounted) {
-        context.read<AuthBloc>().add(const AuthEvent.checkAuthStatus());
-      }
-    });
+    // TODO: Re-enable auth check after splash design is finalized
+    // Future.delayed(const Duration(milliseconds: 2000), () {
+    //   if (mounted) {
+    //     context.read<AuthBloc>().add(const AuthEvent.checkAuthStatus());
+    //   }
+    // });
   }
 
   @override
@@ -59,6 +47,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final mascotSize = size.width * 0.40;
+
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
@@ -70,67 +61,249 @@ class _SplashScreenState extends State<SplashScreen>
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.primary,
-        body: Center(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) {
-              return Opacity(
-                opacity: _fadeAnimation.value,
-                child: Transform.scale(
-                  scale: _scaleAnimation.value,
-                  child: child,
-                ),
-              );
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Logo placeholder
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: AppSpacing.borderRadiusXl,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
+        body: Container(
+          width: size.width,
+          height: size.height,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: AppColors.backgroundGradient,
+            ),
+          ),
+          child: Stack(
+            children: [
+              // Layer 1: Blue wave at the top (behind light blue)
+              // Image is 375x550; constrain to 60% of screen height
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: SizedBox(
+                  height: size.height * 0.60,
+                  width: size.width,
+                  child: Image.asset(
+                    'assets/images/Top Blue Wave.png',
+                    width: size.width,
+                    height: size.height * 0.60,
+                    fit: BoxFit.fill,
                   ),
-                  child: Center(
-                    child: Text(
-                      'iM',
-                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              // Layer 2: Light blue wave overlaying dark blue at the top
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Image.asset(
+                  'assets/images/Top Light Blue.png',
+                  width: size.width,
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
+
+              // Layer 3: Yellow wave at the bottom
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Image.asset(
+                  'assets/images/Bottom Yellow Wave.png',
+                  width: size.width,
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
+
+              // Layer 4: Main content
+              Positioned.fill(
+                child: SafeArea(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Column(
+                      children: [
+                        SizedBox(height: size.height * 0.02),
+
+                        // Mascot face - 30% of screen width
+                        SizedBox(
+                          width: mascotSize,
+                          height: mascotSize,
+                          child: Image.asset(
+                            'assets/logo-assets/mascot-bubbles-512.png',
+                            width: mascotSize,
+                            height: mascotSize,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              // Fallback if logo-assets not bundled yet
+                              return Image.asset(
+                                'assets/icons/ImaliFacewithText.png',
+                                width: mascotSize,
+                                height: mascotSize,
+                                fit: BoxFit.contain,
+                              );
+                            },
                           ),
+                        ),
+
+                        SizedBox(height: size.height * 0.02),
+
+                        // "Welcome to iMaliChat!"
+                        Text(
+                          'Welcome to iMaliChat!',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .displaySmall
+                              ?.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        const SizedBox(height: 4),
+
+                        // "Earn. Chat. Buy."
+                        Text(
+                          'Earn. Chat. Buy.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(
+                                color: AppColors.gold,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.2,
+                              ),
+                        ),
+
+                        SizedBox(height: size.height * 0.03),
+
+                        // Bullet points
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Column(
+                            children: [
+                              _buildBulletPoint(
+                                context,
+                                'Watch short ads to earn tokens',
+                              ),
+                              const SizedBox(height: 10),
+                              _buildBulletPoint(
+                                context,
+                                'Answer quick surveys for cash',
+                              ),
+                              const SizedBox(height: 10),
+                              _buildBulletPoint(
+                                context,
+                                'Join daily prize pots & win big',
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: size.height * 0.06),
+
+                        // "Get Started" button
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 48),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 52,
+                            child: ElevatedButton(
+                              onPressed: () => context.go('/auth/phone'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: const Text(
+                                'Get Started',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: size.height * 0.03),
+
+                        // "Already have an account?"
+                        Text(
+                          'Already have an account?',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        const SizedBox(height: 4),
+                        // "Log in." - tappable link
+                        GestureDetector(
+                          onTap: () => context.go('/auth/login'),
+                          child: Text(
+                            'Log in.',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColors.textPrimary,
+                                ),
+                          ),
+                        ),
+
+                        const Spacer(),
+                      ],
                     ),
                   ),
                 ),
-                AppSpacing.verticalLg,
-                Text(
-                  'iMali',
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        color: AppColors.textOnPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                AppSpacing.verticalSm,
-                Text(
-                  'Earn rewards for your attention',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppColors.textOnPrimary.withValues(alpha: 0.9),
-                      ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildBulletPoint(BuildContext context, String text) {
+    return Row(
+      children: [
+        Container(
+          width: 22,
+          height: 22,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: AppColors.logoGradient,
+            ),
+          ),
+          child: const Icon(
+            Icons.check,
+            size: 14,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.textPrimary.withValues(alpha: 0.9),
+                  height: 1.3,
+                ),
+          ),
+        ),
+      ],
     );
   }
 }

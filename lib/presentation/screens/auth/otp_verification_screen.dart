@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
+import '../../widgets/common/numeric_keyboard.dart';
+import '../../widgets/onboarding/onboarding_widgets.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String verificationId;
@@ -23,25 +24,49 @@ class OtpVerificationScreen extends StatefulWidget {
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final _otpController = TextEditingController();
+  String _otpDigits = '';
   String? _errorText;
 
-  @override
-  void dispose() {
-    _otpController.dispose();
-    super.dispose();
+  String get _otpCode => _otpDigits;
+
+  bool get _isOtpComplete => _otpDigits.length == 4;
+
+  void _onKeyPressed(String key) {
+    if (_otpDigits.length < 4) {
+      setState(() {
+        _otpDigits += key;
+        _errorText = null;
+      });
+
+      // Auto-verify when complete
+      if (_isOtpComplete) {
+        _onVerify();
+      }
+    }
+  }
+
+  void _onBackspace() {
+    if (_otpDigits.isNotEmpty) {
+      setState(() {
+        _otpDigits = _otpDigits.substring(0, _otpDigits.length - 1);
+        _errorText = null;
+      });
+    }
   }
 
   void _onVerify() {
-    if (_otpController.text.length != 6) {
+    if (!_isOtpComplete) {
       setState(() => _errorText = 'Please enter the complete code');
       return;
     }
 
+    // Pad to 6 digits if needed (some backends expect 6)
+    final otp = _otpCode.padRight(6, '0');
+
     context.read<AuthBloc>().add(
           AuthEvent.verifyOtp(
             verificationId: widget.verificationId,
-            otp: _otpController.text,
+            otp: otp,
           ),
         );
   }
@@ -52,11 +77,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         );
   }
 
+  void _onChangeNumber() {
+    context.go('/auth/phone');
+  }
+
   String _formatPhoneNumber(String phone) {
-    // Format: +27 81 234 5678
+    // Format: (+27) 81 234 5678
     if (phone.startsWith('+27') && phone.length >= 12) {
       final number = phone.substring(3);
-      return '+27 ${number.substring(0, 2)} ${number.substring(2, 5)} ${number.substring(5)}';
+      return '(+27) ${number.substring(0, 2)} ${number.substring(2, 5)} ${number.substring(5)}';
     }
     return phone;
   }
@@ -74,104 +103,183 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         }
       },
       builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => context.go('/auth/phone'),
-            ),
-          ),
-          body: SafeArea(
-            child: Padding(
-              padding: AppSpacing.pagePadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppSpacing.verticalLg,
-                  Text(
-                    'Enter verification\ncode',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  AppSpacing.verticalSm,
-                  Text(
-                    'We sent a 6-digit code to',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-                  Text(
-                    _formatPhoneNumber(widget.phoneNumber),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  AppSpacing.verticalXxl,
-                  PinCodeTextField(
-                    appContext: context,
-                    controller: _otpController,
-                    length: 6,
-                    keyboardType: TextInputType.number,
-                    animationType: AnimationType.fade,
-                    autoFocus: true,
-                    pinTheme: PinTheme(
-                      shape: PinCodeFieldShape.box,
-                      borderRadius: AppSpacing.borderRadiusMd,
-                      fieldHeight: 56,
-                      fieldWidth: 48,
-                      activeFillColor: AppColors.surface,
-                      inactiveFillColor: AppColors.surface,
-                      selectedFillColor: AppColors.surface,
-                      activeColor: AppColors.primary,
-                      inactiveColor: AppColors.border,
-                      selectedColor: AppColors.primary,
-                    ),
-                    enableActiveFill: true,
-                    onChanged: (value) {
-                      if (_errorText != null) {
-                        setState(() => _errorText = null);
-                      }
-                    },
-                    onCompleted: (_) => _onVerify(),
-                  ),
-                  if (_errorText != null) ...[
-                    AppSpacing.verticalSm,
-                    Text(
-                      _errorText!,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.error,
-                          ),
-                    ),
-                  ],
-                  AppSpacing.verticalLg,
-                  Center(
-                    child: state.resendCountdown > 0
-                        ? Text(
-                            'Resend code in ${state.resendCountdown}s',
+        return OnboardingScaffold(
+          currentPage: 1,
+          totalPages: 5,
+          child: Column(
+            children: [
+              // Top content area
+              Expanded(
+                child: Padding(
+                  padding: AppSpacing.pagePadding,
+                  child: Column(
+                    children: [
+                      AppSpacing.verticalLg,
+                      // Heading
+                      Text(
+                        'Verify your number',
+                        textAlign: TextAlign.center,
+                        style:
+                            Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimaryDark,
+                                ),
+                      ),
+                      AppSpacing.verticalMd,
+                      // Subtext with phone number
+                      Text(
+                        'We sent a code to your number',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                      ),
+                      AppSpacing.verticalXs,
+                      // Phone number with Change link
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _formatPhoneNumber(widget.phoneNumber),
                             style:
                                 Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: AppColors.textSecondary,
+                                      color: AppColors.textPrimaryDark,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                          )
-                        : AppButton(
-                            text: 'Resend Code',
-                            variant: AppButtonVariant.text,
-                            isFullWidth: false,
-                            onPressed: _onResend,
                           ),
+                          AppSpacing.horizontalSm,
+                          GestureDetector(
+                            onTap: _onChangeNumber,
+                            child: Text(
+                              'Change',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: AppColors.secondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      AppSpacing.verticalXxl,
+                      // OTP display boxes
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(4, (index) {
+                          final hasDigit = index < _otpDigits.length;
+                          final isCurrent = index == _otpDigits.length;
+
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: AppColors.inputFill,
+                              borderRadius: AppSpacing.borderRadiusMd,
+                              border: Border.all(
+                                color: isCurrent
+                                    ? AppColors.inputBorderFocused
+                                    : AppColors.inputBorder,
+                                width: isCurrent ? 2 : 1,
+                              ),
+                            ),
+                            child: Center(
+                              child: hasDigit
+                                  ? Text(
+                                      _otpDigits[index],
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineMedium
+                                          ?.copyWith(
+                                            color: AppColors.textPrimaryDark,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                    )
+                                  : isCurrent
+                                      ? Container(
+                                          width: 2,
+                                          height: 24,
+                                          color: AppColors.inputBorderFocused,
+                                        )
+                                      : null,
+                            ),
+                          );
+                        }),
+                      ),
+                      // Error text
+                      if (_errorText != null) ...[
+                        AppSpacing.verticalMd,
+                        Text(
+                          _errorText!,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.error,
+                              ),
+                        ),
+                      ],
+                      AppSpacing.verticalXl,
+                      // Resend code link
+                      state.resendCountdown > 0
+                          ? Text(
+                              'Resend code in ${state.resendCountdown}s',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Don't receive your code? ",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                ),
+                                GestureDetector(
+                                  onTap: _onResend,
+                                  child: Text(
+                                    'Resend',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: AppColors.secondary,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ],
                   ),
-                  const Spacer(),
-                  AppButton(
-                    text: 'Verify',
-                    isLoading: state.isLoading,
-                    onPressed:
-                        _otpController.text.length == 6 ? _onVerify : null,
-                  ),
-                  AppSpacing.verticalLg,
-                ],
+                ),
               ),
-            ),
+              // Continue button (above keyboard)
+              Padding(
+                padding: AppSpacing.pagePadding.copyWith(top: 0, bottom: 16),
+                child: AppButton(
+                  text: 'Continue',
+                  isLoading: state.isLoading,
+                  onPressed: _isOtpComplete ? _onVerify : null,
+                ),
+              ),
+              // Custom numeric keyboard
+              SafeArea(
+                top: false,
+                child: NumericKeyboard(
+                  onKeyPressed: _onKeyPressed,
+                  onBackspace: _onBackspace,
+                ),
+              ),
+              AppSpacing.verticalSm,
+            ],
           ),
         );
       },

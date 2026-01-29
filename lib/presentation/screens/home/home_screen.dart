@@ -6,6 +6,7 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,25 +32,17 @@ class _HomeScreenState extends State<HomeScreen> {
         return BlocBuilder<WalletBloc, WalletState>(
           builder: (context, walletState) {
             return Scaffold(
-              appBar: AppBar(
-                title: const Text('iMali'),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.notifications_outlined),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
+              appBar: const IMaliAppBar(title: 'Home', showHomeButton: false),
               body: RefreshIndicator(
                 onRefresh: () async {
                   context.read<WalletBloc>().add(const WalletEvent.loadWallet());
                 },
                 child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: AppSpacing.pagePadding,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: AppSpacing.pagePadding,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                       // Greeting
                       Text(
                         'Hello, ${user?.displayName ?? 'User'}!',
@@ -103,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             context,
                             Icons.account_balance_wallet_outlined,
                             'Cashout',
-                            () => context.go('/home/cashout'),
+                            () => context.go('/wallet/cashout'),
                           ),
                         ],
                       ),
@@ -146,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                             ),
                             TextButton(
-                              onPressed: () => context.go('/home/transactions'),
+                              onPressed: () => context.go('/wallet/transactions'),
                               child: const Text('See All'),
                             ),
                           ],
@@ -156,10 +149,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               (tx) => _buildTransactionItem(context, tx),
                             ),
                       ],
-                    ],
-                  ),
+                  ],
                 ),
               ),
+            ),
             );
           },
         );
@@ -259,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: () => context.go('/home/cashout'),
+                onPressed: () => context.go('/wallet/cashout'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.textOnPrimary,
                   side: BorderSide(color: AppColors.textOnPrimary.withValues(alpha: 0.5)),

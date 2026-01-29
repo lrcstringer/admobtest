@@ -52,9 +52,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: AppColors.backgroundGradient,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
@@ -100,7 +108,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
             AppSpacing.verticalXl,
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -116,7 +125,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             width: 160,
             height: 160,
             decoration: BoxDecoration(
-              color: AppColors.primaryLight.withValues(alpha: 0.2),
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primary.withValues(alpha: 0.2),
+                  AppColors.purple.withValues(alpha: 0.1),
+                ],
+              ),
               shape: BoxShape.circle,
             ),
             child: Icon(

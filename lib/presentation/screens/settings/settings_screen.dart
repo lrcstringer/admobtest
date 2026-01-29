@@ -21,7 +21,7 @@ class SettingsScreen extends StatelessWidget {
             context,
             icon: Icons.person_outline,
             title: 'Edit Profile',
-            onTap: () => context.push('/profile/edit'),
+            onTap: () => context.push('/home/profile/edit'),
           ),
           _buildMenuItem(
             context,
@@ -38,7 +38,7 @@ class SettingsScreen extends StatelessWidget {
             context,
             icon: Icons.notifications_outlined,
             title: 'Notifications',
-            onTap: () => context.push('/profile/notifications'),
+            onTap: () => context.push('/home/profile/notifications'),
           ),
           _buildMenuItem(
             context,
@@ -56,7 +56,7 @@ class SettingsScreen extends StatelessWidget {
             icon: Icons.lock_outline,
             title: 'Security',
             subtitle: 'PIN and biometrics',
-            onTap: () => context.push('/profile/security'),
+            onTap: () => context.push('/home/profile/security'),
           ),
           _buildMenuItem(
             context,
@@ -72,13 +72,13 @@ class SettingsScreen extends StatelessWidget {
             context,
             icon: Icons.help_outline,
             title: 'Help & Support',
-            onTap: () => context.push('/profile/help'),
+            onTap: () => context.push('/home/profile/help'),
           ),
           _buildMenuItem(
             context,
             icon: Icons.info_outline,
             title: 'About',
-            onTap: () => context.push('/profile/about'),
+            onTap: () => context.push('/home/profile/about'),
           ),
           _buildMenuItem(
             context,

@@ -35,7 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.settings_outlined),
-                onPressed: () => context.push('/profile/settings'),
+                onPressed: () => context.push('/home/profile/settings'),
               ),
             ],
           ),
@@ -51,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       // Avatar with edit button
                       GestureDetector(
-                        onTap: () => context.push('/profile/edit'),
+                        onTap: () => context.push('/home/profile/edit'),
                         child: Stack(
                           children: [
                             CircleAvatar(
@@ -166,21 +166,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         icon: Icons.account_balance_wallet_outlined,
                         title: 'Wallet',
                         subtitle: 'View balance and transactions',
-                        onTap: () => context.push('/home/transactions'),
+                        onTap: () => context.push('/wallet/transactions'),
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.shopping_bag_outlined,
                         title: 'Buy Services',
                         subtitle: 'Airtime, data, electricity & more',
-                        onTap: () => context.push('/home/buy'),
+                        onTap: () => context.push('/buy'),
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.people_outline,
                         title: 'Referrals',
                         subtitle: 'Invite friends and earn',
-                        onTap: () => context.push('/profile/referrals'),
+                        onTap: () => context.push('/home/profile/referrals'),
                       ),
                     ],
                   ),
@@ -197,28 +197,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         icon: Icons.notifications_outlined,
                         title: 'Notifications',
                         subtitle: 'Manage notification preferences',
-                        onTap: () => context.push('/profile/notifications'),
+                        onTap: () => context.push('/home/profile/notifications'),
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.security_outlined,
                         title: 'Security',
                         subtitle: 'PIN and biometric settings',
-                        onTap: () => context.push('/profile/security'),
+                        onTap: () => context.push('/home/profile/security'),
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.help_outline,
                         title: 'Help & Support',
                         subtitle: 'FAQs and contact support',
-                        onTap: () => context.push('/profile/help'),
+                        onTap: () => context.push('/home/profile/help'),
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.info_outline,
                         title: 'About',
                         subtitle: 'App version and legal',
-                        onTap: () => context.push('/profile/about'),
+                        onTap: () => context.push('/home/profile/about'),
                       ),
                     ],
                   ),

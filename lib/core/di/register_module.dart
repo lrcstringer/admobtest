@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -20,6 +21,9 @@ abstract class RegisterModule {
 
   @lazySingleton
   FirebaseMessaging get firebaseMessaging => FirebaseMessaging.instance;
+
+  @lazySingleton
+  FirebaseFunctions get firebaseFunctions => FirebaseFunctions.instance;
 
   @lazySingleton
   InternetConnection get internetConnection => InternetConnection();

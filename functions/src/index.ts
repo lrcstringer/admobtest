@@ -20,6 +20,7 @@ export * from "./triggers";
 export * from "./chat";
 export * from "./engagement";
 export * from "./fraud";
+export * from "./auth";
 
 // Security cleanup function
 import * as functions from "firebase-functions";

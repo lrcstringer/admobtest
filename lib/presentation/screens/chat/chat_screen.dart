@@ -6,6 +6,7 @@ import '../../../domain/entities/chat_thread.dart';
 import '../../blocs/chat/chat_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -25,15 +26,16 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Money Chat'),
-        actions: [
+      appBar: IMaliAppBar(
+        title: 'Chat',
+        showHomeButton: false,
+        extraActions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: const Icon(Icons.search, color: AppColors.textPrimary),
             onPressed: () => _showSearchDialog(context),
           ),
           IconButton(
-            icon: const Icon(Icons.person_add_outlined),
+            icon: const Icon(Icons.person_add_outlined, color: AppColors.textPrimary),
             onPressed: () => _showNewChatDialog(context),
           ),
         ],

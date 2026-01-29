@@ -3,7 +3,7 @@ import 'app_colors.dart';
 
 /// Application typography styles
 abstract class AppTypography {
-  static const String fontFamily = 'Outfit';
+  static const String fontFamily = 'Plus Jakarta Sans';
 
   // Display Styles
   static const TextStyle displayLarge = TextStyle(

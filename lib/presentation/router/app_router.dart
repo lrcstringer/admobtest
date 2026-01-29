@@ -3,29 +3,79 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../blocs/auth/auth_bloc.dart';
+
+// Auth screens
+import '../screens/auth/forgot_password_screen.dart';
+import '../screens/auth/login_screen.dart';
+import '../screens/auth/new_password_screen.dart';
 import '../screens/auth/otp_verification_screen.dart';
 import '../screens/auth/phone_input_screen.dart';
 import '../screens/auth/welcome_screen.dart';
-import '../screens/chat/chat_screen.dart';
+
+// Buy screens
+import '../screens/buy/buy_failure_screen.dart';
+import '../screens/buy/buy_services_screen.dart';
+import '../screens/buy/buy_success_screen.dart';
+import '../screens/buy/buy_transactions_screen.dart';
+import '../screens/buy/buy_wallet_selection_screen.dart';
+
+// Chat screens
+import '../screens/chat/chat_bonus_network_invite_screen.dart';
+import '../screens/chat/chat_bonus_network_screen.dart';
 import '../screens/chat/chat_detail_screen.dart';
+import '../screens/chat/chat_screen.dart';
+import '../screens/chat/chat_send_amount_screen.dart';
+import '../screens/chat/chat_send_failure_screen.dart';
+import '../screens/chat/chat_send_success_screen.dart';
+import '../screens/chat/chat_send_wallet_selection_screen.dart';
+
+// Earn screens
+import '../screens/earn/earn_detail_screen.dart';
+import '../screens/earn/earn_interaction_screen.dart';
 import '../screens/earn/earn_screen.dart';
+import '../screens/earn/earn_wallet_confirm_screen.dart';
+
+// Home screens
+import '../screens/home/bonus_network_screen.dart';
 import '../screens/home/home_screen.dart';
+import '../screens/home/how_to_earn_screen.dart';
+import '../screens/home/upgrade_status_screen.dart';
+import '../screens/home/what_is_emalichat_screen.dart';
+
+// Main shell
 import '../screens/main/main_shell.dart';
+
+// Onboarding screens
 import '../screens/onboarding/profile_setup_screen.dart';
 import '../screens/onboarding/terms_screen.dart';
-import '../screens/buy/buy_services_screen.dart';
-import '../screens/pots/pots_screen.dart';
+
+// Profile screens
 import '../screens/profile/edit_profile_screen.dart';
 import '../screens/profile/profile_screen.dart';
+
+// Referral
 import '../screens/referral/referral_screen.dart';
+
+// Settings screens
 import '../screens/settings/about_screen.dart';
 import '../screens/settings/help_support_screen.dart';
 import '../screens/settings/notification_settings_screen.dart';
 import '../screens/settings/security_settings_screen.dart';
 import '../screens/settings/settings_screen.dart';
+
+// Splash
 import '../screens/splash/splash_screen.dart';
+
+// Wallet screens
 import '../screens/wallet/cashout_screen.dart';
 import '../screens/wallet/transaction_history_screen.dart';
+import '../screens/wallet/wallet_action_selection_screen.dart';
+import '../screens/wallet/wallet_screen.dart';
+import '../screens/wallet/wallet_send_failure_screen.dart';
+import '../screens/wallet/wallet_send_screen.dart';
+import '../screens/wallet/wallet_send_success_screen.dart';
+import '../screens/wallet/wallet_withdraw_failure_screen.dart';
+import '../screens/wallet/wallet_withdraw_success_screen.dart';
 
 class AppRouter {
   final AuthBloc authBloc;
@@ -37,19 +87,21 @@ class AppRouter {
     debugLogDiagnostics: true,
     refreshListenable: GoRouterRefreshStream(authBloc.stream),
     routes: [
-      // Splash
+      // 1) Splash
       GoRoute(
         path: '/',
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
       ),
 
-      // Auth routes
+      // 2) Welcome
       GoRoute(
         path: '/welcome',
         name: 'welcome',
         builder: (context, state) => const WelcomeScreen(),
       ),
+
+      // 3) Signup (phone + OTP flow)
       GoRoute(
         path: '/auth/phone',
         name: 'phone',
@@ -67,6 +119,34 @@ class AppRouter {
         },
       ),
 
+      // 5) Login
+      GoRoute(
+        path: '/auth/login',
+        name: 'login',
+        builder: (context, state) => const LoginScreen(),
+        routes: [
+          // 5.1) Forgot Password
+          GoRoute(
+            path: 'forgot-password',
+            name: 'forgotPassword',
+            builder: (context, state) => const ForgotPasswordScreen(),
+          ),
+          // 5.2) New Password
+          GoRoute(
+            path: 'new-password',
+            name: 'newPassword',
+            builder: (context, state) => const NewPasswordScreen(),
+          ),
+        ],
+      ),
+
+      // 4) Settings (accessible outside shell too)
+      GoRoute(
+        path: '/settings',
+        name: 'settingsRoot',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+
       // Onboarding routes
       GoRoute(
         path: '/onboarding/terms',
@@ -79,13 +159,15 @@ class AppRouter {
         builder: (context, state) => const ProfileSetupScreen(),
       ),
 
-      // Main app with bottom navigation
+      // =============================================
+      // Main app with bottom navigation (5 tabs)
+      // =============================================
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return MainShell(navigationShell: navigationShell);
         },
         branches: [
-          // Home tab
+          // ---- Tab 0: Home ----
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -93,36 +175,124 @@ class AppRouter {
                 name: 'home',
                 builder: (context, state) => const HomeScreen(),
                 routes: [
+                  // 6.1) What is eMaliChat
                   GoRoute(
-                    path: 'transactions',
-                    name: 'transactions',
-                    builder: (context, state) => const TransactionHistoryScreen(),
+                    path: 'what-is-emalichat',
+                    name: 'whatIsEMaliChat',
+                    builder: (context, state) =>
+                        const WhatIsEMaliChatScreen(),
                   ),
+                  // 6.2) How to Earn
                   GoRoute(
-                    path: 'cashout',
-                    name: 'cashout',
-                    builder: (context, state) => const CashoutScreen(),
+                    path: 'how-to-earn',
+                    name: 'howToEarn',
+                    builder: (context, state) => const HowToEarnScreen(),
                   ),
+                  // 6.3) The Bonus Network
                   GoRoute(
-                    path: 'buy',
-                    name: 'buy',
-                    builder: (context, state) => const BuyServicesScreen(),
+                    path: 'bonus-network',
+                    name: 'bonusNetwork',
+                    builder: (context, state) =>
+                        const BonusNetworkScreen(),
+                  ),
+                  // 6.4) Upgrade Status
+                  GoRoute(
+                    path: 'upgrade-status',
+                    name: 'upgradeStatus',
+                    builder: (context, state) =>
+                        const UpgradeStatusScreen(),
+                  ),
+                  // 6.5) Profile
+                  GoRoute(
+                    path: 'profile',
+                    name: 'profile',
+                    builder: (context, state) => const ProfileScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'referrals',
+                        name: 'referrals',
+                        builder: (context, state) =>
+                            const ReferralScreen(),
+                      ),
+                      GoRoute(
+                        path: 'edit',
+                        name: 'editProfile',
+                        builder: (context, state) =>
+                            const EditProfileScreen(),
+                      ),
+                      GoRoute(
+                        path: 'settings',
+                        name: 'settings',
+                        builder: (context, state) =>
+                            const SettingsScreen(),
+                      ),
+                      GoRoute(
+                        path: 'notifications',
+                        name: 'notificationSettings',
+                        builder: (context, state) =>
+                            const NotificationSettingsScreen(),
+                      ),
+                      GoRoute(
+                        path: 'security',
+                        name: 'securitySettings',
+                        builder: (context, state) =>
+                            const SecuritySettingsScreen(),
+                      ),
+                      GoRoute(
+                        path: 'help',
+                        name: 'helpSupport',
+                        builder: (context, state) =>
+                            const HelpSupportScreen(),
+                      ),
+                      GoRoute(
+                        path: 'about',
+                        name: 'about',
+                        builder: (context, state) => const AboutScreen(),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ],
           ),
-          // Earn tab
+
+          // ---- Tab 1: Earn ----
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: '/earn',
                 name: 'earn',
                 builder: (context, state) => const EarnScreen(),
+                routes: [
+                  // 7.1) Earn Detail
+                  GoRoute(
+                    path: 'detail',
+                    name: 'earnDetail',
+                    builder: (context, state) =>
+                        const EarnDetailScreen(),
+                  ),
+                  // 7.2) Earn Interaction
+                  GoRoute(
+                    path: 'interaction',
+                    name: 'earnInteraction',
+                    builder: (context, state) =>
+                        const EarnInteractionScreen(),
+                    routes: [
+                      // 7.2.1) Earn Wallet Confirm
+                      GoRoute(
+                        path: 'confirm',
+                        name: 'earnWalletConfirm',
+                        builder: (context, state) =>
+                            const EarnWalletConfirmScreen(),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
-          // Chat tab
+
+          // ---- Tab 2: Chat ----
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -130,70 +300,183 @@ class AppRouter {
                 name: 'chat',
                 builder: (context, state) => const ChatScreen(),
                 routes: [
+                  // 8.1) Chat Detail
                   GoRoute(
                     path: ':threadId',
                     name: 'chatDetail',
                     builder: (context, state) {
-                      final threadId = state.pathParameters['threadId'] ?? '';
+                      final threadId =
+                          state.pathParameters['threadId'] ?? '';
                       return ChatDetailScreen(threadId: threadId);
                     },
+                  ),
+                  // 8.2) Chat Send Wallet Selection
+                  GoRoute(
+                    path: 'send-wallet',
+                    name: 'chatSendWallet',
+                    builder: (context, state) =>
+                        const ChatSendWalletSelectionScreen(),
+                  ),
+                  // 8.3) Chat Send Amount Selection
+                  GoRoute(
+                    path: 'send-amount',
+                    name: 'chatSendAmount',
+                    builder: (context, state) =>
+                        const ChatSendAmountScreen(),
+                    routes: [
+                      // 8.3.1) Chat Send Success
+                      GoRoute(
+                        path: 'success',
+                        name: 'chatSendSuccess',
+                        builder: (context, state) =>
+                            const ChatSendSuccessScreen(),
+                      ),
+                      // 8.3.2) Chat Send Failure
+                      GoRoute(
+                        path: 'failure',
+                        name: 'chatSendFailure',
+                        builder: (context, state) =>
+                            const ChatSendFailureScreen(),
+                      ),
+                    ],
+                  ),
+                  // 8.4) Bonus Network
+                  GoRoute(
+                    path: 'bonus-network',
+                    name: 'chatBonusNetwork',
+                    builder: (context, state) =>
+                        const ChatBonusNetworkScreen(),
+                    routes: [
+                      // 8.5) Bonus Network Invite
+                      GoRoute(
+                        path: 'invite',
+                        name: 'chatBonusNetworkInvite',
+                        builder: (context, state) =>
+                            const ChatBonusNetworkInviteScreen(),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ],
           ),
-          // Pots tab
+
+          // ---- Tab 3: Wallet ----
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/pots',
-                name: 'pots',
-                builder: (context, state) => const PotsScreen(),
+                path: '/wallet',
+                name: 'wallet',
+                builder: (context, state) => const WalletScreen(),
+                routes: [
+                  // 9.1) Wallet Action Selection
+                  GoRoute(
+                    path: 'actions',
+                    name: 'walletActions',
+                    builder: (context, state) =>
+                        const WalletActionSelectionScreen(),
+                  ),
+                  // 9.2) Wallet Send
+                  GoRoute(
+                    path: 'send',
+                    name: 'walletSend',
+                    builder: (context, state) =>
+                        const WalletSendScreen(),
+                    routes: [
+                      // 9.2.1) Wallet Send Success
+                      GoRoute(
+                        path: 'success',
+                        name: 'walletSendSuccess',
+                        builder: (context, state) =>
+                            const WalletSendSuccessScreen(),
+                      ),
+                      // 9.2.2) Wallet Send Failure
+                      GoRoute(
+                        path: 'failure',
+                        name: 'walletSendFailure',
+                        builder: (context, state) =>
+                            const WalletSendFailureScreen(),
+                      ),
+                    ],
+                  ),
+                  // 9.3) Wallet Withdraw
+                  GoRoute(
+                    path: 'withdraw',
+                    name: 'walletWithdraw',
+                    builder: (context, state) =>
+                        const CashoutScreen(),
+                    routes: [
+                      // 9.3.1) Wallet Withdraw Success
+                      GoRoute(
+                        path: 'success',
+                        name: 'walletWithdrawSuccess',
+                        builder: (context, state) =>
+                            const WalletWithdrawSuccessScreen(),
+                      ),
+                      // 9.3.2) Wallet Withdraw Failure
+                      GoRoute(
+                        path: 'failure',
+                        name: 'walletWithdrawFailure',
+                        builder: (context, state) =>
+                            const WalletWithdrawFailureScreen(),
+                      ),
+                    ],
+                  ),
+                  // Keep legacy cashout & transactions routes
+                  GoRoute(
+                    path: 'transactions',
+                    name: 'transactions',
+                    builder: (context, state) =>
+                        const TransactionHistoryScreen(),
+                  ),
+                  GoRoute(
+                    path: 'cashout',
+                    name: 'cashout',
+                    builder: (context, state) =>
+                        const CashoutScreen(),
+                  ),
+                ],
               ),
             ],
           ),
-          // Profile tab
+
+          // ---- Tab 4: Buy ----
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/profile',
-                name: 'profile',
-                builder: (context, state) => const ProfileScreen(),
+                path: '/buy',
+                name: 'buy',
+                builder: (context, state) => const BuyServicesScreen(),
                 routes: [
+                  // 10.1) Buy Wallet From Selection
                   GoRoute(
-                    path: 'referrals',
-                    name: 'referrals',
-                    builder: (context, state) => const ReferralScreen(),
+                    path: 'wallet-selection',
+                    name: 'buyWalletSelection',
+                    builder: (context, state) =>
+                        const BuyWalletSelectionScreen(),
+                    routes: [
+                      // 10.1.1) Buy Success
+                      GoRoute(
+                        path: 'success',
+                        name: 'buySuccess',
+                        builder: (context, state) =>
+                            const BuySuccessScreen(),
+                      ),
+                      // 10.1.2) Buy Failure
+                      GoRoute(
+                        path: 'failure',
+                        name: 'buyFailure',
+                        builder: (context, state) =>
+                            const BuyFailureScreen(),
+                      ),
+                    ],
                   ),
+                  // 10.2) Buy Transactions
                   GoRoute(
-                    path: 'edit',
-                    name: 'editProfile',
-                    builder: (context, state) => const EditProfileScreen(),
-                  ),
-                  GoRoute(
-                    path: 'settings',
-                    name: 'settings',
-                    builder: (context, state) => const SettingsScreen(),
-                  ),
-                  GoRoute(
-                    path: 'notifications',
-                    name: 'notificationSettings',
-                    builder: (context, state) => const NotificationSettingsScreen(),
-                  ),
-                  GoRoute(
-                    path: 'security',
-                    name: 'securitySettings',
-                    builder: (context, state) => const SecuritySettingsScreen(),
-                  ),
-                  GoRoute(
-                    path: 'help',
-                    name: 'helpSupport',
-                    builder: (context, state) => const HelpSupportScreen(),
-                  ),
-                  GoRoute(
-                    path: 'about',
-                    name: 'about',
-                    builder: (context, state) => const AboutScreen(),
+                    path: 'transactions',
+                    name: 'buyTransactions',
+                    builder: (context, state) =>
+                        const BuyTransactionsScreen(),
                   ),
                 ],
               ),
@@ -205,7 +488,8 @@ class AppRouter {
     redirect: (context, state) {
       final authState = context.read<AuthBloc>().state;
       final isAuthenticated = authState.status == AuthStatus.authenticated;
-      final needsOnboarding = authState.status == AuthStatus.onboardingRequired;
+      final needsOnboarding =
+          authState.status == AuthStatus.onboardingRequired;
       final isInitial = authState.status == AuthStatus.initial;
       final isLoading = authState.status == AuthStatus.loading;
 
@@ -231,7 +515,10 @@ class AppRouter {
       }
 
       // If not authenticated and trying to access protected routes
-      if (!isAuthenticated && !needsOnboarding && !isOnAuth && !isOnSplash) {
+      if (!isAuthenticated &&
+          !needsOnboarding &&
+          !isOnAuth &&
+          !isOnSplash) {
         return '/welcome';
       }
 
@@ -240,11 +527,13 @@ class AppRouter {
   );
 }
 
-/// A [ChangeNotifier] that listens to a [Stream] and notifies listeners when the stream emits.
+/// A [ChangeNotifier] that listens to a [Stream] and notifies listeners
+/// when the stream emits.
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
     notifyListeners();
-    _subscription = stream.asBroadcastStream().listen((_) => notifyListeners());
+    _subscription =
+        stream.asBroadcastStream().listen((_) => notifyListeners());
   }
 
   late final dynamic _subscription;

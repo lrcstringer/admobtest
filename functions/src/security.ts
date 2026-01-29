@@ -14,6 +14,8 @@ const RATE_LIMITS: Record<string, { maxAttempts: number; windowMinutes: number }
   "cashout": { maxAttempts: 5, windowMinutes: 60 },
   "purchase": { maxAttempts: 20, windowMinutes: 10 },
   "referral": { maxAttempts: 10, windowMinutes: 60 },
+  "otp_send": { maxAttempts: 5, windowMinutes: 60 },
+  "otp_verify": { maxAttempts: 10, windowMinutes: 5 },
 };
 
 // Fraud detection thresholds

@@ -10,6 +10,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
+import 'package:cloud_functions/cloud_functions.dart' as _i809;
 import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:firebase_messaging/firebase_messaging.dart' as _i892;
 import 'package:firebase_storage/firebase_storage.dart' as _i457;
@@ -78,15 +79,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i892.FirebaseMessaging>(
       () => registerModule.firebaseMessaging,
     );
+    gh.lazySingleton<_i809.FirebaseFunctions>(
+      () => registerModule.firebaseFunctions,
+    );
     gh.lazySingleton<_i161.InternetConnection>(
       () => registerModule.internetConnection,
     );
     gh.lazySingleton<_i383.SecurityService>(() => _i383.SecurityService());
+    gh.lazySingleton<_i1057.AuthRemoteDataSource>(
+      () => _i1057.AuthRemoteDataSourceImpl(
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+      ),
+    );
     gh.lazySingleton<_i932.NetworkInfo>(
       () => _i932.NetworkInfoImpl(gh<_i161.InternetConnection>()),
-    );
-    gh.lazySingleton<_i1057.AuthRemoteDataSource>(
-      () => _i1057.AuthRemoteDataSourceImpl(gh<_i59.FirebaseAuth>()),
     );
     gh.lazySingleton<_i749.GamificationRemoteDataSource>(
       () => _i749.GamificationRemoteDataSourceImpl(

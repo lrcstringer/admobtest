@@ -64,7 +64,7 @@ class _IMaliChatAppState extends State<IMaliChatApp> {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
-        themeMode: ThemeMode.light,
+        themeMode: ThemeMode.dark,
         routerConfig: _appRouter.router,
       ),
     );
