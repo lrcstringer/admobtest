@@ -41,6 +41,9 @@ mixin _$UserModel {
   DateTime? get potEligibleAt => throw _privateConstructorUsedError;
   String? get fcmToken => throw _privateConstructorUsedError;
   int? get riskScore => throw _privateConstructorUsedError;
+  String? get primaryDeviceId => throw _privateConstructorUsedError;
+  String? get riskLevel => throw _privateConstructorUsedError;
+  DateTime? get lastLoginAt => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
   DateTime? get lastActiveAt => throw _privateConstructorUsedError;
@@ -81,6 +84,9 @@ abstract class $UserModelCopyWith<$Res> {
     DateTime? potEligibleAt,
     String? fcmToken,
     int? riskScore,
+    String? primaryDeviceId,
+    String? riskLevel,
+    DateTime? lastLoginAt,
     DateTime createdAt,
     DateTime? updatedAt,
     DateTime? lastActiveAt,
@@ -122,6 +128,9 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? potEligibleAt = freezed,
     Object? fcmToken = freezed,
     Object? riskScore = freezed,
+    Object? primaryDeviceId = freezed,
+    Object? riskLevel = freezed,
+    Object? lastLoginAt = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
     Object? lastActiveAt = freezed,
@@ -208,6 +217,18 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
                 ? _value.riskScore
                 : riskScore // ignore: cast_nullable_to_non_nullable
                       as int?,
+            primaryDeviceId: freezed == primaryDeviceId
+                ? _value.primaryDeviceId
+                : primaryDeviceId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            riskLevel: freezed == riskLevel
+                ? _value.riskLevel
+                : riskLevel // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            lastLoginAt: freezed == lastLoginAt
+                ? _value.lastLoginAt
+                : lastLoginAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -256,6 +277,9 @@ abstract class _$$UserModelImplCopyWith<$Res>
     DateTime? potEligibleAt,
     String? fcmToken,
     int? riskScore,
+    String? primaryDeviceId,
+    String? riskLevel,
+    DateTime? lastLoginAt,
     DateTime createdAt,
     DateTime? updatedAt,
     DateTime? lastActiveAt,
@@ -296,6 +320,9 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? potEligibleAt = freezed,
     Object? fcmToken = freezed,
     Object? riskScore = freezed,
+    Object? primaryDeviceId = freezed,
+    Object? riskLevel = freezed,
+    Object? lastLoginAt = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
     Object? lastActiveAt = freezed,
@@ -382,6 +409,18 @@ class __$$UserModelImplCopyWithImpl<$Res>
             ? _value.riskScore
             : riskScore // ignore: cast_nullable_to_non_nullable
                   as int?,
+        primaryDeviceId: freezed == primaryDeviceId
+            ? _value.primaryDeviceId
+            : primaryDeviceId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        riskLevel: freezed == riskLevel
+            ? _value.riskLevel
+            : riskLevel // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        lastLoginAt: freezed == lastLoginAt
+            ? _value.lastLoginAt
+            : lastLoginAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -423,6 +462,9 @@ class _$UserModelImpl extends _UserModel {
     this.potEligibleAt,
     this.fcmToken,
     this.riskScore,
+    this.primaryDeviceId,
+    this.riskLevel,
+    this.lastLoginAt,
     required this.createdAt,
     this.updatedAt,
     this.lastActiveAt,
@@ -472,6 +514,12 @@ class _$UserModelImpl extends _UserModel {
   @override
   final int? riskScore;
   @override
+  final String? primaryDeviceId;
+  @override
+  final String? riskLevel;
+  @override
+  final DateTime? lastLoginAt;
+  @override
   final DateTime createdAt;
   @override
   final DateTime? updatedAt;
@@ -480,7 +528,7 @@ class _$UserModelImpl extends _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(oddienceUserId: $oddienceUserId, phoneNumber: $phoneNumber, displayName: $displayName, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, firstName: $firstName, lastName: $lastName, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
+    return 'UserModel(oddienceUserId: $oddienceUserId, phoneNumber: $phoneNumber, displayName: $displayName, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, firstName: $firstName, lastName: $lastName, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
   }
 
   @override
@@ -526,6 +574,12 @@ class _$UserModelImpl extends _UserModel {
                 other.fcmToken == fcmToken) &&
             (identical(other.riskScore, riskScore) ||
                 other.riskScore == riskScore) &&
+            (identical(other.primaryDeviceId, primaryDeviceId) ||
+                other.primaryDeviceId == primaryDeviceId) &&
+            (identical(other.riskLevel, riskLevel) ||
+                other.riskLevel == riskLevel) &&
+            (identical(other.lastLoginAt, lastLoginAt) ||
+                other.lastLoginAt == lastLoginAt) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -558,6 +612,9 @@ class _$UserModelImpl extends _UserModel {
     potEligibleAt,
     fcmToken,
     riskScore,
+    primaryDeviceId,
+    riskLevel,
+    lastLoginAt,
     createdAt,
     updatedAt,
     lastActiveAt,
@@ -599,6 +656,9 @@ abstract class _UserModel extends UserModel {
     final DateTime? potEligibleAt,
     final String? fcmToken,
     final int? riskScore,
+    final String? primaryDeviceId,
+    final String? riskLevel,
+    final DateTime? lastLoginAt,
     required final DateTime createdAt,
     final DateTime? updatedAt,
     final DateTime? lastActiveAt,
@@ -648,6 +708,12 @@ abstract class _UserModel extends UserModel {
   String? get fcmToken;
   @override
   int? get riskScore;
+  @override
+  String? get primaryDeviceId;
+  @override
+  String? get riskLevel;
+  @override
+  DateTime? get lastLoginAt;
   @override
   DateTime get createdAt;
   @override

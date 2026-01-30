@@ -16,6 +16,9 @@ const RATE_LIMITS: Record<string, { maxAttempts: number; windowMinutes: number }
   "referral": { maxAttempts: 10, windowMinutes: 60 },
   "otp_send": { maxAttempts: 5, windowMinutes: 60 },
   "otp_verify": { maxAttempts: 10, windowMinutes: 5 },
+  "device_register": { maxAttempts: 5, windowMinutes: 1440 },
+  "login_request": { maxAttempts: 10, windowMinutes: 60 },
+  "challenge_approve": { maxAttempts: 10, windowMinutes: 10 },
 };
 
 // Fraud detection thresholds

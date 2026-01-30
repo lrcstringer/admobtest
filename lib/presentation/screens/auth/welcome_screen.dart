@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
-import '../../widgets/common/app_button.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -12,47 +10,41 @@ class WelcomeScreen extends StatefulWidget {
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
 
-  final List<_OnboardingPage> _pages = [
-    _OnboardingPage(
-      icon: Icons.monetization_on_outlined,
-      title: 'Earn Tokens',
-      description:
-          'Watch videos, complete surveys, and earn tokens for your time and attention.',
-    ),
-    _OnboardingPage(
-      icon: Icons.send_outlined,
-      title: 'Send & Receive',
-      description:
-          'Send tokens to friends and family through chat. Request money with a tap.',
-    ),
-    _OnboardingPage(
-      icon: Icons.emoji_events_outlined,
-      title: 'Win Big in Pots',
-      description:
-          'Join daily, weekly, and monthly pots. Compete for bigger prizes!',
-    ),
-    _OnboardingPage(
-      icon: Icons.account_balance_wallet_outlined,
-      title: 'Cash Out',
-      description:
-          'Convert your tokens to real money. Cash out to your bank or mobile wallet.',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+
+    _controller.forward();
+  }
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final mascotSize = size.width * 0.40;
+
     return Scaffold(
       body: Container(
+        width: size.width,
+        height: size.height,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -60,136 +52,238 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             colors: AppColors.backgroundGradient,
           ),
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _pages.length,
-                onPageChanged: (index) {
-                  setState(() => _currentPage = index);
-                },
-                itemBuilder: (context, index) {
-                  final page = _pages[index];
-                  return _buildPage(context, page);
-                },
+        child: Stack(
+          children: [
+            // Layer 1: Blue wave at the top (behind light blue)
+            // Image is 375x550; constrain to 60% of screen height
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SizedBox(
+                height: size.height * 0.60,
+                width: size.width,
+                child: Image.asset(
+                  'assets/images/Top Blue Wave.png',
+                  width: size.width,
+                  height: size.height * 0.60,
+                  fit: BoxFit.fill,
+                ),
               ),
             ),
-            _buildPageIndicator(),
-            AppSpacing.verticalLg,
-            Padding(
-              padding: AppSpacing.pageHorizontal,
-              child: Column(
-                children: [
-                  AppButton(
-                    text: _currentPage == _pages.length - 1
-                        ? 'Get Started'
-                        : 'Next',
-                    onPressed: () {
-                      if (_currentPage == _pages.length - 1) {
-                        context.go('/auth/phone');
-                      } else {
-                        _pageController.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
-                      }
-                    },
+
+            // Layer 2: Light blue wave overlaying dark blue at the top
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Image.asset(
+                'assets/images/Top Light Blue.png',
+                width: size.width,
+                fit: BoxFit.fitWidth,
+              ),
+            ),
+
+            // Layer 3: Yellow wave at the bottom
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Image.asset(
+                'assets/images/Bottom Yellow Wave.png',
+                width: size.width,
+                fit: BoxFit.fitWidth,
+              ),
+            ),
+
+            // Layer 4: Main content
+            Positioned.fill(
+              child: SafeArea(
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Column(
+                    children: [
+                      SizedBox(height: size.height * 0.02),
+
+                      // Mascot face - 40% of screen width (accounts for transparent padding)
+                      SizedBox(
+                        width: mascotSize,
+                        height: mascotSize,
+                        child: Image.asset(
+                          'assets/logo-assets/mascot-bubbles-512.png',
+                          width: mascotSize,
+                          height: mascotSize,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            // Fallback if logo-assets not bundled yet
+                            return Image.asset(
+                              'assets/icons/ImaliFacewithText.png',
+                              width: mascotSize,
+                              height: mascotSize,
+                              fit: BoxFit.contain,
+                            );
+                          },
+                        ),
+                      ),
+
+                      SizedBox(height: size.height * 0.02),
+
+                      // "Welcome to iMaliChat!"
+                      Text(
+                        'Welcome to iMaliChat!',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context)
+                            .textTheme
+                            .displaySmall
+                            ?.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+
+                      // "Earn. Chat. Buy."
+                      Text(
+                        'Earn. Chat. Buy.',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(
+                              color: AppColors.gold,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.2,
+                            ),
+                      ),
+
+                      SizedBox(height: size.height * 0.03),
+
+                      // Bullet points
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: Column(
+                          children: [
+                            _buildBulletPoint(
+                              context,
+                              'Watch short ads to earn tokens',
+                            ),
+                            const SizedBox(height: 10),
+                            _buildBulletPoint(
+                              context,
+                              'Answer quick surveys for cash',
+                            ),
+                            const SizedBox(height: 10),
+                            _buildBulletPoint(
+                              context,
+                              'Join daily prize pots & win big',
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: size.height * 0.06),
+
+                      // "Get Started" button
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 48),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton(
+                            onPressed: () => context.go('/onboarding/name'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Text(
+                              'Get Started',
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: size.height * 0.03),
+
+                      // "Already have an account?"
+                      Text(
+                        'Already have an account?',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      // "Log in." - tappable link
+                      GestureDetector(
+                        onTap: () => context.go('/auth/login'),
+                        child: Text(
+                          'Log in.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColors.textPrimary,
+                              ),
+                        ),
+                      ),
+
+                      const Spacer(),
+                    ],
                   ),
-                  AppSpacing.verticalMd,
-                  if (_currentPage < _pages.length - 1)
-                    AppButton(
-                      text: 'Skip',
-                      variant: AppButtonVariant.text,
-                      onPressed: () => context.go('/auth/phone'),
-                    ),
-                ],
+                ),
               ),
             ),
-            AppSpacing.verticalXl,
-            ],
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildPage(BuildContext context, _OnboardingPage page) {
-    return Padding(
-      padding: AppSpacing.pagePadding,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 160,
-            height: 160,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primary.withValues(alpha: 0.2),
-                  AppColors.purple.withValues(alpha: 0.1),
-                ],
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              page.icon,
-              size: 80,
-              color: AppColors.primary,
-            ),
-          ),
-          AppSpacing.verticalXxl,
-          Text(
-            page.title,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-            textAlign: TextAlign.center,
-          ),
-          AppSpacing.verticalMd,
-          Text(
-            page.description,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPageIndicator() {
+  Widget _buildBulletPoint(BuildContext context, String text) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        _pages.length,
-        (index) => AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: _currentPage == index ? 24 : 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: _currentPage == index
-                ? AppColors.primary
-                : AppColors.divider,
-            borderRadius: AppSpacing.borderRadiusRound,
+      children: [
+        Container(
+          width: 22,
+          height: 22,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: AppColors.logoGradient,
+            ),
+          ),
+          child: const Icon(
+            Icons.check,
+            size: 14,
+            color: Colors.white,
           ),
         ),
-      ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.textPrimary.withValues(alpha: 0.9),
+                  height: 1.3,
+                ),
+          ),
+        ),
+      ],
     );
   }
-}
-
-class _OnboardingPage {
-  final IconData icon;
-  final String title;
-  final String description;
-
-  _OnboardingPage({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
 }

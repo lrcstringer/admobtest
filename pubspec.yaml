@@ -91,6 +91,12 @@ dependencies:
   # HTTP client (for external API calls)
   http: ^1.2.2
 
+  # Biometric / Local Authentication
+  local_auth: ^2.3.0
+
+  # Cryptography (HMAC-SHA256 for in-app PIN hashing)
+  crypto: ^3.0.6
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

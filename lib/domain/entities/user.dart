@@ -23,6 +23,9 @@ class User with _$User {
     String? currentVisitorId,
     UserProfile? profile,
     int? riskScore,
+    String? primaryDeviceId,
+    String? riskLevel,
+    DateTime? lastLoginAt,
   }) = _User;
 
   const User._();

@@ -10,6 +10,8 @@ class AuthState with _$AuthState {
     String? errorMessage,
     @Default(false) bool isLoading,
     @Default(0) int resendCountdown,
+    @Default(false) bool isDeviceBound,
+    String? deviceId,
   }) = _AuthState;
 
   const AuthState._();
@@ -33,5 +35,6 @@ enum AuthStatus {
   otpSent,
   otpVerified,
   onboardingRequired,
+  sessionLocked,
   error,
 }

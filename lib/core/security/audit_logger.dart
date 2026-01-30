@@ -285,6 +285,23 @@ enum AuthAction {
   tokenRefresh,
   sessionExpired,
   accountLocked,
+  deviceBound,
+  deviceRevoked,
+  deviceBindingFailed,
+  sessionLock,
+  sessionUnlockBiometric,
+  sessionUnlockDeviceCredential,
+  sessionUnlockPin,
+  sessionUnlockFailed,
+  pinSetup,
+  pinChange,
+  pushChallengeReceived,
+  pushChallengeApproved,
+  pushChallengeDenied,
+  simChangeDetected,
+  stepUpRequired,
+  stepUpCompleted,
+  newDeviceDetected,
 }
 
 /// Financial actions

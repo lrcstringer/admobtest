@@ -244,5 +244,26 @@ service cloud.firestore {
     match /verification_codes/{phoneNumber} {
       allow read, write: if false;
     }
+
+    // Trusted devices collection (server-only writes via Cloud Functions)
+    // Users can read their own devices; all writes through Admin SDK
+    match /devices/{deviceId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    // Auth challenges collection (server-only writes via Cloud Functions)
+    // Used for push-based login challenge/response
+    match /authChallenges/{challengeId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    // Risk events collection (server-only writes via Cloud Functions)
+    // Tracks SIM changes, geo changes, large transactions, etc.
+    match /riskEvents/{eventId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
   }
 }

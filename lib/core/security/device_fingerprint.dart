@@ -4,6 +4,7 @@ library;
 
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 
 class DeviceFingerprint {
@@ -13,6 +14,8 @@ class DeviceFingerprint {
   String? appVersion;
   String? locale;
   bool? isEmulator;
+  String? manufacturer;
+  String? model;
 
   DeviceFingerprint({
     this.deviceId,
@@ -21,24 +24,46 @@ class DeviceFingerprint {
     this.appVersion,
     this.locale,
     this.isEmulator,
+    this.manufacturer,
+    this.model,
   });
 
-  /// Generate fingerprint from current device
+  /// Generate fingerprint from current device using device_info_plus.
   static Future<DeviceFingerprint> generate() async {
+    final deviceInfo = DeviceInfoPlugin();
+    String? deviceId;
+    String? manufacturer;
+    String? model;
+    bool isEmulator = false;
+
+    try {
+      if (!kIsWeb && Platform.isAndroid) {
+        final info = await deviceInfo.androidInfo;
+        deviceId = info.id;
+        manufacturer = info.manufacturer;
+        model = info.model;
+        isEmulator = !info.isPhysicalDevice;
+      } else if (!kIsWeb && Platform.isIOS) {
+        final info = await deviceInfo.iosInfo;
+        deviceId = info.identifierForVendor;
+        manufacturer = 'Apple';
+        model = info.model;
+        isEmulator = !info.isPhysicalDevice;
+      }
+    } catch (e) {
+      debugPrint('Failed to get device info: $e');
+    }
+
     return DeviceFingerprint(
-      deviceId: await _getDeviceId(),
+      deviceId: deviceId ?? 'unknown_${DateTime.now().millisecondsSinceEpoch}',
       platform: _getPlatform(),
       osVersion: _getOsVersion(),
-      appVersion: '1.0.0', // Would come from package_info_plus
+      appVersion: '1.0.0',
       locale: Platform.localeName,
-      isEmulator: await _checkIsEmulator(),
+      isEmulator: isEmulator,
+      manufacturer: manufacturer,
+      model: model,
     );
-  }
-
-  static Future<String> _getDeviceId() async {
-    // In production, use device_info_plus package
-    // This is a placeholder implementation
-    return 'device_${DateTime.now().millisecondsSinceEpoch}';
   }
 
   static String _getPlatform() {
@@ -52,12 +77,6 @@ class DeviceFingerprint {
     return Platform.operatingSystemVersion;
   }
 
-  static Future<bool> _checkIsEmulator() async {
-    // In production, implement proper emulator detection
-    // For now, return false
-    return false;
-  }
-
   /// Convert to map for Firestore
   Map<String, dynamic> toMap() {
     return {
@@ -67,24 +86,22 @@ class DeviceFingerprint {
       'appVersion': appVersion,
       'locale': locale,
       'isEmulator': isEmulator,
+      'manufacturer': manufacturer,
+      'model': model,
       'collectedAt': DateTime.now().toIso8601String(),
     };
   }
 
   /// Calculate fingerprint hash
   String get hash {
-    final data = '$deviceId|$platform|$osVersion';
+    final data = '$deviceId|$platform|$osVersion|$manufacturer|$model';
     return data.hashCode.toRadixString(16);
   }
 
   /// Check if device seems suspicious
   bool get isSuspicious {
-    // Flag if emulator
     if (isEmulator == true) return true;
-
-    // Flag if no device ID
     if (deviceId == null || deviceId!.isEmpty) return true;
-
     return false;
   }
 }

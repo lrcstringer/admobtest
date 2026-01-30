@@ -21,7 +21,7 @@ class ProfilePictureScreen extends StatefulWidget {
 class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
   final ImagePicker _imagePicker = ImagePicker();
   File? _selectedImage;
-  bool _isLoading = false;
+  final bool _isLoading = false;
   int _selectedSource = 1; // 0 = gallery, 1 = camera, 2 = remove
 
   Future<void> _pickImage(ImageSource source) async {

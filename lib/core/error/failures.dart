@@ -34,6 +34,14 @@ class Failure with _$Failure {
       ServerFailure;
   const factory Failure.unknown({String? message}) = UnknownFailure;
 
+  // Device & Security failures
+  const factory Failure.stepUpRequired({String? reason}) = StepUpRequiredFailure;
+  const factory Failure.deviceNotTrusted() = DeviceNotTrustedFailure;
+  const factory Failure.simChanged() = SimChangedFailure;
+  const factory Failure.deviceBindingFailed({String? message}) =
+      DeviceBindingFailedFailure;
+  const factory Failure.sessionLocked() = SessionLockedFailure;
+
   // Cache failures
   const factory Failure.cacheError({String? message}) = CacheFailure;
 }
@@ -62,6 +70,16 @@ extension FailureX on Failure {
         invalidUsername: () =>
             'Username must be 3-20 characters with no spaces.',
         invalidAmount: () => 'Please enter a valid amount.',
+        stepUpRequired: (reason) =>
+            reason ?? 'Additional verification required.',
+        deviceNotTrusted: () =>
+            'This device is not trusted. Please verify your identity.',
+        simChanged: () =>
+            'SIM card change detected. Please verify your identity.',
+        deviceBindingFailed: (message) =>
+            message ?? 'Device registration failed.',
+        sessionLocked: () =>
+            'Your session is locked. Please unlock to continue.',
         serverError: (code, message) =>
             message ?? 'Server error occurred. Please try again.',
         unknown: (message) =>

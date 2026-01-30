@@ -35,6 +35,9 @@ mixin _$User {
   String? get currentVisitorId => throw _privateConstructorUsedError;
   UserProfile? get profile => throw _privateConstructorUsedError;
   int? get riskScore => throw _privateConstructorUsedError;
+  String? get primaryDeviceId => throw _privateConstructorUsedError;
+  String? get riskLevel => throw _privateConstructorUsedError;
+  DateTime? get lastLoginAt => throw _privateConstructorUsedError;
 
   /// Serializes this User to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -65,6 +68,9 @@ abstract class $UserCopyWith<$Res> {
     String? currentVisitorId,
     UserProfile? profile,
     int? riskScore,
+    String? primaryDeviceId,
+    String? riskLevel,
+    DateTime? lastLoginAt,
   });
 
   $UserProfileCopyWith<$Res>? get profile;
@@ -99,6 +105,9 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
     Object? currentVisitorId = freezed,
     Object? profile = freezed,
     Object? riskScore = freezed,
+    Object? primaryDeviceId = freezed,
+    Object? riskLevel = freezed,
+    Object? lastLoginAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -158,6 +167,18 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
                 ? _value.riskScore
                 : riskScore // ignore: cast_nullable_to_non_nullable
                       as int?,
+            primaryDeviceId: freezed == primaryDeviceId
+                ? _value.primaryDeviceId
+                : primaryDeviceId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            riskLevel: freezed == riskLevel
+                ? _value.riskLevel
+                : riskLevel // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            lastLoginAt: freezed == lastLoginAt
+                ? _value.lastLoginAt
+                : lastLoginAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -201,6 +222,9 @@ abstract class _$$UserImplCopyWith<$Res> implements $UserCopyWith<$Res> {
     String? currentVisitorId,
     UserProfile? profile,
     int? riskScore,
+    String? primaryDeviceId,
+    String? riskLevel,
+    DateTime? lastLoginAt,
   });
 
   @override
@@ -233,6 +257,9 @@ class __$$UserImplCopyWithImpl<$Res>
     Object? currentVisitorId = freezed,
     Object? profile = freezed,
     Object? riskScore = freezed,
+    Object? primaryDeviceId = freezed,
+    Object? riskLevel = freezed,
+    Object? lastLoginAt = freezed,
   }) {
     return _then(
       _$UserImpl(
@@ -292,6 +319,18 @@ class __$$UserImplCopyWithImpl<$Res>
             ? _value.riskScore
             : riskScore // ignore: cast_nullable_to_non_nullable
                   as int?,
+        primaryDeviceId: freezed == primaryDeviceId
+            ? _value.primaryDeviceId
+            : primaryDeviceId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        riskLevel: freezed == riskLevel
+            ? _value.riskLevel
+            : riskLevel // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        lastLoginAt: freezed == lastLoginAt
+            ? _value.lastLoginAt
+            : lastLoginAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -315,6 +354,9 @@ class _$UserImpl extends _User {
     this.currentVisitorId,
     this.profile,
     this.riskScore,
+    this.primaryDeviceId,
+    this.riskLevel,
+    this.lastLoginAt,
   }) : super._();
 
   factory _$UserImpl.fromJson(Map<String, dynamic> json) =>
@@ -348,10 +390,16 @@ class _$UserImpl extends _User {
   final UserProfile? profile;
   @override
   final int? riskScore;
+  @override
+  final String? primaryDeviceId;
+  @override
+  final String? riskLevel;
+  @override
+  final DateTime? lastLoginAt;
 
   @override
   String toString() {
-    return 'User(id: $id, phoneNumber: $phoneNumber, status: $status, isPotEligible: $isPotEligible, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt, potEligibleAt: $potEligibleAt, referralCode: $referralCode, currentVisitorId: $currentVisitorId, profile: $profile, riskScore: $riskScore)';
+    return 'User(id: $id, phoneNumber: $phoneNumber, status: $status, isPotEligible: $isPotEligible, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt, potEligibleAt: $potEligibleAt, referralCode: $referralCode, currentVisitorId: $currentVisitorId, profile: $profile, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt)';
   }
 
   @override
@@ -383,7 +431,13 @@ class _$UserImpl extends _User {
                 other.currentVisitorId == currentVisitorId) &&
             (identical(other.profile, profile) || other.profile == profile) &&
             (identical(other.riskScore, riskScore) ||
-                other.riskScore == riskScore));
+                other.riskScore == riskScore) &&
+            (identical(other.primaryDeviceId, primaryDeviceId) ||
+                other.primaryDeviceId == primaryDeviceId) &&
+            (identical(other.riskLevel, riskLevel) ||
+                other.riskLevel == riskLevel) &&
+            (identical(other.lastLoginAt, lastLoginAt) ||
+                other.lastLoginAt == lastLoginAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -404,6 +458,9 @@ class _$UserImpl extends _User {
     currentVisitorId,
     profile,
     riskScore,
+    primaryDeviceId,
+    riskLevel,
+    lastLoginAt,
   );
 
   /// Create a copy of User
@@ -436,6 +493,9 @@ abstract class _User extends User {
     final String? currentVisitorId,
     final UserProfile? profile,
     final int? riskScore,
+    final String? primaryDeviceId,
+    final String? riskLevel,
+    final DateTime? lastLoginAt,
   }) = _$UserImpl;
   const _User._() : super._();
 
@@ -469,6 +529,12 @@ abstract class _User extends User {
   UserProfile? get profile;
   @override
   int? get riskScore;
+  @override
+  String? get primaryDeviceId;
+  @override
+  String? get riskLevel;
+  @override
+  DateTime? get lastLoginAt;
 
   /// Create a copy of User
   /// with the given fields replaced by the non-null parameter values.

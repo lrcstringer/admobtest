@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import 'core/di/injection.dart';
+import 'core/security/session_lock_service.dart';
 import 'presentation/blocs/auth/auth_bloc.dart';
 import 'presentation/blocs/cashout/cashout_bloc.dart';
 import 'presentation/blocs/chat/chat_bloc.dart';
@@ -21,7 +23,8 @@ class IMaliChatApp extends StatefulWidget {
   State<IMaliChatApp> createState() => _IMaliChatAppState();
 }
 
-class _IMaliChatAppState extends State<IMaliChatApp> {
+class _IMaliChatAppState extends State<IMaliChatApp>
+    with WidgetsBindingObserver {
   late final AuthBloc _authBloc;
   late final WalletBloc _walletBloc;
   late final EarnBloc _earnBloc;
@@ -31,10 +34,12 @@ class _IMaliChatAppState extends State<IMaliChatApp> {
   late final PurchaseBloc _purchaseBloc;
   late final ReferralBloc _referralBloc;
   late final AppRouter _appRouter;
+  late final SessionLockService _sessionLockService;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _authBloc = getIt<AuthBloc>();
     _walletBloc = getIt<WalletBloc>();
     _earnBloc = getIt<EarnBloc>();
@@ -43,7 +48,49 @@ class _IMaliChatAppState extends State<IMaliChatApp> {
     _potBloc = getIt<PotBloc>();
     _purchaseBloc = getIt<PurchaseBloc>();
     _referralBloc = getIt<ReferralBloc>();
+    _sessionLockService = GetIt.instance<SessionLockService>();
     _appRouter = AppRouter(authBloc: _authBloc);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.hidden:
+        _sessionLockService.onAppPaused();
+      case AppLifecycleState.resumed:
+        _handleAppResumed();
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+        break;
+    }
+  }
+
+  void _handleAppResumed() {
+    // Only check session lock if user is authenticated
+    if (_authBloc.state.status != AuthStatus.authenticated &&
+        _authBloc.state.status != AuthStatus.sessionLocked) {
+      return;
+    }
+
+    final result = _sessionLockService.onAppResumed();
+
+    switch (result) {
+      case SessionLockResult.noLockNeeded:
+        break;
+      case SessionLockResult.sessionLockRequired:
+        _authBloc.add(const AuthEvent.lockSession());
+      case SessionLockResult.fullReauthRequired:
+        _authBloc.add(const AuthEvent.forceReauth());
+    }
   }
 
   @override

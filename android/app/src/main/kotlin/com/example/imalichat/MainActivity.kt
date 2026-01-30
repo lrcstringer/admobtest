@@ -1,5 +1,19 @@
 package com.example.imalichat
 
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
 
-class MainActivity : FlutterActivity()
+class MainActivity : FlutterActivity() {
+    private lateinit var keystoreChannel: KeystoreChannel
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        keystoreChannel = KeystoreChannel(applicationContext)
+        keystoreChannel.register(flutterEngine)
+    }
+
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        keystoreChannel.unregister()
+        super.cleanUpFlutterEngine(flutterEngine)
+    }
+}

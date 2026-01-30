@@ -32,6 +32,11 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['potEligibleAt'] as String),
       fcmToken: json['fcmToken'] as String?,
       riskScore: (json['riskScore'] as num?)?.toInt(),
+      primaryDeviceId: json['primaryDeviceId'] as String?,
+      riskLevel: json['riskLevel'] as String?,
+      lastLoginAt: json['lastLoginAt'] == null
+          ? null
+          : DateTime.parse(json['lastLoginAt'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] == null
           ? null
@@ -63,6 +68,9 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'potEligibleAt': instance.potEligibleAt?.toIso8601String(),
       'fcmToken': instance.fcmToken,
       'riskScore': instance.riskScore,
+      'primaryDeviceId': instance.primaryDeviceId,
+      'riskLevel': instance.riskLevel,
+      'lastLoginAt': instance.lastLoginAt?.toIso8601String(),
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
       'lastActiveAt': instance.lastActiveAt?.toIso8601String(),

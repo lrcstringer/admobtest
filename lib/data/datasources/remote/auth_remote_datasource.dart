@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/exceptions.dart';
@@ -53,24 +54,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String phoneNumber,
   }) async {
     try {
-      print('AuthRemoteDataSource: Calling sendOtp for $phoneNumber');
+      debugPrint('AuthRemoteDataSource: Calling sendOtp for $phoneNumber');
       final callable = _functions.httpsCallable('sendOtp');
       final result = await callable.call<Map<String, dynamic>>({
         'phoneNumber': phoneNumber,
       });
 
       final data = result.data;
-      print('AuthRemoteDataSource: sendOtp response: $data');
+      debugPrint('AuthRemoteDataSource: sendOtp response: $data');
       if (data['success'] != true) {
         throw AuthException(
           message: data['message'] as String? ?? 'Failed to send OTP',
         );
       }
     } on FirebaseFunctionsException catch (e) {
-      print('AuthRemoteDataSource: FirebaseFunctionsException: ${e.code} - ${e.message}');
+      debugPrint('AuthRemoteDataSource: FirebaseFunctionsException: ${e.code} - ${e.message}');
       throw _mapFunctionsError(e);
     } catch (e) {
-      print('AuthRemoteDataSource: Unexpected error in sendOtp: $e');
+      debugPrint('AuthRemoteDataSource: Unexpected error in sendOtp: $e');
       throw AuthException(message: 'Failed to send verification code. Please try again.');
     }
   }

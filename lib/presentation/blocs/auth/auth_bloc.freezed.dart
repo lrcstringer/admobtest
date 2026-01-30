@@ -27,6 +27,10 @@ mixin _$AuthEvent {
     required TResult Function() deleteAccount,
     required TResult Function() acceptTerms,
     required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
@@ -38,6 +42,10 @@ mixin _$AuthEvent {
     TResult? Function()? deleteAccount,
     TResult? Function()? acceptTerms,
     TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
@@ -49,6 +57,10 @@ mixin _$AuthEvent {
     TResult Function()? deleteAccount,
     TResult Function()? acceptTerms,
     TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -61,6 +73,10 @@ mixin _$AuthEvent {
     required TResult Function(_DeleteAccount value) deleteAccount,
     required TResult Function(_AcceptTerms value) acceptTerms,
     required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
@@ -72,6 +88,10 @@ mixin _$AuthEvent {
     TResult? Function(_DeleteAccount value)? deleteAccount,
     TResult? Function(_AcceptTerms value)? acceptTerms,
     TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
@@ -83,6 +103,10 @@ mixin _$AuthEvent {
     TResult Function(_DeleteAccount value)? deleteAccount,
     TResult Function(_AcceptTerms value)? acceptTerms,
     TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
 }
@@ -130,12 +154,20 @@ class __$$CheckAuthStatusImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$CheckAuthStatusImpl implements _CheckAuthStatus {
+class _$CheckAuthStatusImpl
+    with DiagnosticableTreeMixin
+    implements _CheckAuthStatus {
   const _$CheckAuthStatusImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'AuthEvent.checkAuthStatus()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(DiagnosticsProperty('type', 'AuthEvent.checkAuthStatus'));
   }
 
   @override
@@ -158,6 +190,10 @@ class _$CheckAuthStatusImpl implements _CheckAuthStatus {
     required TResult Function() deleteAccount,
     required TResult Function() acceptTerms,
     required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
   }) {
     return checkAuthStatus();
   }
@@ -173,6 +209,10 @@ class _$CheckAuthStatusImpl implements _CheckAuthStatus {
     TResult? Function()? deleteAccount,
     TResult? Function()? acceptTerms,
     TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
   }) {
     return checkAuthStatus?.call();
   }
@@ -188,6 +228,10 @@ class _$CheckAuthStatusImpl implements _CheckAuthStatus {
     TResult Function()? deleteAccount,
     TResult Function()? acceptTerms,
     TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
     required TResult orElse(),
   }) {
     if (checkAuthStatus != null) {
@@ -207,6 +251,10 @@ class _$CheckAuthStatusImpl implements _CheckAuthStatus {
     required TResult Function(_DeleteAccount value) deleteAccount,
     required TResult Function(_AcceptTerms value) acceptTerms,
     required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
   }) {
     return checkAuthStatus(this);
   }
@@ -222,6 +270,10 @@ class _$CheckAuthStatusImpl implements _CheckAuthStatus {
     TResult? Function(_DeleteAccount value)? deleteAccount,
     TResult? Function(_AcceptTerms value)? acceptTerms,
     TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
   }) {
     return checkAuthStatus?.call(this);
   }
@@ -237,6 +289,10 @@ class _$CheckAuthStatusImpl implements _CheckAuthStatus {
     TResult Function(_DeleteAccount value)? deleteAccount,
     TResult Function(_AcceptTerms value)? acceptTerms,
     TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
     required TResult orElse(),
   }) {
     if (checkAuthStatus != null) {
@@ -287,15 +343,23 @@ class __$$SendOtpImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$SendOtpImpl implements _SendOtp {
+class _$SendOtpImpl with DiagnosticableTreeMixin implements _SendOtp {
   const _$SendOtpImpl({required this.phoneNumber});
 
   @override
   final String phoneNumber;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'AuthEvent.sendOtp(phoneNumber: $phoneNumber)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'AuthEvent.sendOtp'))
+      ..add(DiagnosticsProperty('phoneNumber', phoneNumber));
   }
 
   @override
@@ -329,6 +393,10 @@ class _$SendOtpImpl implements _SendOtp {
     required TResult Function() deleteAccount,
     required TResult Function() acceptTerms,
     required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
   }) {
     return sendOtp(phoneNumber);
   }
@@ -344,6 +412,10 @@ class _$SendOtpImpl implements _SendOtp {
     TResult? Function()? deleteAccount,
     TResult? Function()? acceptTerms,
     TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
   }) {
     return sendOtp?.call(phoneNumber);
   }
@@ -359,6 +431,10 @@ class _$SendOtpImpl implements _SendOtp {
     TResult Function()? deleteAccount,
     TResult Function()? acceptTerms,
     TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
     required TResult orElse(),
   }) {
     if (sendOtp != null) {
@@ -378,6 +454,10 @@ class _$SendOtpImpl implements _SendOtp {
     required TResult Function(_DeleteAccount value) deleteAccount,
     required TResult Function(_AcceptTerms value) acceptTerms,
     required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
   }) {
     return sendOtp(this);
   }
@@ -393,6 +473,10 @@ class _$SendOtpImpl implements _SendOtp {
     TResult? Function(_DeleteAccount value)? deleteAccount,
     TResult? Function(_AcceptTerms value)? acceptTerms,
     TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
   }) {
     return sendOtp?.call(this);
   }
@@ -408,6 +492,10 @@ class _$SendOtpImpl implements _SendOtp {
     TResult Function(_DeleteAccount value)? deleteAccount,
     TResult Function(_AcceptTerms value)? acceptTerms,
     TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
     required TResult orElse(),
   }) {
     if (sendOtp != null) {
@@ -470,7 +558,7 @@ class __$$VerifyOtpImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$VerifyOtpImpl implements _VerifyOtp {
+class _$VerifyOtpImpl with DiagnosticableTreeMixin implements _VerifyOtp {
   const _$VerifyOtpImpl({required this.verificationId, required this.otp});
 
   @override
@@ -479,8 +567,17 @@ class _$VerifyOtpImpl implements _VerifyOtp {
   final String otp;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'AuthEvent.verifyOtp(verificationId: $verificationId, otp: $otp)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'AuthEvent.verifyOtp'))
+      ..add(DiagnosticsProperty('verificationId', verificationId))
+      ..add(DiagnosticsProperty('otp', otp));
   }
 
   @override
@@ -515,6 +612,10 @@ class _$VerifyOtpImpl implements _VerifyOtp {
     required TResult Function() deleteAccount,
     required TResult Function() acceptTerms,
     required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
   }) {
     return verifyOtp(verificationId, otp);
   }
@@ -530,6 +631,10 @@ class _$VerifyOtpImpl implements _VerifyOtp {
     TResult? Function()? deleteAccount,
     TResult? Function()? acceptTerms,
     TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
   }) {
     return verifyOtp?.call(verificationId, otp);
   }
@@ -545,6 +650,10 @@ class _$VerifyOtpImpl implements _VerifyOtp {
     TResult Function()? deleteAccount,
     TResult Function()? acceptTerms,
     TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
     required TResult orElse(),
   }) {
     if (verifyOtp != null) {
@@ -564,6 +673,10 @@ class _$VerifyOtpImpl implements _VerifyOtp {
     required TResult Function(_DeleteAccount value) deleteAccount,
     required TResult Function(_AcceptTerms value) acceptTerms,
     required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
   }) {
     return verifyOtp(this);
   }
@@ -579,6 +692,10 @@ class _$VerifyOtpImpl implements _VerifyOtp {
     TResult? Function(_DeleteAccount value)? deleteAccount,
     TResult? Function(_AcceptTerms value)? acceptTerms,
     TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
   }) {
     return verifyOtp?.call(this);
   }
@@ -594,6 +711,10 @@ class _$VerifyOtpImpl implements _VerifyOtp {
     TResult Function(_DeleteAccount value)? deleteAccount,
     TResult Function(_AcceptTerms value)? acceptTerms,
     TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
     required TResult orElse(),
   }) {
     if (verifyOtp != null) {
@@ -656,15 +777,23 @@ class __$$ResendOtpImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$ResendOtpImpl implements _ResendOtp {
+class _$ResendOtpImpl with DiagnosticableTreeMixin implements _ResendOtp {
   const _$ResendOtpImpl({required this.phoneNumber});
 
   @override
   final String phoneNumber;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'AuthEvent.resendOtp(phoneNumber: $phoneNumber)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'AuthEvent.resendOtp'))
+      ..add(DiagnosticsProperty('phoneNumber', phoneNumber));
   }
 
   @override
@@ -698,6 +827,10 @@ class _$ResendOtpImpl implements _ResendOtp {
     required TResult Function() deleteAccount,
     required TResult Function() acceptTerms,
     required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
   }) {
     return resendOtp(phoneNumber);
   }
@@ -713,6 +846,10 @@ class _$ResendOtpImpl implements _ResendOtp {
     TResult? Function()? deleteAccount,
     TResult? Function()? acceptTerms,
     TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
   }) {
     return resendOtp?.call(phoneNumber);
   }
@@ -728,6 +865,10 @@ class _$ResendOtpImpl implements _ResendOtp {
     TResult Function()? deleteAccount,
     TResult Function()? acceptTerms,
     TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
     required TResult orElse(),
   }) {
     if (resendOtp != null) {
@@ -747,6 +888,10 @@ class _$ResendOtpImpl implements _ResendOtp {
     required TResult Function(_DeleteAccount value) deleteAccount,
     required TResult Function(_AcceptTerms value) acceptTerms,
     required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
   }) {
     return resendOtp(this);
   }
@@ -762,6 +907,10 @@ class _$ResendOtpImpl implements _ResendOtp {
     TResult? Function(_DeleteAccount value)? deleteAccount,
     TResult? Function(_AcceptTerms value)? acceptTerms,
     TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
   }) {
     return resendOtp?.call(this);
   }
@@ -777,6 +926,10 @@ class _$ResendOtpImpl implements _ResendOtp {
     TResult Function(_DeleteAccount value)? deleteAccount,
     TResult Function(_AcceptTerms value)? acceptTerms,
     TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
     required TResult orElse(),
   }) {
     if (resendOtp != null) {
@@ -822,12 +975,18 @@ class __$$SignOutImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$SignOutImpl implements _SignOut {
+class _$SignOutImpl with DiagnosticableTreeMixin implements _SignOut {
   const _$SignOutImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'AuthEvent.signOut()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(DiagnosticsProperty('type', 'AuthEvent.signOut'));
   }
 
   @override
@@ -850,6 +1009,10 @@ class _$SignOutImpl implements _SignOut {
     required TResult Function() deleteAccount,
     required TResult Function() acceptTerms,
     required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
   }) {
     return signOut();
   }
@@ -865,6 +1028,10 @@ class _$SignOutImpl implements _SignOut {
     TResult? Function()? deleteAccount,
     TResult? Function()? acceptTerms,
     TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
   }) {
     return signOut?.call();
   }
@@ -880,6 +1047,10 @@ class _$SignOutImpl implements _SignOut {
     TResult Function()? deleteAccount,
     TResult Function()? acceptTerms,
     TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
     required TResult orElse(),
   }) {
     if (signOut != null) {
@@ -899,6 +1070,10 @@ class _$SignOutImpl implements _SignOut {
     required TResult Function(_DeleteAccount value) deleteAccount,
     required TResult Function(_AcceptTerms value) acceptTerms,
     required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
   }) {
     return signOut(this);
   }
@@ -914,6 +1089,10 @@ class _$SignOutImpl implements _SignOut {
     TResult? Function(_DeleteAccount value)? deleteAccount,
     TResult? Function(_AcceptTerms value)? acceptTerms,
     TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
   }) {
     return signOut?.call(this);
   }
@@ -929,6 +1108,10 @@ class _$SignOutImpl implements _SignOut {
     TResult Function(_DeleteAccount value)? deleteAccount,
     TResult Function(_AcceptTerms value)? acceptTerms,
     TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
     required TResult orElse(),
   }) {
     if (signOut != null) {
@@ -965,12 +1148,20 @@ class __$$DeleteAccountImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$DeleteAccountImpl implements _DeleteAccount {
+class _$DeleteAccountImpl
+    with DiagnosticableTreeMixin
+    implements _DeleteAccount {
   const _$DeleteAccountImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'AuthEvent.deleteAccount()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(DiagnosticsProperty('type', 'AuthEvent.deleteAccount'));
   }
 
   @override
@@ -993,6 +1184,10 @@ class _$DeleteAccountImpl implements _DeleteAccount {
     required TResult Function() deleteAccount,
     required TResult Function() acceptTerms,
     required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
   }) {
     return deleteAccount();
   }
@@ -1008,6 +1203,10 @@ class _$DeleteAccountImpl implements _DeleteAccount {
     TResult? Function()? deleteAccount,
     TResult? Function()? acceptTerms,
     TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
   }) {
     return deleteAccount?.call();
   }
@@ -1023,6 +1222,10 @@ class _$DeleteAccountImpl implements _DeleteAccount {
     TResult Function()? deleteAccount,
     TResult Function()? acceptTerms,
     TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
     required TResult orElse(),
   }) {
     if (deleteAccount != null) {
@@ -1042,6 +1245,10 @@ class _$DeleteAccountImpl implements _DeleteAccount {
     required TResult Function(_DeleteAccount value) deleteAccount,
     required TResult Function(_AcceptTerms value) acceptTerms,
     required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
   }) {
     return deleteAccount(this);
   }
@@ -1057,6 +1264,10 @@ class _$DeleteAccountImpl implements _DeleteAccount {
     TResult? Function(_DeleteAccount value)? deleteAccount,
     TResult? Function(_AcceptTerms value)? acceptTerms,
     TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
   }) {
     return deleteAccount?.call(this);
   }
@@ -1072,6 +1283,10 @@ class _$DeleteAccountImpl implements _DeleteAccount {
     TResult Function(_DeleteAccount value)? deleteAccount,
     TResult Function(_AcceptTerms value)? acceptTerms,
     TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
     required TResult orElse(),
   }) {
     if (deleteAccount != null) {
@@ -1108,12 +1323,18 @@ class __$$AcceptTermsImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$AcceptTermsImpl implements _AcceptTerms {
+class _$AcceptTermsImpl with DiagnosticableTreeMixin implements _AcceptTerms {
   const _$AcceptTermsImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'AuthEvent.acceptTerms()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(DiagnosticsProperty('type', 'AuthEvent.acceptTerms'));
   }
 
   @override
@@ -1136,6 +1357,10 @@ class _$AcceptTermsImpl implements _AcceptTerms {
     required TResult Function() deleteAccount,
     required TResult Function() acceptTerms,
     required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
   }) {
     return acceptTerms();
   }
@@ -1151,6 +1376,10 @@ class _$AcceptTermsImpl implements _AcceptTerms {
     TResult? Function()? deleteAccount,
     TResult? Function()? acceptTerms,
     TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
   }) {
     return acceptTerms?.call();
   }
@@ -1166,6 +1395,10 @@ class _$AcceptTermsImpl implements _AcceptTerms {
     TResult Function()? deleteAccount,
     TResult Function()? acceptTerms,
     TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
     required TResult orElse(),
   }) {
     if (acceptTerms != null) {
@@ -1185,6 +1418,10 @@ class _$AcceptTermsImpl implements _AcceptTerms {
     required TResult Function(_DeleteAccount value) deleteAccount,
     required TResult Function(_AcceptTerms value) acceptTerms,
     required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
   }) {
     return acceptTerms(this);
   }
@@ -1200,6 +1437,10 @@ class _$AcceptTermsImpl implements _AcceptTerms {
     TResult? Function(_DeleteAccount value)? deleteAccount,
     TResult? Function(_AcceptTerms value)? acceptTerms,
     TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
   }) {
     return acceptTerms?.call(this);
   }
@@ -1215,6 +1456,10 @@ class _$AcceptTermsImpl implements _AcceptTerms {
     TResult Function(_DeleteAccount value)? deleteAccount,
     TResult Function(_AcceptTerms value)? acceptTerms,
     TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
     required TResult orElse(),
   }) {
     if (acceptTerms != null) {
@@ -1251,12 +1496,21 @@ class __$$CompleteOnboardingImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$CompleteOnboardingImpl implements _CompleteOnboarding {
+class _$CompleteOnboardingImpl
+    with DiagnosticableTreeMixin
+    implements _CompleteOnboarding {
   const _$CompleteOnboardingImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'AuthEvent.completeOnboarding()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'AuthEvent.completeOnboarding'));
   }
 
   @override
@@ -1279,6 +1533,10 @@ class _$CompleteOnboardingImpl implements _CompleteOnboarding {
     required TResult Function() deleteAccount,
     required TResult Function() acceptTerms,
     required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
   }) {
     return completeOnboarding();
   }
@@ -1294,6 +1552,10 @@ class _$CompleteOnboardingImpl implements _CompleteOnboarding {
     TResult? Function()? deleteAccount,
     TResult? Function()? acceptTerms,
     TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
   }) {
     return completeOnboarding?.call();
   }
@@ -1309,6 +1571,10 @@ class _$CompleteOnboardingImpl implements _CompleteOnboarding {
     TResult Function()? deleteAccount,
     TResult Function()? acceptTerms,
     TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
     required TResult orElse(),
   }) {
     if (completeOnboarding != null) {
@@ -1328,6 +1594,10 @@ class _$CompleteOnboardingImpl implements _CompleteOnboarding {
     required TResult Function(_DeleteAccount value) deleteAccount,
     required TResult Function(_AcceptTerms value) acceptTerms,
     required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
   }) {
     return completeOnboarding(this);
   }
@@ -1343,6 +1613,10 @@ class _$CompleteOnboardingImpl implements _CompleteOnboarding {
     TResult? Function(_DeleteAccount value)? deleteAccount,
     TResult? Function(_AcceptTerms value)? acceptTerms,
     TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
   }) {
     return completeOnboarding?.call(this);
   }
@@ -1358,6 +1632,10 @@ class _$CompleteOnboardingImpl implements _CompleteOnboarding {
     TResult Function(_DeleteAccount value)? deleteAccount,
     TResult Function(_AcceptTerms value)? acceptTerms,
     TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
     required TResult orElse(),
   }) {
     if (completeOnboarding != null) {
@@ -1372,6 +1650,700 @@ abstract class _CompleteOnboarding implements AuthEvent {
 }
 
 /// @nodoc
+abstract class _$$BindDeviceImplCopyWith<$Res> {
+  factory _$$BindDeviceImplCopyWith(
+    _$BindDeviceImpl value,
+    $Res Function(_$BindDeviceImpl) then,
+  ) = __$$BindDeviceImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$BindDeviceImplCopyWithImpl<$Res>
+    extends _$AuthEventCopyWithImpl<$Res, _$BindDeviceImpl>
+    implements _$$BindDeviceImplCopyWith<$Res> {
+  __$$BindDeviceImplCopyWithImpl(
+    _$BindDeviceImpl _value,
+    $Res Function(_$BindDeviceImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$BindDeviceImpl with DiagnosticableTreeMixin implements _BindDevice {
+  const _$BindDeviceImpl();
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'AuthEvent.bindDevice()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(DiagnosticsProperty('type', 'AuthEvent.bindDevice'));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$BindDeviceImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() checkAuthStatus,
+    required TResult Function(String phoneNumber) sendOtp,
+    required TResult Function(String verificationId, String otp) verifyOtp,
+    required TResult Function(String phoneNumber) resendOtp,
+    required TResult Function() signOut,
+    required TResult Function() deleteAccount,
+    required TResult Function() acceptTerms,
+    required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
+  }) {
+    return bindDevice();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? checkAuthStatus,
+    TResult? Function(String phoneNumber)? sendOtp,
+    TResult? Function(String verificationId, String otp)? verifyOtp,
+    TResult? Function(String phoneNumber)? resendOtp,
+    TResult? Function()? signOut,
+    TResult? Function()? deleteAccount,
+    TResult? Function()? acceptTerms,
+    TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
+  }) {
+    return bindDevice?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? checkAuthStatus,
+    TResult Function(String phoneNumber)? sendOtp,
+    TResult Function(String verificationId, String otp)? verifyOtp,
+    TResult Function(String phoneNumber)? resendOtp,
+    TResult Function()? signOut,
+    TResult Function()? deleteAccount,
+    TResult Function()? acceptTerms,
+    TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
+    required TResult orElse(),
+  }) {
+    if (bindDevice != null) {
+      return bindDevice();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
+    required TResult Function(_SendOtp value) sendOtp,
+    required TResult Function(_VerifyOtp value) verifyOtp,
+    required TResult Function(_ResendOtp value) resendOtp,
+    required TResult Function(_SignOut value) signOut,
+    required TResult Function(_DeleteAccount value) deleteAccount,
+    required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
+  }) {
+    return bindDevice(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
+    TResult? Function(_SendOtp value)? sendOtp,
+    TResult? Function(_VerifyOtp value)? verifyOtp,
+    TResult? Function(_ResendOtp value)? resendOtp,
+    TResult? Function(_SignOut value)? signOut,
+    TResult? Function(_DeleteAccount value)? deleteAccount,
+    TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
+  }) {
+    return bindDevice?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
+    TResult Function(_SendOtp value)? sendOtp,
+    TResult Function(_VerifyOtp value)? verifyOtp,
+    TResult Function(_ResendOtp value)? resendOtp,
+    TResult Function(_SignOut value)? signOut,
+    TResult Function(_DeleteAccount value)? deleteAccount,
+    TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
+    required TResult orElse(),
+  }) {
+    if (bindDevice != null) {
+      return bindDevice(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _BindDevice implements AuthEvent {
+  const factory _BindDevice() = _$BindDeviceImpl;
+}
+
+/// @nodoc
+abstract class _$$LockSessionImplCopyWith<$Res> {
+  factory _$$LockSessionImplCopyWith(
+    _$LockSessionImpl value,
+    $Res Function(_$LockSessionImpl) then,
+  ) = __$$LockSessionImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$LockSessionImplCopyWithImpl<$Res>
+    extends _$AuthEventCopyWithImpl<$Res, _$LockSessionImpl>
+    implements _$$LockSessionImplCopyWith<$Res> {
+  __$$LockSessionImplCopyWithImpl(
+    _$LockSessionImpl _value,
+    $Res Function(_$LockSessionImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$LockSessionImpl with DiagnosticableTreeMixin implements _LockSession {
+  const _$LockSessionImpl();
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'AuthEvent.lockSession()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(DiagnosticsProperty('type', 'AuthEvent.lockSession'));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$LockSessionImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() checkAuthStatus,
+    required TResult Function(String phoneNumber) sendOtp,
+    required TResult Function(String verificationId, String otp) verifyOtp,
+    required TResult Function(String phoneNumber) resendOtp,
+    required TResult Function() signOut,
+    required TResult Function() deleteAccount,
+    required TResult Function() acceptTerms,
+    required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
+  }) {
+    return lockSession();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? checkAuthStatus,
+    TResult? Function(String phoneNumber)? sendOtp,
+    TResult? Function(String verificationId, String otp)? verifyOtp,
+    TResult? Function(String phoneNumber)? resendOtp,
+    TResult? Function()? signOut,
+    TResult? Function()? deleteAccount,
+    TResult? Function()? acceptTerms,
+    TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
+  }) {
+    return lockSession?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? checkAuthStatus,
+    TResult Function(String phoneNumber)? sendOtp,
+    TResult Function(String verificationId, String otp)? verifyOtp,
+    TResult Function(String phoneNumber)? resendOtp,
+    TResult Function()? signOut,
+    TResult Function()? deleteAccount,
+    TResult Function()? acceptTerms,
+    TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
+    required TResult orElse(),
+  }) {
+    if (lockSession != null) {
+      return lockSession();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
+    required TResult Function(_SendOtp value) sendOtp,
+    required TResult Function(_VerifyOtp value) verifyOtp,
+    required TResult Function(_ResendOtp value) resendOtp,
+    required TResult Function(_SignOut value) signOut,
+    required TResult Function(_DeleteAccount value) deleteAccount,
+    required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
+  }) {
+    return lockSession(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
+    TResult? Function(_SendOtp value)? sendOtp,
+    TResult? Function(_VerifyOtp value)? verifyOtp,
+    TResult? Function(_ResendOtp value)? resendOtp,
+    TResult? Function(_SignOut value)? signOut,
+    TResult? Function(_DeleteAccount value)? deleteAccount,
+    TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
+  }) {
+    return lockSession?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
+    TResult Function(_SendOtp value)? sendOtp,
+    TResult Function(_VerifyOtp value)? verifyOtp,
+    TResult Function(_ResendOtp value)? resendOtp,
+    TResult Function(_SignOut value)? signOut,
+    TResult Function(_DeleteAccount value)? deleteAccount,
+    TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
+    required TResult orElse(),
+  }) {
+    if (lockSession != null) {
+      return lockSession(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _LockSession implements AuthEvent {
+  const factory _LockSession() = _$LockSessionImpl;
+}
+
+/// @nodoc
+abstract class _$$UnlockSessionImplCopyWith<$Res> {
+  factory _$$UnlockSessionImplCopyWith(
+    _$UnlockSessionImpl value,
+    $Res Function(_$UnlockSessionImpl) then,
+  ) = __$$UnlockSessionImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$UnlockSessionImplCopyWithImpl<$Res>
+    extends _$AuthEventCopyWithImpl<$Res, _$UnlockSessionImpl>
+    implements _$$UnlockSessionImplCopyWith<$Res> {
+  __$$UnlockSessionImplCopyWithImpl(
+    _$UnlockSessionImpl _value,
+    $Res Function(_$UnlockSessionImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$UnlockSessionImpl
+    with DiagnosticableTreeMixin
+    implements _UnlockSession {
+  const _$UnlockSessionImpl();
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'AuthEvent.unlockSession()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(DiagnosticsProperty('type', 'AuthEvent.unlockSession'));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$UnlockSessionImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() checkAuthStatus,
+    required TResult Function(String phoneNumber) sendOtp,
+    required TResult Function(String verificationId, String otp) verifyOtp,
+    required TResult Function(String phoneNumber) resendOtp,
+    required TResult Function() signOut,
+    required TResult Function() deleteAccount,
+    required TResult Function() acceptTerms,
+    required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
+  }) {
+    return unlockSession();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? checkAuthStatus,
+    TResult? Function(String phoneNumber)? sendOtp,
+    TResult? Function(String verificationId, String otp)? verifyOtp,
+    TResult? Function(String phoneNumber)? resendOtp,
+    TResult? Function()? signOut,
+    TResult? Function()? deleteAccount,
+    TResult? Function()? acceptTerms,
+    TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
+  }) {
+    return unlockSession?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? checkAuthStatus,
+    TResult Function(String phoneNumber)? sendOtp,
+    TResult Function(String verificationId, String otp)? verifyOtp,
+    TResult Function(String phoneNumber)? resendOtp,
+    TResult Function()? signOut,
+    TResult Function()? deleteAccount,
+    TResult Function()? acceptTerms,
+    TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
+    required TResult orElse(),
+  }) {
+    if (unlockSession != null) {
+      return unlockSession();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
+    required TResult Function(_SendOtp value) sendOtp,
+    required TResult Function(_VerifyOtp value) verifyOtp,
+    required TResult Function(_ResendOtp value) resendOtp,
+    required TResult Function(_SignOut value) signOut,
+    required TResult Function(_DeleteAccount value) deleteAccount,
+    required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
+  }) {
+    return unlockSession(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
+    TResult? Function(_SendOtp value)? sendOtp,
+    TResult? Function(_VerifyOtp value)? verifyOtp,
+    TResult? Function(_ResendOtp value)? resendOtp,
+    TResult? Function(_SignOut value)? signOut,
+    TResult? Function(_DeleteAccount value)? deleteAccount,
+    TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
+  }) {
+    return unlockSession?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
+    TResult Function(_SendOtp value)? sendOtp,
+    TResult Function(_VerifyOtp value)? verifyOtp,
+    TResult Function(_ResendOtp value)? resendOtp,
+    TResult Function(_SignOut value)? signOut,
+    TResult Function(_DeleteAccount value)? deleteAccount,
+    TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
+    required TResult orElse(),
+  }) {
+    if (unlockSession != null) {
+      return unlockSession(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _UnlockSession implements AuthEvent {
+  const factory _UnlockSession() = _$UnlockSessionImpl;
+}
+
+/// @nodoc
+abstract class _$$ForceReauthImplCopyWith<$Res> {
+  factory _$$ForceReauthImplCopyWith(
+    _$ForceReauthImpl value,
+    $Res Function(_$ForceReauthImpl) then,
+  ) = __$$ForceReauthImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$ForceReauthImplCopyWithImpl<$Res>
+    extends _$AuthEventCopyWithImpl<$Res, _$ForceReauthImpl>
+    implements _$$ForceReauthImplCopyWith<$Res> {
+  __$$ForceReauthImplCopyWithImpl(
+    _$ForceReauthImpl _value,
+    $Res Function(_$ForceReauthImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$ForceReauthImpl with DiagnosticableTreeMixin implements _ForceReauth {
+  const _$ForceReauthImpl();
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'AuthEvent.forceReauth()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(DiagnosticsProperty('type', 'AuthEvent.forceReauth'));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$ForceReauthImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() checkAuthStatus,
+    required TResult Function(String phoneNumber) sendOtp,
+    required TResult Function(String verificationId, String otp) verifyOtp,
+    required TResult Function(String phoneNumber) resendOtp,
+    required TResult Function() signOut,
+    required TResult Function() deleteAccount,
+    required TResult Function() acceptTerms,
+    required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
+  }) {
+    return forceReauth();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? checkAuthStatus,
+    TResult? Function(String phoneNumber)? sendOtp,
+    TResult? Function(String verificationId, String otp)? verifyOtp,
+    TResult? Function(String phoneNumber)? resendOtp,
+    TResult? Function()? signOut,
+    TResult? Function()? deleteAccount,
+    TResult? Function()? acceptTerms,
+    TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
+  }) {
+    return forceReauth?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? checkAuthStatus,
+    TResult Function(String phoneNumber)? sendOtp,
+    TResult Function(String verificationId, String otp)? verifyOtp,
+    TResult Function(String phoneNumber)? resendOtp,
+    TResult Function()? signOut,
+    TResult Function()? deleteAccount,
+    TResult Function()? acceptTerms,
+    TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
+    required TResult orElse(),
+  }) {
+    if (forceReauth != null) {
+      return forceReauth();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
+    required TResult Function(_SendOtp value) sendOtp,
+    required TResult Function(_VerifyOtp value) verifyOtp,
+    required TResult Function(_ResendOtp value) resendOtp,
+    required TResult Function(_SignOut value) signOut,
+    required TResult Function(_DeleteAccount value) deleteAccount,
+    required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
+  }) {
+    return forceReauth(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
+    TResult? Function(_SendOtp value)? sendOtp,
+    TResult? Function(_VerifyOtp value)? verifyOtp,
+    TResult? Function(_ResendOtp value)? resendOtp,
+    TResult? Function(_SignOut value)? signOut,
+    TResult? Function(_DeleteAccount value)? deleteAccount,
+    TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
+  }) {
+    return forceReauth?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
+    TResult Function(_SendOtp value)? sendOtp,
+    TResult Function(_VerifyOtp value)? verifyOtp,
+    TResult Function(_ResendOtp value)? resendOtp,
+    TResult Function(_SignOut value)? signOut,
+    TResult Function(_DeleteAccount value)? deleteAccount,
+    TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
+    required TResult orElse(),
+  }) {
+    if (forceReauth != null) {
+      return forceReauth(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ForceReauth implements AuthEvent {
+  const factory _ForceReauth() = _$ForceReauthImpl;
+}
+
+/// @nodoc
 mixin _$AuthState {
   AuthStatus get status => throw _privateConstructorUsedError;
   User? get user => throw _privateConstructorUsedError;
@@ -1380,6 +2352,8 @@ mixin _$AuthState {
   String? get errorMessage => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   int get resendCountdown => throw _privateConstructorUsedError;
+  bool get isDeviceBound => throw _privateConstructorUsedError;
+  String? get deviceId => throw _privateConstructorUsedError;
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
@@ -1401,6 +2375,8 @@ abstract class $AuthStateCopyWith<$Res> {
     String? errorMessage,
     bool isLoading,
     int resendCountdown,
+    bool isDeviceBound,
+    String? deviceId,
   });
 
   $UserCopyWith<$Res>? get user;
@@ -1428,6 +2404,8 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
     Object? errorMessage = freezed,
     Object? isLoading = null,
     Object? resendCountdown = null,
+    Object? isDeviceBound = null,
+    Object? deviceId = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1459,6 +2437,14 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
                 ? _value.resendCountdown
                 : resendCountdown // ignore: cast_nullable_to_non_nullable
                       as int,
+            isDeviceBound: null == isDeviceBound
+                ? _value.isDeviceBound
+                : isDeviceBound // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            deviceId: freezed == deviceId
+                ? _value.deviceId
+                : deviceId // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -1496,6 +2482,8 @@ abstract class _$$AuthStateImplCopyWith<$Res>
     String? errorMessage,
     bool isLoading,
     int resendCountdown,
+    bool isDeviceBound,
+    String? deviceId,
   });
 
   @override
@@ -1523,6 +2511,8 @@ class __$$AuthStateImplCopyWithImpl<$Res>
     Object? errorMessage = freezed,
     Object? isLoading = null,
     Object? resendCountdown = null,
+    Object? isDeviceBound = null,
+    Object? deviceId = freezed,
   }) {
     return _then(
       _$AuthStateImpl(
@@ -1554,6 +2544,14 @@ class __$$AuthStateImplCopyWithImpl<$Res>
             ? _value.resendCountdown
             : resendCountdown // ignore: cast_nullable_to_non_nullable
                   as int,
+        isDeviceBound: null == isDeviceBound
+            ? _value.isDeviceBound
+            : isDeviceBound // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        deviceId: freezed == deviceId
+            ? _value.deviceId
+            : deviceId // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -1561,7 +2559,7 @@ class __$$AuthStateImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$AuthStateImpl extends _AuthState {
+class _$AuthStateImpl extends _AuthState with DiagnosticableTreeMixin {
   const _$AuthStateImpl({
     this.status = AuthStatus.initial,
     this.user,
@@ -1570,6 +2568,8 @@ class _$AuthStateImpl extends _AuthState {
     this.errorMessage,
     this.isLoading = false,
     this.resendCountdown = 0,
+    this.isDeviceBound = false,
+    this.deviceId,
   }) : super._();
 
   @override
@@ -1589,10 +2589,31 @@ class _$AuthStateImpl extends _AuthState {
   @override
   @JsonKey()
   final int resendCountdown;
+  @override
+  @JsonKey()
+  final bool isDeviceBound;
+  @override
+  final String? deviceId;
 
   @override
-  String toString() {
-    return 'AuthState(status: $status, user: $user, verificationId: $verificationId, phoneNumber: $phoneNumber, errorMessage: $errorMessage, isLoading: $isLoading, resendCountdown: $resendCountdown)';
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'AuthState(status: $status, user: $user, verificationId: $verificationId, phoneNumber: $phoneNumber, errorMessage: $errorMessage, isLoading: $isLoading, resendCountdown: $resendCountdown, isDeviceBound: $isDeviceBound, deviceId: $deviceId)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'AuthState'))
+      ..add(DiagnosticsProperty('status', status))
+      ..add(DiagnosticsProperty('user', user))
+      ..add(DiagnosticsProperty('verificationId', verificationId))
+      ..add(DiagnosticsProperty('phoneNumber', phoneNumber))
+      ..add(DiagnosticsProperty('errorMessage', errorMessage))
+      ..add(DiagnosticsProperty('isLoading', isLoading))
+      ..add(DiagnosticsProperty('resendCountdown', resendCountdown))
+      ..add(DiagnosticsProperty('isDeviceBound', isDeviceBound))
+      ..add(DiagnosticsProperty('deviceId', deviceId));
   }
 
   @override
@@ -1611,7 +2632,11 @@ class _$AuthStateImpl extends _AuthState {
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
             (identical(other.resendCountdown, resendCountdown) ||
-                other.resendCountdown == resendCountdown));
+                other.resendCountdown == resendCountdown) &&
+            (identical(other.isDeviceBound, isDeviceBound) ||
+                other.isDeviceBound == isDeviceBound) &&
+            (identical(other.deviceId, deviceId) ||
+                other.deviceId == deviceId));
   }
 
   @override
@@ -1624,6 +2649,8 @@ class _$AuthStateImpl extends _AuthState {
     errorMessage,
     isLoading,
     resendCountdown,
+    isDeviceBound,
+    deviceId,
   );
 
   /// Create a copy of AuthState
@@ -1644,6 +2671,8 @@ abstract class _AuthState extends AuthState {
     final String? errorMessage,
     final bool isLoading,
     final int resendCountdown,
+    final bool isDeviceBound,
+    final String? deviceId,
   }) = _$AuthStateImpl;
   const _AuthState._() : super._();
 
@@ -1661,6 +2690,10 @@ abstract class _AuthState extends AuthState {
   bool get isLoading;
   @override
   int get resendCountdown;
+  @override
+  bool get isDeviceBound;
+  @override
+  String? get deviceId;
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.

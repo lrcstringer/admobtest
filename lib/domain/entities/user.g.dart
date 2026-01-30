@@ -29,6 +29,11 @@ _$UserImpl _$$UserImplFromJson(Map<String, dynamic> json) => _$UserImpl(
       ? null
       : UserProfile.fromJson(json['profile'] as Map<String, dynamic>),
   riskScore: (json['riskScore'] as num?)?.toInt(),
+  primaryDeviceId: json['primaryDeviceId'] as String?,
+  riskLevel: json['riskLevel'] as String?,
+  lastLoginAt: json['lastLoginAt'] == null
+      ? null
+      : DateTime.parse(json['lastLoginAt'] as String),
 );
 
 Map<String, dynamic> _$$UserImplToJson(_$UserImpl instance) =>
@@ -47,6 +52,9 @@ Map<String, dynamic> _$$UserImplToJson(_$UserImpl instance) =>
       'currentVisitorId': instance.currentVisitorId,
       'profile': instance.profile,
       'riskScore': instance.riskScore,
+      'primaryDeviceId': instance.primaryDeviceId,
+      'riskLevel': instance.riskLevel,
+      'lastLoginAt': instance.lastLoginAt?.toIso8601String(),
     };
 
 const _$UserStatusEnumMap = {

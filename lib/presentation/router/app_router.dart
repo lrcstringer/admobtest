@@ -10,6 +10,10 @@ import '../screens/auth/login_screen.dart';
 import '../screens/auth/new_password_screen.dart';
 import '../screens/auth/otp_verification_screen.dart';
 import '../screens/auth/phone_input_screen.dart';
+import '../screens/auth/challenge_approval_screen.dart';
+import '../screens/auth/push_login_screen.dart';
+import '../screens/auth/session_lock_screen.dart';
+import '../screens/auth/step_up_otp_screen.dart';
 import '../screens/auth/welcome_screen.dart';
 
 // Buy screens
@@ -46,6 +50,15 @@ import '../screens/home/what_is_emalichat_screen.dart';
 import '../screens/main/main_shell.dart';
 
 // Onboarding screens
+import '../screens/onboarding/onboarding_birthday_screen.dart';
+import '../screens/onboarding/onboarding_gender_screen.dart';
+import '../screens/onboarding/onboarding_mobile_otp_screen.dart';
+import '../screens/onboarding/onboarding_mobile_screen.dart';
+import '../screens/onboarding/onboarding_name_screen.dart';
+import '../screens/onboarding/onboarding_picture_screen.dart';
+import '../screens/onboarding/onboarding_settings_screen.dart';
+import '../screens/onboarding/onboarding_success_screen.dart';
+import '../screens/onboarding/pin_setup_screen.dart';
 import '../screens/onboarding/profile_setup_screen.dart';
 import '../screens/onboarding/terms_screen.dart';
 
@@ -94,6 +107,13 @@ class AppRouter {
         builder: (context, state) => const SplashScreen(),
       ),
 
+      // Session Lock
+      GoRoute(
+        path: '/auth/session-lock',
+        name: 'sessionLock',
+        builder: (context, state) => const SessionLockScreen(),
+      ),
+
       // 2) Welcome
       GoRoute(
         path: '/welcome',
@@ -105,7 +125,12 @@ class AppRouter {
       GoRoute(
         path: '/auth/phone',
         name: 'phone',
-        builder: (context, state) => const PhoneInputScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return PhoneInputScreen(
+            skipPushLogin: extra?['skipPushLogin'] as bool? ?? false,
+          );
+        },
       ),
       GoRoute(
         path: '/auth/otp',
@@ -115,6 +140,42 @@ class AppRouter {
           return OtpVerificationScreen(
             verificationId: extra?['verificationId'] ?? '',
             phoneNumber: extra?['phoneNumber'] ?? '',
+          );
+        },
+      ),
+
+      // Push-based login flow
+      GoRoute(
+        path: '/auth/push-login',
+        name: 'pushLogin',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return PushLoginScreen(
+            challengeId: extra?['challengeId'] ?? '',
+            phoneNumber: extra?['phoneNumber'] ?? '',
+          );
+        },
+      ),
+      GoRoute(
+        path: '/auth/challenge-approval',
+        name: 'challengeApproval',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return ChallengeApprovalScreen(
+            challengeId: extra?['challengeId'] ?? '',
+            nonce: extra?['nonce'] ?? '',
+          );
+        },
+      ),
+      GoRoute(
+        path: '/auth/step-up-otp',
+        name: 'stepUpOtp',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return StepUpOtpScreen(
+            phoneNumber: extra?['phoneNumber'] ?? '',
+            reason: extra?['reason'] as String? ??
+                'This action requires identity verification.',
           );
         },
       ),
@@ -154,9 +215,54 @@ class AppRouter {
         builder: (context, state) => const TermsScreen(),
       ),
       GoRoute(
+        path: '/onboarding/name',
+        name: 'onboardingName',
+        builder: (context, state) => const OnboardingNameScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding/gender',
+        name: 'onboardingGender',
+        builder: (context, state) => const OnboardingGenderScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding/birthday',
+        name: 'onboardingBirthday',
+        builder: (context, state) => const OnboardingBirthdayScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding/mobile',
+        name: 'onboardingMobile',
+        builder: (context, state) => const OnboardingMobileScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding/mobile-otp',
+        name: 'onboardingMobileOtp',
+        builder: (context, state) => const OnboardingMobileOtpScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding/picture',
+        name: 'onboardingPicture',
+        builder: (context, state) => const OnboardingPictureScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding/settings',
+        name: 'onboardingSettings',
+        builder: (context, state) => const OnboardingSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding/success',
+        name: 'onboardingSuccess',
+        builder: (context, state) => const OnboardingSuccessScreen(),
+      ),
+      GoRoute(
         path: '/onboarding/profile',
         name: 'profileSetup',
         builder: (context, state) => const ProfileSetupScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding/pin-setup',
+        name: 'onboardingPinSetup',
+        builder: (context, state) => const PinSetupScreen(),
       ),
 
       // =============================================
@@ -490,6 +596,8 @@ class AppRouter {
       final isAuthenticated = authState.status == AuthStatus.authenticated;
       final needsOnboarding =
           authState.status == AuthStatus.onboardingRequired;
+      final isSessionLocked =
+          authState.status == AuthStatus.sessionLocked;
       final isInitial = authState.status == AuthStatus.initial;
       final isLoading = authState.status == AuthStatus.loading;
 
@@ -498,10 +606,16 @@ class AppRouter {
       final isOnAuth = currentPath.startsWith('/auth') ||
           currentPath.startsWith('/welcome');
       final isOnOnboarding = currentPath.startsWith('/onboarding');
+      final isOnSessionLock = currentPath == '/auth/session-lock';
 
       // Don't redirect while loading or on splash
       if (isInitial || isLoading) {
         return isOnSplash ? null : '/';
+      }
+
+      // Session locked — force to session lock screen
+      if (isSessionLocked) {
+        return isOnSessionLock ? null : '/auth/session-lock';
       }
 
       // If authenticated and on auth/onboarding pages, go to home
@@ -518,6 +632,7 @@ class AppRouter {
       if (!isAuthenticated &&
           !needsOnboarding &&
           !isOnAuth &&
+          !isOnOnboarding &&
           !isOnSplash) {
         return '/welcome';
       }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/services/fcm_challenge_handler.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -10,15 +12,21 @@ import '../../widgets/common/numeric_keyboard.dart';
 import '../../widgets/onboarding/onboarding_widgets.dart';
 
 class PhoneInputScreen extends StatefulWidget {
-  const PhoneInputScreen({super.key});
+  final bool skipPushLogin;
+
+  const PhoneInputScreen({super.key, this.skipPushLogin = false});
 
   @override
   State<PhoneInputScreen> createState() => _PhoneInputScreenState();
 }
 
 class _PhoneInputScreenState extends State<PhoneInputScreen> {
+  final _challengeHandler = GetIt.instance<FcmChallengeHandler>();
+
   String _phoneDigits = '';
   String? _errorText;
+  bool _isPushLoginLoading = false;
+  late final bool _skipPushLogin = widget.skipPushLogin;
 
   String _getFullPhoneNumber() {
     return '+27$_phoneDigits';
@@ -28,7 +36,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
     return _phoneDigits.length >= 9;
   }
 
-  void _onSubmit() {
+  Future<void> _onSubmit() async {
     if (!_isValidPhoneNumber()) {
       setState(() {
         _errorText = 'Please enter a valid phone number';
@@ -38,8 +46,33 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
 
     setState(() => _errorText = null);
 
+    final phoneNumber = _getFullPhoneNumber();
+
+    // Try push login first (unless skipped)
+    if (!_skipPushLogin) {
+      setState(() => _isPushLoginLoading = true);
+
+      final result = await _challengeHandler.requestLogin(phoneNumber);
+
+      if (!mounted) return;
+
+      if (result.hasTrustedDevice && result.challengeId != null) {
+        setState(() => _isPushLoginLoading = false);
+        // Navigate to push login waiting screen
+        context.go('/auth/push-login', extra: {
+          'challengeId': result.challengeId,
+          'phoneNumber': phoneNumber,
+        });
+        return;
+      }
+
+      setState(() => _isPushLoginLoading = false);
+    }
+
+    // Fall back to OTP
+    if (!mounted) return;
     context.read<AuthBloc>().add(
-          AuthEvent.sendOtp(phoneNumber: _getFullPhoneNumber()),
+          AuthEvent.sendOtp(phoneNumber: phoneNumber),
         );
   }
 
@@ -185,7 +218,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                 padding: AppSpacing.pagePadding.copyWith(top: 0, bottom: 12),
                 child: AppButton(
                   text: 'Continue',
-                  isLoading: state.isLoading,
+                  isLoading: state.isLoading || _isPushLoginLoading,
                   onPressed: _isValidPhoneNumber() ? _onSubmit : null,
                 ),
               ),

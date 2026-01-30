@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/failures.dart';
+import '../../../core/security/device_binding_service.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/repositories/user_repository.dart';
@@ -17,11 +19,15 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
   final UserRepository _userRepository;
+  final DeviceBindingService _deviceBindingService;
   StreamSubscription<User?>? _authStateSubscription;
   Timer? _resendTimer;
 
-  AuthBloc(this._authRepository, this._userRepository)
-      : super(const AuthState()) {
+  AuthBloc(
+    this._authRepository,
+    this._userRepository,
+    this._deviceBindingService,
+  ) : super(const AuthState()) {
     on<_CheckAuthStatus>(_onCheckAuthStatus);
     on<_SendOtp>(_onSendOtp);
     on<_VerifyOtp>(_onVerifyOtp);
@@ -30,6 +36,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<_DeleteAccount>(_onDeleteAccount);
     on<_AcceptTerms>(_onAcceptTerms);
     on<_CompleteOnboarding>(_onCompleteOnboarding);
+    on<_BindDevice>(_onBindDevice);
+    on<_LockSession>(_onLockSession);
+    on<_UnlockSession>(_onUnlockSession);
+    on<_ForceReauth>(_onForceReauth);
 
     // Listen to auth state changes
     _authStateSubscription = _authRepository.authStateChanges.listen((user) {
@@ -162,6 +172,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             verificationId: null,
           ));
         }
+
+        // Trigger non-blocking device binding after successful OTP
+        add(const AuthEvent.bindDevice());
       },
     );
   }
@@ -208,11 +221,68 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
   }
 
+  Future<void> _onBindDevice(
+    _BindDevice event,
+    Emitter<AuthState> emit,
+  ) async {
+    final userId = state.user?.id;
+    if (userId == null) return;
+
+    final result = await _deviceBindingService.bindCurrentDevice(userId);
+
+    result.fold(
+      (failure) {
+        // Device binding failure is non-blocking — log and continue
+        debugPrint('Device binding failed (non-blocking): ${failure.displayMessage}');
+        emit(state.copyWith(isDeviceBound: false));
+      },
+      (device) {
+        emit(state.copyWith(
+          isDeviceBound: true,
+          deviceId: device.deviceId,
+        ));
+      },
+    );
+  }
+
+  Future<void> _onLockSession(
+    _LockSession event,
+    Emitter<AuthState> emit,
+  ) async {
+    // Only lock if currently authenticated
+    if (state.status == AuthStatus.authenticated) {
+      emit(state.copyWith(status: AuthStatus.sessionLocked));
+    }
+  }
+
+  Future<void> _onUnlockSession(
+    _UnlockSession event,
+    Emitter<AuthState> emit,
+  ) async {
+    // Restore authenticated status after successful unlock
+    if (state.status == AuthStatus.sessionLocked) {
+      emit(state.copyWith(status: AuthStatus.authenticated));
+    }
+  }
+
+  Future<void> _onForceReauth(
+    _ForceReauth event,
+    Emitter<AuthState> emit,
+  ) async {
+    // Clear session and force full OTP re-authentication
+    await _deviceBindingService.clearBinding();
+    await _authRepository.signOut();
+    emit(const AuthState(status: AuthStatus.unauthenticated));
+  }
+
   Future<void> _onSignOut(
     _SignOut event,
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(isLoading: true));
+
+    // Clear device binding state
+    await _deviceBindingService.clearBinding();
 
     final result = await _authRepository.signOut();
 

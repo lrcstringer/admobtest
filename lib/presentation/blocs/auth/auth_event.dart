@@ -28,4 +28,16 @@ class AuthEvent with _$AuthEvent {
 
   /// Complete onboarding
   const factory AuthEvent.completeOnboarding() = _CompleteOnboarding;
+
+  /// Bind the current device after OTP verification (non-blocking)
+  const factory AuthEvent.bindDevice() = _BindDevice;
+
+  /// Lock the session (triggered by lifecycle observer)
+  const factory AuthEvent.lockSession() = _LockSession;
+
+  /// Unlock the session (after successful biometric/PIN/credential unlock)
+  const factory AuthEvent.unlockSession() = _UnlockSession;
+
+  /// Force full re-authentication (session expired beyond threshold)
+  const factory AuthEvent.forceReauth() = _ForceReauth;
 }
