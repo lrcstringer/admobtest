@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/services/fcm_challenge_handler.dart';
+import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 
 /// Waiting screen shown after a push login request is sent.
@@ -28,7 +30,8 @@ class PushLoginScreen extends StatefulWidget {
 class _PushLoginScreenState extends State<PushLoginScreen> {
   final _challengeHandler = GetIt.instance<FcmChallengeHandler>();
 
-  StreamSubscription<String>? _statusSubscription;
+  StreamSubscription<({String status, String? customToken})>?
+      _statusSubscription;
   Timer? _countdownTimer;
   int _remainingSeconds = 180; // 3 minutes
   String _status = 'pending';
@@ -63,16 +66,21 @@ class _PushLoginScreenState extends State<PushLoginScreen> {
   void _watchChallengeStatus() {
     _statusSubscription = _challengeHandler
         .watchChallengeStatus(widget.challengeId)
-        .listen((status) {
+        .listen((result) {
       if (!mounted) return;
 
-      setState(() => _status = status);
+      setState(() => _status = result.status);
 
-      if (status == 'approved') {
+      if (result.status == 'approved' && result.customToken != null) {
         _countdownTimer?.cancel();
-        // Navigate to home — the auth token will be handled by the caller
-        context.go('/home');
-      } else if (status == 'denied') {
+        // Exchange the custom token for a Firebase Auth session
+        context.read<AuthBloc>().add(
+              AuthEvent.authenticateWithPushToken(
+                customToken: result.customToken!,
+              ),
+            );
+        // Navigation handled by BlocListener below
+      } else if (result.status == 'denied') {
         _countdownTimer?.cancel();
       }
     });
@@ -93,55 +101,69 @@ class _PushLoginScreenState extends State<PushLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: AppColors.backgroundGradient,
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state.status == AuthStatus.authenticated) {
+          context.go('/home');
+        } else if (state.status == AuthStatus.onboardingRequired) {
+          context.go('/onboarding/terms');
+        } else if (state.status == AuthStatus.error) {
+          setState(() => _status = 'error');
+        }
+      },
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: AppColors.backgroundGradient,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              children: [
-                const Spacer(flex: 2),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  const Spacer(flex: 2),
 
-                // Logo
-                Image.asset(
-                  'assets/icons/ImaliFacewithText.png',
-                  width: 80,
-                  height: 80,
-                  errorBuilder: (_, __, ___) => const Icon(
-                    Icons.notifications_active_outlined,
-                    size: 80,
-                    color: AppColors.primary,
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                _buildStatusContent(),
-
-                const Spacer(flex: 3),
-
-                // Use OTP instead
-                if (_status == 'pending' || _status == 'denied' || _status == 'expired')
-                  TextButton(
-                    onPressed: _useOtpInstead,
-                    child: Text(
-                      'Use OTP instead',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                  // Logo
+                  Image.asset(
+                    'assets/icons/ImaliFacewithText.png',
+                    width: 80,
+                    height: 80,
+                    errorBuilder: (_, __, ___) => const Icon(
+                      Icons.notifications_active_outlined,
+                      size: 80,
+                      color: AppColors.primary,
                     ),
                   ),
 
-                const SizedBox(height: 24),
-              ],
+                  const SizedBox(height: 32),
+
+                  _buildStatusContent(),
+
+                  const Spacer(flex: 3),
+
+                  // Use OTP instead
+                  if (_status == 'pending' ||
+                      _status == 'denied' ||
+                      _status == 'expired' ||
+                      _status == 'error')
+                    TextButton(
+                      onPressed: _useOtpInstead,
+                      child: Text(
+                        'Use OTP instead',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ),
+
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
           ),
         ),
@@ -159,6 +181,8 @@ class _PushLoginScreenState extends State<PushLoginScreen> {
         return _buildDeniedContent();
       case 'expired':
         return _buildExpiredContent();
+      case 'error':
+        return _buildErrorContent();
       default:
         return _buildPendingContent();
     }
@@ -270,6 +294,34 @@ class _PushLoginScreenState extends State<PushLoginScreen> {
         const SizedBox(height: 8),
         Text(
           'The login request has expired. Please try again or use OTP verification.',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppColors.textSecondary,
+              ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErrorContent() {
+    return Column(
+      children: [
+        const Icon(
+          Icons.error_outline,
+          size: 64,
+          color: Colors.redAccent,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Sign-in Failed',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Something went wrong. Please try again or use OTP verification.',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppColors.textSecondary,

@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 
+import 'audit_logger.dart';
 import 'keystore_service.dart';
 
 /// Result of a SIM change check.
@@ -31,13 +33,24 @@ enum SimCheckResult {
 class SimChangeDetector {
   final KeystoreService _keystoreService;
   final FlutterSecureStorage _secureStorage;
+  final AuditLogger _auditLogger;
+  final FirebaseFunctions _functions;
 
   static const _simHashKey = 'imali_sim_hash';
+
+  String? _currentUserId;
 
   SimChangeDetector(
     this._keystoreService,
     this._secureStorage,
+    this._auditLogger,
+    this._functions,
   );
+
+  /// Set the current user ID for audit logging and risk event creation.
+  void setUserId(String? userId) {
+    _currentUserId = userId;
+  }
 
   /// Check if the SIM has changed since the last check.
   ///
@@ -78,6 +91,7 @@ class SimChangeDetector {
             // SIM changed — update stored hash
             await _storeHash(currentHash);
             debugPrint('SIM change detected: operator info changed');
+            _onSimChanged();
             return SimCheckResult.changed;
           }
 
@@ -118,6 +132,35 @@ class SimChangeDetector {
       await _secureStorage.write(key: _simHashKey, value: hash);
     } catch (e) {
       debugPrint('Failed to store SIM hash: $e');
+    }
+  }
+
+  /// Called when SIM change is detected. Logs audit event and creates
+  /// a server-side risk event via Cloud Function.
+  void _onSimChanged() {
+    final userId = _currentUserId;
+    if (userId == null) return;
+
+    // Log audit event
+    _auditLogger.logAuthEvent(
+      userId: userId,
+      action: AuthAction.simChangeDetected,
+    );
+
+    // Create server-side risk event
+    _createSimChangeRiskEvent(userId);
+  }
+
+  Future<void> _createSimChangeRiskEvent(String userId) async {
+    try {
+      final callable = _functions.httpsCallable('createRiskEvent');
+      await callable.call<Map<String, dynamic>>({
+        'type': 'simChange',
+        'severity': 'high',
+        'details': 'SIM card change detected on device',
+      });
+    } catch (e) {
+      debugPrint('Failed to create SIM change risk event: $e');
     }
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:local_auth/local_auth.dart';
 
+import 'audit_logger.dart';
 import 'device_capability_service.dart';
 import 'pin_manager.dart';
 
@@ -42,9 +43,11 @@ class SessionLockService {
   final DeviceCapabilityService _capabilityService;
   final LocalAuthentication _localAuth;
   final PinManager _pinManager;
+  final AuditLogger _auditLogger;
 
   DateTime? _backgroundTimestamp;
   bool _isLocked = false;
+  String? _currentUserId;
 
   static const _sessionLockDuration = Duration(seconds: 30);
   static const _fullReauthDuration = Duration(minutes: 5);
@@ -53,7 +56,13 @@ class SessionLockService {
     this._capabilityService,
     this._localAuth,
     this._pinManager,
+    this._auditLogger,
   );
+
+  /// Set the current user ID for audit logging.
+  void setUserId(String? userId) {
+    _currentUserId = userId;
+  }
 
   /// Whether the session is currently locked.
   bool get isLocked => _isLocked;
@@ -84,6 +93,7 @@ class SessionLockService {
     if (elapsed >= _sessionLockDuration) {
       _isLocked = true;
       debugPrint('Session: lock required (${elapsed.inSeconds}s)');
+      _logUnlockEvent(AuthAction.sessionLock, success: true);
       return SessionLockResult.sessionLockRequired;
     }
 
@@ -147,6 +157,7 @@ class SessionLockService {
 
       if (authenticated) {
         _isLocked = false;
+        _logUnlockEvent(AuthAction.sessionUnlockBiometric, success: true);
         return UnlockResult.success;
       }
 
@@ -171,12 +182,17 @@ class SessionLockService {
 
       if (authenticated) {
         _isLocked = false;
+        _logUnlockEvent(AuthAction.sessionUnlockDeviceCredential,
+            success: true);
         return UnlockResult.success;
       }
 
+      _logUnlockEvent(AuthAction.sessionUnlockFailed, success: false);
       return UnlockResult.cancelled;
     } catch (e) {
       debugPrint('Device credential unlock failed: $e');
+      _logUnlockEvent(AuthAction.sessionUnlockFailed,
+          success: false, error: e.toString());
       return UnlockResult.failed;
     }
   }
@@ -187,16 +203,32 @@ class SessionLockService {
     switch (result) {
       case PinVerifyResult.success:
         _isLocked = false;
+        _logUnlockEvent(AuthAction.sessionUnlockPin, success: true);
         return UnlockResult.success;
 
       case PinVerifyResult.incorrect:
+        _logUnlockEvent(AuthAction.sessionUnlockFailed, success: false);
         return UnlockResult.failed;
 
       case PinVerifyResult.lockedOut:
+        _logUnlockEvent(AuthAction.sessionUnlockFailed,
+            success: false, error: 'PIN lockout — forced re-auth');
         return UnlockResult.requiresFullReauth;
 
       case PinVerifyResult.noPinSet:
         return UnlockResult.requiresFullReauth;
     }
+  }
+
+  void _logUnlockEvent(AuthAction action,
+      {required bool success, String? error}) {
+    final userId = _currentUserId;
+    if (userId == null) return;
+    _auditLogger.logAuthEvent(
+      userId: userId,
+      action: action,
+      success: success,
+      errorMessage: error,
+    );
   }
 }

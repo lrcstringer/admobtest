@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/di/injection.dart';
 import '../../../core/error/failures.dart';
+import '../../../core/security/step_up_auth_service.dart';
 import '../../../domain/repositories/user_repository.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -277,6 +278,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Step-up auth guard for profile changes
+    final stepUpService = getIt<StepUpAuthService>();
+    final stepUpResult = stepUpService.evaluateRequired(
+      actionType: 'profile_change',
+    );
+
+    if (stepUpResult == StepUpResult.biometricVerified) {
+      final biometricResult = await stepUpService.performBiometricStepUp();
+      if (biometricResult == StepUpResult.cancelled ||
+          biometricResult == StepUpResult.failed) {
+        return;
+      }
+      if (biometricResult == StepUpResult.otpRequired) {
+        if (!mounted) return;
+        final otpPassed = await _navigateToStepUpOtp();
+        if (otpPassed != true) return;
+      }
+    } else if (stepUpResult == StepUpResult.otpRequired) {
+      final otpPassed = await _navigateToStepUpOtp();
+      if (otpPassed != true) return;
+    }
+
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     final user = context.read<AuthBloc>().state.user;
@@ -337,5 +361,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  Future<bool?> _navigateToStepUpOtp() {
+    final phoneNumber =
+        context.read<AuthBloc>().state.user?.phoneNumber ?? '';
+    return context.push<bool>(
+      '/auth/step-up-otp',
+      extra: {
+        'phoneNumber': phoneNumber,
+        'reason': 'Profile changes require identity verification.',
+      },
+    );
   }
 }

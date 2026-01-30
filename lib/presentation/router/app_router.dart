@@ -5,9 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../blocs/auth/auth_bloc.dart';
 
 // Auth screens
-import '../screens/auth/forgot_password_screen.dart';
-import '../screens/auth/login_screen.dart';
-import '../screens/auth/new_password_screen.dart';
 import '../screens/auth/otp_verification_screen.dart';
 import '../screens/auth/phone_input_screen.dart';
 import '../screens/auth/challenge_approval_screen.dart';
@@ -180,26 +177,6 @@ class AppRouter {
         },
       ),
 
-      // 5) Login
-      GoRoute(
-        path: '/auth/login',
-        name: 'login',
-        builder: (context, state) => const LoginScreen(),
-        routes: [
-          // 5.1) Forgot Password
-          GoRoute(
-            path: 'forgot-password',
-            name: 'forgotPassword',
-            builder: (context, state) => const ForgotPasswordScreen(),
-          ),
-          // 5.2) New Password
-          GoRoute(
-            path: 'new-password',
-            name: 'newPassword',
-            builder: (context, state) => const NewPasswordScreen(),
-          ),
-        ],
-      ),
 
       // 4) Settings (accessible outside shell too)
       GoRoute(
@@ -607,10 +584,14 @@ class AppRouter {
           currentPath.startsWith('/welcome');
       final isOnOnboarding = currentPath.startsWith('/onboarding');
       final isOnSessionLock = currentPath == '/auth/session-lock';
+      // Step-up OTP is used by already-authenticated users — never redirect away
+      final isOnStepUpOtp = currentPath == '/auth/step-up-otp';
 
-      // Don't redirect while loading or on splash
+      // Don't redirect while loading or on initial state.
+      // Allow auth screens to stay put during loading (e.g. OTP send in progress).
       if (isInitial || isLoading) {
-        return isOnSplash ? null : '/';
+        if (isOnSplash || isOnAuth) return null;
+        return '/';
       }
 
       // Session locked — force to session lock screen
@@ -619,7 +600,10 @@ class AppRouter {
       }
 
       // If authenticated and on auth/onboarding pages, go to home
-      if (isAuthenticated && (isOnAuth || isOnOnboarding || isOnSplash)) {
+      // Exception: step-up OTP screen is used by authenticated users for verification
+      if (isAuthenticated &&
+          !isOnStepUpOtp &&
+          (isOnAuth || isOnOnboarding || isOnSplash)) {
         return '/home';
       }
 

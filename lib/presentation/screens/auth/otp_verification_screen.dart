@@ -4,10 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
-import '../../widgets/common/app_button.dart';
 import '../../widgets/common/numeric_keyboard.dart';
-import '../../widgets/onboarding/onboarding_widgets.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String verificationId;
@@ -60,13 +57,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       return;
     }
 
-    // Pad to 6 digits if needed (some backends expect 6)
-    final otp = _otpCode.padRight(6, '0');
-
     context.read<AuthBloc>().add(
           AuthEvent.verifyOtp(
             verificationId: widget.verificationId,
-            otp: otp,
+            otp: _otpCode,
           ),
         );
   }
@@ -92,6 +86,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
@@ -103,138 +99,59 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         }
       },
       builder: (context, state) {
-        return OnboardingScaffold(
-          currentPage: 1,
-          totalPages: 5,
-          child: Column(
-            children: [
-              // Top content area
-              Expanded(
-                child: Padding(
-                  padding: AppSpacing.pagePadding,
-                  child: Column(
-                    children: [
-                      AppSpacing.verticalLg,
-                      // Heading
-                      Text(
-                        'Verify your number',
-                        textAlign: TextAlign.center,
-                        style:
-                            Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimaryDark,
-                                ),
-                      ),
-                      AppSpacing.verticalMd,
-                      // Subtext with phone number
-                      Text(
-                        'We sent a code to your number',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                      ),
-                      AppSpacing.verticalXs,
-                      // Phone number with Change link
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _formatPhoneNumber(widget.phoneNumber),
-                            style:
-                                Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: AppColors.textPrimaryDark,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                          ),
-                          AppSpacing.horizontalSm,
-                          GestureDetector(
-                            onTap: _onChangeNumber,
-                            child: Text(
-                              'Change',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    color: AppColors.secondary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      AppSpacing.verticalXxl,
-                      // OTP display boxes
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(4, (index) {
-                          final hasDigit = index < _otpDigits.length;
-                          final isCurrent = index == _otpDigits.length;
+        final isLoading = state.isLoading;
 
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 8),
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: AppColors.inputFill,
-                              borderRadius: AppSpacing.borderRadiusMd,
-                              border: Border.all(
-                                color: isCurrent
-                                    ? AppColors.inputBorderFocused
-                                    : AppColors.inputBorder,
-                                width: isCurrent ? 2 : 1,
-                              ),
-                            ),
-                            child: Center(
-                              child: hasDigit
-                                  ? Text(
-                                      _otpDigits[index],
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineMedium
-                                          ?.copyWith(
-                                            color: AppColors.textPrimaryDark,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    )
-                                  : isCurrent
-                                      ? Container(
-                                          width: 2,
-                                          height: 24,
-                                          color: AppColors.inputBorderFocused,
-                                        )
-                                      : null,
-                            ),
-                          );
-                        }),
-                      ),
-                      // Error text
-                      if (_errorText != null) ...[
-                        AppSpacing.verticalMd,
-                        Text(
-                          _errorText!,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.error,
-                              ),
-                        ),
-                      ],
-                      AppSpacing.verticalXl,
-                      // Resend code link
-                      state.resendCountdown > 0
-                          ? Text(
-                              'Resend code in ${state.resendCountdown}s',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+        return Scaffold(
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: AppColors.backgroundGradient,
+              ),
+            ),
+            child: Column(
+              children: [
+                // Wave image at the top
+                Image.asset(
+                  'assets/images/Top Light Blue.png',
+                  width: size.width,
+                  fit: BoxFit.fitWidth,
+                ),
+                // Main content area
+                Expanded(
+                  child: SafeArea(
+                    top: false,
+                    bottom: false,
+                    child: Column(
+                      children: [
+                        // Scrollable content
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 40),
+                            child: Column(
                               children: [
+                                const SizedBox(height: 16),
+
+                                // Heading
                                 Text(
-                                  "Don't receive your code? ",
+                                  'Verify your number',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                ),
+                                const SizedBox(height: 12),
+
+                                // Subtext
+                                Text(
+                                  'We sent a code to your number',
+                                  textAlign: TextAlign.center,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium
@@ -242,44 +159,210 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                         color: AppColors.textSecondary,
                                       ),
                                 ),
-                                GestureDetector(
-                                  onTap: _onResend,
-                                  child: Text(
-                                    'Resend',
+                                const SizedBox(height: 4),
+
+                                // Phone number with Change link
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      _formatPhoneNumber(widget.phoneNumber),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            color: AppColors.textPrimary,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    GestureDetector(
+                                      onTap: _onChangeNumber,
+                                      child: Text(
+                                        'Change',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              color: AppColors.secondary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 32),
+
+                                // OTP display boxes
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: List.generate(4, (index) {
+                                    final hasDigit =
+                                        index < _otpDigits.length;
+                                    final isCurrent =
+                                        index == _otpDigits.length;
+
+                                    return Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 8),
+                                      width: 60,
+                                      height: 60,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.surface,
+                                        borderRadius:
+                                            BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: isCurrent
+                                              ? AppColors.inputBorderFocused
+                                              : AppColors.inputBorder,
+                                          width: isCurrent ? 2 : 1,
+                                        ),
+                                      ),
+                                      child: Center(
+                                        child: hasDigit
+                                            ? Text(
+                                                _otpDigits[index],
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headlineMedium
+                                                    ?.copyWith(
+                                                      color: AppColors
+                                                          .textPrimary,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                              )
+                                            : isCurrent
+                                                ? Container(
+                                                    width: 2,
+                                                    height: 24,
+                                                    color: AppColors
+                                                        .inputBorderFocused,
+                                                  )
+                                                : null,
+                                      ),
+                                    );
+                                  }),
+                                ),
+
+                                // Error text
+                                if (_errorText != null) ...[
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    _errorText!,
+                                    textAlign: TextAlign.center,
                                     style: Theme.of(context)
                                         .textTheme
-                                        .bodyMedium
+                                        .bodySmall
                                         ?.copyWith(
-                                          color: AppColors.secondary,
-                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.error,
                                         ),
                                   ),
-                                ),
+                                ],
+                                const SizedBox(height: 24),
+
+                                // Resend code link
+                                state.resendCountdown > 0
+                                    ? Text(
+                                        'Resend code in ${state.resendCountdown}s',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              color: AppColors.textSecondary,
+                                            ),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "Don't receive your code? ",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: _onResend,
+                                            child: Text(
+                                              'Resend',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                    color:
+                                                        AppColors.secondary,
+                                                    fontWeight:
+                                                        FontWeight.w500,
+                                                  ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                const SizedBox(height: 16),
                               ],
                             ),
-                    ],
+                          ),
+                        ),
+
+                        // Continue button — only visible when OTP complete
+                        if (_isOtpComplete || isLoading)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 48, vertical: 8),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 52,
+                              child: ElevatedButton(
+                                onPressed: isLoading ? null : _onVerify,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: isLoading
+                                    ? const SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Continue',
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          )
+                        else
+                          const SizedBox(height: 60),
+
+                        // Custom numeric keyboard
+                        SafeArea(
+                          top: false,
+                          child: NumericKeyboard(
+                            onKeyPressed: _onKeyPressed,
+                            onBackspace: _onBackspace,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              // Continue button (above keyboard)
-              Padding(
-                padding: AppSpacing.pagePadding.copyWith(top: 0, bottom: 16),
-                child: AppButton(
-                  text: 'Continue',
-                  isLoading: state.isLoading,
-                  onPressed: _isOtpComplete ? _onVerify : null,
-                ),
-              ),
-              // Custom numeric keyboard
-              SafeArea(
-                top: false,
-                child: NumericKeyboard(
-                  onKeyPressed: _onKeyPressed,
-                  onBackspace: _onBackspace,
-                ),
-              ),
-              AppSpacing.verticalSm,
-            ],
+              ],
+            ),
           ),
         );
       },

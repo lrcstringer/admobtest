@@ -94,16 +94,23 @@ class FcmChallengeHandler {
 
   /// Listen for real-time challenge status updates via Firestore.
   ///
-  /// Returns a stream of challenge status strings ('pending', 'approved', 'denied', 'expired').
-  Stream<String> watchChallengeStatus(String challengeId) {
+  /// Returns a stream of records containing the challenge status and
+  /// the custom auth token (available once approved).
+  Stream<({String status, String? customToken})> watchChallengeStatus(
+      String challengeId) {
     return _firestore
         .collection('authChallenges')
         .doc(challengeId)
         .snapshots()
         .map((snapshot) {
-      if (!snapshot.exists) return 'expired';
+      if (!snapshot.exists) {
+        return (status: 'expired', customToken: null);
+      }
       final data = snapshot.data()!;
-      return data['status'] as String? ?? 'pending';
+      return (
+        status: data['status'] as String? ?? 'pending',
+        customToken: data['customToken'] as String?,
+      );
     });
   }
 

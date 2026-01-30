@@ -4,12 +4,10 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/services/fcm_challenge_handler.dart';
+import '../../../core/utils/phone_utils.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
-import '../../widgets/common/app_button.dart';
 import '../../widgets/common/numeric_keyboard.dart';
-import '../../widgets/onboarding/onboarding_widgets.dart';
 
 class PhoneInputScreen extends StatefulWidget {
   final bool skipPushLogin;
@@ -24,20 +22,81 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
   final _challengeHandler = GetIt.instance<FcmChallengeHandler>();
 
   String _phoneDigits = '';
+  String _selectedCountryCode = '+27';
   String? _errorText;
   bool _isPushLoginLoading = false;
   late final bool _skipPushLogin = widget.skipPushLogin;
 
-  String _getFullPhoneNumber() {
-    return '+27$_phoneDigits';
+  static const List<Map<String, String>> _countryCodes = [
+    {'code': '+27', 'country': 'ZA', 'name': 'South Africa'},
+    {'code': '+1', 'country': 'US', 'name': 'United States'},
+    {'code': '+44', 'country': 'GB', 'name': 'United Kingdom'},
+    {'code': '+61', 'country': 'AU', 'name': 'Australia'},
+    {'code': '+86', 'country': 'CN', 'name': 'China'},
+    {'code': '+91', 'country': 'IN', 'name': 'India'},
+    {'code': '+49', 'country': 'DE', 'name': 'Germany'},
+    {'code': '+33', 'country': 'FR', 'name': 'France'},
+    {'code': '+81', 'country': 'JP', 'name': 'Japan'},
+    {'code': '+55', 'country': 'BR', 'name': 'Brazil'},
+    {'code': '+234', 'country': 'NG', 'name': 'Nigeria'},
+    {'code': '+254', 'country': 'KE', 'name': 'Kenya'},
+    {'code': '+255', 'country': 'TZ', 'name': 'Tanzania'},
+    {'code': '+256', 'country': 'UG', 'name': 'Uganda'},
+    {'code': '+260', 'country': 'ZM', 'name': 'Zambia'},
+    {'code': '+263', 'country': 'ZW', 'name': 'Zimbabwe'},
+    {'code': '+265', 'country': 'MW', 'name': 'Malawi'},
+    {'code': '+267', 'country': 'BW', 'name': 'Botswana'},
+    {'code': '+268', 'country': 'SZ', 'name': 'Eswatini'},
+    {'code': '+266', 'country': 'LS', 'name': 'Lesotho'},
+    {'code': '+258', 'country': 'MZ', 'name': 'Mozambique'},
+    {'code': '+264', 'country': 'NA', 'name': 'Namibia'},
+    {'code': '+7', 'country': 'RU', 'name': 'Russia'},
+    {'code': '+82', 'country': 'KR', 'name': 'South Korea'},
+    {'code': '+39', 'country': 'IT', 'name': 'Italy'},
+    {'code': '+34', 'country': 'ES', 'name': 'Spain'},
+    {'code': '+52', 'country': 'MX', 'name': 'Mexico'},
+    {'code': '+62', 'country': 'ID', 'name': 'Indonesia'},
+    {'code': '+60', 'country': 'MY', 'name': 'Malaysia'},
+    {'code': '+63', 'country': 'PH', 'name': 'Philippines'},
+    {'code': '+66', 'country': 'TH', 'name': 'Thailand'},
+    {'code': '+84', 'country': 'VN', 'name': 'Vietnam'},
+    {'code': '+20', 'country': 'EG', 'name': 'Egypt'},
+    {'code': '+212', 'country': 'MA', 'name': 'Morocco'},
+    {'code': '+233', 'country': 'GH', 'name': 'Ghana'},
+    {'code': '+237', 'country': 'CM', 'name': 'Cameroon'},
+    {'code': '+251', 'country': 'ET', 'name': 'Ethiopia'},
+    {'code': '+971', 'country': 'AE', 'name': 'UAE'},
+    {'code': '+966', 'country': 'SA', 'name': 'Saudi Arabia'},
+    {'code': '+92', 'country': 'PK', 'name': 'Pakistan'},
+    {'code': '+880', 'country': 'BD', 'name': 'Bangladesh'},
+    {'code': '+90', 'country': 'TR', 'name': 'Turkey'},
+    {'code': '+48', 'country': 'PL', 'name': 'Poland'},
+    {'code': '+31', 'country': 'NL', 'name': 'Netherlands'},
+    {'code': '+46', 'country': 'SE', 'name': 'Sweden'},
+    {'code': '+47', 'country': 'NO', 'name': 'Norway'},
+    {'code': '+45', 'country': 'DK', 'name': 'Denmark'},
+    {'code': '+358', 'country': 'FI', 'name': 'Finland'},
+    {'code': '+41', 'country': 'CH', 'name': 'Switzerland'},
+    {'code': '+43', 'country': 'AT', 'name': 'Austria'},
+    {'code': '+32', 'country': 'BE', 'name': 'Belgium'},
+    {'code': '+351', 'country': 'PT', 'name': 'Portugal'},
+    {'code': '+353', 'country': 'IE', 'name': 'Ireland'},
+    {'code': '+64', 'country': 'NZ', 'name': 'New Zealand'},
+    {'code': '+65', 'country': 'SG', 'name': 'Singapore'},
+    {'code': '+852', 'country': 'HK', 'name': 'Hong Kong'},
+  ];
+
+  String? _getE164PhoneNumber() {
+    return parseToE164(_phoneDigits, _selectedCountryCode);
   }
 
   bool _isValidPhoneNumber() {
-    return _phoneDigits.length >= 9;
+    return _getE164PhoneNumber() != null;
   }
 
   Future<void> _onSubmit() async {
-    if (!_isValidPhoneNumber()) {
+    final phoneNumber = _getE164PhoneNumber();
+    if (phoneNumber == null) {
       setState(() {
         _errorText = 'Please enter a valid phone number';
       });
@@ -45,8 +104,6 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
     }
 
     setState(() => _errorText = null);
-
-    final phoneNumber = _getFullPhoneNumber();
 
     // Try push login first (unless skipped)
     if (!_skipPushLogin) {
@@ -77,7 +134,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
   }
 
   void _onKeyPressed(String key) {
-    if (_phoneDigits.length < 9) {
+    if (_phoneDigits.length < 15) {
       setState(() {
         _phoneDigits += key;
         _errorText = null;
@@ -108,129 +165,279 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final mascotSize = size.width * 0.28;
+
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.otpSent) {
           context.go('/auth/otp', extra: {
             'verificationId': state.verificationId,
-            'phoneNumber': _getFullPhoneNumber(),
+            'phoneNumber': _getE164PhoneNumber() ?? '',
           });
         } else if (state.status == AuthStatus.error) {
           setState(() => _errorText = state.errorMessage);
         }
       },
       builder: (context, state) {
-        return OnboardingScaffold(
-          currentPage: 0,
-          totalPages: 5,
-          child: Column(
-            children: [
-              // Top content area
-              Expanded(
-                child: Padding(
-                  padding: AppSpacing.pagePadding,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Heading
-                      Text(
-                        'What is your mobile\nnumber?',
-                        textAlign: TextAlign.center,
-                        style:
-                            Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimaryDark,
-                                ),
-                      ),
-                      AppSpacing.verticalLg,
-                      // Phone input field (read-only, displays formatted number)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.inputFill,
-                          borderRadius: AppSpacing.borderRadiusLg,
-                          border: Border.all(
-                            color: _phoneDigits.isNotEmpty
-                                ? AppColors.inputBorderFocused
-                                : AppColors.inputBorder,
-                            width: _phoneDigits.isNotEmpty ? 2 : 1,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            // Phone icon
-                            Icon(
-                              Icons.phone_outlined,
-                              color: AppColors.textSecondary,
-                              size: 24,
+        final isLoading = state.isLoading || _isPushLoginLoading;
+
+        return Scaffold(
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: AppColors.backgroundGradient,
+              ),
+            ),
+            child: Column(
+              children: [
+                // Wave image at the top (above SafeArea)
+                Image.asset(
+                  'assets/images/Top Light Blue.png',
+                  width: size.width,
+                  fit: BoxFit.fitWidth,
+                ),
+                // Main content area
+                Expanded(
+                  child: SafeArea(
+                    top: false,
+                    bottom: false,
+                    child: Column(
+                      children: [
+                        // Scrollable content
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 40),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 8),
+
+                          // Mascot
+                          SizedBox(
+                            width: mascotSize,
+                            height: mascotSize,
+                            child: Image.asset(
+                              'assets/logo-assets/mascot-bubbles-512.png',
+                              width: mascotSize,
+                              height: mascotSize,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/icons/ImaliFacewithText.png',
+                                  width: mascotSize,
+                                  height: mascotSize,
+                                  fit: BoxFit.contain,
+                                );
+                              },
                             ),
-                            AppSpacing.horizontalMd,
-                            // Country code prefix
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          // "iMaliChat"
+                          Text(
+                            'iMaliChat',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: 4),
+
+                          // "Earn. Chat. Buy."
+                          Text(
+                            'Earn. Chat. Buy.',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: AppColors.gold,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 1.2,
+                                ),
+                          ),
+
+                          SizedBox(height: size.height * 0.03),
+
+                          // Instruction text
+                          Text(
+                            'What is your mobile number?',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // Phone input field (read-only, displays formatted number)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: _phoneDigits.isNotEmpty
+                                    ? AppColors.inputBorderFocused
+                                    : AppColors.inputBorder,
+                                width: _phoneDigits.isNotEmpty ? 2 : 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                // Country code dropdown
+                                DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: _selectedCountryCode,
+                                    dropdownColor: AppColors.surface,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                          color: AppColors.textPrimary,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                    icon: const Icon(
+                                      Icons.arrow_drop_down,
+                                      color: AppColors.textSecondary,
+                                      size: 20,
+                                    ),
+                                    items: _countryCodes.map((country) {
+                                      return DropdownMenuItem<String>(
+                                        value: country['code'],
+                                        child: Text(
+                                          '${country['country']} ${country['code']}',
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        setState(() {
+                                          _selectedCountryCode = value;
+                                          _phoneDigits = '';
+                                          _errorText = null;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ),
+                                // Divider
+                                Container(
+                                  width: 1,
+                                  height: 24,
+                                  color: AppColors.textHint,
+                                ),
+                                const SizedBox(width: 12),
+                                // Phone number display
+                                Expanded(
+                                  child: Text(
+                                    _phoneDigits.isEmpty
+                                        ? '81 234 5678'
+                                        : _formatPhoneNumber(_phoneDigits),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                          color: _phoneDigits.isEmpty
+                                              ? AppColors.textHint
+                                              : AppColors.textPrimary,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Error text
+                          if (_errorText != null) ...[
+                            const SizedBox(height: 12),
                             Text(
-                              '+27',
+                              _errorText!,
+                              textAlign: TextAlign.center,
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodyLarge
+                                  .bodySmall
                                   ?.copyWith(
-                                    color: AppColors.textPrimaryDark,
-                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.error,
                                   ),
                             ),
-                            AppSpacing.horizontalSm,
-                            // Phone number display
-                            Expanded(
-                              child: Text(
-                                _phoneDigits.isEmpty
-                                    ? '81 234 5678'
-                                    : _formatPhoneNumber(_phoneDigits),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(
-                                      color: _phoneDigits.isEmpty
-                                          ? AppColors.textHint
-                                          : AppColors.textPrimaryDark,
-                                    ),
-                              ),
-                            ),
                           ],
+
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Continue button — only visible when phone is valid
+                  if (_isValidPhoneNumber() || isLoading)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 48, vertical: 8),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : _onSubmit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                         ),
                       ),
-                      // Error text
-                      if (_errorText != null) ...[
-                        AppSpacing.verticalSm,
-                        Text(
-                          _errorText!,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.error,
-                              ),
+                    )
+                  else
+                    const SizedBox(height: 60),
+
+                        // Custom numeric keyboard
+                        SafeArea(
+                          top: false,
+                          child: NumericKeyboard(
+                            onKeyPressed: _onKeyPressed,
+                            onBackspace: _onBackspace,
+                          ),
                         ),
                       ],
-                    ],
+                    ),
                   ),
                 ),
-              ),
-              // Continue button (above keyboard)
-              Padding(
-                padding: AppSpacing.pagePadding.copyWith(top: 0, bottom: 12),
-                child: AppButton(
-                  text: 'Continue',
-                  isLoading: state.isLoading || _isPushLoginLoading,
-                  onPressed: _isValidPhoneNumber() ? _onSubmit : null,
-                ),
-              ),
-              // Custom numeric keyboard
-              SafeArea(
-                top: false,
-                child: NumericKeyboard(
-                  onKeyPressed: _onKeyPressed,
-                  onBackspace: _onBackspace,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

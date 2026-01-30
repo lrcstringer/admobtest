@@ -40,6 +40,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<_LockSession>(_onLockSession);
     on<_UnlockSession>(_onUnlockSession);
     on<_ForceReauth>(_onForceReauth);
+    on<_AuthenticateWithPushToken>(_onAuthenticateWithPushToken);
 
     // Listen to auth state changes
     _authStateSubscription = _authRepository.authStateChanges.listen((user) {
@@ -241,6 +242,44 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           isDeviceBound: true,
           deviceId: device.deviceId,
         ));
+      },
+    );
+  }
+
+  Future<void> _onAuthenticateWithPushToken(
+    _AuthenticateWithPushToken event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading, isLoading: true));
+
+    final result =
+        await _authRepository.signInWithCustomToken(event.customToken);
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(
+          status: AuthStatus.error,
+          isLoading: false,
+          errorMessage: failure.displayMessage,
+        ));
+      },
+      (user) {
+        if (user.needsOnboarding) {
+          emit(state.copyWith(
+            status: AuthStatus.onboardingRequired,
+            user: user,
+            isLoading: false,
+          ));
+        } else {
+          emit(state.copyWith(
+            status: AuthStatus.authenticated,
+            user: user,
+            isLoading: false,
+          ));
+        }
+
+        // Trigger non-blocking device binding
+        add(const AuthEvent.bindDevice());
       },
     );
   }

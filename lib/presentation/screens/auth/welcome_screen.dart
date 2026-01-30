@@ -190,7 +190,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           width: double.infinity,
                           height: 52,
                           child: ElevatedButton(
-                            onPressed: () => context.go('/onboarding/name'),
+                            onPressed: () => context.go('/auth/phone'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
@@ -227,7 +227,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       const SizedBox(height: 4),
                       // "Log in." - tappable link
                       GestureDetector(
-                        onTap: () => context.go('/auth/login'),
+                        onTap: () => context.go('/auth/phone'),
                         child: Text(
                           'Log in.',
                           textAlign: TextAlign.center,

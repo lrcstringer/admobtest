@@ -1,9 +1,14 @@
+import 'dart:async';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import 'core/di/injection.dart';
 import 'core/security/session_lock_service.dart';
+import 'core/security/sim_change_detector.dart';
+import 'core/services/fcm_challenge_handler.dart';
 import 'presentation/blocs/auth/auth_bloc.dart';
 import 'presentation/blocs/cashout/cashout_bloc.dart';
 import 'presentation/blocs/chat/chat_bloc.dart';
@@ -35,6 +40,11 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   late final ReferralBloc _referralBloc;
   late final AppRouter _appRouter;
   late final SessionLockService _sessionLockService;
+  late final SimChangeDetector _simChangeDetector;
+  late final FcmChallengeHandler _challengeHandler;
+
+  StreamSubscription<Map<String, dynamic>>? _challengeSubscription;
+  StreamSubscription<AuthState>? _authStateSubscription;
 
   @override
   void initState() {
@@ -49,13 +59,68 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _purchaseBloc = getIt<PurchaseBloc>();
     _referralBloc = getIt<ReferralBloc>();
     _sessionLockService = GetIt.instance<SessionLockService>();
+    _simChangeDetector = GetIt.instance<SimChangeDetector>();
+    _challengeHandler = GetIt.instance<FcmChallengeHandler>();
     _appRouter = AppRouter(authBloc: _authBloc);
+
+    _setupChallengeNavigation();
+    _setupUserIdPropagation();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _challengeSubscription?.cancel();
+    _authStateSubscription?.cancel();
     super.dispose();
+  }
+
+  /// Listen to the FCM challenge stream and navigate to the approval screen
+  /// when an auth challenge push is received on this (trusted) device.
+  void _setupChallengeNavigation() {
+    // Foreground challenges
+    _challengeSubscription =
+        _challengeHandler.challengeStream.listen((data) {
+      final challengeId = data['challengeId'] as String?;
+      final nonce = data['nonce'] as String?;
+      if (challengeId != null && nonce != null) {
+        _appRouter.router.push('/auth/challenge-approval', extra: {
+          'challengeId': challengeId,
+          'nonce': nonce,
+        });
+      }
+    });
+
+    // App opened from a background notification tap
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      final data = message.data;
+      if (data['type'] == 'auth_challenge') {
+        _appRouter.router.push('/auth/challenge-approval', extra: {
+          'challengeId': data['challengeId'],
+          'nonce': data['nonce'],
+        });
+      }
+    });
+
+    // App launched from terminated state via notification tap
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null && message.data['type'] == 'auth_challenge') {
+        _appRouter.router.push('/auth/challenge-approval', extra: {
+          'challengeId': message.data['challengeId'],
+          'nonce': message.data['nonce'],
+        });
+      }
+    });
+  }
+
+  /// Propagate the current user ID to security services that need it
+  /// for audit logging.
+  void _setupUserIdPropagation() {
+    _authStateSubscription = _authBloc.stream.listen((state) {
+      final userId = state.user?.id;
+      _sessionLockService.setUserId(userId);
+      _simChangeDetector.setUserId(userId);
+    });
   }
 
   @override
@@ -91,6 +156,9 @@ class _IMaliChatAppState extends State<IMaliChatApp>
       case SessionLockResult.fullReauthRequired:
         _authBloc.add(const AuthEvent.forceReauth());
     }
+
+    // Check for SIM changes (non-blocking)
+    _simChangeDetector.checkForSimChange();
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:local_auth/local_auth.dart';
 
 import '../../domain/entities/risk_event.dart';
+import 'audit_logger.dart';
 import 'device_capability_service.dart';
 import 'session_lock_service.dart';
 
@@ -36,12 +37,21 @@ class StepUpAuthService {
   final DeviceCapabilityService _capabilityService;
   final LocalAuthentication _localAuth;
   final SessionLockService _sessionLockService;
+  final AuditLogger _auditLogger;
+
+  String? _currentUserId;
 
   StepUpAuthService(
     this._capabilityService,
     this._localAuth,
     this._sessionLockService,
+    this._auditLogger,
   );
+
+  /// Set the current user ID for audit logging.
+  void setUserId(String? userId) {
+    _currentUserId = userId;
+  }
 
   /// Determine the required step-up level for a given action.
   ///
@@ -63,6 +73,7 @@ class StepUpAuthService {
         false;
 
     if (hasPendingHighRisk) {
+      _logStepUp(AuthAction.stepUpRequired, success: true);
       return StepUpResult.otpRequired;
     }
 
@@ -152,12 +163,28 @@ class StepUpAuthService {
       );
 
       if (authenticated) {
+        _logStepUp(AuthAction.stepUpCompleted, success: true);
         return StepUpResult.biometricVerified;
       }
+      _logStepUp(AuthAction.stepUpCompleted, success: false);
       return StepUpResult.cancelled;
     } catch (e) {
       debugPrint('Step-up biometric failed: $e');
+      _logStepUp(AuthAction.stepUpCompleted,
+          success: false, error: e.toString());
       return StepUpResult.failed;
     }
+  }
+
+  void _logStepUp(AuthAction action,
+      {required bool success, String? error}) {
+    final userId = _currentUserId;
+    if (userId == null) return;
+    _auditLogger.logAuthEvent(
+      userId: userId,
+      action: action,
+      success: success,
+      errorMessage: error,
+    );
   }
 }

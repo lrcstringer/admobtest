@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/di/injection.dart';
+import '../../../core/security/step_up_auth_service.dart';
 import '../../../domain/entities/cashout.dart';
+import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/cashout/cashout_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -509,8 +513,31 @@ class _CashoutScreenState extends State<CashoutScreen> {
     );
   }
 
-  void _submitCashout(BuildContext context) {
+  Future<void> _submitCashout(BuildContext context) async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Step-up auth guard: evaluate risk based on cashout amount
+    final stepUpService = getIt<StepUpAuthService>();
+    final zarAmount = _tokenAmount * 0.01;
+    final stepUpResult = stepUpService.evaluateRequired(
+      actionType: 'cashout',
+      amount: zarAmount,
+    );
+
+    if (stepUpResult == StepUpResult.biometricVerified) {
+      final biometricResult = await stepUpService.performBiometricStepUp();
+      if (biometricResult == StepUpResult.cancelled ||
+          biometricResult == StepUpResult.failed) {
+        return;
+      }
+      if (biometricResult == StepUpResult.otpRequired) {
+        final otpPassed = await _navigateToStepUpOtp('Cashout requires identity verification.');
+        if (otpPassed != true) return;
+      }
+    } else if (stepUpResult == StepUpResult.otpRequired) {
+      final otpPassed = await _navigateToStepUpOtp('Large cashout requires identity verification.');
+      if (otpPassed != true) return;
+    }
 
     String destinationDetails;
     switch (_selectedMethod) {
@@ -527,6 +554,8 @@ class _CashoutScreenState extends State<CashoutScreen> {
         break;
     }
 
+    if (!mounted) return;
+    // ignore: use_build_context_synchronously
     context.read<CashoutBloc>().add(CashoutEvent.requestCashout(
           tokenAmount: _tokenAmount,
           method: _selectedMethod,
@@ -544,6 +573,15 @@ class _CashoutScreenState extends State<CashoutScreen> {
               ? _mobileNumberController.text
               : null,
         ));
+  }
+
+  Future<bool?> _navigateToStepUpOtp(String reason) {
+    final phoneNumber =
+        context.read<AuthBloc>().state.user?.phoneNumber ?? '';
+    return context.push<bool>(
+      '/auth/step-up-otp',
+      extra: {'phoneNumber': phoneNumber, 'reason': reason},
+    );
   }
 
   void _showSuccessDialog(BuildContext context, Cashout cashout) {

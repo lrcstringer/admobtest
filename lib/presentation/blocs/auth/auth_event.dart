@@ -40,4 +40,9 @@ class AuthEvent with _$AuthEvent {
 
   /// Force full re-authentication (session expired beyond threshold)
   const factory AuthEvent.forceReauth() = _ForceReauth;
+
+  /// Authenticate using a custom token from push-based login approval.
+  const factory AuthEvent.authenticateWithPushToken({
+    required String customToken,
+  }) = _AuthenticateWithPushToken;
 }

@@ -119,7 +119,9 @@ async function sendSmsViaMyMobileApi(
  * @param phoneNumber - South African phone number
  * @returns { success: boolean, message: string }
  */
-export const sendOtp = functions.https.onCall(async (data, context) => {
+export const sendOtp = functions
+  .runWith({ secrets: ["MYMOBILEAPI_CLIENT_ID", "MYMOBILEAPI_API_KEY", "MYMOBILEAPI_SENDER_ID"] })
+  .https.onCall(async (data, context) => {
   const { phoneNumber } = data;
 
   // Validate phone number
@@ -835,9 +837,14 @@ export const approveLogin = functions.https.onCall(async (data, context) => {
     );
   }
 
-  // Signature valid — approve challenge
+  // Signature valid — generate custom token first, then approve challenge
+  const customToken = await admin.auth().createCustomToken(challengeData.userId);
+
+  // Write customToken to the challenge document so the requesting client
+  // (watching via Firestore snapshot) can exchange it for a Firebase session.
   await challengeRef.update({
     status: "approved",
+    customToken,
     deviceId,
     respondedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
@@ -846,9 +853,6 @@ export const approveLogin = functions.https.onCall(async (data, context) => {
   await db.collection("devices").doc(deviceId).update({
     lastUsedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
-
-  // Generate custom token
-  const customToken = await admin.auth().createCustomToken(challengeData.userId);
 
   console.log(`Challenge ${challengeId} approved by device ${deviceId}`);
 

@@ -61,6 +61,7 @@ import '../../presentation/blocs/purchase/purchase_bloc.dart' as _i936;
 import '../../presentation/blocs/referral/referral_bloc.dart' as _i595;
 import '../../presentation/blocs/wallet/wallet_bloc.dart' as _i1019;
 import '../network/network_info.dart' as _i932;
+import '../security/audit_logger.dart' as _i988;
 import '../security/device_binding_service.dart' as _i693;
 import '../security/device_capability_service.dart' as _i309;
 import '../security/keystore_service.dart' as _i892;
@@ -123,12 +124,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i932.NetworkInfo>(
       () => _i932.NetworkInfoImpl(gh<_i161.InternetConnection>()),
     );
-    gh.lazySingleton<_i925.SimChangeDetector>(
-      () => _i925.SimChangeDetector(
-        gh<_i892.KeystoreService>(),
-        gh<_i558.FlutterSecureStorage>(),
-      ),
-    );
     gh.lazySingleton<_i752.PinManager>(
       () => _i752.PinManager(gh<_i558.FlutterSecureStorage>()),
     );
@@ -157,17 +152,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i59.FirebaseAuth>(),
       ),
     );
+    gh.lazySingleton<_i988.AuditLogger>(
+      () => _i988.AuditLogger(gh<_i974.FirebaseFirestore>()),
+    );
     gh.lazySingleton<_i309.DeviceCapabilityService>(
       () => _i309.DeviceCapabilityService(
         gh<_i152.LocalAuthentication>(),
         gh<_i558.FlutterSecureStorage>(),
-      ),
-    );
-    gh.lazySingleton<_i942.SessionLockService>(
-      () => _i942.SessionLockService(
-        gh<_i309.DeviceCapabilityService>(),
-        gh<_i152.LocalAuthentication>(),
-        gh<_i752.PinManager>(),
       ),
     );
     gh.lazySingleton<_i50.UserRemoteDataSource>(
@@ -177,6 +168,14 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i520.EarnRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
+      ),
+    );
+    gh.lazySingleton<_i925.SimChangeDetector>(
+      () => _i925.SimChangeDetector(
+        gh<_i892.KeystoreService>(),
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i988.AuditLogger>(),
+        gh<_i809.FirebaseFunctions>(),
       ),
     );
     gh.lazySingleton<_i267.PurchaseRemoteDataSource>(
@@ -197,6 +196,16 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i59.FirebaseAuth>(),
       ),
     );
+    gh.lazySingleton<_i693.DeviceBindingService>(
+      () => _i693.DeviceBindingService(
+        gh<_i892.KeystoreService>(),
+        gh<_i454.DeviceRepository>(),
+        gh<_i892.FirebaseMessaging>(),
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i988.AuditLogger>(),
+        gh<_i809.FirebaseFunctions>(),
+      ),
+    );
     gh.lazySingleton<_i1072.ChatRepository>(
       () => _i838.ChatRepositoryImpl(gh<_i224.ChatRemoteDataSource>()),
     );
@@ -210,25 +219,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i932.NetworkInfo>(),
       ),
     );
-    gh.lazySingleton<_i693.DeviceBindingService>(
-      () => _i693.DeviceBindingService(
-        gh<_i892.KeystoreService>(),
-        gh<_i454.DeviceRepository>(),
-        gh<_i892.FirebaseMessaging>(),
-        gh<_i558.FlutterSecureStorage>(),
+    gh.lazySingleton<_i942.SessionLockService>(
+      () => _i942.SessionLockService(
+        gh<_i309.DeviceCapabilityService>(),
+        gh<_i152.LocalAuthentication>(),
+        gh<_i752.PinManager>(),
+        gh<_i988.AuditLogger>(),
       ),
     );
     gh.lazySingleton<_i851.WalletRepository>(
       () => _i520.WalletRepositoryImpl(
         gh<_i389.WalletRemoteDataSource>(),
         gh<_i932.NetworkInfo>(),
-      ),
-    );
-    gh.lazySingleton<_i720.StepUpAuthService>(
-      () => _i720.StepUpAuthService(
-        gh<_i309.DeviceCapabilityService>(),
-        gh<_i152.LocalAuthentication>(),
-        gh<_i942.SessionLockService>(),
       ),
     );
     gh.lazySingleton<_i1010.GamificationRepository>(
@@ -253,6 +255,14 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i344.ProfileBloc(
         gh<_i271.UserRepository>(),
         gh<_i851.WalletRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i720.StepUpAuthService>(
+      () => _i720.StepUpAuthService(
+        gh<_i309.DeviceCapabilityService>(),
+        gh<_i152.LocalAuthentication>(),
+        gh<_i942.SessionLockService>(),
+        gh<_i988.AuditLogger>(),
       ),
     );
     gh.lazySingleton<_i633.ReferralRepository>(

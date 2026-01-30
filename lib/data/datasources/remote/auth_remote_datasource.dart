@@ -33,6 +33,9 @@ abstract class AuthRemoteDataSource {
 
   /// Get ID token
   Future<String?> getIdToken({bool forceRefresh = false});
+
+  /// Sign in with a Firebase custom token (used by push-based login).
+  Future<firebase_auth.UserCredential> signInWithCustomToken(String token);
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -140,6 +143,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return AuthException(
           message: e.message ?? 'Authentication error',
         );
+    }
+  }
+
+  @override
+  Future<firebase_auth.UserCredential> signInWithCustomToken(String token) async {
+    try {
+      return await _firebaseAuth.signInWithCustomToken(token);
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      throw AuthException(message: e.message ?? 'Custom token sign-in failed');
     }
   }
 

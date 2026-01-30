@@ -126,7 +126,7 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen> {
           });
           _startResendCountdown();
         } else if (state.status == AuthStatus.authenticated ||
-            state.status == AuthStatus.otpVerified) {
+            state.status == AuthStatus.onboardingRequired) {
           // Step-up succeeded — return true
           context.pop(true);
         } else if (state.status == AuthStatus.error) {

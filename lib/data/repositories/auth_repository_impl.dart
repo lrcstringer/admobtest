@@ -172,6 +172,50 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, User>> signInWithCustomToken(String token) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(Failure.network());
+    }
+
+    try {
+      final userCredential =
+          await _authRemoteDataSource.signInWithCustomToken(token);
+
+      final firebaseUser = userCredential.user;
+      if (firebaseUser == null) {
+        return const Left(Failure.auth(message: 'Sign-in returned no user'));
+      }
+
+      // Fetch existing user profile from Firestore
+      var userModel =
+          await _userRemoteDataSource.getUserById(firebaseUser.uid);
+
+      if (userModel == null) {
+        // Create user if somehow doesn't exist
+        userModel = UserModel(
+          oddienceUserId: firebaseUser.uid,
+          phoneNumber: firebaseUser.phoneNumber ?? '',
+          displayName: 'iMali User',
+          status: UserStatus.active,
+          hasAcceptedTerms: false,
+          hasCompletedOnboarding: false,
+          isPotEligible: false,
+          createdAt: DateTime.now(),
+        );
+        userModel = await _userRemoteDataSource.createUser(userModel);
+      }
+
+      return Right(userModel.toEntity());
+    } on AuthException catch (e) {
+      return Left(_mapAuthException(e));
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.auth(message: e.toString()));
+    }
+  }
+
   /// Map AuthException to appropriate Failure type
   Failure _mapAuthException(AuthException e) {
     final message = e.message?.toLowerCase() ?? '';

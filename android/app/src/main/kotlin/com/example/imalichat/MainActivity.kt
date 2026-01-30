@@ -1,9 +1,9 @@
 package com.example.imalichat
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 
-class MainActivity : FlutterActivity() {
+class MainActivity : FlutterFragmentActivity() {
     private lateinit var keystoreChannel: KeystoreChannel
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {

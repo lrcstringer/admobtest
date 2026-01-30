@@ -1,0 +1,256 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../theme/app_colors.dart';
+import '../../widgets/onboarding/onboarding_progress_indicator.dart';
+
+class OnboardingSuccessScreen extends StatelessWidget {
+  const OnboardingSuccessScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final photoSize = size.width * 0.28;
+    final starsSize = size.width * 0.50;
+    final crownSize = photoSize * 0.35;
+
+    // TODO: Replace with actual user number from backend
+    const userNumber = '85 674';
+
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: AppColors.backgroundGradient,
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: size.height * 0.03),
+
+                // Stars background with user photo and crown overlay
+                SizedBox(
+                  width: starsSize,
+                  height: starsSize,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Surrounding stars
+                      Image.asset(
+                        'assets/images/Surrounding stars.png',
+                        width: starsSize,
+                        height: starsSize,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return SizedBox(
+                            width: starsSize,
+                            height: starsSize,
+                          );
+                        },
+                      ),
+
+                      // User photo frame
+                      Container(
+                        width: photoSize,
+                        height: photoSize,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppColors.primary,
+                            width: 3,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(17),
+                          child: const Center(
+                            // TODO: Show user's uploaded photo if available
+                            child: Icon(
+                              Icons.person,
+                              color: AppColors.textPrimary,
+                              size: 48,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Bronze crown at bottom center of photo
+                      Positioned(
+                        top: (starsSize / 2) + (photoSize / 2) - (crownSize / 2),
+                        child: Image.asset(
+                          'assets/images/crowns/BRONZE.png',
+                          width: crownSize,
+                          height: crownSize,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return SizedBox(
+                              width: crownSize,
+                              height: crownSize,
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // User's name
+                Text(
+                  // TODO: Replace with actual user name from onboarding data
+                  'Your Name',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+
+                const SizedBox(height: 2),
+
+                // "BRONZE"
+                Text(
+                  'BRONZE',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.gold,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                      ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // "CONGRATS!"
+                Text(
+                  'CONGRATS!',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        color: AppColors.gold,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // "You're user number"
+                Text(
+                  "You're user number",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                ),
+
+                const SizedBox(height: 4),
+
+                // User number
+                Text(
+                  userNumber,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Early access text
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Text(
+                    'iMaliChat has early earning access for 100 000 people and you made the cut!',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Upgrade text
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Text(
+                    'Please upgrade your account to SILVER status to start earning today!',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                ),
+
+                SizedBox(height: size.height * 0.03),
+
+                // "Upgrade Now" blue button
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 48),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: () => context.go('/home/upgrade-status'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.accent,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Upgrade Now',
+                        style: TextStyle(
+                            fontSize: 17, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // "Continue" pink button
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 48),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: () => context.go('/home'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Continue',
+                        style: TextStyle(
+                            fontSize: 17, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                const OnboardingProgressIndicator(currentStep: 7),
+
+                SizedBox(height: size.height * 0.02),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

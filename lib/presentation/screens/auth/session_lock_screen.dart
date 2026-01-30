@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../core/security/device_capability_service.dart';
 import '../../../core/security/session_lock_service.dart';
+import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/numeric_keyboard.dart';
 
@@ -69,7 +70,7 @@ class _SessionLockScreenState extends State<SessionLockScreen> {
     switch (result) {
       case UnlockResult.success:
         _sessionLockService.markUnlocked();
-        context.go('/home');
+        context.read<AuthBloc>().add(const AuthEvent.unlockSession());
       case UnlockResult.cancelled:
         setState(() => _isUnlocking = false);
       case UnlockResult.failed:
@@ -96,7 +97,7 @@ class _SessionLockScreenState extends State<SessionLockScreen> {
     switch (result) {
       case UnlockResult.success:
         _sessionLockService.markUnlocked();
-        context.go('/home');
+        context.read<AuthBloc>().add(const AuthEvent.unlockSession());
       case UnlockResult.failed:
         final remaining = await _sessionLockService.getRemainingPinAttempts();
         setState(() {
@@ -117,12 +118,12 @@ class _SessionLockScreenState extends State<SessionLockScreen> {
 
   void _navigateToOtp() {
     if (mounted) {
-      context.go('/auth/phone');
+      context.read<AuthBloc>().add(const AuthEvent.forceReauth());
     }
   }
 
   void _signOut() {
-    context.go('/auth/welcome');
+    context.read<AuthBloc>().add(const AuthEvent.signOut());
   }
 
   void _onKeyPressed(String key) {

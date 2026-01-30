@@ -32,4 +32,7 @@ abstract class AuthRepository {
 
   /// Refresh auth token
   Future<Either<Failure, void>> refreshToken();
+
+  /// Sign in with a Firebase custom token (used by push-based login).
+  Future<Either<Failure, User>> signInWithCustomToken(String token);
 }

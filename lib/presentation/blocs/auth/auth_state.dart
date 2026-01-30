@@ -33,7 +33,6 @@ enum AuthStatus {
   authenticated,
   unauthenticated,
   otpSent,
-  otpVerified,
   onboardingRequired,
   sessionLocked,
   error,

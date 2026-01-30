@@ -45,5 +45,18 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>iMali uses Face ID to securely unlock your session and verify your identity.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>iMali uses your contacts to help you send money to friends and family.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>iMali needs camera access to take profile photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>iMali needs photo library access to select profile photos.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

@@ -31,6 +31,7 @@ mixin _$AuthEvent {
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
@@ -46,6 +47,7 @@ mixin _$AuthEvent {
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
@@ -61,6 +63,7 @@ mixin _$AuthEvent {
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -77,6 +80,8 @@ mixin _$AuthEvent {
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
@@ -92,6 +97,8 @@ mixin _$AuthEvent {
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
@@ -107,6 +114,8 @@ mixin _$AuthEvent {
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
 }
@@ -194,6 +203,7 @@ class _$CheckAuthStatusImpl
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) {
     return checkAuthStatus();
   }
@@ -213,6 +223,7 @@ class _$CheckAuthStatusImpl
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) {
     return checkAuthStatus?.call();
   }
@@ -232,6 +243,7 @@ class _$CheckAuthStatusImpl
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (checkAuthStatus != null) {
@@ -255,6 +267,8 @@ class _$CheckAuthStatusImpl
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) {
     return checkAuthStatus(this);
   }
@@ -274,6 +288,8 @@ class _$CheckAuthStatusImpl
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) {
     return checkAuthStatus?.call(this);
   }
@@ -293,6 +309,8 @@ class _$CheckAuthStatusImpl
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (checkAuthStatus != null) {
@@ -397,6 +415,7 @@ class _$SendOtpImpl with DiagnosticableTreeMixin implements _SendOtp {
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) {
     return sendOtp(phoneNumber);
   }
@@ -416,6 +435,7 @@ class _$SendOtpImpl with DiagnosticableTreeMixin implements _SendOtp {
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) {
     return sendOtp?.call(phoneNumber);
   }
@@ -435,6 +455,7 @@ class _$SendOtpImpl with DiagnosticableTreeMixin implements _SendOtp {
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (sendOtp != null) {
@@ -458,6 +479,8 @@ class _$SendOtpImpl with DiagnosticableTreeMixin implements _SendOtp {
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) {
     return sendOtp(this);
   }
@@ -477,6 +500,8 @@ class _$SendOtpImpl with DiagnosticableTreeMixin implements _SendOtp {
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) {
     return sendOtp?.call(this);
   }
@@ -496,6 +521,8 @@ class _$SendOtpImpl with DiagnosticableTreeMixin implements _SendOtp {
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (sendOtp != null) {
@@ -616,6 +643,7 @@ class _$VerifyOtpImpl with DiagnosticableTreeMixin implements _VerifyOtp {
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) {
     return verifyOtp(verificationId, otp);
   }
@@ -635,6 +663,7 @@ class _$VerifyOtpImpl with DiagnosticableTreeMixin implements _VerifyOtp {
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) {
     return verifyOtp?.call(verificationId, otp);
   }
@@ -654,6 +683,7 @@ class _$VerifyOtpImpl with DiagnosticableTreeMixin implements _VerifyOtp {
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (verifyOtp != null) {
@@ -677,6 +707,8 @@ class _$VerifyOtpImpl with DiagnosticableTreeMixin implements _VerifyOtp {
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) {
     return verifyOtp(this);
   }
@@ -696,6 +728,8 @@ class _$VerifyOtpImpl with DiagnosticableTreeMixin implements _VerifyOtp {
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) {
     return verifyOtp?.call(this);
   }
@@ -715,6 +749,8 @@ class _$VerifyOtpImpl with DiagnosticableTreeMixin implements _VerifyOtp {
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (verifyOtp != null) {
@@ -831,6 +867,7 @@ class _$ResendOtpImpl with DiagnosticableTreeMixin implements _ResendOtp {
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) {
     return resendOtp(phoneNumber);
   }
@@ -850,6 +887,7 @@ class _$ResendOtpImpl with DiagnosticableTreeMixin implements _ResendOtp {
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) {
     return resendOtp?.call(phoneNumber);
   }
@@ -869,6 +907,7 @@ class _$ResendOtpImpl with DiagnosticableTreeMixin implements _ResendOtp {
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (resendOtp != null) {
@@ -892,6 +931,8 @@ class _$ResendOtpImpl with DiagnosticableTreeMixin implements _ResendOtp {
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) {
     return resendOtp(this);
   }
@@ -911,6 +952,8 @@ class _$ResendOtpImpl with DiagnosticableTreeMixin implements _ResendOtp {
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) {
     return resendOtp?.call(this);
   }
@@ -930,6 +973,8 @@ class _$ResendOtpImpl with DiagnosticableTreeMixin implements _ResendOtp {
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (resendOtp != null) {
@@ -1013,6 +1058,7 @@ class _$SignOutImpl with DiagnosticableTreeMixin implements _SignOut {
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) {
     return signOut();
   }
@@ -1032,6 +1078,7 @@ class _$SignOutImpl with DiagnosticableTreeMixin implements _SignOut {
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) {
     return signOut?.call();
   }
@@ -1051,6 +1098,7 @@ class _$SignOutImpl with DiagnosticableTreeMixin implements _SignOut {
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (signOut != null) {
@@ -1074,6 +1122,8 @@ class _$SignOutImpl with DiagnosticableTreeMixin implements _SignOut {
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) {
     return signOut(this);
   }
@@ -1093,6 +1143,8 @@ class _$SignOutImpl with DiagnosticableTreeMixin implements _SignOut {
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) {
     return signOut?.call(this);
   }
@@ -1112,6 +1164,8 @@ class _$SignOutImpl with DiagnosticableTreeMixin implements _SignOut {
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (signOut != null) {
@@ -1188,6 +1242,7 @@ class _$DeleteAccountImpl
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) {
     return deleteAccount();
   }
@@ -1207,6 +1262,7 @@ class _$DeleteAccountImpl
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) {
     return deleteAccount?.call();
   }
@@ -1226,6 +1282,7 @@ class _$DeleteAccountImpl
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (deleteAccount != null) {
@@ -1249,6 +1306,8 @@ class _$DeleteAccountImpl
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) {
     return deleteAccount(this);
   }
@@ -1268,6 +1327,8 @@ class _$DeleteAccountImpl
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) {
     return deleteAccount?.call(this);
   }
@@ -1287,6 +1348,8 @@ class _$DeleteAccountImpl
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (deleteAccount != null) {
@@ -1361,6 +1424,7 @@ class _$AcceptTermsImpl with DiagnosticableTreeMixin implements _AcceptTerms {
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) {
     return acceptTerms();
   }
@@ -1380,6 +1444,7 @@ class _$AcceptTermsImpl with DiagnosticableTreeMixin implements _AcceptTerms {
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) {
     return acceptTerms?.call();
   }
@@ -1399,6 +1464,7 @@ class _$AcceptTermsImpl with DiagnosticableTreeMixin implements _AcceptTerms {
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (acceptTerms != null) {
@@ -1422,6 +1488,8 @@ class _$AcceptTermsImpl with DiagnosticableTreeMixin implements _AcceptTerms {
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) {
     return acceptTerms(this);
   }
@@ -1441,6 +1509,8 @@ class _$AcceptTermsImpl with DiagnosticableTreeMixin implements _AcceptTerms {
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) {
     return acceptTerms?.call(this);
   }
@@ -1460,6 +1530,8 @@ class _$AcceptTermsImpl with DiagnosticableTreeMixin implements _AcceptTerms {
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (acceptTerms != null) {
@@ -1537,6 +1609,7 @@ class _$CompleteOnboardingImpl
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) {
     return completeOnboarding();
   }
@@ -1556,6 +1629,7 @@ class _$CompleteOnboardingImpl
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) {
     return completeOnboarding?.call();
   }
@@ -1575,6 +1649,7 @@ class _$CompleteOnboardingImpl
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (completeOnboarding != null) {
@@ -1598,6 +1673,8 @@ class _$CompleteOnboardingImpl
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) {
     return completeOnboarding(this);
   }
@@ -1617,6 +1694,8 @@ class _$CompleteOnboardingImpl
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) {
     return completeOnboarding?.call(this);
   }
@@ -1636,6 +1715,8 @@ class _$CompleteOnboardingImpl
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (completeOnboarding != null) {
@@ -1710,6 +1791,7 @@ class _$BindDeviceImpl with DiagnosticableTreeMixin implements _BindDevice {
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) {
     return bindDevice();
   }
@@ -1729,6 +1811,7 @@ class _$BindDeviceImpl with DiagnosticableTreeMixin implements _BindDevice {
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) {
     return bindDevice?.call();
   }
@@ -1748,6 +1831,7 @@ class _$BindDeviceImpl with DiagnosticableTreeMixin implements _BindDevice {
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (bindDevice != null) {
@@ -1771,6 +1855,8 @@ class _$BindDeviceImpl with DiagnosticableTreeMixin implements _BindDevice {
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) {
     return bindDevice(this);
   }
@@ -1790,6 +1876,8 @@ class _$BindDeviceImpl with DiagnosticableTreeMixin implements _BindDevice {
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) {
     return bindDevice?.call(this);
   }
@@ -1809,6 +1897,8 @@ class _$BindDeviceImpl with DiagnosticableTreeMixin implements _BindDevice {
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (bindDevice != null) {
@@ -1883,6 +1973,7 @@ class _$LockSessionImpl with DiagnosticableTreeMixin implements _LockSession {
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) {
     return lockSession();
   }
@@ -1902,6 +1993,7 @@ class _$LockSessionImpl with DiagnosticableTreeMixin implements _LockSession {
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) {
     return lockSession?.call();
   }
@@ -1921,6 +2013,7 @@ class _$LockSessionImpl with DiagnosticableTreeMixin implements _LockSession {
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (lockSession != null) {
@@ -1944,6 +2037,8 @@ class _$LockSessionImpl with DiagnosticableTreeMixin implements _LockSession {
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) {
     return lockSession(this);
   }
@@ -1963,6 +2058,8 @@ class _$LockSessionImpl with DiagnosticableTreeMixin implements _LockSession {
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) {
     return lockSession?.call(this);
   }
@@ -1982,6 +2079,8 @@ class _$LockSessionImpl with DiagnosticableTreeMixin implements _LockSession {
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (lockSession != null) {
@@ -2058,6 +2157,7 @@ class _$UnlockSessionImpl
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) {
     return unlockSession();
   }
@@ -2077,6 +2177,7 @@ class _$UnlockSessionImpl
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) {
     return unlockSession?.call();
   }
@@ -2096,6 +2197,7 @@ class _$UnlockSessionImpl
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (unlockSession != null) {
@@ -2119,6 +2221,8 @@ class _$UnlockSessionImpl
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) {
     return unlockSession(this);
   }
@@ -2138,6 +2242,8 @@ class _$UnlockSessionImpl
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) {
     return unlockSession?.call(this);
   }
@@ -2157,6 +2263,8 @@ class _$UnlockSessionImpl
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (unlockSession != null) {
@@ -2231,6 +2339,7 @@ class _$ForceReauthImpl with DiagnosticableTreeMixin implements _ForceReauth {
     required TResult Function() lockSession,
     required TResult Function() unlockSession,
     required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
   }) {
     return forceReauth();
   }
@@ -2250,6 +2359,7 @@ class _$ForceReauthImpl with DiagnosticableTreeMixin implements _ForceReauth {
     TResult? Function()? lockSession,
     TResult? Function()? unlockSession,
     TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
   }) {
     return forceReauth?.call();
   }
@@ -2269,6 +2379,7 @@ class _$ForceReauthImpl with DiagnosticableTreeMixin implements _ForceReauth {
     TResult Function()? lockSession,
     TResult Function()? unlockSession,
     TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (forceReauth != null) {
@@ -2292,6 +2403,8 @@ class _$ForceReauthImpl with DiagnosticableTreeMixin implements _ForceReauth {
     required TResult Function(_LockSession value) lockSession,
     required TResult Function(_UnlockSession value) unlockSession,
     required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
   }) {
     return forceReauth(this);
   }
@@ -2311,6 +2424,8 @@ class _$ForceReauthImpl with DiagnosticableTreeMixin implements _ForceReauth {
     TResult? Function(_LockSession value)? lockSession,
     TResult? Function(_UnlockSession value)? unlockSession,
     TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
   }) {
     return forceReauth?.call(this);
   }
@@ -2330,6 +2445,8 @@ class _$ForceReauthImpl with DiagnosticableTreeMixin implements _ForceReauth {
     TResult Function(_LockSession value)? lockSession,
     TResult Function(_UnlockSession value)? unlockSession,
     TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
     required TResult orElse(),
   }) {
     if (forceReauth != null) {
@@ -2341,6 +2458,233 @@ class _$ForceReauthImpl with DiagnosticableTreeMixin implements _ForceReauth {
 
 abstract class _ForceReauth implements AuthEvent {
   const factory _ForceReauth() = _$ForceReauthImpl;
+}
+
+/// @nodoc
+abstract class _$$AuthenticateWithPushTokenImplCopyWith<$Res> {
+  factory _$$AuthenticateWithPushTokenImplCopyWith(
+    _$AuthenticateWithPushTokenImpl value,
+    $Res Function(_$AuthenticateWithPushTokenImpl) then,
+  ) = __$$AuthenticateWithPushTokenImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String customToken});
+}
+
+/// @nodoc
+class __$$AuthenticateWithPushTokenImplCopyWithImpl<$Res>
+    extends _$AuthEventCopyWithImpl<$Res, _$AuthenticateWithPushTokenImpl>
+    implements _$$AuthenticateWithPushTokenImplCopyWith<$Res> {
+  __$$AuthenticateWithPushTokenImplCopyWithImpl(
+    _$AuthenticateWithPushTokenImpl _value,
+    $Res Function(_$AuthenticateWithPushTokenImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? customToken = null}) {
+    return _then(
+      _$AuthenticateWithPushTokenImpl(
+        customToken: null == customToken
+            ? _value.customToken
+            : customToken // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$AuthenticateWithPushTokenImpl
+    with DiagnosticableTreeMixin
+    implements _AuthenticateWithPushToken {
+  const _$AuthenticateWithPushTokenImpl({required this.customToken});
+
+  @override
+  final String customToken;
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'AuthEvent.authenticateWithPushToken(customToken: $customToken)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'AuthEvent.authenticateWithPushToken'))
+      ..add(DiagnosticsProperty('customToken', customToken));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$AuthenticateWithPushTokenImpl &&
+            (identical(other.customToken, customToken) ||
+                other.customToken == customToken));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, customToken);
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$AuthenticateWithPushTokenImplCopyWith<_$AuthenticateWithPushTokenImpl>
+  get copyWith =>
+      __$$AuthenticateWithPushTokenImplCopyWithImpl<
+        _$AuthenticateWithPushTokenImpl
+      >(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() checkAuthStatus,
+    required TResult Function(String phoneNumber) sendOtp,
+    required TResult Function(String verificationId, String otp) verifyOtp,
+    required TResult Function(String phoneNumber) resendOtp,
+    required TResult Function() signOut,
+    required TResult Function() deleteAccount,
+    required TResult Function() acceptTerms,
+    required TResult Function() completeOnboarding,
+    required TResult Function() bindDevice,
+    required TResult Function() lockSession,
+    required TResult Function() unlockSession,
+    required TResult Function() forceReauth,
+    required TResult Function(String customToken) authenticateWithPushToken,
+  }) {
+    return authenticateWithPushToken(customToken);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? checkAuthStatus,
+    TResult? Function(String phoneNumber)? sendOtp,
+    TResult? Function(String verificationId, String otp)? verifyOtp,
+    TResult? Function(String phoneNumber)? resendOtp,
+    TResult? Function()? signOut,
+    TResult? Function()? deleteAccount,
+    TResult? Function()? acceptTerms,
+    TResult? Function()? completeOnboarding,
+    TResult? Function()? bindDevice,
+    TResult? Function()? lockSession,
+    TResult? Function()? unlockSession,
+    TResult? Function()? forceReauth,
+    TResult? Function(String customToken)? authenticateWithPushToken,
+  }) {
+    return authenticateWithPushToken?.call(customToken);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? checkAuthStatus,
+    TResult Function(String phoneNumber)? sendOtp,
+    TResult Function(String verificationId, String otp)? verifyOtp,
+    TResult Function(String phoneNumber)? resendOtp,
+    TResult Function()? signOut,
+    TResult Function()? deleteAccount,
+    TResult Function()? acceptTerms,
+    TResult Function()? completeOnboarding,
+    TResult Function()? bindDevice,
+    TResult Function()? lockSession,
+    TResult Function()? unlockSession,
+    TResult Function()? forceReauth,
+    TResult Function(String customToken)? authenticateWithPushToken,
+    required TResult orElse(),
+  }) {
+    if (authenticateWithPushToken != null) {
+      return authenticateWithPushToken(customToken);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
+    required TResult Function(_SendOtp value) sendOtp,
+    required TResult Function(_VerifyOtp value) verifyOtp,
+    required TResult Function(_ResendOtp value) resendOtp,
+    required TResult Function(_SignOut value) signOut,
+    required TResult Function(_DeleteAccount value) deleteAccount,
+    required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_CompleteOnboarding value) completeOnboarding,
+    required TResult Function(_BindDevice value) bindDevice,
+    required TResult Function(_LockSession value) lockSession,
+    required TResult Function(_UnlockSession value) unlockSession,
+    required TResult Function(_ForceReauth value) forceReauth,
+    required TResult Function(_AuthenticateWithPushToken value)
+    authenticateWithPushToken,
+  }) {
+    return authenticateWithPushToken(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
+    TResult? Function(_SendOtp value)? sendOtp,
+    TResult? Function(_VerifyOtp value)? verifyOtp,
+    TResult? Function(_ResendOtp value)? resendOtp,
+    TResult? Function(_SignOut value)? signOut,
+    TResult? Function(_DeleteAccount value)? deleteAccount,
+    TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult? Function(_BindDevice value)? bindDevice,
+    TResult? Function(_LockSession value)? lockSession,
+    TResult? Function(_UnlockSession value)? unlockSession,
+    TResult? Function(_ForceReauth value)? forceReauth,
+    TResult? Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
+  }) {
+    return authenticateWithPushToken?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
+    TResult Function(_SendOtp value)? sendOtp,
+    TResult Function(_VerifyOtp value)? verifyOtp,
+    TResult Function(_ResendOtp value)? resendOtp,
+    TResult Function(_SignOut value)? signOut,
+    TResult Function(_DeleteAccount value)? deleteAccount,
+    TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_CompleteOnboarding value)? completeOnboarding,
+    TResult Function(_BindDevice value)? bindDevice,
+    TResult Function(_LockSession value)? lockSession,
+    TResult Function(_UnlockSession value)? unlockSession,
+    TResult Function(_ForceReauth value)? forceReauth,
+    TResult Function(_AuthenticateWithPushToken value)?
+    authenticateWithPushToken,
+    required TResult orElse(),
+  }) {
+    if (authenticateWithPushToken != null) {
+      return authenticateWithPushToken(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _AuthenticateWithPushToken implements AuthEvent {
+  const factory _AuthenticateWithPushToken({
+    required final String customToken,
+  }) = _$AuthenticateWithPushTokenImpl;
+
+  String get customToken;
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$AuthenticateWithPushTokenImplCopyWith<_$AuthenticateWithPushTokenImpl>
+  get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc

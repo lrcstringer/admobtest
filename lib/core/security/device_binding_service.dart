@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -10,6 +11,7 @@ import 'package:injectable/injectable.dart';
 import '../error/failures.dart';
 import '../../domain/entities/trusted_device.dart';
 import '../../domain/repositories/device_repository.dart';
+import 'audit_logger.dart';
 import 'keystore_service.dart';
 
 /// Orchestrates device binding: keypair generation, metadata collection,
@@ -24,6 +26,8 @@ class DeviceBindingService {
   final DeviceRepository _deviceRepository;
   final FirebaseMessaging _firebaseMessaging;
   final FlutterSecureStorage _secureStorage;
+  final AuditLogger _auditLogger;
+  final FirebaseFunctions _functions;
   final DeviceInfoPlugin _deviceInfo;
 
   static const _deviceIdKey = 'imali_bound_device_id';
@@ -35,6 +39,8 @@ class DeviceBindingService {
     this._deviceRepository,
     this._firebaseMessaging,
     this._secureStorage,
+    this._auditLogger,
+    this._functions,
   ) : _deviceInfo = DeviceInfoPlugin();
 
   /// Bind the current device for the given user.
@@ -93,6 +99,12 @@ class DeviceBindingService {
               await _cacheDeviceBinding(device.deviceId, userId);
               debugPrint(
                   'Device binding: success, deviceId=${device.deviceId}');
+              _auditLogger.logAuthEvent(
+                userId: userId,
+                action: AuthAction.deviceBound,
+              );
+              // Step 5: Notify existing devices of new login (non-blocking)
+              _notifyExistingDevices(device.deviceId);
               return Right(device);
             },
           );
@@ -100,6 +112,12 @@ class DeviceBindingService {
       );
     } catch (e) {
       debugPrint('Device binding: unexpected error: $e');
+      _auditLogger.logAuthEvent(
+        userId: userId,
+        action: AuthAction.deviceBindingFailed,
+        success: false,
+        errorMessage: e.toString(),
+      );
       return Left(Failure.unknown(message: 'Device binding failed: $e'));
     }
   }
@@ -221,5 +239,18 @@ class DeviceBindingService {
       'manufacturer': 'unknown',
       'osVersion': Platform.operatingSystemVersion,
     };
+  }
+
+  /// Notify existing trusted devices that a new device has logged in.
+  /// Non-blocking — failures are logged but do not affect the binding flow.
+  Future<void> _notifyExistingDevices(String newDeviceId) async {
+    try {
+      final callable = _functions.httpsCallable('notifyNewDeviceLogin');
+      await callable.call<Map<String, dynamic>>({
+        'newDeviceId': newDeviceId,
+      });
+    } catch (e) {
+      debugPrint('Failed to notify existing devices: $e');
+    }
   }
 }

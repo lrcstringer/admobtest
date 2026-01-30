@@ -1,0 +1,324 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../theme/app_colors.dart';
+import '../../widgets/onboarding/onboarding_progress_indicator.dart';
+
+class OnboardingBirthdayScreen extends StatefulWidget {
+  const OnboardingBirthdayScreen({super.key});
+
+  @override
+  State<OnboardingBirthdayScreen> createState() =>
+      _OnboardingBirthdayScreenState();
+}
+
+class _OnboardingBirthdayScreenState extends State<OnboardingBirthdayScreen> {
+  late final FixedExtentScrollController _dayController;
+  late final FixedExtentScrollController _monthController;
+  late final FixedExtentScrollController _yearController;
+
+  // Default to 15 July 1990
+  int _selectedDay = 15;
+  int _selectedMonth = 7;
+  int _selectedYear = 1990;
+
+  static const int _startYear = 1940;
+  static const int _endYear = 2010;
+
+  @override
+  void initState() {
+    super.initState();
+    _dayController = FixedExtentScrollController(initialItem: _selectedDay - 1);
+    _monthController =
+        FixedExtentScrollController(initialItem: _selectedMonth - 1);
+    _yearController =
+        FixedExtentScrollController(initialItem: _selectedYear - _startYear);
+  }
+
+  @override
+  void dispose() {
+    _dayController.dispose();
+    _monthController.dispose();
+    _yearController.dispose();
+    super.dispose();
+  }
+
+  int _daysInMonth(int month, int year) {
+    if (month == 2) {
+      final isLeap =
+          (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+      return isLeap ? 29 : 28;
+    }
+    if ([4, 6, 9, 11].contains(month)) return 30;
+    return 31;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final mascotSize = size.width * 0.40;
+    final maxDay = _daysInMonth(_selectedMonth, _selectedYear);
+
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: AppColors.backgroundGradient,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              SizedBox(height: size.height * 0.02),
+
+              // Mascot face
+              SizedBox(
+                width: mascotSize,
+                height: mascotSize,
+                child: Image.asset(
+                  'assets/logo-assets/mascot-bubbles-512.png',
+                  width: mascotSize,
+                  height: mascotSize,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      'assets/icons/ImaliFacewithText.png',
+                      width: mascotSize,
+                      height: mascotSize,
+                      fit: BoxFit.contain,
+                    );
+                  },
+                ),
+              ),
+
+              SizedBox(height: size.height * 0.01),
+
+              // "iMaliChat"
+              Text(
+                'iMaliChat',
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .displaySmall
+                    ?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 4),
+
+              // "Earn. Chat. Buy."
+              Text(
+                'Earn. Chat. Buy.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(
+                      color: AppColors.gold,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.2,
+                    ),
+              ),
+
+              SizedBox(height: size.height * 0.05),
+
+              // "Cool! When is your birthday?"
+              Text(
+                'Cool! When is your birthday?',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Date picker wheels
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Stack(
+                    children: [
+                      // Selection highlight band
+                      Center(
+                        child: Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(
+                                color: AppColors.textSecondary.withValues(alpha: 0.3),
+                              ),
+                              bottom: BorderSide(
+                                color: AppColors.textSecondary.withValues(alpha: 0.3),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          // Day wheel
+                          Expanded(
+                            child: ListWheelScrollView.useDelegate(
+                              controller: _dayController,
+                              itemExtent: 40,
+                              physics: const FixedExtentScrollPhysics(),
+                              diameterRatio: 1.5,
+                              onSelectedItemChanged: (index) {
+                                setState(() {
+                                  _selectedDay = index + 1;
+                                });
+                              },
+                              childDelegate: ListWheelChildBuilderDelegate(
+                                childCount: maxDay,
+                                builder: (context, index) {
+                                  final day = index + 1;
+                                  final isSelected = day == _selectedDay;
+                                  return Center(
+                                    child: Text(
+                                      '$day',
+                                      style: TextStyle(
+                                        color: isSelected
+                                            ? AppColors.textPrimary
+                                            : AppColors.textSecondary,
+                                        fontSize: isSelected ? 20 : 16,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+
+                          // Month wheel
+                          Expanded(
+                            child: ListWheelScrollView.useDelegate(
+                              controller: _monthController,
+                              itemExtent: 40,
+                              physics: const FixedExtentScrollPhysics(),
+                              diameterRatio: 1.5,
+                              onSelectedItemChanged: (index) {
+                                setState(() {
+                                  _selectedMonth = index + 1;
+                                  // Adjust day if needed
+                                  final maxD = _daysInMonth(
+                                      _selectedMonth, _selectedYear);
+                                  if (_selectedDay > maxD) {
+                                    _selectedDay = maxD;
+                                    _dayController.jumpToItem(_selectedDay - 1);
+                                  }
+                                });
+                              },
+                              childDelegate: ListWheelChildBuilderDelegate(
+                                childCount: 12,
+                                builder: (context, index) {
+                                  final month = index + 1;
+                                  final isSelected = month == _selectedMonth;
+                                  return Center(
+                                    child: Text(
+                                      month.toString().padLeft(2, '0'),
+                                      style: TextStyle(
+                                        color: isSelected
+                                            ? AppColors.textPrimary
+                                            : AppColors.textSecondary,
+                                        fontSize: isSelected ? 20 : 16,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+
+                          // Year wheel
+                          Expanded(
+                            child: ListWheelScrollView.useDelegate(
+                              controller: _yearController,
+                              itemExtent: 40,
+                              physics: const FixedExtentScrollPhysics(),
+                              diameterRatio: 1.5,
+                              onSelectedItemChanged: (index) {
+                                setState(() {
+                                  _selectedYear = _startYear + index;
+                                  // Adjust day if needed
+                                  final maxD = _daysInMonth(
+                                      _selectedMonth, _selectedYear);
+                                  if (_selectedDay > maxD) {
+                                    _selectedDay = maxD;
+                                    _dayController.jumpToItem(_selectedDay - 1);
+                                  }
+                                });
+                              },
+                              childDelegate: ListWheelChildBuilderDelegate(
+                                childCount: _endYear - _startYear + 1,
+                                builder: (context, index) {
+                                  final year = _startYear + index;
+                                  final isSelected = year == _selectedYear;
+                                  return Center(
+                                    child: Text(
+                                      '$year',
+                                      style: TextStyle(
+                                        color: isSelected
+                                            ? AppColors.textPrimary
+                                            : AppColors.textSecondary,
+                                        fontSize: isSelected ? 20 : 16,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: () => context.go('/onboarding/picture'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Continue',
+                      style:
+                          TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ),
+
+              const OnboardingProgressIndicator(currentStep: 2),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
