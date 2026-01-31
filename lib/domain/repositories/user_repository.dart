@@ -50,4 +50,7 @@ abstract class UserRepository {
 
   /// Accept terms and conditions
   Future<Either<Failure, void>> acceptTerms();
+
+  /// Mark onboarding as completed
+  Future<Either<Failure, void>> completeOnboarding();
 }

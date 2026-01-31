@@ -5,6 +5,7 @@
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { requireAppCheck, requirePlayIntegrity } from "./security";
 
 const db = admin.firestore();
 
@@ -18,6 +19,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
       "User must be authenticated"
     );
   }
+  requireAppCheck(context, "startEngagement");
 
   const userId = context.auth.uid;
   const {campaignId, type, threadId} = data;
@@ -106,6 +108,8 @@ export const processEngagement = functions.https.onCall(
         "User must be authenticated"
       );
     }
+    requireAppCheck(context, "processEngagement");
+    await requirePlayIntegrity(data, context, "processEngagement", "HIGHEST");
 
     const userId = context.auth.uid;
     const {engagementId, evidence} = data;
@@ -262,6 +266,7 @@ export const updateEngagementProgress = functions.https.onCall(
         "User must be authenticated"
       );
     }
+    requireAppCheck(context, "updateEngagementProgress");
 
     const userId = context.auth.uid;
     const {engagementId, progress, stepData} = data;

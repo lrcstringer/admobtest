@@ -1,35 +1,70 @@
 import 'dart:convert';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 
 /// Service for Google Play Integrity API
 /// Verifies app and device integrity to prevent fraud
+///
+/// On Android: requests a real integrity token from the Play Integrity API
+/// via a native method channel, then optionally verifies it server-side.
+/// On non-Android platforms: returns null gracefully (iOS uses App Attest
+/// via Firebase App Check instead).
+@lazySingleton
 class PlayIntegrityService {
   final FirebaseFunctions _functions;
-  final Uuid _uuid;
+  final Uuid _uuid = const Uuid();
 
-  PlayIntegrityService({
-    FirebaseFunctions? functions,
-    Uuid? uuid,
-  })  : _functions = functions ?? FirebaseFunctions.instance,
-        _uuid = uuid ?? const Uuid();
+  static const _channel = MethodChannel('com.imali.chat/play_integrity');
+
+  PlayIntegrityService(this._functions);
 
   /// Generate a nonce for integrity check
   String generateNonce() {
     return _uuid.v4();
   }
 
-  /// Request an integrity verification
-  /// This should be called on Android only
-  Future<IntegrityResult> verifyIntegrity({
-    String? nonce,
-  }) async {
-    // Generate nonce if not provided
+  /// Get a raw Play Integrity token string for passing to Cloud Functions.
+  ///
+  /// Returns `null` on non-Android platforms or if the request fails.
+  /// The nonce is base64-encoded before being sent to the Play Integrity API.
+  Future<String?> getIntegrityToken({String? nonce}) async {
+    if (!defaultTargetPlatform.isAndroid) {
+      return null;
+    }
+
+    final requestNonce = nonce ?? generateNonce();
+
+    try {
+      // Base64-encode the nonce as required by Play Integrity API
+      final encodedNonce = base64Encode(utf8.encode(requestNonce));
+
+      final token = await _channel.invokeMethod<String>(
+        'requestIntegrityToken',
+        {'nonce': encodedNonce},
+      );
+
+      return token;
+    } on PlatformException catch (e) {
+      debugPrint('Play Integrity token request failed: ${e.code} - ${e.message}');
+      return null;
+    } catch (e) {
+      debugPrint('Play Integrity error: $e');
+      return null;
+    }
+  }
+
+  /// Request an integrity verification with full server-side decoding.
+  ///
+  /// Gets a token from the Play Integrity API, sends it to the backend
+  /// Cloud Function for decoding, and returns the parsed verdict.
+  Future<IntegrityResult> verifyIntegrity({String? nonce}) async {
     final requestNonce = nonce ?? generateNonce();
 
     if (!defaultTargetPlatform.isAndroid) {
-      // iOS uses App Attest instead
+      // iOS uses App Attest via Firebase App Check instead
       return IntegrityResult(
         isValid: true,
         verdict: IntegrityVerdict.valid,
@@ -39,22 +74,22 @@ class PlayIntegrityService {
     }
 
     try {
-      // In production, use the play_integrity plugin to get token
-      // final integrityManager = IntegrityManager();
-      // final token = await integrityManager.requestIntegrityToken(
-      //   IntegrityTokenRequest(nonce: requestNonce)
-      // );
+      final token = await getIntegrityToken(nonce: requestNonce);
 
-      // For now, simulate token - in production this would be real
-      const token = 'INTEGRITY_TOKEN_PLACEHOLDER';
+      if (token == null) {
+        return IntegrityResult(
+          isValid: false,
+          verdict: IntegrityVerdict.error,
+          details: 'Failed to obtain integrity token',
+          nonce: requestNonce,
+        );
+      }
 
       // Verify token with backend
-      final response = await _verifyTokenWithBackend(
+      return await _verifyTokenWithBackend(
         token: token,
         nonce: requestNonce,
       );
-
-      return response;
     } catch (e) {
       debugPrint('Play Integrity verification failed: $e');
       return IntegrityResult(
@@ -84,7 +119,8 @@ class PlayIntegrityService {
         verdict: IntegrityVerdict.fromString(data['verdict']),
         details: data['details'] ?? '',
         nonce: nonce,
-        deviceRecognition: DeviceRecognition.fromString(data['deviceRecognition']),
+        deviceRecognition:
+            DeviceRecognition.fromString(data['deviceRecognition']),
         appLicensing: AppLicensing.fromString(data['appLicensing']),
       );
     } catch (e) {
@@ -164,6 +200,7 @@ enum IntegrityVerdict {
   static IntegrityVerdict fromString(String? value) {
     switch (value) {
       case 'MEETS_DEVICE_INTEGRITY':
+      case 'MEETS_STRONG_INTEGRITY':
       case 'valid':
         return IntegrityVerdict.valid;
       case 'MEETS_BASIC_INTEGRITY':

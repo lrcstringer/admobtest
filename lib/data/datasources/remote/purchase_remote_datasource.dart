@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../core/error/exceptions.dart';
+import '../../../core/security/play_integrity_service.dart';
 import '../../models/purchase_model.dart';
 import '../../models/service_provider_model.dart';
 
@@ -54,8 +57,15 @@ abstract class PurchaseRemoteDataSource {
 class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+  final FirebaseFunctions _functions;
+  final PlayIntegrityService _playIntegrity;
 
-  PurchaseRemoteDataSourceImpl(this._firestore, this._auth);
+  PurchaseRemoteDataSourceImpl(
+    this._firestore,
+    this._auth,
+    this._functions,
+    this._playIntegrity,
+  );
 
   String get _userId => _auth.currentUser?.uid ?? '';
 
@@ -144,99 +154,24 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     required String productId,
     required String recipientNumber,
   }) async {
-    // Get product details
-    final productDoc = await _productsCollection.doc(productId).get();
-    if (!productDoc.exists) {
-      throw Exception('Product not found');
-    }
-    final productData = productDoc.data()!;
-    productData['id'] = productDoc.id;
-    final product = ServiceProductModel.fromJson(productData);
+    try {
+      // Get Play Integrity token for this sensitive operation
+      final nonce = _playIntegrity.generateNonce();
+      final integrityToken = await _playIntegrity.getIntegrityToken(nonce: nonce);
 
-    // Get provider details
-    final providerDoc = await _providersCollection.doc(product.providerId).get();
-    if (!providerDoc.exists) {
-      throw Exception('Provider not found');
-    }
-    final providerData = providerDoc.data()!;
-
-    // Get user's wallet
-    final walletSnapshot = await _firestore
-        .collection('wallets')
-        .where('oddienceUserId', isEqualTo: _userId)
-        .limit(1)
-        .get();
-
-    if (walletSnapshot.docs.isEmpty) {
-      throw Exception('Wallet not found');
-    }
-
-    final walletDoc = walletSnapshot.docs.first;
-    final walletId = walletDoc.id;
-    final currentBalance = walletDoc.data()['tokenBalance'] as int? ?? 0;
-
-    // Check balance
-    if (currentBalance < product.priceTokens) {
-      throw Exception('Insufficient balance');
-    }
-
-    // Create purchase document
-    final purchaseRef = _purchasesCollection.doc();
-    final now = DateTime.now();
-
-    final purchaseModel = PurchaseModel(
-      id: purchaseRef.id,
-      walletId: walletId,
-      oddienceUserId: _userId,
-      providerId: product.providerId,
-      providerName: providerData['name'] as String,
-      category: providerData['category'] as String? ?? 'airtime',
-      tokenAmount: product.priceTokens,
-      zarAmount: product.priceZar,
-      status: 'pending',
-      productCode: product.code,
-      productName: product.name,
-      recipientNumber: recipientNumber,
-      createdAt: now,
-    );
-
-    // Use transaction for atomicity
-    await _firestore.runTransaction((transaction) async {
-      // Deduct tokens
-      transaction.update(walletDoc.reference, {
-        'tokenBalance': FieldValue.increment(-product.priceTokens),
-        'updatedAt': FieldValue.serverTimestamp(),
+      final callable = _functions.httpsCallable('processPurchase');
+      final result = await callable.call<Map<String, dynamic>>({
+        'productId': productId,
+        'recipientNumber': recipientNumber,
+        if (integrityToken != null) 'integrityToken': integrityToken,
+        if (integrityToken != null) 'integrityNonce': nonce,
       });
 
-      // Create purchase
-      final purchaseJson = purchaseModel.toFirestoreJson();
-      purchaseJson['id'] = purchaseRef.id;
-      transaction.set(purchaseRef, purchaseJson);
-
-      // Create transaction record
-      final transactionRef = _firestore.collection('transactions').doc();
-      transaction.set(transactionRef, {
-        'id': transactionRef.id,
-        'walletId': walletId,
-        'oddienceUserId': _userId,
-        'type': 'purchase',
-        'tokenAmount': -product.priceTokens,
-        'zarAmount': -product.priceZar,
-        'description': 'Purchase: ${product.name}',
-        'status': 'completed',
-        'referenceId': purchaseRef.id,
-        'referenceType': 'purchase',
-        'metadata': {
-          'providerId': product.providerId,
-          'providerName': providerData['name'],
-          'productCode': product.code,
-          'recipientNumber': recipientNumber,
-        },
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-    });
-
-    return purchaseModel;
+      final data = result.data;
+      return PurchaseModel.fromJson(data);
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Purchase failed');
+    }
   }
 
   @override

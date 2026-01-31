@@ -5,6 +5,7 @@
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { requireAppCheck, requirePlayIntegrity } from "./security";
 
 const db = admin.firestore();
 
@@ -16,6 +17,8 @@ export const processPurchase = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
   }
+  requireAppCheck(context, "processPurchase");
+  await requirePlayIntegrity(data, context, "processPurchase", "HIGH");
 
   const userId = context.auth.uid;
   const { purchaseId } = data;

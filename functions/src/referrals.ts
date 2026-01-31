@@ -4,6 +4,7 @@
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { requireAppCheck, requirePlayIntegrity } from "./security";
 
 const db = admin.firestore();
 
@@ -18,6 +19,8 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
   }
+  requireAppCheck(context, "applyReferralCode");
+  await requirePlayIntegrity(data, context, "applyReferralCode", "HIGH");
 
   const refereeUserId = context.auth.uid;
   const { code } = data;

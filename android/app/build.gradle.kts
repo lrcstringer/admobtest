@@ -42,6 +42,11 @@ android {
     }
 }
 
+dependencies {
+    implementation("com.google.android.play:integrity:1.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+}
+
 flutter {
     source = "../.."
 }

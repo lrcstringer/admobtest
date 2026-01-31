@@ -52,8 +52,9 @@ import '../screens/onboarding/onboarding_gender_screen.dart';
 import '../screens/onboarding/onboarding_mobile_otp_screen.dart';
 import '../screens/onboarding/onboarding_mobile_screen.dart';
 import '../screens/onboarding/onboarding_name_screen.dart';
-import '../screens/onboarding/onboarding_picture_screen.dart';
 import '../screens/onboarding/onboarding_settings_screen.dart';
+import '../screens/onboarding/permissions_screen.dart';
+import '../screens/onboarding/profile_picture_screen.dart';
 import '../screens/onboarding/onboarding_success_screen.dart';
 import '../screens/onboarding/pin_setup_screen.dart';
 import '../screens/onboarding/profile_setup_screen.dart';
@@ -219,7 +220,12 @@ class AppRouter {
       GoRoute(
         path: '/onboarding/picture',
         name: 'onboardingPicture',
-        builder: (context, state) => const OnboardingPictureScreen(),
+        builder: (context, state) => const ProfilePictureScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding/permissions',
+        name: 'onboardingPermissions',
+        builder: (context, state) => const PermissionsScreen(),
       ),
       GoRoute(
         path: '/onboarding/settings',
@@ -607,9 +613,34 @@ class AppRouter {
         return '/home';
       }
 
-      // If needs onboarding and not on onboarding pages, redirect
+      // If needs onboarding and not on onboarding pages, redirect to the
+      // appropriate step based on what they've already completed.
       if (needsOnboarding && !isOnOnboarding) {
-        return '/onboarding/terms';
+        final user = authState.user;
+        if (user == null || !user.hasAcceptedTerms) {
+          return '/onboarding/terms';
+        }
+        final profile = user.profile;
+        if (profile == null ||
+            profile.displayName.isEmpty ||
+            profile.displayName == 'iMali User') {
+          return '/onboarding/name';
+        }
+        if (profile.dateOfBirth == null) {
+          return '/onboarding/birthday';
+        }
+        // If user uploaded a profile picture, they completed the picture
+        // step — skip to permissions. Users who skipped the picture step
+        // have no avatarUrl, so they redo picture (we can't distinguish
+        // "skipped" from "never reached").
+        if (profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty) {
+          // Picture done. If they also set a username, skip to profile.
+          if (profile.username != null && profile.username!.isNotEmpty) {
+            return '/onboarding/profile';
+          }
+          return '/onboarding/permissions';
+        }
+        return '/onboarding/picture';
       }
 
       // If not authenticated and trying to access protected routes

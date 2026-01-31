@@ -90,13 +90,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == AuthStatus.authenticated) {
-          context.go('/home');
-        } else if (state.status == AuthStatus.onboardingRequired) {
-          context.go('/onboarding/terms');
-        } else if (state.status == AuthStatus.error) {
+        if (state.status == AuthStatus.error) {
           setState(() => _errorText = state.errorMessage);
         }
+        // For authenticated and onboardingRequired: the GoRouterRefreshStream
+        // triggers a redirect re-evaluation. The router redirect navigates to
+        // /home (authenticated) or the correct onboarding step (onboardingRequired).
       },
       builder: (context, state) {
         final isLoading = state.isLoading;

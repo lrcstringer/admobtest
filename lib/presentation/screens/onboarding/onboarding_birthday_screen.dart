@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/injection.dart';
+import '../../../core/error/failures.dart';
+import '../../../domain/repositories/user_repository.dart';
+import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/onboarding/onboarding_progress_indicator.dart';
 
@@ -21,6 +26,7 @@ class _OnboardingBirthdayScreenState extends State<OnboardingBirthdayScreen> {
   int _selectedDay = 15;
   int _selectedMonth = 7;
   int _selectedYear = 1990;
+  bool _isLoading = false;
 
   static const int _startYear = 1940;
   static const int _endYear = 2010;
@@ -51,6 +57,38 @@ class _OnboardingBirthdayScreenState extends State<OnboardingBirthdayScreen> {
     }
     if ([4, 6, 9, 11].contains(month)) return 30;
     return 31;
+  }
+
+  Future<void> _onContinue() async {
+    final authState = context.read<AuthBloc>().state;
+    if (authState.user == null) return;
+
+    setState(() => _isLoading = true);
+
+    final dateOfBirth = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+
+    final userRepo = getIt<UserRepository>();
+    final result = await userRepo.updateProfile(
+      userId: authState.user!.id,
+      dateOfBirth: dateOfBirth,
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(failure.displayMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+      (_) {
+        context.go('/onboarding/picture');
+      },
+    );
   }
 
   @override
@@ -296,25 +334,35 @@ class _OnboardingBirthdayScreenState extends State<OnboardingBirthdayScreen> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () => context.go('/onboarding/picture'),
+                    onPressed: _isLoading ? null : _onContinue,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
+                      disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Continue',
-                      style:
-                          TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Continue',
+                            style:
+                                TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                          ),
                   ),
                 ),
               ),
 
-              const OnboardingProgressIndicator(currentStep: 2),
+              const OnboardingProgressIndicator(currentStep: 1),
             ],
           ),
         ),

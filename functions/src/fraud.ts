@@ -5,6 +5,8 @@
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { requireAppCheck } from "./security";
+import { decodeIntegrityToken, evaluateVerdict } from "./integrity";
 
 const db = admin.firestore();
 
@@ -19,6 +21,7 @@ export const verifyPlayIntegrity = functions.https.onCall(
         "User must be authenticated"
       );
     }
+    requireAppCheck(context, "verifyPlayIntegrity");
 
     const {token, nonce} = data;
 
@@ -30,32 +33,34 @@ export const verifyPlayIntegrity = functions.https.onCall(
     }
 
     try {
-    // In production, call Play Integrity API
-    // const {google} = require('googleapis');
-    // const playintegrity = google.playintegrity('v1');
-    // const result = await playintegrity.v1.decodeIntegrityToken({
-    //   packageName: 'com.imali.chat',
-    //   requestBody: { integrityToken: token }
-    // });
+      // Decode token via Google Play Integrity API
+      const decodedVerdict = await decodeIntegrityToken(token, nonce);
 
-      // For now, return a simulated response
-      const verdict = {
-        isValid: true,
-        verdict: "MEETS_DEVICE_INTEGRITY",
-        deviceRecognition: "MEETS_DEVICE_INTEGRITY",
-        appLicensing: "LICENSED",
-        details: "Token verified successfully",
+      // Evaluate against HIGHEST tier policy (standalone verification)
+      const evaluation = evaluateVerdict(decodedVerdict, "HIGHEST");
+
+      const result = {
+        isValid: evaluation.allowed,
+        verdict: evaluation.deviceRecognition.join(", ") || "NO_INTEGRITY",
+        deviceRecognition: evaluation.deviceRecognition.join(", ") || "UNKNOWN",
+        appLicensing: evaluation.appLicensing,
+        details: evaluation.reason || "Token verified successfully",
       };
 
       // Log the verification attempt
       await db.collection("integrityChecks").add({
         userId: context.auth.uid,
         nonce: nonce,
-        result: verdict,
+        result: result,
+        deviceRecognition: evaluation.deviceRecognition,
+        appLicensing: evaluation.appLicensing,
+        appIntegrity: evaluation.appIntegrity,
+        allowed: evaluation.allowed,
+        warn: evaluation.warn,
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
       });
 
-      return verdict;
+      return result;
     } catch (error) {
       console.error("Play Integrity verification failed:", error);
       throw new functions.https.HttpsError("internal", "Verification failed");
@@ -67,6 +72,8 @@ export const verifyPlayIntegrity = functions.https.onCall(
  * Verify reCAPTCHA token
  */
 export const verifyCaptcha = functions.https.onCall(async (data, context) => {
+  requireAppCheck(context, "verifyCaptcha");
+
   const {token, action, userId} = data;
 
   if (!token) {
@@ -113,6 +120,7 @@ export const checkFraudRisk = functions.https.onCall(async (data, context) => {
       "User must be authenticated"
     );
   }
+  requireAppCheck(context, "checkFraudRisk");
 
   const userId = context.auth.uid;
   const {action, amount} = data;
@@ -183,6 +191,7 @@ export const flagUserForFraud = functions.https.onCall(
         "User must be authenticated"
       );
     }
+    requireAppCheck(context, "flagUserForFraud");
 
     // In production, check for admin role
     // const isAdmin = context.auth.token.admin === true;
@@ -234,6 +243,7 @@ export const removeFraudFlag = functions.https.onCall(async (data, context) => {
       "User must be authenticated"
     );
   }
+  requireAppCheck(context, "removeFraudFlag");
 
   const {flagId, reason} = data;
 
@@ -283,6 +293,7 @@ export const logSecurityEvent = functions.https.onCall(
         "User must be authenticated"
       );
     }
+    requireAppCheck(context, "logSecurityEvent");
 
     const {eventType, action, metadata, riskLevel} = data;
 

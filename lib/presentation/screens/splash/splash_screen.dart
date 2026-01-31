@@ -37,13 +37,17 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _initAndNavigate() async {
-    // Request FCM permission during splash (non-blocking to UI)
-    final messaging = GetIt.instance<FirebaseMessaging>();
-    await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    try {
+      // Request FCM permission during splash (non-blocking to UI)
+      final messaging = GetIt.instance<FirebaseMessaging>();
+      await messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    } catch (e) {
+      debugPrint('FCM permission request failed (non-blocking): $e');
+    }
 
     // Ensure minimum splash display time (2 seconds from start)
     await Future.delayed(const Duration(milliseconds: 2000));
@@ -66,13 +70,15 @@ class _SplashScreenState extends State<SplashScreen>
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == AuthStatus.authenticated) {
-          context.go('/home');
-        } else if (state.status == AuthStatus.onboardingRequired) {
-          context.go('/onboarding/terms');
-        } else if (state.status == AuthStatus.unauthenticated) {
+        if (state.status == AuthStatus.unauthenticated) {
+          // Must navigate explicitly — the router redirect has a !isOnSplash
+          // guard that prevents redirecting away from splash for unauth users.
           context.go('/welcome');
         }
+        // For authenticated and onboardingRequired: the GoRouterRefreshStream
+        // triggers a redirect re-evaluation when auth state changes. The router
+        // redirect handles these cases (authenticated → /home,
+        // onboardingRequired → smart onboarding step based on progress).
       },
       child: Scaffold(
         body: Container(

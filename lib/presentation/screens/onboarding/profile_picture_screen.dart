@@ -1,10 +1,14 @@
 import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/di/injection.dart';
+import '../../../core/error/failures.dart';
+import '../../../domain/repositories/user_repository.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -21,7 +25,7 @@ class ProfilePictureScreen extends StatefulWidget {
 class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
   final ImagePicker _imagePicker = ImagePicker();
   File? _selectedImage;
-  final bool _isLoading = false;
+  bool _isLoading = false;
   int _selectedSource = 1; // 0 = gallery, 1 = camera, 2 = remove
 
   Future<void> _pickImage(ImageSource source) async {
@@ -68,9 +72,64 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
   }
 
   Future<void> _onContinue() async {
-    // TODO: Upload image to storage if selected
-    // For now, just navigate to next screen
-    context.go('/onboarding/permissions');
+    final authState = context.read<AuthBloc>().state;
+    if (authState.user == null) return;
+
+    if (_selectedImage == null) {
+      context.go('/onboarding/permissions');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Upload image to Firebase Storage
+      final userId = authState.user!.id;
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('avatars')
+          .child('$userId.jpg');
+
+      await ref.putFile(
+        _selectedImage!,
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+
+      final downloadUrl = await ref.getDownloadURL();
+
+      // Save avatar URL to user profile
+      final userRepo = getIt<UserRepository>();
+      final result = await userRepo.updateProfile(
+        userId: userId,
+        avatarUrl: downloadUrl,
+      );
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(failure.displayMessage),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
+        (_) {
+          context.go('/onboarding/permissions');
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to upload image: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _onSkip() {

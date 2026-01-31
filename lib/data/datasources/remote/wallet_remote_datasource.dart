@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/exceptions.dart';
+import '../../../core/security/play_integrity_service.dart';
 import '../../../domain/entities/cashout.dart';
 import '../../models/wallet_model.dart';
 import '../../models/transaction_model.dart';
@@ -47,8 +49,15 @@ abstract class WalletRemoteDataSource {
 class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
   final FirebaseFirestore _firestore;
   final firebase_auth.FirebaseAuth _firebaseAuth;
+  final FirebaseFunctions _functions;
+  final PlayIntegrityService _playIntegrity;
 
-  WalletRemoteDataSourceImpl(this._firestore, this._firebaseAuth);
+  WalletRemoteDataSourceImpl(
+    this._firestore,
+    this._firebaseAuth,
+    this._functions,
+    this._playIntegrity,
+  );
 
   CollectionReference<Map<String, dynamic>> get _walletsCollection =>
       _firestore.collection('wallets');
@@ -225,29 +234,31 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
     }
 
     try {
-      final zarAmount = tokenAmount * 0.01; // 1 token = R0.01
+      // Get Play Integrity token for this sensitive operation
+      final nonce = _playIntegrity.generateNonce();
+      final integrityToken = await _playIntegrity.getIntegrityToken(nonce: nonce);
+
+      final callable = _functions.httpsCallable('processCashout');
+      final result = await callable.call<Map<String, dynamic>>({
+        'amount': tokenAmount,
+        'bankDetails': {
+          'method': method.name,
+          'destinationDetails': destinationDetails,
+          'bankName': bankName,
+          'accountNumber': accountNumber,
+          'accountHolderName': accountHolderName,
+          'mobileNumber': mobileNumber,
+        },
+        if (integrityToken != null) 'integrityToken': integrityToken,
+        if (integrityToken != null) 'integrityNonce': nonce,
+      });
+
+      final data = result.data;
+      final zarAmount = (data['zarAmount'] as num?)?.toDouble() ?? tokenAmount * 0.01;
       final now = DateTime.now();
 
-      final cashoutData = CashoutModel(
-        id: '', // Will be set after creation
-        walletId: walletId,
-        oddienceUserId: userId,
-        tokenAmount: tokenAmount,
-        zarAmount: zarAmount,
-        method: method.name,
-        status: 'pending',
-        destinationDetails: destinationDetails,
-        bankName: bankName,
-        accountNumber: accountNumber,
-        accountHolderName: accountHolderName,
-        mobileNumber: mobileNumber,
-        createdAt: now,
-      );
-
-      final docRef = await _cashoutCollection.add(cashoutData.toFirestoreJson());
-
       return CashoutModel(
-        id: docRef.id,
+        id: '',
         walletId: walletId,
         oddienceUserId: userId,
         tokenAmount: tokenAmount,
@@ -261,6 +272,8 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
         mobileNumber: mobileNumber,
         createdAt: now,
       );
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Cashout failed');
     } catch (e) {
       throw ServerException(message: e.toString());
     }

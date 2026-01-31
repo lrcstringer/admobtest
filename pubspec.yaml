@@ -149,11 +149,9 @@ flutter:
   #         weight: 800
 
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
-  image_path: "assets/icons/icon_flattened_dark_1024.png"
-  adaptive_icon_background: "#0C1124"
-  adaptive_icon_foreground: "assets/icons/icon_flattened_dark_1024.png"
+  image_path: "assets/icons/app-icon-1024-flattened.png"
   min_sdk_android: 21
   remove_alpha_ios: true
   web:

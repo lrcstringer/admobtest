@@ -5,6 +5,7 @@
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { requireAppCheck, requirePlayIntegrity } from "./security";
 
 const db = admin.firestore();
 
@@ -18,6 +19,8 @@ export const sendTokens = functions.https.onCall(async (data, context) => {
       "User must be authenticated"
     );
   }
+  requireAppCheck(context, "sendTokens");
+  await requirePlayIntegrity(data, context, "sendTokens", "HIGHEST");
 
   const senderId = context.auth.uid;
   const {recipientId, amount, message, threadId} = data;
@@ -160,6 +163,7 @@ export const createPaymentRequest = functions.https.onCall(
         "User must be authenticated"
       );
     }
+    requireAppCheck(context, "createPaymentRequest");
 
     const requesterId = context.auth.uid;
     const {recipientId, amount, message, threadId} = data;
@@ -229,6 +233,7 @@ export const payRequest = functions.https.onCall(async (data, context) => {
       "User must be authenticated"
     );
   }
+  requireAppCheck(context, "payRequest");
 
   const payerId = context.auth.uid;
   const {requestId} = data;
@@ -372,6 +377,7 @@ export const declineRequest = functions.https.onCall(async (data, context) => {
       "User must be authenticated"
     );
   }
+  requireAppCheck(context, "declineRequest");
 
   const userId = context.auth.uid;
   const {requestId, reason} = data;

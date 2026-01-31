@@ -6,7 +6,7 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
-import { checkRateLimit, validators } from "./security";
+import { checkRateLimit, requireAppCheck, validators } from "./security";
 
 const db = admin.firestore();
 
@@ -119,9 +119,9 @@ async function sendSmsViaMyMobileApi(
  * @param phoneNumber - South African phone number
  * @returns { success: boolean, message: string }
  */
-export const sendOtp = functions
-  .runWith({ secrets: ["MYMOBILEAPI_CLIENT_ID", "MYMOBILEAPI_API_KEY", "MYMOBILEAPI_SENDER_ID"] })
-  .https.onCall(async (data, context) => {
+export const sendOtp = functions.https.onCall(async (data, context) => {
+  requireAppCheck(context, "sendOtp");
+
   const { phoneNumber } = data;
 
   // Validate phone number
@@ -219,6 +219,8 @@ export const sendOtp = functions
  * @returns { success: boolean, customToken: string, userId: string, isNewUser: boolean }
  */
 export const verifyOtp = functions.https.onCall(async (data, context) => {
+  requireAppCheck(context, "verifyOtp");
+
   const { phoneNumber, code } = data;
 
   // Validate phone number
@@ -322,14 +324,8 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
     );
   }
 
-  // Code is valid - mark as verified
-  await docRef.update({
-    status: "verified",
-    verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
-
-  // Create or get Firebase Auth user
-  // Use phone number without + as userId for consistency
+  // Create or get Firebase Auth user BEFORE marking as verified,
+  // so that if user creation fails the code can be retried.
   const userId = `phone_${normalizedPhone.replace(/\+/g, "")}`;
   let isNewUser = false;
 
@@ -338,9 +334,11 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
   } catch (error: unknown) {
     const authError = error as { code?: string };
     if (authError.code === "auth/user-not-found") {
+      // Create user without phoneNumber field to avoid requiring
+      // Phone Auth provider. Phone number is stored in Firestore instead.
       await admin.auth().createUser({
         uid: userId,
-        phoneNumber: normalizedPhone,
+        displayName: normalizedPhone,
       });
       isNewUser = true;
     } else {
@@ -351,7 +349,11 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
   // Generate custom token
   const customToken = await admin.auth().createCustomToken(userId);
 
-  // Clean up verification document
+  // Only mark as verified and clean up AFTER user creation + token generation succeed
+  await docRef.update({
+    status: "verified",
+    verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
   await docRef.delete();
 
   console.log(`User ${userId} verified successfully, isNewUser: ${isNewUser}`);
@@ -400,6 +402,7 @@ export const registerDevice = functions.https.onCall(async (data, context) => {
       "User must be authenticated to register a device."
     );
   }
+  requireAppCheck(context, "registerDevice");
 
   const userId = context.auth.uid;
   const {
@@ -506,6 +509,7 @@ export const revokeDevice = functions.https.onCall(async (data, context) => {
       "User must be authenticated."
     );
   }
+  requireAppCheck(context, "revokeDevice");
 
   const { deviceId } = data;
   if (!deviceId) {
@@ -552,6 +556,7 @@ export const updateDeviceFcmToken = functions.https.onCall(async (data, context)
       "User must be authenticated."
     );
   }
+  requireAppCheck(context, "updateDeviceFcmToken");
 
   const { deviceId, fcmToken } = data;
   if (!deviceId || !fcmToken) {
@@ -596,6 +601,8 @@ export const updateDeviceFcmToken = functions.https.onCall(async (data, context)
  * @returns { challengeId, hasTrustedDevice }
  */
 export const loginRequest = functions.https.onCall(async (data, context) => {
+  requireAppCheck(context, "loginRequest");
+
   const { phoneNumber } = data;
 
   if (!phoneNumber || !validators.phoneNumber(phoneNumber)) {
@@ -738,6 +745,8 @@ export const loginRequest = functions.https.onCall(async (data, context) => {
  * @returns { customToken, userId }
  */
 export const approveLogin = functions.https.onCall(async (data, context) => {
+  requireAppCheck(context, "approveLogin");
+
   const { challengeId, signedNonce, deviceId } = data;
 
   if (!challengeId || !signedNonce || !deviceId) {
@@ -874,6 +883,7 @@ export const denyLogin = functions.https.onCall(async (data, context) => {
       "User must be authenticated."
     );
   }
+  requireAppCheck(context, "denyLogin");
 
   const { challengeId } = data;
   if (!challengeId) {
@@ -934,6 +944,7 @@ export const createRiskEvent = functions.https.onCall(async (data, context) => {
       "User must be authenticated."
     );
   }
+  requireAppCheck(context, "createRiskEvent");
 
   const userId = context.auth.uid;
   const { type, severity, details, deviceId } = data;
@@ -1035,6 +1046,7 @@ export const resolveRiskEvent = functions.https.onCall(async (data, context) => 
       "User must be authenticated."
     );
   }
+  requireAppCheck(context, "resolveRiskEvent");
 
   const { eventId } = data;
   if (!eventId) {
@@ -1093,6 +1105,7 @@ export const notifyNewDeviceLogin = functions.https.onCall(async (data, context)
       "User must be authenticated."
     );
   }
+  requireAppCheck(context, "notifyNewDeviceLogin");
 
   const userId = context.auth.uid;
   const { newDeviceModel, newDevicePlatform, excludeDeviceId } = data;

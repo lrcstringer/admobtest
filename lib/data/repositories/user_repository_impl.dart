@@ -252,4 +252,31 @@ class UserRepositoryImpl implements UserRepository {
       return Left(Failure.serverError(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> completeOnboarding() async {
+    final firebaseUser = _authRemoteDataSource.currentUser;
+    if (firebaseUser == null) {
+      return const Left(Failure.unauthenticated());
+    }
+
+    try {
+      final currentUser = await _userRemoteDataSource.getUserById(firebaseUser.uid);
+      if (currentUser == null) {
+        return const Left(Failure.serverError(message: 'User not found'));
+      }
+
+      final updatedUser = currentUser.copyWith(
+        hasCompletedOnboarding: true,
+        updatedAt: DateTime.now(),
+      );
+
+      await _userRemoteDataSource.updateUser(updatedUser);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
 }

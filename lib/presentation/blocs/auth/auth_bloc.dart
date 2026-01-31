@@ -43,25 +43,36 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<_AuthenticateWithPushToken>(_onAuthenticateWithPushToken);
 
     // Listen to auth state changes
-    _authStateSubscription = _authRepository.authStateChanges.listen((user) {
-      if (user != null) {
-        if (user.needsOnboarding) {
-          // ignore: invalid_use_of_visible_for_testing_member
-          emit(state.copyWith(
-            status: AuthStatus.onboardingRequired,
-            user: user,
-            isLoading: false,
-          ));
-        } else {
-          // ignore: invalid_use_of_visible_for_testing_member
-          emit(state.copyWith(
-            status: AuthStatus.authenticated,
-            user: user,
-            isLoading: false,
-          ));
+    _authStateSubscription = _authRepository.authStateChanges.listen(
+      (user) {
+        if (user != null) {
+          if (user.needsOnboarding) {
+            // ignore: invalid_use_of_visible_for_testing_member
+            emit(state.copyWith(
+              status: AuthStatus.onboardingRequired,
+              user: user,
+              isLoading: false,
+            ));
+          } else {
+            // ignore: invalid_use_of_visible_for_testing_member
+            emit(state.copyWith(
+              status: AuthStatus.authenticated,
+              user: user,
+              isLoading: false,
+            ));
+          }
         }
-      }
-    });
+      },
+      onError: (error) {
+        debugPrint('Auth state stream error: $error');
+        // On stream error, mark as unauthenticated so the app doesn't hang
+        // ignore: invalid_use_of_visible_for_testing_member
+        emit(state.copyWith(
+          status: AuthStatus.unauthenticated,
+          isLoading: false,
+        ));
+      },
+    );
   }
 
   Future<void> _onCheckAuthStatus(
@@ -363,7 +374,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _AcceptTerms event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, errorMessage: null));
 
     final result = await _userRepository.acceptTerms();
 
@@ -398,13 +409,34 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _CompleteOnboarding event,
     Emitter<AuthState> emit,
   ) async {
-    if (state.user != null) {
-      final updatedUser = state.user!.copyWith(hasCompletedOnboarding: true);
+    if (state.user == null) return;
+
+    emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    // Persist hasCompletedOnboarding to Firestore
+    final result = await _userRepository.completeOnboarding();
+
+    if (result.isLeft()) {
+      final failure = result.fold((f) => f, (_) => null)!;
       emit(state.copyWith(
-        status: AuthStatus.authenticated,
-        user: updatedUser,
+        isLoading: false,
+        errorMessage: failure.displayMessage,
       ));
+      return;
     }
+
+    // Re-fetch user from Firestore to get all latest profile data
+    final userResult = await _authRepository.getCurrentUser();
+    final freshUser = userResult.fold(
+      (_) => state.user!.copyWith(hasCompletedOnboarding: true),
+      (user) => user ?? state.user!.copyWith(hasCompletedOnboarding: true),
+    );
+
+    emit(state.copyWith(
+      status: AuthStatus.authenticated,
+      user: freshUser,
+      isLoading: false,
+    ));
   }
 
   @override

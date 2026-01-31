@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/exceptions.dart';
+import '../../../core/security/play_integrity_service.dart';
 import '../../../domain/entities/engagement.dart';
 import '../../../domain/value_objects/engagement_evidence.dart';
 import '../../models/earn_thread_model.dart';
@@ -47,8 +49,15 @@ abstract class EarnRemoteDataSource {
 class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
   final FirebaseFirestore _firestore;
   final firebase_auth.FirebaseAuth _firebaseAuth;
+  final FirebaseFunctions _functions;
+  final PlayIntegrityService _playIntegrity;
 
-  EarnRemoteDataSourceImpl(this._firestore, this._firebaseAuth);
+  EarnRemoteDataSourceImpl(
+    this._firestore,
+    this._firebaseAuth,
+    this._functions,
+    this._playIntegrity,
+  );
 
   CollectionReference<Map<String, dynamic>> get _threadsCollection =>
       _firestore.collection('earnThreads');
@@ -300,15 +309,23 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
           .map((a) => EngagementAnswerModel.fromEntity(a))
           .toList();
       final evidenceModel = EngagementEvidenceModel.fromEntity(evidence);
-      final now = DateTime.now();
 
-      await _engagementsCollection.doc(engagementId).update({
-        'answers': answersModels.map((a) => a.toFirestoreJson()).toList(),
-        'evidence': evidenceModel.toFirestoreJson(),
-        'status': 'completed',
-        'completedAt': Timestamp.fromDate(now),
-        'updatedAt': FieldValue.serverTimestamp(),
+      // Get Play Integrity token for this sensitive operation
+      final nonce = _playIntegrity.generateNonce();
+      final integrityToken = await _playIntegrity.getIntegrityToken(nonce: nonce);
+
+      final callable = _functions.httpsCallable('processEngagement');
+      await callable.call<Map<String, dynamic>>({
+        'engagementId': engagementId,
+        'evidence': {
+          'responses': answersModels.map((a) => a.toFirestoreJson()).toList(),
+          ...evidenceModel.toFirestoreJson(),
+        },
+        if (integrityToken != null) 'integrityToken': integrityToken,
+        if (integrityToken != null) 'integrityNonce': nonce,
       });
+
+      final now = DateTime.now();
 
       return EngagementModel.fromJson({
         ...data,
@@ -319,6 +336,8 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
         'completedAt': now,
         'updatedAt': now,
       });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Engagement submission failed');
     } catch (e) {
       if (e is ServerException || e is AuthException) rethrow;
       throw ServerException(message: e.toString());

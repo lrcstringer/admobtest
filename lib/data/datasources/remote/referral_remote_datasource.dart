@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/error/exceptions.dart';
+import '../../../core/security/play_integrity_service.dart';
 import '../../../domain/entities/referral.dart';
 import '../../models/referral_model.dart';
 
@@ -49,8 +52,15 @@ abstract class ReferralRemoteDataSource {
 class ReferralRemoteDataSourceImpl implements ReferralRemoteDataSource {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+  final FirebaseFunctions _functions;
+  final PlayIntegrityService _playIntegrity;
 
-  ReferralRemoteDataSourceImpl(this._firestore, this._auth);
+  ReferralRemoteDataSourceImpl(
+    this._firestore,
+    this._auth,
+    this._functions,
+    this._playIntegrity,
+  );
 
   String? get _currentUserId => _auth.currentUser?.uid;
 
@@ -205,67 +215,35 @@ class ReferralRemoteDataSourceImpl implements ReferralRemoteDataSource {
       throw Exception('User not authenticated');
     }
 
-    // Find the referrer by code
-    final referrerSnapshot = await _usersCollection
-        .where('referralCode', isEqualTo: code.toUpperCase())
-        .limit(1)
-        .get();
+    try {
+      // Get Play Integrity token for this sensitive operation
+      final nonce = _playIntegrity.generateNonce();
+      final integrityToken = await _playIntegrity.getIntegrityToken(nonce: nonce);
 
-    if (referrerSnapshot.docs.isEmpty) {
-      throw Exception('Invalid referral code');
+      final callable = _functions.httpsCallable('applyReferralCode');
+      final result = await callable.call<Map<String, dynamic>>({
+        'code': code.toUpperCase(),
+        if (integrityToken != null) 'integrityToken': integrityToken,
+        if (integrityToken != null) 'integrityNonce': nonce,
+      });
+
+      final data = result.data;
+      final now = DateTime.now();
+
+      return ReferralModel.fromJson({
+        'id': '',
+        'referrerUserId': '',
+        'refereeUserId': userId,
+        'status': 'completed',
+        'referralCode': code.toUpperCase(),
+        'referrerReward': data['referrerReward'] as int? ?? 100,
+        'refereeReward': data['refereeReward'] as int? ?? 50,
+        'createdAt': Timestamp.fromDate(now),
+        'registeredAt': Timestamp.fromDate(now),
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Failed to apply referral code');
     }
-
-    final referrerDoc = referrerSnapshot.docs.first;
-    final referrerId = referrerDoc.id;
-
-    // Check if user is trying to refer themselves
-    if (referrerId == userId) {
-      throw Exception('You cannot use your own referral code');
-    }
-
-    // Check if user already has a referral
-    final existingReferral = await _referralsCollection
-        .where('refereeUserId', isEqualTo: userId)
-        .limit(1)
-        .get();
-
-    if (existingReferral.docs.isNotEmpty) {
-      throw Exception('You have already used a referral code');
-    }
-
-    // Get current user info
-    final currentUserDoc = await _usersCollection.doc(userId).get();
-    final currentUserData = currentUserDoc.data() as Map<String, dynamic>?;
-
-    // Create the referral
-    final now = DateTime.now();
-    final referralData = {
-      'referrerUserId': referrerId,
-      'refereeUserId': userId,
-      'refereeDisplayName': currentUserData?['displayName'],
-      'refereeUsername': currentUserData?['username'],
-      'refereeAvatarUrl': currentUserData?['avatarUrl'],
-      'status': 'registered',
-      'referralCode': code.toUpperCase(),
-      'referrerReward': 100, // 100 tokens for referrer
-      'refereeReward': 50, // 50 tokens for referee
-      'createdAt': Timestamp.fromDate(now),
-      'registeredAt': Timestamp.fromDate(now),
-      'expiresAt': Timestamp.fromDate(now.add(const Duration(days: 30))),
-    };
-
-    final docRef = await _referralsCollection.add(referralData);
-
-    // Update current user with referredBy field
-    await _usersCollection.doc(userId).update({
-      'referredBy': referrerId,
-      'referralCodeUsed': code.toUpperCase(),
-    });
-
-    return ReferralModel.fromJson({
-      'id': docRef.id,
-      ...referralData,
-    });
   }
 
   @override

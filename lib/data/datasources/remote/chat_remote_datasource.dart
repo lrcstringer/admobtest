@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/exceptions.dart';
+import '../../../core/security/play_integrity_service.dart';
 import '../../models/chat_thread_model.dart';
 import '../../models/chat_card_model.dart';
 
@@ -60,8 +62,15 @@ abstract class ChatRemoteDataSource {
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   final FirebaseFirestore _firestore;
   final firebase_auth.FirebaseAuth _firebaseAuth;
+  final FirebaseFunctions _functions;
+  final PlayIntegrityService _playIntegrity;
 
-  ChatRemoteDataSourceImpl(this._firestore, this._firebaseAuth);
+  ChatRemoteDataSourceImpl(
+    this._firestore,
+    this._firebaseAuth,
+    this._functions,
+    this._playIntegrity,
+  );
 
   CollectionReference<Map<String, dynamic>> get _threadsCollection =>
       _firestore.collection('chatThreads');
@@ -332,8 +341,23 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
 
     try {
+      // Get Play Integrity token for this sensitive operation
+      final nonce = _playIntegrity.generateNonce();
+      final integrityToken = await _playIntegrity.getIntegrityToken(nonce: nonce);
+
+      final callable = _functions.httpsCallable('sendTokens');
+      await callable.call<Map<String, dynamic>>({
+        'recipientId': recipientId,
+        'amount': amount,
+        'message': message,
+        'threadId': threadId,
+        if (integrityToken != null) 'integrityToken': integrityToken,
+        if (integrityToken != null) 'integrityNonce': nonce,
+      });
+
       final now = DateTime.now();
-      final messageModel = ChatCardModel(
+
+      return ChatCardModel(
         id: '',
         threadId: threadId,
         senderId: userId,
@@ -350,33 +374,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         actionedAt: now,
         recipientId: recipientId,
       );
-
-      final docRef = await _messagesCollection.add(messageModel.toFirestoreJson());
-
-      // Update thread with last message
-      await _threadsCollection.doc(threadId).update({
-        'lastMessagePreview': 'Sent $amount tokens',
-        'lastMessageAt': Timestamp.fromDate(now),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
-      return ChatCardModel(
-        id: docRef.id,
-        threadId: threadId,
-        senderId: userId,
-        type: 'tokenSend',
-        status: 'paid',
-        textContent: message,
-        tokenAmount: amount,
-        mediaUrl: null,
-        mediaType: null,
-        actionData: null,
-        expiresAt: null,
-        createdAt: now,
-        readAt: null,
-        actionedAt: now,
-        recipientId: recipientId,
-      );
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Token transfer failed');
     } catch (e) {
       if (e is AuthException) rethrow;
       throw ServerException(message: e.toString());

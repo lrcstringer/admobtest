@@ -4,6 +4,7 @@
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { requireAppCheck, requirePlayIntegrity } from "./security";
 
 const db = admin.firestore();
 
@@ -16,6 +17,8 @@ export const processEarning = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
   }
+  requireAppCheck(context, "processEarning");
+  await requirePlayIntegrity(data, context, "processEarning", "HIGH");
 
   const userId = context.auth.uid;
   const { type, amount, source, metadata } = data;
@@ -103,6 +106,8 @@ export const processCashout = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
   }
+  requireAppCheck(context, "processCashout");
+  await requirePlayIntegrity(data, context, "processCashout", "HIGHEST");
 
   const userId = context.auth.uid;
   const { amount, bankDetails } = data;

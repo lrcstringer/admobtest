@@ -1,5 +1,7 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
@@ -24,11 +26,25 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
   Future<void> _onContinue() async {
     setState(() => _isLoading = true);
 
-    // TODO: Request actual permissions based on toggle states
-    // For now, just complete onboarding
+    try {
+      // Request contacts permission if toggle is on
+      if (_allowAccess) {
+        await FlutterContacts.requestPermission(readonly: true);
+      }
 
-    final authBloc = context.read<AuthBloc>();
-    authBloc.add(const AuthEvent.completeOnboarding());
+      // Request notification permission if toggle is on
+      if (_notifications) {
+        await FirebaseMessaging.instance.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
+    } catch (e) {
+      debugPrint('Permission request failed (non-blocking): $e');
+    }
+
+    if (!mounted) return;
 
     // Navigate to profile setup for username/display name
     context.go('/onboarding/profile');

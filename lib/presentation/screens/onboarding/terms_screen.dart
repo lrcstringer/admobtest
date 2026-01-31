@@ -20,6 +20,25 @@ class _TermsScreenState extends State<TermsScreen> {
 
   bool get _canContinue => _acceptedTerms && _acceptedPrivacy;
 
+  @override
+  void initState() {
+    super.initState();
+    // Safety net: if user already accepted terms (e.g. returning after app restart),
+    // navigate forward immediately. Uses addPostFrameCallback to avoid navigating
+    // during build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final authState = context.read<AuthBloc>().state;
+      if (authState.user?.hasAcceptedTerms == true) {
+        if (authState.user?.hasCompletedOnboarding == true) {
+          context.go('/home');
+        } else {
+          context.go('/onboarding/name');
+        }
+      }
+    });
+  }
+
   void _onContinue() {
     context.read<AuthBloc>().add(const AuthEvent.acceptTerms());
   }
@@ -28,11 +47,19 @@ class _TermsScreenState extends State<TermsScreen> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
+        if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage!),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
         if (state.user?.hasAcceptedTerms == true) {
           if (state.user?.hasCompletedOnboarding == true) {
             context.go('/home');
           } else {
-            context.go('/onboarding/profile');
+            context.go('/onboarding/name');
           }
         }
       },

@@ -4,8 +4,152 @@
  */
 
 import * as admin from "firebase-admin";
+import * as functions from "firebase-functions";
+import { decodeIntegrityToken, evaluateVerdict, IntegrityTier } from "./integrity";
 
 const db = admin.firestore();
+
+/**
+ * Check App Check token on a callable context.
+ * In monitoring mode (enforce=false), logs a warning but does not reject.
+ * In enforcement mode (enforce=true), throws unauthenticated.
+ */
+export function requireAppCheck(
+  context: functions.https.CallableContext,
+  functionName: string,
+  enforce: boolean = false
+): void {
+  if (!context.app) {
+    console.warn(
+      `[AppCheck] Missing app token on ${functionName} ` +
+      `from user ${context.auth?.uid || "unauthenticated"}`
+    );
+
+    if (enforce) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "App verification failed. Please update the app."
+      );
+    }
+  }
+}
+
+/**
+ * Require Play Integrity verification for sensitive operations.
+ *
+ * Decodes the integrity token, evaluates the verdict against the specified
+ * tier, and logs the result to the integrityChecks collection.
+ *
+ * In advisory mode (enforce=false): logs warnings but does not block.
+ * In enforcement mode (enforce=true): throws on failed integrity checks.
+ *
+ * @param data - The incoming function data (must contain integrityToken and integrityNonce)
+ * @param context - The callable context
+ * @param functionName - Name of the function for logging
+ * @param tier - The security tier ("HIGHEST" or "HIGH")
+ * @param enforce - Whether to block on failure (default: false = advisory mode)
+ */
+export async function requirePlayIntegrity(
+  data: Record<string, unknown>,
+  context: functions.https.CallableContext,
+  functionName: string,
+  tier: IntegrityTier,
+  enforce: boolean = false
+): Promise<void> {
+  const integrityToken = data.integrityToken as string | undefined;
+  const integrityNonce = data.integrityNonce as string | undefined;
+  const userId = context.auth?.uid || "unauthenticated";
+
+  // If no token provided, log and optionally block
+  if (!integrityToken || !integrityNonce) {
+    console.warn(
+      `[PlayIntegrity] Missing integrity token/nonce on ${functionName} from user ${userId}`
+    );
+
+    await db.collection("integrityChecks").add({
+      userId,
+      functionName,
+      tier,
+      result: "missing_token",
+      allowed: !enforce,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    if (enforce) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Device integrity verification required."
+      );
+    }
+    return;
+  }
+
+  try {
+    const verdict = await decodeIntegrityToken(integrityToken, integrityNonce);
+    const evaluation = evaluateVerdict(verdict, tier);
+
+    // Log the integrity check result
+    await db.collection("integrityChecks").add({
+      userId,
+      functionName,
+      tier,
+      result: evaluation.allowed ? (evaluation.warn ? "warn" : "pass") : "fail",
+      deviceRecognition: evaluation.deviceRecognition,
+      appLicensing: evaluation.appLicensing,
+      appIntegrity: evaluation.appIntegrity,
+      reason: evaluation.reason,
+      allowed: enforce ? evaluation.allowed : true,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    if (evaluation.warn) {
+      console.warn(
+        `[PlayIntegrity] Warning on ${functionName} from user ${userId}: ${evaluation.reason}`
+      );
+    }
+
+    if (!evaluation.allowed) {
+      console.warn(
+        `[PlayIntegrity] Blocked on ${functionName} from user ${userId}: ${evaluation.reason}`
+      );
+
+      if (enforce) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          "Device integrity check failed. This operation requires a verified device."
+        );
+      }
+    }
+  } catch (error: unknown) {
+    const err = error as { code?: string; message?: string };
+    // Re-throw HttpsErrors (from enforce mode)
+    if (err.code) {
+      throw error;
+    }
+
+    console.error(
+      `[PlayIntegrity] Error decoding token on ${functionName} from user ${userId}:`,
+      error
+    );
+
+    await db.collection("integrityChecks").add({
+      userId,
+      functionName,
+      tier,
+      result: "error",
+      errorMessage: String(error),
+      allowed: !enforce,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    if (enforce) {
+      throw new functions.https.HttpsError(
+        "internal",
+        "Device integrity verification failed."
+      );
+    }
+  }
+}
 
 // Rate limit configurations
 const RATE_LIMITS: Record<string, { maxAttempts: number; windowMinutes: number }> = {
