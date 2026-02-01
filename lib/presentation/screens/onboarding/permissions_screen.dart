@@ -1,8 +1,10 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/onboarding/onboarding_progress_indicator.dart';
 
@@ -28,7 +30,10 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
         await FlutterContacts.requestPermission(readonly: true);
       }
 
-      // Request notification permission if toggle is on
+      // Request notification permission if toggle is on.
+      // This is critical: without notification permission, the FCM token
+      // is unavailable on iOS, which means device binding will fail and
+      // the user will be stuck on OTP-only login permanently.
       if (_notifications) {
         await FirebaseMessaging.instance.requestPermission(
           alert: true,
@@ -42,8 +47,15 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
 
     if (!mounted) return;
 
-    // Navigate to profile setup for username/display name
-    context.go('/onboarding/profile');
+    // Retry device binding now that notification permission has been granted.
+    // The initial bindDevice() call (fired after OTP verification) may have
+    // failed because the FCM token was unavailable at that point.
+    final authBloc = context.read<AuthBloc>();
+    if (!authBloc.state.isDeviceBound) {
+      authBloc.add(const AuthEvent.bindDevice());
+    }
+
+    context.go('/onboarding/success');
   }
 
   @override
@@ -168,7 +180,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                             _buildPermissionToggle(
                               title: 'Notifications',
                               description:
-                                  'This will allow us to update you when you have new earning offers.',
+                                  'Required for earning offers, login approvals on new devices, and security alerts. Without this, you will need to enter an OTP every time you sign in.',
                               value: _notifications,
                               onChanged: (value) =>
                                   setState(() => _notifications = value),
@@ -216,7 +228,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                       ),
                     ),
 
-                    const OnboardingProgressIndicator(currentStep: 3),
+                    const OnboardingProgressIndicator(currentStep: 6),
                   ],
                 ),
               ),

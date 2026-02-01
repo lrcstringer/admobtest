@@ -123,9 +123,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           if (name != null && name.isNotEmpty && name != 'iMali User') {
             _biometricService.cacheDisplayName(name);
           }
-          context.go('/home');
+          // Router redirect handles navigation to /home
         } else if (state.status == AuthStatus.onboardingRequired) {
-          context.go('/onboarding/terms');
+          // Router redirect handles smart onboarding routing
+          // (checks which steps are already complete)
         } else if (state.status == AuthStatus.error) {
           setState(() {
             _isBiometricLoading = false;
@@ -146,48 +147,25 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           ),
           child: Stack(
             children: [
-              // Layer 1: Blue wave at the top (behind light blue)
+              // Layer 1: Feather wave at the top (max 25% of screen height)
               Positioned(
                 top: 0,
                 left: 0,
                 right: 0,
-                child: SizedBox(
-                  height: size.height * 0.60,
-                  width: size.width,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: size.height * 0.25,
+                  ),
                   child: Image.asset(
-                    'assets/images/Top Blue Wave.png',
+                    'assets/images/wave_feather_fixed_r7.png',
                     width: size.width,
-                    height: size.height * 0.60,
-                    fit: BoxFit.fill,
+                    fit: BoxFit.fitWidth,
+                    alignment: Alignment.topCenter,
                   ),
                 ),
               ),
 
-              // Layer 2: Light blue wave overlaying dark blue at the top
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Image.asset(
-                  'assets/images/Top Light Blue.png',
-                  width: size.width,
-                  fit: BoxFit.fitWidth,
-                ),
-              ),
-
-              // Layer 3: Yellow wave at the bottom
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Image.asset(
-                  'assets/images/Bottom Yellow Wave.png',
-                  width: size.width,
-                  fit: BoxFit.fitWidth,
-                ),
-              ),
-
-              // Layer 4: Main content
+              // Layer 2: Main content
               Positioned.fill(
                 child: SafeArea(
                   child: FadeTransition(
@@ -339,36 +317,50 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
+                  color: Color(0xFF0D1028),
                 ),
               ),
             ),
           ),
         ),
 
-        SizedBox(height: size.height * 0.03),
+        const SizedBox(height: 16),
 
-        // "Already have an account?"
-        Text(
-          'Already have an account?',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-        const SizedBox(height: 4),
-        // "Log in." - tappable link
-        GestureDetector(
-          onTap: () => context.go('/auth/phone'),
-          child: Text(
-            'Log in.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.underline,
-                  decorationColor: AppColors.textPrimary,
+        // "Already have an account? Log in" - secondary text button
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 48),
+          child: SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton(
+              onPressed: () => context.go('/auth/phone'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary.withValues(alpha: 0.3),
+                foregroundColor: const Color(0xFF0D1028),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
                 ),
+                elevation: 0,
+              ),
+              child: Text.rich(
+                TextSpan(
+                  text: 'Have an account? ',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF0D1028),
+                  ),
+                  children: const [
+                    TextSpan(
+                      text: 'Log in',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
 

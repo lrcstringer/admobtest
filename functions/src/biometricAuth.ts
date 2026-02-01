@@ -200,7 +200,10 @@ export const verifyBiometricChallenge = functions.https.onCall(
     const publicKeyPem = deviceData.publicKeyPem;
     try {
       const verifier = crypto.createVerify("SHA256");
-      verifier.update(challengeData.nonce);
+      // The client's native keystore base64-decodes the nonce to raw bytes
+      // before signing, so we must verify against the same raw bytes.
+      const nonceBytes = Buffer.from(challengeData.nonce, "base64");
+      verifier.update(nonceBytes);
       verifier.end();
 
       const signatureBuffer = Buffer.from(signedNonce, "base64");

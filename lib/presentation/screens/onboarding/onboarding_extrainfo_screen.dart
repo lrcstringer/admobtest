@@ -92,7 +92,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
 
     if (!hasData) {
       // Nothing to save — go straight to success
-      context.go('/onboarding/success');
+      context.go('/onboarding/permissions');
       return;
     }
 
@@ -123,7 +123,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
         );
       },
       (_) {
-        context.go('/onboarding/success');
+        context.go('/onboarding/permissions');
       },
     );
   }

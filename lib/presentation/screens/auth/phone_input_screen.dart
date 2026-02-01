@@ -12,7 +12,14 @@ import '../../widgets/common/numeric_keyboard.dart';
 class PhoneInputScreen extends StatefulWidget {
   final bool skipPushLogin;
 
-  const PhoneInputScreen({super.key, this.skipPushLogin = false});
+  /// Optional E.164 phone number to pre-fill (e.g. "+27812345678").
+  final String? initialPhoneNumber;
+
+  const PhoneInputScreen({
+    super.key,
+    this.skipPushLogin = false,
+    this.initialPhoneNumber,
+  });
 
   @override
   State<PhoneInputScreen> createState() => _PhoneInputScreenState();
@@ -85,6 +92,34 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
     {'code': '+65', 'country': 'SG', 'name': 'Singapore'},
     {'code': '+852', 'country': 'HK', 'name': 'Hong Kong'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _prefillPhoneNumber();
+  }
+
+  /// Parse an E.164 phone number into country code + local digits.
+  void _prefillPhoneNumber() {
+    final phone = widget.initialPhoneNumber;
+    if (phone == null || !phone.startsWith('+')) return;
+
+    // Try to match the longest country code first (e.g. +852 before +8)
+    String? matchedCode;
+    for (final entry in _countryCodes) {
+      final code = entry['code']!;
+      if (phone.startsWith(code)) {
+        if (matchedCode == null || code.length > matchedCode.length) {
+          matchedCode = code;
+        }
+      }
+    }
+
+    if (matchedCode != null) {
+      _selectedCountryCode = matchedCode;
+      _phoneDigits = phone.substring(matchedCode.length);
+    }
+  }
 
   String? _getE164PhoneNumber() {
     return parseToE164(_phoneDigits, _selectedCountryCode);

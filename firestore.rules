@@ -262,11 +262,26 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Auth challenges collection (server-only writes via Cloud Functions)
-    // Used for push-based login challenge/response
+    // Auth challenges collection (server-only via Cloud Functions)
+    // Push-based login challenge/response. Status is polled via
+    // checkChallengeStatus cloud function (not direct Firestore reads)
+    // because the requesting client is unauthenticated.
     match /authChallenges/{challengeId} {
+      // Authenticated users can read their own challenges (for approval screen)
       allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow create, update, delete: if false;
+    }
+
+    // Biometric challenges collection (server-only via Cloud Functions)
+    // Used for biometric login nonce challenge/response
+    match /biometricChallenges/{challengeId} {
+      allow read, write: if false;
+    }
+
+    // Rate limits collection (server-only via Cloud Functions)
+    // Used by security middleware for rate limiting
+    match /rate_limits/{limitId} {
+      allow read, write: if false;
     }
 
     // Risk events collection (server-only writes via Cloud Functions)

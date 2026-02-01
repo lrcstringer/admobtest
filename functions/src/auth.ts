@@ -708,7 +708,7 @@ export const loginRequest = functions.https.onCall(async (data, context) => {
   }
 
   // Generate challenge nonce
-  const nonce = crypto.randomBytes(32).toString("hex");
+  const nonce = crypto.randomBytes(32).toString("base64");
   const now = admin.firestore.Timestamp.now();
   const expiresAt = admin.firestore.Timestamp.fromMillis(
     now.toMillis() + 3 * 60 * 1000 // 3 minutes
@@ -736,7 +736,7 @@ export const loginRequest = functions.https.onCall(async (data, context) => {
 
   if (fcmTokens.length > 0) {
     try {
-      await admin.messaging().sendEachForMulticast({
+      const sendResult = await admin.messaging().sendEachForMulticast({
         tokens: fcmTokens,
         // Data-only message — no "notification" field.
         // This ensures onMessage fires reliably in the foreground on Android.
@@ -764,7 +764,76 @@ export const loginRequest = functions.https.onCall(async (data, context) => {
           },
         },
       });
-      console.log(`Push challenge sent to ${fcmTokens.length} device(s) for ${userId}`);
+
+      // Check which tokens are stale and clean them up
+      const staleTokenIndices: number[] = [];
+      sendResult.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          const errCode = resp.error?.code;
+          if (
+            errCode === "messaging/registration-token-not-registered" ||
+            errCode === "messaging/invalid-registration-token" ||
+            errCode === "messaging/invalid-argument"
+          ) {
+            staleTokenIndices.push(idx);
+            console.log(`Stale FCM token detected at index ${idx}: ${errCode}`);
+          }
+        }
+      });
+
+      // If ALL tokens were stale, clean up and fall back to OTP
+      if (staleTokenIndices.length === fcmTokens.length) {
+        console.log(
+          `All ${fcmTokens.length} FCM token(s) are stale for ${userId}. ` +
+          `Cleaning up and falling back to OTP.`
+        );
+
+        // Revoke stale device records
+        const batch = db.batch();
+        const staleNow = admin.firestore.FieldValue.serverTimestamp();
+        trustedDevices.forEach((doc) => {
+          batch.update(doc.ref, {
+            trusted: false,
+            revoked: true,
+            revokedAt: staleNow,
+            revokeReason: "stale_fcm_token",
+          });
+        });
+        await batch.commit();
+
+        // Delete the challenge we just created (no one can receive it)
+        await challengeRef.delete();
+
+        return {
+          challengeId: null,
+          hasTrustedDevice: false,
+        };
+      }
+
+      // If SOME tokens were stale, clean up just those devices
+      if (staleTokenIndices.length > 0) {
+        const staleBatch = db.batch();
+        const staleNow = admin.firestore.FieldValue.serverTimestamp();
+        staleTokenIndices.forEach((idx) => {
+          const staleToken = fcmTokens[idx];
+          trustedDevices.forEach((doc) => {
+            if (doc.data().fcmToken === staleToken) {
+              staleBatch.update(doc.ref, {
+                trusted: false,
+                revoked: true,
+                revokedAt: staleNow,
+                revokeReason: "stale_fcm_token",
+              });
+            }
+          });
+        });
+        await staleBatch.commit();
+      }
+
+      const delivered = sendResult.successCount;
+      console.log(
+        `Push challenge sent: ${delivered}/${fcmTokens.length} delivered for ${userId}`
+      );
     } catch (error) {
       console.error("FCM send error:", error);
       // Don't fail the request — user can still use OTP
@@ -862,7 +931,10 @@ export const approveLogin = functions.https.onCall(async (data, context) => {
   const publicKeyPem = deviceData.publicKeyPem;
   try {
     const verifier = crypto.createVerify("SHA256");
-    verifier.update(challengeData.nonce);
+    // The client's native keystore base64-decodes the nonce to raw bytes
+    // before signing, so we must verify against the same raw bytes.
+    const nonceBytes = Buffer.from(challengeData.nonce, "base64");
+    verifier.update(nonceBytes);
     verifier.end();
 
     const signatureBuffer = Buffer.from(signedNonce, "base64");
@@ -967,6 +1039,67 @@ export const denyLogin = functions.https.onCall(async (data, context) => {
   console.log(`Challenge ${challengeId} denied by user ${context.auth.uid}`);
 
   return { success: true };
+});
+
+/**
+ * Check the status of a push-based login challenge.
+ *
+ * This is used by the requesting (unauthenticated) client to poll for
+ * challenge status updates, since Firestore security rules require
+ * authentication for direct document reads.
+ *
+ * @param challengeId - The challenge document ID
+ * @returns { status, customToken? }
+ */
+export const checkChallengeStatus = functions.https.onCall(async (data, context) => {
+  requireAppCheck(context, "checkChallengeStatus");
+
+  const { challengeId } = data;
+
+  if (!challengeId || typeof challengeId !== "string") {
+    throw new functions.https.HttpsError(
+      "invalid-argument",
+      "challengeId is required."
+    );
+  }
+
+  // Rate limit polling (generous limit per challengeId)
+  const rateLimitResult = await checkRateLimit(challengeId, "challenge_poll");
+  if (!rateLimitResult.allowed) {
+    throw new functions.https.HttpsError(
+      "resource-exhausted",
+      rateLimitResult.message || "Too many status checks."
+    );
+  }
+
+  const challengeRef = db.collection("authChallenges").doc(challengeId);
+  const challengeDoc = await challengeRef.get();
+
+  if (!challengeDoc.exists) {
+    return { status: "expired", customToken: null };
+  }
+
+  const challengeData = challengeDoc.data()!;
+
+  // Check if expired
+  const expiresAt = challengeData.expiresAt?.toDate();
+  if (expiresAt && Date.now() > expiresAt.getTime()) {
+    if (challengeData.status === "pending") {
+      await challengeRef.update({ status: "expired" });
+    }
+    return { status: "expired", customToken: null };
+  }
+
+  const status = challengeData.status || "pending";
+
+  if (status === "approved" && challengeData.customToken) {
+    return {
+      status: "approved",
+      customToken: challengeData.customToken,
+    };
+  }
+
+  return { status, customToken: null };
 });
 
 // ============================================

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -29,7 +28,6 @@ enum PushLoginResult {
 @lazySingleton
 class FcmChallengeHandler {
   final FirebaseMessaging _messaging;
-  final FirebaseFirestore _firestore;
   final FirebaseFunctions _functions;
   final KeystoreService _keystoreService;
 
@@ -43,7 +41,6 @@ class FcmChallengeHandler {
 
   FcmChallengeHandler(
     this._messaging,
-    this._firestore,
     this._functions,
     this._keystoreService,
   );
@@ -104,27 +101,43 @@ class FcmChallengeHandler {
     }
   }
 
-  /// Listen for real-time challenge status updates via Firestore.
+  /// Poll for challenge status updates via Cloud Function.
   ///
-  /// Returns a stream of records containing the challenge status and
-  /// the custom auth token (available once approved).
+  /// Returns a stream that polls every 3 seconds until the challenge
+  /// is resolved (approved, denied, or expired). Uses a Cloud Function
+  /// instead of Firestore snapshots because the requesting client is
+  /// not yet authenticated.
   Stream<({String status, String? customToken, String? nonce})>
-      watchChallengeStatus(String challengeId) {
-    return _firestore
-        .collection('authChallenges')
-        .doc(challengeId)
-        .snapshots()
-        .map((snapshot) {
-      if (!snapshot.exists) {
-        return (status: 'expired', customToken: null, nonce: null);
+      watchChallengeStatus(String challengeId) async* {
+    const pollInterval = Duration(seconds: 3);
+    const maxPolls = 65; // ~195 seconds, slightly over 3-minute expiry
+
+    for (int i = 0; i < maxPolls; i++) {
+      try {
+        final callable = _functions.httpsCallable('checkChallengeStatus');
+        final result = await callable.call<Map<String, dynamic>>({
+          'challengeId': challengeId,
+        });
+
+        final data = result.data;
+        final status = data['status'] as String? ?? 'pending';
+        final customToken = data['customToken'] as String?;
+
+        yield (status: status, customToken: customToken, nonce: null);
+
+        // Stop polling once resolved
+        if (status != 'pending') return;
+      } catch (e) {
+        debugPrint('Challenge status poll error: $e');
+        yield (status: 'error', customToken: null, nonce: null);
+        return;
       }
-      final data = snapshot.data()!;
-      return (
-        status: data['status'] as String? ?? 'pending',
-        customToken: data['customToken'] as String?,
-        nonce: data['nonce'] as String?,
-      );
-    });
+
+      await Future<void>.delayed(pollInterval);
+    }
+
+    // Timed out
+    yield (status: 'expired', customToken: null, nonce: null);
   }
 
   /// Approve a challenge by signing the nonce with the device's private key.

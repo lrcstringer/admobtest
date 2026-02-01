@@ -128,7 +128,6 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/animations/
-    - assets/logo-assets/
     - assets/botton_nav_bar_icons/
 
   # Plus Jakarta Sans is loaded via google_fonts package.

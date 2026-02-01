@@ -113,14 +113,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i892.KeystoreService>(() => _i892.KeystoreService());
     gh.lazySingleton<_i383.SecurityService>(() => _i383.SecurityService());
-    gh.lazySingleton<_i830.FcmChallengeHandler>(
-      () => _i830.FcmChallengeHandler(
-        gh<_i892.FirebaseMessaging>(),
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i809.FirebaseFunctions>(),
-        gh<_i892.KeystoreService>(),
-      ),
-    );
     gh.lazySingleton<_i1057.AuthRemoteDataSource>(
       () => _i1057.AuthRemoteDataSourceImpl(
         gh<_i59.FirebaseAuth>(),
@@ -157,6 +149,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i50.UserRemoteDataSource>(
       () => _i50.UserRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),
+    );
+    gh.lazySingleton<_i830.FcmChallengeHandler>(
+      () => _i830.FcmChallengeHandler(
+        gh<_i892.FirebaseMessaging>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i892.KeystoreService>(),
+      ),
     );
     gh.lazySingleton<_i925.SimChangeDetector>(
       () => _i925.SimChangeDetector(
@@ -268,6 +267,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i988.AuditLogger>(),
       ),
     );
+    gh.factory<_i141.AuthBloc>(
+      () => _i141.AuthBloc(
+        gh<_i1073.AuthRepository>(),
+        gh<_i271.UserRepository>(),
+        gh<_i693.DeviceBindingService>(),
+        gh<_i290.BiometricLoginService>(),
+      ),
+    );
     gh.lazySingleton<_i520.EarnRemoteDataSource>(
       () => _i520.EarnRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
@@ -292,13 +299,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i520.WalletRepositoryImpl(
         gh<_i389.WalletRemoteDataSource>(),
         gh<_i932.NetworkInfo>(),
-      ),
-    );
-    gh.factory<_i141.AuthBloc>(
-      () => _i141.AuthBloc(
-        gh<_i1073.AuthRepository>(),
-        gh<_i271.UserRepository>(),
-        gh<_i693.DeviceBindingService>(),
       ),
     );
     gh.factory<_i936.PurchaseBloc>(

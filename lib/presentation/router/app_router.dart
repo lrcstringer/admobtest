@@ -151,6 +151,7 @@ class AppRouter {
           final extra = state.extra as Map<String, dynamic>?;
           return PhoneInputScreen(
             skipPushLogin: extra?['skipPushLogin'] as bool? ?? false,
+            initialPhoneNumber: extra?['phoneNumber'] as String?,
           );
         },
       ),

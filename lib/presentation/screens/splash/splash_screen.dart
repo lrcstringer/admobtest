@@ -1,7 +1,5 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
@@ -37,18 +35,6 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _initAndNavigate() async {
-    try {
-      // Request FCM permission during splash (non-blocking to UI)
-      final messaging = GetIt.instance<FirebaseMessaging>();
-      await messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-    } catch (e) {
-      debugPrint('FCM permission request failed (non-blocking): $e');
-    }
-
     // Ensure minimum splash display time (2 seconds from start)
     await Future.delayed(const Duration(milliseconds: 2000));
 

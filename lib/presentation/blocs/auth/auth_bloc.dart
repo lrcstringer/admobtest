@@ -7,6 +7,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../core/error/failures.dart';
 import '../../../core/security/device_binding_service.dart';
+import '../../../core/services/biometric_login_service.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/repositories/user_repository.dart';
@@ -20,6 +21,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
   final UserRepository _userRepository;
   final DeviceBindingService _deviceBindingService;
+  final BiometricLoginService _biometricLoginService;
   StreamSubscription<User?>? _authStateSubscription;
   Timer? _resendTimer;
 
@@ -27,6 +29,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     this._authRepository,
     this._userRepository,
     this._deviceBindingService,
+    this._biometricLoginService,
   ) : super(const AuthState()) {
     on<_CheckAuthStatus>(_onCheckAuthStatus);
     on<_SendOtp>(_onSendOtp);
@@ -185,6 +188,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           ));
         }
 
+        // Record successful auth for inactivity tracking
+        _biometricLoginService.recordSuccessfulAuth();
+
         // Trigger non-blocking device binding after successful OTP
         add(const AuthEvent.bindDevice());
       },
@@ -294,6 +300,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             isLoading: false,
           ));
         }
+
+        // Record successful auth for inactivity tracking
+        _biometricLoginService.recordSuccessfulAuth();
 
         // Trigger non-blocking device binding
         add(const AuthEvent.bindDevice());

@@ -106,9 +106,9 @@ class _PushLoginScreenState extends State<PushLoginScreen> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
-          context.go('/home');
+          // Router redirect handles navigation to /home
         } else if (state.status == AuthStatus.onboardingRequired) {
-          context.go('/onboarding/terms');
+          // Router redirect handles smart onboarding routing
         } else if (state.status == AuthStatus.error) {
           setState(() => _status = 'error');
         }

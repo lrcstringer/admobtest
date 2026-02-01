@@ -38,6 +38,12 @@ class BiometricLoginService {
   final FlutterSecureStorage _secureStorage;
 
   static const _displayNameKey = 'imali_cached_display_name';
+  static const _lastAuthTimeKey = 'imali_last_auth_time';
+
+  /// Maximum inactivity period before biometric login requires OTP step-up.
+  /// After 7 days without any successful authentication, biometric login
+  /// is disabled and the user must re-authenticate via OTP.
+  static const inactivityThreshold = Duration(days: 7);
 
   BiometricLoginService(
     this._deviceBindingService,
@@ -53,6 +59,7 @@ class BiometricLoginService {
   /// Returns true only if:
   /// - A device binding exists locally (deviceId + userId)
   /// - The device supports biometric or device credential authentication
+  /// - The last successful authentication was within [inactivityThreshold]
   Future<bool> canUseBiometricLogin() async {
     try {
       final deviceId = await _deviceBindingService.getStoredDeviceId();
@@ -60,6 +67,12 @@ class BiometricLoginService {
 
       if (deviceId == null || userId == null) {
         debugPrint('BiometricLogin: No local binding found.');
+        return false;
+      }
+
+      // Check inactivity threshold
+      if (await _isInactivityThresholdExceeded()) {
+        debugPrint('BiometricLogin: Inactivity threshold exceeded, requiring OTP.');
         return false;
       }
 
@@ -100,6 +113,40 @@ class BiometricLoginService {
       await _secureStorage.delete(key: _displayNameKey);
     } catch (e) {
       debugPrint('BiometricLogin: Failed to clear display name: $e');
+    }
+  }
+
+  /// Record a successful authentication (any method: OTP, biometric, push).
+  ///
+  /// Resets the inactivity timer so biometric login remains available.
+  Future<void> recordSuccessfulAuth() async {
+    try {
+      final now = DateTime.now().toIso8601String();
+      await _secureStorage.write(key: _lastAuthTimeKey, value: now);
+    } catch (e) {
+      debugPrint('BiometricLogin: Failed to record auth time: $e');
+    }
+  }
+
+  /// Check if the inactivity threshold has been exceeded.
+  ///
+  /// Returns true if there is no recorded auth time (first install or
+  /// cleared storage) or if the last auth was longer ago than
+  /// [inactivityThreshold].
+  Future<bool> _isInactivityThresholdExceeded() async {
+    try {
+      final stored = await _secureStorage.read(key: _lastAuthTimeKey);
+      if (stored == null) {
+        // No recorded auth — binding was created before this feature existed,
+        // or storage was cleared. Treat as expired to force one OTP cycle.
+        return true;
+      }
+      final lastAuth = DateTime.tryParse(stored);
+      if (lastAuth == null) return true;
+      return DateTime.now().difference(lastAuth) > inactivityThreshold;
+    } catch (e) {
+      debugPrint('BiometricLogin: Failed to read auth time: $e');
+      return true; // Fail safe: require OTP
     }
   }
 

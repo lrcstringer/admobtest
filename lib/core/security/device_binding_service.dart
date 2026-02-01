@@ -104,7 +104,11 @@ class DeviceBindingService {
                 action: AuthAction.deviceBound,
               );
               // Step 5: Notify existing devices of new login (non-blocking)
-              _notifyExistingDevices(device.deviceId);
+              _notifyExistingDevices(
+                device.deviceId,
+                deviceModel: device.deviceModel,
+                platform: device.platform,
+              );
               return Right(device);
             },
           );
@@ -243,11 +247,17 @@ class DeviceBindingService {
 
   /// Notify existing trusted devices that a new device has logged in.
   /// Non-blocking — failures are logged but do not affect the binding flow.
-  Future<void> _notifyExistingDevices(String newDeviceId) async {
+  Future<void> _notifyExistingDevices(
+    String newDeviceId, {
+    String? deviceModel,
+    String? platform,
+  }) async {
     try {
       final callable = _functions.httpsCallable('notifyNewDeviceLogin');
       await callable.call<Map<String, dynamic>>({
-        'newDeviceId': newDeviceId,
+        'excludeDeviceId': newDeviceId,
+        'newDeviceModel': deviceModel,
+        'newDevicePlatform': platform,
       });
     } catch (e) {
       debugPrint('Failed to notify existing devices: $e');
