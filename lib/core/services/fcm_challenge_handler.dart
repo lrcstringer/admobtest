@@ -52,6 +52,9 @@ class FcmChallengeHandler {
   void startListening() {
     _foregroundSubscription?.cancel();
     _foregroundSubscription = FirebaseMessaging.onMessage.listen(_handleMessage);
+    debugPrint('========================================');
+    debugPrint('FCM CHALLENGE HANDLER: startListening() active');
+    debugPrint('========================================');
   }
 
   /// Stop listening for FCM messages.
@@ -61,10 +64,19 @@ class FcmChallengeHandler {
   }
 
   void _handleMessage(RemoteMessage message) {
+    debugPrint('========================================');
+    debugPrint('FCM MESSAGE RECEIVED (foreground):');
+    debugPrint('  data keys: ${message.data.keys.toList()}');
+    debugPrint('  data: ${message.data}');
+    debugPrint('  notification title: ${message.notification?.title}');
+    debugPrint('========================================');
     final data = message.data;
     if (data['type'] == 'auth_challenge') {
-      debugPrint('FCM: Received auth challenge ${data['challengeId']}');
+      debugPrint('FCM: Auth challenge detected, challengeId=${data['challengeId']}');
+      debugPrint('FCM: nonce present=${data['nonce'] != null}');
       _challengeController.add(data);
+    } else {
+      debugPrint('FCM: Not an auth_challenge message, type=${data['type']}');
     }
   }
 
@@ -96,20 +108,21 @@ class FcmChallengeHandler {
   ///
   /// Returns a stream of records containing the challenge status and
   /// the custom auth token (available once approved).
-  Stream<({String status, String? customToken})> watchChallengeStatus(
-      String challengeId) {
+  Stream<({String status, String? customToken, String? nonce})>
+      watchChallengeStatus(String challengeId) {
     return _firestore
         .collection('authChallenges')
         .doc(challengeId)
         .snapshots()
         .map((snapshot) {
       if (!snapshot.exists) {
-        return (status: 'expired', customToken: null);
+        return (status: 'expired', customToken: null, nonce: null);
       }
       final data = snapshot.data()!;
       return (
         status: data['status'] as String? ?? 'pending',
         customToken: data['customToken'] as String?,
+        nonce: data['nonce'] as String?,
       );
     });
   }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../core/utils/firestore_helpers.dart';
 import '../../models/wallet_model.dart';
 import '../../models/transaction_model.dart';
 import '../../models/earn_thread_model.dart';
@@ -25,7 +26,7 @@ class SyncRemoteDataSource {
       return null;
     }
 
-    return WalletModel.fromJson(query.docs.first.data());
+    return WalletModel.fromJson(sanitizeFirestoreData(query.docs.first.data()));
   }
 
   /// Fetch transactions since a given timestamp
@@ -49,7 +50,7 @@ class SyncRemoteDataSource {
     final snapshot = await query.get();
 
     return snapshot.docs
-        .map((doc) => TransactionModel.fromJson(doc.data()))
+        .map((doc) => TransactionModel.fromJson(sanitizeFirestoreData(doc.data())))
         .toList();
   }
 
@@ -74,7 +75,7 @@ class SyncRemoteDataSource {
     final snapshot = await query.get();
 
     return snapshot.docs
-        .map((doc) => EarnThreadModel.fromJson(doc.data()))
+        .map((doc) => EarnThreadModel.fromJson(sanitizeFirestoreData(doc.data())))
         .toList();
   }
 
@@ -99,7 +100,7 @@ class SyncRemoteDataSource {
     final snapshot = await query.get();
 
     return snapshot.docs
-        .map((doc) => ChatThreadModel.fromJson(doc.data()))
+        .map((doc) => ChatThreadModel.fromJson(sanitizeFirestoreData(doc.data())))
         .toList();
   }
 

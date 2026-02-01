@@ -1,25 +1,18 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../theme/app_colors.dart';
-import '../../widgets/onboarding/onboarding_progress_indicator.dart';
 
-class OnboardingGenderScreen extends StatefulWidget {
-  const OnboardingGenderScreen({super.key});
+class AgeConsentScreen extends StatefulWidget {
+  const AgeConsentScreen({super.key});
 
   @override
-  State<OnboardingGenderScreen> createState() => _OnboardingGenderScreenState();
+  State<AgeConsentScreen> createState() => _AgeConsentScreenState();
 }
 
-class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
-  String? _selectedGender;
-
-  static const List<String> _genderOptions = [
-    'Female',
-    'Male',
-    'Non-binary',
-    'Prefer not to say',
-  ];
+class _AgeConsentScreenState extends State<AgeConsentScreen> {
+  bool _isOver18 = false;
 
   @override
   Widget build(BuildContext context) {
@@ -102,11 +95,11 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
                           ),
                     ),
 
-                    SizedBox(height: size.height * 0.03),
+                    SizedBox(height: size.height * 0.05),
 
-                    // "Please select your gender"
+                    // "Are you 18 or over?"
                     Text(
-                      'Please select your gender',
+                      'Are you 18 or over?',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             color: AppColors.textPrimary,
@@ -114,79 +107,107 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
                           ),
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
 
-                    // Gender dropdown
+                    // Confirmation toggle
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedGender,
-                            hint: const Text(
-                              'Select gender',
-                              style: TextStyle(color: AppColors.textHint),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'I confirm that I am 18 years of age or older',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    color: AppColors.textPrimary,
+                                  ),
                             ),
-                            isExpanded: true,
-                            dropdownColor: AppColors.surface,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontSize: 16,
-                            ),
-                            icon: const Icon(
-                              Icons.arrow_drop_down,
-                              color: AppColors.textSecondary,
-                            ),
-                            items: _genderOptions.map((gender) {
-                              return DropdownMenuItem<String>(
-                                value: gender,
-                                child: Text(gender),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedGender = value;
-                              });
-                            },
                           ),
-                        ),
+                          const SizedBox(width: 16),
+                          Switch(
+                            value: _isOver18,
+                            onChanged: (value) {
+                              setState(() => _isOver18 = value);
+                            },
+                            activeThumbColor: Colors.white,
+                            activeTrackColor: AppColors.switchActive,
+                            inactiveThumbColor: AppColors.switchInactive,
+                            inactiveTrackColor: AppColors.switchTrackInactive,
+                          ),
+                        ],
                       ),
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 32),
 
+                    // Terms and Privacy text with links
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: Text(
-                        'We request that you, optionally, share your gender to help us personalize earning opportunities and content for you.',
+                      child: RichText(
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
-                          height: 1.4,
+                        text: TextSpan(
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                color: AppColors.textSecondary,
+                                height: 1.5,
+                              ),
+                          children: [
+                            const TextSpan(
+                              text: 'By continuing, you agree to our ',
+                            ),
+                            TextSpan(
+                              text: 'Terms of Service',
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColors.textPrimary,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  context.go('/auth/terms-of-service');
+                                },
+                            ),
+                            const TextSpan(text: ' and '),
+                            TextSpan(
+                              text: 'Privacy Policy',
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColors.textPrimary,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  context.go('/auth/privacy-policy');
+                                },
+                            ),
+                          ],
                         ),
                       ),
                     ),
 
                     const Spacer(),
 
-                    // Button + progress indicator
+                    // Continue button
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 48, vertical: 24),
+                          horizontal: 48, vertical: 32),
                       child: SizedBox(
                         width: double.infinity,
                         height: 52,
                         child: ElevatedButton(
-                          onPressed: () => context.go('/onboarding/birthday'),
+                          onPressed:
+                              _isOver18 ? () => context.go('/auth/phone') : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
+                            disabledBackgroundColor:
+                                AppColors.primary.withValues(alpha: 0.5),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
@@ -200,8 +221,6 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
                         ),
                       ),
                     ),
-
-                    const OnboardingProgressIndicator(currentStep: 1),
                   ],
                 ),
               ),

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../core/utils/firestore_helpers.dart';
 import '../../../domain/enums/pot_type.dart';
 import '../../models/pot_pool_model.dart';
 import '../../models/user_score_model.dart';
@@ -98,7 +99,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
     final doc = snapshot.docs.first;
     return PotPoolModel.fromJson({
       'id': doc.id,
-      ...doc.data() as Map<String, dynamic>,
+      ...sanitizeFirestoreData(doc.data() as Map<String, dynamic>),
     });
   }
 
@@ -135,7 +136,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
     final doc = snapshot.docs.first;
     return PotPoolModel.fromJson({
       'id': doc.id,
-      ...doc.data() as Map<String, dynamic>,
+      ...sanitizeFirestoreData(doc.data() as Map<String, dynamic>),
     });
   }
 
@@ -180,7 +181,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
       final doc = snapshot.docs.first;
       return PotPoolModel.fromJson({
         'id': doc.id,
-        ...doc.data() as Map<String, dynamic>,
+        ...sanitizeFirestoreData(doc.data() as Map<String, dynamic>),
       });
     });
   }
@@ -206,7 +207,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
     return snapshot.docs.map((doc) {
       return PotPoolModel.fromJson({
         'id': doc.id,
-        ...doc.data() as Map<String, dynamic>,
+        ...sanitizeFirestoreData(doc.data() as Map<String, dynamic>),
       });
     }).toList();
   }
@@ -221,7 +222,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
 
     return PotPoolModel.fromJson({
       'id': doc.id,
-      ...doc.data() as Map<String, dynamic>,
+      ...sanitizeFirestoreData(doc.data() as Map<String, dynamic>),
     });
   }
 
@@ -248,7 +249,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
     return snapshot.docs.asMap().entries.map((entry) {
       final doc = entry.value;
       return UserScoreModel.fromJson({
-        ...doc.data(),
+        ...sanitizeFirestoreData(doc.data()),
         'rank': entry.key + 1,
       });
     }).toList();
@@ -278,7 +279,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
     return snapshot.docs.asMap().entries.map((entry) {
       final doc = entry.value;
       return UserScoreModel.fromJson({
-        ...doc.data(),
+        ...sanitizeFirestoreData(doc.data()),
         'rank': entry.key + 1,
       });
     }).toList();
@@ -301,11 +302,17 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
       final doc = entry.value;
       final data = doc.data();
       return UserScoreModel.fromJson({
-        ...data,
+        ...sanitizeFirestoreData(data),
         'rank': entry.key + 1,
-        'periodStart': data['periodStart'] ?? Timestamp.now(),
-        'periodEnd': data['periodEnd'] ?? Timestamp.now(),
-        'updatedAt': data['updatedAt'] ?? Timestamp.now(),
+        'periodStart': data['periodStart'] != null
+            ? (data['periodStart'] as Timestamp).toDate().toIso8601String()
+            : DateTime.now().toIso8601String(),
+        'periodEnd': data['periodEnd'] != null
+            ? (data['periodEnd'] as Timestamp).toDate().toIso8601String()
+            : DateTime.now().toIso8601String(),
+        'updatedAt': data['updatedAt'] != null
+            ? (data['updatedAt'] as Timestamp).toDate().toIso8601String()
+            : DateTime.now().toIso8601String(),
       });
     }).toList();
   }
@@ -346,7 +353,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
       return snapshot.docs.asMap().entries.map((entry) {
         final doc = entry.value;
         return UserScoreModel.fromJson({
-          ...doc.data(),
+          ...sanitizeFirestoreData(doc.data()),
           'rank': entry.key + 1,
         });
       }).toList();
@@ -407,7 +414,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
         .get();
 
     return UserScoreModel.fromJson({
-      ...data,
+      ...sanitizeFirestoreData(data),
       'rank': (higherScoresCount.count ?? 0) + 1,
     });
   }

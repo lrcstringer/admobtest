@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../domain/entities/pot_pool.dart';
+import '../../../domain/enums/pot_type.dart';
 import '../../blocs/auth/auth_bloc.dart';
+import '../../blocs/pot/pot_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/common/imali_app_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,8 +21,29 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Load wallet when screen initializes
     context.read<WalletBloc>().add(const WalletEvent.loadWallet());
+    final potBloc = context.read<PotBloc>();
+    potBloc.add(const PotEvent.watchDailyPot());
+    potBloc.add(const PotEvent.watchWeeklyPot());
+    potBloc.add(const PotEvent.loadCurrentUserScore(PotType.daily));
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good Morning,';
+    if (hour < 17) return 'Good Afternoon,';
+    return 'Good Evening,';
+  }
+
+  String _formatPotTime(Duration duration, bool isDaily) {
+    if (duration <= Duration.zero) return 'Ended';
+    if (isDaily) {
+      if (duration.inHours > 0) return 'about ${duration.inHours} hours';
+      return '${duration.inMinutes} min';
+    } else {
+      if (duration.inDays > 0) return '${duration.inDays} day${duration.inDays == 1 ? '' : 's'}';
+      return 'about ${duration.inHours} hours';
+    }
   }
 
   @override
@@ -31,128 +54,53 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return BlocBuilder<WalletBloc, WalletState>(
           builder: (context, walletState) {
-            return Scaffold(
-              appBar: const IMaliAppBar(title: 'Home', showHomeButton: false),
-              body: RefreshIndicator(
-                onRefresh: () async {
-                  context.read<WalletBloc>().add(const WalletEvent.loadWallet());
-                },
-                child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: AppSpacing.pagePadding,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                      // Greeting
-                      Text(
-                        'Hello, ${user?.displayName ?? 'User'}!',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+            return BlocBuilder<PotBloc, PotState>(
+              builder: (context, potState) {
+                return Scaffold(
+                  body: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: AppColors.backgroundGradient,
                       ),
-                      AppSpacing.verticalXs,
-                      Text(
-                        'Ready to earn?',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                      ),
-                      AppSpacing.verticalLg,
-
-                      // Balance Card
-                      _buildBalanceCard(context, walletState),
-                      AppSpacing.verticalLg,
-
-                      // Quick Actions
-                      Text(
-                        'Quick Actions',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                      AppSpacing.verticalMd,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildQuickAction(
-                            context,
-                            Icons.play_circle_outline,
-                            'Earn',
-                            () => context.go('/earn'),
+                    ),
+                    child: SafeArea(
+                      child: RefreshIndicator(
+                        onRefresh: () async {
+                          context
+                              .read<WalletBloc>()
+                              .add(const WalletEvent.loadWallet());
+                          final potBloc = context.read<PotBloc>();
+                          potBloc.add(const PotEvent.loadDailyPot());
+                          potBloc.add(const PotEvent.loadWeeklyPot());
+                          potBloc.add(const PotEvent.loadCurrentUserScore(
+                              PotType.daily));
+                        },
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildHeader(context, user, potState),
+                              const SizedBox(height: 24),
+                              _buildTokenBalanceCard(context, walletState),
+                              const SizedBox(height: 24),
+                              _buildPotCardsRow(context, potState),
+                              const SizedBox(height: 24),
+                              _buildInviteFriendsButton(context),
+                              const SizedBox(height: 16),
+                              _buildHowItWorksLink(context),
+                              const SizedBox(height: 24),
+                            ],
                           ),
-                          _buildQuickAction(
-                            context,
-                            Icons.send_outlined,
-                            'Send',
-                            () => context.go('/chat'),
-                          ),
-                          _buildQuickAction(
-                            context,
-                            Icons.request_page_outlined,
-                            'Request',
-                            () => context.go('/chat'),
-                          ),
-                          _buildQuickAction(
-                            context,
-                            Icons.account_balance_wallet_outlined,
-                            'Cashout',
-                            () => context.go('/wallet/cashout'),
-                          ),
-                        ],
-                      ),
-                      AppSpacing.verticalXl,
-
-                      // Start Earning
-                      Text(
-                        'Start Earning',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                      AppSpacing.verticalMd,
-                      _buildEarnCard(
-                        context,
-                        'Watch Videos',
-                        'Earn 10-50 tokens per video',
-                        Icons.smart_display_outlined,
-                        () => context.go('/earn'),
-                      ),
-                      AppSpacing.verticalMd,
-                      _buildEarnCard(
-                        context,
-                        'Complete Surveys',
-                        'Earn 100-500 tokens per survey',
-                        Icons.quiz_outlined,
-                        () => context.go('/earn'),
-                      ),
-                      AppSpacing.verticalXl,
-
-                      // Recent Transactions
-                      if (walletState.transactions.isNotEmpty) ...[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Recent Activity',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                            TextButton(
-                              onPressed: () => context.go('/wallet/transactions'),
-                              child: const Text('See All'),
-                            ),
-                          ],
                         ),
-                        AppSpacing.verticalSm,
-                        ...walletState.transactions.take(3).map(
-                              (tx) => _buildTransactionItem(context, tx),
-                            ),
-                      ],
-                  ],
-                ),
-              ),
-            ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             );
           },
         );
@@ -160,28 +108,136 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBalanceCard(BuildContext context, WalletState walletState) {
+  Widget _buildHeader(
+      BuildContext context, dynamic user, PotState potState) {
+    final streak = potState.currentUserScore?.currentStreak ?? 0;
+    final avatarUrl = user?.profile?.avatarUrl as String?;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _getGreeting(),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                user?.displayName ?? 'User',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              _buildStreakBadge(context, streak),
+            ],
+          ),
+        ),
+        _buildProfileAvatar(context, user, avatarUrl),
+      ],
+    );
+  }
+
+  Widget _buildStreakBadge(BuildContext context, int streak) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(
+              color: AppColors.gold,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'STREAK: $streak DAYS',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.0,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileAvatar(
+      BuildContext context, dynamic user, String? avatarUrl) {
+    return GestureDetector(
+      onTap: () => context.go('/home/profile'),
+      child: SizedBox(
+        width: 56,
+        height: 56,
+        child: Stack(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.primary, width: 2),
+              ),
+              child: CircleAvatar(
+                radius: 24,
+                backgroundColor: AppColors.surfaceElevated,
+                backgroundImage:
+                    avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                child: avatarUrl == null
+                    ? Icon(
+                        Icons.person,
+                        color: AppColors.primary,
+                        size: 28,
+                      )
+                    : null,
+              ),
+            ),
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.background, width: 2),
+                ),
+                child: const Icon(Icons.add, size: 12, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTokenBalanceCard(
+      BuildContext context, WalletState walletState) {
     final isLoading = walletState.status == WalletStatus.loading;
     final balance = walletState.balance;
-    final balanceZar = walletState.balanceZar;
 
     return Container(
       width: double.infinity,
-      padding: AppSpacing.cardPaddingLarge,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: AppColors.primaryGradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: AppColors.surface,
         borderRadius: AppSpacing.borderRadiusLg,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,237 +246,258 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Your Balance',
+                'Total Token Balance',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textOnPrimary.withValues(alpha: 0.8),
+                      color: AppColors.textSecondary,
                     ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.textOnPrimary.withValues(alpha: 0.2),
-                  borderRadius: AppSpacing.borderRadiusSm,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.monetization_on,
-                      size: 14,
-                      color: AppColors.tokenGold,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Tokens',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppColors.textOnPrimary,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
+              Icon(Icons.account_balance_wallet_outlined,
+                  color: AppColors.primary, size: 24),
             ],
           ),
-          AppSpacing.verticalSm,
+          const SizedBox(height: 12),
           if (isLoading)
             const SizedBox(
               height: 40,
               child: Center(
                 child: CircularProgressIndicator(
-                  color: AppColors.textOnPrimary,
-                  strokeWidth: 2,
-                ),
+                    color: AppColors.primary, strokeWidth: 2),
               ),
             )
           else
             Text(
-              '$balance Tokens',
+              '$balance',
               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: AppColors.textOnPrimary,
+                    color: AppColors.textPrimary,
                     fontWeight: FontWeight.bold,
                   ),
             ),
-          AppSpacing.verticalXs,
-          Text(
-            '= R${balanceZar.toStringAsFixed(2)}',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.textOnPrimary.withValues(alpha: 0.9),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                    colors: AppColors.primaryGradient),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ElevatedButton(
+                onPressed: () => context.go('/earn'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-          ),
-          if (walletState.canCashout) ...[
-            AppSpacing.verticalMd,
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () => context.go('/wallet/cashout'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.textOnPrimary,
-                  side: BorderSide(color: AppColors.textOnPrimary.withValues(alpha: 0.5)),
+                child: Text(
+                  'Earn Now',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
-                child: const Text('Cash Out'),
               ),
             ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickAction(
-    BuildContext context,
-    IconData icon,
-    String label,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: AppColors.primary, size: 28),
-          ),
-          AppSpacing.verticalXs,
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEarnCard(
-    BuildContext context,
-    String title,
-    String subtitle,
-    IconData icon,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: AppSpacing.borderRadiusMd,
+  Widget _buildPotCardsRow(BuildContext context, PotState potState) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildPotCard(
+            context,
+            pot: potState.dailyPot,
+            label: 'DAILY',
+            title: "TODAY'S POT",
+            accentColors: AppColors.goldGradient,
+            userRank: potState.currentUserScore?.rank,
+            isDaily: true,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildPotCard(
+            context,
+            pot: potState.weeklyPot,
+            label: 'WEEKLY',
+            title: "THIS WEEK'S POT",
+            accentColors: AppColors.primaryGradient,
+            userRank: null,
+            isDaily: false,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPotCard(
+    BuildContext context, {
+    PotPool? pot,
+    required String label,
+    required String title,
+    required List<Color> accentColors,
+    int? userRank,
+    required bool isDaily,
+  }) {
+    final amount = pot != null
+        ? 'R ${(pot.totalTokens * 0.01).toStringAsFixed(2)}'
+        : 'R 0.00';
+    final timeLeft = pot != null
+        ? _formatPotTime(pot.timeRemaining, isDaily)
+        : '--';
+
+    return GestureDetector(
+      onTap: () => context.go('/pots'),
       child: Container(
-        padding: AppSpacing.cardPadding,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppSpacing.borderRadiusLg,
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top accent line
+            Container(
+              height: 3,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: accentColors),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Label + trophy row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: accentColors.first,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                      ),
+                ),
+                Icon(Icons.emoji_events, color: accentColors.first, size: 18),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Title
+            Text(
+              title,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            // Amount
+            Text(
+              amount,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            // Timer row
+            Row(
+              children: [
+                Icon(Icons.timer_outlined,
+                    size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    timeLeft,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            // Rank (daily only)
+            if (isDaily) ...[
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    userRank != null
+                        ? 'Your Rank: #$userRank'
+                        : 'Your Rank: #\u2014',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                  Icon(Icons.chevron_right,
+                      size: 18, color: AppColors.textSecondary),
+                ],
+              ),
+            ] else ...[
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Icon(Icons.chevron_right,
+                    size: 18, color: AppColors.textSecondary),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInviteFriendsButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.go('/home/profile/referrals'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: AppSpacing.borderRadiusMd,
           border: Border.all(color: AppColors.border),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.secondary.withValues(alpha: 0.2),
-                borderRadius: AppSpacing.borderRadiusSm,
-              ),
-              child: Icon(icon, color: AppColors.secondaryDark, size: 28),
-            ),
-            AppSpacing.horizontalMd,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+            Icon(Icons.person_add_outlined,
+                color: AppColors.textPrimary, size: 20),
+            const SizedBox(width: 10),
+            Text(
+              'Invite friends & Earn',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
                   ),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-                ],
-              ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTransactionItem(BuildContext context, dynamic tx) {
-    final isPositive = tx.amount > 0;
-
-    return Container(
-      padding: AppSpacing.cardPadding,
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppSpacing.borderRadiusSm,
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: isPositive
-                  ? AppColors.success.withValues(alpha: 0.1)
-                  : AppColors.error.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              isPositive ? Icons.add : Icons.remove,
-              color: isPositive ? AppColors.success : AppColors.error,
-              size: 16,
-            ),
-          ),
-          AppSpacing.horizontalMd,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tx.description ?? tx.type.name,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                ),
-                Text(
-                  _formatDate(tx.createdAt),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            '${isPositive ? '+' : ''}${tx.amount}',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: isPositive ? AppColors.success : AppColors.error,
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-        ],
+  Widget _buildHowItWorksLink(BuildContext context) {
+    return Center(
+      child: GestureDetector(
+        onTap: () => context.go('/home/how-to-earn'),
+        child: Text(
+          'How it works',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
+        ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inDays == 0) {
-      if (diff.inHours == 0) {
-        return '${diff.inMinutes}m ago';
-      }
-      return '${diff.inHours}h ago';
-    } else if (diff.inDays == 1) {
-      return 'Yesterday';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays}d ago';
-    }
-    return '${date.day}/${date.month}/${date.year}';
   }
 }

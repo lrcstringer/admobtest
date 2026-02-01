@@ -1,14 +1,10 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
-import '../../widgets/common/app_button.dart';
-import '../../widgets/onboarding/onboarding_widgets.dart';
+import '../../widgets/onboarding/onboarding_progress_indicator.dart';
 
 class PermissionsScreen extends StatefulWidget {
   const PermissionsScreen({super.key});
@@ -52,96 +48,179 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.watch<AuthBloc>().state;
-    final userName = authState.user?.profile?.displayName ??
-        authState.user?.profile?.username ??
-        'User';
-    final avatarUrl = authState.user?.profile?.avatarUrl;
+    final size = MediaQuery.of(context).size;
+    final mascotSize = size.width * 0.25;
 
-    return OnboardingScaffold(
-      currentPage: 3,
-      totalPages: 5,
-      showLogo: false,
-      child: Padding(
-        padding: AppSpacing.pagePadding,
-        child: Column(
+    return Scaffold(
+      body: Container(
+        width: size.width,
+        height: size.height,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: AppColors.backgroundGradient,
+          ),
+        ),
+        child: Stack(
           children: [
-            AppSpacing.verticalLg,
-            // Profile picture
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(20),
-                image: avatarUrl != null
-                    ? DecorationImage(
-                        image: NetworkImage(avatarUrl),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
+            // Top Light Blue background image
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Image.asset(
+                'assets/images/Top Light Blue.png',
+                width: size.width,
+                fit: BoxFit.fitWidth,
               ),
-              child: avatarUrl == null
-                  ? Center(
-                      child: Icon(
-                        Icons.person,
-                        size: 48,
-                        color: AppColors.textSecondary,
+            ),
+
+            // Main content
+            Positioned.fill(
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    // Compact header: mascot + iMaliChat + tagline
+                    SizedBox(height: size.height * 0.01),
+                    SizedBox(
+                      width: mascotSize,
+                      height: mascotSize,
+                      child: Image.asset(
+                        'assets/icons/iMaliCrown4.png',
+                        width: mascotSize,
+                        height: mascotSize,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            'assets/icons/ImaliFacewithText.png',
+                            width: mascotSize,
+                            height: mascotSize,
+                            fit: BoxFit.contain,
+                          );
+                        },
                       ),
-                    )
-                  : null,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'iMaliChat',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Earn. Chat. Buy.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(
+                            color: AppColors.gold,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                          ),
+                    ),
+
+                    SizedBox(height: size.height * 0.03),
+
+                    // "Settings"
+                    Text(
+                      'Settings',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Permission toggles (scrollable for small screens)
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          children: [
+                            _buildPermissionToggle(
+                              title: 'Allow Access',
+                              description:
+                                  'To help us give you a great Chat experience, please allow iMali to access your contacts and media on your phone.',
+                              value: _allowAccess,
+                              onChanged: (value) =>
+                                  setState(() => _allowAccess = value),
+                            ),
+                            const SizedBox(height: 20),
+                            _buildPermissionToggle(
+                              title: 'Run in the Background',
+                              description:
+                                  'iMali will operate in the background on your phone with unconstricted battery usage.',
+                              value: _runInBackground,
+                              onChanged: (value) =>
+                                  setState(() => _runInBackground = value),
+                            ),
+                            const SizedBox(height: 20),
+                            _buildPermissionToggle(
+                              title: 'Notifications',
+                              description:
+                                  'This will allow us to update you when you have new earning offers.',
+                              value: _notifications,
+                              onChanged: (value) =>
+                                  setState(() => _notifications = value),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Continue button
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 48, vertical: 24),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _onContinue,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor:
+                                AppColors.primary.withValues(alpha: 0.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                        ),
+                      ),
+                    ),
+
+                    const OnboardingProgressIndicator(currentStep: 3),
+                  ],
+                ),
+              ),
             ),
-            AppSpacing.verticalMd,
-            // Username
-            Text(
-              userName,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppColors.textPrimaryDark,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            AppSpacing.verticalLg,
-            // Settings heading
-            Text(
-              'Settings',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppColors.textPrimaryDark,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            AppSpacing.verticalXl,
-            // Permission toggles
-            _buildPermissionToggle(
-              title: 'Allow Access',
-              description:
-                  'To help us give you a great Chat experience, please allow iMali to access your contacts and media on your phone.',
-              value: _allowAccess,
-              onChanged: (value) => setState(() => _allowAccess = value),
-            ),
-            AppSpacing.verticalLg,
-            _buildPermissionToggle(
-              title: 'Run in the Background',
-              description:
-                  'iMali will operate in the background on your phone with unconstricted battery usage.',
-              value: _runInBackground,
-              onChanged: (value) => setState(() => _runInBackground = value),
-            ),
-            AppSpacing.verticalLg,
-            _buildPermissionToggle(
-              title: 'Notifications',
-              description:
-                  'This will allow us to update you when you have new earning offers.',
-              value: _notifications,
-              onChanged: (value) => setState(() => _notifications = value),
-            ),
-            const Spacer(),
-            // Continue button
-            AppButton(
-              text: 'Continue',
-              isLoading: _isLoading,
-              onPressed: _onContinue,
-            ),
-            AppSpacing.verticalMd,
           ],
         ),
       ),
@@ -164,11 +243,11 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textPrimaryDark,
+                      color: AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
               ),
-              AppSpacing.verticalXs,
+              const SizedBox(height: 4),
               Text(
                 description,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -179,11 +258,11 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
             ],
           ),
         ),
-        AppSpacing.horizontalMd,
+        const SizedBox(width: 16),
         Switch(
           value: value,
           onChanged: onChanged,
-          activeThumbColor: AppColors.textOnPrimary,
+          activeThumbColor: Colors.white,
           activeTrackColor: AppColors.switchActive,
           inactiveThumbColor: AppColors.switchInactive,
           inactiveTrackColor: AppColors.switchTrackInactive,

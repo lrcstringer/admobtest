@@ -46,9 +46,7 @@ class ZawadiLogo extends StatelessWidget {
 
   /// Select appropriate mascot-bubbles asset based on display size
   String _getBubblesAsset(double displayHeight) {
-    if (displayHeight <= 384) return 'assets/logo-assets/mascot-bubbles-256.png';
-    if (displayHeight <= 768) return 'assets/logo-assets/mascot-bubbles-512.png';
-    return 'assets/logo-assets/mascot-bubbles-1024.png';
+    return 'assets/icons/iMaliCrown4.png';
   }
 
   /// Fallback placeholder if the asset fails to load

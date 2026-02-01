@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/onboarding/onboarding_progress_indicator.dart';
 
 class OnboardingSuccessScreen extends StatelessWidget {
   const OnboardingSuccessScreen({super.key});
+
+  void _completeAndNavigate(BuildContext context, String route) {
+    context.read<AuthBloc>().add(const AuthEvent.completeOnboarding());
+    context.go(route);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +203,7 @@ class OnboardingSuccessScreen extends StatelessWidget {
                     width: double.infinity,
                     height: 52,
                     child: ElevatedButton(
-                      onPressed: () => context.go('/home/upgrade-status'),
+                      onPressed: () => _completeAndNavigate(context, '/home/upgrade-status'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.accent,
                         foregroundColor: Colors.white,
@@ -223,7 +230,7 @@ class OnboardingSuccessScreen extends StatelessWidget {
                     width: double.infinity,
                     height: 52,
                     child: ElevatedButton(
-                      onPressed: () => context.go('/home'),
+                      onPressed: () => _completeAndNavigate(context, '/home'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,

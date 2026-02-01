@@ -29,6 +29,7 @@ abstract class UserRepository {
     String? gender,
     DateTime? dateOfBirth,
     String? province,
+    String? city,
     String? firstName,
     String? lastName,
   });

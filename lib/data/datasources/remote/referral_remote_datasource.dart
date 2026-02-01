@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../core/error/exceptions.dart';
 import '../../../core/security/play_integrity_service.dart';
+import '../../../core/utils/firestore_helpers.dart';
 import '../../../domain/entities/referral.dart';
 import '../../models/referral_model.dart';
 
@@ -167,7 +168,7 @@ class ReferralRemoteDataSourceImpl implements ReferralRemoteDataSource {
     return snapshot.docs.map((doc) {
       return ReferralModel.fromJson({
         'id': doc.id,
-        ...doc.data() as Map<String, dynamic>,
+        ...sanitizeFirestoreData(doc.data() as Map<String, dynamic>),
       });
     }).toList();
   }
@@ -188,7 +189,7 @@ class ReferralRemoteDataSourceImpl implements ReferralRemoteDataSource {
       return snapshot.docs.map((doc) {
         return ReferralModel.fromJson({
           'id': doc.id,
-          ...doc.data() as Map<String, dynamic>,
+          ...sanitizeFirestoreData(doc.data() as Map<String, dynamic>),
         });
       }).toList();
     });
@@ -238,8 +239,8 @@ class ReferralRemoteDataSourceImpl implements ReferralRemoteDataSource {
         'referralCode': code.toUpperCase(),
         'referrerReward': data['referrerReward'] as int? ?? 100,
         'refereeReward': data['refereeReward'] as int? ?? 50,
-        'createdAt': Timestamp.fromDate(now),
-        'registeredAt': Timestamp.fromDate(now),
+        'createdAt': now.toIso8601String(),
+        'registeredAt': now.toIso8601String(),
       });
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to apply referral code');

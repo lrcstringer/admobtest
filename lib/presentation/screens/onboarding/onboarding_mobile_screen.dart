@@ -105,7 +105,7 @@ class _OnboardingMobileScreenState extends State<OnboardingMobileScreen> {
                 width: mascotSize,
                 height: mascotSize,
                 child: Image.asset(
-                  'assets/logo-assets/mascot-bubbles-512.png',
+                  'assets/icons/iMaliCrown4.png',
                   width: mascotSize,
                   height: mascotSize,
                   fit: BoxFit.contain,

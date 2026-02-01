@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../core/constants/api_constants.dart';
 import '../../../core/error/exceptions.dart';
+import '../../../core/utils/firestore_helpers.dart';
 import '../../models/user_model.dart';
 
 /// Remote data source for user operations
@@ -51,7 +52,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return UserModel.fromJson({...doc.data()!, 'oddienceUserId': doc.id});
+      return UserModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'oddienceUserId': doc.id});
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to get user');
     }
@@ -70,7 +71,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       }
 
       final doc = querySnapshot.docs.first;
-      return UserModel.fromJson({...doc.data(), 'oddienceUserId': doc.id});
+      return UserModel.fromJson({...sanitizeFirestoreData(doc.data()), 'oddienceUserId': doc.id});
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to find user');
     }
@@ -118,7 +119,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return UserModel.fromJson({...doc.data()!, 'oddienceUserId': doc.id});
+      return UserModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'oddienceUserId': doc.id});
     });
   }
 
@@ -147,7 +148,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
           .get();
 
       return querySnapshot.docs
-          .map((doc) => UserModel.fromJson({...doc.data(), 'oddienceUserId': doc.id}))
+          .map((doc) => UserModel.fromJson({...sanitizeFirestoreData(doc.data()), 'oddienceUserId': doc.id}))
           .toList();
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to search users');

@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../core/error/exceptions.dart';
 import '../../../core/security/play_integrity_service.dart';
+import '../../../core/utils/firestore_helpers.dart';
 import '../../../domain/entities/engagement.dart';
 import '../../../domain/value_objects/engagement_evidence.dart';
 import '../../models/earn_thread_model.dart';
@@ -86,7 +87,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
           .get();
 
       return snapshot.docs.map((doc) {
-        return EarnThreadModel.fromJson({...doc.data(), 'id': doc.id});
+        return EarnThreadModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     } catch (e) {
       throw ServerException(message: e.toString());
@@ -107,7 +108,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        return EarnThreadModel.fromJson({...doc.data(), 'id': doc.id});
+        return EarnThreadModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     });
   }
@@ -119,7 +120,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return EarnThreadModel.fromJson({...doc.data()!, 'id': doc.id});
+      return EarnThreadModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -140,7 +141,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       final snapshot = await query.orderBy('createdAt', descending: true).get();
 
       return snapshot.docs.map((doc) {
-        return EarnOpportunityModel.fromJson({...doc.data(), 'id': doc.id});
+        return EarnOpportunityModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     } catch (e) {
       throw ServerException(message: e.toString());
@@ -160,7 +161,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
 
     return query.orderBy('createdAt', descending: true).snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
-        return EarnOpportunityModel.fromJson({...doc.data(), 'id': doc.id});
+        return EarnOpportunityModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     });
   }
@@ -172,7 +173,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return EarnOpportunityModel.fromJson({...doc.data()!, 'id': doc.id});
+      return EarnOpportunityModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -271,11 +272,11 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       });
 
       return EngagementModel.fromJson({
-        ...data,
+        ...sanitizeFirestoreData(data),
         'id': doc.id,
         'watchDurationSeconds': watchDurationSeconds,
         'status': newStatus,
-        'updatedAt': DateTime.now(),
+        'updatedAt': DateTime.now().toIso8601String(),
       });
     } catch (e) {
       if (e is ServerException || e is AuthException) rethrow;
@@ -328,13 +329,13 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       final now = DateTime.now();
 
       return EngagementModel.fromJson({
-        ...data,
+        ...sanitizeFirestoreData(data),
         'id': doc.id,
         'answers': answersModels.map((a) => a.toFirestoreJson()).toList(),
         'evidence': evidenceModel.toFirestoreJson(),
         'status': 'completed',
-        'completedAt': now,
-        'updatedAt': now,
+        'completedAt': now.toIso8601String(),
+        'updatedAt': now.toIso8601String(),
       });
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(message: e.message ?? 'Engagement submission failed');
@@ -351,7 +352,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return EngagementModel.fromJson({...doc.data()!, 'id': doc.id});
+      return EngagementModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -382,7 +383,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
 
       final snapshot = await query.get();
       return snapshot.docs.map((doc) {
-        return EngagementModel.fromJson({...doc.data(), 'id': doc.id});
+        return EngagementModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     } catch (e) {
       throw ServerException(message: e.toString());
@@ -409,7 +410,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       }
 
       final doc = snapshot.docs.first;
-      return EngagementModel.fromJson({...doc.data(), 'id': doc.id});
+      return EngagementModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
     } catch (e) {
       throw ServerException(message: e.toString());
     }

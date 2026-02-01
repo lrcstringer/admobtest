@@ -130,6 +130,8 @@ class _ChallengeApprovalScreenState extends State<ChallengeApprovalScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -139,137 +141,168 @@ class _ChallengeApprovalScreenState extends State<ChallengeApprovalScreen> {
             colors: AppColors.backgroundGradient,
           ),
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              children: [
-                const Spacer(flex: 2),
-
-                // Shield icon
-                const Icon(
-                  Icons.security,
-                  size: 80,
-                  color: AppColors.primary,
-                ),
-
-                const SizedBox(height: 24),
-
-                Text(
-                  'Login Request',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-
-                const SizedBox(height: 12),
-
-                if (_isExpired)
-                  Text(
-                    'This request has expired.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  )
-                else ...[
-                  Text(
-                    'Someone is trying to log in to your iMali account. Was this you?',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Expires in $_formattedTime',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                          fontFeatures: [const FontFeature.tabularFigures()],
-                        ),
-                  ),
-                ],
-
-                if (_errorMessage != null) ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    _errorMessage!,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.redAccent,
-                        ),
-                  ),
-                ],
-
-                const SizedBox(height: 40),
-
-                if (!_isExpired) ...[
-                  // Approve button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton.icon(
-                      onPressed: _isProcessing ? null : _approve,
-                      icon: _isProcessing
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Icon(Icons.check_circle_outline),
-                      label: Text(_isProcessing ? 'Approving...' : 'Yes, this was me'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.success,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Deny button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: OutlinedButton.icon(
-                      onPressed: _isProcessing ? null : _deny,
-                      icon: const Icon(Icons.cancel_outlined),
-                      label: const Text('No, deny this login'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.redAccent,
-                        side: const BorderSide(color: Colors.redAccent),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-
-                const Spacer(flex: 3),
-
-                // Dismiss
-                TextButton(
-                  onPressed: () => context.pop(),
-                  child: Text(
-                    _isExpired ? 'Close' : 'Dismiss',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-              ],
+        child: Stack(
+          children: [
+            // Top Light Blue background image
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Image.asset(
+                'assets/images/Top Light Blue.png',
+                width: size.width,
+                fit: BoxFit.fitWidth,
+              ),
             ),
-          ),
+
+            // Main content
+            Positioned.fill(
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      const Spacer(flex: 2),
+
+                      // Shield icon
+                      const Icon(
+                        Icons.security,
+                        size: 80,
+                        color: AppColors.primary,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      Text(
+                        'Login Request',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      if (_isExpired)
+                        Text(
+                          'This request has expired.',
+                          textAlign: TextAlign.center,
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                        )
+                      else ...[
+                        Text(
+                          'Someone is trying to log in to your iMali account. Was this you?',
+                          textAlign: TextAlign.center,
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Expires in $_formattedTime',
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontFeatures: [
+                                      const FontFeature.tabularFigures()
+                                    ],
+                                  ),
+                        ),
+                      ],
+
+                      if (_errorMessage != null) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          _errorMessage!,
+                          textAlign: TextAlign.center,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.redAccent,
+                                  ),
+                        ),
+                      ],
+
+                      const SizedBox(height: 40),
+
+                      if (!_isExpired) ...[
+                        // Approve button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton.icon(
+                            onPressed: _isProcessing ? null : _approve,
+                            icon: _isProcessing
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Icon(Icons.check_circle_outline),
+                            label: Text(_isProcessing
+                                ? 'Approving...'
+                                : 'Yes, this was me'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.success,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Deny button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: OutlinedButton.icon(
+                            onPressed: _isProcessing ? null : _deny,
+                            icon: const Icon(Icons.cancel_outlined),
+                            label: const Text('No, deny this login'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.redAccent,
+                              side: const BorderSide(color: Colors.redAccent),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      const Spacer(flex: 3),
+
+                      // Dismiss
+                      TextButton(
+                        onPressed: () => context.pop(),
+                        child: Text(
+                          _isExpired ? 'Close' : 'Dismiss',
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

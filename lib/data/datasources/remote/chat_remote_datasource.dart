@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../core/error/exceptions.dart';
 import '../../../core/security/play_integrity_service.dart';
+import '../../../core/utils/firestore_helpers.dart';
 import '../../models/chat_thread_model.dart';
 import '../../models/chat_card_model.dart';
 
@@ -99,7 +100,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           .get();
 
       return snapshot.docs.map((doc) {
-        return ChatThreadModel.fromJson({...doc.data(), 'id': doc.id});
+        return ChatThreadModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     } catch (e) {
       throw ServerException(message: e.toString());
@@ -120,7 +121,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        return ChatThreadModel.fromJson({...doc.data(), 'id': doc.id});
+        return ChatThreadModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     });
   }
@@ -132,7 +133,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return ChatThreadModel.fromJson({...doc.data()!, 'id': doc.id});
+      return ChatThreadModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -157,7 +158,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       for (final doc in existingQuery.docs) {
         final participants = List<String>.from(doc.data()['participantIds'] ?? []);
         if (participants.contains(participantId) && participants.length == 2) {
-          return ChatThreadModel.fromJson({...doc.data(), 'id': doc.id});
+          return ChatThreadModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
         }
       }
 
@@ -234,7 +235,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       final snapshot = await query.get();
       return snapshot.docs.map((doc) {
-        return ChatCardModel.fromJson({...doc.data(), 'id': doc.id});
+        return ChatCardModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     } catch (e) {
       throw ServerException(message: e.toString());
@@ -261,7 +262,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
     return query.snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
-        return ChatCardModel.fromJson({...doc.data(), 'id': doc.id});
+        return ChatCardModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     });
   }
@@ -471,10 +472,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       });
 
       return ChatCardModel.fromJson({
-        ...data,
+        ...sanitizeFirestoreData(data),
         'id': doc.id,
         'status': 'paid',
-        'actionedAt': now,
+        'actionedAt': now.toIso8601String(),
       });
     } catch (e) {
       if (e is ServerException || e is AuthException) rethrow;
@@ -504,10 +505,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       });
 
       return ChatCardModel.fromJson({
-        ...data,
+        ...sanitizeFirestoreData(data),
         'id': doc.id,
         'status': 'declined',
-        'actionedAt': now,
+        'actionedAt': now.toIso8601String(),
       });
     } catch (e) {
       if (e is ServerException || e is AuthException) rethrow;

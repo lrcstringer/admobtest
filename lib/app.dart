@@ -81,13 +81,21 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     // Foreground challenges
     _challengeSubscription =
         _challengeHandler.challengeStream.listen((data) {
+      debugPrint('========================================');
+      debugPrint('CHALLENGE STREAM: Received in app.dart');
+      debugPrint('  challengeId: ${data['challengeId']}');
+      debugPrint('  nonce present: ${data['nonce'] != null}');
+      debugPrint('========================================');
       final challengeId = data['challengeId'] as String?;
       final nonce = data['nonce'] as String?;
       if (challengeId != null && nonce != null) {
+        debugPrint('CHALLENGE STREAM: Navigating to challenge-approval');
         _appRouter.router.push('/auth/challenge-approval', extra: {
           'challengeId': challengeId,
           'nonce': nonce,
         });
+      } else {
+        debugPrint('CHALLENGE STREAM: Missing challengeId or nonce, NOT navigating');
       }
     });
 

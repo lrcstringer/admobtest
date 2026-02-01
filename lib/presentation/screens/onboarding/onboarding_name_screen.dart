@@ -17,17 +17,35 @@ class OnboardingNameScreen extends StatefulWidget {
 }
 
 class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
-  final _nameController = TextEditingController();
+  final _firstNamesController = TextEditingController();
+  final _surnameController = TextEditingController();
+  final _displayNameController = TextEditingController();
   bool _isLoading = false;
+  String _lastAutoSuggestion = '';
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNamesController.dispose();
+    _surnameController.dispose();
+    _displayNameController.dispose();
     super.dispose();
   }
 
   bool get _canContinue =>
-      _nameController.text.trim().length >= 2 && !_isLoading;
+      _firstNamesController.text.trim().length >= 2 &&
+      _surnameController.text.trim().length >= 2 &&
+      _displayNameController.text.trim().length >= 2 &&
+      !_isLoading;
+
+  void _onFirstNameChanged(String value) {
+    final trimmed = value.trim();
+    final currentDisplay = _displayNameController.text.trim();
+    if (currentDisplay.isEmpty || currentDisplay == _lastAutoSuggestion) {
+      _displayNameController.text = trimmed;
+      _lastAutoSuggestion = trimmed;
+    }
+    setState(() {});
+  }
 
   Future<void> _onContinue() async {
     final authState = context.read<AuthBloc>().state;
@@ -38,7 +56,9 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
     final userRepo = getIt<UserRepository>();
     final result = await userRepo.updateProfile(
       userId: authState.user!.id,
-      displayName: _nameController.text.trim(),
+      firstName: _firstNamesController.text.trim(),
+      lastName: _surnameController.text.trim(),
+      displayName: _displayNameController.text.trim(),
     );
 
     if (!mounted) return;
@@ -54,7 +74,7 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
         );
       },
       (_) {
-        context.go('/onboarding/birthday');
+        context.go('/onboarding/extrainfo');
       },
     );
   }
@@ -62,10 +82,13 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final mascotSize = size.width * 0.40;
+    final mascotSize = size.width * 0.25;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Container(
+        width: size.width,
+        height: size.height,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -73,145 +96,258 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
             colors: AppColors.backgroundGradient,
           ),
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              SizedBox(height: size.height * 0.02),
+        child: Stack(
+          children: [
+            // Top Light Blue background image
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Image.asset(
+                'assets/images/Top Light Blue.png',
+                width: size.width,
+                fit: BoxFit.fitWidth,
+              ),
+            ),
 
-              // Mascot face
-              SizedBox(
-                width: mascotSize,
-                height: mascotSize,
-                child: Image.asset(
-                  'assets/logo-assets/mascot-bubbles-512.png',
-                  width: mascotSize,
-                  height: mascotSize,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/icons/ImaliFacewithText.png',
+            // Main content
+            Positioned.fill(
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    // Compact header: mascot + iMaliChat + tagline
+                    SizedBox(height: size.height * 0.01),
+                    SizedBox(
                       width: mascotSize,
                       height: mascotSize,
-                      fit: BoxFit.contain,
-                    );
-                  },
-                ),
-              ),
-
-              SizedBox(height: size.height * 0.01),
-
-              // "iMaliChat"
-              Text(
-                'iMaliChat',
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .displaySmall
-                    ?.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 4),
-
-              // "Earn. Chat. Buy."
-              Text(
-                'Earn. Chat. Buy.',
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(
-                      color: AppColors.gold,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.2,
-                    ),
-              ),
-
-              SizedBox(height: size.height * 0.05),
-
-              // "What is your name?"
-              Text(
-                'What is your name?',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Name input field
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: TextField(
-                    controller: _nameController,
-                    keyboardType: TextInputType.name,
-                    textCapitalization: TextCapitalization.words,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                    ),
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your name',
-                      hintStyle: TextStyle(
-                        color: AppColors.textHint,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
+                      child: Image.asset(
+                        'assets/icons/iMaliCrown4.png',
+                        width: mascotSize,
+                        height: mascotSize,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            'assets/icons/ImaliFacewithText.png',
+                            width: mascotSize,
+                            height: mascotSize,
+                            fit: BoxFit.contain,
+                          );
+                        },
                       ),
                     ),
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ),
-              ),
-
-              const Spacer(),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: _canContinue ? _onContinue : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            'Continue',
-                            style: TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.w600),
+                    const SizedBox(height: 4),
+                    Text(
+                      'iMaliChat',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.bold,
                           ),
-                  ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Earn. Chat. Buy.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(
+                            color: AppColors.gold,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                          ),
+                    ),
+
+                    SizedBox(height: size.height * 0.03),
+
+                    // Scrollable content area
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            // "What is your name?"
+                            Text(
+                              'What is your name?',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+
+                            const SizedBox(height: 24),
+
+                            // First name(s) field
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 40),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.surface,
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: TextField(
+                                  controller: _firstNamesController,
+                                  keyboardType: TextInputType.name,
+                                  textCapitalization:
+                                      TextCapitalization.words,
+                                  style: const TextStyle(
+                                    color: AppColors.textPrimary,
+                                  ),
+                                  decoration: const InputDecoration(
+                                    hintText: 'First name(s)',
+                                    hintStyle: TextStyle(
+                                      color: AppColors.textHint,
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 16,
+                                    ),
+                                  ),
+                                  onChanged: _onFirstNameChanged,
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            // Surname field
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 40),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.surface,
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: TextField(
+                                  controller: _surnameController,
+                                  keyboardType: TextInputType.name,
+                                  textCapitalization:
+                                      TextCapitalization.words,
+                                  style: const TextStyle(
+                                    color: AppColors.textPrimary,
+                                  ),
+                                  decoration: const InputDecoration(
+                                    hintText: 'Surname',
+                                    hintStyle: TextStyle(
+                                      color: AppColors.textHint,
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 16,
+                                    ),
+                                  ),
+                                  onChanged: (_) => setState(() {}),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            // Display name field
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 40),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surface,
+                                      borderRadius:
+                                          BorderRadius.circular(30),
+                                    ),
+                                    child: TextField(
+                                      controller: _displayNameController,
+                                      keyboardType: TextInputType.name,
+                                      textCapitalization:
+                                          TextCapitalization.words,
+                                      style: const TextStyle(
+                                        color: AppColors.textPrimary,
+                                      ),
+                                      decoration: const InputDecoration(
+                                        hintText: 'Display name',
+                                        hintStyle: TextStyle(
+                                          color: AppColors.textHint,
+                                        ),
+                                        border: InputBorder.none,
+                                        contentPadding:
+                                            EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 16,
+                                        ),
+                                      ),
+                                      onChanged: (_) => setState(() {}),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'This is how other iMaliChat users will know you',
+                                    style: TextStyle(
+                                      color: AppColors.textHint,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Pinned button + progress indicator
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 48, vertical: 24),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: _canContinue ? _onContinue : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor:
+                                AppColors.primary.withValues(alpha: 0.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                        ),
+                      ),
+                    ),
+
+                    const OnboardingProgressIndicator(currentStep: 0),
+                  ],
                 ),
               ),
-
-              const OnboardingProgressIndicator(currentStep: 0),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

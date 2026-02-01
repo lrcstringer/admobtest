@@ -11,6 +11,9 @@ import '../screens/auth/challenge_approval_screen.dart';
 import '../screens/auth/push_login_screen.dart';
 import '../screens/auth/session_lock_screen.dart';
 import '../screens/auth/step_up_otp_screen.dart';
+import '../screens/auth/age_consent_screen.dart';
+import '../screens/auth/privacy_policy_screen.dart';
+import '../screens/auth/terms_of_service_screen.dart';
 import '../screens/auth/welcome_screen.dart';
 
 // Buy screens
@@ -46,11 +49,15 @@ import '../screens/home/what_is_emalichat_screen.dart';
 // Main shell
 import '../screens/main/main_shell.dart';
 
+// Pots screen
+import '../screens/pots/pots_screen.dart';
+
 // Onboarding screens
 import '../screens/onboarding/onboarding_birthday_screen.dart';
 import '../screens/onboarding/onboarding_gender_screen.dart';
 import '../screens/onboarding/onboarding_mobile_otp_screen.dart';
 import '../screens/onboarding/onboarding_mobile_screen.dart';
+import '../screens/onboarding/onboarding_extrainfo_screen.dart';
 import '../screens/onboarding/onboarding_name_screen.dart';
 import '../screens/onboarding/onboarding_settings_screen.dart';
 import '../screens/onboarding/permissions_screen.dart';
@@ -117,6 +124,23 @@ class AppRouter {
         path: '/welcome',
         name: 'welcome',
         builder: (context, state) => const WelcomeScreen(),
+      ),
+
+      // 2b) Age consent
+      GoRoute(
+        path: '/auth/age-consent',
+        name: 'ageConsent',
+        builder: (context, state) => const AgeConsentScreen(),
+      ),
+      GoRoute(
+        path: '/auth/terms-of-service',
+        name: 'termsOfService',
+        builder: (context, state) => const TermsOfServiceScreen(),
+      ),
+      GoRoute(
+        path: '/auth/privacy-policy',
+        name: 'privacyPolicy',
+        builder: (context, state) => const PrivacyPolicyScreen(),
       ),
 
       // 3) Signup (phone + OTP flow)
@@ -198,6 +222,11 @@ class AppRouter {
         builder: (context, state) => const OnboardingNameScreen(),
       ),
       GoRoute(
+        path: '/onboarding/extrainfo',
+        name: 'onboardingExtraInfo',
+        builder: (context, state) => const OnboardingExtraInfoScreen(),
+      ),
+      GoRoute(
         path: '/onboarding/gender',
         name: 'onboardingGender',
         builder: (context, state) => const OnboardingGenderScreen(),
@@ -246,6 +275,13 @@ class AppRouter {
         path: '/onboarding/pin-setup',
         name: 'onboardingPinSetup',
         builder: (context, state) => const PinSetupScreen(),
+      ),
+
+      // Pots screen (standalone, outside bottom nav)
+      GoRoute(
+        path: '/pots',
+        name: 'pots',
+        builder: (context, state) => const PotsScreen(),
       ),
 
       // =============================================
@@ -606,9 +642,11 @@ class AppRouter {
       }
 
       // If authenticated and on auth/onboarding pages, go to home
-      // Exception: step-up OTP screen is used by authenticated users for verification
+      // Exceptions: step-up OTP and onboarding success (shown before redirect)
+      final isOnOnboardingSuccess = currentPath == '/onboarding/success';
       if (isAuthenticated &&
           !isOnStepUpOtp &&
+          !isOnOnboardingSuccess &&
           (isOnAuth || isOnOnboarding || isOnSplash)) {
         return '/home';
       }
@@ -626,21 +664,8 @@ class AppRouter {
             profile.displayName == 'iMali User') {
           return '/onboarding/name';
         }
-        if (profile.dateOfBirth == null) {
-          return '/onboarding/birthday';
-        }
-        // If user uploaded a profile picture, they completed the picture
-        // step — skip to permissions. Users who skipped the picture step
-        // have no avatarUrl, so they redo picture (we can't distinguish
-        // "skipped" from "never reached").
-        if (profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty) {
-          // Picture done. If they also set a username, skip to profile.
-          if (profile.username != null && profile.username!.isNotEmpty) {
-            return '/onboarding/profile';
-          }
-          return '/onboarding/permissions';
-        }
-        return '/onboarding/picture';
+        // Name is set — send to extrainfo (all fields optional)
+        return '/onboarding/extrainfo';
       }
 
       // If not authenticated and trying to access protected routes

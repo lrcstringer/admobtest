@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,9 +12,7 @@ import '../../../core/error/failures.dart';
 import '../../../domain/repositories/user_repository.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_spacing.dart';
-import '../../widgets/common/app_button.dart';
-import '../../widgets/onboarding/onboarding_widgets.dart';
+import '../../widgets/onboarding/onboarding_progress_indicator.dart';
 
 class ProfilePictureScreen extends StatefulWidget {
   const ProfilePictureScreen({super.key});
@@ -76,7 +75,7 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
     if (authState.user == null) return;
 
     if (_selectedImage == null) {
-      context.go('/onboarding/permissions');
+      context.go('/onboarding/profile');
       return;
     }
 
@@ -84,11 +83,13 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
 
     try {
       // Upload image to Firebase Storage
-      final userId = authState.user!.id;
+      // Use Firebase Auth UID to match storage security rules
+      final firebaseUid = FirebaseAuth.instance.currentUser!.uid;
       final ref = FirebaseStorage.instance
           .ref()
-          .child('avatars')
-          .child('$userId.jpg');
+          .child('profiles')
+          .child(firebaseUid)
+          .child('avatar.jpg');
 
       await ref.putFile(
         _selectedImage!,
@@ -100,7 +101,7 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
       // Save avatar URL to user profile
       final userRepo = getIt<UserRepository>();
       final result = await userRepo.updateProfile(
-        userId: userId,
+        userId: authState.user!.id,
         avatarUrl: downloadUrl,
       );
 
@@ -117,7 +118,7 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
           );
         },
         (_) {
-          context.go('/onboarding/permissions');
+          context.go('/onboarding/profile');
         },
       );
     } catch (e) {
@@ -133,135 +134,245 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
   }
 
   void _onSkip() {
-    context.go('/onboarding/permissions');
+    context.go('/onboarding/profile');
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.watch<AuthBloc>().state;
-    final userName = authState.user?.profile?.displayName ??
-        authState.user?.profile?.username ??
-        'User';
+    final size = MediaQuery.of(context).size;
+    final mascotSize = size.width * 0.25;
 
-    return OnboardingScaffold(
-      currentPage: 2,
-      totalPages: 5,
-      showLogo: false,
-      child: Padding(
-        padding: AppSpacing.pagePadding,
-        child: Column(
+    return Scaffold(
+      body: Container(
+        width: size.width,
+        height: size.height,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: AppColors.backgroundGradient,
+          ),
+        ),
+        child: Stack(
           children: [
-            AppSpacing.verticalXl,
-            // Profile picture placeholder or selected image
-            GestureDetector(
-              onTap: () => _onSourceSelected(_selectedSource),
-              child: Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  color: _selectedImage != null
-                      ? Colors.transparent
-                      : AppColors.accent,
-                  borderRadius: BorderRadius.circular(24),
-                  image: _selectedImage != null
-                      ? DecorationImage(
-                          image: FileImage(_selectedImage!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-                child: _selectedImage == null
-                    ? CustomPaint(
-                        painter: DashedBorderPainter(
-                          color: AppColors.secondary,
-                          strokeWidth: 2,
-                          gap: 8,
-                          borderRadius: 24,
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.add,
-                            size: 48,
-                            color: AppColors.textPrimaryDark,
-                          ),
-                        ),
-                      )
-                    : null,
+            // Top Light Blue background image
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Image.asset(
+                'assets/images/Top Light Blue.png',
+                width: size.width,
+                fit: BoxFit.fitWidth,
               ),
             ),
-            AppSpacing.verticalMd,
-            // Username
-            Text(
-              userName,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppColors.textPrimaryDark,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            AppSpacing.verticalXl,
-            // Source selection icons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildSourceButton(
-                  index: 0,
-                  icon: Icons.photo_library_outlined,
-                  isSelected: _selectedSource == 0,
-                ),
-                AppSpacing.horizontalMd,
-                _buildSourceButton(
-                  index: 1,
-                  icon: Icons.camera_alt,
-                  isSelected: _selectedSource == 1,
-                ),
-                AppSpacing.horizontalMd,
-                _buildSourceButton(
-                  index: 2,
-                  icon: _selectedImage != null
-                      ? Icons.delete_outline
-                      : Icons.image_outlined,
-                  isSelected: _selectedSource == 2,
-                ),
-              ],
-            ),
-            AppSpacing.verticalXxl,
-            // Heading
-            Text(
-              'Your profile picture',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppColors.textPrimaryDark,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            AppSpacing.verticalMd,
-            // Description
-            Text(
-              'Use your camera or select a\nphoto from your phone to use as\nyour profile picture.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                    height: 1.5,
-                  ),
-            ),
-            AppSpacing.verticalLg,
-            // Skip text
-            GestureDetector(
-              onTap: _onSkip,
-              child: Text(
-                'You can skip this step!',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
+
+            // Main content
+            Positioned.fill(
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    // Compact header: mascot + iMaliChat + tagline
+                    SizedBox(height: size.height * 0.01),
+                    SizedBox(
+                      width: mascotSize,
+                      height: mascotSize,
+                      child: Image.asset(
+                        'assets/icons/iMaliCrown4.png',
+                        width: mascotSize,
+                        height: mascotSize,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            'assets/icons/ImaliFacewithText.png',
+                            width: mascotSize,
+                            height: mascotSize,
+                            fit: BoxFit.contain,
+                          );
+                        },
+                      ),
                     ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'iMaliChat',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Earn. Chat. Buy.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(
+                            color: AppColors.gold,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                          ),
+                    ),
+
+                    SizedBox(height: size.height * 0.03),
+
+                    // "Your profile picture"
+                    Text(
+                      'Your profile picture',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Profile picture placeholder or selected image
+                    GestureDetector(
+                      onTap: () => _onSourceSelected(_selectedSource),
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: _selectedImage != null
+                              ? Colors.transparent
+                              : AppColors.surface,
+                          borderRadius: BorderRadius.circular(24),
+                          image: _selectedImage != null
+                              ? DecorationImage(
+                                  image: FileImage(_selectedImage!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: _selectedImage == null
+                            ? CustomPaint(
+                                painter: DashedBorderPainter(
+                                  color: AppColors.textSecondary,
+                                  strokeWidth: 2,
+                                  gap: 8,
+                                  borderRadius: 24,
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.add,
+                                    size: 48,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              )
+                            : null,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Source selection icons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildSourceButton(
+                          index: 0,
+                          icon: Icons.photo_library_outlined,
+                          isSelected: _selectedSource == 0,
+                        ),
+                        const SizedBox(width: 16),
+                        _buildSourceButton(
+                          index: 1,
+                          icon: Icons.camera_alt,
+                          isSelected: _selectedSource == 1,
+                        ),
+                        const SizedBox(width: 16),
+                        _buildSourceButton(
+                          index: 2,
+                          icon: _selectedImage != null
+                              ? Icons.delete_outline
+                              : Icons.image_outlined,
+                          isSelected: _selectedSource == 2,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Description
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: Text(
+                        'Use your camera or select a photo from your phone to use as your profile picture.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Skip text
+                    GestureDetector(
+                      onTap: _onSkip,
+                      child: Text(
+                        'You can skip this step!',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    // Continue button
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 48, vertical: 24),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _onContinue,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor:
+                                AppColors.primary.withValues(alpha: 0.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                        ),
+                      ),
+                    ),
+
+                    const OnboardingProgressIndicator(currentStep: 2),
+                  ],
+                ),
               ),
             ),
-            const Spacer(),
-            // Continue button
-            AppButton(
-              text: 'Continue',
-              isLoading: _isLoading,
-              onPressed: _onContinue,
-            ),
-            AppSpacing.verticalMd,
           ],
         ),
       ),
@@ -284,7 +395,7 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
         ),
         child: Icon(
           icon,
-          color: isSelected ? AppColors.textOnPrimary : AppColors.textSecondary,
+          color: isSelected ? Colors.white : AppColors.textSecondary,
           size: 24,
         ),
       ),

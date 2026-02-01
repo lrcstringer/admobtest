@@ -30,7 +30,7 @@ class PushLoginScreen extends StatefulWidget {
 class _PushLoginScreenState extends State<PushLoginScreen> {
   final _challengeHandler = GetIt.instance<FcmChallengeHandler>();
 
-  StreamSubscription<({String status, String? customToken})>?
+  StreamSubscription<({String status, String? customToken, String? nonce})>?
       _statusSubscription;
   Timer? _countdownTimer;
   int _remainingSeconds = 180; // 3 minutes
@@ -101,6 +101,8 @@ class _PushLoginScreenState extends State<PushLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
@@ -120,51 +122,73 @@ class _PushLoginScreenState extends State<PushLoginScreen> {
               colors: AppColors.backgroundGradient,
             ),
           ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  const Spacer(flex: 2),
+          child: Stack(
+            children: [
+              // Top Light Blue background image
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Image.asset(
+                  'assets/images/Top Light Blue.png',
+                  width: size.width,
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
 
-                  // Logo
-                  Image.asset(
-                    'assets/icons/ImaliFacewithText.png',
-                    width: 80,
-                    height: 80,
-                    errorBuilder: (_, __, ___) => const Icon(
-                      Icons.notifications_active_outlined,
-                      size: 80,
-                      color: AppColors.primary,
+              // Main content
+              Positioned.fill(
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      children: [
+                        const Spacer(flex: 2),
+
+                        // Logo
+                        Image.asset(
+                          'assets/icons/ImaliFacewithText.png',
+                          width: 80,
+                          height: 80,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.notifications_active_outlined,
+                            size: 80,
+                            color: AppColors.primary,
+                          ),
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        _buildStatusContent(),
+
+                        const SizedBox(height: 32),
+
+                        // Use OTP instead
+                        if (_status == 'pending' ||
+                            _status == 'denied' ||
+                            _status == 'expired' ||
+                            _status == 'error')
+                          TextButton(
+                            onPressed: _useOtpInstead,
+                            child: Text(
+                              'Use OTP instead',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                          ),
+
+                        const Spacer(flex: 3),
+                      ],
                     ),
                   ),
-
-                  const SizedBox(height: 32),
-
-                  _buildStatusContent(),
-
-                  const Spacer(flex: 3),
-
-                  // Use OTP instead
-                  if (_status == 'pending' ||
-                      _status == 'denied' ||
-                      _status == 'expired' ||
-                      _status == 'error')
-                    TextButton(
-                      onPressed: _useOtpInstead,
-                      child: Text(
-                        'Use OTP instead',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ),
-
-                  const SizedBox(height: 24),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),

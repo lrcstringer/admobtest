@@ -442,28 +442,78 @@ export const registerDevice = functions.https.onCall(async (data, context) => {
     );
   }
 
-  // Create device document
-  const deviceRef = db.collection("devices").doc();
   const now = admin.firestore.FieldValue.serverTimestamp();
+  const sanitizedPlatform = validators.sanitizeString(platform);
+  const sanitizedModel = deviceModel ? validators.sanitizeString(deviceModel) : null;
 
-  const deviceData = {
-    userId,
-    publicKeyPem,
-    fcmToken,
-    platform: validators.sanitizeString(platform),
-    deviceModel: deviceModel ? validators.sanitizeString(deviceModel) : null,
-    osVersion: osVersion ? validators.sanitizeString(osVersion) : null,
-    appVersion: appVersion ? validators.sanitizeString(appVersion) : null,
-    manufacturer: manufacturer ? validators.sanitizeString(manufacturer) : null,
-    hardwareBacked: hardwareBacked === true,
-    strongBox: strongBox === true,
-    trusted: true,
-    revoked: false,
-    registeredAt: now,
-    lastUsedAt: now,
-  };
+  // Look for an existing device for this user + platform + model to upsert
+  const existingDevices = await db.collection("devices")
+    .where("userId", "==", userId)
+    .where("platform", "==", sanitizedPlatform)
+    .where("revoked", "==", false)
+    .limit(1)
+    .get();
 
-  await deviceRef.set(deviceData);
+  let deviceRef: FirebaseFirestore.DocumentReference;
+
+  if (!existingDevices.empty) {
+    // Update existing device record (new keypair, fresh FCM token)
+    deviceRef = existingDevices.docs[0].ref;
+    await deviceRef.update({
+      publicKeyPem,
+      fcmToken,
+      osVersion: osVersion ? validators.sanitizeString(osVersion) : null,
+      appVersion: appVersion ? validators.sanitizeString(appVersion) : null,
+      hardwareBacked: hardwareBacked === true,
+      strongBox: strongBox === true,
+      trusted: true,
+      lastUsedAt: now,
+    });
+
+    // Clean up any other duplicate device records for this user
+    const allDevices = await db.collection("devices")
+      .where("userId", "==", userId)
+      .where("revoked", "==", false)
+      .get();
+
+    const batch = db.batch();
+    let cleaned = 0;
+    allDevices.forEach((doc) => {
+      if (doc.id !== deviceRef.id) {
+        batch.update(doc.ref, { revoked: true, revokedAt: now });
+        cleaned++;
+      }
+    });
+    if (cleaned > 0) {
+      await batch.commit();
+      console.log(`Cleaned up ${cleaned} duplicate device record(s) for ${userId}`);
+    }
+
+    console.log(`Device ${deviceRef.id} updated for user ${userId}`);
+  } else {
+    // Create new device document
+    deviceRef = db.collection("devices").doc();
+
+    const deviceData = {
+      userId,
+      publicKeyPem,
+      fcmToken,
+      platform: sanitizedPlatform,
+      deviceModel: sanitizedModel,
+      osVersion: osVersion ? validators.sanitizeString(osVersion) : null,
+      appVersion: appVersion ? validators.sanitizeString(appVersion) : null,
+      manufacturer: manufacturer ? validators.sanitizeString(manufacturer) : null,
+      hardwareBacked: hardwareBacked === true,
+      strongBox: strongBox === true,
+      trusted: true,
+      revoked: false,
+      registeredAt: now,
+      lastUsedAt: now,
+    };
+
+    await deviceRef.set(deviceData);
+    console.log(`Device ${deviceRef.id} registered for user ${userId}`);
+  }
 
   // Update user's primary device if they don't have one
   const userDoc = await db.collection("users").doc(userId).get();
@@ -475,8 +525,6 @@ export const registerDevice = functions.https.onCall(async (data, context) => {
       });
     }
   }
-
-  console.log(`Device ${deviceRef.id} registered for user ${userId}`);
 
   return {
     deviceId: deviceRef.id,
@@ -690,12 +738,13 @@ export const loginRequest = functions.https.onCall(async (data, context) => {
     try {
       await admin.messaging().sendEachForMulticast({
         tokens: fcmTokens,
+        // Data-only message — no "notification" field.
+        // This ensures onMessage fires reliably in the foreground on Android.
+        // The Flutter app handles displaying any UI in response.
         data: {
           type: "auth_challenge",
           challengeId: challengeRef.id,
           nonce,
-        },
-        notification: {
           title: "Login Request",
           body: "Tap to approve login to iMali",
         },
@@ -710,11 +759,6 @@ export const loginRequest = functions.https.onCall(async (data, context) => {
           },
           payload: {
             aps: {
-              alert: {
-                title: "Login Request",
-                body: "Tap to approve login to iMali",
-              },
-              sound: "default",
               "content-available": 1,
             },
           },

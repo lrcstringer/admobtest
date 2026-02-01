@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../core/error/exceptions.dart';
 import '../../../core/security/play_integrity_service.dart';
+import '../../../core/utils/firestore_helpers.dart';
 import '../../models/purchase_model.dart';
 import '../../models/service_provider_model.dart';
 
@@ -88,7 +89,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     return snapshot.docs.map((doc) {
       final data = doc.data();
       data['id'] = doc.id;
-      return ServiceProviderModel.fromJson(data);
+      return ServiceProviderModel.fromJson(sanitizeFirestoreData(data));
     }).toList();
   }
 
@@ -104,7 +105,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     return snapshot.docs.map((doc) {
       final data = doc.data();
       data['id'] = doc.id;
-      return ServiceProviderModel.fromJson(data);
+      return ServiceProviderModel.fromJson(sanitizeFirestoreData(data));
     }).toList();
   }
 
@@ -118,7 +119,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
 
     final data = doc.data()!;
     data['id'] = doc.id;
-    return ServiceProviderModel.fromJson(data);
+    return ServiceProviderModel.fromJson(sanitizeFirestoreData(data));
   }
 
   @override
@@ -132,7 +133,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     return snapshot.docs.map((doc) {
       final data = doc.data();
       data['id'] = doc.id;
-      return ServiceProductModel.fromJson(data);
+      return ServiceProductModel.fromJson(sanitizeFirestoreData(data));
     }).toList();
   }
 
@@ -146,7 +147,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
 
     final data = doc.data()!;
     data['id'] = doc.id;
-    return ServiceProductModel.fromJson(data);
+    return ServiceProductModel.fromJson(sanitizeFirestoreData(data));
   }
 
   @override
@@ -168,7 +169,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
       });
 
       final data = result.data;
-      return PurchaseModel.fromJson(data);
+      return PurchaseModel.fromJson(sanitizeFirestoreData(data));
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(message: e.message ?? 'Purchase failed');
     }
@@ -201,7 +202,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     return snapshot.docs.map((doc) {
       final data = doc.data();
       data['id'] = doc.id;
-      return PurchaseModel.fromJson(data);
+      return PurchaseModel.fromJson(sanitizeFirestoreData(data));
     }).toList();
   }
 
@@ -215,7 +216,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
 
     final data = doc.data()!;
     data['id'] = doc.id;
-    return PurchaseModel.fromJson(data);
+    return PurchaseModel.fromJson(sanitizeFirestoreData(data));
   }
 
   @override

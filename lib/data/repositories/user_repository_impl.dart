@@ -107,6 +107,7 @@ class UserRepositoryImpl implements UserRepository {
     String? gender,
     DateTime? dateOfBirth,
     String? province,
+    String? city,
     String? firstName,
     String? lastName,
   }) async {
@@ -130,6 +131,7 @@ class UserRepositoryImpl implements UserRepository {
         gender: gender ?? currentUserModel.gender,
         dateOfBirth: dateOfBirth ?? currentUserModel.dateOfBirth,
         province: province ?? currentUserModel.province,
+        city: city ?? currentUserModel.city,
         firstName: firstName ?? currentUserModel.firstName,
         lastName: lastName ?? currentUserModel.lastName,
         updatedAt: DateTime.now(),

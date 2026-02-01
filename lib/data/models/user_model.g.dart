@@ -19,6 +19,7 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['dateOfBirth'] as String),
       province: json['province'] as String?,
+      city: json['city'] as String?,
       firstName: json['firstName'] as String?,
       lastName: json['lastName'] as String?,
       status: $enumDecode(_$UserStatusEnumMap, json['status']),
@@ -57,6 +58,7 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'gender': instance.gender,
       'dateOfBirth': instance.dateOfBirth?.toIso8601String(),
       'province': instance.province,
+      'city': instance.city,
       'firstName': instance.firstName,
       'lastName': instance.lastName,
       'status': _$UserStatusEnumMap[instance.status]!,

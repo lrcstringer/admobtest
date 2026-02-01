@@ -21,6 +21,7 @@ export * from "./chat";
 export * from "./engagement";
 export * from "./fraud";
 export * from "./auth";
+export * from "./biometricAuth";
 
 // Security cleanup function
 import * as functions from "firebase-functions";

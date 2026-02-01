@@ -27,6 +27,7 @@ mixin _$UserProfile {
   String? get gender => throw _privateConstructorUsedError;
   DateTime? get dateOfBirth => throw _privateConstructorUsedError;
   String? get province => throw _privateConstructorUsedError;
+  String? get city => throw _privateConstructorUsedError;
   String? get firstName => throw _privateConstructorUsedError;
   String? get lastName => throw _privateConstructorUsedError;
 
@@ -54,6 +55,7 @@ abstract class $UserProfileCopyWith<$Res> {
     String? gender,
     DateTime? dateOfBirth,
     String? province,
+    String? city,
     String? firstName,
     String? lastName,
   });
@@ -80,6 +82,7 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? gender = freezed,
     Object? dateOfBirth = freezed,
     Object? province = freezed,
+    Object? city = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
   }) {
@@ -108,6 +111,10 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
             province: freezed == province
                 ? _value.province
                 : province // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            city: freezed == city
+                ? _value.city
+                : city // ignore: cast_nullable_to_non_nullable
                       as String?,
             firstName: freezed == firstName
                 ? _value.firstName
@@ -139,6 +146,7 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     String? gender,
     DateTime? dateOfBirth,
     String? province,
+    String? city,
     String? firstName,
     String? lastName,
   });
@@ -164,6 +172,7 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? gender = freezed,
     Object? dateOfBirth = freezed,
     Object? province = freezed,
+    Object? city = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
   }) {
@@ -193,6 +202,10 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value.province
             : province // ignore: cast_nullable_to_non_nullable
                   as String?,
+        city: freezed == city
+            ? _value.city
+            : city // ignore: cast_nullable_to_non_nullable
+                  as String?,
         firstName: freezed == firstName
             ? _value.firstName
             : firstName // ignore: cast_nullable_to_non_nullable
@@ -216,6 +229,7 @@ class _$UserProfileImpl extends _UserProfile {
     this.gender,
     this.dateOfBirth,
     this.province,
+    this.city,
     this.firstName,
     this.lastName,
   }) : super._();
@@ -236,13 +250,15 @@ class _$UserProfileImpl extends _UserProfile {
   @override
   final String? province;
   @override
+  final String? city;
+  @override
   final String? firstName;
   @override
   final String? lastName;
 
   @override
   String toString() {
-    return 'UserProfile(displayName: $displayName, username: $username, avatarUrl: $avatarUrl, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, firstName: $firstName, lastName: $lastName)';
+    return 'UserProfile(displayName: $displayName, username: $username, avatarUrl: $avatarUrl, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName)';
   }
 
   @override
@@ -261,6 +277,7 @@ class _$UserProfileImpl extends _UserProfile {
                 other.dateOfBirth == dateOfBirth) &&
             (identical(other.province, province) ||
                 other.province == province) &&
+            (identical(other.city, city) || other.city == city) &&
             (identical(other.firstName, firstName) ||
                 other.firstName == firstName) &&
             (identical(other.lastName, lastName) ||
@@ -277,6 +294,7 @@ class _$UserProfileImpl extends _UserProfile {
     gender,
     dateOfBirth,
     province,
+    city,
     firstName,
     lastName,
   );
@@ -303,6 +321,7 @@ abstract class _UserProfile extends UserProfile {
     final String? gender,
     final DateTime? dateOfBirth,
     final String? province,
+    final String? city,
     final String? firstName,
     final String? lastName,
   }) = _$UserProfileImpl;
@@ -323,6 +342,8 @@ abstract class _UserProfile extends UserProfile {
   DateTime? get dateOfBirth;
   @override
   String? get province;
+  @override
+  String? get city;
   @override
   String? get firstName;
   @override

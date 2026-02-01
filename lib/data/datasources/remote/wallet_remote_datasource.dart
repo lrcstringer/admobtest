@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../core/error/exceptions.dart';
 import '../../../core/security/play_integrity_service.dart';
+import '../../../core/utils/firestore_helpers.dart';
 import '../../../domain/entities/cashout.dart';
 import '../../models/wallet_model.dart';
 import '../../models/transaction_model.dart';
@@ -78,7 +79,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return WalletModel.fromJson({...doc.data()!, 'id': doc.id});
+      return WalletModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -103,7 +104,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       }
 
       final doc = snapshot.docs.first;
-      return WalletModel.fromJson({...doc.data(), 'id': doc.id});
+      return WalletModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -115,7 +116,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return WalletModel.fromJson({...doc.data()!, 'id': doc.id});
+      return WalletModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
     });
   }
 
@@ -132,7 +133,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
           .get();
 
       return snapshot.docs.map((doc) {
-        return WalletModel.fromJson({...doc.data(), 'id': doc.id});
+        return WalletModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     } catch (e) {
       throw ServerException(message: e.toString());
@@ -151,7 +152,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        return WalletModel.fromJson({...doc.data(), 'id': doc.id});
+        return WalletModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     });
   }
@@ -177,7 +178,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
       final snapshot = await query.get();
       return snapshot.docs.map((doc) {
-        return TransactionModel.fromJson({...doc.data(), 'id': doc.id});
+        return TransactionModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     } catch (e) {
       throw ServerException(message: e.toString());
@@ -199,7 +200,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
     return query.snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
-        return TransactionModel.fromJson({...doc.data(), 'id': doc.id});
+        return TransactionModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     });
   }
@@ -211,7 +212,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return TransactionModel.fromJson({...doc.data()!, 'id': doc.id});
+      return TransactionModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -304,7 +305,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
       final snapshot = await query.get();
       return snapshot.docs.map((doc) {
-        return CashoutModel.fromJson({...doc.data(), 'id': doc.id});
+        return CashoutModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
       }).toList();
     } catch (e) {
       throw ServerException(message: e.toString());
@@ -318,7 +319,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return CashoutModel.fromJson({...doc.data()!, 'id': doc.id});
+      return CashoutModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
     } catch (e) {
       throw ServerException(message: e.toString());
     }

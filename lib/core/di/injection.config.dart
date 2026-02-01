@@ -72,6 +72,7 @@ import '../security/security_service.dart' as _i383;
 import '../security/session_lock_service.dart' as _i942;
 import '../security/sim_change_detector.dart' as _i925;
 import '../security/step_up_auth_service.dart' as _i720;
+import '../services/biometric_login_service.dart' as _i290;
 import '../services/fcm_challenge_handler.dart' as _i830;
 import 'register_module.dart' as _i291;
 
@@ -213,6 +214,16 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i152.LocalAuthentication>(),
         gh<_i752.PinManager>(),
         gh<_i988.AuditLogger>(),
+      ),
+    );
+    gh.lazySingleton<_i290.BiometricLoginService>(
+      () => _i290.BiometricLoginService(
+        gh<_i693.DeviceBindingService>(),
+        gh<_i309.DeviceCapabilityService>(),
+        gh<_i892.KeystoreService>(),
+        gh<_i152.LocalAuthentication>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i558.FlutterSecureStorage>(),
       ),
     );
     gh.lazySingleton<_i1010.GamificationRepository>(

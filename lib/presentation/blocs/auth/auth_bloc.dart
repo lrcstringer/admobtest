@@ -245,10 +245,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.fold(
       (failure) {
         // Device binding failure is non-blocking — log and continue
-        debugPrint('Device binding failed (non-blocking): ${failure.displayMessage}');
+        debugPrint('========================================');
+        debugPrint('DEVICE BINDING FAILED: ${failure.displayMessage}');
+        debugPrint('Failure type: ${failure.runtimeType}');
+        debugPrint('========================================');
         emit(state.copyWith(isDeviceBound: false));
       },
       (device) {
+        debugPrint('========================================');
+        debugPrint('DEVICE BINDING SUCCESS: ${device.deviceId}');
+        debugPrint('========================================');
         emit(state.copyWith(
           isDeviceBound: true,
           deviceId: device.deviceId,
@@ -331,8 +337,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(isLoading: true));
 
-    // Clear device binding state
-    await _deviceBindingService.clearBinding();
+    // NOTE: Do NOT clear device binding on sign-out.
+    // The device binding (keypair + Firestore record) must persist
+    // so that push-based login can work on subsequent sign-ins.
+    // Only _onForceReauth and _onDeleteAccount clear the binding.
 
     final result = await _authRepository.signOut();
 

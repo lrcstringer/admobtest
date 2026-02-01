@@ -30,6 +30,7 @@ mixin _$UserModel {
   String? get gender => throw _privateConstructorUsedError;
   DateTime? get dateOfBirth => throw _privateConstructorUsedError;
   String? get province => throw _privateConstructorUsedError;
+  String? get city => throw _privateConstructorUsedError;
   String? get firstName => throw _privateConstructorUsedError;
   String? get lastName => throw _privateConstructorUsedError;
   UserStatus get status => throw _privateConstructorUsedError;
@@ -73,6 +74,7 @@ abstract class $UserModelCopyWith<$Res> {
     String? gender,
     DateTime? dateOfBirth,
     String? province,
+    String? city,
     String? firstName,
     String? lastName,
     UserStatus status,
@@ -117,6 +119,7 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? gender = freezed,
     Object? dateOfBirth = freezed,
     Object? province = freezed,
+    Object? city = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
     Object? status = null,
@@ -172,6 +175,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
             province: freezed == province
                 ? _value.province
                 : province // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            city: freezed == city
+                ? _value.city
+                : city // ignore: cast_nullable_to_non_nullable
                       as String?,
             firstName: freezed == firstName
                 ? _value.firstName
@@ -266,6 +273,7 @@ abstract class _$$UserModelImplCopyWith<$Res>
     String? gender,
     DateTime? dateOfBirth,
     String? province,
+    String? city,
     String? firstName,
     String? lastName,
     UserStatus status,
@@ -309,6 +317,7 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? gender = freezed,
     Object? dateOfBirth = freezed,
     Object? province = freezed,
+    Object? city = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
     Object? status = null,
@@ -364,6 +373,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
         province: freezed == province
             ? _value.province
             : province // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        city: freezed == city
+            ? _value.city
+            : city // ignore: cast_nullable_to_non_nullable
                   as String?,
         firstName: freezed == firstName
             ? _value.firstName
@@ -451,6 +464,7 @@ class _$UserModelImpl extends _UserModel {
     this.gender,
     this.dateOfBirth,
     this.province,
+    this.city,
     this.firstName,
     this.lastName,
     required this.status,
@@ -492,6 +506,8 @@ class _$UserModelImpl extends _UserModel {
   @override
   final String? province;
   @override
+  final String? city;
+  @override
   final String? firstName;
   @override
   final String? lastName;
@@ -528,7 +544,7 @@ class _$UserModelImpl extends _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(oddienceUserId: $oddienceUserId, phoneNumber: $phoneNumber, displayName: $displayName, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, firstName: $firstName, lastName: $lastName, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
+    return 'UserModel(oddienceUserId: $oddienceUserId, phoneNumber: $phoneNumber, displayName: $displayName, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
   }
 
   @override
@@ -553,6 +569,7 @@ class _$UserModelImpl extends _UserModel {
                 other.dateOfBirth == dateOfBirth) &&
             (identical(other.province, province) ||
                 other.province == province) &&
+            (identical(other.city, city) || other.city == city) &&
             (identical(other.firstName, firstName) ||
                 other.firstName == firstName) &&
             (identical(other.lastName, lastName) ||
@@ -601,6 +618,7 @@ class _$UserModelImpl extends _UserModel {
     gender,
     dateOfBirth,
     province,
+    city,
     firstName,
     lastName,
     status,
@@ -645,6 +663,7 @@ abstract class _UserModel extends UserModel {
     final String? gender,
     final DateTime? dateOfBirth,
     final String? province,
+    final String? city,
     final String? firstName,
     final String? lastName,
     required final UserStatus status,
@@ -686,6 +705,8 @@ abstract class _UserModel extends UserModel {
   DateTime? get dateOfBirth;
   @override
   String? get province;
+  @override
+  String? get city;
   @override
   String? get firstName;
   @override

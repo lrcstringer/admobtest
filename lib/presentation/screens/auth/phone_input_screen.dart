@@ -107,11 +107,18 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
 
     // Try push login first (unless skipped)
     if (!_skipPushLogin) {
+      debugPrint('========================================');
+      debugPrint('PUSH LOGIN: Attempting for $phoneNumber');
+      debugPrint('========================================');
       setState(() => _isPushLoginLoading = true);
 
       final result = await _challengeHandler.requestLogin(phoneNumber);
 
       if (!mounted) return;
+
+      debugPrint('========================================');
+      debugPrint('PUSH LOGIN RESULT: hasTrustedDevice=${result.hasTrustedDevice}, challengeId=${result.challengeId}');
+      debugPrint('========================================');
 
       if (result.hasTrustedDevice && result.challengeId != null) {
         setState(() => _isPushLoginLoading = false);
@@ -124,9 +131,14 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
       }
 
       setState(() => _isPushLoginLoading = false);
+    } else {
+      debugPrint('========================================');
+      debugPrint('PUSH LOGIN: Skipped (_skipPushLogin=true)');
+      debugPrint('========================================');
     }
 
     // Fall back to OTP
+    debugPrint('PUSH LOGIN: Falling back to SMS OTP');
     if (!mounted) return;
     context.read<AuthBloc>().add(
           AuthEvent.sendOtp(phoneNumber: phoneNumber),
@@ -220,7 +232,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                             width: mascotSize,
                             height: mascotSize,
                             child: Image.asset(
-                              'assets/logo-assets/mascot-bubbles-512.png',
+                              'assets/icons/iMaliCrown4.png',
                               width: mascotSize,
                               height: mascotSize,
                               fit: BoxFit.contain,
