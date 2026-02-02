@@ -306,7 +306,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               onPressed: () => context.go('/auth/age-consent'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: const Color(0xFF0D1028),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -333,7 +333,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: () => context.go('/auth/phone'),
+              onPressed: () => context.go('/auth/age-consent'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary.withValues(alpha: 0.3),
                 foregroundColor: const Color(0xFF0D1028),
@@ -453,7 +453,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: const Color(0xFF0D1028),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),

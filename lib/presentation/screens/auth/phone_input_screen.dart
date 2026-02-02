@@ -213,7 +213,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final mascotSize = size.width * 0.28;
+    final mascotSize = size.width * 0.25;
 
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
@@ -238,19 +238,29 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                 colors: AppColors.backgroundGradient,
               ),
             ),
-            child: Column(
+            child: Stack(
               children: [
-                // Wave image at the top (above SafeArea)
-                Image.asset(
-                  'assets/images/Top Light Blue.png',
-                  width: size.width,
-                  fit: BoxFit.fitWidth,
+                // Top feather wave background image
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: size.height * 0.25,
+                    ),
+                    child: Image.asset(
+                      'assets/images/wave_feather_fixed_r7.png',
+                      width: size.width,
+                      fit: BoxFit.fitWidth,
+                      alignment: Alignment.topCenter,
+                    ),
+                  ),
                 ),
-                // Main content area
-                Expanded(
+
+                // Main content
+                Positioned.fill(
                   child: SafeArea(
-                    top: false,
-                    bottom: false,
                     child: Column(
                       children: [
                         // Scrollable content
@@ -260,7 +270,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                                 const EdgeInsets.symmetric(horizontal: 40),
                             child: Column(
                               children: [
-                                const SizedBox(height: 8),
+                                SizedBox(height: size.height * 0.01),
 
                           // Mascot
                           SizedBox(
@@ -282,7 +292,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                             ),
                           ),
 
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 4),
 
                           // "iMaliChat"
                           Text(
@@ -290,13 +300,13 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                             textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
-                                .headlineMedium
+                                .headlineSmall
                                 ?.copyWith(
                                   color: AppColors.textPrimary,
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
 
                           // "Earn. Chat. Buy."
                           Text(
@@ -443,7 +453,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                           onPressed: isLoading ? null : _onSubmit,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: const Color(0xFF0D1028),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
@@ -472,12 +482,9 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                     const SizedBox(height: 60),
 
                         // Custom numeric keyboard
-                        SafeArea(
-                          top: false,
-                          child: NumericKeyboard(
-                            onKeyPressed: _onKeyPressed,
-                            onBackspace: _onBackspace,
-                          ),
+                        NumericKeyboard(
+                          onKeyPressed: _onKeyPressed,
+                          onBackspace: _onBackspace,
                         ),
                       ],
                     ),

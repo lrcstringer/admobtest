@@ -116,6 +116,15 @@ class BiometricLoginService {
     }
   }
 
+  /// Clear the cached last auth time (e.g., on account deletion).
+  Future<void> clearLastAuthTime() async {
+    try {
+      await _secureStorage.delete(key: _lastAuthTimeKey);
+    } catch (e) {
+      debugPrint('BiometricLogin: Failed to clear last auth time: $e');
+    }
+  }
+
   /// Record a successful authentication (any method: OTP, biometric, push).
   ///
   /// Resets the inactivity timer so biometric login remains available.

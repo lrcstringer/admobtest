@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 
@@ -152,27 +154,74 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
+    // Capture the outer BLoC context before opening the dialog
+    final authBloc = context.read<AuthBloc>();
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Account'),
-        content: const Text(
-          'Are you sure you want to delete your account? This action cannot be undone. All your data including tokens, transaction history, and referrals will be permanently deleted.',
+      barrierDismissible: false,
+      builder: (dialogContext) => BlocProvider.value(
+        value: authBloc,
+        child: BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state.status == AuthStatus.unauthenticated) {
+              // Account deleted — dialog will be dismissed by router redirect
+              if (Navigator.of(dialogContext).canPop()) {
+                Navigator.of(dialogContext).pop();
+              }
+            } else if (state.errorMessage != null && !state.isLoading) {
+              // Deletion failed — close dialog and show error
+              Navigator.of(dialogContext).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage!),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          },
+          builder: (context, state) {
+            final isDeleting = state.isLoading;
+
+            return AlertDialog(
+              title: const Text('Delete Account'),
+              content: isDeleting
+                  ? const Row(
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Text('Deleting your account...'),
+                        ),
+                      ],
+                    )
+                  : const Text(
+                      'Are you sure you want to delete your account? '
+                      'This action cannot be undone. All your data including '
+                      'tokens, transaction history, and referrals will be '
+                      'permanently deleted.',
+                    ),
+              actions: isDeleting
+                  ? []
+                  : [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          context
+                              .read<AuthBloc>()
+                              .add(const AuthEvent.deleteAccount());
+                        },
+                        style: TextButton.styleFrom(
+                            foregroundColor: AppColors.error),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+            );
+          },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: Implement delete account
-            },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Delete'),
-          ),
-        ],
       ),
     );
   }

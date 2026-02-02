@@ -8,6 +8,7 @@ import 'package:injectable/injectable.dart';
 import '../../../core/error/failures.dart';
 import '../../../core/security/device_binding_service.dart';
 import '../../../core/services/biometric_login_service.dart';
+import '../../../data/datasources/local/app_database.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/repositories/user_repository.dart';
@@ -22,6 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UserRepository _userRepository;
   final DeviceBindingService _deviceBindingService;
   final BiometricLoginService _biometricLoginService;
+  final AppDatabase _appDatabase;
   StreamSubscription<User?>? _authStateSubscription;
   Timer? _resendTimer;
 
@@ -30,6 +32,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     this._userRepository,
     this._deviceBindingService,
     this._biometricLoginService,
+    this._appDatabase,
   ) : super(const AuthState()) {
     on<_CheckAuthStatus>(_onCheckAuthStatus);
     on<_SendOtp>(_onSendOtp);
@@ -372,6 +375,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(isLoading: true));
 
+    // Capture userId before deletion (needed for keystore cleanup)
+    final userId = state.user?.id;
+
     final result = await _authRepository.deleteAccount();
 
     result.fold(
@@ -381,7 +387,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           errorMessage: failure.displayMessage,
         ));
       },
-      (_) {
+      (_) async {
+        // Clear all local data
+        await _deviceBindingService.clearBinding();
+        await _biometricLoginService.clearCachedDisplayName();
+        await _biometricLoginService.clearLastAuthTime();
+
+        // Clear local SQLite database (cached wallets, transactions, chats, etc.)
+        await _appDatabase.clearAllData();
+
+        // Delete hardware-backed ECDSA keypair
+        if (userId != null) {
+          await _deviceBindingService.deleteKeypair(userId);
+        }
+
         emit(const AuthState(status: AuthStatus.unauthenticated));
       },
     );

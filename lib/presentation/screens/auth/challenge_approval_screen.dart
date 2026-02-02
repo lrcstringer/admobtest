@@ -143,15 +143,21 @@ class _ChallengeApprovalScreenState extends State<ChallengeApprovalScreen> {
         ),
         child: Stack(
           children: [
-            // Top Light Blue background image
+            // Top feather wave background image
             Positioned(
               top: 0,
               left: 0,
               right: 0,
-              child: Image.asset(
-                'assets/images/Top Light Blue.png',
-                width: size.width,
-                fit: BoxFit.fitWidth,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: size.height * 0.25,
+                ),
+                child: Image.asset(
+                  'assets/images/wave_feather_fixed_r7.png',
+                  width: size.width,
+                  fit: BoxFit.fitWidth,
+                  alignment: Alignment.topCenter,
+                ),
               ),
             ),
 

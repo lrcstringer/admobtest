@@ -109,19 +109,29 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 colors: AppColors.backgroundGradient,
               ),
             ),
-            child: Column(
+            child: Stack(
               children: [
-                // Wave image at the top
-                Image.asset(
-                  'assets/images/Top Light Blue.png',
-                  width: size.width,
-                  fit: BoxFit.fitWidth,
+                // Top feather wave background image
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: size.height * 0.25,
+                    ),
+                    child: Image.asset(
+                      'assets/images/wave_feather_fixed_r7.png',
+                      width: size.width,
+                      fit: BoxFit.fitWidth,
+                      alignment: Alignment.topCenter,
+                    ),
+                  ),
                 ),
-                // Main content area
-                Expanded(
+
+                // Main content
+                Positioned.fill(
                   child: SafeArea(
-                    top: false,
-                    bottom: false,
                     child: Column(
                       children: [
                         // Scrollable content
@@ -131,7 +141,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                 const EdgeInsets.symmetric(horizontal: 40),
                             child: Column(
                               children: [
-                                const SizedBox(height: 16),
+                                SizedBox(height: size.height * 0.18),
 
                                 // Heading
                                 Text(
@@ -320,7 +330,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                 onPressed: isLoading ? null : _onVerify,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
+                                  foregroundColor: const Color(0xFF0D1028),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),
                                   ),
@@ -349,12 +359,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           const SizedBox(height: 60),
 
                         // Custom numeric keyboard
-                        SafeArea(
-                          top: false,
-                          child: NumericKeyboard(
-                            onKeyPressed: _onKeyPressed,
-                            onBackspace: _onBackspace,
-                          ),
+                        NumericKeyboard(
+                          onKeyPressed: _onKeyPressed,
+                          onBackspace: _onBackspace,
                         ),
                       ],
                     ),

@@ -23,6 +23,7 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 import 'package:local_auth/local_auth.dart' as _i152;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
+import '../../data/datasources/local/app_database.dart' as _i483;
 import '../../data/datasources/remote/auth_remote_datasource.dart' as _i1057;
 import '../../data/datasources/remote/chat_remote_datasource.dart' as _i224;
 import '../../data/datasources/remote/device_remote_datasource.dart' as _i433;
@@ -113,6 +114,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i892.KeystoreService>(() => _i892.KeystoreService());
     gh.lazySingleton<_i383.SecurityService>(() => _i383.SecurityService());
+    gh.lazySingleton<_i483.AppDatabase>(() => _i483.AppDatabase());
     gh.lazySingleton<_i1057.AuthRemoteDataSource>(
       () => _i1057.AuthRemoteDataSourceImpl(
         gh<_i59.FirebaseAuth>(),
@@ -267,20 +269,21 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i988.AuditLogger>(),
       ),
     );
-    gh.factory<_i141.AuthBloc>(
-      () => _i141.AuthBloc(
-        gh<_i1073.AuthRepository>(),
-        gh<_i271.UserRepository>(),
-        gh<_i693.DeviceBindingService>(),
-        gh<_i290.BiometricLoginService>(),
-      ),
-    );
     gh.lazySingleton<_i520.EarnRemoteDataSource>(
       () => _i520.EarnRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
         gh<_i351.PlayIntegrityService>(),
+      ),
+    );
+    gh.factory<_i141.AuthBloc>(
+      () => _i141.AuthBloc(
+        gh<_i1073.AuthRepository>(),
+        gh<_i271.UserRepository>(),
+        gh<_i693.DeviceBindingService>(),
+        gh<_i290.BiometricLoginService>(),
+        gh<_i483.AppDatabase>(),
       ),
     );
     gh.lazySingleton<_i633.ReferralRepository>(

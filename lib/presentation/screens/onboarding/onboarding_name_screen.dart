@@ -98,15 +98,21 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
         ),
         child: Stack(
           children: [
-            // Top Light Blue background image
+            // Top feather wave background image
             Positioned(
               top: 0,
               left: 0,
               right: 0,
-              child: Image.asset(
-                'assets/images/Top Light Blue.png',
-                width: size.width,
-                fit: BoxFit.fitWidth,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: size.height * 0.25,
+                ),
+                child: Image.asset(
+                  'assets/images/wave_feather_fixed_r7.png',
+                  width: size.width,
+                  fit: BoxFit.fitWidth,
+                  alignment: Alignment.topCenter,
+                ),
               ),
             ),
 
@@ -315,7 +321,7 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                           onPressed: _canContinue ? _onContinue : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: const Color(0xFF0D1028),
                             disabledBackgroundColor:
                                 AppColors.primary.withValues(alpha: 0.5),
                             shape: RoundedRectangleBorder(

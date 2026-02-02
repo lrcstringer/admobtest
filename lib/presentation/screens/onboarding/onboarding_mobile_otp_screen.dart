@@ -42,13 +42,15 @@ class _OnboardingMobileOtpScreenState
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final mascotSize = size.width * 0.40;
+    final mascotSize = size.width * 0.25;
 
     // TODO: Replace with actual phone number passed from mobile screen
     const phoneNumber = '(+27) XXX XXXX';
 
     return Scaffold(
       body: Container(
+        width: size.width,
+        height: size.height,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -56,12 +58,34 @@ class _OnboardingMobileOtpScreenState
             colors: AppColors.backgroundGradient,
           ),
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              SizedBox(height: size.height * 0.02),
+        child: Stack(
+          children: [
+            // Top feather wave background image
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: size.height * 0.25,
+                ),
+                child: Image.asset(
+                  'assets/images/wave_feather_fixed_r7.png',
+                  width: size.width,
+                  fit: BoxFit.fitWidth,
+                  alignment: Alignment.topCenter,
+                ),
+              ),
+            ),
 
-              // Mascot face
+            // Main content
+            Positioned.fill(
+              child: SafeArea(
+                child: Column(
+                  children: [
+              SizedBox(height: size.height * 0.01),
+
+              // Mascot
               SizedBox(
                 width: mascotSize,
                 height: mascotSize,
@@ -81,7 +105,7 @@ class _OnboardingMobileOtpScreenState
                 ),
               ),
 
-              SizedBox(height: size.height * 0.01),
+              const SizedBox(height: 4),
 
               // "iMaliChat"
               Text(
@@ -89,13 +113,13 @@ class _OnboardingMobileOtpScreenState
                 textAlign: TextAlign.center,
                 style: Theme.of(context)
                     .textTheme
-                    .displaySmall
+                    .headlineSmall
                     ?.copyWith(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.bold,
                     ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
 
               // "Earn. Chat. Buy."
               Text(
@@ -103,7 +127,7 @@ class _OnboardingMobileOtpScreenState
                 textAlign: TextAlign.center,
                 style: Theme.of(context)
                     .textTheme
-                    .titleLarge
+                    .titleMedium
                     ?.copyWith(
                       color: AppColors.gold,
                       fontWeight: FontWeight.w600,
@@ -111,7 +135,7 @@ class _OnboardingMobileOtpScreenState
                     ),
               ),
 
-              SizedBox(height: size.height * 0.05),
+              SizedBox(height: size.height * 0.03),
 
               // "Verify your number"
               Text(
@@ -248,7 +272,7 @@ class _OnboardingMobileOtpScreenState
                     onPressed: () => context.go('/onboarding/picture'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF0D1028),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
@@ -264,8 +288,11 @@ class _OnboardingMobileOtpScreenState
               ),
 
               const OnboardingProgressIndicator(currentStep: 4),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

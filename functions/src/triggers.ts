@@ -185,7 +185,14 @@ export const onReferralCompleted = functions.firestore
   });
 
 /**
- * Clean up user data on account deletion
+ * Safety-net cleanup on user document deletion.
+ *
+ * The primary cleanup is handled by the deleteUserAccount callable
+ * function (accountDeletion.ts), which deletes all user data across
+ * all collections before deleting this document and the Auth account.
+ *
+ * This trigger catches manual deletions via Firebase Console and
+ * provides a fallback for the core financial/referral collections.
  */
 export const onUserDeleted = functions.firestore
   .document("users/{userId}")

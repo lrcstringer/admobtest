@@ -216,7 +216,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                       onPressed: _pin.length >= 4 ? _onContinue : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF0D1028),
                         disabledBackgroundColor:
                             AppColors.primary.withValues(alpha: 0.4),
                         shape: RoundedRectangleBorder(

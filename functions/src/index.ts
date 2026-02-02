@@ -22,6 +22,7 @@ export * from "./engagement";
 export * from "./fraud";
 export * from "./auth";
 export * from "./biometricAuth";
+export * from "./accountDeletion";
 
 // Security cleanup function
 import * as functions from "firebase-functions";

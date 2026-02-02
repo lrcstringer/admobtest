@@ -180,7 +180,7 @@ class _OnboardingSettingsScreenState extends State<OnboardingSettingsScreen> {
                     onPressed: _onContinue,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF0D1028),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),

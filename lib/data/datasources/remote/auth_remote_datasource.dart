@@ -166,7 +166,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (user == null) {
       throw const AuthException(message: 'No user signed in');
     }
-    await user.delete();
+
+    try {
+      final callable = _functions.httpsCallable('deleteUserAccount');
+      await callable.call<Map<String, dynamic>>({});
+    } on FirebaseFunctionsException catch (e) {
+      throw _mapFunctionsError(e);
+    }
+
+    // Sign out locally after server-side deletion completes.
+    // The Auth account no longer exists server-side, so this just
+    // clears the local Firebase Auth session cache.
+    await _firebaseAuth.signOut();
   }
 
   @override

@@ -195,6 +195,17 @@ class DeviceBindingService {
     }
   }
 
+  /// Delete the hardware-backed ECDSA keypair for a given user.
+  /// Called during account deletion to remove cryptographic material.
+  Future<void> deleteKeypair(String userId) async {
+    try {
+      final alias = KeystoreService.keyAlias(userId);
+      await _keystoreService.deleteKey(alias);
+    } catch (e) {
+      debugPrint('Failed to delete keypair for $userId: $e');
+    }
+  }
+
   Future<void> _cacheDeviceBinding(String deviceId, String userId) async {
     try {
       await _secureStorage.write(key: _deviceIdKey, value: deviceId);
