@@ -19,7 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$PurchaseModel {
   String get id => throw _privateConstructorUsedError;
   String get walletId => throw _privateConstructorUsedError;
-  String get oddienceUserId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   String get providerId => throw _privateConstructorUsedError;
   String get providerName => throw _privateConstructorUsedError;
   String get category => throw _privateConstructorUsedError;
@@ -55,7 +55,7 @@ abstract class $PurchaseModelCopyWith<$Res> {
   $Res call({
     String id,
     String walletId,
-    String oddienceUserId,
+    String userId,
     String providerId,
     String providerName,
     String category,
@@ -93,7 +93,7 @@ class _$PurchaseModelCopyWithImpl<$Res, $Val extends PurchaseModel>
   $Res call({
     Object? id = null,
     Object? walletId = null,
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? providerId = null,
     Object? providerName = null,
     Object? category = null,
@@ -122,9 +122,9 @@ class _$PurchaseModelCopyWithImpl<$Res, $Val extends PurchaseModel>
                 ? _value.walletId
                 : walletId // ignore: cast_nullable_to_non_nullable
                       as String,
-            oddienceUserId: null == oddienceUserId
-                ? _value.oddienceUserId
-                : oddienceUserId // ignore: cast_nullable_to_non_nullable
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
                       as String,
             providerId: null == providerId
                 ? _value.providerId
@@ -212,7 +212,7 @@ abstract class _$$PurchaseModelImplCopyWith<$Res>
   $Res call({
     String id,
     String walletId,
-    String oddienceUserId,
+    String userId,
     String providerId,
     String providerName,
     String category,
@@ -249,7 +249,7 @@ class __$$PurchaseModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? walletId = null,
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? providerId = null,
     Object? providerName = null,
     Object? category = null,
@@ -278,9 +278,9 @@ class __$$PurchaseModelImplCopyWithImpl<$Res>
             ? _value.walletId
             : walletId // ignore: cast_nullable_to_non_nullable
                   as String,
-        oddienceUserId: null == oddienceUserId
-            ? _value.oddienceUserId
-            : oddienceUserId // ignore: cast_nullable_to_non_nullable
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
                   as String,
         providerId: null == providerId
             ? _value.providerId
@@ -361,7 +361,7 @@ class _$PurchaseModelImpl extends _PurchaseModel {
   const _$PurchaseModelImpl({
     required this.id,
     required this.walletId,
-    required this.oddienceUserId,
+    required this.userId,
     required this.providerId,
     required this.providerName,
     required this.category,
@@ -387,7 +387,7 @@ class _$PurchaseModelImpl extends _PurchaseModel {
   @override
   final String walletId;
   @override
-  final String oddienceUserId;
+  final String userId;
   @override
   final String providerId;
   @override
@@ -433,7 +433,7 @@ class _$PurchaseModelImpl extends _PurchaseModel {
 
   @override
   String toString() {
-    return 'PurchaseModel(id: $id, walletId: $walletId, oddienceUserId: $oddienceUserId, providerId: $providerId, providerName: $providerName, category: $category, tokenAmount: $tokenAmount, zarAmount: $zarAmount, status: $status, productCode: $productCode, productName: $productName, recipientNumber: $recipientNumber, voucherCode: $voucherCode, voucherPin: $voucherPin, reference: $reference, failureReason: $failureReason, metadata: $metadata, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt)';
+    return 'PurchaseModel(id: $id, walletId: $walletId, userId: $userId, providerId: $providerId, providerName: $providerName, category: $category, tokenAmount: $tokenAmount, zarAmount: $zarAmount, status: $status, productCode: $productCode, productName: $productName, recipientNumber: $recipientNumber, voucherCode: $voucherCode, voucherPin: $voucherPin, reference: $reference, failureReason: $failureReason, metadata: $metadata, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt)';
   }
 
   @override
@@ -444,8 +444,7 @@ class _$PurchaseModelImpl extends _PurchaseModel {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.walletId, walletId) ||
                 other.walletId == walletId) &&
-            (identical(other.oddienceUserId, oddienceUserId) ||
-                other.oddienceUserId == oddienceUserId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.providerId, providerId) ||
                 other.providerId == providerId) &&
             (identical(other.providerName, providerName) ||
@@ -485,7 +484,7 @@ class _$PurchaseModelImpl extends _PurchaseModel {
     runtimeType,
     id,
     walletId,
-    oddienceUserId,
+    userId,
     providerId,
     providerName,
     category,
@@ -518,7 +517,7 @@ abstract class _PurchaseModel extends PurchaseModel {
   const factory _PurchaseModel({
     required final String id,
     required final String walletId,
-    required final String oddienceUserId,
+    required final String userId,
     required final String providerId,
     required final String providerName,
     required final String category,
@@ -544,7 +543,7 @@ abstract class _PurchaseModel extends PurchaseModel {
   @override
   String get walletId;
   @override
-  String get oddienceUserId;
+  String get userId;
   @override
   String get providerId;
   @override

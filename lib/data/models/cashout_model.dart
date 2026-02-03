@@ -11,7 +11,7 @@ class CashoutModel with _$CashoutModel {
   const factory CashoutModel({
     required String id,
     required String walletId,
-    required String oddienceUserId,
+    required String userId,
     required int tokenAmount,
     required double zarAmount,
     required String method,
@@ -38,19 +38,29 @@ class CashoutModel with _$CashoutModel {
     final completedAt = json['completedAt'];
     final failedAt = json['failedAt'];
 
+    // Handle nested bankDetails from server or flat fields for backward compatibility
+    final bankDetails = json['bankDetails'] as Map<String, dynamic>?;
+    final method = bankDetails?['method'] as String? ?? json['method'] as String?;
+    final destinationDetails = bankDetails?['destinationDetails'] as String? ??
+        json['destinationDetails'] as String? ?? '';
+    final bankName = bankDetails?['bankName'] as String? ?? json['bankName'] as String?;
+    final accountNumber = bankDetails?['accountNumber'] as String? ?? json['accountNumber'] as String?;
+    final accountHolderName = bankDetails?['accountHolderName'] as String? ?? json['accountHolderName'] as String?;
+    final mobileNumber = bankDetails?['mobileNumber'] as String? ?? json['mobileNumber'] as String?;
+
     return CashoutModel(
       id: json['id'] as String,
       walletId: json['walletId'] as String,
-      oddienceUserId: json['oddienceUserId'] as String,
+      userId: json['userId'] as String,
       tokenAmount: json['tokenAmount'] as int,
       zarAmount: (json['zarAmount'] as num).toDouble(),
-      method: json['method'] as String,
+      method: method ?? 'bankTransfer',
       status: json['status'] as String,
-      destinationDetails: json['destinationDetails'] as String,
-      bankName: json['bankName'] as String?,
-      accountNumber: json['accountNumber'] as String?,
-      accountHolderName: json['accountHolderName'] as String?,
-      mobileNumber: json['mobileNumber'] as String?,
+      destinationDetails: destinationDetails,
+      bankName: bankName,
+      accountNumber: accountNumber,
+      accountHolderName: accountHolderName,
+      mobileNumber: mobileNumber,
       reference: json['reference'] as String?,
       failureReason: json['failureReason'] as String?,
       createdAt: createdAt is Timestamp
@@ -78,7 +88,7 @@ class CashoutModel with _$CashoutModel {
     return Cashout(
       id: id,
       walletId: walletId,
-      oddienceUserId: oddienceUserId,
+      userId: userId,
       tokenAmount: tokenAmount,
       zarAmount: zarAmount,
       method: _parseCashoutMethod(method),
@@ -101,7 +111,7 @@ class CashoutModel with _$CashoutModel {
     return CashoutModel(
       id: entity.id,
       walletId: entity.walletId,
-      oddienceUserId: entity.oddienceUserId,
+      userId: entity.userId,
       tokenAmount: entity.tokenAmount,
       zarAmount: entity.zarAmount,
       method: entity.method.name,
@@ -123,7 +133,7 @@ class CashoutModel with _$CashoutModel {
   Map<String, dynamic> toFirestoreJson() {
     return {
       'walletId': walletId,
-      'oddienceUserId': oddienceUserId,
+      'userId': userId,
       'tokenAmount': tokenAmount,
       'zarAmount': zarAmount,
       'method': method,

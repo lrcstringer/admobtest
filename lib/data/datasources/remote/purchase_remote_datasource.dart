@@ -182,7 +182,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     DateTime? startAfter,
   }) async {
     Query<Map<String, dynamic>> query = _purchasesCollection
-        .where('oddienceUserId', isEqualTo: _userId)
+        .where('userId', isEqualTo: _userId)
         .orderBy('createdAt', descending: true);
 
     if (category != null) {
@@ -225,7 +225,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     int? limit,
   }) async {
     Query<Map<String, dynamic>> query = _purchasesCollection
-        .where('oddienceUserId', isEqualTo: _userId)
+        .where('userId', isEqualTo: _userId)
         .where('status', isEqualTo: 'completed')
         .orderBy('createdAt', descending: true);
 

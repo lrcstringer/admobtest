@@ -145,7 +145,7 @@ class SyncRepositoryImpl implements SyncRepository {
     // Fetch latest wallet data from Firestore
     await _firestore
         .collection('wallets')
-        .where('oddienceUserId', isEqualTo: userId)
+        .where('userId', isEqualTo: userId)
         .limit(1)
         .get();
     // In a full implementation, this would update local cache
@@ -155,7 +155,7 @@ class SyncRepositoryImpl implements SyncRepository {
     final lastSync = await getLastSyncTime();
     Query query = _firestore
         .collection('transactions')
-        .where('oddienceUserId', isEqualTo: userId)
+        .where('userId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
         .limit(100);
 
@@ -173,7 +173,7 @@ class SyncRepositoryImpl implements SyncRepository {
   Future<void> _syncEarnThreads(String userId) async {
     await _firestore
         .collection('earnThreads')
-        .where('oddienceUserId', isEqualTo: userId)
+        .where('userId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
         .limit(50)
         .get();

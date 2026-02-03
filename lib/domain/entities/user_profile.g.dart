@@ -11,6 +11,7 @@ _$UserProfileImpl _$$UserProfileImplFromJson(Map<String, dynamic> json) =>
       displayName: json['displayName'] as String,
       username: json['username'] as String?,
       avatarUrl: json['avatarUrl'] as String?,
+      avatarColor: json['avatarColor'] as String?,
       gender: json['gender'] as String?,
       dateOfBirth: json['dateOfBirth'] == null
           ? null
@@ -26,6 +27,7 @@ Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
       'displayName': instance.displayName,
       'username': instance.username,
       'avatarUrl': instance.avatarUrl,
+      'avatarColor': instance.avatarColor,
       'gender': instance.gender,
       'dateOfBirth': instance.dateOfBirth?.toIso8601String(),
       'province': instance.province,

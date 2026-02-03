@@ -1,9 +1,13 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:sqlite3/open.dart';
+import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
 
 part 'app_database.g.dart';
 
@@ -12,13 +16,13 @@ part 'app_database.g.dart';
 /// Local wallet cache
 class LocalWallets extends Table {
   TextColumn get id => text()();
-  TextColumn get oddienceUserId => text()();
+  TextColumn get userId => text()();
   IntColumn get tokenBalance => integer().withDefault(const Constant(0))();
   IntColumn get pendingBalance => integer().withDefault(const Constant(0))();
   IntColumn get lifetimeEarned => integer().withDefault(const Constant(0))();
-  IntColumn get lifetimeCashout => integer().withDefault(const Constant(0))();
+  IntColumn get lifetimeWithdrawn => integer().withDefault(const Constant(0))();
   IntColumn get todayEarned => integer().withDefault(const Constant(0))();
-  IntColumn get pendingCashout => integer().withDefault(const Constant(0))();
+  IntColumn get pendingWithdrawal => integer().withDefault(const Constant(0))();
   DateTimeColumn get lastEarnedAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
@@ -32,7 +36,7 @@ class LocalWallets extends Table {
 class LocalTransactions extends Table {
   TextColumn get id => text()();
   TextColumn get walletId => text()();
-  TextColumn get oddienceUserId => text()();
+  TextColumn get userId => text()();
   TextColumn get type => text()(); // earn, cashout, transfer, purchase, pot_win
   TextColumn get subType => text().nullable()();
   IntColumn get tokenAmount => integer()();
@@ -52,7 +56,7 @@ class LocalTransactions extends Table {
 /// Local earn thread cache
 class LocalEarnThreads extends Table {
   TextColumn get id => text()();
-  TextColumn get oddienceUserId => text()();
+  TextColumn get userId => text()();
   TextColumn get campaignId => text()();
   TextColumn get campaignName => text()();
   TextColumn get type => text()(); // video, survey, poll
@@ -74,7 +78,7 @@ class LocalEarnThreads extends Table {
 /// Local chat thread cache
 class LocalChatThreads extends Table {
   TextColumn get id => text()();
-  TextColumn get oddienceUserId => text()();
+  TextColumn get userId => text()();
   TextColumn get otherUserId => text()();
   TextColumn get otherUserName => text()();
   TextColumn get otherUserAvatar => text().nullable()();
@@ -183,9 +187,9 @@ class AppDatabase extends _$AppDatabase {
 
   // ============ WALLET OPERATIONS ============
 
-  Future<LocalWallet?> getWallet(String oddienceUserId) {
+  Future<LocalWallet?> getWallet(String userId) {
     return (select(localWallets)
-          ..where((w) => w.oddienceUserId.equals(oddienceUserId)))
+          ..where((w) => w.userId.equals(userId)))
         .getSingleOrNull();
   }
 
@@ -193,27 +197,27 @@ class AppDatabase extends _$AppDatabase {
     return into(localWallets).insertOnConflictUpdate(wallet);
   }
 
-  Stream<LocalWallet?> watchWallet(String oddienceUserId) {
+  Stream<LocalWallet?> watchWallet(String userId) {
     return (select(localWallets)
-          ..where((w) => w.oddienceUserId.equals(oddienceUserId)))
+          ..where((w) => w.userId.equals(userId)))
         .watchSingleOrNull();
   }
 
-  Future<void> deleteWallet(String oddienceUserId) {
+  Future<void> deleteWallet(String userId) {
     return (delete(localWallets)
-          ..where((w) => w.oddienceUserId.equals(oddienceUserId)))
+          ..where((w) => w.userId.equals(userId)))
         .go();
   }
 
   // ============ TRANSACTION OPERATIONS ============
 
   Future<List<LocalTransaction>> getTransactions(
-    String oddienceUserId, {
+    String userId, {
     int limit = 50,
     int offset = 0,
   }) {
     return (select(localTransactions)
-          ..where((t) => t.oddienceUserId.equals(oddienceUserId))
+          ..where((t) => t.userId.equals(userId))
           ..orderBy([(t) => OrderingTerm.desc(t.createdAt)])
           ..limit(limit, offset: offset))
         .get();
@@ -223,25 +227,25 @@ class AppDatabase extends _$AppDatabase {
     return into(localTransactions).insertOnConflictUpdate(transaction);
   }
 
-  Stream<List<LocalTransaction>> watchTransactions(String oddienceUserId) {
+  Stream<List<LocalTransaction>> watchTransactions(String userId) {
     return (select(localTransactions)
-          ..where((t) => t.oddienceUserId.equals(oddienceUserId))
+          ..where((t) => t.userId.equals(userId))
           ..orderBy([(t) => OrderingTerm.desc(t.createdAt)])
           ..limit(50))
         .watch();
   }
 
-  Future<void> deleteTransactions(String oddienceUserId) {
+  Future<void> deleteTransactions(String userId) {
     return (delete(localTransactions)
-          ..where((t) => t.oddienceUserId.equals(oddienceUserId)))
+          ..where((t) => t.userId.equals(userId)))
         .go();
   }
 
   // ============ EARN THREAD OPERATIONS ============
 
-  Future<List<LocalEarnThread>> getEarnThreads(String oddienceUserId) {
+  Future<List<LocalEarnThread>> getEarnThreads(String userId) {
     return (select(localEarnThreads)
-          ..where((t) => t.oddienceUserId.equals(oddienceUserId))
+          ..where((t) => t.userId.equals(userId))
           ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
         .get();
   }
@@ -250,24 +254,24 @@ class AppDatabase extends _$AppDatabase {
     return into(localEarnThreads).insertOnConflictUpdate(thread);
   }
 
-  Stream<List<LocalEarnThread>> watchEarnThreads(String oddienceUserId) {
+  Stream<List<LocalEarnThread>> watchEarnThreads(String userId) {
     return (select(localEarnThreads)
-          ..where((t) => t.oddienceUserId.equals(oddienceUserId))
+          ..where((t) => t.userId.equals(userId))
           ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
         .watch();
   }
 
-  Future<void> deleteEarnThreads(String oddienceUserId) {
+  Future<void> deleteEarnThreads(String userId) {
     return (delete(localEarnThreads)
-          ..where((t) => t.oddienceUserId.equals(oddienceUserId)))
+          ..where((t) => t.userId.equals(userId)))
         .go();
   }
 
   // ============ CHAT THREAD OPERATIONS ============
 
-  Future<List<LocalChatThread>> getChatThreads(String oddienceUserId) {
+  Future<List<LocalChatThread>> getChatThreads(String userId) {
     return (select(localChatThreads)
-          ..where((t) => t.oddienceUserId.equals(oddienceUserId))
+          ..where((t) => t.userId.equals(userId))
           ..orderBy([(t) => OrderingTerm.desc(t.lastMessageAt)]))
         .get();
   }
@@ -276,17 +280,17 @@ class AppDatabase extends _$AppDatabase {
     return into(localChatThreads).insertOnConflictUpdate(thread);
   }
 
-  Stream<List<LocalChatThread>> watchChatThreads(String oddienceUserId) {
+  Stream<List<LocalChatThread>> watchChatThreads(String userId) {
     return (select(localChatThreads)
-          ..where((t) => t.oddienceUserId.equals(oddienceUserId))
+          ..where((t) => t.userId.equals(userId))
           ..where((t) => t.isArchived.equals(false))
           ..orderBy([(t) => OrderingTerm.desc(t.lastMessageAt)]))
         .watch();
   }
 
-  Future<void> deleteChatThreads(String oddienceUserId) {
+  Future<void> deleteChatThreads(String userId) {
     return (delete(localChatThreads)
-          ..where((t) => t.oddienceUserId.equals(oddienceUserId)))
+          ..where((t) => t.userId.equals(userId)))
         .go();
   }
 
@@ -452,8 +456,33 @@ class AppDatabase extends _$AppDatabase {
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
+    // Load sqlcipher native library on Android
+    open.overrideFor(OperatingSystem.android, openCipherOnAndroid);
+
     final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'imali_local.db'));
-    return NativeDatabase.createInBackground(file);
+    final file = File(p.join(dbFolder.path, 'imali_local_encrypted.db'));
+
+    // Retrieve or generate encryption key from secure storage
+    const storage = FlutterSecureStorage();
+    String? key = await storage.read(key: 'imali_db_encryption_key');
+    if (key == null) {
+      final random = Random.secure();
+      final bytes = List.generate(32, (_) => random.nextInt(256));
+      key = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+      await storage.write(key: 'imali_db_encryption_key', value: key);
+    }
+
+    // Delete old unencrypted database if it exists (cache only — syncs from Firestore)
+    final oldFile = File(p.join(dbFolder.path, 'imali_local.db'));
+    if (await oldFile.exists()) {
+      await oldFile.delete();
+    }
+
+    return NativeDatabase.createInBackground(
+      file,
+      setup: (db) {
+        db.execute("PRAGMA key = '$key'");
+      },
+    );
   });
 }

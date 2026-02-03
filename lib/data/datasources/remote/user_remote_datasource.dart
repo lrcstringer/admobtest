@@ -9,7 +9,7 @@ import '../../models/user_model.dart';
 /// Remote data source for user operations
 abstract class UserRemoteDataSource {
   /// Get user by ID
-  Future<UserModel?> getUserById(String oddienceUserId);
+  Future<UserModel?> getUserById(String userId);
 
   /// Get user by phone number
   Future<UserModel?> getUserByPhoneNumber(String phoneNumber);
@@ -21,7 +21,7 @@ abstract class UserRemoteDataSource {
   Future<UserModel> updateUser(UserModel user);
 
   /// Stream user changes
-  Stream<UserModel?> watchUser(String oddienceUserId);
+  Stream<UserModel?> watchUser(String userId);
 
   /// Check if username is available
   Future<bool> isUsernameAvailable(String username);
@@ -30,10 +30,10 @@ abstract class UserRemoteDataSource {
   Future<List<UserModel>> searchByUsername(String query, {int limit = 20});
 
   /// Update FCM token
-  Future<void> updateFcmToken(String oddienceUserId, String token);
+  Future<void> updateFcmToken(String userId, String token);
 
   /// Update last active
-  Future<void> updateLastActive(String oddienceUserId);
+  Future<void> updateLastActive(String userId);
 }
 
 @LazySingleton(as: UserRemoteDataSource)
@@ -46,13 +46,13 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       _firestore.collection(ApiConstants.usersCollection);
 
   @override
-  Future<UserModel?> getUserById(String oddienceUserId) async {
+  Future<UserModel?> getUserById(String userId) async {
     try {
-      final doc = await _usersCollection.doc(oddienceUserId).get();
+      final doc = await _usersCollection.doc(userId).get();
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return UserModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'oddienceUserId': doc.id});
+      return UserModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'userId': doc.id});
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to get user');
     }
@@ -71,7 +71,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       }
 
       final doc = querySnapshot.docs.first;
-      return UserModel.fromJson({...sanitizeFirestoreData(doc.data()), 'oddienceUserId': doc.id});
+      return UserModel.fromJson({...sanitizeFirestoreData(doc.data()), 'userId': doc.id});
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to find user');
     }
@@ -81,9 +81,9 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   Future<UserModel> createUser(UserModel user) async {
     try {
       final data = user.toJson();
-      data.remove('oddienceUserId');
+      data.remove('userId');
 
-      await _usersCollection.doc(user.oddienceUserId).set({
+      await _usersCollection.doc(user.userId).set({
         ...data,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
@@ -99,10 +99,10 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   Future<UserModel> updateUser(UserModel user) async {
     try {
       final data = user.toJson();
-      data.remove('oddienceUserId');
+      data.remove('userId');
       data.remove('createdAt');
 
-      await _usersCollection.doc(user.oddienceUserId).update({
+      await _usersCollection.doc(user.userId).update({
         ...data,
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -114,12 +114,12 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   }
 
   @override
-  Stream<UserModel?> watchUser(String oddienceUserId) {
-    return _usersCollection.doc(oddienceUserId).snapshots().map((doc) {
+  Stream<UserModel?> watchUser(String userId) {
+    return _usersCollection.doc(userId).snapshots().map((doc) {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return UserModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'oddienceUserId': doc.id});
+      return UserModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'userId': doc.id});
     });
   }
 
@@ -148,7 +148,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
           .get();
 
       return querySnapshot.docs
-          .map((doc) => UserModel.fromJson({...sanitizeFirestoreData(doc.data()), 'oddienceUserId': doc.id}))
+          .map((doc) => UserModel.fromJson({...sanitizeFirestoreData(doc.data()), 'userId': doc.id}))
           .toList();
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to search users');
@@ -156,9 +156,9 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   }
 
   @override
-  Future<void> updateFcmToken(String oddienceUserId, String token) async {
+  Future<void> updateFcmToken(String userId, String token) async {
     try {
-      await _usersCollection.doc(oddienceUserId).update({
+      await _usersCollection.doc(userId).update({
         'fcmToken': token,
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -168,9 +168,9 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   }
 
   @override
-  Future<void> updateLastActive(String oddienceUserId) async {
+  Future<void> updateLastActive(String userId) async {
     try {
-      await _usersCollection.doc(oddienceUserId).update({
+      await _usersCollection.doc(userId).update({
         'lastActiveAt': FieldValue.serverTimestamp(),
       });
     } on FirebaseException catch (e) {

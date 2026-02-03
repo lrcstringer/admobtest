@@ -24,6 +24,7 @@ _$UserImpl _$$UserImplFromJson(Map<String, dynamic> json) => _$UserImpl(
       ? null
       : DateTime.parse(json['potEligibleAt'] as String),
   referralCode: json['referralCode'] as String?,
+  referredBy: json['referredBy'] as String?,
   currentVisitorId: json['currentVisitorId'] as String?,
   profile: json['profile'] == null
       ? null
@@ -34,6 +35,7 @@ _$UserImpl _$$UserImplFromJson(Map<String, dynamic> json) => _$UserImpl(
   lastLoginAt: json['lastLoginAt'] == null
       ? null
       : DateTime.parse(json['lastLoginAt'] as String),
+  kycTier: json['kycTier'] as String? ?? 'none',
 );
 
 Map<String, dynamic> _$$UserImplToJson(_$UserImpl instance) =>
@@ -49,12 +51,14 @@ Map<String, dynamic> _$$UserImplToJson(_$UserImpl instance) =>
       'lastActiveAt': instance.lastActiveAt?.toIso8601String(),
       'potEligibleAt': instance.potEligibleAt?.toIso8601String(),
       'referralCode': instance.referralCode,
+      'referredBy': instance.referredBy,
       'currentVisitorId': instance.currentVisitorId,
       'profile': instance.profile,
       'riskScore': instance.riskScore,
       'primaryDeviceId': instance.primaryDeviceId,
       'riskLevel': instance.riskLevel,
       'lastLoginAt': instance.lastLoginAt?.toIso8601String(),
+      'kycTier': instance.kycTier,
     };
 
 const _$UserStatusEnumMap = {

@@ -58,7 +58,7 @@ class PotPool with _$PotPool {
 @freezed
 class PotWinner with _$PotWinner {
   const factory PotWinner({
-    required String oddienceUserId,
+    required String userId,
     required String displayName,
     String? username,
     required int rank,

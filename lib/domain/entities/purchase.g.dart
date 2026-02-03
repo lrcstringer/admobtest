@@ -10,7 +10,7 @@ _$PurchaseImpl _$$PurchaseImplFromJson(Map<String, dynamic> json) =>
     _$PurchaseImpl(
       id: json['id'] as String,
       walletId: json['walletId'] as String,
-      oddienceUserId: json['oddienceUserId'] as String,
+      userId: json['userId'] as String,
       providerId: json['providerId'] as String,
       providerName: json['providerName'] as String,
       category: $enumDecode(_$PurchaseCategoryEnumMap, json['category']),
@@ -38,7 +38,7 @@ Map<String, dynamic> _$$PurchaseImplToJson(_$PurchaseImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'walletId': instance.walletId,
-      'oddienceUserId': instance.oddienceUserId,
+      'userId': instance.userId,
       'providerId': instance.providerId,
       'providerName': instance.providerName,
       'category': _$PurchaseCategoryEnumMap[instance.category]!,

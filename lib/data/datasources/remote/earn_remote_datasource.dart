@@ -201,14 +201,14 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
 
       // Get attempt count for this user/opportunity
       final previousAttempts = await _engagementsCollection
-          .where('oddienceUserId', isEqualTo: userId)
+          .where('userId', isEqualTo: userId)
           .where('earnOpportunityId', isEqualTo: opportunityId)
           .get();
 
       final now = DateTime.now();
       final engagement = EngagementModel(
         id: '',
-        oddienceUserId: userId,
+        userId: userId,
         oddienceCampaignId: opportunity.campaignId ?? '',
         earnOpportunityId: opportunityId,
         status: 'started',
@@ -224,7 +224,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
 
       return EngagementModel(
         id: docRef.id,
-        oddienceUserId: userId,
+        userId: userId,
         oddienceCampaignId: opportunity.campaignId ?? '',
         earnOpportunityId: opportunityId,
         status: 'started',
@@ -258,7 +258,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       }
 
       final data = doc.data()!;
-      if (data['oddienceUserId'] != userId) {
+      if (data['userId'] != userId) {
         throw const ServerException(message: 'Not authorized');
       }
 
@@ -302,7 +302,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       }
 
       final data = doc.data()!;
-      if (data['oddienceUserId'] != userId) {
+      if (data['userId'] != userId) {
         throw const ServerException(message: 'Not authorized');
       }
 
@@ -370,7 +370,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
 
     try {
       var query = _engagementsCollection
-          .where('oddienceUserId', isEqualTo: userId)
+          .where('userId', isEqualTo: userId)
           .orderBy('createdAt', descending: true);
 
       if (startAfter != null) {
@@ -399,7 +399,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
 
     try {
       final snapshot = await _engagementsCollection
-          .where('oddienceUserId', isEqualTo: userId)
+          .where('userId', isEqualTo: userId)
           .where('earnOpportunityId', isEqualTo: opportunityId)
           .where('status', whereIn: ['started', 'watching', 'surveying'])
           .limit(1)
@@ -430,7 +430,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       }
 
       final data = doc.data()!;
-      if (data['oddienceUserId'] != userId) {
+      if (data['userId'] != userId) {
         throw const ServerException(message: 'Not authorized');
       }
 

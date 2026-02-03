@@ -1,12 +1,109 @@
 /**
  * Pot-related Cloud Functions
  * Handles daily and weekly pot draws
+ *
+ * Collections used:
+ * - pots: Main pot pool documents
+ * - potEntries: User entries for weighted random selection
+ * - potWinners: Historical winner records
+ * - leaderboards/{type}/scores: User scores for daily/weekly/allTime
  */
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
 const db = admin.firestore();
+
+/**
+ * Initialize daily pot at midnight SAST
+ */
+export const initializeDailyPot = functions.pubsub
+  .schedule("0 0 * * *")
+  .timeZone("Africa/Johannesburg")
+  .onRun(async () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const potId = `daily_${today.getTime()}`;
+    const potRef = db.collection("pots").doc(potId);
+
+    // Check if pot already exists
+    const existing = await potRef.get();
+    if (existing.exists) {
+      console.log(`Daily pot ${potId} already exists`);
+      return null;
+    }
+
+    // Create new daily pot with Flutter-compatible structure
+    await potRef.set({
+      id: potId,
+      type: "daily",
+      totalTokens: 0,
+      participantCount: 0,
+      periodStart: admin.firestore.Timestamp.fromDate(today),
+      periodEnd: admin.firestore.Timestamp.fromDate(tomorrow),
+      isActive: true,
+      isDistributed: false,
+      distributedAt: null,
+      winners: [],
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Reset daily leaderboard scores
+    await resetDailyLeaderboard(today, tomorrow);
+
+    console.log(`Created daily pot: ${potId}`);
+    return null;
+  });
+
+/**
+ * Initialize weekly pot on Monday at midnight SAST
+ */
+export const initializeWeeklyPot = functions.pubsub
+  .schedule("0 0 * * 1") // Monday at midnight
+  .timeZone("Africa/Johannesburg")
+  .onRun(async () => {
+    const today = new Date();
+    const weekStart = getWeekStart(today);
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+
+    const potId = `weekly_${weekStart.getTime()}`;
+    const potRef = db.collection("pots").doc(potId);
+
+    // Check if pot already exists
+    const existing = await potRef.get();
+    if (existing.exists) {
+      console.log(`Weekly pot ${potId} already exists`);
+      return null;
+    }
+
+    // Create new weekly pot with Flutter-compatible structure
+    await potRef.set({
+      id: potId,
+      type: "weekly",
+      totalTokens: 0,
+      participantCount: 0,
+      periodStart: admin.firestore.Timestamp.fromDate(weekStart),
+      periodEnd: admin.firestore.Timestamp.fromDate(weekEnd),
+      isActive: true,
+      isDistributed: false,
+      distributedAt: null,
+      winners: [],
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Reset weekly leaderboard scores
+    await resetWeeklyLeaderboard(weekStart, weekEnd);
+
+    console.log(`Created weekly pot: ${potId}`);
+    return null;
+  });
 
 /**
  * Run daily pot draw at 8 PM SAST
@@ -17,132 +114,132 @@ export const runDailyPotDraw = functions.pubsub
   .onRun(async () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dateStr = today.toISOString().split("T")[0];
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-    // Get or create today's pot
-    const potRef = db.collection("potPools").doc(`daily_${dateStr}`);
-    const potDoc = await potRef.get();
-
-    if (!potDoc.exists) {
-      console.log("No pot found for today");
-      return null;
-    }
-
-    const potData = potDoc.data();
-    if (potData?.status !== "active") {
-      console.log("Pot is not active");
-      return null;
-    }
-
-    // Get all entries for today
-    const entriesSnapshot = await db.collection("potEntries")
-      .where("date", "==", dateStr)
+    // Find today's active pot
+    const potQuery = await db.collection("pots")
+      .where("type", "==", "daily")
+      .where("isActive", "==", true)
+      .where("periodStart", ">=", admin.firestore.Timestamp.fromDate(today))
+      .where("periodStart", "<", admin.firestore.Timestamp.fromDate(tomorrow))
+      .limit(1)
       .get();
 
-    if (entriesSnapshot.empty) {
-      console.log("No entries for today's pot");
-      await potRef.update({ status: "completed", winnerId: null });
+    if (potQuery.empty) {
+      console.log("No active daily pot found for today");
       return null;
     }
 
-    // Build weighted entry list
-    const entries: { userId: string; weight: number }[] = [];
-    entriesSnapshot.docs.forEach((doc) => {
-      const data = doc.data();
-      entries.push({
-        userId: data.oddienceUserId,
-        weight: data.entries,
+    const potDoc = potQuery.docs[0];
+    const potData = potDoc.data();
+
+    // Get leaderboard scores for today
+    const scoresSnapshot = await db.collection("leaderboards")
+      .doc("daily")
+      .collection("scores")
+      .where("periodStart", ">=", admin.firestore.Timestamp.fromDate(today))
+      .where("periodStart", "<", admin.firestore.Timestamp.fromDate(tomorrow))
+      .orderBy("periodStart")
+      .orderBy("totalTokensEarned", "desc")
+      .limit(10)
+      .get();
+
+    if (scoresSnapshot.empty) {
+      console.log("No participants in daily pot");
+      await potDoc.ref.update({
+        isActive: false,
+        isDistributed: true,
+        distributedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
-    });
-
-    // Select winner based on weighted random selection
-    const totalWeight = entries.reduce((sum, e) => sum + e.weight, 0);
-    let random = Math.random() * totalWeight;
-
-    let winner: string | null = null;
-    for (const entry of entries) {
-      random -= entry.weight;
-      if (random <= 0) {
-        winner = entry.userId;
-        break;
-      }
+      return null;
     }
 
-    if (!winner) {
-      winner = entries[entries.length - 1].userId;
-    }
+    // Calculate pot total from all participants
+    const totalTokens = potData.totalTokens || 10000; // Base prize if no contributions
 
-    const prizeAmount = potData.prizePool || 10000; // Default 10000 tokens
+    // Distribution percentages for top 10
+    const percentages = [30.0, 20.0, 15.0, 10.0, 8.0, 6.0, 5.0, 3.0, 2.0, 1.0];
 
-    // Process winner
-    await db.runTransaction(async (transaction) => {
-      // Update pot
-      transaction.update(potRef, {
-        status: "completed",
-        winnerId: winner,
-        completedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+    // Build winners array
+    const winners: PotWinner[] = [];
+    const batch = db.batch();
 
-      // Get winner's wallet
+    for (let i = 0; i < scoresSnapshot.docs.length && i < 10; i++) {
+      const scoreDoc = scoresSnapshot.docs[i];
+      const scoreData = scoreDoc.data();
+      const percentage = percentages[i];
+      const tokensWon = Math.round(totalTokens * percentage / 100);
+
+      const winner: PotWinner = {
+        userId: scoreData.userId,
+        displayName: scoreData.displayName || "User",
+        username: scoreData.username || null,
+        rank: i + 1,
+        tokensWon: tokensWon,
+        percentage: percentage,
+      };
+      winners.push(winner);
+
+      // Credit winner's wallet
       const walletQuery = await db.collection("wallets")
-        .where("oddienceUserId", "==", winner)
+        .where("userId", "==", scoreData.userId)
         .limit(1)
         .get();
 
       if (!walletQuery.empty) {
         const walletDoc = walletQuery.docs[0];
-
-        // Add prize to winner's wallet
-        transaction.update(walletDoc.ref, {
-          tokenBalance: admin.firestore.FieldValue.increment(prizeAmount),
+        batch.update(walletDoc.ref, {
+          tokenBalance: admin.firestore.FieldValue.increment(tokensWon),
+          lifetimeEarned: admin.firestore.FieldValue.increment(tokensWon),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
 
         // Create transaction record
-        const transactionRef = db.collection("transactions").doc();
-        transaction.set(transactionRef, {
-          id: transactionRef.id,
+        const txRef = db.collection("transactions").doc();
+        batch.set(txRef, {
+          id: txRef.id,
           walletId: walletDoc.id,
-          oddienceUserId: winner,
-          type: "pot_win",
-          tokenAmount: prizeAmount,
-          zarAmount: prizeAmount * 0.01,
-          description: "Daily pot winner!",
+          userId: scoreData.userId,
+          type: "potWin",
+          tokenAmount: tokensWon,
+          zarAmount: tokensWon * 0.01,
+          description: `Daily pot winner - Rank #${i + 1}`,
           status: "completed",
-          referenceId: potRef.id,
+          referenceId: potDoc.id,
           referenceType: "pot",
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
         });
 
-        // Create winner record
+        // Create pot winner record
         const winnerRef = db.collection("potWinners").doc();
-        transaction.set(winnerRef, {
+        batch.set(winnerRef, {
           id: winnerRef.id,
-          potId: potRef.id,
+          potId: potDoc.id,
           potType: "daily",
-          oddienceUserId: winner,
-          prizeAmount: prizeAmount,
+          userId: scoreData.userId,
+          displayName: scoreData.displayName,
+          rank: i + 1,
+          tokensWon: tokensWon,
+          percentage: percentage,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       }
+    }
+
+    // Update pot with winners
+    batch.update(potDoc.ref, {
+      isActive: false,
+      isDistributed: true,
+      distributedAt: admin.firestore.FieldValue.serverTimestamp(),
+      winners: winners,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Create next day's pot
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split("T")[0];
+    await batch.commit();
 
-    await db.collection("potPools").doc(`daily_${tomorrowStr}`).set({
-      id: `daily_${tomorrowStr}`,
-      type: "daily",
-      date: tomorrowStr,
-      prizePool: 10000, // Base prize
-      contributionPool: 0,
-      status: "active",
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    console.log(`Daily pot draw completed. Winner: ${winner}, Prize: ${prizeAmount} tokens`);
+    console.log(`Daily pot draw completed. ${winners.length} winners, ${totalTokens} tokens distributed`);
     return null;
   });
 
@@ -154,149 +251,179 @@ export const runWeeklyPotDraw = functions.pubsub
   .timeZone("Africa/Johannesburg")
   .onRun(async () => {
     const today = new Date();
-    const weekNumber = getWeekNumber(today);
-    const year = today.getFullYear();
-    const potId = `weekly_${year}_w${weekNumber}`;
+    const weekStart = getWeekStart(today);
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 7);
 
-    const potRef = db.collection("potPools").doc(potId);
-    const potDoc = await potRef.get();
+    // Find this week's active pot
+    const potQuery = await db.collection("pots")
+      .where("type", "==", "weekly")
+      .where("isActive", "==", true)
+      .where("periodStart", ">=", admin.firestore.Timestamp.fromDate(weekStart))
+      .where("periodStart", "<", admin.firestore.Timestamp.fromDate(weekEnd))
+      .limit(1)
+      .get();
 
-    if (!potDoc.exists || potDoc.data()?.status !== "active") {
+    if (potQuery.empty) {
       console.log("No active weekly pot found");
       return null;
     }
 
+    const potDoc = potQuery.docs[0];
     const potData = potDoc.data();
 
-    // Get week start and end dates
-    const weekStart = getWeekStart(today);
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 6);
-
-    // Aggregate entries for the week
-    const entriesSnapshot = await db.collection("potEntries")
-      .where("date", ">=", weekStart.toISOString().split("T")[0])
-      .where("date", "<=", weekEnd.toISOString().split("T")[0])
+    // Get leaderboard scores for this week
+    const scoresSnapshot = await db.collection("leaderboards")
+      .doc("weekly")
+      .collection("scores")
+      .where("periodStart", ">=", admin.firestore.Timestamp.fromDate(weekStart))
+      .where("periodStart", "<", admin.firestore.Timestamp.fromDate(weekEnd))
+      .orderBy("periodStart")
+      .orderBy("totalTokensEarned", "desc")
+      .limit(10)
       .get();
 
-    if (entriesSnapshot.empty) {
-      console.log("No entries for weekly pot");
-      await potRef.update({ status: "completed", winnerId: null });
+    if (scoresSnapshot.empty) {
+      console.log("No participants in weekly pot");
+      await potDoc.ref.update({
+        isActive: false,
+        isDistributed: true,
+        distributedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
       return null;
     }
 
-    // Aggregate entries by user
-    const userEntries: Map<string, number> = new Map();
-    entriesSnapshot.docs.forEach((doc) => {
-      const data = doc.data();
-      const current = userEntries.get(data.oddienceUserId) || 0;
-      userEntries.set(data.oddienceUserId, current + data.entries);
-    });
+    // Calculate pot total
+    const totalTokens = potData.totalTokens || 50000; // Base prize for weekly
 
-    // Select winner
-    const entries = Array.from(userEntries.entries()).map(([userId, weight]) => ({
-      userId,
-      weight,
-    }));
+    // Distribution percentages for top 10
+    const percentages = [30.0, 20.0, 15.0, 10.0, 8.0, 6.0, 5.0, 3.0, 2.0, 1.0];
 
-    const totalWeight = entries.reduce((sum, e) => sum + e.weight, 0);
-    let random = Math.random() * totalWeight;
+    // Build winners array
+    const winners: PotWinner[] = [];
+    const batch = db.batch();
 
-    let winner: string | null = null;
-    for (const entry of entries) {
-      random -= entry.weight;
-      if (random <= 0) {
-        winner = entry.userId;
-        break;
-      }
-    }
+    for (let i = 0; i < scoresSnapshot.docs.length && i < 10; i++) {
+      const scoreDoc = scoresSnapshot.docs[i];
+      const scoreData = scoreDoc.data();
+      const percentage = percentages[i];
+      const tokensWon = Math.round(totalTokens * percentage / 100);
 
-    if (!winner) {
-      winner = entries[entries.length - 1].userId;
-    }
+      const winner: PotWinner = {
+        userId: scoreData.userId,
+        displayName: scoreData.displayName || "User",
+        username: scoreData.username || null,
+        rank: i + 1,
+        tokensWon: tokensWon,
+        percentage: percentage,
+      };
+      winners.push(winner);
 
-    const prizeAmount = potData?.prizePool || 50000; // Default 50000 tokens for weekly
-
-    // Process winner (same as daily)
-    await db.runTransaction(async (transaction) => {
-      transaction.update(potRef, {
-        status: "completed",
-        winnerId: winner,
-        completedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-
+      // Credit winner's wallet
       const walletQuery = await db.collection("wallets")
-        .where("oddienceUserId", "==", winner)
+        .where("userId", "==", scoreData.userId)
         .limit(1)
         .get();
 
       if (!walletQuery.empty) {
         const walletDoc = walletQuery.docs[0];
-
-        transaction.update(walletDoc.ref, {
-          tokenBalance: admin.firestore.FieldValue.increment(prizeAmount),
+        batch.update(walletDoc.ref, {
+          tokenBalance: admin.firestore.FieldValue.increment(tokensWon),
+          lifetimeEarned: admin.firestore.FieldValue.increment(tokensWon),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
 
-        const transactionRef = db.collection("transactions").doc();
-        transaction.set(transactionRef, {
-          id: transactionRef.id,
+        // Create transaction record
+        const txRef = db.collection("transactions").doc();
+        batch.set(txRef, {
+          id: txRef.id,
           walletId: walletDoc.id,
-          oddienceUserId: winner,
-          type: "pot_win",
-          tokenAmount: prizeAmount,
-          zarAmount: prizeAmount * 0.01,
-          description: "Weekly pot winner!",
+          userId: scoreData.userId,
+          type: "potWin",
+          tokenAmount: tokensWon,
+          zarAmount: tokensWon * 0.01,
+          description: `Weekly pot winner - Rank #${i + 1}`,
           status: "completed",
-          referenceId: potRef.id,
+          referenceId: potDoc.id,
           referenceType: "pot",
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
         });
 
+        // Create pot winner record
         const winnerRef = db.collection("potWinners").doc();
-        transaction.set(winnerRef, {
+        batch.set(winnerRef, {
           id: winnerRef.id,
-          potId: potRef.id,
+          potId: potDoc.id,
           potType: "weekly",
-          oddienceUserId: winner,
-          prizeAmount: prizeAmount,
+          userId: scoreData.userId,
+          displayName: scoreData.displayName,
+          rank: i + 1,
+          tokensWon: tokensWon,
+          percentage: percentage,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       }
+    }
+
+    // Update pot with winners
+    batch.update(potDoc.ref, {
+      isActive: false,
+      isDistributed: true,
+      distributedAt: admin.firestore.FieldValue.serverTimestamp(),
+      winners: winners,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Create next week's pot
-    const nextWeekNumber = weekNumber === 52 ? 1 : weekNumber + 1;
-    const nextYear = weekNumber === 52 ? year + 1 : year;
-    const nextPotId = `weekly_${nextYear}_w${nextWeekNumber}`;
+    await batch.commit();
 
-    await db.collection("potPools").doc(nextPotId).set({
-      id: nextPotId,
-      type: "weekly",
-      weekNumber: nextWeekNumber,
-      year: nextYear,
-      prizePool: 50000,
-      contributionPool: 0,
-      status: "active",
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    console.log(`Weekly pot draw completed. Winner: ${winner}, Prize: ${prizeAmount} tokens`);
+    console.log(`Weekly pot draw completed. ${winners.length} winners, ${totalTokens} tokens distributed`);
     return null;
   });
 
-// Helper functions
-function getWeekNumber(date: Date): number {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+/**
+ * Reset daily leaderboard scores for a new day
+ */
+async function resetDailyLeaderboard(periodStart: Date, periodEnd: Date): Promise<void> {
+  // The daily leaderboard will be populated as users earn tokens
+  // This just ensures the structure exists
+  const dailyRef = db.collection("leaderboards").doc("daily");
+  await dailyRef.set({
+    type: "daily",
+    periodStart: admin.firestore.Timestamp.fromDate(periodStart),
+    periodEnd: admin.firestore.Timestamp.fromDate(periodEnd),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
 }
 
+/**
+ * Reset weekly leaderboard scores for a new week
+ */
+async function resetWeeklyLeaderboard(periodStart: Date, periodEnd: Date): Promise<void> {
+  const weeklyRef = db.collection("leaderboards").doc("weekly");
+  await weeklyRef.set({
+    type: "weekly",
+    periodStart: admin.firestore.Timestamp.fromDate(periodStart),
+    periodEnd: admin.firestore.Timestamp.fromDate(periodEnd),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+}
+
+// Helper functions
 function getWeekStart(date: Date): Date {
   const d = new Date(date);
   const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday
   return new Date(d.setDate(diff));
+}
+
+// Types
+interface PotWinner {
+  userId: string;
+  displayName: string;
+  username: string | null;
+  rank: number;
+  tokensWon: number;
+  percentage: number;
 }

@@ -23,6 +23,9 @@ export * from "./fraud";
 export * from "./auth";
 export * from "./biometricAuth";
 export * from "./accountDeletion";
+export * from "./dataExport";
+export * from "./kyc";
+export * from "./earnAdmin";
 
 // Security cleanup function
 import * as functions from "firebase-functions";

@@ -24,6 +24,7 @@ mixin _$UserProfile {
   String get displayName => throw _privateConstructorUsedError;
   String? get username => throw _privateConstructorUsedError;
   String? get avatarUrl => throw _privateConstructorUsedError;
+  String? get avatarColor => throw _privateConstructorUsedError;
   String? get gender => throw _privateConstructorUsedError;
   DateTime? get dateOfBirth => throw _privateConstructorUsedError;
   String? get province => throw _privateConstructorUsedError;
@@ -52,6 +53,7 @@ abstract class $UserProfileCopyWith<$Res> {
     String displayName,
     String? username,
     String? avatarUrl,
+    String? avatarColor,
     String? gender,
     DateTime? dateOfBirth,
     String? province,
@@ -79,6 +81,7 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? displayName = null,
     Object? username = freezed,
     Object? avatarUrl = freezed,
+    Object? avatarColor = freezed,
     Object? gender = freezed,
     Object? dateOfBirth = freezed,
     Object? province = freezed,
@@ -99,6 +102,10 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
             avatarUrl: freezed == avatarUrl
                 ? _value.avatarUrl
                 : avatarUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            avatarColor: freezed == avatarColor
+                ? _value.avatarColor
+                : avatarColor // ignore: cast_nullable_to_non_nullable
                       as String?,
             gender: freezed == gender
                 ? _value.gender
@@ -143,6 +150,7 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     String displayName,
     String? username,
     String? avatarUrl,
+    String? avatarColor,
     String? gender,
     DateTime? dateOfBirth,
     String? province,
@@ -169,6 +177,7 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? displayName = null,
     Object? username = freezed,
     Object? avatarUrl = freezed,
+    Object? avatarColor = freezed,
     Object? gender = freezed,
     Object? dateOfBirth = freezed,
     Object? province = freezed,
@@ -189,6 +198,10 @@ class __$$UserProfileImplCopyWithImpl<$Res>
         avatarUrl: freezed == avatarUrl
             ? _value.avatarUrl
             : avatarUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        avatarColor: freezed == avatarColor
+            ? _value.avatarColor
+            : avatarColor // ignore: cast_nullable_to_non_nullable
                   as String?,
         gender: freezed == gender
             ? _value.gender
@@ -226,6 +239,7 @@ class _$UserProfileImpl extends _UserProfile {
     required this.displayName,
     this.username,
     this.avatarUrl,
+    this.avatarColor,
     this.gender,
     this.dateOfBirth,
     this.province,
@@ -244,6 +258,8 @@ class _$UserProfileImpl extends _UserProfile {
   @override
   final String? avatarUrl;
   @override
+  final String? avatarColor;
+  @override
   final String? gender;
   @override
   final DateTime? dateOfBirth;
@@ -258,7 +274,7 @@ class _$UserProfileImpl extends _UserProfile {
 
   @override
   String toString() {
-    return 'UserProfile(displayName: $displayName, username: $username, avatarUrl: $avatarUrl, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName)';
+    return 'UserProfile(displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName)';
   }
 
   @override
@@ -272,6 +288,8 @@ class _$UserProfileImpl extends _UserProfile {
                 other.username == username) &&
             (identical(other.avatarUrl, avatarUrl) ||
                 other.avatarUrl == avatarUrl) &&
+            (identical(other.avatarColor, avatarColor) ||
+                other.avatarColor == avatarColor) &&
             (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.dateOfBirth, dateOfBirth) ||
                 other.dateOfBirth == dateOfBirth) &&
@@ -291,6 +309,7 @@ class _$UserProfileImpl extends _UserProfile {
     displayName,
     username,
     avatarUrl,
+    avatarColor,
     gender,
     dateOfBirth,
     province,
@@ -318,6 +337,7 @@ abstract class _UserProfile extends UserProfile {
     required final String displayName,
     final String? username,
     final String? avatarUrl,
+    final String? avatarColor,
     final String? gender,
     final DateTime? dateOfBirth,
     final String? province,
@@ -336,6 +356,8 @@ abstract class _UserProfile extends UserProfile {
   String? get username;
   @override
   String? get avatarUrl;
+  @override
+  String? get avatarColor;
   @override
   String? get gender;
   @override

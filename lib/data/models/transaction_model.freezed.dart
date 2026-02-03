@@ -15,10 +15,6 @@ final _privateConstructorUsedError = UnsupportedError(
   'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
 );
 
-TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) {
-  return _TransactionModel.fromJson(json);
-}
-
 /// @nodoc
 mixin _$TransactionModel {
   String get id => throw _privateConstructorUsedError;
@@ -27,6 +23,7 @@ mixin _$TransactionModel {
   int get amount => throw _privateConstructorUsedError;
   int get balanceAfter => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
+  String get status => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   String? get counterpartyId => throw _privateConstructorUsedError;
   String? get counterpartyName => throw _privateConstructorUsedError;
@@ -35,9 +32,6 @@ mixin _$TransactionModel {
   String? get referralId => throw _privateConstructorUsedError;
   bool? get isBonus => throw _privateConstructorUsedError;
   Map<String, dynamic>? get metadata => throw _privateConstructorUsedError;
-
-  /// Serializes this TransactionModel to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
   /// Create a copy of TransactionModel
   /// with the given fields replaced by the non-null parameter values.
@@ -60,6 +54,7 @@ abstract class $TransactionModelCopyWith<$Res> {
     int amount,
     int balanceAfter,
     DateTime createdAt,
+    String status,
     String? description,
     String? counterpartyId,
     String? counterpartyName,
@@ -92,6 +87,7 @@ class _$TransactionModelCopyWithImpl<$Res, $Val extends TransactionModel>
     Object? amount = null,
     Object? balanceAfter = null,
     Object? createdAt = null,
+    Object? status = null,
     Object? description = freezed,
     Object? counterpartyId = freezed,
     Object? counterpartyName = freezed,
@@ -127,6 +123,10 @@ class _$TransactionModelCopyWithImpl<$Res, $Val extends TransactionModel>
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            status: null == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as String,
             description: freezed == description
                 ? _value.description
                 : description // ignore: cast_nullable_to_non_nullable
@@ -181,6 +181,7 @@ abstract class _$$TransactionModelImplCopyWith<$Res>
     int amount,
     int balanceAfter,
     DateTime createdAt,
+    String status,
     String? description,
     String? counterpartyId,
     String? counterpartyName,
@@ -212,6 +213,7 @@ class __$$TransactionModelImplCopyWithImpl<$Res>
     Object? amount = null,
     Object? balanceAfter = null,
     Object? createdAt = null,
+    Object? status = null,
     Object? description = freezed,
     Object? counterpartyId = freezed,
     Object? counterpartyName = freezed,
@@ -247,6 +249,10 @@ class __$$TransactionModelImplCopyWithImpl<$Res>
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        status: null == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as String,
         description: freezed == description
             ? _value.description
             : description // ignore: cast_nullable_to_non_nullable
@@ -285,15 +291,16 @@ class __$$TransactionModelImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
 class _$TransactionModelImpl extends _TransactionModel {
   const _$TransactionModelImpl({
     required this.id,
     required this.walletId,
     required this.type,
     required this.amount,
-    required this.balanceAfter,
+    this.balanceAfter = 0,
     required this.createdAt,
+    this.status = 'completed',
     this.description,
     this.counterpartyId,
     this.counterpartyName,
@@ -305,9 +312,6 @@ class _$TransactionModelImpl extends _TransactionModel {
   }) : _metadata = metadata,
        super._();
 
-  factory _$TransactionModelImpl.fromJson(Map<String, dynamic> json) =>
-      _$$TransactionModelImplFromJson(json);
-
   @override
   final String id;
   @override
@@ -317,9 +321,13 @@ class _$TransactionModelImpl extends _TransactionModel {
   @override
   final int amount;
   @override
+  @JsonKey()
   final int balanceAfter;
   @override
   final DateTime createdAt;
+  @override
+  @JsonKey()
+  final String status;
   @override
   final String? description;
   @override
@@ -346,7 +354,7 @@ class _$TransactionModelImpl extends _TransactionModel {
 
   @override
   String toString() {
-    return 'TransactionModel(id: $id, walletId: $walletId, type: $type, amount: $amount, balanceAfter: $balanceAfter, createdAt: $createdAt, description: $description, counterpartyId: $counterpartyId, counterpartyName: $counterpartyName, engagementId: $engagementId, purchaseId: $purchaseId, referralId: $referralId, isBonus: $isBonus, metadata: $metadata)';
+    return 'TransactionModel(id: $id, walletId: $walletId, type: $type, amount: $amount, balanceAfter: $balanceAfter, createdAt: $createdAt, status: $status, description: $description, counterpartyId: $counterpartyId, counterpartyName: $counterpartyName, engagementId: $engagementId, purchaseId: $purchaseId, referralId: $referralId, isBonus: $isBonus, metadata: $metadata)';
   }
 
   @override
@@ -363,6 +371,7 @@ class _$TransactionModelImpl extends _TransactionModel {
                 other.balanceAfter == balanceAfter) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
+            (identical(other.status, status) || other.status == status) &&
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.counterpartyId, counterpartyId) ||
@@ -379,7 +388,6 @@ class _$TransactionModelImpl extends _TransactionModel {
             const DeepCollectionEquality().equals(other._metadata, _metadata));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
     runtimeType,
@@ -389,6 +397,7 @@ class _$TransactionModelImpl extends _TransactionModel {
     amount,
     balanceAfter,
     createdAt,
+    status,
     description,
     counterpartyId,
     counterpartyName,
@@ -409,11 +418,6 @@ class _$TransactionModelImpl extends _TransactionModel {
         this,
         _$identity,
       );
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$TransactionModelImplToJson(this);
-  }
 }
 
 abstract class _TransactionModel extends TransactionModel {
@@ -422,8 +426,9 @@ abstract class _TransactionModel extends TransactionModel {
     required final String walletId,
     required final String type,
     required final int amount,
-    required final int balanceAfter,
+    final int balanceAfter,
     required final DateTime createdAt,
+    final String status,
     final String? description,
     final String? counterpartyId,
     final String? counterpartyName,
@@ -434,9 +439,6 @@ abstract class _TransactionModel extends TransactionModel {
     final Map<String, dynamic>? metadata,
   }) = _$TransactionModelImpl;
   const _TransactionModel._() : super._();
-
-  factory _TransactionModel.fromJson(Map<String, dynamic> json) =
-      _$TransactionModelImpl.fromJson;
 
   @override
   String get id;
@@ -450,6 +452,8 @@ abstract class _TransactionModel extends TransactionModel {
   int get balanceAfter;
   @override
   DateTime get createdAt;
+  @override
+  String get status;
   @override
   String? get description;
   @override

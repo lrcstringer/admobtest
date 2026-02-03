@@ -9,7 +9,8 @@ import * as admin from "firebase-admin";
 const db = admin.firestore();
 
 /**
- * Update leaderboard rankings daily at midnight
+ * Update all-time leaderboard rankings daily at midnight
+ * Uses leaderboards/allTime/scores subcollection for Flutter compatibility
  */
 export const updateLeaderboard = functions.pubsub
   .schedule("0 0 * * *")
@@ -22,21 +23,60 @@ export const updateLeaderboard = functions.pubsub
       .get();
 
     const batch = db.batch();
+    const now = new Date();
 
-    walletsSnapshot.docs.forEach((doc, index) => {
+    // Ensure the allTime leaderboard document exists
+    const allTimeRef = db.collection("leaderboards").doc("allTime");
+    batch.set(allTimeRef, {
+      type: "allTime",
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    // Update scores in the subcollection
+    for (let index = 0; index < walletsSnapshot.docs.length; index++) {
+      const doc = walletsSnapshot.docs[index];
       const data = doc.data();
-      const scoreRef = db.collection("leaderboard").doc(data.oddienceUserId);
+
+      // Get user profile for display name
+      let displayName = "User";
+      let username: string | null = null;
+      let avatarUrl: string | null = null;
+
+      try {
+        const userDoc = await db.collection("users").doc(data.userId).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          displayName = userData?.profile?.displayName || userData?.displayName || "User";
+          username = userData?.profile?.username || userData?.username || null;
+          avatarUrl = userData?.profile?.avatarUrl || userData?.avatarUrl || null;
+        }
+      } catch (e) {
+        console.log(`Could not fetch user profile for ${data.userId}`);
+      }
+
+      const scoreRef = db.collection("leaderboards")
+        .doc("allTime")
+        .collection("scores")
+        .doc(data.userId);
 
       batch.set(scoreRef, {
-        oddienceUserId: data.oddienceUserId,
-        totalScore: data.lifetimeEarned || 0,
+        userId: data.userId,
+        displayName: displayName,
+        username: username,
+        avatarUrl: avatarUrl,
+        totalTokensEarned: data.lifetimeEarned || 0,
         rank: index + 1,
+        engagementsCompleted: data.totalEngagements || 0,
+        currentStreak: data.currentStreak || 0,
+        longestStreak: data.longestStreak || 0,
+        periodStart: admin.firestore.Timestamp.fromDate(new Date(0)), // Epoch for all-time
+        periodEnd: admin.firestore.Timestamp.fromDate(now),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       }, { merge: true });
-    });
+    }
 
     await batch.commit();
-    console.log(`Updated leaderboard with ${walletsSnapshot.size} entries`);
+    console.log(`Updated allTime leaderboard with ${walletsSnapshot.size} entries`);
     return null;
   });
 
@@ -120,14 +160,14 @@ async function simulateCashoutProcessing(
 
     // Update wallet pending cashout
     const walletQuery = await db.collection("wallets")
-      .where("oddienceUserId", "==", cashout.oddienceUserId)
+      .where("userId", "==", cashout.userId)
       .limit(1)
       .get();
 
     if (!walletQuery.empty) {
       transaction.update(walletQuery.docs[0].ref, {
-        pendingCashout: admin.firestore.FieldValue.increment(-cashout.tokenAmount),
-        lifetimeCashout: admin.firestore.FieldValue.increment(cashout.tokenAmount),
+        pendingWithdrawal: admin.firestore.FieldValue.increment(-cashout.tokenAmount),
+        lifetimeWithdrawn: admin.firestore.FieldValue.increment(cashout.tokenAmount),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
     }

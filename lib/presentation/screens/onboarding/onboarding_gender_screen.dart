@@ -83,16 +83,32 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'iMaliChat',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.bold,
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'iMali',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
+                                  color: AppColors.gold,
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
+                          TextSpan(
+                            text: 'Chat',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 2),
                     Text(

@@ -432,7 +432,7 @@ PotWinner _$PotWinnerFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$PotWinner {
-  String get oddienceUserId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   String get displayName => throw _privateConstructorUsedError;
   String? get username => throw _privateConstructorUsedError;
   int get rank => throw _privateConstructorUsedError;
@@ -455,7 +455,7 @@ abstract class $PotWinnerCopyWith<$Res> {
       _$PotWinnerCopyWithImpl<$Res, PotWinner>;
   @useResult
   $Res call({
-    String oddienceUserId,
+    String userId,
     String displayName,
     String? username,
     int rank,
@@ -479,7 +479,7 @@ class _$PotWinnerCopyWithImpl<$Res, $Val extends PotWinner>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? displayName = null,
     Object? username = freezed,
     Object? rank = null,
@@ -488,9 +488,9 @@ class _$PotWinnerCopyWithImpl<$Res, $Val extends PotWinner>
   }) {
     return _then(
       _value.copyWith(
-            oddienceUserId: null == oddienceUserId
-                ? _value.oddienceUserId
-                : oddienceUserId // ignore: cast_nullable_to_non_nullable
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
                       as String,
             displayName: null == displayName
                 ? _value.displayName
@@ -528,7 +528,7 @@ abstract class _$$PotWinnerImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    String oddienceUserId,
+    String userId,
     String displayName,
     String? username,
     int rank,
@@ -551,7 +551,7 @@ class __$$PotWinnerImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? displayName = null,
     Object? username = freezed,
     Object? rank = null,
@@ -560,9 +560,9 @@ class __$$PotWinnerImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$PotWinnerImpl(
-        oddienceUserId: null == oddienceUserId
-            ? _value.oddienceUserId
-            : oddienceUserId // ignore: cast_nullable_to_non_nullable
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
                   as String,
         displayName: null == displayName
             ? _value.displayName
@@ -593,7 +593,7 @@ class __$$PotWinnerImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PotWinnerImpl implements _PotWinner {
   const _$PotWinnerImpl({
-    required this.oddienceUserId,
+    required this.userId,
     required this.displayName,
     this.username,
     required this.rank,
@@ -605,7 +605,7 @@ class _$PotWinnerImpl implements _PotWinner {
       _$$PotWinnerImplFromJson(json);
 
   @override
-  final String oddienceUserId;
+  final String userId;
   @override
   final String displayName;
   @override
@@ -619,7 +619,7 @@ class _$PotWinnerImpl implements _PotWinner {
 
   @override
   String toString() {
-    return 'PotWinner(oddienceUserId: $oddienceUserId, displayName: $displayName, username: $username, rank: $rank, tokensWon: $tokensWon, percentage: $percentage)';
+    return 'PotWinner(userId: $userId, displayName: $displayName, username: $username, rank: $rank, tokensWon: $tokensWon, percentage: $percentage)';
   }
 
   @override
@@ -627,8 +627,7 @@ class _$PotWinnerImpl implements _PotWinner {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$PotWinnerImpl &&
-            (identical(other.oddienceUserId, oddienceUserId) ||
-                other.oddienceUserId == oddienceUserId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.displayName, displayName) ||
                 other.displayName == displayName) &&
             (identical(other.username, username) ||
@@ -644,7 +643,7 @@ class _$PotWinnerImpl implements _PotWinner {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    oddienceUserId,
+    userId,
     displayName,
     username,
     rank,
@@ -668,7 +667,7 @@ class _$PotWinnerImpl implements _PotWinner {
 
 abstract class _PotWinner implements PotWinner {
   const factory _PotWinner({
-    required final String oddienceUserId,
+    required final String userId,
     required final String displayName,
     final String? username,
     required final int rank,
@@ -680,7 +679,7 @@ abstract class _PotWinner implements PotWinner {
       _$PotWinnerImpl.fromJson;
 
   @override
-  String get oddienceUserId;
+  String get userId;
   @override
   String get displayName;
   @override

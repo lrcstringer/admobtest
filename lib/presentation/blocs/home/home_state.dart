@@ -27,7 +27,7 @@ extension HomeStateX on HomeState {
   bool get hasWallet => wallet != null;
 
   /// Get total balance in tokens
-  int get balanceTokens => wallet?.balanceTokens ?? 0;
+  int get tokenBalance => wallet?.tokenBalance ?? 0;
 
   /// Get balance formatted for display
   String get balanceFormatted => wallet?.balance.formatted ?? '0';

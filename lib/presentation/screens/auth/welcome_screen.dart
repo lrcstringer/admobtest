@@ -257,13 +257,33 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         SizedBox(height: size.height * 0.02),
 
         // "Welcome to iMaliChat!"
-        Text(
-          'Welcome to iMaliChat!',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.bold,
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: 'Welcome to ',
+                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
+              TextSpan(
+                text: 'iMali',
+                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      color: AppColors.gold,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              TextSpan(
+                text: 'Chat!',
+                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ],
+          ),
+          textAlign: TextAlign.center,
         ),
         const SizedBox(height: 4),
 
@@ -348,7 +368,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
-                    color: Color(0xFF0D1028),
+                    color: Colors.white,
                   ),
                   children: const [
                     TextSpan(

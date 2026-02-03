@@ -29,7 +29,7 @@ class PotDistribution with _$PotDistribution {
 @freezed
 class PotWinnerAllocation with _$PotWinnerAllocation {
   const factory PotWinnerAllocation({
-    required String oddienceUserId,
+    required String userId,
     required int rank,
     required int prizeAmount,
     required int entryCount,

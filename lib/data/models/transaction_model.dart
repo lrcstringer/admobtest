@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/transaction.dart';
 import '../../domain/enums/transaction_type.dart';
 
+// Re-export TransactionStatus for convenience
+export '../../domain/entities/transaction.dart' show TransactionStatus;
+
 part 'transaction_model.freezed.dart';
-part 'transaction_model.g.dart';
 
 @freezed
 class TransactionModel with _$TransactionModel {
@@ -13,8 +16,9 @@ class TransactionModel with _$TransactionModel {
     required String walletId,
     required String type,
     required int amount,
-    required int balanceAfter,
+    @Default(0) int balanceAfter,
     required DateTime createdAt,
+    @Default('completed') String status,
     String? description,
     String? counterpartyId,
     String? counterpartyName,
@@ -27,8 +31,36 @@ class TransactionModel with _$TransactionModel {
 
   const TransactionModel._();
 
-  factory TransactionModel.fromJson(Map<String, dynamic> json) =>
-      _$TransactionModelFromJson(json);
+  factory TransactionModel.fromJson(Map<String, dynamic> json) {
+    // Handle server field name: tokenAmount → amount
+    final amount = json['tokenAmount'] as int? ?? json['amount'] as int? ?? 0;
+
+    // Handle Firestore Timestamp for createdAt
+    final createdAt = json['createdAt'];
+    final parsedCreatedAt = createdAt is Timestamp
+        ? createdAt.toDate()
+        : createdAt is String
+            ? DateTime.parse(createdAt)
+            : DateTime.now();
+
+    return TransactionModel(
+      id: json['id'] as String,
+      walletId: json['walletId'] as String,
+      type: json['type'] as String? ?? json['subType'] as String? ?? 'earn',
+      amount: amount,
+      balanceAfter: json['balanceAfter'] as int? ?? 0,
+      createdAt: parsedCreatedAt,
+      status: json['status'] as String? ?? 'completed',
+      description: json['description'] as String?,
+      counterpartyId: json['counterpartyId'] as String?,
+      counterpartyName: json['counterpartyName'] as String?,
+      engagementId: json['engagementId'] as String?,
+      purchaseId: json['purchaseId'] as String?,
+      referralId: json['referralId'] as String?,
+      isBonus: json['isBonus'] as bool?,
+      metadata: json['metadata'] as Map<String, dynamic>?,
+    );
+  }
 
   Transaction toEntity() => Transaction(
         id: id,
@@ -37,6 +69,7 @@ class TransactionModel with _$TransactionModel {
         amount: amount,
         balanceAfter: balanceAfter,
         createdAt: createdAt,
+        status: _parseTransactionStatus(status),
         description: description,
         counterpartyId: counterpartyId,
         counterpartyName: counterpartyName,
@@ -54,6 +87,7 @@ class TransactionModel with _$TransactionModel {
         amount: tx.amount,
         balanceAfter: tx.balanceAfter,
         createdAt: tx.createdAt,
+        status: tx.status.name,
         description: tx.description,
         counterpartyId: tx.counterpartyId,
         counterpartyName: tx.counterpartyName,
@@ -88,6 +122,21 @@ class TransactionModel with _$TransactionModel {
         return TransactionType.reversal;
       default:
         return TransactionType.earn;
+    }
+  }
+
+  static TransactionStatus _parseTransactionStatus(String status) {
+    switch (status) {
+      case 'pending':
+        return TransactionStatus.pending;
+      case 'completed':
+        return TransactionStatus.completed;
+      case 'failed':
+        return TransactionStatus.failed;
+      case 'cancelled':
+        return TransactionStatus.cancelled;
+      default:
+        return TransactionStatus.completed;
     }
   }
 }

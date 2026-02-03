@@ -17,7 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$UserScoreModel {
-  String get oddienceUserId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   String get displayName => throw _privateConstructorUsedError;
   String? get username => throw _privateConstructorUsedError;
   String? get avatarUrl => throw _privateConstructorUsedError;
@@ -47,7 +47,7 @@ abstract class $UserScoreModelCopyWith<$Res> {
   ) = _$UserScoreModelCopyWithImpl<$Res, UserScoreModel>;
   @useResult
   $Res call({
-    String oddienceUserId,
+    String userId,
     String displayName,
     String? username,
     String? avatarUrl,
@@ -79,7 +79,7 @@ class _$UserScoreModelCopyWithImpl<$Res, $Val extends UserScoreModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? displayName = null,
     Object? username = freezed,
     Object? avatarUrl = freezed,
@@ -96,9 +96,9 @@ class _$UserScoreModelCopyWithImpl<$Res, $Val extends UserScoreModel>
   }) {
     return _then(
       _value.copyWith(
-            oddienceUserId: null == oddienceUserId
-                ? _value.oddienceUserId
-                : oddienceUserId // ignore: cast_nullable_to_non_nullable
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
                       as String,
             displayName: null == displayName
                 ? _value.displayName
@@ -168,7 +168,7 @@ abstract class _$$UserScoreModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    String oddienceUserId,
+    String userId,
     String displayName,
     String? username,
     String? avatarUrl,
@@ -199,7 +199,7 @@ class __$$UserScoreModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? displayName = null,
     Object? username = freezed,
     Object? avatarUrl = freezed,
@@ -216,9 +216,9 @@ class __$$UserScoreModelImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$UserScoreModelImpl(
-        oddienceUserId: null == oddienceUserId
-            ? _value.oddienceUserId
-            : oddienceUserId // ignore: cast_nullable_to_non_nullable
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
                   as String,
         displayName: null == displayName
             ? _value.displayName
@@ -281,7 +281,7 @@ class __$$UserScoreModelImplCopyWithImpl<$Res>
 
 class _$UserScoreModelImpl extends _UserScoreModel {
   const _$UserScoreModelImpl({
-    required this.oddienceUserId,
+    required this.userId,
     required this.displayName,
     this.username,
     this.avatarUrl,
@@ -298,7 +298,7 @@ class _$UserScoreModelImpl extends _UserScoreModel {
   }) : super._();
 
   @override
-  final String oddienceUserId;
+  final String userId;
   @override
   final String displayName;
   @override
@@ -328,7 +328,7 @@ class _$UserScoreModelImpl extends _UserScoreModel {
 
   @override
   String toString() {
-    return 'UserScoreModel(oddienceUserId: $oddienceUserId, displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, totalTokensEarned: $totalTokensEarned, rank: $rank, previousRank: $previousRank, engagementsCompleted: $engagementsCompleted, currentStreak: $currentStreak, longestStreak: $longestStreak, periodStart: $periodStart, periodEnd: $periodEnd, updatedAt: $updatedAt)';
+    return 'UserScoreModel(userId: $userId, displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, totalTokensEarned: $totalTokensEarned, rank: $rank, previousRank: $previousRank, engagementsCompleted: $engagementsCompleted, currentStreak: $currentStreak, longestStreak: $longestStreak, periodStart: $periodStart, periodEnd: $periodEnd, updatedAt: $updatedAt)';
   }
 
   @override
@@ -336,8 +336,7 @@ class _$UserScoreModelImpl extends _UserScoreModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$UserScoreModelImpl &&
-            (identical(other.oddienceUserId, oddienceUserId) ||
-                other.oddienceUserId == oddienceUserId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.displayName, displayName) ||
                 other.displayName == displayName) &&
             (identical(other.username, username) ||
@@ -368,7 +367,7 @@ class _$UserScoreModelImpl extends _UserScoreModel {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    oddienceUserId,
+    userId,
     displayName,
     username,
     avatarUrl,
@@ -398,7 +397,7 @@ class _$UserScoreModelImpl extends _UserScoreModel {
 
 abstract class _UserScoreModel extends UserScoreModel {
   const factory _UserScoreModel({
-    required final String oddienceUserId,
+    required final String userId,
     required final String displayName,
     final String? username,
     final String? avatarUrl,
@@ -416,7 +415,7 @@ abstract class _UserScoreModel extends UserScoreModel {
   const _UserScoreModel._() : super._();
 
   @override
-  String get oddienceUserId;
+  String get userId;
   @override
   String get displayName;
   @override

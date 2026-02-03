@@ -82,7 +82,8 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final mascotSize = size.width * 0.25;
+    final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 50;
+    final mascotSize = keyboardVisible ? 0.0 : size.width * 0.25;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -121,53 +122,82 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
               child: SafeArea(
                 child: Column(
                   children: [
-                    // Compact header: mascot + iMaliChat + tagline
-                    SizedBox(height: size.height * 0.01),
-                    SizedBox(
-                      width: mascotSize,
-                      height: mascotSize,
-                      child: Image.asset(
-                        'assets/icons/iMaliCrown4.png',
-                        width: mascotSize,
-                        height: mascotSize,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            'assets/icons/ImaliFacewithText.png',
-                            width: mascotSize,
-                            height: mascotSize,
-                            fit: BoxFit.contain,
-                          );
-                        },
+                    // Collapsible header: mascot + iMaliChat + tagline
+                    // Hides when keyboard is visible to give more space for form fields
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      height: keyboardVisible ? 0 : null,
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 150),
+                        opacity: keyboardVisible ? 0.0 : 1.0,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: size.height * 0.01),
+                            SizedBox(
+                              width: mascotSize,
+                              height: mascotSize,
+                              child: Image.asset(
+                                'assets/icons/iMaliCrown4.png',
+                                width: mascotSize,
+                                height: mascotSize,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    'assets/icons/ImaliFacewithText.png',
+                                    width: mascotSize,
+                                    height: mascotSize,
+                                    fit: BoxFit.contain,
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'iMali',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium
+                                        ?.copyWith(
+                                          color: AppColors.gold,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                  TextSpan(
+                                    text: 'Chat',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium
+                                        ?.copyWith(
+                                          color: AppColors.textPrimary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Earn. Chat. Buy.',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: AppColors.gold,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 1.2,
+                                  ),
+                            ),
+                            SizedBox(height: size.height * 0.03),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'iMaliChat',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Earn. Chat. Buy.',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(
-                            color: AppColors.gold,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 1.2,
-                          ),
-                    ),
-
-                    SizedBox(height: size.height * 0.03),
 
                     // Scrollable content area
                     Expanded(

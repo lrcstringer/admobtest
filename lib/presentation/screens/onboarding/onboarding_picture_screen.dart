@@ -140,7 +140,7 @@ class OnboardingPictureScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () => context.go('/onboarding/settings'),
+                    onPressed: () => context.go('/onboarding/success'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: const Color(0xFF0D1028),

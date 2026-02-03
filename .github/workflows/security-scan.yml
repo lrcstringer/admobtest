@@ -1,0 +1,72 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  flutter-analyze:
+    name: Flutter Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run code generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze code
+        run: flutter analyze --fatal-infos
+
+      - name: Check for outdated packages
+        run: dart pub outdated
+
+      - name: Audit dependencies
+        run: dart pub audit
+        continue-on-error: true
+
+      - name: Check for hardcoded secrets
+        run: |
+          echo "Checking for potential hardcoded secrets..."
+          PATTERNS='(api[_-]?key|secret[_-]?key|password|token)\s*[:=]\s*["\x27][A-Za-z0-9+/=]{16,}'
+          if grep -rniE "$PATTERNS" lib/ --include="*.dart" | grep -v "// " | grep -v "TODO"; then
+            echo "WARNING: Potential hardcoded secrets found"
+            exit 1
+          else
+            echo "No hardcoded secrets detected"
+          fi
+
+  cloud-functions-lint:
+    name: Cloud Functions Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: functions
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Security audit
+        run: npm audit --audit-level=high
+        continue-on-error: true

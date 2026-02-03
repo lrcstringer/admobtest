@@ -1,16 +1,45 @@
 /**
  * Engagement Cloud Functions
  * Track and process user engagements with ads/surveys
+ *
+ * Collections involved:
+ * - earnOpportunities: Individual earn tasks (videos/surveys)
+ * - earnThreads: Brand groupings for opportunities
+ * - engagements: User engagement records
+ * - campaigns: Campaign configuration (optional, for backward compatibility)
+ * - wallets: User token balances
+ * - transactions: Transaction records
+ * - potEntries: Pot eligibility entries
+ * - leaderboards/{type}/scores: Leaderboard scores
  */
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
+import { updateLeaderboardScores, updateUserStreak } from "./leaderboard";
 
 const db = admin.firestore();
 
+// Status values aligned with Flutter client
+const EngagementStatus = {
+  STARTED: "started",
+  WATCHING: "watching",
+  SURVEYING: "surveying",
+  COMPLETED: "completed",
+  FAILED: "failed",
+  ABANDONED: "abandoned",
+  REWARDED: "rewarded",
+  REJECTED: "rejected",
+  // Legacy status for backward compatibility
+  IN_PROGRESS: "in_progress",
+} as const;
+
 /**
  * Start a new engagement (ad view or survey)
+ *
+ * Accepts either:
+ * - earnOpportunityId: References earnOpportunities collection (preferred)
+ * - campaignId + type: Legacy format for campaigns collection
  */
 export const startEngagement = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
@@ -22,78 +51,155 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
   requireAppCheck(context, "startEngagement");
 
   const userId = context.auth.uid;
-  const {campaignId, type, threadId} = data;
+  const { earnOpportunityId, campaignId, type, threadId } = data;
 
-  // Validate
-  if (!campaignId || !type) {
+  // Support both earnOpportunityId (preferred) and campaignId (legacy)
+  let rewardAmount: number;
+  let engagementType: string;
+  let resolvedCampaignId: string | null = null;
+  let resolvedOpportunityId: string | null = earnOpportunityId || null;
+  let resolvedThreadId: string | null = threadId || null;
+
+  if (earnOpportunityId) {
+    // New flow: Get opportunity from earnOpportunities collection
+    const opportunityDoc = await db
+      .collection("earnOpportunities")
+      .doc(earnOpportunityId)
+      .get();
+
+    if (!opportunityDoc.exists) {
+      throw new functions.https.HttpsError("not-found", "Opportunity not found");
+    }
+
+    const opportunity = opportunityDoc.data()!;
+
+    if (!opportunity.isActive) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Opportunity is not active"
+      );
+    }
+
+    // Check expiry
+    if (opportunity.expiresAt && opportunity.expiresAt.toDate() < new Date()) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Opportunity has expired"
+      );
+    }
+
+    rewardAmount = opportunity.tokenReward;
+    engagementType = opportunity.mediaType || "video";
+    resolvedCampaignId = opportunity.campaignId || null;
+    resolvedThreadId = opportunity.threadId || threadId || null;
+
+    // Check if user has already completed this opportunity
+    const existingEngagement = await db
+      .collection("engagements")
+      .where("userId", "==", userId)
+      .where("earnOpportunityId", "==", earnOpportunityId)
+      .where("status", "==", EngagementStatus.COMPLETED)
+      .limit(1)
+      .get();
+
+    if (!existingEngagement.empty) {
+      throw new functions.https.HttpsError(
+        "already-exists",
+        "Already completed this opportunity"
+      );
+    }
+  } else if (campaignId) {
+    // Legacy flow: Get campaign from campaigns collection
+    if (!type) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Missing required fields: type is required when using campaignId"
+      );
+    }
+
+    const campaignDoc = await db.collection("campaigns").doc(campaignId).get();
+
+    if (!campaignDoc.exists) {
+      throw new functions.https.HttpsError("not-found", "Campaign not found");
+    }
+
+    const campaign = campaignDoc.data()!;
+
+    if (campaign.status !== "active") {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Campaign is not active"
+      );
+    }
+
+    rewardAmount = campaign.rewardPerEngagement;
+    engagementType = type;
+    resolvedCampaignId = campaignId;
+
+    // Check max engagements per user
+    const existingEngagement = await db
+      .collection("engagements")
+      .where("userId", "==", userId)
+      .where("campaignId", "==", campaignId)
+      .where("status", "==", EngagementStatus.COMPLETED)
+      .limit(1)
+      .get();
+
+    if (!existingEngagement.empty && campaign.maxEngagementsPerUser === 1) {
+      throw new functions.https.HttpsError(
+        "already-exists",
+        "Already completed this campaign"
+      );
+    }
+  } else {
     throw new functions.https.HttpsError(
       "invalid-argument",
-      "Missing required fields"
+      "Missing required fields: either earnOpportunityId or campaignId is required"
     );
   }
 
-  // Get campaign
-  const campaignDoc = await db.collection("campaigns").doc(campaignId).get();
-
-  if (!campaignDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Campaign not found");
-  }
-
-  const campaign = campaignDoc.data()!;
-
-  // Check if campaign is active
-  if (campaign.status !== "active") {
-    throw new functions.https.HttpsError(
-      "failed-precondition",
-      "Campaign is not active"
-    );
-  }
-
-  // Check if user has already completed this campaign (if applicable)
-  const existingEngagement = await db
-    .collection("engagements")
-    .where("oddienceUserId", "==", userId)
-    .where("campaignId", "==", campaignId)
-    .where("status", "==", "completed")
-    .limit(1)
-    .get();
-
-  if (!existingEngagement.empty && campaign.maxEngagementsPerUser === 1) {
-    throw new functions.https.HttpsError(
-      "already-exists",
-      "Already completed this campaign"
-    );
-  }
-
-  // Create engagement record
+  // Create engagement record with Flutter-compatible fields
   const engagementRef = db.collection("engagements").doc();
+  const now = admin.firestore.FieldValue.serverTimestamp();
+
   await engagementRef.set({
     id: engagementRef.id,
-    oddienceUserId: userId,
-    campaignId: campaignId,
-    threadId: threadId || null,
-    type: type,
-    status: "in_progress",
+    userId: userId,
+    // Support both field names for Flutter compatibility
+    earnOpportunityId: resolvedOpportunityId,
+    oddienceCampaignId: resolvedCampaignId,
+    campaignId: resolvedCampaignId,
+    threadId: resolvedThreadId,
+    type: engagementType,
+    status: EngagementStatus.STARTED,
     progress: 0,
-    rewardAmount: campaign.rewardPerEngagement,
-    startedAt: admin.firestore.FieldValue.serverTimestamp(),
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    rewardAmount: rewardAmount,
+    watchDurationSeconds: 0,
+    requiredDurationSeconds: 0, // Will be updated by client
+    answers: [],
+    attemptNumber: 1,
+    startedAt: now,
+    createdAt: now,
     evidence: [],
   });
 
   // Update earn thread if provided
-  if (threadId) {
-    await db.collection("earnThreads").doc(threadId).update({
-      status: "in_progress",
-      engagementId: engagementRef.id,
-      startedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+  if (resolvedThreadId) {
+    try {
+      await db.collection("earnThreads").doc(resolvedThreadId).update({
+        lastActivityAt: now,
+        updatedAt: now,
+      });
+    } catch (e) {
+      // Thread might not exist, ignore
+      console.log(`Could not update earnThread ${resolvedThreadId}:`, e);
+    }
   }
 
   return {
     success: true,
     engagementId: engagementRef.id,
-    rewardAmount: campaign.rewardPerEngagement,
+    rewardAmount: rewardAmount,
   };
 });
 
@@ -112,7 +218,7 @@ export const processEngagement = functions.https.onCall(
     await requirePlayIntegrity(data, context, "processEngagement", "HIGHEST");
 
     const userId = context.auth.uid;
-    const {engagementId, evidence} = data;
+    const { engagementId, evidence } = data;
 
     // Get engagement
     const engagementDoc = await db
@@ -127,25 +233,34 @@ export const processEngagement = functions.https.onCall(
     const engagement = engagementDoc.data()!;
 
     // Validate ownership
-    if (engagement.oddienceUserId !== userId) {
+    if (engagement.userId !== userId) {
       throw new functions.https.HttpsError(
         "permission-denied",
         "Not authorized"
       );
     }
 
-    // Check status
-    if (engagement.status === "completed") {
+    // Check status - support both old and new status values
+    const completedStatuses = [
+      EngagementStatus.COMPLETED,
+      EngagementStatus.REWARDED,
+    ];
+    if (completedStatuses.includes(engagement.status)) {
       throw new functions.https.HttpsError(
         "already-exists",
         "Engagement already completed"
       );
     }
 
-    if (engagement.status === "failed") {
+    const failedStatuses = [
+      EngagementStatus.FAILED,
+      EngagementStatus.REJECTED,
+      EngagementStatus.ABANDONED,
+    ];
+    if (failedStatuses.includes(engagement.status)) {
       throw new functions.https.HttpsError(
         "failed-precondition",
-        "Engagement has failed"
+        "Engagement has failed or was abandoned"
       );
     }
 
@@ -154,7 +269,7 @@ export const processEngagement = functions.https.onCall(
 
     if (!isValid) {
       await engagementDoc.ref.update({
-        status: "failed",
+        status: EngagementStatus.FAILED,
         failedAt: admin.firestore.FieldValue.serverTimestamp(),
         failureReason: "Invalid evidence",
       });
@@ -167,7 +282,7 @@ export const processEngagement = functions.https.onCall(
     // Get user's wallet
     const walletQuery = await db
       .collection("wallets")
-      .where("oddienceUserId", "==", userId)
+      .where("userId", "==", userId)
       .limit(1)
       .get();
 
@@ -178,14 +293,19 @@ export const processEngagement = functions.https.onCall(
     const walletDoc = walletQuery.docs[0];
     const rewardAmount = engagement.rewardAmount;
 
+    // Get campaignId - support both field names
+    const campaignId = engagement.campaignId || engagement.oddienceCampaignId;
+
     // Process reward in transaction
     await db.runTransaction(async (transaction) => {
-      // Update engagement
+      // Update engagement with Flutter-compatible fields
       transaction.update(engagementDoc.ref, {
-        status: "completed",
+        status: EngagementStatus.COMPLETED,
         progress: 100,
         completedAt: admin.firestore.FieldValue.serverTimestamp(),
+        tokensEarned: rewardAmount,
         evidence: admin.firestore.FieldValue.arrayUnion(evidence),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
       // Credit wallet
@@ -193,6 +313,7 @@ export const processEngagement = functions.https.onCall(
         tokenBalance: admin.firestore.FieldValue.increment(rewardAmount),
         lifetimeEarned: admin.firestore.FieldValue.increment(rewardAmount),
         todayEarned: admin.firestore.FieldValue.increment(rewardAmount),
+        totalEngagements: admin.firestore.FieldValue.increment(1),
         lastEarnedAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
@@ -202,7 +323,7 @@ export const processEngagement = functions.https.onCall(
       transaction.set(txRef, {
         id: txRef.id,
         walletId: walletDoc.id,
-        oddienceUserId: userId,
+        userId: userId,
         type: "earn",
         subType: engagement.type,
         tokenAmount: rewardAmount,
@@ -214,13 +335,18 @@ export const processEngagement = functions.https.onCall(
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
-      // Update campaign stats
-      const campaignRef = db.collection("campaigns").doc(engagement.campaignId);
-      transaction.update(campaignRef, {
-        totalEngagements: admin.firestore.FieldValue.increment(1),
-        remainingBudgetTokens:
-          admin.firestore.FieldValue.increment(-rewardAmount),
-      });
+      // Update campaign stats if campaign exists
+      if (campaignId) {
+        const campaignRef = db.collection("campaigns").doc(campaignId);
+        const campaignDoc = await transaction.get(campaignRef);
+        if (campaignDoc.exists) {
+          transaction.update(campaignRef, {
+            totalEngagements: admin.firestore.FieldValue.increment(1),
+            remainingBudgetTokens:
+              admin.firestore.FieldValue.increment(-rewardAmount),
+          });
+        }
+      }
 
       // Update pot entries
       const today = new Date();
@@ -231,27 +357,50 @@ export const processEngagement = functions.https.onCall(
       transaction.set(
         potEntryRef,
         {
-          oddienceUserId: userId,
+          userId: userId,
           date: today.toISOString().split("T")[0],
           entries: admin.firestore.FieldValue.increment(rewardAmount),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         },
-        {merge: true}
+        { merge: true }
       );
 
-      // Update earn thread if present
+      // Update earn thread completed count if present
       if (engagement.threadId) {
         const threadRef = db.collection("earnThreads").doc(engagement.threadId);
         transaction.update(threadRef, {
-          status: "completed",
-          progress: 100,
-          completedAt: admin.firestore.FieldValue.serverTimestamp(),
-          tokensEarned: rewardAmount,
+          completedOpportunities: admin.firestore.FieldValue.increment(1),
+          lastActivityAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       }
     });
 
-    return {success: true, tokensEarned: rewardAmount};
+    // Update leaderboard scores (outside transaction for better performance)
+    try {
+      // Get user profile for leaderboard display
+      const userDoc = await db.collection("users").doc(userId).get();
+      const userData = userDoc.data();
+      const userProfile = {
+        displayName:
+          userData?.profile?.displayName || userData?.displayName || "User",
+        username: userData?.profile?.username || userData?.username || null,
+        avatarUrl: userData?.profile?.avatarUrl || userData?.avatarUrl || null,
+        avatarColor:
+          userData?.profile?.avatarColor || userData?.avatarColor || null,
+      };
+
+      // Update daily, weekly, and all-time leaderboard scores
+      await updateLeaderboardScores(userId, rewardAmount, userProfile);
+
+      // Update user streak information
+      await updateUserStreak(userId);
+    } catch (leaderboardError) {
+      // Log but don't fail the engagement - leaderboard update is secondary
+      console.error("Failed to update leaderboard:", leaderboardError);
+    }
+
+    return { success: true, tokensEarned: rewardAmount };
   }
 );
 
@@ -269,7 +418,8 @@ export const updateEngagementProgress = functions.https.onCall(
     requireAppCheck(context, "updateEngagementProgress");
 
     const userId = context.auth.uid;
-    const {engagementId, progress, stepData} = data;
+    const { engagementId, progress, stepData, watchDurationSeconds, status } =
+      data;
 
     const engagementDoc = await db
       .collection("engagements")
@@ -282,35 +432,108 @@ export const updateEngagementProgress = functions.https.onCall(
 
     const engagement = engagementDoc.data()!;
 
-    if (engagement.oddienceUserId !== userId) {
+    if (engagement.userId !== userId) {
       throw new functions.https.HttpsError(
         "permission-denied",
         "Not authorized"
       );
     }
 
-    if (engagement.status !== "in_progress") {
+    // Allow progress updates for active engagements
+    const activeStatuses = [
+      EngagementStatus.STARTED,
+      EngagementStatus.WATCHING,
+      EngagementStatus.SURVEYING,
+      EngagementStatus.IN_PROGRESS,
+    ];
+    if (!activeStatuses.includes(engagement.status)) {
       throw new functions.https.HttpsError(
         "failed-precondition",
         "Engagement not in progress"
       );
     }
 
+    // Build update object
+    const updateData: Record<string, unknown> = {
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (progress !== undefined) {
+      updateData.progress = progress;
+    }
+
+    if (watchDurationSeconds !== undefined) {
+      updateData.watchDurationSeconds = watchDurationSeconds;
+    }
+
+    if (status && activeStatuses.includes(status)) {
+      updateData.status = status;
+    }
+
+    if (stepData) {
+      updateData.evidence = admin.firestore.FieldValue.arrayUnion(stepData);
+    }
+
+    await engagementDoc.ref.update(updateData);
+
+    return { success: true, progress };
+  }
+);
+
+/**
+ * Abandon an engagement
+ */
+export const abandonEngagement = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "User must be authenticated"
+      );
+    }
+    requireAppCheck(context, "abandonEngagement");
+
+    const userId = context.auth.uid;
+    const { engagementId } = data;
+
+    const engagementDoc = await db
+      .collection("engagements")
+      .doc(engagementId)
+      .get();
+
+    if (!engagementDoc.exists) {
+      throw new functions.https.HttpsError("not-found", "Engagement not found");
+    }
+
+    const engagement = engagementDoc.data()!;
+
+    if (engagement.userId !== userId) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Not authorized"
+      );
+    }
+
+    // Can only abandon active engagements
+    const activeStatuses = [
+      EngagementStatus.STARTED,
+      EngagementStatus.WATCHING,
+      EngagementStatus.SURVEYING,
+      EngagementStatus.IN_PROGRESS,
+    ];
+    if (!activeStatuses.includes(engagement.status)) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Engagement cannot be abandoned"
+      );
+    }
+
     await engagementDoc.ref.update({
-      progress: progress,
-      evidence: admin.firestore.FieldValue.arrayUnion(stepData),
+      status: EngagementStatus.ABANDONED,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Update earn thread progress if present
-    if (engagement.threadId) {
-      await db.collection("earnThreads").doc(engagement.threadId).update({
-        progress: progress,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-    }
-
-    return {success: true, progress};
+    return { success: true };
   }
 );
 
@@ -322,27 +545,38 @@ function validateEngagementEvidence(
   evidence: Record<string, unknown>
 ): boolean {
   switch (type) {
-  case "video":
-    // Validate video watch evidence
-    if (!evidence.watchDuration || !evidence.videoId) {
-      return false;
-    }
-    // Check minimum watch time (e.g., 80% of video)
-    return (evidence.watchPercentage as number) >= 80;
+    case "video":
+      // Validate video watch evidence
+      // Accept either old format (watchDuration, videoId) or new format (watchDurationMs)
+      if (evidence.watchDurationMs !== undefined) {
+        return (evidence.watchDurationMs as number) > 0;
+      }
+      if (!evidence.watchDuration && !evidence.videoId) {
+        return false;
+      }
+      // Check minimum watch time (e.g., 80% of video)
+      if (evidence.watchPercentage !== undefined) {
+        return (evidence.watchPercentage as number) >= 80;
+      }
+      return true;
 
-  case "survey":
-    // Validate survey responses
-    if (!evidence.responses || !Array.isArray(evidence.responses)) {
-      return false;
-    }
-    // Check that all required questions are answered
-    return (evidence.responses as unknown[]).length > 0;
+    case "survey":
+      // Validate survey responses
+      if (!evidence.responses || !Array.isArray(evidence.responses)) {
+        return false;
+      }
+      // Check that all required questions are answered
+      return (evidence.responses as unknown[]).length > 0;
 
-  case "poll":
-    // Validate poll response
-    return evidence.selectedOption !== undefined;
+    case "poll":
+      // Validate poll response
+      return evidence.selectedOption !== undefined;
 
-  default:
-    return true;
+    case "image":
+      // Image view validation
+      return evidence.viewDurationMs !== undefined || evidence.viewed === true;
+
+    default:
+      return true;
   }
 }

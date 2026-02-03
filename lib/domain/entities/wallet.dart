@@ -19,15 +19,18 @@ class Wallet with _$Wallet {
     required String userId,
     required String name,
     required WalletType type,
-    required int balanceTokens,
+    required int tokenBalance,
     required int lifetimeEarned,
     required int lifetimeWithdrawn,
     required bool canWithdraw,
+    @Default(0) int todayEarned,
+    @Default(0) int pendingBalance,
+    @Default(0) int pendingWithdrawal,
     String? brandId,
     String? color,
     String? icon,
     String? description,
-    required int version,
+    @Default(1) int version,
     required DateTime updatedAt,
   }) = _Wallet;
 
@@ -36,14 +39,14 @@ class Wallet with _$Wallet {
   factory Wallet.fromJson(Map<String, dynamic> json) => _$WalletFromJson(json);
 
   /// Get balance as TokenAmount
-  TokenAmount get balance => TokenAmount(balanceTokens);
+  TokenAmount get balance => TokenAmount(tokenBalance);
 
   /// Get balance in ZAR
-  double get balanceZar => balanceTokens * AppConstants.tokenValueZar;
+  double get balanceZar => tokenBalance * AppConstants.tokenValueZar;
 
   /// Check if balance meets cashout minimum
   bool get canCashout =>
-      canWithdraw && balanceTokens >= AppConstants.cashoutMinTokens;
+      canWithdraw && tokenBalance >= AppConstants.cashoutMinTokens;
 
   /// Check if this is the main wallet
   bool get isMainWallet => type == WalletType.main;

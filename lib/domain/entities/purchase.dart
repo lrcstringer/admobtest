@@ -27,7 +27,7 @@ class Purchase with _$Purchase {
   const factory Purchase({
     required String id,
     required String walletId,
-    required String oddienceUserId,
+    required String userId,
     required String providerId,
     required String providerName,
     required PurchaseCategory category,

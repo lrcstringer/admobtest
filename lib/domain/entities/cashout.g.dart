@@ -10,7 +10,7 @@ _$CashoutImpl _$$CashoutImplFromJson(Map<String, dynamic> json) =>
     _$CashoutImpl(
       id: json['id'] as String,
       walletId: json['walletId'] as String,
-      oddienceUserId: json['oddienceUserId'] as String,
+      userId: json['userId'] as String,
       tokenAmount: (json['tokenAmount'] as num).toInt(),
       zarAmount: (json['zarAmount'] as num).toDouble(),
       method: $enumDecode(_$CashoutMethodEnumMap, json['method']),
@@ -38,7 +38,7 @@ Map<String, dynamic> _$$CashoutImplToJson(_$CashoutImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'walletId': instance.walletId,
-      'oddienceUserId': instance.oddienceUserId,
+      'userId': instance.userId,
       'tokenAmount': instance.tokenAmount,
       'zarAmount': instance.zarAmount,
       'method': _$CashoutMethodEnumMap[instance.method]!,

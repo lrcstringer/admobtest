@@ -396,39 +396,26 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
 
     try {
-      final now = DateTime.now();
-      // Requests expire in 7 days
-      final expiresAt = now.add(const Duration(days: 7));
+      // Get Play Integrity token for this sensitive operation
+      final nonce = _playIntegrity.generateNonce();
+      final integrityToken = await _playIntegrity.getIntegrityToken(nonce: nonce);
 
-      final messageModel = ChatCardModel(
-        id: '',
-        threadId: threadId,
-        senderId: userId,
-        type: 'tokenRequest',
-        status: 'pending',
-        textContent: message,
-        tokenAmount: amount,
-        mediaUrl: null,
-        mediaType: null,
-        actionData: null,
-        expiresAt: expiresAt,
-        createdAt: now,
-        readAt: null,
-        actionedAt: null,
-        recipientId: recipientId,
-      );
-
-      final docRef = await _messagesCollection.add(messageModel.toFirestoreJson());
-
-      // Update thread with last message
-      await _threadsCollection.doc(threadId).update({
-        'lastMessagePreview': 'Requested $amount tokens',
-        'lastMessageAt': Timestamp.fromDate(now),
-        'updatedAt': FieldValue.serverTimestamp(),
+      final callable = _functions.httpsCallable('requestTokens');
+      final result = await callable.call<Map<String, dynamic>>({
+        'recipientId': recipientId,
+        'amount': amount,
+        'message': message,
+        'threadId': threadId,
+        if (integrityToken != null) 'integrityToken': integrityToken,
+        if (integrityToken != null) 'integrityNonce': nonce,
       });
 
+      final now = DateTime.now();
+      final expiresAt = now.add(const Duration(days: 7));
+      final messageId = result.data['messageId'] as String? ?? '';
+
       return ChatCardModel(
-        id: docRef.id,
+        id: messageId,
         threadId: threadId,
         senderId: userId,
         type: 'tokenRequest',
@@ -444,6 +431,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         actionedAt: null,
         recipientId: recipientId,
       );
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Token request failed');
     } catch (e) {
       if (e is AuthException) rethrow;
       throw ServerException(message: e.toString());
@@ -458,18 +447,27 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
 
     try {
+      // First get the message to return the updated model
       final doc = await _messagesCollection.doc(cardId).get();
       if (!doc.exists) {
         throw const ServerException(message: 'Message not found');
       }
 
       final data = doc.data()!;
-      final now = DateTime.now();
 
-      await _messagesCollection.doc(cardId).update({
-        'status': 'paid',
-        'actionedAt': Timestamp.fromDate(now),
+      // Get Play Integrity token for this sensitive financial operation
+      final nonce = _playIntegrity.generateNonce();
+      final integrityToken = await _playIntegrity.getIntegrityToken(nonce: nonce);
+
+      // Call Cloud Function to actually perform the token transfer
+      final callable = _functions.httpsCallable('acceptChatTokenRequest');
+      await callable.call<Map<String, dynamic>>({
+        'messageId': cardId,
+        if (integrityToken != null) 'integrityToken': integrityToken,
+        if (integrityToken != null) 'integrityNonce': nonce,
       });
+
+      final now = DateTime.now();
 
       return ChatCardModel.fromJson({
         ...sanitizeFirestoreData(data),
@@ -477,6 +475,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         'status': 'paid',
         'actionedAt': now.toIso8601String(),
       });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Failed to accept token request');
     } catch (e) {
       if (e is ServerException || e is AuthException) rethrow;
       throw ServerException(message: e.toString());
@@ -491,18 +491,21 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
 
     try {
+      // First get the message to return the updated model
       final doc = await _messagesCollection.doc(cardId).get();
       if (!doc.exists) {
         throw const ServerException(message: 'Message not found');
       }
 
       final data = doc.data()!;
-      final now = DateTime.now();
 
-      await _messagesCollection.doc(cardId).update({
-        'status': 'declined',
-        'actionedAt': Timestamp.fromDate(now),
+      // Call Cloud Function to decline the request
+      final callable = _functions.httpsCallable('declineChatTokenRequest');
+      await callable.call<Map<String, dynamic>>({
+        'messageId': cardId,
       });
+
+      final now = DateTime.now();
 
       return ChatCardModel.fromJson({
         ...sanitizeFirestoreData(data),
@@ -510,6 +513,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         'status': 'declined',
         'actionedAt': now.toIso8601String(),
       });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Failed to decline token request');
     } catch (e) {
       if (e is ServerException || e is AuthException) rethrow;
       throw ServerException(message: e.toString());

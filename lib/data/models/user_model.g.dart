@@ -8,12 +8,13 @@ part of 'user_model.dart';
 
 _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
     _$UserModelImpl(
-      oddienceUserId: json['oddienceUserId'] as String,
+      userId: json['userId'] as String,
       phoneNumber: json['phoneNumber'] as String,
       displayName: json['displayName'] as String,
       username: json['username'] as String?,
       usernameLower: json['usernameLower'] as String?,
       avatarUrl: json['avatarUrl'] as String?,
+      avatarColor: json['avatarColor'] as String?,
       gender: json['gender'] as String?,
       dateOfBirth: json['dateOfBirth'] == null
           ? null
@@ -38,6 +39,7 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       lastLoginAt: json['lastLoginAt'] == null
           ? null
           : DateTime.parse(json['lastLoginAt'] as String),
+      kycTier: json['kycTier'] as String? ?? 'none',
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] == null
           ? null
@@ -49,12 +51,13 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
     <String, dynamic>{
-      'oddienceUserId': instance.oddienceUserId,
+      'userId': instance.userId,
       'phoneNumber': instance.phoneNumber,
       'displayName': instance.displayName,
       'username': instance.username,
       'usernameLower': instance.usernameLower,
       'avatarUrl': instance.avatarUrl,
+      'avatarColor': instance.avatarColor,
       'gender': instance.gender,
       'dateOfBirth': instance.dateOfBirth?.toIso8601String(),
       'province': instance.province,
@@ -73,6 +76,7 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'primaryDeviceId': instance.primaryDeviceId,
       'riskLevel': instance.riskLevel,
       'lastLoginAt': instance.lastLoginAt?.toIso8601String(),
+      'kycTier': instance.kycTier,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
       'lastActiveAt': instance.lastActiveAt?.toIso8601String(),

@@ -87,6 +87,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final mascotSize = size.width * 0.25;
 
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
@@ -141,7 +142,74 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                 const EdgeInsets.symmetric(horizontal: 40),
                             child: Column(
                               children: [
-                                SizedBox(height: size.height * 0.18),
+                                SizedBox(height: size.height * 0.01),
+
+                                // Mascot
+                                SizedBox(
+                                  width: mascotSize,
+                                  height: mascotSize,
+                                  child: Image.asset(
+                                    'assets/icons/iMaliCrown4.png',
+                                    width: mascotSize,
+                                    height: mascotSize,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        'assets/icons/ImaliFacewithText.png',
+                                        width: mascotSize,
+                                        height: mascotSize,
+                                        fit: BoxFit.contain,
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+
+                                // "iMaliChat"
+                                Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'iMali',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineMedium
+                                            ?.copyWith(
+                                              color: AppColors.gold,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                      TextSpan(
+                                        text: 'Chat',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineMedium
+                                            ?.copyWith(
+                                              color: AppColors.textPrimary,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 2),
+
+                                // "Earn. Chat. Buy."
+                                Text(
+                                  'Earn. Chat. Buy.',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        color: AppColors.gold,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 1.2,
+                                      ),
+                                ),
+
+                                SizedBox(height: size.height * 0.03),
 
                                 // Heading
                                 Text(

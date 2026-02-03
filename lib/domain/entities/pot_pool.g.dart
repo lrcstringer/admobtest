@@ -48,7 +48,7 @@ const _$PotTypeEnumMap = {PotType.daily: 'daily', PotType.weekly: 'weekly'};
 
 _$PotWinnerImpl _$$PotWinnerImplFromJson(Map<String, dynamic> json) =>
     _$PotWinnerImpl(
-      oddienceUserId: json['oddienceUserId'] as String,
+      userId: json['userId'] as String,
       displayName: json['displayName'] as String,
       username: json['username'] as String?,
       rank: (json['rank'] as num).toInt(),
@@ -58,7 +58,7 @@ _$PotWinnerImpl _$$PotWinnerImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$PotWinnerImplToJson(_$PotWinnerImpl instance) =>
     <String, dynamic>{
-      'oddienceUserId': instance.oddienceUserId,
+      'userId': instance.userId,
       'displayName': instance.displayName,
       'username': instance.username,
       'rank': instance.rank,

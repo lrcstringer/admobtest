@@ -414,7 +414,7 @@ abstract class _PotPoolModel extends PotPoolModel {
 
 /// @nodoc
 mixin _$PotWinnerModel {
-  String get oddienceUserId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   String get displayName => throw _privateConstructorUsedError;
   String? get username => throw _privateConstructorUsedError;
   int get rank => throw _privateConstructorUsedError;
@@ -436,7 +436,7 @@ abstract class $PotWinnerModelCopyWith<$Res> {
   ) = _$PotWinnerModelCopyWithImpl<$Res, PotWinnerModel>;
   @useResult
   $Res call({
-    String oddienceUserId,
+    String userId,
     String displayName,
     String? username,
     int rank,
@@ -460,7 +460,7 @@ class _$PotWinnerModelCopyWithImpl<$Res, $Val extends PotWinnerModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? displayName = null,
     Object? username = freezed,
     Object? rank = null,
@@ -469,9 +469,9 @@ class _$PotWinnerModelCopyWithImpl<$Res, $Val extends PotWinnerModel>
   }) {
     return _then(
       _value.copyWith(
-            oddienceUserId: null == oddienceUserId
-                ? _value.oddienceUserId
-                : oddienceUserId // ignore: cast_nullable_to_non_nullable
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
                       as String,
             displayName: null == displayName
                 ? _value.displayName
@@ -509,7 +509,7 @@ abstract class _$$PotWinnerModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    String oddienceUserId,
+    String userId,
     String displayName,
     String? username,
     int rank,
@@ -532,7 +532,7 @@ class __$$PotWinnerModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? displayName = null,
     Object? username = freezed,
     Object? rank = null,
@@ -541,9 +541,9 @@ class __$$PotWinnerModelImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$PotWinnerModelImpl(
-        oddienceUserId: null == oddienceUserId
-            ? _value.oddienceUserId
-            : oddienceUserId // ignore: cast_nullable_to_non_nullable
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
                   as String,
         displayName: null == displayName
             ? _value.displayName
@@ -574,7 +574,7 @@ class __$$PotWinnerModelImplCopyWithImpl<$Res>
 
 class _$PotWinnerModelImpl extends _PotWinnerModel {
   const _$PotWinnerModelImpl({
-    required this.oddienceUserId,
+    required this.userId,
     required this.displayName,
     this.username,
     required this.rank,
@@ -583,7 +583,7 @@ class _$PotWinnerModelImpl extends _PotWinnerModel {
   }) : super._();
 
   @override
-  final String oddienceUserId;
+  final String userId;
   @override
   final String displayName;
   @override
@@ -597,7 +597,7 @@ class _$PotWinnerModelImpl extends _PotWinnerModel {
 
   @override
   String toString() {
-    return 'PotWinnerModel(oddienceUserId: $oddienceUserId, displayName: $displayName, username: $username, rank: $rank, tokensWon: $tokensWon, percentage: $percentage)';
+    return 'PotWinnerModel(userId: $userId, displayName: $displayName, username: $username, rank: $rank, tokensWon: $tokensWon, percentage: $percentage)';
   }
 
   @override
@@ -605,8 +605,7 @@ class _$PotWinnerModelImpl extends _PotWinnerModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$PotWinnerModelImpl &&
-            (identical(other.oddienceUserId, oddienceUserId) ||
-                other.oddienceUserId == oddienceUserId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.displayName, displayName) ||
                 other.displayName == displayName) &&
             (identical(other.username, username) ||
@@ -621,7 +620,7 @@ class _$PotWinnerModelImpl extends _PotWinnerModel {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    oddienceUserId,
+    userId,
     displayName,
     username,
     rank,
@@ -643,7 +642,7 @@ class _$PotWinnerModelImpl extends _PotWinnerModel {
 
 abstract class _PotWinnerModel extends PotWinnerModel {
   const factory _PotWinnerModel({
-    required final String oddienceUserId,
+    required final String userId,
     required final String displayName,
     final String? username,
     required final int rank,
@@ -653,7 +652,7 @@ abstract class _PotWinnerModel extends PotWinnerModel {
   const _PotWinnerModel._() : super._();
 
   @override
-  String get oddienceUserId;
+  String get userId;
   @override
   String get displayName;
   @override

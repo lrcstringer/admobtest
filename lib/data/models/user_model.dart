@@ -10,12 +10,13 @@ part 'user_model.g.dart';
 @freezed
 class UserModel with _$UserModel {
   const factory UserModel({
-    required String oddienceUserId,
+    required String userId,
     required String phoneNumber,
     required String displayName,
     String? username,
     String? usernameLower,
     String? avatarUrl,
+    String? avatarColor,
     String? gender,
     DateTime? dateOfBirth,
     String? province,
@@ -34,6 +35,7 @@ class UserModel with _$UserModel {
     String? primaryDeviceId,
     String? riskLevel,
     DateTime? lastLoginAt,
+    @Default('none') String kycTier,
     required DateTime createdAt,
     DateTime? updatedAt,
     DateTime? lastActiveAt,
@@ -46,7 +48,7 @@ class UserModel with _$UserModel {
 
   /// Convert to domain entity
   User toEntity() => User(
-        id: oddienceUserId,
+        id: userId,
         phoneNumber: phoneNumber,
         status: status,
         isPotEligible: isPotEligible,
@@ -57,14 +59,17 @@ class UserModel with _$UserModel {
         lastActiveAt: lastActiveAt,
         potEligibleAt: potEligibleAt,
         referralCode: referralCode,
+        referredBy: referredBy,
         riskScore: riskScore,
         primaryDeviceId: primaryDeviceId,
         riskLevel: riskLevel,
         lastLoginAt: lastLoginAt,
+        kycTier: kycTier,
         profile: UserProfile(
           displayName: displayName,
           username: username,
           avatarUrl: avatarUrl,
+          avatarColor: avatarColor,
           gender: gender,
           dateOfBirth: dateOfBirth,
           province: province,
@@ -76,12 +81,13 @@ class UserModel with _$UserModel {
 
   /// Create from domain entity
   factory UserModel.fromEntity(User user) => UserModel(
-        oddienceUserId: user.id,
+        userId: user.id,
         phoneNumber: user.phoneNumber,
         displayName: user.profile?.displayName ?? 'iMali User',
         username: user.profile?.username,
         usernameLower: user.profile?.username?.toLowerCase(),
         avatarUrl: user.profile?.avatarUrl,
+        avatarColor: user.profile?.avatarColor,
         gender: user.profile?.gender,
         dateOfBirth: user.profile?.dateOfBirth,
         province: user.profile?.province,
@@ -90,7 +96,7 @@ class UserModel with _$UserModel {
         lastName: user.profile?.lastName,
         status: user.status,
         referralCode: user.referralCode,
-        referredBy: null,
+        referredBy: user.referredBy,
         hasAcceptedTerms: user.hasAcceptedTerms,
         hasCompletedOnboarding: user.hasCompletedOnboarding,
         isPotEligible: user.isPotEligible,
@@ -100,6 +106,7 @@ class UserModel with _$UserModel {
         primaryDeviceId: user.primaryDeviceId,
         riskLevel: user.riskLevel,
         lastLoginAt: user.lastLoginAt,
+        kycTier: user.kycTier,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         lastActiveAt: user.lastActiveAt,

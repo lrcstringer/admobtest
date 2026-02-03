@@ -8,7 +8,7 @@ part 'user_score_model.freezed.dart';
 @freezed
 class UserScoreModel with _$UserScoreModel {
   const factory UserScoreModel({
-    required String oddienceUserId,
+    required String userId,
     required String displayName,
     String? username,
     String? avatarUrl,
@@ -32,7 +32,7 @@ class UserScoreModel with _$UserScoreModel {
     final updatedAt = json['updatedAt'];
 
     return UserScoreModel(
-      oddienceUserId: json['oddienceUserId'] as String,
+      userId: json['userId'] as String,
       displayName: json['displayName'] as String? ?? 'User',
       username: json['username'] as String?,
       avatarUrl: json['avatarUrl'] as String?,
@@ -57,7 +57,7 @@ class UserScoreModel with _$UserScoreModel {
 
   Map<String, dynamic> toFirestoreJson() {
     return {
-      'oddienceUserId': oddienceUserId,
+      'userId': userId,
       'displayName': displayName,
       'username': username,
       'avatarUrl': avatarUrl,
@@ -76,7 +76,7 @@ class UserScoreModel with _$UserScoreModel {
 
   UserScore toEntity() {
     return UserScore(
-      oddienceUserId: oddienceUserId,
+      userId: userId,
       displayName: displayName,
       username: username,
       avatarUrl: avatarUrl,
@@ -95,7 +95,7 @@ class UserScoreModel with _$UserScoreModel {
 
   factory UserScoreModel.fromEntity(UserScore entity) {
     return UserScoreModel(
-      oddienceUserId: entity.oddienceUserId,
+      userId: entity.userId,
       displayName: entity.displayName,
       username: entity.username,
       avatarUrl: entity.avatarUrl,

@@ -22,7 +22,7 @@ Engagement _$EngagementFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Engagement {
   String get id => throw _privateConstructorUsedError;
-  String get oddienceUserId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   String get oddienceCampaignId => throw _privateConstructorUsedError;
   String get earnOpportunityId => throw _privateConstructorUsedError;
   EngagementStatus get status => throw _privateConstructorUsedError;
@@ -57,7 +57,7 @@ abstract class $EngagementCopyWith<$Res> {
   @useResult
   $Res call({
     String id,
-    String oddienceUserId,
+    String userId,
     String oddienceCampaignId,
     String earnOpportunityId,
     EngagementStatus status,
@@ -93,7 +93,7 @@ class _$EngagementCopyWithImpl<$Res, $Val extends Engagement>
   @override
   $Res call({
     Object? id = null,
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? oddienceCampaignId = null,
     Object? earnOpportunityId = null,
     Object? status = null,
@@ -115,9 +115,9 @@ class _$EngagementCopyWithImpl<$Res, $Val extends Engagement>
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
                       as String,
-            oddienceUserId: null == oddienceUserId
-                ? _value.oddienceUserId
-                : oddienceUserId // ignore: cast_nullable_to_non_nullable
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
                       as String,
             oddienceCampaignId: null == oddienceCampaignId
                 ? _value.oddienceCampaignId
@@ -206,7 +206,7 @@ abstract class _$$EngagementImplCopyWith<$Res>
   @useResult
   $Res call({
     String id,
-    String oddienceUserId,
+    String userId,
     String oddienceCampaignId,
     String earnOpportunityId,
     EngagementStatus status,
@@ -242,7 +242,7 @@ class __$$EngagementImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? oddienceCampaignId = null,
     Object? earnOpportunityId = null,
     Object? status = null,
@@ -264,9 +264,9 @@ class __$$EngagementImplCopyWithImpl<$Res>
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
                   as String,
-        oddienceUserId: null == oddienceUserId
-            ? _value.oddienceUserId
-            : oddienceUserId // ignore: cast_nullable_to_non_nullable
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
                   as String,
         oddienceCampaignId: null == oddienceCampaignId
             ? _value.oddienceCampaignId
@@ -334,7 +334,7 @@ class __$$EngagementImplCopyWithImpl<$Res>
 class _$EngagementImpl extends _Engagement {
   const _$EngagementImpl({
     required this.id,
-    required this.oddienceUserId,
+    required this.userId,
     required this.oddienceCampaignId,
     required this.earnOpportunityId,
     required this.status,
@@ -358,7 +358,7 @@ class _$EngagementImpl extends _Engagement {
   @override
   final String id;
   @override
-  final String oddienceUserId;
+  final String userId;
   @override
   final String oddienceCampaignId;
   @override
@@ -396,7 +396,7 @@ class _$EngagementImpl extends _Engagement {
 
   @override
   String toString() {
-    return 'Engagement(id: $id, oddienceUserId: $oddienceUserId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Engagement(id: $id, userId: $userId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -405,8 +405,7 @@ class _$EngagementImpl extends _Engagement {
         (other.runtimeType == runtimeType &&
             other is _$EngagementImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.oddienceUserId, oddienceUserId) ||
-                other.oddienceUserId == oddienceUserId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.oddienceCampaignId, oddienceCampaignId) ||
                 other.oddienceCampaignId == oddienceCampaignId) &&
             (identical(other.earnOpportunityId, earnOpportunityId) ||
@@ -443,7 +442,7 @@ class _$EngagementImpl extends _Engagement {
   int get hashCode => Object.hash(
     runtimeType,
     id,
-    oddienceUserId,
+    userId,
     oddienceCampaignId,
     earnOpportunityId,
     status,
@@ -477,7 +476,7 @@ class _$EngagementImpl extends _Engagement {
 abstract class _Engagement extends Engagement {
   const factory _Engagement({
     required final String id,
-    required final String oddienceUserId,
+    required final String userId,
     required final String oddienceCampaignId,
     required final String earnOpportunityId,
     required final EngagementStatus status,
@@ -501,7 +500,7 @@ abstract class _Engagement extends Engagement {
   @override
   String get id;
   @override
-  String get oddienceUserId;
+  String get userId;
   @override
   String get oddienceCampaignId;
   @override

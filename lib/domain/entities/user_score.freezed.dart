@@ -21,7 +21,7 @@ UserScore _$UserScoreFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$UserScore {
-  String get oddienceUserId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   String get displayName => throw _privateConstructorUsedError;
   String? get username => throw _privateConstructorUsedError;
   String? get avatarUrl => throw _privateConstructorUsedError;
@@ -52,7 +52,7 @@ abstract class $UserScoreCopyWith<$Res> {
       _$UserScoreCopyWithImpl<$Res, UserScore>;
   @useResult
   $Res call({
-    String oddienceUserId,
+    String userId,
     String displayName,
     String? username,
     String? avatarUrl,
@@ -84,7 +84,7 @@ class _$UserScoreCopyWithImpl<$Res, $Val extends UserScore>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? displayName = null,
     Object? username = freezed,
     Object? avatarUrl = freezed,
@@ -101,9 +101,9 @@ class _$UserScoreCopyWithImpl<$Res, $Val extends UserScore>
   }) {
     return _then(
       _value.copyWith(
-            oddienceUserId: null == oddienceUserId
-                ? _value.oddienceUserId
-                : oddienceUserId // ignore: cast_nullable_to_non_nullable
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
                       as String,
             displayName: null == displayName
                 ? _value.displayName
@@ -173,7 +173,7 @@ abstract class _$$UserScoreImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    String oddienceUserId,
+    String userId,
     String displayName,
     String? username,
     String? avatarUrl,
@@ -204,7 +204,7 @@ class __$$UserScoreImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? displayName = null,
     Object? username = freezed,
     Object? avatarUrl = freezed,
@@ -221,9 +221,9 @@ class __$$UserScoreImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$UserScoreImpl(
-        oddienceUserId: null == oddienceUserId
-            ? _value.oddienceUserId
-            : oddienceUserId // ignore: cast_nullable_to_non_nullable
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
                   as String,
         displayName: null == displayName
             ? _value.displayName
@@ -286,7 +286,7 @@ class __$$UserScoreImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UserScoreImpl extends _UserScore {
   const _$UserScoreImpl({
-    required this.oddienceUserId,
+    required this.userId,
     required this.displayName,
     this.username,
     this.avatarUrl,
@@ -306,7 +306,7 @@ class _$UserScoreImpl extends _UserScore {
       _$$UserScoreImplFromJson(json);
 
   @override
-  final String oddienceUserId;
+  final String userId;
   @override
   final String displayName;
   @override
@@ -336,7 +336,7 @@ class _$UserScoreImpl extends _UserScore {
 
   @override
   String toString() {
-    return 'UserScore(oddienceUserId: $oddienceUserId, displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, totalTokensEarned: $totalTokensEarned, rank: $rank, previousRank: $previousRank, engagementsCompleted: $engagementsCompleted, currentStreak: $currentStreak, longestStreak: $longestStreak, periodStart: $periodStart, periodEnd: $periodEnd, updatedAt: $updatedAt)';
+    return 'UserScore(userId: $userId, displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, totalTokensEarned: $totalTokensEarned, rank: $rank, previousRank: $previousRank, engagementsCompleted: $engagementsCompleted, currentStreak: $currentStreak, longestStreak: $longestStreak, periodStart: $periodStart, periodEnd: $periodEnd, updatedAt: $updatedAt)';
   }
 
   @override
@@ -344,8 +344,7 @@ class _$UserScoreImpl extends _UserScore {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$UserScoreImpl &&
-            (identical(other.oddienceUserId, oddienceUserId) ||
-                other.oddienceUserId == oddienceUserId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.displayName, displayName) ||
                 other.displayName == displayName) &&
             (identical(other.username, username) ||
@@ -377,7 +376,7 @@ class _$UserScoreImpl extends _UserScore {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    oddienceUserId,
+    userId,
     displayName,
     username,
     avatarUrl,
@@ -409,7 +408,7 @@ class _$UserScoreImpl extends _UserScore {
 
 abstract class _UserScore extends UserScore {
   const factory _UserScore({
-    required final String oddienceUserId,
+    required final String userId,
     required final String displayName,
     final String? username,
     final String? avatarUrl,
@@ -430,7 +429,7 @@ abstract class _UserScore extends UserScore {
       _$UserScoreImpl.fromJson;
 
   @override
-  String get oddienceUserId;
+  String get userId;
   @override
   String get displayName;
   @override

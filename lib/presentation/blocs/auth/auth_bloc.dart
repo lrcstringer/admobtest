@@ -373,37 +373,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _DeleteAccount event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, errorMessage: null));
 
     // Capture userId before deletion (needed for keystore cleanup)
     final userId = state.user?.id;
 
     final result = await _authRepository.deleteAccount();
 
-    result.fold(
-      (failure) {
-        emit(state.copyWith(
-          isLoading: false,
-          errorMessage: failure.displayMessage,
-        ));
-      },
-      (_) async {
-        // Clear all local data
-        await _deviceBindingService.clearBinding();
-        await _biometricLoginService.clearCachedDisplayName();
-        await _biometricLoginService.clearLastAuthTime();
+    // Note: Don't use result.fold() with async callbacks - fold doesn't await them!
+    if (result.isLeft()) {
+      final failure = result.fold((f) => f, (_) => null)!;
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: failure.displayMessage,
+      ));
+      return;
+    }
 
-        // Clear local SQLite database (cached wallets, transactions, chats, etc.)
-        await _appDatabase.clearAllData();
+    // Success - clear all local data
+    await _deviceBindingService.clearBinding();
+    await _biometricLoginService.clearCachedDisplayName();
+    await _biometricLoginService.clearLastAuthTime();
 
-        // Delete hardware-backed ECDSA keypair
-        if (userId != null) {
-          await _deviceBindingService.deleteKeypair(userId);
-        }
+    // Clear local SQLite database (cached wallets, transactions, chats, etc.)
+    await _appDatabase.clearAllData();
 
-        emit(const AuthState(status: AuthStatus.unauthenticated));
-      },
-    );
+    // Delete hardware-backed ECDSA keypair
+    if (userId != null) {
+      await _deviceBindingService.deleteKeypair(userId);
+    }
+
+    emit(const AuthState(status: AuthStatus.unauthenticated));
   }
 
   Future<void> _onAcceptTerms(

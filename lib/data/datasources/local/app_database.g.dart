@@ -18,12 +18,10 @@ class $LocalWalletsTable extends LocalWallets
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _oddienceUserIdMeta = const VerificationMeta(
-    'oddienceUserId',
-  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
   @override
-  late final GeneratedColumn<String> oddienceUserId = GeneratedColumn<String>(
-    'oddience_user_id',
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -65,12 +63,12 @@ class $LocalWalletsTable extends LocalWallets
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
-  static const VerificationMeta _lifetimeCashoutMeta = const VerificationMeta(
-    'lifetimeCashout',
+  static const VerificationMeta _lifetimeWithdrawnMeta = const VerificationMeta(
+    'lifetimeWithdrawn',
   );
   @override
-  late final GeneratedColumn<int> lifetimeCashout = GeneratedColumn<int>(
-    'lifetime_cashout',
+  late final GeneratedColumn<int> lifetimeWithdrawn = GeneratedColumn<int>(
+    'lifetime_withdrawn',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -89,12 +87,12 @@ class $LocalWalletsTable extends LocalWallets
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
-  static const VerificationMeta _pendingCashoutMeta = const VerificationMeta(
-    'pendingCashout',
+  static const VerificationMeta _pendingWithdrawalMeta = const VerificationMeta(
+    'pendingWithdrawal',
   );
   @override
-  late final GeneratedColumn<int> pendingCashout = GeneratedColumn<int>(
-    'pending_cashout',
+  late final GeneratedColumn<int> pendingWithdrawal = GeneratedColumn<int>(
+    'pending_withdrawal',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -152,13 +150,13 @@ class $LocalWalletsTable extends LocalWallets
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    oddienceUserId,
+    userId,
     tokenBalance,
     pendingBalance,
     lifetimeEarned,
-    lifetimeCashout,
+    lifetimeWithdrawn,
     todayEarned,
-    pendingCashout,
+    pendingWithdrawal,
     lastEarnedAt,
     createdAt,
     updatedAt,
@@ -181,16 +179,13 @@ class $LocalWalletsTable extends LocalWallets
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('oddience_user_id')) {
+    if (data.containsKey('user_id')) {
       context.handle(
-        _oddienceUserIdMeta,
-        oddienceUserId.isAcceptableOrUnknown(
-          data['oddience_user_id']!,
-          _oddienceUserIdMeta,
-        ),
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_oddienceUserIdMeta);
+      context.missing(_userIdMeta);
     }
     if (data.containsKey('token_balance')) {
       context.handle(
@@ -219,12 +214,12 @@ class $LocalWalletsTable extends LocalWallets
         ),
       );
     }
-    if (data.containsKey('lifetime_cashout')) {
+    if (data.containsKey('lifetime_withdrawn')) {
       context.handle(
-        _lifetimeCashoutMeta,
-        lifetimeCashout.isAcceptableOrUnknown(
-          data['lifetime_cashout']!,
-          _lifetimeCashoutMeta,
+        _lifetimeWithdrawnMeta,
+        lifetimeWithdrawn.isAcceptableOrUnknown(
+          data['lifetime_withdrawn']!,
+          _lifetimeWithdrawnMeta,
         ),
       );
     }
@@ -237,12 +232,12 @@ class $LocalWalletsTable extends LocalWallets
         ),
       );
     }
-    if (data.containsKey('pending_cashout')) {
+    if (data.containsKey('pending_withdrawal')) {
       context.handle(
-        _pendingCashoutMeta,
-        pendingCashout.isAcceptableOrUnknown(
-          data['pending_cashout']!,
-          _pendingCashoutMeta,
+        _pendingWithdrawalMeta,
+        pendingWithdrawal.isAcceptableOrUnknown(
+          data['pending_withdrawal']!,
+          _pendingWithdrawalMeta,
         ),
       );
     }
@@ -290,9 +285,9 @@ class $LocalWalletsTable extends LocalWallets
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
-      oddienceUserId: attachedDatabase.typeMapping.read(
+      userId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}oddience_user_id'],
+        data['${effectivePrefix}user_id'],
       )!,
       tokenBalance: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -306,17 +301,17 @@ class $LocalWalletsTable extends LocalWallets
         DriftSqlType.int,
         data['${effectivePrefix}lifetime_earned'],
       )!,
-      lifetimeCashout: attachedDatabase.typeMapping.read(
+      lifetimeWithdrawn: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}lifetime_cashout'],
+        data['${effectivePrefix}lifetime_withdrawn'],
       )!,
       todayEarned: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}today_earned'],
       )!,
-      pendingCashout: attachedDatabase.typeMapping.read(
+      pendingWithdrawal: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}pending_cashout'],
+        data['${effectivePrefix}pending_withdrawal'],
       )!,
       lastEarnedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -345,26 +340,26 @@ class $LocalWalletsTable extends LocalWallets
 
 class LocalWallet extends DataClass implements Insertable<LocalWallet> {
   final String id;
-  final String oddienceUserId;
+  final String userId;
   final int tokenBalance;
   final int pendingBalance;
   final int lifetimeEarned;
-  final int lifetimeCashout;
+  final int lifetimeWithdrawn;
   final int todayEarned;
-  final int pendingCashout;
+  final int pendingWithdrawal;
   final DateTime? lastEarnedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
   final bool isSynced;
   const LocalWallet({
     required this.id,
-    required this.oddienceUserId,
+    required this.userId,
     required this.tokenBalance,
     required this.pendingBalance,
     required this.lifetimeEarned,
-    required this.lifetimeCashout,
+    required this.lifetimeWithdrawn,
     required this.todayEarned,
-    required this.pendingCashout,
+    required this.pendingWithdrawal,
     this.lastEarnedAt,
     required this.createdAt,
     required this.updatedAt,
@@ -374,13 +369,13 @@ class LocalWallet extends DataClass implements Insertable<LocalWallet> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['oddience_user_id'] = Variable<String>(oddienceUserId);
+    map['user_id'] = Variable<String>(userId);
     map['token_balance'] = Variable<int>(tokenBalance);
     map['pending_balance'] = Variable<int>(pendingBalance);
     map['lifetime_earned'] = Variable<int>(lifetimeEarned);
-    map['lifetime_cashout'] = Variable<int>(lifetimeCashout);
+    map['lifetime_withdrawn'] = Variable<int>(lifetimeWithdrawn);
     map['today_earned'] = Variable<int>(todayEarned);
-    map['pending_cashout'] = Variable<int>(pendingCashout);
+    map['pending_withdrawal'] = Variable<int>(pendingWithdrawal);
     if (!nullToAbsent || lastEarnedAt != null) {
       map['last_earned_at'] = Variable<DateTime>(lastEarnedAt);
     }
@@ -393,13 +388,13 @@ class LocalWallet extends DataClass implements Insertable<LocalWallet> {
   LocalWalletsCompanion toCompanion(bool nullToAbsent) {
     return LocalWalletsCompanion(
       id: Value(id),
-      oddienceUserId: Value(oddienceUserId),
+      userId: Value(userId),
       tokenBalance: Value(tokenBalance),
       pendingBalance: Value(pendingBalance),
       lifetimeEarned: Value(lifetimeEarned),
-      lifetimeCashout: Value(lifetimeCashout),
+      lifetimeWithdrawn: Value(lifetimeWithdrawn),
       todayEarned: Value(todayEarned),
-      pendingCashout: Value(pendingCashout),
+      pendingWithdrawal: Value(pendingWithdrawal),
       lastEarnedAt: lastEarnedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(lastEarnedAt),
@@ -416,13 +411,13 @@ class LocalWallet extends DataClass implements Insertable<LocalWallet> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalWallet(
       id: serializer.fromJson<String>(json['id']),
-      oddienceUserId: serializer.fromJson<String>(json['oddienceUserId']),
+      userId: serializer.fromJson<String>(json['userId']),
       tokenBalance: serializer.fromJson<int>(json['tokenBalance']),
       pendingBalance: serializer.fromJson<int>(json['pendingBalance']),
       lifetimeEarned: serializer.fromJson<int>(json['lifetimeEarned']),
-      lifetimeCashout: serializer.fromJson<int>(json['lifetimeCashout']),
+      lifetimeWithdrawn: serializer.fromJson<int>(json['lifetimeWithdrawn']),
       todayEarned: serializer.fromJson<int>(json['todayEarned']),
-      pendingCashout: serializer.fromJson<int>(json['pendingCashout']),
+      pendingWithdrawal: serializer.fromJson<int>(json['pendingWithdrawal']),
       lastEarnedAt: serializer.fromJson<DateTime?>(json['lastEarnedAt']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -434,13 +429,13 @@ class LocalWallet extends DataClass implements Insertable<LocalWallet> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'oddienceUserId': serializer.toJson<String>(oddienceUserId),
+      'userId': serializer.toJson<String>(userId),
       'tokenBalance': serializer.toJson<int>(tokenBalance),
       'pendingBalance': serializer.toJson<int>(pendingBalance),
       'lifetimeEarned': serializer.toJson<int>(lifetimeEarned),
-      'lifetimeCashout': serializer.toJson<int>(lifetimeCashout),
+      'lifetimeWithdrawn': serializer.toJson<int>(lifetimeWithdrawn),
       'todayEarned': serializer.toJson<int>(todayEarned),
-      'pendingCashout': serializer.toJson<int>(pendingCashout),
+      'pendingWithdrawal': serializer.toJson<int>(pendingWithdrawal),
       'lastEarnedAt': serializer.toJson<DateTime?>(lastEarnedAt),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -450,26 +445,26 @@ class LocalWallet extends DataClass implements Insertable<LocalWallet> {
 
   LocalWallet copyWith({
     String? id,
-    String? oddienceUserId,
+    String? userId,
     int? tokenBalance,
     int? pendingBalance,
     int? lifetimeEarned,
-    int? lifetimeCashout,
+    int? lifetimeWithdrawn,
     int? todayEarned,
-    int? pendingCashout,
+    int? pendingWithdrawal,
     Value<DateTime?> lastEarnedAt = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? isSynced,
   }) => LocalWallet(
     id: id ?? this.id,
-    oddienceUserId: oddienceUserId ?? this.oddienceUserId,
+    userId: userId ?? this.userId,
     tokenBalance: tokenBalance ?? this.tokenBalance,
     pendingBalance: pendingBalance ?? this.pendingBalance,
     lifetimeEarned: lifetimeEarned ?? this.lifetimeEarned,
-    lifetimeCashout: lifetimeCashout ?? this.lifetimeCashout,
+    lifetimeWithdrawn: lifetimeWithdrawn ?? this.lifetimeWithdrawn,
     todayEarned: todayEarned ?? this.todayEarned,
-    pendingCashout: pendingCashout ?? this.pendingCashout,
+    pendingWithdrawal: pendingWithdrawal ?? this.pendingWithdrawal,
     lastEarnedAt: lastEarnedAt.present ? lastEarnedAt.value : this.lastEarnedAt,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -478,9 +473,7 @@ class LocalWallet extends DataClass implements Insertable<LocalWallet> {
   LocalWallet copyWithCompanion(LocalWalletsCompanion data) {
     return LocalWallet(
       id: data.id.present ? data.id.value : this.id,
-      oddienceUserId: data.oddienceUserId.present
-          ? data.oddienceUserId.value
-          : this.oddienceUserId,
+      userId: data.userId.present ? data.userId.value : this.userId,
       tokenBalance: data.tokenBalance.present
           ? data.tokenBalance.value
           : this.tokenBalance,
@@ -490,15 +483,15 @@ class LocalWallet extends DataClass implements Insertable<LocalWallet> {
       lifetimeEarned: data.lifetimeEarned.present
           ? data.lifetimeEarned.value
           : this.lifetimeEarned,
-      lifetimeCashout: data.lifetimeCashout.present
-          ? data.lifetimeCashout.value
-          : this.lifetimeCashout,
+      lifetimeWithdrawn: data.lifetimeWithdrawn.present
+          ? data.lifetimeWithdrawn.value
+          : this.lifetimeWithdrawn,
       todayEarned: data.todayEarned.present
           ? data.todayEarned.value
           : this.todayEarned,
-      pendingCashout: data.pendingCashout.present
-          ? data.pendingCashout.value
-          : this.pendingCashout,
+      pendingWithdrawal: data.pendingWithdrawal.present
+          ? data.pendingWithdrawal.value
+          : this.pendingWithdrawal,
       lastEarnedAt: data.lastEarnedAt.present
           ? data.lastEarnedAt.value
           : this.lastEarnedAt,
@@ -512,13 +505,13 @@ class LocalWallet extends DataClass implements Insertable<LocalWallet> {
   String toString() {
     return (StringBuffer('LocalWallet(')
           ..write('id: $id, ')
-          ..write('oddienceUserId: $oddienceUserId, ')
+          ..write('userId: $userId, ')
           ..write('tokenBalance: $tokenBalance, ')
           ..write('pendingBalance: $pendingBalance, ')
           ..write('lifetimeEarned: $lifetimeEarned, ')
-          ..write('lifetimeCashout: $lifetimeCashout, ')
+          ..write('lifetimeWithdrawn: $lifetimeWithdrawn, ')
           ..write('todayEarned: $todayEarned, ')
-          ..write('pendingCashout: $pendingCashout, ')
+          ..write('pendingWithdrawal: $pendingWithdrawal, ')
           ..write('lastEarnedAt: $lastEarnedAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -530,13 +523,13 @@ class LocalWallet extends DataClass implements Insertable<LocalWallet> {
   @override
   int get hashCode => Object.hash(
     id,
-    oddienceUserId,
+    userId,
     tokenBalance,
     pendingBalance,
     lifetimeEarned,
-    lifetimeCashout,
+    lifetimeWithdrawn,
     todayEarned,
-    pendingCashout,
+    pendingWithdrawal,
     lastEarnedAt,
     createdAt,
     updatedAt,
@@ -547,13 +540,13 @@ class LocalWallet extends DataClass implements Insertable<LocalWallet> {
       identical(this, other) ||
       (other is LocalWallet &&
           other.id == this.id &&
-          other.oddienceUserId == this.oddienceUserId &&
+          other.userId == this.userId &&
           other.tokenBalance == this.tokenBalance &&
           other.pendingBalance == this.pendingBalance &&
           other.lifetimeEarned == this.lifetimeEarned &&
-          other.lifetimeCashout == this.lifetimeCashout &&
+          other.lifetimeWithdrawn == this.lifetimeWithdrawn &&
           other.todayEarned == this.todayEarned &&
-          other.pendingCashout == this.pendingCashout &&
+          other.pendingWithdrawal == this.pendingWithdrawal &&
           other.lastEarnedAt == this.lastEarnedAt &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
@@ -562,13 +555,13 @@ class LocalWallet extends DataClass implements Insertable<LocalWallet> {
 
 class LocalWalletsCompanion extends UpdateCompanion<LocalWallet> {
   final Value<String> id;
-  final Value<String> oddienceUserId;
+  final Value<String> userId;
   final Value<int> tokenBalance;
   final Value<int> pendingBalance;
   final Value<int> lifetimeEarned;
-  final Value<int> lifetimeCashout;
+  final Value<int> lifetimeWithdrawn;
   final Value<int> todayEarned;
-  final Value<int> pendingCashout;
+  final Value<int> pendingWithdrawal;
   final Value<DateTime?> lastEarnedAt;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -576,13 +569,13 @@ class LocalWalletsCompanion extends UpdateCompanion<LocalWallet> {
   final Value<int> rowid;
   const LocalWalletsCompanion({
     this.id = const Value.absent(),
-    this.oddienceUserId = const Value.absent(),
+    this.userId = const Value.absent(),
     this.tokenBalance = const Value.absent(),
     this.pendingBalance = const Value.absent(),
     this.lifetimeEarned = const Value.absent(),
-    this.lifetimeCashout = const Value.absent(),
+    this.lifetimeWithdrawn = const Value.absent(),
     this.todayEarned = const Value.absent(),
-    this.pendingCashout = const Value.absent(),
+    this.pendingWithdrawal = const Value.absent(),
     this.lastEarnedAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -591,31 +584,31 @@ class LocalWalletsCompanion extends UpdateCompanion<LocalWallet> {
   });
   LocalWalletsCompanion.insert({
     required String id,
-    required String oddienceUserId,
+    required String userId,
     this.tokenBalance = const Value.absent(),
     this.pendingBalance = const Value.absent(),
     this.lifetimeEarned = const Value.absent(),
-    this.lifetimeCashout = const Value.absent(),
+    this.lifetimeWithdrawn = const Value.absent(),
     this.todayEarned = const Value.absent(),
-    this.pendingCashout = const Value.absent(),
+    this.pendingWithdrawal = const Value.absent(),
     this.lastEarnedAt = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.isSynced = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
-       oddienceUserId = Value(oddienceUserId),
+       userId = Value(userId),
        createdAt = Value(createdAt),
        updatedAt = Value(updatedAt);
   static Insertable<LocalWallet> custom({
     Expression<String>? id,
-    Expression<String>? oddienceUserId,
+    Expression<String>? userId,
     Expression<int>? tokenBalance,
     Expression<int>? pendingBalance,
     Expression<int>? lifetimeEarned,
-    Expression<int>? lifetimeCashout,
+    Expression<int>? lifetimeWithdrawn,
     Expression<int>? todayEarned,
-    Expression<int>? pendingCashout,
+    Expression<int>? pendingWithdrawal,
     Expression<DateTime>? lastEarnedAt,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -624,13 +617,13 @@ class LocalWalletsCompanion extends UpdateCompanion<LocalWallet> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (oddienceUserId != null) 'oddience_user_id': oddienceUserId,
+      if (userId != null) 'user_id': userId,
       if (tokenBalance != null) 'token_balance': tokenBalance,
       if (pendingBalance != null) 'pending_balance': pendingBalance,
       if (lifetimeEarned != null) 'lifetime_earned': lifetimeEarned,
-      if (lifetimeCashout != null) 'lifetime_cashout': lifetimeCashout,
+      if (lifetimeWithdrawn != null) 'lifetime_withdrawn': lifetimeWithdrawn,
       if (todayEarned != null) 'today_earned': todayEarned,
-      if (pendingCashout != null) 'pending_cashout': pendingCashout,
+      if (pendingWithdrawal != null) 'pending_withdrawal': pendingWithdrawal,
       if (lastEarnedAt != null) 'last_earned_at': lastEarnedAt,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -641,13 +634,13 @@ class LocalWalletsCompanion extends UpdateCompanion<LocalWallet> {
 
   LocalWalletsCompanion copyWith({
     Value<String>? id,
-    Value<String>? oddienceUserId,
+    Value<String>? userId,
     Value<int>? tokenBalance,
     Value<int>? pendingBalance,
     Value<int>? lifetimeEarned,
-    Value<int>? lifetimeCashout,
+    Value<int>? lifetimeWithdrawn,
     Value<int>? todayEarned,
-    Value<int>? pendingCashout,
+    Value<int>? pendingWithdrawal,
     Value<DateTime?>? lastEarnedAt,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -656,13 +649,13 @@ class LocalWalletsCompanion extends UpdateCompanion<LocalWallet> {
   }) {
     return LocalWalletsCompanion(
       id: id ?? this.id,
-      oddienceUserId: oddienceUserId ?? this.oddienceUserId,
+      userId: userId ?? this.userId,
       tokenBalance: tokenBalance ?? this.tokenBalance,
       pendingBalance: pendingBalance ?? this.pendingBalance,
       lifetimeEarned: lifetimeEarned ?? this.lifetimeEarned,
-      lifetimeCashout: lifetimeCashout ?? this.lifetimeCashout,
+      lifetimeWithdrawn: lifetimeWithdrawn ?? this.lifetimeWithdrawn,
       todayEarned: todayEarned ?? this.todayEarned,
-      pendingCashout: pendingCashout ?? this.pendingCashout,
+      pendingWithdrawal: pendingWithdrawal ?? this.pendingWithdrawal,
       lastEarnedAt: lastEarnedAt ?? this.lastEarnedAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -677,8 +670,8 @@ class LocalWalletsCompanion extends UpdateCompanion<LocalWallet> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (oddienceUserId.present) {
-      map['oddience_user_id'] = Variable<String>(oddienceUserId.value);
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (tokenBalance.present) {
       map['token_balance'] = Variable<int>(tokenBalance.value);
@@ -689,14 +682,14 @@ class LocalWalletsCompanion extends UpdateCompanion<LocalWallet> {
     if (lifetimeEarned.present) {
       map['lifetime_earned'] = Variable<int>(lifetimeEarned.value);
     }
-    if (lifetimeCashout.present) {
-      map['lifetime_cashout'] = Variable<int>(lifetimeCashout.value);
+    if (lifetimeWithdrawn.present) {
+      map['lifetime_withdrawn'] = Variable<int>(lifetimeWithdrawn.value);
     }
     if (todayEarned.present) {
       map['today_earned'] = Variable<int>(todayEarned.value);
     }
-    if (pendingCashout.present) {
-      map['pending_cashout'] = Variable<int>(pendingCashout.value);
+    if (pendingWithdrawal.present) {
+      map['pending_withdrawal'] = Variable<int>(pendingWithdrawal.value);
     }
     if (lastEarnedAt.present) {
       map['last_earned_at'] = Variable<DateTime>(lastEarnedAt.value);
@@ -720,13 +713,13 @@ class LocalWalletsCompanion extends UpdateCompanion<LocalWallet> {
   String toString() {
     return (StringBuffer('LocalWalletsCompanion(')
           ..write('id: $id, ')
-          ..write('oddienceUserId: $oddienceUserId, ')
+          ..write('userId: $userId, ')
           ..write('tokenBalance: $tokenBalance, ')
           ..write('pendingBalance: $pendingBalance, ')
           ..write('lifetimeEarned: $lifetimeEarned, ')
-          ..write('lifetimeCashout: $lifetimeCashout, ')
+          ..write('lifetimeWithdrawn: $lifetimeWithdrawn, ')
           ..write('todayEarned: $todayEarned, ')
-          ..write('pendingCashout: $pendingCashout, ')
+          ..write('pendingWithdrawal: $pendingWithdrawal, ')
           ..write('lastEarnedAt: $lastEarnedAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -763,12 +756,10 @@ class $LocalTransactionsTable extends LocalTransactions
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _oddienceUserIdMeta = const VerificationMeta(
-    'oddienceUserId',
-  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
   @override
-  late final GeneratedColumn<String> oddienceUserId = GeneratedColumn<String>(
-    'oddience_user_id',
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -899,7 +890,7 @@ class $LocalTransactionsTable extends LocalTransactions
   List<GeneratedColumn> get $columns => [
     id,
     walletId,
-    oddienceUserId,
+    userId,
     type,
     subType,
     tokenAmount,
@@ -937,16 +928,13 @@ class $LocalTransactionsTable extends LocalTransactions
     } else if (isInserting) {
       context.missing(_walletIdMeta);
     }
-    if (data.containsKey('oddience_user_id')) {
+    if (data.containsKey('user_id')) {
       context.handle(
-        _oddienceUserIdMeta,
-        oddienceUserId.isAcceptableOrUnknown(
-          data['oddience_user_id']!,
-          _oddienceUserIdMeta,
-        ),
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_oddienceUserIdMeta);
+      context.missing(_userIdMeta);
     }
     if (data.containsKey('type')) {
       context.handle(
@@ -1055,9 +1043,9 @@ class $LocalTransactionsTable extends LocalTransactions
         DriftSqlType.string,
         data['${effectivePrefix}wallet_id'],
       )!,
-      oddienceUserId: attachedDatabase.typeMapping.read(
+      userId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}oddience_user_id'],
+        data['${effectivePrefix}user_id'],
       )!,
       type: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -1116,7 +1104,7 @@ class LocalTransaction extends DataClass
     implements Insertable<LocalTransaction> {
   final String id;
   final String walletId;
-  final String oddienceUserId;
+  final String userId;
   final String type;
   final String? subType;
   final int tokenAmount;
@@ -1131,7 +1119,7 @@ class LocalTransaction extends DataClass
   const LocalTransaction({
     required this.id,
     required this.walletId,
-    required this.oddienceUserId,
+    required this.userId,
     required this.type,
     this.subType,
     required this.tokenAmount,
@@ -1149,7 +1137,7 @@ class LocalTransaction extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['wallet_id'] = Variable<String>(walletId);
-    map['oddience_user_id'] = Variable<String>(oddienceUserId);
+    map['user_id'] = Variable<String>(userId);
     map['type'] = Variable<String>(type);
     if (!nullToAbsent || subType != null) {
       map['sub_type'] = Variable<String>(subType);
@@ -1176,7 +1164,7 @@ class LocalTransaction extends DataClass
     return LocalTransactionsCompanion(
       id: Value(id),
       walletId: Value(walletId),
-      oddienceUserId: Value(oddienceUserId),
+      userId: Value(userId),
       type: Value(type),
       subType: subType == null && nullToAbsent
           ? const Value.absent()
@@ -1207,7 +1195,7 @@ class LocalTransaction extends DataClass
     return LocalTransaction(
       id: serializer.fromJson<String>(json['id']),
       walletId: serializer.fromJson<String>(json['walletId']),
-      oddienceUserId: serializer.fromJson<String>(json['oddienceUserId']),
+      userId: serializer.fromJson<String>(json['userId']),
       type: serializer.fromJson<String>(json['type']),
       subType: serializer.fromJson<String?>(json['subType']),
       tokenAmount: serializer.fromJson<int>(json['tokenAmount']),
@@ -1227,7 +1215,7 @@ class LocalTransaction extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'walletId': serializer.toJson<String>(walletId),
-      'oddienceUserId': serializer.toJson<String>(oddienceUserId),
+      'userId': serializer.toJson<String>(userId),
       'type': serializer.toJson<String>(type),
       'subType': serializer.toJson<String?>(subType),
       'tokenAmount': serializer.toJson<int>(tokenAmount),
@@ -1245,7 +1233,7 @@ class LocalTransaction extends DataClass
   LocalTransaction copyWith({
     String? id,
     String? walletId,
-    String? oddienceUserId,
+    String? userId,
     String? type,
     Value<String?> subType = const Value.absent(),
     int? tokenAmount,
@@ -1260,7 +1248,7 @@ class LocalTransaction extends DataClass
   }) => LocalTransaction(
     id: id ?? this.id,
     walletId: walletId ?? this.walletId,
-    oddienceUserId: oddienceUserId ?? this.oddienceUserId,
+    userId: userId ?? this.userId,
     type: type ?? this.type,
     subType: subType.present ? subType.value : this.subType,
     tokenAmount: tokenAmount ?? this.tokenAmount,
@@ -1279,9 +1267,7 @@ class LocalTransaction extends DataClass
     return LocalTransaction(
       id: data.id.present ? data.id.value : this.id,
       walletId: data.walletId.present ? data.walletId.value : this.walletId,
-      oddienceUserId: data.oddienceUserId.present
-          ? data.oddienceUserId.value
-          : this.oddienceUserId,
+      userId: data.userId.present ? data.userId.value : this.userId,
       type: data.type.present ? data.type.value : this.type,
       subType: data.subType.present ? data.subType.value : this.subType,
       tokenAmount: data.tokenAmount.present
@@ -1309,7 +1295,7 @@ class LocalTransaction extends DataClass
     return (StringBuffer('LocalTransaction(')
           ..write('id: $id, ')
           ..write('walletId: $walletId, ')
-          ..write('oddienceUserId: $oddienceUserId, ')
+          ..write('userId: $userId, ')
           ..write('type: $type, ')
           ..write('subType: $subType, ')
           ..write('tokenAmount: $tokenAmount, ')
@@ -1329,7 +1315,7 @@ class LocalTransaction extends DataClass
   int get hashCode => Object.hash(
     id,
     walletId,
-    oddienceUserId,
+    userId,
     type,
     subType,
     tokenAmount,
@@ -1348,7 +1334,7 @@ class LocalTransaction extends DataClass
       (other is LocalTransaction &&
           other.id == this.id &&
           other.walletId == this.walletId &&
-          other.oddienceUserId == this.oddienceUserId &&
+          other.userId == this.userId &&
           other.type == this.type &&
           other.subType == this.subType &&
           other.tokenAmount == this.tokenAmount &&
@@ -1365,7 +1351,7 @@ class LocalTransaction extends DataClass
 class LocalTransactionsCompanion extends UpdateCompanion<LocalTransaction> {
   final Value<String> id;
   final Value<String> walletId;
-  final Value<String> oddienceUserId;
+  final Value<String> userId;
   final Value<String> type;
   final Value<String?> subType;
   final Value<int> tokenAmount;
@@ -1381,7 +1367,7 @@ class LocalTransactionsCompanion extends UpdateCompanion<LocalTransaction> {
   const LocalTransactionsCompanion({
     this.id = const Value.absent(),
     this.walletId = const Value.absent(),
-    this.oddienceUserId = const Value.absent(),
+    this.userId = const Value.absent(),
     this.type = const Value.absent(),
     this.subType = const Value.absent(),
     this.tokenAmount = const Value.absent(),
@@ -1398,7 +1384,7 @@ class LocalTransactionsCompanion extends UpdateCompanion<LocalTransaction> {
   LocalTransactionsCompanion.insert({
     required String id,
     required String walletId,
-    required String oddienceUserId,
+    required String userId,
     required String type,
     this.subType = const Value.absent(),
     required int tokenAmount,
@@ -1413,7 +1399,7 @@ class LocalTransactionsCompanion extends UpdateCompanion<LocalTransaction> {
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        walletId = Value(walletId),
-       oddienceUserId = Value(oddienceUserId),
+       userId = Value(userId),
        type = Value(type),
        tokenAmount = Value(tokenAmount),
        zarAmount = Value(zarAmount),
@@ -1423,7 +1409,7 @@ class LocalTransactionsCompanion extends UpdateCompanion<LocalTransaction> {
   static Insertable<LocalTransaction> custom({
     Expression<String>? id,
     Expression<String>? walletId,
-    Expression<String>? oddienceUserId,
+    Expression<String>? userId,
     Expression<String>? type,
     Expression<String>? subType,
     Expression<int>? tokenAmount,
@@ -1440,7 +1426,7 @@ class LocalTransactionsCompanion extends UpdateCompanion<LocalTransaction> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (walletId != null) 'wallet_id': walletId,
-      if (oddienceUserId != null) 'oddience_user_id': oddienceUserId,
+      if (userId != null) 'user_id': userId,
       if (type != null) 'type': type,
       if (subType != null) 'sub_type': subType,
       if (tokenAmount != null) 'token_amount': tokenAmount,
@@ -1459,7 +1445,7 @@ class LocalTransactionsCompanion extends UpdateCompanion<LocalTransaction> {
   LocalTransactionsCompanion copyWith({
     Value<String>? id,
     Value<String>? walletId,
-    Value<String>? oddienceUserId,
+    Value<String>? userId,
     Value<String>? type,
     Value<String?>? subType,
     Value<int>? tokenAmount,
@@ -1476,7 +1462,7 @@ class LocalTransactionsCompanion extends UpdateCompanion<LocalTransaction> {
     return LocalTransactionsCompanion(
       id: id ?? this.id,
       walletId: walletId ?? this.walletId,
-      oddienceUserId: oddienceUserId ?? this.oddienceUserId,
+      userId: userId ?? this.userId,
       type: type ?? this.type,
       subType: subType ?? this.subType,
       tokenAmount: tokenAmount ?? this.tokenAmount,
@@ -1501,8 +1487,8 @@ class LocalTransactionsCompanion extends UpdateCompanion<LocalTransaction> {
     if (walletId.present) {
       map['wallet_id'] = Variable<String>(walletId.value);
     }
-    if (oddienceUserId.present) {
-      map['oddience_user_id'] = Variable<String>(oddienceUserId.value);
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (type.present) {
       map['type'] = Variable<String>(type.value);
@@ -1548,7 +1534,7 @@ class LocalTransactionsCompanion extends UpdateCompanion<LocalTransaction> {
     return (StringBuffer('LocalTransactionsCompanion(')
           ..write('id: $id, ')
           ..write('walletId: $walletId, ')
-          ..write('oddienceUserId: $oddienceUserId, ')
+          ..write('userId: $userId, ')
           ..write('type: $type, ')
           ..write('subType: $subType, ')
           ..write('tokenAmount: $tokenAmount, ')
@@ -1581,12 +1567,10 @@ class $LocalEarnThreadsTable extends LocalEarnThreads
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _oddienceUserIdMeta = const VerificationMeta(
-    'oddienceUserId',
-  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
   @override
-  late final GeneratedColumn<String> oddienceUserId = GeneratedColumn<String>(
-    'oddience_user_id',
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -1739,7 +1723,7 @@ class $LocalEarnThreadsTable extends LocalEarnThreads
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    oddienceUserId,
+    userId,
     campaignId,
     campaignName,
     type,
@@ -1771,16 +1755,13 @@ class $LocalEarnThreadsTable extends LocalEarnThreads
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('oddience_user_id')) {
+    if (data.containsKey('user_id')) {
       context.handle(
-        _oddienceUserIdMeta,
-        oddienceUserId.isAcceptableOrUnknown(
-          data['oddience_user_id']!,
-          _oddienceUserIdMeta,
-        ),
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_oddienceUserIdMeta);
+      context.missing(_userIdMeta);
     }
     if (data.containsKey('campaign_id')) {
       context.handle(
@@ -1899,9 +1880,9 @@ class $LocalEarnThreadsTable extends LocalEarnThreads
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
-      oddienceUserId: attachedDatabase.typeMapping.read(
+      userId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}oddience_user_id'],
+        data['${effectivePrefix}user_id'],
       )!,
       campaignId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -1966,7 +1947,7 @@ class $LocalEarnThreadsTable extends LocalEarnThreads
 
 class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
   final String id;
-  final String oddienceUserId;
+  final String userId;
   final String campaignId;
   final String campaignName;
   final String type;
@@ -1982,7 +1963,7 @@ class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
   final bool isSynced;
   const LocalEarnThread({
     required this.id,
-    required this.oddienceUserId,
+    required this.userId,
     required this.campaignId,
     required this.campaignName,
     required this.type,
@@ -2001,7 +1982,7 @@ class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['oddience_user_id'] = Variable<String>(oddienceUserId);
+    map['user_id'] = Variable<String>(userId);
     map['campaign_id'] = Variable<String>(campaignId);
     map['campaign_name'] = Variable<String>(campaignName);
     map['type'] = Variable<String>(type);
@@ -2029,7 +2010,7 @@ class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
   LocalEarnThreadsCompanion toCompanion(bool nullToAbsent) {
     return LocalEarnThreadsCompanion(
       id: Value(id),
-      oddienceUserId: Value(oddienceUserId),
+      userId: Value(userId),
       campaignId: Value(campaignId),
       campaignName: Value(campaignName),
       type: Value(type),
@@ -2061,7 +2042,7 @@ class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalEarnThread(
       id: serializer.fromJson<String>(json['id']),
-      oddienceUserId: serializer.fromJson<String>(json['oddienceUserId']),
+      userId: serializer.fromJson<String>(json['userId']),
       campaignId: serializer.fromJson<String>(json['campaignId']),
       campaignName: serializer.fromJson<String>(json['campaignName']),
       type: serializer.fromJson<String>(json['type']),
@@ -2082,7 +2063,7 @@ class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'oddienceUserId': serializer.toJson<String>(oddienceUserId),
+      'userId': serializer.toJson<String>(userId),
       'campaignId': serializer.toJson<String>(campaignId),
       'campaignName': serializer.toJson<String>(campaignName),
       'type': serializer.toJson<String>(type),
@@ -2101,7 +2082,7 @@ class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
 
   LocalEarnThread copyWith({
     String? id,
-    String? oddienceUserId,
+    String? userId,
     String? campaignId,
     String? campaignName,
     String? type,
@@ -2117,7 +2098,7 @@ class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
     bool? isSynced,
   }) => LocalEarnThread(
     id: id ?? this.id,
-    oddienceUserId: oddienceUserId ?? this.oddienceUserId,
+    userId: userId ?? this.userId,
     campaignId: campaignId ?? this.campaignId,
     campaignName: campaignName ?? this.campaignName,
     type: type ?? this.type,
@@ -2135,9 +2116,7 @@ class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
   LocalEarnThread copyWithCompanion(LocalEarnThreadsCompanion data) {
     return LocalEarnThread(
       id: data.id.present ? data.id.value : this.id,
-      oddienceUserId: data.oddienceUserId.present
-          ? data.oddienceUserId.value
-          : this.oddienceUserId,
+      userId: data.userId.present ? data.userId.value : this.userId,
       campaignId: data.campaignId.present
           ? data.campaignId.value
           : this.campaignId,
@@ -2168,7 +2147,7 @@ class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
   String toString() {
     return (StringBuffer('LocalEarnThread(')
           ..write('id: $id, ')
-          ..write('oddienceUserId: $oddienceUserId, ')
+          ..write('userId: $userId, ')
           ..write('campaignId: $campaignId, ')
           ..write('campaignName: $campaignName, ')
           ..write('type: $type, ')
@@ -2189,7 +2168,7 @@ class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
   @override
   int get hashCode => Object.hash(
     id,
-    oddienceUserId,
+    userId,
     campaignId,
     campaignName,
     type,
@@ -2209,7 +2188,7 @@ class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
       identical(this, other) ||
       (other is LocalEarnThread &&
           other.id == this.id &&
-          other.oddienceUserId == this.oddienceUserId &&
+          other.userId == this.userId &&
           other.campaignId == this.campaignId &&
           other.campaignName == this.campaignName &&
           other.type == this.type &&
@@ -2227,7 +2206,7 @@ class LocalEarnThread extends DataClass implements Insertable<LocalEarnThread> {
 
 class LocalEarnThreadsCompanion extends UpdateCompanion<LocalEarnThread> {
   final Value<String> id;
-  final Value<String> oddienceUserId;
+  final Value<String> userId;
   final Value<String> campaignId;
   final Value<String> campaignName;
   final Value<String> type;
@@ -2244,7 +2223,7 @@ class LocalEarnThreadsCompanion extends UpdateCompanion<LocalEarnThread> {
   final Value<int> rowid;
   const LocalEarnThreadsCompanion({
     this.id = const Value.absent(),
-    this.oddienceUserId = const Value.absent(),
+    this.userId = const Value.absent(),
     this.campaignId = const Value.absent(),
     this.campaignName = const Value.absent(),
     this.type = const Value.absent(),
@@ -2262,7 +2241,7 @@ class LocalEarnThreadsCompanion extends UpdateCompanion<LocalEarnThread> {
   });
   LocalEarnThreadsCompanion.insert({
     required String id,
-    required String oddienceUserId,
+    required String userId,
     required String campaignId,
     required String campaignName,
     required String type,
@@ -2278,7 +2257,7 @@ class LocalEarnThreadsCompanion extends UpdateCompanion<LocalEarnThread> {
     this.isSynced = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
-       oddienceUserId = Value(oddienceUserId),
+       userId = Value(userId),
        campaignId = Value(campaignId),
        campaignName = Value(campaignName),
        type = Value(type),
@@ -2288,7 +2267,7 @@ class LocalEarnThreadsCompanion extends UpdateCompanion<LocalEarnThread> {
        updatedAt = Value(updatedAt);
   static Insertable<LocalEarnThread> custom({
     Expression<String>? id,
-    Expression<String>? oddienceUserId,
+    Expression<String>? userId,
     Expression<String>? campaignId,
     Expression<String>? campaignName,
     Expression<String>? type,
@@ -2306,7 +2285,7 @@ class LocalEarnThreadsCompanion extends UpdateCompanion<LocalEarnThread> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (oddienceUserId != null) 'oddience_user_id': oddienceUserId,
+      if (userId != null) 'user_id': userId,
       if (campaignId != null) 'campaign_id': campaignId,
       if (campaignName != null) 'campaign_name': campaignName,
       if (type != null) 'type': type,
@@ -2326,7 +2305,7 @@ class LocalEarnThreadsCompanion extends UpdateCompanion<LocalEarnThread> {
 
   LocalEarnThreadsCompanion copyWith({
     Value<String>? id,
-    Value<String>? oddienceUserId,
+    Value<String>? userId,
     Value<String>? campaignId,
     Value<String>? campaignName,
     Value<String>? type,
@@ -2344,7 +2323,7 @@ class LocalEarnThreadsCompanion extends UpdateCompanion<LocalEarnThread> {
   }) {
     return LocalEarnThreadsCompanion(
       id: id ?? this.id,
-      oddienceUserId: oddienceUserId ?? this.oddienceUserId,
+      userId: userId ?? this.userId,
       campaignId: campaignId ?? this.campaignId,
       campaignName: campaignName ?? this.campaignName,
       type: type ?? this.type,
@@ -2368,8 +2347,8 @@ class LocalEarnThreadsCompanion extends UpdateCompanion<LocalEarnThread> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (oddienceUserId.present) {
-      map['oddience_user_id'] = Variable<String>(oddienceUserId.value);
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (campaignId.present) {
       map['campaign_id'] = Variable<String>(campaignId.value);
@@ -2420,7 +2399,7 @@ class LocalEarnThreadsCompanion extends UpdateCompanion<LocalEarnThread> {
   String toString() {
     return (StringBuffer('LocalEarnThreadsCompanion(')
           ..write('id: $id, ')
-          ..write('oddienceUserId: $oddienceUserId, ')
+          ..write('userId: $userId, ')
           ..write('campaignId: $campaignId, ')
           ..write('campaignName: $campaignName, ')
           ..write('type: $type, ')
@@ -2455,12 +2434,10 @@ class $LocalChatThreadsTable extends LocalChatThreads
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _oddienceUserIdMeta = const VerificationMeta(
-    'oddienceUserId',
-  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
   @override
-  late final GeneratedColumn<String> oddienceUserId = GeneratedColumn<String>(
-    'oddience_user_id',
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -2589,7 +2566,7 @@ class $LocalChatThreadsTable extends LocalChatThreads
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    oddienceUserId,
+    userId,
     otherUserId,
     otherUserName,
     otherUserAvatar,
@@ -2618,16 +2595,13 @@ class $LocalChatThreadsTable extends LocalChatThreads
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('oddience_user_id')) {
+    if (data.containsKey('user_id')) {
       context.handle(
-        _oddienceUserIdMeta,
-        oddienceUserId.isAcceptableOrUnknown(
-          data['oddience_user_id']!,
-          _oddienceUserIdMeta,
-        ),
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_oddienceUserIdMeta);
+      context.missing(_userIdMeta);
     }
     if (data.containsKey('other_user_id')) {
       context.handle(
@@ -2728,9 +2702,9 @@ class $LocalChatThreadsTable extends LocalChatThreads
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
-      oddienceUserId: attachedDatabase.typeMapping.read(
+      userId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}oddience_user_id'],
+        data['${effectivePrefix}user_id'],
       )!,
       otherUserId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -2783,7 +2757,7 @@ class $LocalChatThreadsTable extends LocalChatThreads
 
 class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
   final String id;
-  final String oddienceUserId;
+  final String userId;
   final String otherUserId;
   final String otherUserName;
   final String? otherUserAvatar;
@@ -2796,7 +2770,7 @@ class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
   final bool isSynced;
   const LocalChatThread({
     required this.id,
-    required this.oddienceUserId,
+    required this.userId,
     required this.otherUserId,
     required this.otherUserName,
     this.otherUserAvatar,
@@ -2812,7 +2786,7 @@ class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['oddience_user_id'] = Variable<String>(oddienceUserId);
+    map['user_id'] = Variable<String>(userId);
     map['other_user_id'] = Variable<String>(otherUserId);
     map['other_user_name'] = Variable<String>(otherUserName);
     if (!nullToAbsent || otherUserAvatar != null) {
@@ -2835,7 +2809,7 @@ class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
   LocalChatThreadsCompanion toCompanion(bool nullToAbsent) {
     return LocalChatThreadsCompanion(
       id: Value(id),
-      oddienceUserId: Value(oddienceUserId),
+      userId: Value(userId),
       otherUserId: Value(otherUserId),
       otherUserName: Value(otherUserName),
       otherUserAvatar: otherUserAvatar == null && nullToAbsent
@@ -2862,7 +2836,7 @@ class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalChatThread(
       id: serializer.fromJson<String>(json['id']),
-      oddienceUserId: serializer.fromJson<String>(json['oddienceUserId']),
+      userId: serializer.fromJson<String>(json['userId']),
       otherUserId: serializer.fromJson<String>(json['otherUserId']),
       otherUserName: serializer.fromJson<String>(json['otherUserName']),
       otherUserAvatar: serializer.fromJson<String?>(json['otherUserAvatar']),
@@ -2880,7 +2854,7 @@ class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'oddienceUserId': serializer.toJson<String>(oddienceUserId),
+      'userId': serializer.toJson<String>(userId),
       'otherUserId': serializer.toJson<String>(otherUserId),
       'otherUserName': serializer.toJson<String>(otherUserName),
       'otherUserAvatar': serializer.toJson<String?>(otherUserAvatar),
@@ -2896,7 +2870,7 @@ class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
 
   LocalChatThread copyWith({
     String? id,
-    String? oddienceUserId,
+    String? userId,
     String? otherUserId,
     String? otherUserName,
     Value<String?> otherUserAvatar = const Value.absent(),
@@ -2909,7 +2883,7 @@ class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
     bool? isSynced,
   }) => LocalChatThread(
     id: id ?? this.id,
-    oddienceUserId: oddienceUserId ?? this.oddienceUserId,
+    userId: userId ?? this.userId,
     otherUserId: otherUserId ?? this.otherUserId,
     otherUserName: otherUserName ?? this.otherUserName,
     otherUserAvatar: otherUserAvatar.present
@@ -2928,9 +2902,7 @@ class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
   LocalChatThread copyWithCompanion(LocalChatThreadsCompanion data) {
     return LocalChatThread(
       id: data.id.present ? data.id.value : this.id,
-      oddienceUserId: data.oddienceUserId.present
-          ? data.oddienceUserId.value
-          : this.oddienceUserId,
+      userId: data.userId.present ? data.userId.value : this.userId,
       otherUserId: data.otherUserId.present
           ? data.otherUserId.value
           : this.otherUserId,
@@ -2962,7 +2934,7 @@ class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
   String toString() {
     return (StringBuffer('LocalChatThread(')
           ..write('id: $id, ')
-          ..write('oddienceUserId: $oddienceUserId, ')
+          ..write('userId: $userId, ')
           ..write('otherUserId: $otherUserId, ')
           ..write('otherUserName: $otherUserName, ')
           ..write('otherUserAvatar: $otherUserAvatar, ')
@@ -2980,7 +2952,7 @@ class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
   @override
   int get hashCode => Object.hash(
     id,
-    oddienceUserId,
+    userId,
     otherUserId,
     otherUserName,
     otherUserAvatar,
@@ -2997,7 +2969,7 @@ class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
       identical(this, other) ||
       (other is LocalChatThread &&
           other.id == this.id &&
-          other.oddienceUserId == this.oddienceUserId &&
+          other.userId == this.userId &&
           other.otherUserId == this.otherUserId &&
           other.otherUserName == this.otherUserName &&
           other.otherUserAvatar == this.otherUserAvatar &&
@@ -3012,7 +2984,7 @@ class LocalChatThread extends DataClass implements Insertable<LocalChatThread> {
 
 class LocalChatThreadsCompanion extends UpdateCompanion<LocalChatThread> {
   final Value<String> id;
-  final Value<String> oddienceUserId;
+  final Value<String> userId;
   final Value<String> otherUserId;
   final Value<String> otherUserName;
   final Value<String?> otherUserAvatar;
@@ -3026,7 +2998,7 @@ class LocalChatThreadsCompanion extends UpdateCompanion<LocalChatThread> {
   final Value<int> rowid;
   const LocalChatThreadsCompanion({
     this.id = const Value.absent(),
-    this.oddienceUserId = const Value.absent(),
+    this.userId = const Value.absent(),
     this.otherUserId = const Value.absent(),
     this.otherUserName = const Value.absent(),
     this.otherUserAvatar = const Value.absent(),
@@ -3041,7 +3013,7 @@ class LocalChatThreadsCompanion extends UpdateCompanion<LocalChatThread> {
   });
   LocalChatThreadsCompanion.insert({
     required String id,
-    required String oddienceUserId,
+    required String userId,
     required String otherUserId,
     required String otherUserName,
     this.otherUserAvatar = const Value.absent(),
@@ -3054,14 +3026,14 @@ class LocalChatThreadsCompanion extends UpdateCompanion<LocalChatThread> {
     this.isSynced = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
-       oddienceUserId = Value(oddienceUserId),
+       userId = Value(userId),
        otherUserId = Value(otherUserId),
        otherUserName = Value(otherUserName),
        createdAt = Value(createdAt),
        updatedAt = Value(updatedAt);
   static Insertable<LocalChatThread> custom({
     Expression<String>? id,
-    Expression<String>? oddienceUserId,
+    Expression<String>? userId,
     Expression<String>? otherUserId,
     Expression<String>? otherUserName,
     Expression<String>? otherUserAvatar,
@@ -3076,7 +3048,7 @@ class LocalChatThreadsCompanion extends UpdateCompanion<LocalChatThread> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (oddienceUserId != null) 'oddience_user_id': oddienceUserId,
+      if (userId != null) 'user_id': userId,
       if (otherUserId != null) 'other_user_id': otherUserId,
       if (otherUserName != null) 'other_user_name': otherUserName,
       if (otherUserAvatar != null) 'other_user_avatar': otherUserAvatar,
@@ -3093,7 +3065,7 @@ class LocalChatThreadsCompanion extends UpdateCompanion<LocalChatThread> {
 
   LocalChatThreadsCompanion copyWith({
     Value<String>? id,
-    Value<String>? oddienceUserId,
+    Value<String>? userId,
     Value<String>? otherUserId,
     Value<String>? otherUserName,
     Value<String?>? otherUserAvatar,
@@ -3108,7 +3080,7 @@ class LocalChatThreadsCompanion extends UpdateCompanion<LocalChatThread> {
   }) {
     return LocalChatThreadsCompanion(
       id: id ?? this.id,
-      oddienceUserId: oddienceUserId ?? this.oddienceUserId,
+      userId: userId ?? this.userId,
       otherUserId: otherUserId ?? this.otherUserId,
       otherUserName: otherUserName ?? this.otherUserName,
       otherUserAvatar: otherUserAvatar ?? this.otherUserAvatar,
@@ -3129,8 +3101,8 @@ class LocalChatThreadsCompanion extends UpdateCompanion<LocalChatThread> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (oddienceUserId.present) {
-      map['oddience_user_id'] = Variable<String>(oddienceUserId.value);
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (otherUserId.present) {
       map['other_user_id'] = Variable<String>(otherUserId.value);
@@ -3172,7 +3144,7 @@ class LocalChatThreadsCompanion extends UpdateCompanion<LocalChatThread> {
   String toString() {
     return (StringBuffer('LocalChatThreadsCompanion(')
           ..write('id: $id, ')
-          ..write('oddienceUserId: $oddienceUserId, ')
+          ..write('userId: $userId, ')
           ..write('otherUserId: $otherUserId, ')
           ..write('otherUserName: $otherUserName, ')
           ..write('otherUserAvatar: $otherUserAvatar, ')
@@ -5294,13 +5266,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$LocalWalletsTableCreateCompanionBuilder =
     LocalWalletsCompanion Function({
       required String id,
-      required String oddienceUserId,
+      required String userId,
       Value<int> tokenBalance,
       Value<int> pendingBalance,
       Value<int> lifetimeEarned,
-      Value<int> lifetimeCashout,
+      Value<int> lifetimeWithdrawn,
       Value<int> todayEarned,
-      Value<int> pendingCashout,
+      Value<int> pendingWithdrawal,
       Value<DateTime?> lastEarnedAt,
       required DateTime createdAt,
       required DateTime updatedAt,
@@ -5310,13 +5282,13 @@ typedef $$LocalWalletsTableCreateCompanionBuilder =
 typedef $$LocalWalletsTableUpdateCompanionBuilder =
     LocalWalletsCompanion Function({
       Value<String> id,
-      Value<String> oddienceUserId,
+      Value<String> userId,
       Value<int> tokenBalance,
       Value<int> pendingBalance,
       Value<int> lifetimeEarned,
-      Value<int> lifetimeCashout,
+      Value<int> lifetimeWithdrawn,
       Value<int> todayEarned,
-      Value<int> pendingCashout,
+      Value<int> pendingWithdrawal,
       Value<DateTime?> lastEarnedAt,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -5338,8 +5310,8 @@ class $$LocalWalletsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get oddienceUserId => $composableBuilder(
-    column: $table.oddienceUserId,
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5358,8 +5330,8 @@ class $$LocalWalletsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get lifetimeCashout => $composableBuilder(
-    column: $table.lifetimeCashout,
+  ColumnFilters<int> get lifetimeWithdrawn => $composableBuilder(
+    column: $table.lifetimeWithdrawn,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5368,8 +5340,8 @@ class $$LocalWalletsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get pendingCashout => $composableBuilder(
-    column: $table.pendingCashout,
+  ColumnFilters<int> get pendingWithdrawal => $composableBuilder(
+    column: $table.pendingWithdrawal,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5408,8 +5380,8 @@ class $$LocalWalletsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get oddienceUserId => $composableBuilder(
-    column: $table.oddienceUserId,
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5428,8 +5400,8 @@ class $$LocalWalletsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get lifetimeCashout => $composableBuilder(
-    column: $table.lifetimeCashout,
+  ColumnOrderings<int> get lifetimeWithdrawn => $composableBuilder(
+    column: $table.lifetimeWithdrawn,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5438,8 +5410,8 @@ class $$LocalWalletsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get pendingCashout => $composableBuilder(
-    column: $table.pendingCashout,
+  ColumnOrderings<int> get pendingWithdrawal => $composableBuilder(
+    column: $table.pendingWithdrawal,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5476,10 +5448,8 @@ class $$LocalWalletsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get oddienceUserId => $composableBuilder(
-    column: $table.oddienceUserId,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<int> get tokenBalance => $composableBuilder(
     column: $table.tokenBalance,
@@ -5496,8 +5466,8 @@ class $$LocalWalletsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get lifetimeCashout => $composableBuilder(
-    column: $table.lifetimeCashout,
+  GeneratedColumn<int> get lifetimeWithdrawn => $composableBuilder(
+    column: $table.lifetimeWithdrawn,
     builder: (column) => column,
   );
 
@@ -5506,8 +5476,8 @@ class $$LocalWalletsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get pendingCashout => $composableBuilder(
-    column: $table.pendingCashout,
+  GeneratedColumn<int> get pendingWithdrawal => $composableBuilder(
+    column: $table.pendingWithdrawal,
     builder: (column) => column,
   );
 
@@ -5558,13 +5528,13 @@ class $$LocalWalletsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<String> oddienceUserId = const Value.absent(),
+                Value<String> userId = const Value.absent(),
                 Value<int> tokenBalance = const Value.absent(),
                 Value<int> pendingBalance = const Value.absent(),
                 Value<int> lifetimeEarned = const Value.absent(),
-                Value<int> lifetimeCashout = const Value.absent(),
+                Value<int> lifetimeWithdrawn = const Value.absent(),
                 Value<int> todayEarned = const Value.absent(),
-                Value<int> pendingCashout = const Value.absent(),
+                Value<int> pendingWithdrawal = const Value.absent(),
                 Value<DateTime?> lastEarnedAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -5572,13 +5542,13 @@ class $$LocalWalletsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => LocalWalletsCompanion(
                 id: id,
-                oddienceUserId: oddienceUserId,
+                userId: userId,
                 tokenBalance: tokenBalance,
                 pendingBalance: pendingBalance,
                 lifetimeEarned: lifetimeEarned,
-                lifetimeCashout: lifetimeCashout,
+                lifetimeWithdrawn: lifetimeWithdrawn,
                 todayEarned: todayEarned,
-                pendingCashout: pendingCashout,
+                pendingWithdrawal: pendingWithdrawal,
                 lastEarnedAt: lastEarnedAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -5588,13 +5558,13 @@ class $$LocalWalletsTableTableManager
           createCompanionCallback:
               ({
                 required String id,
-                required String oddienceUserId,
+                required String userId,
                 Value<int> tokenBalance = const Value.absent(),
                 Value<int> pendingBalance = const Value.absent(),
                 Value<int> lifetimeEarned = const Value.absent(),
-                Value<int> lifetimeCashout = const Value.absent(),
+                Value<int> lifetimeWithdrawn = const Value.absent(),
                 Value<int> todayEarned = const Value.absent(),
-                Value<int> pendingCashout = const Value.absent(),
+                Value<int> pendingWithdrawal = const Value.absent(),
                 Value<DateTime?> lastEarnedAt = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
@@ -5602,13 +5572,13 @@ class $$LocalWalletsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => LocalWalletsCompanion.insert(
                 id: id,
-                oddienceUserId: oddienceUserId,
+                userId: userId,
                 tokenBalance: tokenBalance,
                 pendingBalance: pendingBalance,
                 lifetimeEarned: lifetimeEarned,
-                lifetimeCashout: lifetimeCashout,
+                lifetimeWithdrawn: lifetimeWithdrawn,
                 todayEarned: todayEarned,
-                pendingCashout: pendingCashout,
+                pendingWithdrawal: pendingWithdrawal,
                 lastEarnedAt: lastEarnedAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -5644,7 +5614,7 @@ typedef $$LocalTransactionsTableCreateCompanionBuilder =
     LocalTransactionsCompanion Function({
       required String id,
       required String walletId,
-      required String oddienceUserId,
+      required String userId,
       required String type,
       Value<String?> subType,
       required int tokenAmount,
@@ -5662,7 +5632,7 @@ typedef $$LocalTransactionsTableUpdateCompanionBuilder =
     LocalTransactionsCompanion Function({
       Value<String> id,
       Value<String> walletId,
-      Value<String> oddienceUserId,
+      Value<String> userId,
       Value<String> type,
       Value<String?> subType,
       Value<int> tokenAmount,
@@ -5696,8 +5666,8 @@ class $$LocalTransactionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get oddienceUserId => $composableBuilder(
-    column: $table.oddienceUserId,
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5776,8 +5746,8 @@ class $$LocalTransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get oddienceUserId => $composableBuilder(
-    column: $table.oddienceUserId,
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5852,10 +5822,8 @@ class $$LocalTransactionsTableAnnotationComposer
   GeneratedColumn<String> get walletId =>
       $composableBuilder(column: $table.walletId, builder: (column) => column);
 
-  GeneratedColumn<String> get oddienceUserId => $composableBuilder(
-    column: $table.oddienceUserId,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
@@ -5941,7 +5909,7 @@ class $$LocalTransactionsTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> walletId = const Value.absent(),
-                Value<String> oddienceUserId = const Value.absent(),
+                Value<String> userId = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 Value<String?> subType = const Value.absent(),
                 Value<int> tokenAmount = const Value.absent(),
@@ -5957,7 +5925,7 @@ class $$LocalTransactionsTableTableManager
               }) => LocalTransactionsCompanion(
                 id: id,
                 walletId: walletId,
-                oddienceUserId: oddienceUserId,
+                userId: userId,
                 type: type,
                 subType: subType,
                 tokenAmount: tokenAmount,
@@ -5975,7 +5943,7 @@ class $$LocalTransactionsTableTableManager
               ({
                 required String id,
                 required String walletId,
-                required String oddienceUserId,
+                required String userId,
                 required String type,
                 Value<String?> subType = const Value.absent(),
                 required int tokenAmount,
@@ -5991,7 +5959,7 @@ class $$LocalTransactionsTableTableManager
               }) => LocalTransactionsCompanion.insert(
                 id: id,
                 walletId: walletId,
-                oddienceUserId: oddienceUserId,
+                userId: userId,
                 type: type,
                 subType: subType,
                 tokenAmount: tokenAmount,
@@ -6037,7 +6005,7 @@ typedef $$LocalTransactionsTableProcessedTableManager =
 typedef $$LocalEarnThreadsTableCreateCompanionBuilder =
     LocalEarnThreadsCompanion Function({
       required String id,
-      required String oddienceUserId,
+      required String userId,
       required String campaignId,
       required String campaignName,
       required String type,
@@ -6056,7 +6024,7 @@ typedef $$LocalEarnThreadsTableCreateCompanionBuilder =
 typedef $$LocalEarnThreadsTableUpdateCompanionBuilder =
     LocalEarnThreadsCompanion Function({
       Value<String> id,
-      Value<String> oddienceUserId,
+      Value<String> userId,
       Value<String> campaignId,
       Value<String> campaignName,
       Value<String> type,
@@ -6087,8 +6055,8 @@ class $$LocalEarnThreadsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get oddienceUserId => $composableBuilder(
-    column: $table.oddienceUserId,
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6172,8 +6140,8 @@ class $$LocalEarnThreadsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get oddienceUserId => $composableBuilder(
-    column: $table.oddienceUserId,
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -6255,10 +6223,8 @@ class $$LocalEarnThreadsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get oddienceUserId => $composableBuilder(
-    column: $table.oddienceUserId,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<String> get campaignId => $composableBuilder(
     column: $table.campaignId,
@@ -6348,7 +6314,7 @@ class $$LocalEarnThreadsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<String> oddienceUserId = const Value.absent(),
+                Value<String> userId = const Value.absent(),
                 Value<String> campaignId = const Value.absent(),
                 Value<String> campaignName = const Value.absent(),
                 Value<String> type = const Value.absent(),
@@ -6365,7 +6331,7 @@ class $$LocalEarnThreadsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => LocalEarnThreadsCompanion(
                 id: id,
-                oddienceUserId: oddienceUserId,
+                userId: userId,
                 campaignId: campaignId,
                 campaignName: campaignName,
                 type: type,
@@ -6384,7 +6350,7 @@ class $$LocalEarnThreadsTableTableManager
           createCompanionCallback:
               ({
                 required String id,
-                required String oddienceUserId,
+                required String userId,
                 required String campaignId,
                 required String campaignName,
                 required String type,
@@ -6401,7 +6367,7 @@ class $$LocalEarnThreadsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => LocalEarnThreadsCompanion.insert(
                 id: id,
-                oddienceUserId: oddienceUserId,
+                userId: userId,
                 campaignId: campaignId,
                 campaignName: campaignName,
                 type: type,
@@ -6445,7 +6411,7 @@ typedef $$LocalEarnThreadsTableProcessedTableManager =
 typedef $$LocalChatThreadsTableCreateCompanionBuilder =
     LocalChatThreadsCompanion Function({
       required String id,
-      required String oddienceUserId,
+      required String userId,
       required String otherUserId,
       required String otherUserName,
       Value<String?> otherUserAvatar,
@@ -6461,7 +6427,7 @@ typedef $$LocalChatThreadsTableCreateCompanionBuilder =
 typedef $$LocalChatThreadsTableUpdateCompanionBuilder =
     LocalChatThreadsCompanion Function({
       Value<String> id,
-      Value<String> oddienceUserId,
+      Value<String> userId,
       Value<String> otherUserId,
       Value<String> otherUserName,
       Value<String?> otherUserAvatar,
@@ -6489,8 +6455,8 @@ class $$LocalChatThreadsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get oddienceUserId => $composableBuilder(
-    column: $table.oddienceUserId,
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6559,8 +6525,8 @@ class $$LocalChatThreadsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get oddienceUserId => $composableBuilder(
-    column: $table.oddienceUserId,
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -6627,10 +6593,8 @@ class $$LocalChatThreadsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get oddienceUserId => $composableBuilder(
-    column: $table.oddienceUserId,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<String> get otherUserId => $composableBuilder(
     column: $table.otherUserId,
@@ -6715,7 +6679,7 @@ class $$LocalChatThreadsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<String> oddienceUserId = const Value.absent(),
+                Value<String> userId = const Value.absent(),
                 Value<String> otherUserId = const Value.absent(),
                 Value<String> otherUserName = const Value.absent(),
                 Value<String?> otherUserAvatar = const Value.absent(),
@@ -6729,7 +6693,7 @@ class $$LocalChatThreadsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => LocalChatThreadsCompanion(
                 id: id,
-                oddienceUserId: oddienceUserId,
+                userId: userId,
                 otherUserId: otherUserId,
                 otherUserName: otherUserName,
                 otherUserAvatar: otherUserAvatar,
@@ -6745,7 +6709,7 @@ class $$LocalChatThreadsTableTableManager
           createCompanionCallback:
               ({
                 required String id,
-                required String oddienceUserId,
+                required String userId,
                 required String otherUserId,
                 required String otherUserName,
                 Value<String?> otherUserAvatar = const Value.absent(),
@@ -6759,7 +6723,7 @@ class $$LocalChatThreadsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => LocalChatThreadsCompanion.insert(
                 id: id,
-                oddienceUserId: oddienceUserId,
+                userId: userId,
                 otherUserId: otherUserId,
                 otherUserName: otherUserName,
                 otherUserAvatar: otherUserAvatar,

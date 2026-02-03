@@ -20,12 +20,14 @@ class User with _$User {
     DateTime? lastActiveAt,
     DateTime? potEligibleAt,
     String? referralCode,
+    String? referredBy,
     String? currentVisitorId,
     UserProfile? profile,
     int? riskScore,
     String? primaryDeviceId,
     String? riskLevel,
     DateTime? lastLoginAt,
+    @Default('none') String kycTier,
   }) = _User;
 
   const User._();

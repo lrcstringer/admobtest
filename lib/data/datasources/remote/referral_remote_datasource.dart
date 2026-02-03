@@ -287,16 +287,17 @@ You'll get 50 tokens when you sign up and I'll get 100 tokens when you complete 
 
   @override
   Future<List<ReferralStatsModel>> getReferralLeaderboard({int? limit}) async {
-    // Get users with most completed referrals
-    final usersSnapshot = await _usersCollection
+    // Query referralStats collection for leaderboard data
+    final statsSnapshot = await _firestore
+        .collection('referralStats')
         .orderBy('completedReferrals', descending: true)
         .limit(limit ?? 20)
         .get();
 
     final List<ReferralStatsModel> leaderboard = [];
 
-    for (final doc in usersSnapshot.docs) {
-      final data = doc.data() as Map<String, dynamic>;
+    for (final doc in statsSnapshot.docs) {
+      final data = doc.data();
       final referralCode = data['referralCode'] as String? ?? '';
 
       if (referralCode.isEmpty) continue;
@@ -305,7 +306,7 @@ You'll get 50 tokens when you sign up and I'll get 100 tokens when you complete 
         totalReferrals: data['totalReferrals'] as int? ?? 0,
         pendingReferrals: data['pendingReferrals'] as int? ?? 0,
         completedReferrals: data['completedReferrals'] as int? ?? 0,
-        totalEarned: data['referralEarnings'] as int? ?? 0,
+        totalEarned: data['totalEarned'] as int? ?? 0,
         referralCode: referralCode,
         referralLink: 'https://imali.app/r/$referralCode',
       ));

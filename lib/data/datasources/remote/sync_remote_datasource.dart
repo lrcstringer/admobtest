@@ -18,7 +18,7 @@ class SyncRemoteDataSource {
   Future<WalletModel?> fetchWallet(String userId) async {
     final query = await _firestore
         .collection('wallets')
-        .where('oddienceUserId', isEqualTo: userId)
+        .where('userId', isEqualTo: userId)
         .limit(1)
         .get();
 
@@ -36,7 +36,7 @@ class SyncRemoteDataSource {
   ) async {
     Query<Map<String, dynamic>> query = _firestore
         .collection('transactions')
-        .where('oddienceUserId', isEqualTo: userId)
+        .where('userId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
         .limit(100);
 
@@ -61,7 +61,7 @@ class SyncRemoteDataSource {
   ) async {
     Query<Map<String, dynamic>> query = _firestore
         .collection('earnThreads')
-        .where('oddienceUserId', isEqualTo: userId)
+        .where('userId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
         .limit(50);
 

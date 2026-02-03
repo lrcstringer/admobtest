@@ -9,7 +9,7 @@ part of 'engagement.dart';
 _$EngagementImpl _$$EngagementImplFromJson(Map<String, dynamic> json) =>
     _$EngagementImpl(
       id: json['id'] as String,
-      oddienceUserId: json['oddienceUserId'] as String,
+      userId: json['userId'] as String,
       oddienceCampaignId: json['oddienceCampaignId'] as String,
       earnOpportunityId: json['earnOpportunityId'] as String,
       status: $enumDecode(_$EngagementStatusEnumMap, json['status']),
@@ -39,7 +39,7 @@ _$EngagementImpl _$$EngagementImplFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$$EngagementImplToJson(_$EngagementImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'oddienceUserId': instance.oddienceUserId,
+      'userId': instance.userId,
       'oddienceCampaignId': instance.oddienceCampaignId,
       'earnOpportunityId': instance.earnOpportunityId,
       'status': _$EngagementStatusEnumMap[instance.status]!,

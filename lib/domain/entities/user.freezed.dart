@@ -32,12 +32,14 @@ mixin _$User {
   DateTime? get lastActiveAt => throw _privateConstructorUsedError;
   DateTime? get potEligibleAt => throw _privateConstructorUsedError;
   String? get referralCode => throw _privateConstructorUsedError;
+  String? get referredBy => throw _privateConstructorUsedError;
   String? get currentVisitorId => throw _privateConstructorUsedError;
   UserProfile? get profile => throw _privateConstructorUsedError;
   int? get riskScore => throw _privateConstructorUsedError;
   String? get primaryDeviceId => throw _privateConstructorUsedError;
   String? get riskLevel => throw _privateConstructorUsedError;
   DateTime? get lastLoginAt => throw _privateConstructorUsedError;
+  String get kycTier => throw _privateConstructorUsedError;
 
   /// Serializes this User to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -65,12 +67,14 @@ abstract class $UserCopyWith<$Res> {
     DateTime? lastActiveAt,
     DateTime? potEligibleAt,
     String? referralCode,
+    String? referredBy,
     String? currentVisitorId,
     UserProfile? profile,
     int? riskScore,
     String? primaryDeviceId,
     String? riskLevel,
     DateTime? lastLoginAt,
+    String kycTier,
   });
 
   $UserProfileCopyWith<$Res>? get profile;
@@ -102,12 +106,14 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
     Object? lastActiveAt = freezed,
     Object? potEligibleAt = freezed,
     Object? referralCode = freezed,
+    Object? referredBy = freezed,
     Object? currentVisitorId = freezed,
     Object? profile = freezed,
     Object? riskScore = freezed,
     Object? primaryDeviceId = freezed,
     Object? riskLevel = freezed,
     Object? lastLoginAt = freezed,
+    Object? kycTier = null,
   }) {
     return _then(
       _value.copyWith(
@@ -155,6 +161,10 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
                 ? _value.referralCode
                 : referralCode // ignore: cast_nullable_to_non_nullable
                       as String?,
+            referredBy: freezed == referredBy
+                ? _value.referredBy
+                : referredBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
             currentVisitorId: freezed == currentVisitorId
                 ? _value.currentVisitorId
                 : currentVisitorId // ignore: cast_nullable_to_non_nullable
@@ -179,6 +189,10 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
                 ? _value.lastLoginAt
                 : lastLoginAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            kycTier: null == kycTier
+                ? _value.kycTier
+                : kycTier // ignore: cast_nullable_to_non_nullable
+                      as String,
           )
           as $Val,
     );
@@ -219,12 +233,14 @@ abstract class _$$UserImplCopyWith<$Res> implements $UserCopyWith<$Res> {
     DateTime? lastActiveAt,
     DateTime? potEligibleAt,
     String? referralCode,
+    String? referredBy,
     String? currentVisitorId,
     UserProfile? profile,
     int? riskScore,
     String? primaryDeviceId,
     String? riskLevel,
     DateTime? lastLoginAt,
+    String kycTier,
   });
 
   @override
@@ -254,12 +270,14 @@ class __$$UserImplCopyWithImpl<$Res>
     Object? lastActiveAt = freezed,
     Object? potEligibleAt = freezed,
     Object? referralCode = freezed,
+    Object? referredBy = freezed,
     Object? currentVisitorId = freezed,
     Object? profile = freezed,
     Object? riskScore = freezed,
     Object? primaryDeviceId = freezed,
     Object? riskLevel = freezed,
     Object? lastLoginAt = freezed,
+    Object? kycTier = null,
   }) {
     return _then(
       _$UserImpl(
@@ -307,6 +325,10 @@ class __$$UserImplCopyWithImpl<$Res>
             ? _value.referralCode
             : referralCode // ignore: cast_nullable_to_non_nullable
                   as String?,
+        referredBy: freezed == referredBy
+            ? _value.referredBy
+            : referredBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
         currentVisitorId: freezed == currentVisitorId
             ? _value.currentVisitorId
             : currentVisitorId // ignore: cast_nullable_to_non_nullable
@@ -331,6 +353,10 @@ class __$$UserImplCopyWithImpl<$Res>
             ? _value.lastLoginAt
             : lastLoginAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        kycTier: null == kycTier
+            ? _value.kycTier
+            : kycTier // ignore: cast_nullable_to_non_nullable
+                  as String,
       ),
     );
   }
@@ -351,12 +377,14 @@ class _$UserImpl extends _User {
     this.lastActiveAt,
     this.potEligibleAt,
     this.referralCode,
+    this.referredBy,
     this.currentVisitorId,
     this.profile,
     this.riskScore,
     this.primaryDeviceId,
     this.riskLevel,
     this.lastLoginAt,
+    this.kycTier = 'none',
   }) : super._();
 
   factory _$UserImpl.fromJson(Map<String, dynamic> json) =>
@@ -385,6 +413,8 @@ class _$UserImpl extends _User {
   @override
   final String? referralCode;
   @override
+  final String? referredBy;
+  @override
   final String? currentVisitorId;
   @override
   final UserProfile? profile;
@@ -396,10 +426,13 @@ class _$UserImpl extends _User {
   final String? riskLevel;
   @override
   final DateTime? lastLoginAt;
+  @override
+  @JsonKey()
+  final String kycTier;
 
   @override
   String toString() {
-    return 'User(id: $id, phoneNumber: $phoneNumber, status: $status, isPotEligible: $isPotEligible, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt, potEligibleAt: $potEligibleAt, referralCode: $referralCode, currentVisitorId: $currentVisitorId, profile: $profile, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt)';
+    return 'User(id: $id, phoneNumber: $phoneNumber, status: $status, isPotEligible: $isPotEligible, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt, potEligibleAt: $potEligibleAt, referralCode: $referralCode, referredBy: $referredBy, currentVisitorId: $currentVisitorId, profile: $profile, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, kycTier: $kycTier)';
   }
 
   @override
@@ -427,6 +460,8 @@ class _$UserImpl extends _User {
                 other.potEligibleAt == potEligibleAt) &&
             (identical(other.referralCode, referralCode) ||
                 other.referralCode == referralCode) &&
+            (identical(other.referredBy, referredBy) ||
+                other.referredBy == referredBy) &&
             (identical(other.currentVisitorId, currentVisitorId) ||
                 other.currentVisitorId == currentVisitorId) &&
             (identical(other.profile, profile) || other.profile == profile) &&
@@ -437,12 +472,13 @@ class _$UserImpl extends _User {
             (identical(other.riskLevel, riskLevel) ||
                 other.riskLevel == riskLevel) &&
             (identical(other.lastLoginAt, lastLoginAt) ||
-                other.lastLoginAt == lastLoginAt));
+                other.lastLoginAt == lastLoginAt) &&
+            (identical(other.kycTier, kycTier) || other.kycTier == kycTier));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     phoneNumber,
@@ -455,13 +491,15 @@ class _$UserImpl extends _User {
     lastActiveAt,
     potEligibleAt,
     referralCode,
+    referredBy,
     currentVisitorId,
     profile,
     riskScore,
     primaryDeviceId,
     riskLevel,
     lastLoginAt,
-  );
+    kycTier,
+  ]);
 
   /// Create a copy of User
   /// with the given fields replaced by the non-null parameter values.
@@ -490,12 +528,14 @@ abstract class _User extends User {
     final DateTime? lastActiveAt,
     final DateTime? potEligibleAt,
     final String? referralCode,
+    final String? referredBy,
     final String? currentVisitorId,
     final UserProfile? profile,
     final int? riskScore,
     final String? primaryDeviceId,
     final String? riskLevel,
     final DateTime? lastLoginAt,
+    final String kycTier,
   }) = _$UserImpl;
   const _User._() : super._();
 
@@ -524,6 +564,8 @@ abstract class _User extends User {
   @override
   String? get referralCode;
   @override
+  String? get referredBy;
+  @override
   String? get currentVisitorId;
   @override
   UserProfile? get profile;
@@ -535,6 +577,8 @@ abstract class _User extends User {
   String? get riskLevel;
   @override
   DateTime? get lastLoginAt;
+  @override
+  String get kycTier;
 
   /// Create a copy of User
   /// with the given fields replaced by the non-null parameter values.

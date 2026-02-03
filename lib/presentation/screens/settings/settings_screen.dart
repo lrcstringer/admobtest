@@ -1,6 +1,10 @@
+import 'dart:convert';
+
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -31,6 +35,20 @@ class SettingsScreen extends StatelessWidget {
             title: 'Phone Number',
             subtitle: 'Manage your phone number',
             onTap: () {},
+          ),
+          _buildMenuItem(
+            context,
+            icon: Icons.verified_user_outlined,
+            title: 'Verify Identity',
+            subtitle: 'KYC verification for cashouts',
+            onTap: () => context.push('/home/profile/kyc'),
+          ),
+          _buildMenuItem(
+            context,
+            icon: Icons.download_outlined,
+            title: 'Download My Data',
+            subtitle: 'Export your data (POPIA/GDPR)',
+            onTap: () => _exportUserData(context),
           ),
           const Divider(height: 1),
 
@@ -86,13 +104,13 @@ class SettingsScreen extends StatelessWidget {
             context,
             icon: Icons.description_outlined,
             title: 'Terms of Service',
-            onTap: () {},
+            onTap: () => context.push('/auth/terms-of-service'),
           ),
           _buildMenuItem(
             context,
             icon: Icons.shield_outlined,
             title: 'Privacy Policy',
-            onTap: () {},
+            onTap: () => context.push('/auth/privacy-policy'),
           ),
           const Divider(height: 1),
 
@@ -151,6 +169,49 @@ class SettingsScreen extends StatelessWidget {
       trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
       onTap: onTap,
     );
+  }
+
+  Future<void> _exportUserData(BuildContext context) async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final result = await FirebaseFunctions.instance
+          .httpsCallable('exportUserData')
+          .call();
+
+      // Dismiss loading
+      if (context.mounted) Navigator.of(context).pop();
+
+      final data = result.data as Map<String, dynamic>;
+      final jsonString = const JsonEncoder.withIndent('  ').convert(data);
+
+      await Share.share(jsonString, subject: 'iMaliChat Data Export');
+    } on FirebaseFunctionsException catch (e) {
+      if (context.mounted) Navigator.of(context).pop();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message ?? 'Export failed. Please try again.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) Navigator.of(context).pop();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Something went wrong. Please try again.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   void _showDeleteAccountDialog(BuildContext context) {

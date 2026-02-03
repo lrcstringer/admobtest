@@ -7,7 +7,7 @@ part 'user_score.g.dart';
 @freezed
 class UserScore with _$UserScore {
   const factory UserScore({
-    required String oddienceUserId,
+    required String userId,
     required String displayName,
     String? username,
     String? avatarUrl,

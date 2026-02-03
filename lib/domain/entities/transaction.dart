@@ -5,6 +5,14 @@ import '../value_objects/token_amount.dart';
 part 'transaction.freezed.dart';
 part 'transaction.g.dart';
 
+/// Transaction status enum
+enum TransactionStatus {
+  pending,
+  completed,
+  failed,
+  cancelled,
+}
+
 /// Transaction entity representing wallet movements
 @freezed
 class Transaction with _$Transaction {
@@ -13,8 +21,9 @@ class Transaction with _$Transaction {
     required String walletId,
     required TransactionType type,
     required int amount,
-    required int balanceAfter,
+    @Default(0) int balanceAfter,
     required DateTime createdAt,
+    @Default(TransactionStatus.completed) TransactionStatus status,
     String? description,
     String? counterpartyId,
     String? counterpartyName,

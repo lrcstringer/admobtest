@@ -5,7 +5,9 @@
  * then evaluates the verdict against tiered policy rules.
  */
 
-import { google } from "googleapis";
+// Lazy-load googleapis to avoid deployment timeout (package is ~70MB)
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const getGoogle = () => require("googleapis").google;
 
 // Expected package name for the app
 const PACKAGE_NAME = "com.example.imalichat";
@@ -45,11 +47,12 @@ export async function decodeIntegrityToken(
   token: string,
   expectedNonce: string
 ): Promise<Record<string, unknown>> {
-  const auth = new google.auth.GoogleAuth({
+  const g = getGoogle();
+  const auth = new g.auth.GoogleAuth({
     scopes: ["https://www.googleapis.com/auth/playintegrity"],
   });
 
-  const playintegrity = google.playintegrity({
+  const playintegrity = g.playintegrity({
     version: "v1",
     auth,
   });

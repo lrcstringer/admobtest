@@ -43,7 +43,7 @@ export const deleteUserAccount = functions
 
     // ── Pre-check: reject if there are pending cashouts ───────────────
     const pendingCashouts = await db.collection("cashouts")
-      .where("oddienceUserId", "==", userId)
+      .where("userId", "==", userId)
       .where("status", "==", "processing")
       .limit(1)
       .get();
@@ -57,6 +57,31 @@ export const deleteUserAccount = functions
     }
 
     try {
+      // ── Phase 0: Read user data before deletion ───────────────────
+      //
+      // Capture phone number and device IDs so we can clean up rate
+      // limit documents keyed by those identifiers (not just userId).
+
+      const identifiers: string[] = [userId];
+
+      const userDoc = await db.collection("users").doc(userId).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        if (userData?.phoneNumber) {
+          identifiers.push(userData.phoneNumber);
+        }
+      }
+
+      const deviceDocs = await db.collection("devices")
+        .where("userId", "==", userId)
+        .get();
+      for (const doc of deviceDocs.docs) {
+        const deviceId = doc.data()?.deviceId;
+        if (deviceId) {
+          identifiers.push(deviceId);
+        }
+      }
+
       // ── Phase 1: Delete user-specific documents (by field query) ────
       //
       // Collections where user is referenced by a field (not doc ID).
@@ -64,24 +89,24 @@ export const deleteUserAccount = functions
 
       const fieldQueryCollections: [string, string][] = [
         // Financial
-        ["wallets", "oddienceUserId"],
-        ["transactions", "oddienceUserId"],
-        ["cashouts", "oddienceUserId"],
-        ["earnings", "oddienceUserId"],
+        ["wallets", "userId"],
+        ["transactions", "userId"],
+        ["cashouts", "userId"],
+        ["earnings", "userId"],
         // Earning & engagement
-        ["earnThreads", "oddienceUserId"],
-        ["engagements", "oddienceUserId"],
+        ["earnThreads", "userId"],
+        ["engagements", "userId"],
         // Gamification
-        ["potEntries", "oddienceUserId"],
-        ["potWinners", "oddienceUserId"],
-        ["leaderboard", "oddienceUserId"],
+        ["potEntries", "userId"],
+        ["potWinners", "userId"],
+        ["leaderboard", "userId"],
         // Referrals
-        ["referralCodes", "oddienceUserId"],
-        ["referralStats", "oddienceUserId"],
+        ["referralCodes", "userId"],
+        ["referralStats", "userId"],
         ["referrals", "referrerId"],
         ["referrals", "refereeUserId"],
         // Purchases
-        ["purchases", "oddienceUserId"],
+        ["purchases", "userId"],
         // Contacts
         ["contacts", "userId"],
         // Devices & auth
@@ -144,9 +169,9 @@ export const deleteUserAccount = functions
       // ── Phase 6: Delete rate limit documents ────────────────────────
       //
       // Rate limit docs have composite IDs: ${identifier}_${action}
-      // where identifier may be the userId.
+      // where identifier may be userId, phone number, or device ID.
 
-      await deleteRateLimits(userId);
+      await deleteRateLimits(identifiers);
 
       // ── Phase 7: Delete the user document itself ────────────────────
 
@@ -280,25 +305,33 @@ async function cleanupChatThreads(userId: string): Promise<void> {
 }
 
 /**
- * Delete rate limit documents that contain the userId in their
- * composite document ID (format: ${identifier}_${action}).
+ * Delete rate limit documents for all identifiers associated with the user.
+ * Rate limit doc IDs use format: ${identifier}_${action}
+ * where identifier can be userId, phone number, or device ID.
  */
-async function deleteRateLimits(userId: string): Promise<void> {
+async function deleteRateLimits(identifiers: string[]): Promise<void> {
   const rateLimitsRef = db.collection("rateLimits");
-  const snapshot = await rateLimitsRef
-    .where(admin.firestore.FieldPath.documentId(), ">=", userId)
-    .where(
-      admin.firestore.FieldPath.documentId(),
-      "<",
-      userId + "\uf8ff"
-    )
-    .get();
+  let totalDeleted = 0;
 
-  if (snapshot.empty) return;
+  for (const identifier of identifiers) {
+    const snapshot = await rateLimitsRef
+      .where(admin.firestore.FieldPath.documentId(), ">=", identifier)
+      .where(
+        admin.firestore.FieldPath.documentId(),
+        "<",
+        identifier + "\uf8ff"
+      )
+      .get();
 
-  const batch = db.batch();
-  snapshot.docs.forEach((doc) => batch.delete(doc.ref));
-  await batch.commit();
+    if (snapshot.empty) continue;
 
-  console.log(`  Deleted ${snapshot.size} rate limit docs for user`);
+    const batch = db.batch();
+    snapshot.docs.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+    totalDeleted += snapshot.size;
+  }
+
+  if (totalDeleted > 0) {
+    console.log(`  Deleted ${totalDeleted} rate limit docs for user`);
+  }
 }

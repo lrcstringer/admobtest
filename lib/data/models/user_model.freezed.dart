@@ -21,12 +21,13 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$UserModel {
-  String get oddienceUserId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   String get phoneNumber => throw _privateConstructorUsedError;
   String get displayName => throw _privateConstructorUsedError;
   String? get username => throw _privateConstructorUsedError;
   String? get usernameLower => throw _privateConstructorUsedError;
   String? get avatarUrl => throw _privateConstructorUsedError;
+  String? get avatarColor => throw _privateConstructorUsedError;
   String? get gender => throw _privateConstructorUsedError;
   DateTime? get dateOfBirth => throw _privateConstructorUsedError;
   String? get province => throw _privateConstructorUsedError;
@@ -45,6 +46,7 @@ mixin _$UserModel {
   String? get primaryDeviceId => throw _privateConstructorUsedError;
   String? get riskLevel => throw _privateConstructorUsedError;
   DateTime? get lastLoginAt => throw _privateConstructorUsedError;
+  String get kycTier => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
   DateTime? get lastActiveAt => throw _privateConstructorUsedError;
@@ -65,12 +67,13 @@ abstract class $UserModelCopyWith<$Res> {
       _$UserModelCopyWithImpl<$Res, UserModel>;
   @useResult
   $Res call({
-    String oddienceUserId,
+    String userId,
     String phoneNumber,
     String displayName,
     String? username,
     String? usernameLower,
     String? avatarUrl,
+    String? avatarColor,
     String? gender,
     DateTime? dateOfBirth,
     String? province,
@@ -89,6 +92,7 @@ abstract class $UserModelCopyWith<$Res> {
     String? primaryDeviceId,
     String? riskLevel,
     DateTime? lastLoginAt,
+    String kycTier,
     DateTime createdAt,
     DateTime? updatedAt,
     DateTime? lastActiveAt,
@@ -110,12 +114,13 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? phoneNumber = null,
     Object? displayName = null,
     Object? username = freezed,
     Object? usernameLower = freezed,
     Object? avatarUrl = freezed,
+    Object? avatarColor = freezed,
     Object? gender = freezed,
     Object? dateOfBirth = freezed,
     Object? province = freezed,
@@ -134,15 +139,16 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? primaryDeviceId = freezed,
     Object? riskLevel = freezed,
     Object? lastLoginAt = freezed,
+    Object? kycTier = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
     Object? lastActiveAt = freezed,
   }) {
     return _then(
       _value.copyWith(
-            oddienceUserId: null == oddienceUserId
-                ? _value.oddienceUserId
-                : oddienceUserId // ignore: cast_nullable_to_non_nullable
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
                       as String,
             phoneNumber: null == phoneNumber
                 ? _value.phoneNumber
@@ -163,6 +169,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
             avatarUrl: freezed == avatarUrl
                 ? _value.avatarUrl
                 : avatarUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            avatarColor: freezed == avatarColor
+                ? _value.avatarColor
+                : avatarColor // ignore: cast_nullable_to_non_nullable
                       as String?,
             gender: freezed == gender
                 ? _value.gender
@@ -236,6 +246,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
                 ? _value.lastLoginAt
                 : lastLoginAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            kycTier: null == kycTier
+                ? _value.kycTier
+                : kycTier // ignore: cast_nullable_to_non_nullable
+                      as String,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -264,12 +278,13 @@ abstract class _$$UserModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    String oddienceUserId,
+    String userId,
     String phoneNumber,
     String displayName,
     String? username,
     String? usernameLower,
     String? avatarUrl,
+    String? avatarColor,
     String? gender,
     DateTime? dateOfBirth,
     String? province,
@@ -288,6 +303,7 @@ abstract class _$$UserModelImplCopyWith<$Res>
     String? primaryDeviceId,
     String? riskLevel,
     DateTime? lastLoginAt,
+    String kycTier,
     DateTime createdAt,
     DateTime? updatedAt,
     DateTime? lastActiveAt,
@@ -308,12 +324,13 @@ class __$$UserModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? phoneNumber = null,
     Object? displayName = null,
     Object? username = freezed,
     Object? usernameLower = freezed,
     Object? avatarUrl = freezed,
+    Object? avatarColor = freezed,
     Object? gender = freezed,
     Object? dateOfBirth = freezed,
     Object? province = freezed,
@@ -332,15 +349,16 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? primaryDeviceId = freezed,
     Object? riskLevel = freezed,
     Object? lastLoginAt = freezed,
+    Object? kycTier = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
     Object? lastActiveAt = freezed,
   }) {
     return _then(
       _$UserModelImpl(
-        oddienceUserId: null == oddienceUserId
-            ? _value.oddienceUserId
-            : oddienceUserId // ignore: cast_nullable_to_non_nullable
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
                   as String,
         phoneNumber: null == phoneNumber
             ? _value.phoneNumber
@@ -361,6 +379,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
         avatarUrl: freezed == avatarUrl
             ? _value.avatarUrl
             : avatarUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        avatarColor: freezed == avatarColor
+            ? _value.avatarColor
+            : avatarColor // ignore: cast_nullable_to_non_nullable
                   as String?,
         gender: freezed == gender
             ? _value.gender
@@ -434,6 +456,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
             ? _value.lastLoginAt
             : lastLoginAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        kycTier: null == kycTier
+            ? _value.kycTier
+            : kycTier // ignore: cast_nullable_to_non_nullable
+                  as String,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -455,12 +481,13 @@ class __$$UserModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UserModelImpl extends _UserModel {
   const _$UserModelImpl({
-    required this.oddienceUserId,
+    required this.userId,
     required this.phoneNumber,
     required this.displayName,
     this.username,
     this.usernameLower,
     this.avatarUrl,
+    this.avatarColor,
     this.gender,
     this.dateOfBirth,
     this.province,
@@ -479,6 +506,7 @@ class _$UserModelImpl extends _UserModel {
     this.primaryDeviceId,
     this.riskLevel,
     this.lastLoginAt,
+    this.kycTier = 'none',
     required this.createdAt,
     this.updatedAt,
     this.lastActiveAt,
@@ -488,7 +516,7 @@ class _$UserModelImpl extends _UserModel {
       _$$UserModelImplFromJson(json);
 
   @override
-  final String oddienceUserId;
+  final String userId;
   @override
   final String phoneNumber;
   @override
@@ -499,6 +527,8 @@ class _$UserModelImpl extends _UserModel {
   final String? usernameLower;
   @override
   final String? avatarUrl;
+  @override
+  final String? avatarColor;
   @override
   final String? gender;
   @override
@@ -536,6 +566,9 @@ class _$UserModelImpl extends _UserModel {
   @override
   final DateTime? lastLoginAt;
   @override
+  @JsonKey()
+  final String kycTier;
+  @override
   final DateTime createdAt;
   @override
   final DateTime? updatedAt;
@@ -544,7 +577,7 @@ class _$UserModelImpl extends _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(oddienceUserId: $oddienceUserId, phoneNumber: $phoneNumber, displayName: $displayName, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
+    return 'UserModel(userId: $userId, phoneNumber: $phoneNumber, displayName: $displayName, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, kycTier: $kycTier, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
   }
 
   @override
@@ -552,8 +585,7 @@ class _$UserModelImpl extends _UserModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$UserModelImpl &&
-            (identical(other.oddienceUserId, oddienceUserId) ||
-                other.oddienceUserId == oddienceUserId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
             (identical(other.displayName, displayName) ||
@@ -564,6 +596,8 @@ class _$UserModelImpl extends _UserModel {
                 other.usernameLower == usernameLower) &&
             (identical(other.avatarUrl, avatarUrl) ||
                 other.avatarUrl == avatarUrl) &&
+            (identical(other.avatarColor, avatarColor) ||
+                other.avatarColor == avatarColor) &&
             (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.dateOfBirth, dateOfBirth) ||
                 other.dateOfBirth == dateOfBirth) &&
@@ -597,6 +631,7 @@ class _$UserModelImpl extends _UserModel {
                 other.riskLevel == riskLevel) &&
             (identical(other.lastLoginAt, lastLoginAt) ||
                 other.lastLoginAt == lastLoginAt) &&
+            (identical(other.kycTier, kycTier) || other.kycTier == kycTier) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -609,12 +644,13 @@ class _$UserModelImpl extends _UserModel {
   @override
   int get hashCode => Object.hashAll([
     runtimeType,
-    oddienceUserId,
+    userId,
     phoneNumber,
     displayName,
     username,
     usernameLower,
     avatarUrl,
+    avatarColor,
     gender,
     dateOfBirth,
     province,
@@ -633,6 +669,7 @@ class _$UserModelImpl extends _UserModel {
     primaryDeviceId,
     riskLevel,
     lastLoginAt,
+    kycTier,
     createdAt,
     updatedAt,
     lastActiveAt,
@@ -654,12 +691,13 @@ class _$UserModelImpl extends _UserModel {
 
 abstract class _UserModel extends UserModel {
   const factory _UserModel({
-    required final String oddienceUserId,
+    required final String userId,
     required final String phoneNumber,
     required final String displayName,
     final String? username,
     final String? usernameLower,
     final String? avatarUrl,
+    final String? avatarColor,
     final String? gender,
     final DateTime? dateOfBirth,
     final String? province,
@@ -678,6 +716,7 @@ abstract class _UserModel extends UserModel {
     final String? primaryDeviceId,
     final String? riskLevel,
     final DateTime? lastLoginAt,
+    final String kycTier,
     required final DateTime createdAt,
     final DateTime? updatedAt,
     final DateTime? lastActiveAt,
@@ -688,7 +727,7 @@ abstract class _UserModel extends UserModel {
       _$UserModelImpl.fromJson;
 
   @override
-  String get oddienceUserId;
+  String get userId;
   @override
   String get phoneNumber;
   @override
@@ -699,6 +738,8 @@ abstract class _UserModel extends UserModel {
   String? get usernameLower;
   @override
   String? get avatarUrl;
+  @override
+  String? get avatarColor;
   @override
   String? get gender;
   @override
@@ -735,6 +776,8 @@ abstract class _UserModel extends UserModel {
   String? get riskLevel;
   @override
   DateTime? get lastLoginAt;
+  @override
+  String get kycTier;
   @override
   DateTime get createdAt;
   @override

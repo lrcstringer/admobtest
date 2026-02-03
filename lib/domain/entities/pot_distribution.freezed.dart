@@ -435,7 +435,7 @@ PotWinnerAllocation _$PotWinnerAllocationFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$PotWinnerAllocation {
-  String get oddienceUserId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   int get rank => throw _privateConstructorUsedError;
   int get prizeAmount => throw _privateConstructorUsedError;
   int get entryCount => throw _privateConstructorUsedError;
@@ -461,7 +461,7 @@ abstract class $PotWinnerAllocationCopyWith<$Res> {
   ) = _$PotWinnerAllocationCopyWithImpl<$Res, PotWinnerAllocation>;
   @useResult
   $Res call({
-    String oddienceUserId,
+    String userId,
     int rank,
     int prizeAmount,
     int entryCount,
@@ -486,7 +486,7 @@ class _$PotWinnerAllocationCopyWithImpl<$Res, $Val extends PotWinnerAllocation>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? rank = null,
     Object? prizeAmount = null,
     Object? entryCount = null,
@@ -496,9 +496,9 @@ class _$PotWinnerAllocationCopyWithImpl<$Res, $Val extends PotWinnerAllocation>
   }) {
     return _then(
       _value.copyWith(
-            oddienceUserId: null == oddienceUserId
-                ? _value.oddienceUserId
-                : oddienceUserId // ignore: cast_nullable_to_non_nullable
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
                       as String,
             rank: null == rank
                 ? _value.rank
@@ -540,7 +540,7 @@ abstract class _$$PotWinnerAllocationImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    String oddienceUserId,
+    String userId,
     int rank,
     int prizeAmount,
     int entryCount,
@@ -564,7 +564,7 @@ class __$$PotWinnerAllocationImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? rank = null,
     Object? prizeAmount = null,
     Object? entryCount = null,
@@ -574,9 +574,9 @@ class __$$PotWinnerAllocationImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$PotWinnerAllocationImpl(
-        oddienceUserId: null == oddienceUserId
-            ? _value.oddienceUserId
-            : oddienceUserId // ignore: cast_nullable_to_non_nullable
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
                   as String,
         rank: null == rank
             ? _value.rank
@@ -611,7 +611,7 @@ class __$$PotWinnerAllocationImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PotWinnerAllocationImpl implements _PotWinnerAllocation {
   const _$PotWinnerAllocationImpl({
-    required this.oddienceUserId,
+    required this.userId,
     required this.rank,
     required this.prizeAmount,
     required this.entryCount,
@@ -624,7 +624,7 @@ class _$PotWinnerAllocationImpl implements _PotWinnerAllocation {
       _$$PotWinnerAllocationImplFromJson(json);
 
   @override
-  final String oddienceUserId;
+  final String userId;
   @override
   final int rank;
   @override
@@ -640,7 +640,7 @@ class _$PotWinnerAllocationImpl implements _PotWinnerAllocation {
 
   @override
   String toString() {
-    return 'PotWinnerAllocation(oddienceUserId: $oddienceUserId, rank: $rank, prizeAmount: $prizeAmount, entryCount: $entryCount, winProbability: $winProbability, transactionId: $transactionId, notificationSent: $notificationSent)';
+    return 'PotWinnerAllocation(userId: $userId, rank: $rank, prizeAmount: $prizeAmount, entryCount: $entryCount, winProbability: $winProbability, transactionId: $transactionId, notificationSent: $notificationSent)';
   }
 
   @override
@@ -648,8 +648,7 @@ class _$PotWinnerAllocationImpl implements _PotWinnerAllocation {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$PotWinnerAllocationImpl &&
-            (identical(other.oddienceUserId, oddienceUserId) ||
-                other.oddienceUserId == oddienceUserId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.rank, rank) || other.rank == rank) &&
             (identical(other.prizeAmount, prizeAmount) ||
                 other.prizeAmount == prizeAmount) &&
@@ -667,7 +666,7 @@ class _$PotWinnerAllocationImpl implements _PotWinnerAllocation {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    oddienceUserId,
+    userId,
     rank,
     prizeAmount,
     entryCount,
@@ -695,7 +694,7 @@ class _$PotWinnerAllocationImpl implements _PotWinnerAllocation {
 
 abstract class _PotWinnerAllocation implements PotWinnerAllocation {
   const factory _PotWinnerAllocation({
-    required final String oddienceUserId,
+    required final String userId,
     required final int rank,
     required final int prizeAmount,
     required final int entryCount,
@@ -708,7 +707,7 @@ abstract class _PotWinnerAllocation implements PotWinnerAllocation {
       _$PotWinnerAllocationImpl.fromJson;
 
   @override
-  String get oddienceUserId;
+  String get userId;
   @override
   int get rank;
   @override

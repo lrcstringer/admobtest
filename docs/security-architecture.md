@@ -1,6 +1,6 @@
 # iMali Security Architecture & Authentication Flow Documentation
 
-**Version:** 1.0
+**Version:** 2.0
 **Last Updated:** February 2026
 **Platform:** Flutter (Android/iOS) + Firebase Cloud Functions
 
@@ -22,7 +22,16 @@
 12. [Input Validation & Sanitisation](#12-input-validation--sanitisation)
 13. [Audit Logging](#13-audit-logging)
 14. [SIM Change Detection](#14-sim-change-detection)
-15. [Complete Security Layer Diagram](#15-complete-security-layer-diagram)
+15. [Runtime Application Self-Protection (RASP)](#15-runtime-application-self-protection-rasp)
+16. [Code Obfuscation & Build Hardening](#16-code-obfuscation--build-hardening)
+17. [Database Encryption (SQLCipher)](#17-database-encryption-sqlcipher)
+18. [Screenshot & Screen Recording Prevention](#18-screenshot--screen-recording-prevention)
+19. [Network Security Hardening](#19-network-security-hardening)
+20. [KYC/AML Compliance](#20-kycaml-compliance)
+21. [Data Export — POPIA/GDPR Compliance](#21-data-export--popiagdpr-compliance)
+22. [Account Deletion](#22-account-deletion)
+23. [CI/CD Security Scanning](#23-cicd-security-scanning)
+24. [Complete Security Layer Diagram](#24-complete-security-layer-diagram)
 
 ---
 
@@ -33,30 +42,38 @@ iMali is a South African fintech application that allows users to earn tokens, t
 ### Core Security Principles
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                 DEFENCE IN DEPTH                     │
-│                                                      │
-│  ┌─────────────────────────────────────────────┐    │
-│  │  Layer 1: Device Integrity                   │    │
-│  │  (Play Integrity, App Check, root detection) │    │
-│  │  ┌─────────────────────────────────────┐     │    │
-│  │  │  Layer 2: Authentication            │     │    │
-│  │  │  (OTP, Biometric, Push Login)       │     │    │
-│  │  │  ┌─────────────────────────────┐    │     │    │
-│  │  │  │  Layer 3: Authorisation     │    │     │    │
-│  │  │  │  (Firestore rules, RBAC)    │    │     │    │
-│  │  │  │  ┌─────────────────────┐    │    │     │    │
-│  │  │  │  │  Layer 4: Fraud     │    │    │     │    │
-│  │  │  │  │  Detection & Limits │    │    │     │    │
-│  │  │  │  │  ┌─────────────┐    │    │    │     │    │
-│  │  │  │  │  │ Layer 5:    │    │    │    │     │    │
-│  │  │  │  │  │ Audit Trail │    │    │    │     │    │
-│  │  │  │  │  └─────────────┘    │    │    │     │    │
-│  │  │  │  └─────────────────────┘    │    │     │    │
-│  │  │  └─────────────────────────────┘    │     │    │
-│  │  └─────────────────────────────────────┘     │    │
-│  └─────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                    DEFENCE IN DEPTH                        │
+│                                                            │
+│  ┌──────────────────────────────────────────────────┐    │
+│  │  Layer 1: Runtime Protection (RASP)               │    │
+│  │  (freeRASP, root/hook/debug/emulator detection)   │    │
+│  │  ┌──────────────────────────────────────────┐     │    │
+│  │  │  Layer 2: Device Integrity               │     │    │
+│  │  │  (Play Integrity, App Check, obfuscation)│     │    │
+│  │  │  ┌──────────────────────────────────┐    │     │    │
+│  │  │  │  Layer 3: Authentication         │    │     │    │
+│  │  │  │  (OTP, Biometric, Push Login)    │    │     │    │
+│  │  │  │  ┌──────────────────────────┐    │    │     │    │
+│  │  │  │  │  Layer 4: Authorisation  │    │    │     │    │
+│  │  │  │  │  (Firestore rules, KYC)  │    │    │     │    │
+│  │  │  │  │  ┌──────────────────┐    │    │    │     │    │
+│  │  │  │  │  │ Layer 5: Fraud   │    │    │    │     │    │
+│  │  │  │  │  │ Detection+Limits │    │    │    │     │    │
+│  │  │  │  │  │ ┌────────────┐   │    │    │    │     │    │
+│  │  │  │  │  │ │ Layer 6:   │   │    │    │    │     │    │
+│  │  │  │  │  │ │ Data Prot. │   │    │    │    │     │    │
+│  │  │  │  │  │ │ (SQLCipher,│   │    │    │    │     │    │
+│  │  │  │  │  │ │  screenshot│   │    │    │    │     │    │
+│  │  │  │  │  │ │  prevent,  │   │    │    │    │     │    │
+│  │  │  │  │  │ │  audit log)│   │    │    │    │     │    │
+│  │  │  │  │  │ └────────────┘   │    │    │    │     │    │
+│  │  │  │  │  └──────────────────┘    │    │    │     │    │
+│  │  │  │  └──────────────────────────┘    │    │     │    │
+│  │  │  └──────────────────────────────────┘    │     │    │
+│  │  └──────────────────────────────────────────┘     │    │
+│  └──────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────┘
 ```
 
 **Key design decisions:**
@@ -74,15 +91,21 @@ iMali is a South African fintech application that allows users to earn tokens, t
 | Technology | Role | Where Used |
 |-----------|------|------------|
 | **Firebase Auth** | Identity provider — issues authentication tokens that prove "this request comes from user X" | All authenticated operations |
-| **Firebase Cloud Functions** | Server-side code that runs in Google's cloud — the only code trusted to modify financial data | OTP, device registration, transfers, cashouts |
+| **Firebase Cloud Functions** | Server-side code that runs in Google's cloud — the only code trusted to modify financial data | OTP, device registration, transfers, cashouts, KYC, data export, account deletion |
 | **Firestore** | Cloud database with built-in security rules — stores user profiles, wallets, transactions | All persistent data |
 | **Firebase Cloud Messaging (FCM)** | Push notification system — sends messages to specific devices | Push-based login, security alerts |
-| **Firebase App Check** | Verifies the request comes from a genuine iMali app (not a script or modified app) | All Cloud Function calls |
-| **Google Play Integrity API** | Verifies the Android device hasn't been tampered with (not rooted, genuine OS, licensed app) | High-value operations (cashout, transfers) |
+| **Firebase App Check** | Verifies the request comes from a genuine iMali app (not a script or modified app) — **enforcement mode enabled** | All Cloud Function calls |
+| **Google Play Integrity API** | Verifies the Android device hasn't been tampered with (not rooted, genuine OS, licensed app) — **enforcement mode enabled** | High-value operations (cashout, transfers) |
 | **Android Keystore / iOS Secure Enclave** | Hardware security module built into the phone's processor — stores cryptographic keys that can never be extracted | Device binding, challenge signing |
 | **MyMobileAPI** | South African SMS gateway service — delivers OTP codes via SMS | Phone verification |
-| **FlutterSecureStorage** | Encrypted key-value storage on the device — uses Keystore/Keychain under the hood | Caching device IDs, PINs, timestamps |
+| **FlutterSecureStorage** | Encrypted key-value storage on the device — uses Keystore/Keychain under the hood | Caching device IDs, PINs, timestamps, DB encryption key |
 | **local_auth** | Flutter plugin for biometric/device credential authentication — fingerprint, face, PIN, pattern | Biometric login, session unlock |
+| **freeRASP (Talsec)** | Runtime Application Self-Protection — detects rooting, hooking frameworks (Frida/Xposed), debuggers, emulators, app tampering, and unofficial stores at runtime | App startup, continuous monitoring |
+| **SQLCipher** | AES-256-CBC encrypted SQLite database engine — encrypts the entire local database at rest | Local cache database (`imali_local_encrypted.db`) |
+| **R8/ProGuard** | Android code shrinking and obfuscation — renames classes, removes unused code, optimises bytecode | Release builds |
+| **Flutter `--obfuscate`** | Dart code obfuscation — renames Dart symbols to prevent reverse engineering | Release builds |
+| **FLAG_SECURE / Secure Text Field** | Native platform APIs that prevent screenshots and screen recording | All app screens |
+| **Network Security Config** | Android XML-based policy that blocks cleartext (HTTP) traffic at the OS level | All network requests |
 
 ---
 
@@ -1384,8 +1407,8 @@ PLAY INTEGRITY VERIFICATION FLOW
 ### 11.2 Firebase App Check
 
 ```
-APP CHECK — EVERY CLOUD FUNCTION CALL
-═══════════════════════════════════════
+APP CHECK — EVERY CLOUD FUNCTION CALL (ENFORCEMENT MODE)
+══════════════════════════════════════════════════════════
 
   ┌──────────────────────────────────────────────┐
   │  Client makes Cloud Function call             │
@@ -1394,20 +1417,40 @@ APP CHECK — EVERY CLOUD FUNCTION CALL
   │                                                │
   │  Server checks context.app:                   │
   │                                                │
-  │  ┌─ Monitoring mode (current):                │
-  │  │  Missing token → log warning               │
-  │  │  Request continues                         │
+  │  ┌─ Enforcement mode (ACTIVE):                │
+  │  │  Missing token → reject with               │
+  │  │  "unauthenticated" error                   │
+  │  │  "App verification failed.                 │
+  │  │   Please update the app."                  │
   │  │                                             │
-  │  └─ Enforcement mode (future):                │
-  │     Missing token → reject with               │
-  │     "unauthenticated" error                   │
-  │     "App verification failed.                 │
-  │      Please update the app."                  │
+  │  │  Valid token → request proceeds             │
+  │  └────────────────────────────────────────────│
+  │                                                │
+  │  App Check providers:                          │
+  │  ─ Android: Play Integrity (release)           │
+  │             Debug provider (debug builds)       │
+  │  ─ iOS:     App Attest (release)               │
+  │             Debug provider (debug builds)       │
   └──────────────────────────────────────────────┘
 
   Purpose: Prevents someone from calling Cloud Functions
   directly (e.g., with curl or a script) without having
   a genuine iMali app installed.
+
+  Configured in main.dart:
+    FirebaseAppCheck.instance.activate(
+      androidProvider: kDebugMode
+        ? AndroidProvider.debug
+        : AndroidProvider.playIntegrity,
+      appleProvider: kDebugMode
+        ? AppleProvider.debug
+        : AppleProvider.appAttest,
+    );
+
+  Server enforcement (security.ts):
+    requireAppCheck(context, functionName, enforce: true)
+    → All Cloud Functions reject requests without valid
+      App Check tokens.
 ```
 
 ---
@@ -1584,7 +1627,695 @@ SIM CHANGE DETECTION FLOW
 
 ---
 
-## 15. Complete Security Layer Diagram
+## 15. Runtime Application Self-Protection (RASP)
+
+### 15.1 Overview
+
+iMali integrates **freeRASP** (by Talsec) to detect and respond to runtime threats in real time. This is the outermost security layer — it detects environment tampering before any user interaction occurs.
+
+**File:** `lib/core/security/rasp_service.dart`
+**Package:** `freerasp: ^6.5.0` (pubspec.yaml)
+
+### 15.2 Threat Detection Matrix
+
+```
+RASP THREAT CALLBACKS
+═════════════════════
+
+  ┌────────────────────┬─────────────────────┬───────────────────┐
+  │  Threat            │  What It Detects     │  Response          │
+  ├────────────────────┼─────────────────────┼───────────────────┤
+  │  onPrivilegedAccess│  Rooted/jailbroken  │  CRITICAL: Force  │
+  │                    │  device              │  re-authentication│
+  ├────────────────────┼─────────────────────┼───────────────────┤
+  │  onHooks           │  Frida, Xposed,     │  CRITICAL: Force  │
+  │                    │  hooking frameworks  │  re-authentication│
+  ├────────────────────┼─────────────────────┼───────────────────┤
+  │  onDebug           │  Debugger attached   │  CRITICAL: Force  │
+  │                    │  to process          │  re-authentication│
+  ├────────────────────┼─────────────────────┼───────────────────┤
+  │  onAppIntegrity    │  APK/IPA has been   │  CRITICAL: Force  │
+  │                    │  modified/repackaged │  re-authentication│
+  ├────────────────────┼─────────────────────┼───────────────────┤
+  │  onSimulator       │  Running on          │  Log warning      │
+  │                    │  emulator/simulator  │                   │
+  ├────────────────────┼─────────────────────┼───────────────────┤
+  │  onUnofficialStore │  App installed from  │  Log warning      │
+  │                    │  outside Play/App    │                   │
+  │                    │  Store               │                   │
+  ├────────────────────┼─────────────────────┼───────────────────┤
+  │  onDeviceBinding   │  Device fingerprint  │  Log warning      │
+  │                    │  mismatch            │                   │
+  ├────────────────────┼─────────────────────┼───────────────────┤
+  │  onPasscode        │  Device has no       │  Log warning      │
+  │                    │  passcode/PIN set    │                   │
+  ├────────────────────┼─────────────────────┼───────────────────┤
+  │  onObfuscationIssues│ Build not obfuscated│  Log warning      │
+  ├────────────────────┼─────────────────────┼───────────────────┤
+  │  onSecureHardware  │  No TEE/SE available │  Log warning      │
+  │  NotAvailable      │                      │                   │
+  └────────────────────┴─────────────────────┴───────────────────┘
+```
+
+### 15.3 Critical Threat Response
+
+```
+CRITICAL THREAT FLOW
+════════════════════
+
+  freeRASP detects: Root / Hooks / Debugger / App Integrity
+         │
+         v
+  RaspService._handleCriticalThreat(threatType)
+         │
+         v
+  AuthBloc.add(AuthEvent.forceReauth())
+         │
+         v
+  User is signed out → must re-authenticate via OTP
+  (prevents attacker from using app on compromised device)
+```
+
+### 15.4 Configuration
+
+```dart
+TalsecConfig(
+  androidConfig: AndroidConfig(
+    packageName: 'com.example.imalichat',
+    signingCertHashes: ['<release-signing-cert-SHA-256>'],
+  ),
+  iosConfig: IOSConfig(
+    bundleIds: ['com.example.imalichat'],
+    teamId: '<apple-team-id>',
+  ),
+  watcherMail: 'security@imalichat.com',
+);
+```
+
+**Debug mode:** RASP is skipped in `kDebugMode` to allow development and testing.
+
+**Initialization order (main.dart):**
+1. Firebase → 2. App Check → 3. DI → 4. **RASP** → 5. Screenshot prevention → 6. FCM handler
+
+---
+
+## 16. Code Obfuscation & Build Hardening
+
+### 16.1 Android R8/ProGuard
+
+The release build uses R8 (Android's code shrinker/optimizer) with ProGuard rules for code obfuscation.
+
+**File:** `android/app/build.gradle.kts`
+
+```kotlin
+buildTypes {
+    release {
+        signingConfig = signingConfigs.getByName("debug")
+        isMinifyEnabled = true      // R8 code shrinking
+        isShrinkResources = true    // Remove unused resources
+        proguardFiles(
+            getDefaultProguardFile("proguard-android-optimize.txt"),
+            "proguard-rules.pro"
+        )
+    }
+}
+```
+
+### 16.2 ProGuard Keep Rules
+
+**File:** `android/app/proguard-rules.pro`
+
+```
+PROGUARD KEEP RULES
+════════════════════
+
+  ┌──────────────────────────────────────────────────────────┐
+  │  Category            │  What's Kept                       │
+  ├──────────────────────┼───────────────────────────────────┤
+  │  Flutter framework   │  io.flutter.** (all classes)       │
+  │  Firebase            │  com.google.firebase.** (names)    │
+  │  Play Integrity      │  com.google.android.play.core.     │
+  │                      │  integrity.**                      │
+  │  Native channels     │  KeystoreChannel,                  │
+  │                      │  PlayIntegrityChannel               │
+  │  Kotlin coroutines   │  MainDispatcherFactory,            │
+  │                      │  CoroutineExceptionHandler          │
+  │  Secure storage      │  com.it_nomads.fluttersecure       │
+  │                      │  storage.**                        │
+  └──────────────────────┴───────────────────────────────────┘
+
+  Suppressed warnings: BouncyCastle, Conscrypt, OpenJSSE
+```
+
+### 16.3 Flutter Dart Obfuscation
+
+Release builds use Flutter's `--obfuscate` flag which renames all Dart symbols:
+
+```
+flutter build apk --release --obfuscate --split-debug-info=build/debug-info
+flutter build appbundle --release --obfuscate --split-debug-info=build/debug-info
+```
+
+The `build/debug-info/` directory must be archived per release for crash symbolication.
+
+### 16.4 What Obfuscation Protects Against
+
+```
+WITHOUT OBFUSCATION              WITH OBFUSCATION
+═══════════════════              ════════════════
+
+class WalletService {            class aB {
+  transferTokens(...)              xQ(...)
+  cashoutRequest(...)              rM(...)
+  getBalance(...)                  pK(...)
+}                                }
+
+class FraudDetector {            class cD {
+  checkCircularTransfer(...)       eF(...)
+  checkVelocity(...)               gH(...)
+}                                }
+
+Attacker can read business       Attacker sees meaningless names
+logic and find bypass vectors    — must reverse-engineer from
+                                 behaviour alone
+```
+
+---
+
+## 17. Database Encryption (SQLCipher)
+
+### 17.1 Overview
+
+The local SQLite cache database is encrypted at rest using **SQLCipher**, which provides transparent AES-256-CBC page-level encryption.
+
+**File:** `lib/data/datasources/local/app_database.dart`
+**Packages:** `sqlcipher_flutter_libs: ^0.6.4`, `sqlite3: ^2.4.0`
+
+### 17.2 Encryption Architecture
+
+```
+DATABASE ENCRYPTION FLOW
+═════════════════════════
+
+  App Launch
+      │
+      v
+  ┌───────────────────────────────────────────────────┐
+  │  _openConnection()                                 │
+  │                                                     │
+  │  1. Load SQLCipher native library                  │
+  │     open.overrideFor(Android, openCipherOnAndroid) │
+  │                                                     │
+  │  2. Check FlutterSecureStorage for encryption key  │
+  │     key: 'imali_db_encryption_key'                 │
+  │                                                     │
+  │     ┌─ Key exists? → Use it                        │
+  │     └─ Key missing? → Generate new:                │
+  │        a. Random.secure() → 32 bytes               │
+  │        b. Convert to 64-char hex string            │
+  │        c. Store in FlutterSecureStorage             │
+  │                                                     │
+  │  3. Delete old unencrypted DB if it exists         │
+  │     'imali_local.db' → delete                      │
+  │     (data is cache only — syncs from Firestore)    │
+  │                                                     │
+  │  4. Open encrypted database                        │
+  │     file: 'imali_local_encrypted.db'               │
+  │     setup: PRAGMA key = '<hex-key>'                │
+  └───────────────────────────────────────────────────┘
+```
+
+### 17.3 What's Encrypted
+
+```
+ENCRYPTED LOCAL DATABASE TABLES
+════════════════════════════════
+
+  ┌──────────────────────┬────────────────────────────────┐
+  │  Table               │  Contents                       │
+  ├──────────────────────┼────────────────────────────────┤
+  │  LocalWallets        │  Token balances, earned/cashout │
+  │  LocalTransactions   │  Transfer/earn/cashout history  │
+  │  LocalEarnThreads    │  Campaign progress, rewards     │
+  │  LocalChatThreads    │  Chat metadata, last messages   │
+  │  LocalChatMessages   │  Message content, sender/recip  │
+  │  LocalContacts       │  User's contact list            │
+  │  LocalPendingChanges │  Offline sync queue             │
+  │  LocalSyncMetadata   │  Sync timestamps                │
+  └──────────────────────┴────────────────────────────────┘
+```
+
+### 17.4 Security Properties
+
+```
+  ✓ AES-256-CBC page-level encryption (every page encrypted independently)
+  ✓ Encryption key generated from cryptographically secure random source
+  ✓ Key stored in FlutterSecureStorage (Android Keystore / iOS Keychain backed)
+  ✓ Key never exposed in application code or logs
+  ✓ Database file is unreadable without the key (verified: adb pull → gibberish)
+  ✓ Old unencrypted database automatically deleted on migration
+  ✓ No data migration needed — local DB is a cache layer, syncs from Firestore
+```
+
+---
+
+## 18. Screenshot & Screen Recording Prevention
+
+### 18.1 Overview
+
+iMali prevents screenshots and screen recording to protect sensitive financial data visible on screen (balances, transaction details, personal information).
+
+**Files:**
+- `lib/core/security/screenshot_prevention_service.dart` (Flutter service)
+- `android/app/src/main/kotlin/.../MainActivity.kt` (Android native)
+- `ios/Runner/AppDelegate.swift` (iOS native)
+
+### 18.2 Android Implementation
+
+```
+ANDROID — FLAG_SECURE
+═════════════════════
+
+  MainActivity.kt:
+
+  onCreate():
+    window.addFlags(FLAG_SECURE)
+    → Prevents screenshots, screen recording, and screen sharing
+    → Screen appears black in task switcher / recent apps
+    → Applied immediately on app launch
+
+  MethodChannel "com.example.imalichat/screenshot":
+    "enableSecure"  → window.addFlags(FLAG_SECURE)
+    "disableSecure" → window.clearFlags(FLAG_SECURE)
+    → Allows runtime toggling from Dart code
+```
+
+### 18.3 iOS Implementation
+
+```
+iOS — SECURE TEXT FIELD TECHNIQUE
+═════════════════════════════════
+
+  AppDelegate.swift:
+
+  enableScreenshotPrevention():
+    1. Create UITextField with isSecureTextEntry = true
+    2. Add to window as subview
+    3. Move field's layer above window layer
+    → iOS treats entire window as "secure" content
+    → Screen recording shows black, screenshots blocked
+
+  Screenshot notification:
+    UIApplication.userDidTakeScreenshotNotification
+    → Observer logs "[Security] Screenshot detected"
+
+  MethodChannel "com.example.imalichat/screenshot":
+    "enableSecure"  → enableScreenshotPrevention()
+    "disableSecure" → disableScreenshotPrevention()
+    → Allows runtime toggling from Dart code
+```
+
+### 18.4 Flutter Integration
+
+```dart
+@lazySingleton
+class ScreenshotPreventionService {
+  static const _channel = MethodChannel('com.example.imalichat/screenshot');
+
+  Future<void> enable()  → _channel.invokeMethod('enableSecure');
+  Future<void> disable() → _channel.invokeMethod('disableSecure');
+}
+```
+
+Enabled by default at app startup in `main.dart`. Handles `MissingPluginException` gracefully for platforms that don't support the channel (web, desktop).
+
+---
+
+## 19. Network Security Hardening
+
+### 19.1 Android Network Security Config
+
+**File:** `android/app/src/main/res/xml/network_security_config.xml`
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
+```
+
+### 19.2 AndroidManifest.xml Hardening
+
+**File:** `android/app/src/main/AndroidManifest.xml`
+
+```
+ANDROID MANIFEST SECURITY ATTRIBUTES
+═════════════════════════════════════
+
+  <application
+      android:allowBackup="false"
+      android:usesCleartextTraffic="false"
+      android:networkSecurityConfig="@xml/network_security_config">
+
+  ┌─────────────────────────┬──────────────────────────────────┐
+  │  Attribute               │  Purpose                          │
+  ├─────────────────────────┼──────────────────────────────────┤
+  │  allowBackup="false"    │  Prevents ADB backup of app data │
+  │                          │  (blocks: adb backup command)    │
+  │                          │  Protects: encrypted DB, secure  │
+  │                          │  storage, cached credentials     │
+  ├─────────────────────────┼──────────────────────────────────┤
+  │  usesCleartextTraffic=  │  Blocks all HTTP (non-HTTPS)     │
+  │  "false"                │  traffic from the app process    │
+  │                          │  Prevents: MITM attacks on       │
+  │                          │  unencrypted connections         │
+  ├─────────────────────────┼──────────────────────────────────┤
+  │  networkSecurityConfig  │  Points to XML policy that       │
+  │                          │  enforces HTTPS-only + system    │
+  │                          │  certificate trust anchors       │
+  └─────────────────────────┴──────────────────────────────────┘
+```
+
+---
+
+## 20. KYC/AML Compliance
+
+### 20.1 Overview
+
+iMali implements a tiered KYC (Know Your Customer) / AML (Anti-Money Laundering) system that controls what financial operations a user can perform based on their verification level.
+
+**Files:**
+- `lib/domain/entities/kyc_status.dart` — KYC tier enum
+- `lib/domain/entities/user.dart` — `kycTier` field on User entity
+- `lib/data/models/user_model.dart` — `kycTier` field on UserModel
+- `lib/presentation/screens/settings/kyc_verification_screen.dart` — UI
+- `functions/src/kyc.ts` — Cloud Functions
+- `functions/src/security.ts` — Cashout enforcement
+
+### 20.2 KYC Tier System
+
+```
+KYC TIERS
+═════════
+
+  ┌──────────────┬─────────────────────────┬──────────────────────┐
+  │  Tier        │  Verification Required   │  Cashout Limits       │
+  ├──────────────┼─────────────────────────┼──────────────────────┤
+  │  none        │  No verification         │  BLOCKED — no         │
+  │              │                           │  cashouts allowed     │
+  ├──────────────┼─────────────────────────┼──────────────────────┤
+  │  basic       │  Self-declared info      │  R50/day maximum      │
+  │              │  (name, DOB, address)    │  (5,000 tokens)       │
+  ├──────────────┼─────────────────────────┼──────────────────────┤
+  │  verified    │  Full ID verification    │  Full limits apply    │
+  │              │  via third-party KYC     │  (standard fraud      │
+  │              │  provider (Onfido/Jumio) │   checks only)        │
+  └──────────────┴─────────────────────────┴──────────────────────┘
+```
+
+### 20.3 Server-Side Enforcement
+
+KYC tiers are enforced in the `checkCashoutFraud()` function in `functions/src/security.ts`:
+
+```
+KYC ENFORCEMENT IN CASHOUT FLOW
+════════════════════════════════
+
+  User requests cashout
+         │
+         v
+  ┌──────────────────────────────────────────┐
+  │  checkCashoutFraud(userId, amount)        │
+  │                                            │
+  │  1. Read user document from Firestore     │
+  │  2. Get kycTier (default: "none")         │
+  │                                            │
+  │  ┌── kycTier == "none"?                   │
+  │  │   YES → BLOCK immediately              │
+  │  │   Return: { allowed: false,            │
+  │  │     alerts: ["KYC verification         │
+  │  │     required before cashouts"] }       │
+  │  │                                         │
+  │  ├── kycTier == "basic" && amount > 5000? │
+  │  │   YES → Add alert: "Exceeds basic      │
+  │  │   KYC tier limit (R50/day)"            │
+  │  │                                         │
+  │  └── kycTier == "verified"                │
+  │       → Proceed to standard fraud checks  │
+  │         (account age, daily count, etc.)   │
+  └──────────────────────────────────────────┘
+```
+
+### 20.4 Cloud Functions
+
+```
+KYC CLOUD FUNCTIONS (functions/src/kyc.ts)
+══════════════════════════════════════════
+
+  1. initiateKyc (callable)
+     ─ Authenticated + App Check required
+     ─ Rejects if already "verified"
+     ─ Creates kycVerifications/{id} document:
+       { userId, status: "pending", requestedTier, currentTier }
+     ─ Returns: { success, verificationId }
+     ─ TODO: Returns provider session URL when integrated
+
+  2. kycWebhook (HTTP endpoint)
+     ─ Receives POST from third-party KYC provider
+     ─ Validates: verificationId, status, tier
+     ─ If approved: updates user.kycTier in Firestore
+     ─ TODO: Verify webhook signature from provider
+
+  3. getKycStatus (callable)
+     ─ Authenticated + App Check required
+     ─ Returns: { kycTier, kycVerifiedAt, latestVerification }
+```
+
+### 20.5 Client UI
+
+**File:** `lib/presentation/screens/settings/kyc_verification_screen.dart`
+
+- Displays current KYC tier with colour-coded status card
+- Shows all three tiers with their descriptions and limits
+- "Start Verification" button (tier=none) or "Upgrade to Verified" (tier=basic)
+- Calls `initiateKyc` Cloud Function
+- Accessible from Settings → "Verify Identity"
+
+---
+
+## 21. Data Export — POPIA/GDPR Compliance
+
+### 21.1 Overview
+
+South Africa's POPIA (Protection of Personal Information Act) and the EU's GDPR require users to have the right to export their personal data. iMali provides this through a Cloud Function callable from the Settings screen.
+
+**Files:**
+- `functions/src/dataExport.ts` — Cloud Function
+- `lib/presentation/screens/settings/settings_screen.dart` — UI trigger
+
+### 21.2 Export Architecture
+
+```
+DATA EXPORT FLOW
+════════════════
+
+  Settings → "Download My Data" tap
+         │
+         v
+  ┌──────────────────────────────────────────────┐
+  │  Client shows loading indicator               │
+  │  Calls: exportUserData() Cloud Function       │
+  └──────────────────┬───────────────────────────┘
+                     │
+                     v
+  ┌──────────────────────────────────────────────┐
+  │  SERVER: exportUserData                        │
+  │                                                │
+  │  1. Require authentication                    │
+  │  2. Require App Check                         │
+  │  3. Rate limit: 1 export per 24 hours         │
+  │     (rateLimits/${userId}_data_export)         │
+  │                                                │
+  │  4. Query ALL user-owned collections:         │
+  │     ┌──────────────────────────────────┐      │
+  │     │  profile (users/{userId})         │      │
+  │     │  wallet                           │      │
+  │     │  transactions                     │      │
+  │     │  earnings                         │      │
+  │     │  cashouts                         │      │
+  │     │  earnThreads                      │      │
+  │     │  engagements                      │      │
+  │     │  potEntries, potWinners           │      │
+  │     │  leaderboard                      │      │
+  │     │  referralCodes, referralStats     │      │
+  │     │  referrals (made + received)      │      │
+  │     │  purchases                        │      │
+  │     │  contacts                         │      │
+  │     │  messagesSent                     │      │
+  │     │  paymentRequests (made+received)  │      │
+  │     │  chatThreads                      │      │
+  │     └──────────────────────────────────┘      │
+  │                                                │
+  │  5. Return: { success, exportedAt, data }     │
+  │                                                │
+  │  EXCLUDED (security-internal):                │
+  │  ✗ fraudAlerts, auditLogs, devices,           │
+  │  ✗ integrityChecks, riskEvents                │
+  └──────────────────┬───────────────────────────┘
+                     │
+                     v
+  ┌──────────────────────────────────────────────┐
+  │  Client receives JSON response                │
+  │  → Pretty-prints with JsonEncoder.withIndent  │
+  │  → Opens system share sheet via share_plus    │
+  │  → User can save/email/cloud-store the file  │
+  └──────────────────────────────────────────────┘
+```
+
+### 21.3 Rate Limiting
+
+One export per 24 hours per user. The rate limit is tracked in Firestore (`rateLimits/${userId}_data_export`) with a `lastExportAt` timestamp. Attempts within the window return a `resource-exhausted` error with the remaining wait time.
+
+---
+
+## 22. Account Deletion
+
+### 22.1 Overview
+
+Users can permanently delete their account from Settings. The deletion is handled entirely server-side to ensure all data is completely removed across all Firestore collections.
+
+**Files:**
+- `functions/src/accountDeletion.ts` — Cloud Function
+- `lib/presentation/screens/settings/settings_screen.dart` — UI trigger
+- `lib/presentation/blocs/auth/auth_bloc.dart` — `AuthEvent.deleteAccount()`
+
+### 22.2 Deletion Architecture
+
+```
+ACCOUNT DELETION FLOW (8 PHASES)
+═════════════════════════════════
+
+  Settings → "Delete Account" → Confirmation dialog
+         │
+         v
+  ┌──────────────────────────────────────────────────┐
+  │  PRE-CHECK: Reject if pending cashouts exist      │
+  │  (cannot delete while money is in transit)        │
+  └──────────────────┬───────────────────────────────┘
+                     │
+                     v
+  ┌──────────────────────────────────────────────────┐
+  │  Phase 1: Delete documents by field query         │
+  │                                                    │
+  │  Financial:    wallets, transactions, cashouts,   │
+  │                earnings                           │
+  │  Engagement:   earnThreads, engagements           │
+  │  Gamification: potEntries, potWinners, leaderboard│
+  │  Referrals:    referralCodes, referralStats,      │
+  │                referrals (referrer + referee)      │
+  │  Purchases:    purchases                          │
+  │  Contacts:     contacts                           │
+  │  Devices/Auth: devices, authChallenges,           │
+  │                biometricChallenges                 │
+  │  Security:     fraudFlags, fraudAlerts,           │
+  │                riskEvents, auditLogs,             │
+  │                integrityChecks,                    │
+  │                captchaVerifications                │
+  │  Chat:         chatMessages (as sender)           │
+  │  Payments:     paymentRequests (as requester)     │
+  └──────────────────┬───────────────────────────────┘
+                     │
+  Phase 2: Anonymize chat messages (recipient → "deleted_user")
+  Phase 3: Clean up chat threads (remove from participantIds)
+  Phase 4: Delete payment requests (as payer)
+  Phase 5: Delete documents by ID (wallets, leaderboard, etc.)
+  Phase 6: Delete rate limit documents (composite ID prefix scan)
+  Phase 7: Delete the user document itself
+  Phase 8: Delete Firebase Auth account via Admin SDK
+                     │
+                     v
+  ┌──────────────────────────────────────────────────┐
+  │  Client: AuthBloc receives unauthenticated state  │
+  │  → Dialog dismisses                                │
+  │  → Router redirects to Welcome screen             │
+  │  → Local SQLite database cleared                  │
+  └──────────────────────────────────────────────────┘
+```
+
+### 22.3 Key Design Decisions
+
+```
+  ✓ Server-side deletion via Admin SDK (no "requires-recent-login" errors)
+  ✓ Batched writes (max 500/batch) for collections with many documents
+  ✓ Chat messages where user is RECIPIENT are anonymized, not deleted
+    (preserves other users' conversation history)
+  ✓ Empty chat threads (no remaining participants) are deleted entirely
+  ✓ Rate limit documents found via prefix scan (userId + "\uf8ff" range)
+  ✓ Pending cashout pre-check prevents data loss during money transfer
+  ✓ Cloud Function timeout: 540s (9 minutes) with 512MB memory
+```
+
+---
+
+## 23. CI/CD Security Scanning
+
+### 23.1 Overview
+
+A GitHub Actions workflow runs automated security scans on every push and pull request to master.
+
+**File:** `.github/workflows/security-scan.yml`
+
+### 23.2 Pipeline Architecture
+
+```
+GITHUB ACTIONS — SECURITY SCAN
+═══════════════════════════════
+
+  Trigger: push to master, PR to master
+
+  ┌─────────────────────────────────────────────────────┐
+  │  Job 1: flutter-analyze                              │
+  │  ─────────────────────                               │
+  │  1. Checkout code                                    │
+  │  2. Set up Flutter (stable channel)                  │
+  │  3. flutter pub get                                  │
+  │  4. dart run build_runner build                      │
+  │  5. flutter analyze --fatal-infos                    │
+  │     → Fails on any info/warning/error               │
+  │  6. dart pub outdated                                │
+  │     → Reports packages with newer versions           │
+  │  7. dart pub audit                                   │
+  │     → Checks for known vulnerabilities               │
+  │  8. Hardcoded secrets scan                           │
+  │     → Greps for patterns matching:                   │
+  │       api_key, secret_key, password, token           │
+  │       followed by 16+ character base64 values        │
+  │     → Fails if any matches found in lib/             │
+  └─────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────┐
+  │  Job 2: cloud-functions-lint                         │
+  │  ────────────────────────                            │
+  │  Working directory: functions/                       │
+  │  1. Checkout code                                    │
+  │  2. Set up Node.js 20                                │
+  │  3. npm ci (clean install)                           │
+  │  4. npx tsc --noEmit                                 │
+  │     → TypeScript type checking                       │
+  │  5. npm run lint                                     │
+  │     → ESLint code quality checks                     │
+  │  6. npm audit --audit-level=high                     │
+  │     → Checks for known vulnerabilities in deps       │
+  └─────────────────────────────────────────────────────┘
+```
+
+---
+
+## 24. Complete Security Layer Diagram
 
 ```
 ═══════════════════════════════════════════════════════════════════
@@ -1602,66 +2333,94 @@ SIM CHANGE DETECTION FLOW
   │  │  ─ Auth BLoC          │  │      │  │                  │  │
   │  │  ─ GoRouter guards    │  │      │  │  sendOtp         │  │
   │  │  ─ UI auth screens    │  │      │  │  verifyOtp       │  │
-  │  └──────────┬────────────┘  │      │  │  registerDevice  │  │
-  │             │               │      │  │  loginRequest    │  │
-  │  ┌──────────v────────────┐  │      │  │  approveLogin    │  │
-  │  │  Security Layer       │  │      │  │  checkChallenge  │  │
-  │  │  ─ BiometricLogin     │  │ API  │  │  requestBioChall │  │
-  │  │  ─ DeviceBinding      │<─┼─────>│  │  verifyBioChall  │  │
-  │  │  ─ SessionLock        │  │calls │  │  revokeDevice    │  │
-  │  │  ─ FraudDetector      │  │      │  │  + security      │  │
-  │  │  ─ RateLimiter        │  │      │  │    middleware     │  │
-  │  │  ─ InputValidator     │  │      │  └──────────────────┘  │
-  │  │  ─ AuditLogger        │  │      │                        │
-  │  │  ─ SimChangeDetector  │  │      │  ┌──────────────────┐  │
-  │  │  ─ PlayIntegrity      │  │      │  │  Firestore DB    │  │
-  │  │  ─ CaptchaService     │  │      │  │                  │  │
-  │  │  ─ StepUpAuth         │  │      │  │  users/          │  │
-  │  │  ─ TransactionVerifier│  │      │  │  wallets/        │  │
-  │  └──────────┬────────────┘  │      │  │  transactions/   │  │
-  │             │               │      │  │  devices/        │  │
-  │  ┌──────────v────────────┐  │      │  │  authChallenges/ │  │
-  │  │  Hardware Layer       │  │      │  │  biometricChall/ │  │
-  │  │                       │  │      │  │  verification_/  │  │
-  │  │  ┌─────────────────┐  │  │      │  │  rateLimits/     │  │
-  │  │  │Android Keystore │  │  │      │  │  fraudAlerts/    │  │
-  │  │  │/ iOS Secure     │  │  │      │  │  blockedUsers/   │  │
-  │  │  │  Enclave        │  │  │      │  │  riskEvents/     │  │
-  │  │  │                 │  │  │      │  │  auditLogs/      │  │
-  │  │  │ ECDSA P-256     │  │  │      │  │  integrityChecks/│  │
-  │  │  │ private key     │  │  │      │  └──────────────────┘  │
-  │  │  │ (never leaves)  │  │  │      │                        │
-  │  │  └─────────────────┘  │  │      │  ┌──────────────────┐  │
-  │  │                       │  │      │  │  Firebase Auth   │  │
-  │  │  ┌─────────────────┐  │  │      │  │  (Custom Tokens) │  │
-  │  │  │FlutterSecure    │  │  │      │  └──────────────────┘  │
-  │  │  │Storage          │  │  │      │                        │
-  │  │  │                 │  │  │      │  ┌──────────────────┐  │
-  │  │  │ deviceId, userId│  │  │      │  │  Firebase Cloud  │  │
-  │  │  │ PIN hash + salt │  │  │      │  │  Messaging (FCM) │  │
-  │  │  │ auth timestamp  │  │  │      │  └──────────────────┘  │
-  │  │  │ display name    │  │  │      │                        │
-  │  │  └─────────────────┘  │  │      │  ┌──────────────────┐  │
-  │  └───────────────────────┘  │      │  │  App Check       │  │
-  │                             │      │  │  Play Integrity   │  │
-  └─────────────────────────────┘      │  └──────────────────┘  │
-                                       └────────────────────────┘
+  │  │  ─ KYC verification   │  │      │  │  registerDevice  │  │
+  │  └──────────┬────────────┘  │      │  │  loginRequest    │  │
+  │             │               │      │  │  approveLogin    │  │
+  │  ┌──────────v────────────┐  │      │  │  checkChallenge  │  │
+  │  │  Security Layer       │  │      │  │  requestBioChall │  │
+  │  │  ─ RaspService ★      │  │ API  │  │  verifyBioChall  │  │
+  │  │  ─ ScreenshotPrev ★   │<─┼─────>│  │  revokeDevice    │  │
+  │  │  ─ BiometricLogin     │  │calls │  │  initiateKyc ★   │  │
+  │  │  ─ DeviceBinding      │  │      │  │  kycWebhook ★    │  │
+  │  │  ─ SessionLock        │  │      │  │  getKycStatus ★  │  │
+  │  │  ─ FraudDetector      │  │      │  │  exportUserData★ │  │
+  │  │  ─ RateLimiter        │  │      │  │  deleteAccount ★ │  │
+  │  │  ─ InputValidator     │  │      │  │  + security      │  │
+  │  │  ─ AuditLogger        │  │      │  │    middleware     │  │
+  │  │  ─ SimChangeDetector  │  │      │  │  (enforce mode)  │  │
+  │  │  ─ PlayIntegrity      │  │      │  └──────────────────┘  │
+  │  │  ─ CaptchaService     │  │      │                        │
+  │  │  ─ StepUpAuth         │  │      │  ┌──────────────────┐  │
+  │  │  ─ TransactionVerifier│  │      │  │  Firestore DB    │  │
+  │  └──────────┬────────────┘  │      │  │                  │  │
+  │             │               │      │  │  users/          │  │
+  │  ┌──────────v────────────┐  │      │  │  wallets/        │  │
+  │  │  Data Layer           │  │      │  │  transactions/   │  │
+  │  │                       │  │      │  │  devices/        │  │
+  │  │  ┌─────────────────┐  │  │      │  │  authChallenges/ │  │
+  │  │  │SQLCipher DB ★   │  │  │      │  │  biometricChall/ │  │
+  │  │  │(AES-256-CBC)    │  │  │      │  │  verification_/  │  │
+  │  │  │Encrypted cache  │  │  │      │  │  rateLimits/     │  │
+  │  │  └─────────────────┘  │  │      │  │  fraudAlerts/    │  │
+  │  └──────────┬────────────┘  │      │  │  blockedUsers/   │  │
+  │             │               │      │  │  riskEvents/     │  │
+  │  ┌──────────v────────────┐  │      │  │  auditLogs/      │  │
+  │  │  Hardware Layer       │  │      │  │  integrityChecks/ │  │
+  │  │                       │  │      │  │  kycVerifications/│  │
+  │  │  ┌─────────────────┐  │  │      │  └──────────────────┘  │
+  │  │  │Android Keystore │  │  │      │                        │
+  │  │  │/ iOS Secure     │  │  │      │  ┌──────────────────┐  │
+  │  │  │  Enclave        │  │  │      │  │  Firebase Auth   │  │
+  │  │  │                 │  │  │      │  │  (Custom Tokens) │  │
+  │  │  │ ECDSA P-256     │  │  │      │  └──────────────────┘  │
+  │  │  │ private key     │  │  │      │                        │
+  │  │  │ (never leaves)  │  │  │      │  ┌──────────────────┐  │
+  │  │  └─────────────────┘  │  │      │  │  Firebase Cloud  │  │
+  │  │                       │  │      │  │  Messaging (FCM) │  │
+  │  │  ┌─────────────────┐  │  │      │  └──────────────────┘  │
+  │  │  │FlutterSecure    │  │  │      │                        │
+  │  │  │Storage          │  │  │      │  ┌──────────────────┐  │
+  │  │  │                 │  │  │      │  │  App Check ★     │  │
+  │  │  │ deviceId, userId│  │  │      │  │  (ENFORCED)      │  │
+  │  │  │ PIN hash + salt │  │  │      │  │                  │  │
+  │  │  │ auth timestamp  │  │  │      │  │  Play Integrity ★│  │
+  │  │  │ display name    │  │  │      │  │  (ENFORCED)      │  │
+  │  │  │ DB encrypt key ★│  │  │      │  └──────────────────┘  │
+  │  │  └─────────────────┘  │  │      └────────────────────────┘
+  │  └───────────────────────┘  │
+  │                             │
+  │  ┌───────────────────────┐  │
+  │  │  Build Hardening ★    │  │
+  │  │  ─ R8/ProGuard        │  │
+  │  │  ─ Flutter --obfuscate│  │
+  │  │  ─ FLAG_SECURE        │  │
+  │  │  ─ allowBackup=false  │  │
+  │  │  ─ HTTPS-only         │  │
+  │  └───────────────────────┘  │
+  └─────────────────────────────┘
 
-  ┌──────────────────┐
-  │  EXTERNAL SERVICES│
-  │                  │
-  │  MyMobileAPI     │  ← SMS delivery for OTPs
-  │  (South Africa)  │
-  │                  │
-  │  Google Play     │  ← Device integrity verdicts
-  │  Integrity API   │
-  └──────────────────┘
+  ┌──────────────────────┐       ┌──────────────────────┐
+  │  EXTERNAL SERVICES   │       │  CI/CD ★             │
+  │                      │       │                      │
+  │  MyMobileAPI         │       │  GitHub Actions      │
+  │  (SA SMS gateway)    │       │  ─ flutter analyze   │
+  │                      │       │  ─ dart pub audit    │
+  │  Google Play         │       │  ─ secrets scan      │
+  │  Integrity API       │       │  ─ tsc type check    │
+  │                      │       │  ─ npm audit         │
+  │  KYC Provider ★      │       │                      │
+  │  (Onfido/Jumio)      │       │  Triggers: push/PR   │
+  └──────────────────────┘       │  to master           │
+                                 └──────────────────────┘
+
+  ★ = Added in v2.0 security hardening
 
 
 ═══════════════════════════════════════════════════════════════════
                     SECURITY PROPERTIES SUMMARY
 ═══════════════════════════════════════════════════════════════════
 
+  AUTHENTICATION & IDENTITY
   ✓ No client-side balance manipulation (server-authoritative)
   ✓ Hardware-backed device identity (ECDSA P-256)
   ✓ OTPs never stored in plain text (SHA-256 + salt)
@@ -1669,24 +2428,49 @@ SIM CHANGE DETECTION FLOW
   ✓ Single-device trust (new device revokes old)
   ✓ 7-day inactivity timeout for biometric login
   ✓ Session locks (30s → tier unlock, 5min → full re-auth)
+
+  RUNTIME PROTECTION
+  ✓ freeRASP detects root, hooks, debuggers, emulators, tampering
+  ✓ Critical threats force re-authentication automatically
+  ✓ Code obfuscated via R8/ProGuard + Flutter --obfuscate
+  ✓ Screenshots and screen recording blocked (FLAG_SECURE / iOS)
+
+  DATA PROTECTION
+  ✓ Local database encrypted with SQLCipher (AES-256-CBC)
+  ✓ Encryption key stored in hardware-backed secure storage
+  ✓ ADB backup disabled (allowBackup="false")
+  ✓ All network traffic forced to HTTPS (network security config)
+
+  FRAUD & COMPLIANCE
   ✓ Dual-layer rate limiting (client + server)
   ✓ Dual-layer fraud detection (client + server)
   ✓ Auto-blocking after 3+ fraud alerts in 24 hours
+  ✓ KYC tier enforcement on cashouts (none/basic/verified)
   ✓ SIM change detection without special permissions
-  ✓ Play Integrity verification for high-value operations
-  ✓ App Check on all Cloud Function calls
+
+  DEVICE INTEGRITY
+  ✓ Play Integrity verification — ENFORCED for high-value ops
+  ✓ App Check on all Cloud Functions — ENFORCED
   ✓ Server-generated nonces prevent replay attacks
   ✓ Stale FCM token cleanup with automatic OTP fallback
+
+  PRIVACY & DATA RIGHTS
+  ✓ POPIA/GDPR data export (right to data portability)
+  ✓ Complete account deletion across all Firestore collections
+  ✓ Chat message anonymization preserves other users' history
+
+  INFRASTRUCTURE
   ✓ Comprehensive audit logging for forensics
   ✓ Input validation + sanitisation on client AND server
   ✓ Firestore rules enforce server-only financial writes
   ✓ Phone number immutability in user profiles
   ✓ reCAPTCHA v3 for high-risk operations
   ✓ Weak PIN detection and lockout policy
+  ✓ CI/CD pipeline with flutter analyze, dependency audit, secrets scan
 
 ═══════════════════════════════════════════════════════════════════
 ```
 
 ---
 
-*Document generated from codebase analysis. All code references are from the iMali source as of February 2026.*
+*Document generated from codebase analysis. All code references are from the iMali source as of February 2026. Version 2.0 includes security hardening across all 11 OWASP MASVS v2.0 recommendations.*

@@ -10,6 +10,7 @@ class UserProfile with _$UserProfile {
     required String displayName,
     String? username,
     String? avatarUrl,
+    String? avatarColor,
     String? gender,
     DateTime? dateOfBirth,
     String? province,

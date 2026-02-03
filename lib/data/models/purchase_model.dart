@@ -10,7 +10,7 @@ class PurchaseModel with _$PurchaseModel {
   const factory PurchaseModel({
     required String id,
     required String walletId,
-    required String oddienceUserId,
+    required String userId,
     required String providerId,
     required String providerName,
     required String category,
@@ -40,7 +40,7 @@ class PurchaseModel with _$PurchaseModel {
     return PurchaseModel(
       id: json['id'] as String,
       walletId: json['walletId'] as String,
-      oddienceUserId: json['oddienceUserId'] as String,
+      userId: json['userId'] as String,
       providerId: json['providerId'] as String,
       providerName: json['providerName'] as String,
       category: json['category'] as String,
@@ -74,7 +74,7 @@ class PurchaseModel with _$PurchaseModel {
   Map<String, dynamic> toFirestoreJson() {
     return {
       'walletId': walletId,
-      'oddienceUserId': oddienceUserId,
+      'userId': userId,
       'providerId': providerId,
       'providerName': providerName,
       'category': category,
@@ -99,7 +99,7 @@ class PurchaseModel with _$PurchaseModel {
     return Purchase(
       id: id,
       walletId: walletId,
-      oddienceUserId: oddienceUserId,
+      userId: userId,
       providerId: providerId,
       providerName: providerName,
       category: _parseCategory(category),
@@ -124,7 +124,7 @@ class PurchaseModel with _$PurchaseModel {
     return PurchaseModel(
       id: entity.id,
       walletId: entity.walletId,
-      oddienceUserId: entity.oddienceUserId,
+      userId: entity.userId,
       providerId: entity.providerId,
       providerName: entity.providerName,
       category: entity.category.name,

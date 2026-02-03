@@ -33,7 +33,7 @@ export const processEarning = functions.https.onCall(async (data, context) => {
   today.setHours(0, 0, 0, 0);
 
   const earningsToday = await db.collection("transactions")
-    .where("oddienceUserId", "==", userId)
+    .where("userId", "==", userId)
     .where("type", "==", "earn")
     .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(today))
     .get();
@@ -48,7 +48,7 @@ export const processEarning = functions.https.onCall(async (data, context) => {
 
   // Get user's wallet
   const walletQuery = await db.collection("wallets")
-    .where("oddienceUserId", "==", userId)
+    .where("userId", "==", userId)
     .limit(1)
     .get();
 
@@ -61,6 +61,11 @@ export const processEarning = functions.https.onCall(async (data, context) => {
 
   // Use transaction for atomicity
   await db.runTransaction(async (transaction) => {
+    // Read current wallet data inside transaction for accurate balance
+    const currentWallet = await transaction.get(walletDoc.ref);
+    const currentBalance = currentWallet.data()?.tokenBalance || 0;
+    const balanceAfter = currentBalance + amount;
+
     // Update wallet balance
     transaction.update(walletDoc.ref, {
       tokenBalance: admin.firestore.FieldValue.increment(amount),
@@ -68,6 +73,7 @@ export const processEarning = functions.https.onCall(async (data, context) => {
       todayEarned: admin.firestore.FieldValue.increment(amount),
       lastEarnedAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      version: admin.firestore.FieldValue.increment(1),
     });
 
     // Create transaction record
@@ -75,10 +81,11 @@ export const processEarning = functions.https.onCall(async (data, context) => {
     transaction.set(transactionRef, {
       id: transactionRef.id,
       walletId: walletId,
-      oddienceUserId: userId,
+      userId: userId,
       type: "earn",
       subType: type,
       tokenAmount: amount,
+      balanceAfter: balanceAfter,
       zarAmount: amount * 0.01,
       description: `Earned from ${source || type}`,
       status: "completed",
@@ -89,7 +96,7 @@ export const processEarning = functions.https.onCall(async (data, context) => {
     // Update user's pot entries for today
     const potEntryRef = db.collection("potEntries").doc(`${userId}_${today.toISOString().split("T")[0]}`);
     transaction.set(potEntryRef, {
-      oddienceUserId: userId,
+      userId: userId,
       date: today.toISOString().split("T")[0],
       entries: admin.firestore.FieldValue.increment(amount),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -119,7 +126,7 @@ export const processCashout = functions.https.onCall(async (data, context) => {
 
   // Get user's wallet
   const walletQuery = await db.collection("wallets")
-    .where("oddienceUserId", "==", userId)
+    .where("userId", "==", userId)
     .limit(1)
     .get();
 
@@ -139,11 +146,17 @@ export const processCashout = functions.https.onCall(async (data, context) => {
 
   // Create cashout request
   await db.runTransaction(async (transaction) => {
+    // Read current wallet data inside transaction for accurate balance
+    const currentWallet = await transaction.get(walletDoc.ref);
+    const currentBalance = currentWallet.data()?.tokenBalance || 0;
+    const balanceAfter = currentBalance - amount;
+
     // Deduct from wallet
     transaction.update(walletDoc.ref, {
       tokenBalance: admin.firestore.FieldValue.increment(-amount),
-      pendingCashout: admin.firestore.FieldValue.increment(amount),
+      pendingWithdrawal: admin.firestore.FieldValue.increment(amount),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      version: admin.firestore.FieldValue.increment(1),
     });
 
     // Create cashout record
@@ -151,7 +164,7 @@ export const processCashout = functions.https.onCall(async (data, context) => {
     transaction.set(cashoutRef, {
       id: cashoutRef.id,
       walletId: walletDoc.id,
-      oddienceUserId: userId,
+      userId: userId,
       tokenAmount: amount,
       zarAmount: zarAmount,
       status: "pending",
@@ -164,9 +177,10 @@ export const processCashout = functions.https.onCall(async (data, context) => {
     transaction.set(transactionRef, {
       id: transactionRef.id,
       walletId: walletDoc.id,
-      oddienceUserId: userId,
+      userId: userId,
       type: "cashout",
       tokenAmount: -amount,
+      balanceAfter: balanceAfter,
       zarAmount: -zarAmount,
       description: "Cashout request",
       status: "pending",

@@ -10,7 +10,7 @@ part 'engagement.g.dart';
 class Engagement with _$Engagement {
   const factory Engagement({
     required String id,
-    required String oddienceUserId,
+    required String userId,
     required String oddienceCampaignId,
     required String earnOpportunityId,
     required EngagementStatus status,

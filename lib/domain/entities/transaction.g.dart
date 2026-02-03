@@ -12,8 +12,11 @@ _$TransactionImpl _$$TransactionImplFromJson(Map<String, dynamic> json) =>
       walletId: json['walletId'] as String,
       type: $enumDecode(_$TransactionTypeEnumMap, json['type']),
       amount: (json['amount'] as num).toInt(),
-      balanceAfter: (json['balanceAfter'] as num).toInt(),
+      balanceAfter: (json['balanceAfter'] as num?)?.toInt() ?? 0,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      status:
+          $enumDecodeNullable(_$TransactionStatusEnumMap, json['status']) ??
+          TransactionStatus.completed,
       description: json['description'] as String?,
       counterpartyId: json['counterpartyId'] as String?,
       counterpartyName: json['counterpartyName'] as String?,
@@ -32,6 +35,7 @@ Map<String, dynamic> _$$TransactionImplToJson(_$TransactionImpl instance) =>
       'amount': instance.amount,
       'balanceAfter': instance.balanceAfter,
       'createdAt': instance.createdAt.toIso8601String(),
+      'status': _$TransactionStatusEnumMap[instance.status]!,
       'description': instance.description,
       'counterpartyId': instance.counterpartyId,
       'counterpartyName': instance.counterpartyName,
@@ -53,4 +57,11 @@ const _$TransactionTypeEnumMap = {
   TransactionType.purchase: 'purchase',
   TransactionType.adjustment: 'adjustment',
   TransactionType.reversal: 'reversal',
+};
+
+const _$TransactionStatusEnumMap = {
+  TransactionStatus.pending: 'pending',
+  TransactionStatus.completed: 'completed',
+  TransactionStatus.failed: 'failed',
+  TransactionStatus.cancelled: 'cancelled',
 };

@@ -83,7 +83,7 @@ class _OnboardingMobileOtpScreenState
               child: SafeArea(
                 child: Column(
                   children: [
-              SizedBox(height: size.height * 0.01),
+              SizedBox(height: size.height * 0.08),
 
               // Mascot
               SizedBox(
@@ -108,16 +108,32 @@ class _OnboardingMobileOtpScreenState
               const SizedBox(height: 4),
 
               // "iMaliChat"
-              Text(
-                'iMaliChat',
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.bold,
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'iMali',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(
+                            color: AppColors.gold,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
+                    TextSpan(
+                      text: 'Chat',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 2),
 

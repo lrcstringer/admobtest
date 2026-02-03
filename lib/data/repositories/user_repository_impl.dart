@@ -69,7 +69,7 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<Either<Failure, User>> createUser({
-    required String oddienceUserId,
+    required String userId,
     required String phoneNumber,
     required String displayName,
   }) async {
@@ -79,7 +79,7 @@ class UserRepositoryImpl implements UserRepository {
 
     try {
       final userModel = UserModel(
-        oddienceUserId: oddienceUserId,
+        userId: userId,
         phoneNumber: phoneNumber,
         displayName: displayName,
         status: UserStatus.active,

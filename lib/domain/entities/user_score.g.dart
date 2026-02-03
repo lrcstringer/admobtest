@@ -8,7 +8,7 @@ part of 'user_score.dart';
 
 _$UserScoreImpl _$$UserScoreImplFromJson(Map<String, dynamic> json) =>
     _$UserScoreImpl(
-      oddienceUserId: json['oddienceUserId'] as String,
+      userId: json['userId'] as String,
       displayName: json['displayName'] as String,
       username: json['username'] as String?,
       avatarUrl: json['avatarUrl'] as String?,
@@ -26,7 +26,7 @@ _$UserScoreImpl _$$UserScoreImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$UserScoreImplToJson(_$UserScoreImpl instance) =>
     <String, dynamic>{
-      'oddienceUserId': instance.oddienceUserId,
+      'userId': instance.userId,
       'displayName': instance.displayName,
       'username': instance.username,
       'avatarUrl': instance.avatarUrl,

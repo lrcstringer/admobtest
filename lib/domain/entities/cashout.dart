@@ -18,7 +18,7 @@ class Cashout with _$Cashout {
   const factory Cashout({
     required String id,
     required String walletId,
-    required String oddienceUserId,
+    required String userId,
     required int tokenAmount,
     required double zarAmount,
     required CashoutMethod method,

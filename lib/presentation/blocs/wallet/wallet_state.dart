@@ -13,7 +13,7 @@ class WalletState with _$WalletState {
 
   const WalletState._();
 
-  int get balance => wallet?.balanceTokens ?? 0;
+  int get balance => wallet?.tokenBalance ?? 0;
   double get balanceZar => wallet?.balanceZar ?? 0.0;
   bool get canCashout => wallet?.canCashout ?? false;
 }

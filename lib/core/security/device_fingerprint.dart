@@ -108,14 +108,14 @@ class DeviceFingerprint {
 
 /// Device binding for account security
 class DeviceBinding {
-  final String oddienceUserId;
+  final String userId;
   final String deviceId;
   final String deviceFingerprint;
   final DateTime boundAt;
   final bool isPrimary;
 
   DeviceBinding({
-    required this.oddienceUserId,
+    required this.userId,
     required this.deviceId,
     required this.deviceFingerprint,
     required this.boundAt,
@@ -124,7 +124,7 @@ class DeviceBinding {
 
   Map<String, dynamic> toMap() {
     return {
-      'oddienceUserId': oddienceUserId,
+      'userId': userId,
       'deviceId': deviceId,
       'deviceFingerprint': deviceFingerprint,
       'boundAt': boundAt.toIso8601String(),
@@ -134,7 +134,7 @@ class DeviceBinding {
 
   factory DeviceBinding.fromMap(Map<String, dynamic> map) {
     return DeviceBinding(
-      oddienceUserId: map['oddienceUserId'] as String,
+      userId: map['userId'] as String,
       deviceId: map['deviceId'] as String,
       deviceFingerprint: map['deviceFingerprint'] as String,
       boundAt: DateTime.parse(map['boundAt'] as String),

@@ -23,7 +23,7 @@ EarnMessage _$EarnMessageFromJson(Map<String, dynamic> json) {
 mixin _$EarnMessage {
   String get id => throw _privateConstructorUsedError;
   String get threadId => throw _privateConstructorUsedError;
-  String get oddienceUserId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   EarnMessageType get type => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
@@ -61,7 +61,7 @@ abstract class $EarnMessageCopyWith<$Res> {
   $Res call({
     String id,
     String threadId,
-    String oddienceUserId,
+    String userId,
     EarnMessageType type,
     String content,
     DateTime createdAt,
@@ -92,7 +92,7 @@ class _$EarnMessageCopyWithImpl<$Res, $Val extends EarnMessage>
   $Res call({
     Object? id = null,
     Object? threadId = null,
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? type = null,
     Object? content = null,
     Object? createdAt = null,
@@ -114,9 +114,9 @@ class _$EarnMessageCopyWithImpl<$Res, $Val extends EarnMessage>
                 ? _value.threadId
                 : threadId // ignore: cast_nullable_to_non_nullable
                       as String,
-            oddienceUserId: null == oddienceUserId
-                ? _value.oddienceUserId
-                : oddienceUserId // ignore: cast_nullable_to_non_nullable
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
                       as String,
             type: null == type
                 ? _value.type
@@ -176,7 +176,7 @@ abstract class _$$EarnMessageImplCopyWith<$Res>
   $Res call({
     String id,
     String threadId,
-    String oddienceUserId,
+    String userId,
     EarnMessageType type,
     String content,
     DateTime createdAt,
@@ -206,7 +206,7 @@ class __$$EarnMessageImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? threadId = null,
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? type = null,
     Object? content = null,
     Object? createdAt = null,
@@ -228,9 +228,9 @@ class __$$EarnMessageImplCopyWithImpl<$Res>
             ? _value.threadId
             : threadId // ignore: cast_nullable_to_non_nullable
                   as String,
-        oddienceUserId: null == oddienceUserId
-            ? _value.oddienceUserId
-            : oddienceUserId // ignore: cast_nullable_to_non_nullable
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
                   as String,
         type: null == type
             ? _value.type
@@ -283,7 +283,7 @@ class _$EarnMessageImpl implements _EarnMessage {
   const _$EarnMessageImpl({
     required this.id,
     required this.threadId,
-    required this.oddienceUserId,
+    required this.userId,
     required this.type,
     required this.content,
     required this.createdAt,
@@ -304,7 +304,7 @@ class _$EarnMessageImpl implements _EarnMessage {
   @override
   final String threadId;
   @override
-  final String oddienceUserId;
+  final String userId;
   @override
   final EarnMessageType type;
   @override
@@ -341,7 +341,7 @@ class _$EarnMessageImpl implements _EarnMessage {
 
   @override
   String toString() {
-    return 'EarnMessage(id: $id, threadId: $threadId, oddienceUserId: $oddienceUserId, type: $type, content: $content, createdAt: $createdAt, status: $status, metadata: $metadata, questionId: $questionId, response: $response, adId: $adId, watchDurationSeconds: $watchDurationSeconds, tokensEarned: $tokensEarned)';
+    return 'EarnMessage(id: $id, threadId: $threadId, userId: $userId, type: $type, content: $content, createdAt: $createdAt, status: $status, metadata: $metadata, questionId: $questionId, response: $response, adId: $adId, watchDurationSeconds: $watchDurationSeconds, tokensEarned: $tokensEarned)';
   }
 
   @override
@@ -352,8 +352,7 @@ class _$EarnMessageImpl implements _EarnMessage {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.threadId, threadId) ||
                 other.threadId == threadId) &&
-            (identical(other.oddienceUserId, oddienceUserId) ||
-                other.oddienceUserId == oddienceUserId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.createdAt, createdAt) ||
@@ -376,7 +375,7 @@ class _$EarnMessageImpl implements _EarnMessage {
     runtimeType,
     id,
     threadId,
-    oddienceUserId,
+    userId,
     type,
     content,
     createdAt,
@@ -407,7 +406,7 @@ abstract class _EarnMessage implements EarnMessage {
   const factory _EarnMessage({
     required final String id,
     required final String threadId,
-    required final String oddienceUserId,
+    required final String userId,
     required final EarnMessageType type,
     required final String content,
     required final DateTime createdAt,
@@ -428,7 +427,7 @@ abstract class _EarnMessage implements EarnMessage {
   @override
   String get threadId;
   @override
-  String get oddienceUserId;
+  String get userId;
   @override
   EarnMessageType get type;
   @override

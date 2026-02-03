@@ -89,7 +89,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
     if (!mounted) return;
 
     if (success) {
-      context.go('/onboarding/settings');
+      context.go('/onboarding/success');
     } else {
       setState(() {
         _isSaving = false;

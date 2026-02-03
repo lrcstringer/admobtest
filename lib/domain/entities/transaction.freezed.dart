@@ -27,6 +27,7 @@ mixin _$Transaction {
   int get amount => throw _privateConstructorUsedError;
   int get balanceAfter => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
+  TransactionStatus get status => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   String? get counterpartyId => throw _privateConstructorUsedError;
   String? get counterpartyName => throw _privateConstructorUsedError;
@@ -60,6 +61,7 @@ abstract class $TransactionCopyWith<$Res> {
     int amount,
     int balanceAfter,
     DateTime createdAt,
+    TransactionStatus status,
     String? description,
     String? counterpartyId,
     String? counterpartyName,
@@ -92,6 +94,7 @@ class _$TransactionCopyWithImpl<$Res, $Val extends Transaction>
     Object? amount = null,
     Object? balanceAfter = null,
     Object? createdAt = null,
+    Object? status = null,
     Object? description = freezed,
     Object? counterpartyId = freezed,
     Object? counterpartyName = freezed,
@@ -127,6 +130,10 @@ class _$TransactionCopyWithImpl<$Res, $Val extends Transaction>
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            status: null == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as TransactionStatus,
             description: freezed == description
                 ? _value.description
                 : description // ignore: cast_nullable_to_non_nullable
@@ -181,6 +188,7 @@ abstract class _$$TransactionImplCopyWith<$Res>
     int amount,
     int balanceAfter,
     DateTime createdAt,
+    TransactionStatus status,
     String? description,
     String? counterpartyId,
     String? counterpartyName,
@@ -212,6 +220,7 @@ class __$$TransactionImplCopyWithImpl<$Res>
     Object? amount = null,
     Object? balanceAfter = null,
     Object? createdAt = null,
+    Object? status = null,
     Object? description = freezed,
     Object? counterpartyId = freezed,
     Object? counterpartyName = freezed,
@@ -247,6 +256,10 @@ class __$$TransactionImplCopyWithImpl<$Res>
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        status: null == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as TransactionStatus,
         description: freezed == description
             ? _value.description
             : description // ignore: cast_nullable_to_non_nullable
@@ -292,8 +305,9 @@ class _$TransactionImpl extends _Transaction {
     required this.walletId,
     required this.type,
     required this.amount,
-    required this.balanceAfter,
+    this.balanceAfter = 0,
     required this.createdAt,
+    this.status = TransactionStatus.completed,
     this.description,
     this.counterpartyId,
     this.counterpartyName,
@@ -317,9 +331,13 @@ class _$TransactionImpl extends _Transaction {
   @override
   final int amount;
   @override
+  @JsonKey()
   final int balanceAfter;
   @override
   final DateTime createdAt;
+  @override
+  @JsonKey()
+  final TransactionStatus status;
   @override
   final String? description;
   @override
@@ -346,7 +364,7 @@ class _$TransactionImpl extends _Transaction {
 
   @override
   String toString() {
-    return 'Transaction(id: $id, walletId: $walletId, type: $type, amount: $amount, balanceAfter: $balanceAfter, createdAt: $createdAt, description: $description, counterpartyId: $counterpartyId, counterpartyName: $counterpartyName, engagementId: $engagementId, purchaseId: $purchaseId, referralId: $referralId, isBonus: $isBonus, metadata: $metadata)';
+    return 'Transaction(id: $id, walletId: $walletId, type: $type, amount: $amount, balanceAfter: $balanceAfter, createdAt: $createdAt, status: $status, description: $description, counterpartyId: $counterpartyId, counterpartyName: $counterpartyName, engagementId: $engagementId, purchaseId: $purchaseId, referralId: $referralId, isBonus: $isBonus, metadata: $metadata)';
   }
 
   @override
@@ -363,6 +381,7 @@ class _$TransactionImpl extends _Transaction {
                 other.balanceAfter == balanceAfter) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
+            (identical(other.status, status) || other.status == status) &&
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.counterpartyId, counterpartyId) ||
@@ -389,6 +408,7 @@ class _$TransactionImpl extends _Transaction {
     amount,
     balanceAfter,
     createdAt,
+    status,
     description,
     counterpartyId,
     counterpartyName,
@@ -419,8 +439,9 @@ abstract class _Transaction extends Transaction {
     required final String walletId,
     required final TransactionType type,
     required final int amount,
-    required final int balanceAfter,
+    final int balanceAfter,
     required final DateTime createdAt,
+    final TransactionStatus status,
     final String? description,
     final String? counterpartyId,
     final String? counterpartyName,
@@ -447,6 +468,8 @@ abstract class _Transaction extends Transaction {
   int get balanceAfter;
   @override
   DateTime get createdAt;
+  @override
+  TransactionStatus get status;
   @override
   String? get description;
   @override

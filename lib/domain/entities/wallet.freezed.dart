@@ -25,10 +25,13 @@ mixin _$Wallet {
   String get userId => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   WalletType get type => throw _privateConstructorUsedError;
-  int get balanceTokens => throw _privateConstructorUsedError;
+  int get tokenBalance => throw _privateConstructorUsedError;
   int get lifetimeEarned => throw _privateConstructorUsedError;
   int get lifetimeWithdrawn => throw _privateConstructorUsedError;
   bool get canWithdraw => throw _privateConstructorUsedError;
+  int get todayEarned => throw _privateConstructorUsedError;
+  int get pendingBalance => throw _privateConstructorUsedError;
+  int get pendingWithdrawal => throw _privateConstructorUsedError;
   String? get brandId => throw _privateConstructorUsedError;
   String? get color => throw _privateConstructorUsedError;
   String? get icon => throw _privateConstructorUsedError;
@@ -55,10 +58,13 @@ abstract class $WalletCopyWith<$Res> {
     String userId,
     String name,
     WalletType type,
-    int balanceTokens,
+    int tokenBalance,
     int lifetimeEarned,
     int lifetimeWithdrawn,
     bool canWithdraw,
+    int todayEarned,
+    int pendingBalance,
+    int pendingWithdrawal,
     String? brandId,
     String? color,
     String? icon,
@@ -87,10 +93,13 @@ class _$WalletCopyWithImpl<$Res, $Val extends Wallet>
     Object? userId = null,
     Object? name = null,
     Object? type = null,
-    Object? balanceTokens = null,
+    Object? tokenBalance = null,
     Object? lifetimeEarned = null,
     Object? lifetimeWithdrawn = null,
     Object? canWithdraw = null,
+    Object? todayEarned = null,
+    Object? pendingBalance = null,
+    Object? pendingWithdrawal = null,
     Object? brandId = freezed,
     Object? color = freezed,
     Object? icon = freezed,
@@ -116,9 +125,9 @@ class _$WalletCopyWithImpl<$Res, $Val extends Wallet>
                 ? _value.type
                 : type // ignore: cast_nullable_to_non_nullable
                       as WalletType,
-            balanceTokens: null == balanceTokens
-                ? _value.balanceTokens
-                : balanceTokens // ignore: cast_nullable_to_non_nullable
+            tokenBalance: null == tokenBalance
+                ? _value.tokenBalance
+                : tokenBalance // ignore: cast_nullable_to_non_nullable
                       as int,
             lifetimeEarned: null == lifetimeEarned
                 ? _value.lifetimeEarned
@@ -132,6 +141,18 @@ class _$WalletCopyWithImpl<$Res, $Val extends Wallet>
                 ? _value.canWithdraw
                 : canWithdraw // ignore: cast_nullable_to_non_nullable
                       as bool,
+            todayEarned: null == todayEarned
+                ? _value.todayEarned
+                : todayEarned // ignore: cast_nullable_to_non_nullable
+                      as int,
+            pendingBalance: null == pendingBalance
+                ? _value.pendingBalance
+                : pendingBalance // ignore: cast_nullable_to_non_nullable
+                      as int,
+            pendingWithdrawal: null == pendingWithdrawal
+                ? _value.pendingWithdrawal
+                : pendingWithdrawal // ignore: cast_nullable_to_non_nullable
+                      as int,
             brandId: freezed == brandId
                 ? _value.brandId
                 : brandId // ignore: cast_nullable_to_non_nullable
@@ -175,10 +196,13 @@ abstract class _$$WalletImplCopyWith<$Res> implements $WalletCopyWith<$Res> {
     String userId,
     String name,
     WalletType type,
-    int balanceTokens,
+    int tokenBalance,
     int lifetimeEarned,
     int lifetimeWithdrawn,
     bool canWithdraw,
+    int todayEarned,
+    int pendingBalance,
+    int pendingWithdrawal,
     String? brandId,
     String? color,
     String? icon,
@@ -206,10 +230,13 @@ class __$$WalletImplCopyWithImpl<$Res>
     Object? userId = null,
     Object? name = null,
     Object? type = null,
-    Object? balanceTokens = null,
+    Object? tokenBalance = null,
     Object? lifetimeEarned = null,
     Object? lifetimeWithdrawn = null,
     Object? canWithdraw = null,
+    Object? todayEarned = null,
+    Object? pendingBalance = null,
+    Object? pendingWithdrawal = null,
     Object? brandId = freezed,
     Object? color = freezed,
     Object? icon = freezed,
@@ -235,9 +262,9 @@ class __$$WalletImplCopyWithImpl<$Res>
             ? _value.type
             : type // ignore: cast_nullable_to_non_nullable
                   as WalletType,
-        balanceTokens: null == balanceTokens
-            ? _value.balanceTokens
-            : balanceTokens // ignore: cast_nullable_to_non_nullable
+        tokenBalance: null == tokenBalance
+            ? _value.tokenBalance
+            : tokenBalance // ignore: cast_nullable_to_non_nullable
                   as int,
         lifetimeEarned: null == lifetimeEarned
             ? _value.lifetimeEarned
@@ -251,6 +278,18 @@ class __$$WalletImplCopyWithImpl<$Res>
             ? _value.canWithdraw
             : canWithdraw // ignore: cast_nullable_to_non_nullable
                   as bool,
+        todayEarned: null == todayEarned
+            ? _value.todayEarned
+            : todayEarned // ignore: cast_nullable_to_non_nullable
+                  as int,
+        pendingBalance: null == pendingBalance
+            ? _value.pendingBalance
+            : pendingBalance // ignore: cast_nullable_to_non_nullable
+                  as int,
+        pendingWithdrawal: null == pendingWithdrawal
+            ? _value.pendingWithdrawal
+            : pendingWithdrawal // ignore: cast_nullable_to_non_nullable
+                  as int,
         brandId: freezed == brandId
             ? _value.brandId
             : brandId // ignore: cast_nullable_to_non_nullable
@@ -288,15 +327,18 @@ class _$WalletImpl extends _Wallet {
     required this.userId,
     required this.name,
     required this.type,
-    required this.balanceTokens,
+    required this.tokenBalance,
     required this.lifetimeEarned,
     required this.lifetimeWithdrawn,
     required this.canWithdraw,
+    this.todayEarned = 0,
+    this.pendingBalance = 0,
+    this.pendingWithdrawal = 0,
     this.brandId,
     this.color,
     this.icon,
     this.description,
-    required this.version,
+    this.version = 1,
     required this.updatedAt,
   }) : super._();
 
@@ -312,13 +354,22 @@ class _$WalletImpl extends _Wallet {
   @override
   final WalletType type;
   @override
-  final int balanceTokens;
+  final int tokenBalance;
   @override
   final int lifetimeEarned;
   @override
   final int lifetimeWithdrawn;
   @override
   final bool canWithdraw;
+  @override
+  @JsonKey()
+  final int todayEarned;
+  @override
+  @JsonKey()
+  final int pendingBalance;
+  @override
+  @JsonKey()
+  final int pendingWithdrawal;
   @override
   final String? brandId;
   @override
@@ -328,13 +379,14 @@ class _$WalletImpl extends _Wallet {
   @override
   final String? description;
   @override
+  @JsonKey()
   final int version;
   @override
   final DateTime updatedAt;
 
   @override
   String toString() {
-    return 'Wallet(id: $id, userId: $userId, name: $name, type: $type, balanceTokens: $balanceTokens, lifetimeEarned: $lifetimeEarned, lifetimeWithdrawn: $lifetimeWithdrawn, canWithdraw: $canWithdraw, brandId: $brandId, color: $color, icon: $icon, description: $description, version: $version, updatedAt: $updatedAt)';
+    return 'Wallet(id: $id, userId: $userId, name: $name, type: $type, tokenBalance: $tokenBalance, lifetimeEarned: $lifetimeEarned, lifetimeWithdrawn: $lifetimeWithdrawn, canWithdraw: $canWithdraw, todayEarned: $todayEarned, pendingBalance: $pendingBalance, pendingWithdrawal: $pendingWithdrawal, brandId: $brandId, color: $color, icon: $icon, description: $description, version: $version, updatedAt: $updatedAt)';
   }
 
   @override
@@ -346,14 +398,20 @@ class _$WalletImpl extends _Wallet {
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.type, type) || other.type == type) &&
-            (identical(other.balanceTokens, balanceTokens) ||
-                other.balanceTokens == balanceTokens) &&
+            (identical(other.tokenBalance, tokenBalance) ||
+                other.tokenBalance == tokenBalance) &&
             (identical(other.lifetimeEarned, lifetimeEarned) ||
                 other.lifetimeEarned == lifetimeEarned) &&
             (identical(other.lifetimeWithdrawn, lifetimeWithdrawn) ||
                 other.lifetimeWithdrawn == lifetimeWithdrawn) &&
             (identical(other.canWithdraw, canWithdraw) ||
                 other.canWithdraw == canWithdraw) &&
+            (identical(other.todayEarned, todayEarned) ||
+                other.todayEarned == todayEarned) &&
+            (identical(other.pendingBalance, pendingBalance) ||
+                other.pendingBalance == pendingBalance) &&
+            (identical(other.pendingWithdrawal, pendingWithdrawal) ||
+                other.pendingWithdrawal == pendingWithdrawal) &&
             (identical(other.brandId, brandId) || other.brandId == brandId) &&
             (identical(other.color, color) || other.color == color) &&
             (identical(other.icon, icon) || other.icon == icon) &&
@@ -372,10 +430,13 @@ class _$WalletImpl extends _Wallet {
     userId,
     name,
     type,
-    balanceTokens,
+    tokenBalance,
     lifetimeEarned,
     lifetimeWithdrawn,
     canWithdraw,
+    todayEarned,
+    pendingBalance,
+    pendingWithdrawal,
     brandId,
     color,
     icon,
@@ -404,15 +465,18 @@ abstract class _Wallet extends Wallet {
     required final String userId,
     required final String name,
     required final WalletType type,
-    required final int balanceTokens,
+    required final int tokenBalance,
     required final int lifetimeEarned,
     required final int lifetimeWithdrawn,
     required final bool canWithdraw,
+    final int todayEarned,
+    final int pendingBalance,
+    final int pendingWithdrawal,
     final String? brandId,
     final String? color,
     final String? icon,
     final String? description,
-    required final int version,
+    final int version,
     required final DateTime updatedAt,
   }) = _$WalletImpl;
   const _Wallet._() : super._();
@@ -428,13 +492,19 @@ abstract class _Wallet extends Wallet {
   @override
   WalletType get type;
   @override
-  int get balanceTokens;
+  int get tokenBalance;
   @override
   int get lifetimeEarned;
   @override
   int get lifetimeWithdrawn;
   @override
   bool get canWithdraw;
+  @override
+  int get todayEarned;
+  @override
+  int get pendingBalance;
+  @override
+  int get pendingWithdrawal;
   @override
   String? get brandId;
   @override

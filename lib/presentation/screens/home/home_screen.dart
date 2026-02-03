@@ -57,7 +57,9 @@ class _HomeScreenState extends State<HomeScreen> {
             return BlocBuilder<PotBloc, PotState>(
               builder: (context, potState) {
                 return Scaffold(
-                  body: Container(
+                  // TODO: Remove AbsorbPointer when Home screen is ready
+                  body: AbsorbPointer(
+                    child: Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
@@ -98,6 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
+                  ),
                   ),
                 );
               },

@@ -23,7 +23,7 @@ Purchase _$PurchaseFromJson(Map<String, dynamic> json) {
 mixin _$Purchase {
   String get id => throw _privateConstructorUsedError;
   String get walletId => throw _privateConstructorUsedError;
-  String get oddienceUserId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   String get providerId => throw _privateConstructorUsedError;
   String get providerName => throw _privateConstructorUsedError;
   PurchaseCategory get category => throw _privateConstructorUsedError;
@@ -60,7 +60,7 @@ abstract class $PurchaseCopyWith<$Res> {
   $Res call({
     String id,
     String walletId,
-    String oddienceUserId,
+    String userId,
     String providerId,
     String providerName,
     PurchaseCategory category,
@@ -98,7 +98,7 @@ class _$PurchaseCopyWithImpl<$Res, $Val extends Purchase>
   $Res call({
     Object? id = null,
     Object? walletId = null,
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? providerId = null,
     Object? providerName = null,
     Object? category = null,
@@ -127,9 +127,9 @@ class _$PurchaseCopyWithImpl<$Res, $Val extends Purchase>
                 ? _value.walletId
                 : walletId // ignore: cast_nullable_to_non_nullable
                       as String,
-            oddienceUserId: null == oddienceUserId
-                ? _value.oddienceUserId
-                : oddienceUserId // ignore: cast_nullable_to_non_nullable
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
                       as String,
             providerId: null == providerId
                 ? _value.providerId
@@ -217,7 +217,7 @@ abstract class _$$PurchaseImplCopyWith<$Res>
   $Res call({
     String id,
     String walletId,
-    String oddienceUserId,
+    String userId,
     String providerId,
     String providerName,
     PurchaseCategory category,
@@ -254,7 +254,7 @@ class __$$PurchaseImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? walletId = null,
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? providerId = null,
     Object? providerName = null,
     Object? category = null,
@@ -283,9 +283,9 @@ class __$$PurchaseImplCopyWithImpl<$Res>
             ? _value.walletId
             : walletId // ignore: cast_nullable_to_non_nullable
                   as String,
-        oddienceUserId: null == oddienceUserId
-            ? _value.oddienceUserId
-            : oddienceUserId // ignore: cast_nullable_to_non_nullable
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
                   as String,
         providerId: null == providerId
             ? _value.providerId
@@ -366,7 +366,7 @@ class _$PurchaseImpl extends _Purchase {
   const _$PurchaseImpl({
     required this.id,
     required this.walletId,
-    required this.oddienceUserId,
+    required this.userId,
     required this.providerId,
     required this.providerName,
     required this.category,
@@ -395,7 +395,7 @@ class _$PurchaseImpl extends _Purchase {
   @override
   final String walletId;
   @override
-  final String oddienceUserId;
+  final String userId;
   @override
   final String providerId;
   @override
@@ -441,7 +441,7 @@ class _$PurchaseImpl extends _Purchase {
 
   @override
   String toString() {
-    return 'Purchase(id: $id, walletId: $walletId, oddienceUserId: $oddienceUserId, providerId: $providerId, providerName: $providerName, category: $category, tokenAmount: $tokenAmount, zarAmount: $zarAmount, status: $status, productCode: $productCode, productName: $productName, recipientNumber: $recipientNumber, voucherCode: $voucherCode, voucherPin: $voucherPin, reference: $reference, failureReason: $failureReason, metadata: $metadata, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt)';
+    return 'Purchase(id: $id, walletId: $walletId, userId: $userId, providerId: $providerId, providerName: $providerName, category: $category, tokenAmount: $tokenAmount, zarAmount: $zarAmount, status: $status, productCode: $productCode, productName: $productName, recipientNumber: $recipientNumber, voucherCode: $voucherCode, voucherPin: $voucherPin, reference: $reference, failureReason: $failureReason, metadata: $metadata, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt)';
   }
 
   @override
@@ -452,8 +452,7 @@ class _$PurchaseImpl extends _Purchase {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.walletId, walletId) ||
                 other.walletId == walletId) &&
-            (identical(other.oddienceUserId, oddienceUserId) ||
-                other.oddienceUserId == oddienceUserId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.providerId, providerId) ||
                 other.providerId == providerId) &&
             (identical(other.providerName, providerName) ||
@@ -494,7 +493,7 @@ class _$PurchaseImpl extends _Purchase {
     runtimeType,
     id,
     walletId,
-    oddienceUserId,
+    userId,
     providerId,
     providerName,
     category,
@@ -532,7 +531,7 @@ abstract class _Purchase extends Purchase {
   const factory _Purchase({
     required final String id,
     required final String walletId,
-    required final String oddienceUserId,
+    required final String userId,
     required final String providerId,
     required final String providerName,
     required final PurchaseCategory category,
@@ -561,7 +560,7 @@ abstract class _Purchase extends Purchase {
   @override
   String get walletId;
   @override
-  String get oddienceUserId;
+  String get userId;
   @override
   String get providerId;
   @override

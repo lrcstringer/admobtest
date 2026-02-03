@@ -10,7 +10,7 @@ _$EarnMessageImpl _$$EarnMessageImplFromJson(Map<String, dynamic> json) =>
     _$EarnMessageImpl(
       id: json['id'] as String,
       threadId: json['threadId'] as String,
-      oddienceUserId: json['oddienceUserId'] as String,
+      userId: json['userId'] as String,
       type: $enumDecode(_$EarnMessageTypeEnumMap, json['type']),
       content: json['content'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -27,7 +27,7 @@ Map<String, dynamic> _$$EarnMessageImplToJson(_$EarnMessageImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'threadId': instance.threadId,
-      'oddienceUserId': instance.oddienceUserId,
+      'userId': instance.userId,
       'type': _$EarnMessageTypeEnumMap[instance.type]!,
       'content': instance.content,
       'createdAt': instance.createdAt.toIso8601String(),

@@ -29,9 +29,9 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
     throw new functions.https.HttpsError("invalid-argument", "Referral code is required");
   }
 
-  // Check if user has already applied a referral code
+  // Check if user has already applied a referral code (use Flutter-compatible field name)
   const existingReferral = await db.collection("referrals")
-    .where("refereeId", "==", refereeUserId)
+    .where("refereeUserId", "==", refereeUserId)
     .limit(1)
     .get();
 
@@ -50,96 +50,130 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
   }
 
   const referrerDoc = referrerQuery.docs[0];
-  const referrerUserId = referrerDoc.data().oddienceUserId;
+  const referrerUserId = referrerDoc.data().userId;
 
   // Can't refer yourself
   if (referrerUserId === refereeUserId) {
     throw new functions.https.HttpsError("invalid-argument", "You cannot use your own referral code");
   }
 
+  // Get referee profile info for display in referral list
+  const refereeUserDoc = await db.collection("users").doc(refereeUserId).get();
+  const refereeData = refereeUserDoc.data() || {};
+  const refereeDisplayName = refereeData.displayName || null;
+  const refereeUsername = refereeData.username || null;
+  const refereeAvatarUrl = refereeData.avatarUrl || null;
+
+  const now = admin.firestore.FieldValue.serverTimestamp();
+
   // Process referral rewards
   await db.runTransaction(async (transaction) => {
-    // Create referral record
+    // Create referral record with Flutter-compatible field names
     const referralRef = db.collection("referrals").doc();
     transaction.set(referralRef, {
       id: referralRef.id,
-      referrerId: referrerUserId,
-      refereeId: refereeUserId,
-      code: code.toUpperCase(),
-      status: "completed",
+      referrerUserId: referrerUserId,
+      refereeUserId: refereeUserId,
+      refereeDisplayName: refereeDisplayName,
+      refereeUsername: refereeUsername,
+      refereeAvatarUrl: refereeAvatarUrl,
+      referralCode: code.toUpperCase(),
+      status: "rewarded", // Flutter enum value
       referrerReward: REFERRER_REWARD,
       refereeReward: REFEREE_REWARD,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: now,
+      registeredAt: now,
+      qualifiedAt: now,
+      rewardedAt: now,
+      expiresAt: null,
     });
 
     // Get referrer's wallet and add reward
     const referrerWalletQuery = await db.collection("wallets")
-      .where("oddienceUserId", "==", referrerUserId)
+      .where("userId", "==", referrerUserId)
       .limit(1)
       .get();
 
     if (!referrerWalletQuery.empty) {
       const referrerWallet = referrerWalletQuery.docs[0];
+      const referrerWalletData = referrerWallet.data();
+      const referrerNewBalance = (referrerWalletData.tokenBalance || 0) + REFERRER_REWARD;
+
       transaction.update(referrerWallet.ref, {
         tokenBalance: admin.firestore.FieldValue.increment(REFERRER_REWARD),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        lifetimeEarned: admin.firestore.FieldValue.increment(REFERRER_REWARD),
+        version: admin.firestore.FieldValue.increment(1),
+        updatedAt: now,
       });
 
-      // Create transaction for referrer
+      // Create transaction for referrer with balanceAfter
       const referrerTxRef = db.collection("transactions").doc();
       transaction.set(referrerTxRef, {
         id: referrerTxRef.id,
         walletId: referrerWallet.id,
-        oddienceUserId: referrerUserId,
+        userId: referrerUserId,
         type: "referral_bonus",
         tokenAmount: REFERRER_REWARD,
         zarAmount: REFERRER_REWARD * 0.01,
+        balanceAfter: referrerNewBalance,
         description: "Referral bonus - friend signed up!",
         status: "completed",
         referenceId: referralRef.id,
         referenceType: "referral",
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: now,
       });
     }
 
     // Get referee's wallet and add reward
     const refereeWalletQuery = await db.collection("wallets")
-      .where("oddienceUserId", "==", refereeUserId)
+      .where("userId", "==", refereeUserId)
       .limit(1)
       .get();
 
     if (!refereeWalletQuery.empty) {
       const refereeWallet = refereeWalletQuery.docs[0];
+      const refereeWalletData = refereeWallet.data();
+      const refereeNewBalance = (refereeWalletData.tokenBalance || 0) + REFEREE_REWARD;
+
       transaction.update(refereeWallet.ref, {
         tokenBalance: admin.firestore.FieldValue.increment(REFEREE_REWARD),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        lifetimeEarned: admin.firestore.FieldValue.increment(REFEREE_REWARD),
+        version: admin.firestore.FieldValue.increment(1),
+        updatedAt: now,
       });
 
-      // Create transaction for referee
+      // Create transaction for referee with balanceAfter
       const refereeTxRef = db.collection("transactions").doc();
       transaction.set(refereeTxRef, {
         id: refereeTxRef.id,
         walletId: refereeWallet.id,
-        oddienceUserId: refereeUserId,
+        userId: refereeUserId,
         type: "referral_bonus",
         tokenAmount: REFEREE_REWARD,
         zarAmount: REFEREE_REWARD * 0.01,
+        balanceAfter: refereeNewBalance,
         description: "Welcome bonus - used referral code!",
         status: "completed",
         referenceId: referralRef.id,
         referenceType: "referral",
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: now,
       });
     }
+
+    // Update referee's user record with referredBy
+    transaction.update(db.collection("users").doc(refereeUserId), {
+      referredBy: referrerUserId,
+      updatedAt: now,
+    });
 
     // Update referrer's stats
     const statsRef = db.collection("referralStats").doc(referrerUserId);
     transaction.set(statsRef, {
-      oddienceUserId: referrerUserId,
+      userId: referrerUserId,
       totalReferrals: admin.firestore.FieldValue.increment(1),
       completedReferrals: admin.firestore.FieldValue.increment(1),
       totalEarned: admin.firestore.FieldValue.increment(REFERRER_REWARD),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: now,
     }, { merge: true });
   });
 
@@ -180,7 +214,7 @@ export const generateReferralCode = functions.firestore
 
     // Create referral code document
     await db.collection("referralCodes").doc(userId).set({
-      oddienceUserId: userId,
+      userId: userId,
       code: code,
       uses: 0,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -188,13 +222,18 @@ export const generateReferralCode = functions.firestore
 
     // Initialize referral stats
     await db.collection("referralStats").doc(userId).set({
-      oddienceUserId: userId,
+      userId: userId,
       code: code,
       totalReferrals: 0,
       completedReferrals: 0,
       pendingReferrals: 0,
       totalEarned: 0,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Sync referral code to users collection for Flutter to read
+    await db.collection("users").doc(userId).update({
+      referralCode: code,
     });
 
     console.log(`Generated referral code ${code} for user ${userId}`);

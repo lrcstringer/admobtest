@@ -69,6 +69,8 @@ import '../security/device_capability_service.dart' as _i309;
 import '../security/keystore_service.dart' as _i892;
 import '../security/pin_manager.dart' as _i752;
 import '../security/play_integrity_service.dart' as _i351;
+import '../security/rasp_service.dart' as _i727;
+import '../security/screenshot_prevention_service.dart' as _i921;
 import '../security/security_service.dart' as _i383;
 import '../security/session_lock_service.dart' as _i942;
 import '../security/sim_change_detector.dart' as _i925;
@@ -113,6 +115,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.localAuthentication,
     );
     gh.lazySingleton<_i892.KeystoreService>(() => _i892.KeystoreService());
+    gh.lazySingleton<_i921.ScreenshotPreventionService>(
+      () => _i921.ScreenshotPreventionService(),
+    );
     gh.lazySingleton<_i383.SecurityService>(() => _i383.SecurityService());
     gh.lazySingleton<_i483.AppDatabase>(() => _i483.AppDatabase());
     gh.lazySingleton<_i1057.AuthRemoteDataSource>(
@@ -297,6 +302,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i805.EarnRepository>(
       () => _i965.EarnRepositoryImpl(gh<_i520.EarnRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i727.RaspService>(
+      () => _i727.RaspService(gh<_i141.AuthBloc>()),
     );
     gh.lazySingleton<_i851.WalletRepository>(
       () => _i520.WalletRepositoryImpl(

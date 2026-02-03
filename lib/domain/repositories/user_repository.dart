@@ -15,7 +15,7 @@ abstract class UserRepository {
 
   /// Create user profile
   Future<Either<Failure, User>> createUser({
-    required String oddienceUserId,
+    required String userId,
     required String phoneNumber,
     required String displayName,
   });

@@ -68,16 +68,32 @@ class TermsOfServiceScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'iMaliChat',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.bold,
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'iMali',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
+                                  color: AppColors.gold,
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
+                          TextSpan(
+                            text: 'Chat',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -160,7 +176,13 @@ class TermsOfServiceScreen extends StatelessWidget {
                         width: double.infinity,
                         height: 52,
                         child: ElevatedButton(
-                          onPressed: () => context.go('/auth/age-consent'),
+                          onPressed: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            } else {
+                              context.go('/auth/age-consent');
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: const Color(0xFF0D1028),

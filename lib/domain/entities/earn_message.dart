@@ -9,7 +9,7 @@ class EarnMessage with _$EarnMessage {
   const factory EarnMessage({
     required String id,
     required String threadId,
-    required String oddienceUserId,
+    required String userId,
     required EarnMessageType type,
     required String content,
     required DateTime createdAt,

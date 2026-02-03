@@ -261,7 +261,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       return CashoutModel(
         id: '',
         walletId: walletId,
-        oddienceUserId: userId,
+        userId: userId,
         tokenAmount: tokenAmount,
         zarAmount: zarAmount,
         method: method.name,
@@ -292,7 +292,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
     try {
       var query = _cashoutCollection
-          .where('oddienceUserId', isEqualTo: userId)
+          .where('userId', isEqualTo: userId)
           .orderBy('createdAt', descending: true);
 
       if (startAfter != null) {
@@ -339,7 +339,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       }
 
       final data = doc.data()!;
-      if (data['oddienceUserId'] != userId) {
+      if (data['userId'] != userId) {
         throw const ServerException(message: 'Not authorized to cancel this cashout');
       }
 

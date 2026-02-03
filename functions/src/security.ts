@@ -17,6 +17,7 @@ const db = admin.firestore();
 export function requireAppCheck(
   context: functions.https.CallableContext,
   functionName: string,
+  // TODO: Set to true once app is published to Google Play with Play Integrity
   enforce: boolean = false
 ): void {
   if (!context.app) {
@@ -54,7 +55,7 @@ export async function requirePlayIntegrity(
   context: functions.https.CallableContext,
   functionName: string,
   tier: IntegrityTier,
-  enforce: boolean = false
+  enforce: boolean = true
 ): Promise<void> {
   const integrityToken = data.integrityToken as string | undefined;
   const integrityNonce = data.integrityNonce as string | undefined;
@@ -240,7 +241,7 @@ export async function checkEarningFraud(
 
   // Get today's earnings
   const earningsSnapshot = await db.collection("earnings")
-    .where("oddienceUserId", "==", userId)
+    .where("userId", "==", userId)
     .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(today))
     .get();
 
@@ -309,7 +310,7 @@ export async function checkTransferFraud(
 
   // Get today's transfers
   const transfersSnapshot = await db.collection("transactions")
-    .where("oddienceUserId", "==", senderId)
+    .where("userId", "==", senderId)
     .where("type", "==", "transfer")
     .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(today))
     .get();
@@ -321,7 +322,7 @@ export async function checkTransferFraud(
 
   // Check for circular transfers
   const reverseTransfers = await db.collection("transactions")
-    .where("oddienceUserId", "==", recipientId)
+    .where("userId", "==", recipientId)
     .where("type", "==", "transfer")
     .where("recipientId", "==", senderId)
     .limit(5)
@@ -375,6 +376,21 @@ export async function checkCashoutFraud(
     ? Math.floor((new Date().getTime() - accountCreatedAt.getTime()) / (1000 * 60 * 60 * 24))
     : 999;
 
+  // ── KYC tier enforcement ─────────────────────────────────────────
+  const kycTier = userData?.kycTier || "none";
+
+  if (kycTier === "none") {
+    return {
+      allowed: false,
+      alerts: ["KYC verification required before cashouts are allowed"],
+    };
+  }
+
+  // Basic tier: max 5,000 tokens (R50) per day
+  if (kycTier === "basic" && amount > 5000) {
+    alerts.push("Cashout exceeds basic KYC tier limit (R50/day)");
+  }
+
   // Check new account limits
   if (accountAgeDays < 7 && amount > FRAUD_THRESHOLDS.newAccountCashoutLimit) {
     alerts.push("Large cashout from new account");
@@ -382,7 +398,7 @@ export async function checkCashoutFraud(
 
   // Get today's cashouts
   const cashoutsSnapshot = await db.collection("cashouts")
-    .where("oddienceUserId", "==", userId)
+    .where("userId", "==", userId)
     .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(today))
     .get();
 

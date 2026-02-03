@@ -21,29 +21,88 @@ export const onUserCreated = functions.firestore
     const walletRef = db.collection("wallets").doc();
     await walletRef.set({
       id: walletRef.id,
-      oddienceUserId: userId,
+      userId: userId,
+      type: "main",
+      name: "Main Wallet",
       tokenBalance: 0,
       pendingBalance: 0,
       lifetimeEarned: 0,
-      lifetimeCashout: 0,
+      lifetimeWithdrawn: 0,
       todayEarned: 0,
-      pendingCashout: 0,
+      pendingWithdrawal: 0,
       lastEarnedAt: null,
+      canWithdraw: true,
+      version: 1,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     console.log(`Created wallet ${walletRef.id} for user ${userId}`);
 
-    // Initialize leaderboard entry
-    await db.collection("leaderboard").doc(userId).set({
-      oddienceUserId: userId,
-      displayName: userData.displayName || "User",
-      avatarUrl: userData.profile?.avatarUrl || null,
-      totalScore: 0,
+    // Initialize leaderboard entry in new structure (leaderboards/{type}/scores)
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const weekStart = new Date(today);
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1); // Monday
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+
+    const displayName = userData.displayName ||
+      userData.profile?.displayName || "User";
+    const username = userData.profile?.username || null;
+    const avatarUrl = userData.profile?.avatarUrl || null;
+
+    const baseScoreData = {
+      userId: userId,
+      displayName: displayName,
+      username: username,
+      avatarUrl: avatarUrl,
+      avatarColor: null,
+      totalTokensEarned: 0,
       rank: 0,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+      engagementsCompleted: 0,
+      currentStreak: 0,
+      longestStreak: 0,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    // Create entries in all three leaderboards
+    const batch = db.batch();
+
+    // Daily leaderboard
+    batch.set(
+      db.collection("leaderboards").doc("daily").collection("scores").doc(userId),
+      {
+        ...baseScoreData,
+        periodStart: admin.firestore.Timestamp.fromDate(today),
+        periodEnd: admin.firestore.Timestamp.fromDate(tomorrow),
+      }
+    );
+
+    // Weekly leaderboard
+    batch.set(
+      db.collection("leaderboards").doc("weekly").collection("scores").doc(userId),
+      {
+        ...baseScoreData,
+        periodStart: admin.firestore.Timestamp.fromDate(weekStart),
+        periodEnd: admin.firestore.Timestamp.fromDate(weekEnd),
+      }
+    );
+
+    // All-time leaderboard
+    batch.set(
+      db.collection("leaderboards").doc("allTime").collection("scores").doc(userId),
+      {
+        ...baseScoreData,
+        periodStart: admin.firestore.Timestamp.fromDate(new Date(0)),
+        periodEnd: admin.firestore.Timestamp.fromDate(now),
+      }
+    );
+
+    await batch.commit();
 
     return null;
   });
@@ -62,13 +121,26 @@ export const onWalletUpdated = functions.firestore
       return null;
     }
 
-    const userId = after.oddienceUserId;
+    const userId = after.userId;
+    const now = admin.firestore.FieldValue.serverTimestamp();
 
-    // Update leaderboard score
-    await db.collection("leaderboard").doc(userId).update({
-      totalScore: after.lifetimeEarned,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    // Update all-time leaderboard score (daily/weekly updated by leaderboard.ts)
+    try {
+      await db
+        .collection("leaderboards")
+        .doc("allTime")
+        .collection("scores")
+        .doc(userId)
+        .update({
+          totalTokensEarned: after.lifetimeEarned,
+          currentStreak: after.currentStreak || 0,
+          longestStreak: after.longestStreak || 0,
+          updatedAt: now,
+        });
+    } catch (e) {
+      // Document might not exist yet, create it
+      console.log(`Creating allTime leaderboard entry for user ${userId}`);
+    }
 
     return null;
   });
@@ -83,20 +155,46 @@ export const onUserUpdated = functions.firestore
     const before = change.before.data();
     const after = change.after.data();
 
-    // Check if display name or avatar changed
-    const nameChanged = before.displayName !== after.displayName;
+    // Check if display name, username, or avatar changed
+    const nameChanged = before.displayName !== after.displayName ||
+      before.profile?.displayName !== after.profile?.displayName;
+    const usernameChanged = before.profile?.username !== after.profile?.username;
     const avatarChanged = before.profile?.avatarUrl !== after.profile?.avatarUrl;
+    const avatarColorChanged = before.profile?.avatarColor !== after.profile?.avatarColor;
 
-    if (!nameChanged && !avatarChanged) {
+    if (!nameChanged && !usernameChanged && !avatarChanged && !avatarColorChanged) {
       return null;
     }
 
-    // Update leaderboard entry
-    await db.collection("leaderboard").doc(userId).update({
-      displayName: after.displayName,
-      avatarUrl: after.profile?.avatarUrl || null,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    const displayName = after.displayName ||
+      after.profile?.displayName || "User";
+    const username = after.profile?.username || null;
+    const avatarUrl = after.profile?.avatarUrl || null;
+    const avatarColor = after.profile?.avatarColor || null;
+    const now = admin.firestore.FieldValue.serverTimestamp();
+
+    // Update all leaderboard entries
+    const leaderboardTypes = ["daily", "weekly", "allTime"];
+
+    for (const type of leaderboardTypes) {
+      try {
+        await db
+          .collection("leaderboards")
+          .doc(type)
+          .collection("scores")
+          .doc(userId)
+          .update({
+            displayName: displayName,
+            username: username,
+            avatarUrl: avatarUrl,
+            avatarColor: avatarColor,
+            updatedAt: now,
+          });
+      } catch (e) {
+        // Document might not exist, ignore
+        console.log(`Could not update ${type} leaderboard for user ${userId}`);
+      }
+    }
 
     return null;
   });
@@ -108,7 +206,7 @@ export const onPotWinnerCreated = functions.firestore
   .document("potWinners/{winnerId}")
   .onCreate(async (snap, context) => {
     const winnerData = snap.data();
-    const userId = winnerData.oddienceUserId;
+    const userId = winnerData.userId;
 
     // Get user's FCM token
     const userDoc = await db.collection("users").doc(userId).get();
@@ -152,10 +250,16 @@ export const onReferralCompleted = functions.firestore
   .document("referrals/{referralId}")
   .onCreate(async (snap, context) => {
     const referralData = snap.data();
-    const referrerId = referralData.referrerId;
+    // Use Flutter-compatible field name
+    const referrerUserId = referralData.referrerUserId;
+
+    if (!referrerUserId) {
+      console.log("No referrerUserId in referral document");
+      return null;
+    }
 
     // Get referrer's FCM token
-    const userDoc = await db.collection("users").doc(referrerId).get();
+    const userDoc = await db.collection("users").doc(referrerUserId).get();
     const fcmToken = userDoc.data()?.fcmToken;
 
     if (!fcmToken) {
@@ -176,9 +280,9 @@ export const onReferralCompleted = functions.firestore
         },
       });
 
-      console.log(`Sent referral notification to user ${referrerId}`);
+      console.log(`Sent referral notification to user ${referrerUserId}`);
     } catch (error) {
-      console.error(`Failed to send notification to user ${referrerId}:`, error);
+      console.error(`Failed to send notification to user ${referrerUserId}:`, error);
     }
 
     return null;
@@ -199,19 +303,19 @@ export const onUserDeleted = functions.firestore
   .onDelete(async (snap, context) => {
     const userId = context.params.userId;
 
-    // Collections to clean up
+    // Collections to clean up (by userId field)
     const collectionsToClean = [
       "wallets",
       "referralCodes",
       "referralStats",
-      "leaderboard",
+      "engagements",
     ];
 
     const batch = db.batch();
 
     for (const collection of collectionsToClean) {
       const docs = await db.collection(collection)
-        .where("oddienceUserId", "==", userId)
+        .where("userId", "==", userId)
         .get();
 
       docs.forEach((doc) => {
@@ -219,8 +323,18 @@ export const onUserDeleted = functions.firestore
       });
     }
 
-    // Also delete by document ID if applicable
+    // Delete from new leaderboards structure
+    const leaderboardTypes = ["daily", "weekly", "allTime"];
+    for (const type of leaderboardTypes) {
+      batch.delete(
+        db.collection("leaderboards").doc(type).collection("scores").doc(userId)
+      );
+    }
+
+    // Delete legacy leaderboard entry if exists
     batch.delete(db.collection("leaderboard").doc(userId));
+
+    // Delete referral-related docs by ID
     batch.delete(db.collection("referralStats").doc(userId));
     batch.delete(db.collection("referralCodes").doc(userId));
 
@@ -239,16 +353,37 @@ export const onMessageCreated = functions.firestore
     const messageData = snap.data();
     const threadId = messageData.threadId;
 
-    // Update thread with last message info
+    // Build last message preview based on message type
+    let lastMessagePreview: string;
+    const messageType = messageData.type;
+    const tokenAmount = messageData.tokenAmount;
+
+    if (messageType === "tokenSend") {
+      lastMessagePreview = `Sent ${tokenAmount} tokens`;
+    } else if (messageType === "tokenRequest") {
+      lastMessagePreview = `Requested ${tokenAmount} tokens`;
+    } else if (messageType === "tokenReceived") {
+      lastMessagePreview = `Received ${tokenAmount} tokens`;
+    } else if (messageData.textContent) {
+      lastMessagePreview = messageData.textContent;
+    } else {
+      lastMessagePreview = "New message";
+    }
+
+    // Update thread with last message info (using Flutter-compatible field names)
     await db.collection("chatThreads").doc(threadId).update({
-      lastMessage: messageData.content,
+      lastMessagePreview: lastMessagePreview,
       lastMessageAt: messageData.createdAt,
-      lastMessageSenderId: messageData.senderId,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     // Send notification to recipient
     const recipientId = messageData.recipientId;
+
+    if (!recipientId) {
+      // No recipient to notify (e.g., system messages)
+      return null;
+    }
 
     // Get recipient's FCM token
     const userDoc = await db.collection("users").doc(recipientId).get();
@@ -262,19 +397,30 @@ export const onMessageCreated = functions.firestore
     const senderDoc = await db.collection("users").doc(messageData.senderId).get();
     const senderName = senderDoc.data()?.displayName || "Someone";
 
+    // Build notification body based on message type
+    let notificationBody: string;
+    if (messageType === "tokenSend") {
+      notificationBody = `Sent you ${tokenAmount} tokens`;
+    } else if (messageType === "tokenRequest") {
+      notificationBody = `Requested ${tokenAmount} tokens from you`;
+    } else if (messageData.textContent) {
+      notificationBody = messageData.textContent;
+    } else {
+      notificationBody = "Sent you a message";
+    }
+
     try {
       await admin.messaging().send({
         token: fcmToken,
         notification: {
           title: senderName,
-          body: messageData.type === "transfer"
-            ? `Sent you ${messageData.metadata?.amount} tokens`
-            : messageData.content,
+          body: notificationBody,
         },
         data: {
           type: "chat_message",
           threadId: threadId,
           senderId: messageData.senderId,
+          messageType: messageType || "text",
         },
       });
     } catch (error) {

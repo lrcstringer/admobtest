@@ -33,16 +33,16 @@ service cloud.firestore {
       allow read: if isOwner(userId);
 
       // Users can create their own profile during signup
+      // TODO: Re-add isAppChecked() once App Check is enabled (requires Play Store)
       allow create: if isOwner(userId)
-        && isAppChecked()
         && isValidString(request.resource.data.displayName, 2, 50)
         && isValidString(request.resource.data.phoneNumber, 10, 15);
 
       // Users can update their own profile with restrictions
       // Note: oddienceUserId is the document ID (not stored as a field),
       // so isOwner(userId) already prevents cross-user updates.
+      // TODO: Re-add isAppChecked() once App Check is enabled (requires Play Store)
       allow update: if isOwner(userId)
-        && isAppChecked()
         && isValidString(request.resource.data.displayName, 2, 50)
         // Prevent changing phone number
         && request.resource.data.phoneNumber == resource.data.phoneNumber;
@@ -89,7 +89,6 @@ service cloud.firestore {
 
       // Users can create threads
       allow create: if isAuthenticated()
-        && isAppChecked()
         && (request.resource.data.participant1Id == request.auth.uid
             || request.resource.data.participant2Id == request.auth.uid);
 
@@ -105,8 +104,8 @@ service cloud.firestore {
       allow read: if isAuthenticated();
 
       // Users can send messages
+      // TODO: Re-add isAppChecked() once App Check is enabled (requires Play Store)
       allow create: if isAuthenticated()
-        && isAppChecked()
         && request.resource.data.senderId == request.auth.uid
         && isValidString(request.resource.data.content, 0, 1000);
 
@@ -157,8 +156,8 @@ service cloud.firestore {
       allow read: if isAuthenticated();
 
       // Users can create their own referral code
+      // TODO: Re-add isAppChecked() once App Check is enabled (requires Play Store)
       allow create: if isAuthenticated()
-        && isAppChecked()
         && request.resource.data.oddienceUserId == request.auth.uid;
 
       // Codes cannot be modified or deleted

@@ -19,7 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$CashoutModel {
   String get id => throw _privateConstructorUsedError;
   String get walletId => throw _privateConstructorUsedError;
-  String get oddienceUserId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   int get tokenAmount => throw _privateConstructorUsedError;
   double get zarAmount => throw _privateConstructorUsedError;
   String get method => throw _privateConstructorUsedError;
@@ -53,7 +53,7 @@ abstract class $CashoutModelCopyWith<$Res> {
   $Res call({
     String id,
     String walletId,
-    String oddienceUserId,
+    String userId,
     int tokenAmount,
     double zarAmount,
     String method,
@@ -89,7 +89,7 @@ class _$CashoutModelCopyWithImpl<$Res, $Val extends CashoutModel>
   $Res call({
     Object? id = null,
     Object? walletId = null,
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? tokenAmount = null,
     Object? zarAmount = null,
     Object? method = null,
@@ -116,9 +116,9 @@ class _$CashoutModelCopyWithImpl<$Res, $Val extends CashoutModel>
                 ? _value.walletId
                 : walletId // ignore: cast_nullable_to_non_nullable
                       as String,
-            oddienceUserId: null == oddienceUserId
-                ? _value.oddienceUserId
-                : oddienceUserId // ignore: cast_nullable_to_non_nullable
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
                       as String,
             tokenAmount: null == tokenAmount
                 ? _value.tokenAmount
@@ -198,7 +198,7 @@ abstract class _$$CashoutModelImplCopyWith<$Res>
   $Res call({
     String id,
     String walletId,
-    String oddienceUserId,
+    String userId,
     int tokenAmount,
     double zarAmount,
     String method,
@@ -233,7 +233,7 @@ class __$$CashoutModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? walletId = null,
-    Object? oddienceUserId = null,
+    Object? userId = null,
     Object? tokenAmount = null,
     Object? zarAmount = null,
     Object? method = null,
@@ -260,9 +260,9 @@ class __$$CashoutModelImplCopyWithImpl<$Res>
             ? _value.walletId
             : walletId // ignore: cast_nullable_to_non_nullable
                   as String,
-        oddienceUserId: null == oddienceUserId
-            ? _value.oddienceUserId
-            : oddienceUserId // ignore: cast_nullable_to_non_nullable
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
                   as String,
         tokenAmount: null == tokenAmount
             ? _value.tokenAmount
@@ -335,7 +335,7 @@ class _$CashoutModelImpl extends _CashoutModel {
   const _$CashoutModelImpl({
     required this.id,
     required this.walletId,
-    required this.oddienceUserId,
+    required this.userId,
     required this.tokenAmount,
     required this.zarAmount,
     required this.method,
@@ -358,7 +358,7 @@ class _$CashoutModelImpl extends _CashoutModel {
   @override
   final String walletId;
   @override
-  final String oddienceUserId;
+  final String userId;
   @override
   final int tokenAmount;
   @override
@@ -392,7 +392,7 @@ class _$CashoutModelImpl extends _CashoutModel {
 
   @override
   String toString() {
-    return 'CashoutModel(id: $id, walletId: $walletId, oddienceUserId: $oddienceUserId, tokenAmount: $tokenAmount, zarAmount: $zarAmount, method: $method, status: $status, destinationDetails: $destinationDetails, bankName: $bankName, accountNumber: $accountNumber, accountHolderName: $accountHolderName, mobileNumber: $mobileNumber, reference: $reference, failureReason: $failureReason, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt, failedAt: $failedAt)';
+    return 'CashoutModel(id: $id, walletId: $walletId, userId: $userId, tokenAmount: $tokenAmount, zarAmount: $zarAmount, method: $method, status: $status, destinationDetails: $destinationDetails, bankName: $bankName, accountNumber: $accountNumber, accountHolderName: $accountHolderName, mobileNumber: $mobileNumber, reference: $reference, failureReason: $failureReason, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt, failedAt: $failedAt)';
   }
 
   @override
@@ -403,8 +403,7 @@ class _$CashoutModelImpl extends _CashoutModel {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.walletId, walletId) ||
                 other.walletId == walletId) &&
-            (identical(other.oddienceUserId, oddienceUserId) ||
-                other.oddienceUserId == oddienceUserId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.tokenAmount, tokenAmount) ||
                 other.tokenAmount == tokenAmount) &&
             (identical(other.zarAmount, zarAmount) ||
@@ -440,7 +439,7 @@ class _$CashoutModelImpl extends _CashoutModel {
     runtimeType,
     id,
     walletId,
-    oddienceUserId,
+    userId,
     tokenAmount,
     zarAmount,
     method,
@@ -471,7 +470,7 @@ abstract class _CashoutModel extends CashoutModel {
   const factory _CashoutModel({
     required final String id,
     required final String walletId,
-    required final String oddienceUserId,
+    required final String userId,
     required final int tokenAmount,
     required final double zarAmount,
     required final String method,
@@ -495,7 +494,7 @@ abstract class _CashoutModel extends CashoutModel {
   @override
   String get walletId;
   @override
-  String get oddienceUserId;
+  String get userId;
   @override
   int get tokenAmount;
   @override

@@ -22,6 +22,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   late final TextEditingController _usernameController;
+  late final TextEditingController _cityController;
   String? _selectedGender;
   String? _selectedProvince;
   DateTime? _dateOfBirth;
@@ -47,6 +48,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _firstNameController = TextEditingController(text: user?.profile?.firstName);
     _lastNameController = TextEditingController(text: user?.profile?.lastName);
     _usernameController = TextEditingController(text: user?.profile?.username);
+    _cityController = TextEditingController(text: user?.profile?.city);
     _selectedGender = user?.profile?.gender;
     _selectedProvince = user?.profile?.province;
     _dateOfBirth = user?.profile?.dateOfBirth;
@@ -57,6 +59,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _usernameController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
@@ -239,6 +242,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   setState(() => _selectedProvince = value);
                 },
               ),
+              AppSpacing.verticalMd,
+
+              // City
+              TextFormField(
+                controller: _cityController,
+                decoration: const InputDecoration(
+                  labelText: 'City/Town (Optional)',
+                  prefixIcon: Icon(Icons.location_city_outlined),
+                ),
+                textCapitalization: TextCapitalization.words,
+              ),
               AppSpacing.verticalXl,
 
               // Save Button
@@ -318,6 +332,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         gender: _selectedGender,
         dateOfBirth: _dateOfBirth,
         province: _selectedProvince,
+        city: _cityController.text.isNotEmpty ? _cityController.text : null,
         firstName: _firstNameController.text,
         lastName: _lastNameController.text,
       );

@@ -34,9 +34,10 @@ dependencies:
   firebase_analytics: ^11.3.6
   firebase_app_check: ^0.3.1+6
 
-  # Local Database
+  # Local Database (encrypted with SQLCipher)
   drift: ^2.22.1
-  sqlite3_flutter_libs: ^0.5.28
+  sqlcipher_flutter_libs: ^0.6.4
+  sqlite3: ^2.4.0
   path_provider: ^2.1.5
   path: ^1.9.0
 
@@ -99,6 +100,9 @@ dependencies:
 
   # Phone number parsing & E.164 normalization
   phone_numbers_parser: ^8.3.0
+
+  # Runtime Application Self-Protection
+  freerasp: ^6.5.0
 
 dev_dependencies:
   flutter_test:

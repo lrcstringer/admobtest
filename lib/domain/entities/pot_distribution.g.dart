@@ -56,7 +56,7 @@ const _$DistributionStatusEnumMap = {
 _$PotWinnerAllocationImpl _$$PotWinnerAllocationImplFromJson(
   Map<String, dynamic> json,
 ) => _$PotWinnerAllocationImpl(
-  oddienceUserId: json['oddienceUserId'] as String,
+  userId: json['userId'] as String,
   rank: (json['rank'] as num).toInt(),
   prizeAmount: (json['prizeAmount'] as num).toInt(),
   entryCount: (json['entryCount'] as num).toInt(),
@@ -68,7 +68,7 @@ _$PotWinnerAllocationImpl _$$PotWinnerAllocationImplFromJson(
 Map<String, dynamic> _$$PotWinnerAllocationImplToJson(
   _$PotWinnerAllocationImpl instance,
 ) => <String, dynamic>{
-  'oddienceUserId': instance.oddienceUserId,
+  'userId': instance.userId,
   'rank': instance.rank,
   'prizeAmount': instance.prizeAmount,
   'entryCount': instance.entryCount,

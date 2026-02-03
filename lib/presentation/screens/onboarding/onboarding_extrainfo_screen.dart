@@ -92,7 +92,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
 
     if (!hasData) {
       // Nothing to save — go straight to success
-      context.go('/onboarding/permissions');
+      context.go('/onboarding/success');
       return;
     }
 
@@ -123,7 +123,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
         );
       },
       (_) {
-        context.go('/onboarding/permissions');
+        context.go('/onboarding/success');
       },
     );
   }
@@ -161,7 +161,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final mascotSize = size.width * 0.20;
+    final mascotSize = size.width * 0.25;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -200,8 +200,8 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                 child: SafeArea(
                   child: Column(
                     children: [
-                      // Extra-compact header for this dense screen
-                      SizedBox(height: size.height * 0.005),
+                      // Compact header: mascot + iMaliChat + tagline
+                      SizedBox(height: size.height * 0.01),
                       SizedBox(
                         width: mascotSize,
                         height: mascotSize,
@@ -220,25 +220,41 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'iMaliChat',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.bold,
+                      const SizedBox(height: 4),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'iMali',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium
+                                  ?.copyWith(
+                                    color: AppColors.gold,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
+                            TextSpan(
+                              text: 'Chat',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium
+                                  ?.copyWith(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 1),
+                      const SizedBox(height: 2),
                       Text(
                         'Earn. Chat. Buy.',
                         textAlign: TextAlign.center,
                         style: Theme.of(context)
                             .textTheme
-                            .bodyMedium
+                            .titleMedium
                             ?.copyWith(
                               color: AppColors.gold,
                               fontWeight: FontWeight.w600,
@@ -246,7 +262,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                             ),
                       ),
 
-                      SizedBox(height: size.height * 0.015),
+                      SizedBox(height: size.height * 0.03),
 
                       // Scrollable form content
                       Expanded(

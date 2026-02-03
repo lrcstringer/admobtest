@@ -1,4 +1,5 @@
-import 'package:firebase_app_check/firebase_app_check.dart';
+// TODO: Uncomment when enabling App Check after Play Store publish
+// import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -9,6 +10,8 @@ import 'package:get_it/get_it.dart';
 
 import 'app.dart';
 import 'core/di/injection.dart';
+import 'core/security/rasp_service.dart';
+//import 'core/security/screenshot_prevention_service.dart';
 import 'core/services/fcm_challenge_handler.dart';
 import 'firebase_options.dart';
 
@@ -16,8 +19,7 @@ import 'firebase_options.dart';
 /// Must be a top-level function (not a class method).
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // Background challenges are handled when the app opens via
   // getInitialMessage / onMessageOpenedApp in app.dart
 }
@@ -42,23 +44,39 @@ Future<void> main() async {
   );
 
   // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Activate Firebase App Check
-  await FirebaseAppCheck.instance.activate(
-    androidProvider:
-        kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
-    appleProvider:
-        kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
-  );
+  // TODO: Activate App Check once app is published to Google Play
+  // Play Integrity requires the app to be listed on Play Store.
+  // SafetyNet has been deprecated and removed by Google.
+  // Server-side enforcement is disabled (security.ts enforce=false) so this is safe to skip.
+  // Once on Play Store, uncomment and use AndroidProvider.playIntegrity:
+  //
+  // await FirebaseAppCheck.instance.activate(
+  //   androidProvider:
+  //       kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+  //   appleProvider:
+  //       kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
+  // );
 
   // Register FCM background handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // Configure dependencies
   await configureDependencies();
+
+  // Initialize Runtime Application Self-Protection (skip in debug)
+  if (!kDebugMode) {
+    final raspService = GetIt.instance<RaspService>();
+    await raspService.initialize();
+  }
+
+  // TODO: Re-enable screenshot prevention before production release
+  // Enable screenshot prevention (skip in debug for testing)
+  // if (!kDebugMode) {
+  //   final screenshotService = GetIt.instance<ScreenshotPreventionService>();
+  //   await screenshotService.enable();
+  // }
 
   // Start listening for auth challenge push notifications
   final challengeHandler = GetIt.instance<FcmChallengeHandler>();

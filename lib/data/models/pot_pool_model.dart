@@ -128,7 +128,7 @@ class PotPoolModel with _$PotPoolModel {
 @freezed
 class PotWinnerModel with _$PotWinnerModel {
   const factory PotWinnerModel({
-    required String oddienceUserId,
+    required String userId,
     required String displayName,
     String? username,
     required int rank,
@@ -140,7 +140,7 @@ class PotWinnerModel with _$PotWinnerModel {
 
   factory PotWinnerModel.fromJson(Map<String, dynamic> json) {
     return PotWinnerModel(
-      oddienceUserId: json['oddienceUserId'] as String,
+      userId: json['userId'] as String,
       displayName: json['displayName'] as String? ?? 'User',
       username: json['username'] as String?,
       rank: json['rank'] as int? ?? 0,
@@ -151,7 +151,7 @@ class PotWinnerModel with _$PotWinnerModel {
 
   Map<String, dynamic> toFirestoreJson() {
     return {
-      'oddienceUserId': oddienceUserId,
+      'userId': userId,
       'displayName': displayName,
       'username': username,
       'rank': rank,
@@ -162,7 +162,7 @@ class PotWinnerModel with _$PotWinnerModel {
 
   PotWinner toEntity() {
     return PotWinner(
-      oddienceUserId: oddienceUserId,
+      userId: userId,
       displayName: displayName,
       username: username,
       rank: rank,
@@ -173,7 +173,7 @@ class PotWinnerModel with _$PotWinnerModel {
 
   factory PotWinnerModel.fromEntity(PotWinner entity) {
     return PotWinnerModel(
-      oddienceUserId: entity.oddienceUserId,
+      userId: entity.userId,
       displayName: entity.displayName,
       username: entity.username,
       rank: entity.rank,

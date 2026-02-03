@@ -37,7 +37,7 @@ export const processPurchase = functions.https.onCall(async (data, context) => {
 
   const purchase = purchaseDoc.data();
 
-  if (purchase?.oddienceUserId !== userId) {
+  if (purchase?.userId !== userId) {
     throw new functions.https.HttpsError("permission-denied", "Not authorized to process this purchase");
   }
 
@@ -165,7 +165,7 @@ async function handlePurchaseFailure(
 
     // Refund tokens to wallet
     const walletQuery = await db.collection("wallets")
-      .where("oddienceUserId", "==", purchase.oddienceUserId)
+      .where("userId", "==", purchase.userId)
       .limit(1)
       .get();
 
@@ -181,7 +181,7 @@ async function handlePurchaseFailure(
       transaction.set(refundRef, {
         id: refundRef.id,
         walletId: walletDoc.id,
-        oddienceUserId: purchase.oddienceUserId,
+        userId: purchase.userId,
         type: "refund",
         tokenAmount: purchase.tokenAmount,
         zarAmount: purchase.zarAmount,

@@ -59,13 +59,15 @@ import '../screens/onboarding/onboarding_mobile_otp_screen.dart';
 import '../screens/onboarding/onboarding_mobile_screen.dart';
 import '../screens/onboarding/onboarding_extrainfo_screen.dart';
 import '../screens/onboarding/onboarding_name_screen.dart';
-import '../screens/onboarding/onboarding_settings_screen.dart';
-import '../screens/onboarding/permissions_screen.dart';
+// Note: Onboarding settings/permissions screens removed - permissions requested in context
+// import '../screens/onboarding/onboarding_settings_screen.dart';
+// import '../screens/onboarding/permissions_screen.dart';
 import '../screens/onboarding/profile_picture_screen.dart';
 import '../screens/onboarding/onboarding_success_screen.dart';
 import '../screens/onboarding/pin_setup_screen.dart';
 import '../screens/onboarding/profile_setup_screen.dart';
-import '../screens/onboarding/terms_screen.dart';
+// Note: TermsScreen import removed - terms acceptance now on age consent screen
+// import '../screens/onboarding/terms_screen.dart';
 
 // Profile screens
 import '../screens/profile/edit_profile_screen.dart';
@@ -77,6 +79,7 @@ import '../screens/referral/referral_screen.dart';
 // Settings screens
 import '../screens/settings/about_screen.dart';
 import '../screens/settings/help_support_screen.dart';
+import '../screens/settings/kyc_verification_screen.dart';
 import '../screens/settings/notification_settings_screen.dart';
 import '../screens/settings/security_settings_screen.dart';
 import '../screens/settings/settings_screen.dart';
@@ -212,11 +215,9 @@ class AppRouter {
       ),
 
       // Onboarding routes
-      GoRoute(
-        path: '/onboarding/terms',
-        name: 'terms',
-        builder: (context, state) => const TermsScreen(),
-      ),
+      // Note: Terms screen removed from routing - terms acceptance now handled
+      // on the age consent screen before sign-up. The TermsScreen file is kept
+      // for potential future use but not part of the onboarding flow.
       GoRoute(
         path: '/onboarding/name',
         name: 'onboardingName',
@@ -252,16 +253,17 @@ class AppRouter {
         name: 'onboardingPicture',
         builder: (context, state) => const ProfilePictureScreen(),
       ),
-      GoRoute(
-        path: '/onboarding/permissions',
-        name: 'onboardingPermissions',
-        builder: (context, state) => const PermissionsScreen(),
-      ),
-      GoRoute(
-        path: '/onboarding/settings',
-        name: 'onboardingSettings',
-        builder: (context, state) => const OnboardingSettingsScreen(),
-      ),
+      // Note: Onboarding permissions/settings routes removed - permissions requested in context
+      // GoRoute(
+      //   path: '/onboarding/permissions',
+      //   name: 'onboardingPermissions',
+      //   builder: (context, state) => const PermissionsScreen(),
+      // ),
+      // GoRoute(
+      //   path: '/onboarding/settings',
+      //   name: 'onboardingSettings',
+      //   builder: (context, state) => const OnboardingSettingsScreen(),
+      // ),
       GoRoute(
         path: '/onboarding/success',
         name: 'onboardingSuccess',
@@ -374,6 +376,12 @@ class AppRouter {
                         path: 'about',
                         name: 'about',
                         builder: (context, state) => const AboutScreen(),
+                      ),
+                      GoRoute(
+                        path: 'kyc',
+                        name: 'kycVerification',
+                        builder: (context, state) =>
+                            const KycVerificationScreen(),
                       ),
                     ],
                   ),
@@ -654,12 +662,11 @@ class AppRouter {
 
       // If needs onboarding and not on onboarding pages, redirect to the
       // appropriate step based on what they've already completed.
+      // Note: Terms acceptance is now handled on the age consent screen before
+      // sign-up, so we skip the terms check and go directly to name entry.
       if (needsOnboarding && !isOnOnboarding) {
         final user = authState.user;
-        if (user == null || !user.hasAcceptedTerms) {
-          return '/onboarding/terms';
-        }
-        final profile = user.profile;
+        final profile = user?.profile;
         if (profile == null ||
             profile.displayName.isEmpty ||
             profile.displayName == 'iMali User') {

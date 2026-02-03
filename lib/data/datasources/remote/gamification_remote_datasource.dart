@@ -391,7 +391,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
     if (!doc.exists) {
       // Return default score
       return UserScoreModel(
-        oddienceUserId: userId,
+        userId: userId,
         displayName: 'You',
         totalTokensEarned: 0,
         rank: 0,
@@ -481,7 +481,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
       final tokensWon = (totalTokens * percentage / 100).round();
 
       return PotWinnerModel(
-        oddienceUserId: data['oddienceUserId'] as String,
+        userId: data['userId'] as String,
         displayName: data['displayName'] as String? ?? 'User',
         username: data['username'] as String?,
         rank: index + 1,

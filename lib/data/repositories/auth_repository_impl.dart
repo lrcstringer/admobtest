@@ -105,13 +105,15 @@ class AuthRepositoryImpl implements AuthRepository {
       var userModel = await _userRemoteDataSource.getUserById(firebaseUser.uid);
 
       // Create new user if doesn't exist
+      // Note: hasAcceptedTerms defaults to true because users must accept
+      // terms on the age consent screen before they can reach OTP verification.
       if (userModel == null) {
         userModel = UserModel(
-          oddienceUserId: firebaseUser.uid,
+          userId: firebaseUser.uid,
           phoneNumber: firebaseUser.phoneNumber ?? verificationId,
           displayName: 'iMali User',
           status: UserStatus.active,
-          hasAcceptedTerms: false,
+          hasAcceptedTerms: true,
           hasCompletedOnboarding: false,
           isPotEligible: false,
           createdAt: DateTime.now(),
@@ -193,12 +195,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
       if (userModel == null) {
         // Create user if somehow doesn't exist
+        // Note: hasAcceptedTerms defaults to true - terms accepted on age consent screen
         userModel = UserModel(
-          oddienceUserId: firebaseUser.uid,
+          userId: firebaseUser.uid,
           phoneNumber: firebaseUser.phoneNumber ?? '',
           displayName: 'iMali User',
           status: UserStatus.active,
-          hasAcceptedTerms: false,
+          hasAcceptedTerms: true,
           hasCompletedOnboarding: false,
           isPotEligible: false,
           createdAt: DateTime.now(),
