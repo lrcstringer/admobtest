@@ -10,6 +10,8 @@ import '../../../domain/entities/cashout.dart';
 import '../../models/wallet_model.dart';
 import '../../models/transaction_model.dart';
 import '../../models/cashout_model.dart';
+import '../../models/ledger_account_model.dart';
+import '../../models/ledger_journal_model.dart';
 
 abstract class WalletRemoteDataSource {
   String? get currentUserId;
@@ -44,6 +46,18 @@ abstract class WalletRemoteDataSource {
   });
   Future<CashoutModel?> getCashout(String cashoutId);
   Future<void> cancelCashout(String cashoutId);
+
+  // Ledger account methods
+  Future<LedgerAccountModel?> getLedgerAccount();
+  Stream<LedgerAccountModel?> watchLedgerAccount();
+  Future<int> getLedgerBalance();
+
+  // Ledger journal methods (transaction history from Trust Ledger)
+  Future<List<LedgerJournalModel>> getLedgerJournals({
+    int? limit,
+    DateTime? startAfter,
+  });
+  Stream<List<LedgerJournalModel>> watchLedgerJournals({int? limit});
 }
 
 @LazySingleton(as: WalletRemoteDataSource)
@@ -68,6 +82,12 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
   CollectionReference<Map<String, dynamic>> get _cashoutCollection =>
       _firestore.collection('cashouts');
+
+  CollectionReference<Map<String, dynamic>> get _ledgerAccountsCollection =>
+      _firestore.collection('ledgerAccounts');
+
+  CollectionReference<Map<String, dynamic>> get _ledgerJournalsCollection =>
+      _firestore.collection('ledgerJournals');
 
   @override
   String? get currentUserId => _firebaseAuth.currentUser?.uid;
@@ -355,5 +375,134 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       if (e is ServerException) rethrow;
       throw ServerException(message: e.toString());
     }
+  }
+
+  @override
+  Future<LedgerAccountModel?> getLedgerAccount() async {
+    final userId = currentUserId;
+    if (userId == null) {
+      throw const AuthException(message: 'User not authenticated');
+    }
+
+    try {
+      // Ledger account ID format: user:{userId}
+      final doc = await _ledgerAccountsCollection.doc('user:$userId').get();
+      if (!doc.exists || doc.data() == null) {
+        return null;
+      }
+      return LedgerAccountModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Stream<LedgerAccountModel?> watchLedgerAccount() {
+    final userId = currentUserId;
+    if (userId == null) {
+      return Stream.error(const AuthException(message: 'User not authenticated'));
+    }
+
+    return _ledgerAccountsCollection.doc('user:$userId').snapshots().map((doc) {
+      if (!doc.exists || doc.data() == null) {
+        return null;
+      }
+      return LedgerAccountModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
+    });
+  }
+
+  @override
+  Future<int> getLedgerBalance() async {
+    final account = await getLedgerAccount();
+    return account?.balance ?? 0;
+  }
+
+  @override
+  Future<List<LedgerJournalModel>> getLedgerJournals({
+    int? limit,
+    DateTime? startAfter,
+  }) async {
+    final userId = currentUserId;
+    if (userId == null) {
+      throw const AuthException(message: 'User not authenticated');
+    }
+
+    try {
+      // Query journals where user's account appears in the entries
+      // Account ID format: user:{userId}
+      final userAccountId = 'user:$userId';
+
+      var query = _ledgerJournalsCollection
+          .where('status', isEqualTo: 'posted')
+          .orderBy('postedAt', descending: true);
+
+      if (startAfter != null) {
+        query = query.startAfter([Timestamp.fromDate(startAfter)]);
+      }
+
+      if (limit != null) {
+        query = query.limit(limit);
+      }
+
+      final snapshot = await query.get();
+
+      // Filter journals that contain the user's account in entries
+      final journals = <LedgerJournalModel>[];
+      for (final doc in snapshot.docs) {
+        final data = sanitizeFirestoreData(doc.data());
+        final entries = data['entries'] as List<dynamic>? ?? [];
+
+        // Check if user's account is in any entry
+        final hasUserAccount = entries.any((entry) {
+          final e = entry as Map<String, dynamic>;
+          return e['accountId'] == userAccountId;
+        });
+
+        if (hasUserAccount) {
+          journals.add(LedgerJournalModel.fromJson({...data, 'id': doc.id}));
+        }
+      }
+
+      return journals;
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Stream<List<LedgerJournalModel>> watchLedgerJournals({int? limit}) {
+    final userId = currentUserId;
+    if (userId == null) {
+      return Stream.error(const AuthException(message: 'User not authenticated'));
+    }
+
+    final userAccountId = 'user:$userId';
+
+    var query = _ledgerJournalsCollection
+        .where('status', isEqualTo: 'posted')
+        .orderBy('postedAt', descending: true);
+
+    if (limit != null) {
+      query = query.limit(limit);
+    }
+
+    return query.snapshots().map((snapshot) {
+      final journals = <LedgerJournalModel>[];
+      for (final doc in snapshot.docs) {
+        final data = sanitizeFirestoreData(doc.data());
+        final entries = data['entries'] as List<dynamic>? ?? [];
+
+        // Check if user's account is in any entry
+        final hasUserAccount = entries.any((entry) {
+          final e = entry as Map<String, dynamic>;
+          return e['accountId'] == userAccountId;
+        });
+
+        if (hasUserAccount) {
+          journals.add(LedgerJournalModel.fromJson({...data, 'id': doc.id}));
+        }
+      }
+      return journals;
+    });
   }
 }

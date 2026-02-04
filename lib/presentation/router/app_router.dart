@@ -98,6 +98,13 @@ import '../screens/wallet/wallet_send_success_screen.dart';
 import '../screens/wallet/wallet_withdraw_failure_screen.dart';
 import '../screens/wallet/wallet_withdraw_success_screen.dart';
 
+// Groups screens
+import '../screens/groups/groups_list_screen.dart';
+import '../screens/groups/group_detail_screen.dart';
+import '../screens/groups/create_group_screen.dart';
+import '../screens/groups/group_transaction_screen.dart';
+import '../screens/groups/pending_approvals_screen.dart';
+
 class AppRouter {
   final AuthBloc authBloc;
 
@@ -285,6 +292,65 @@ class AppRouter {
         path: '/pots',
         name: 'pots',
         builder: (context, state) => const PotsScreen(),
+      ),
+
+      // Groups screens (standalone, outside bottom nav)
+      GoRoute(
+        path: '/groups',
+        name: 'groups',
+        builder: (context, state) => const GroupsListScreen(),
+        routes: [
+          // Create group
+          GoRoute(
+            path: 'create',
+            name: 'createGroup',
+            builder: (context, state) => const CreateGroupScreen(),
+          ),
+          // Group detail
+          GoRoute(
+            path: ':groupId',
+            name: 'groupDetail',
+            builder: (context, state) {
+              final groupId = state.pathParameters['groupId'] ?? '';
+              return GroupDetailScreen(groupId: groupId);
+            },
+            routes: [
+              // Contribute to group
+              GoRoute(
+                path: 'contribute',
+                name: 'groupContribute',
+                builder: (context, state) {
+                  final groupId = state.pathParameters['groupId'] ?? '';
+                  return GroupTransactionScreen(
+                    groupId: groupId,
+                    type: TransactionType.contribute,
+                  );
+                },
+              ),
+              // Withdraw from group
+              GoRoute(
+                path: 'withdraw',
+                name: 'groupWithdraw',
+                builder: (context, state) {
+                  final groupId = state.pathParameters['groupId'] ?? '';
+                  return GroupTransactionScreen(
+                    groupId: groupId,
+                    type: TransactionType.withdraw,
+                  );
+                },
+              ),
+              // Pending approvals
+              GoRoute(
+                path: 'approvals',
+                name: 'groupApprovals',
+                builder: (context, state) {
+                  final groupId = state.pathParameters['groupId'] ?? '';
+                  return PendingApprovalsScreen(groupId: groupId);
+                },
+              ),
+            ],
+          ),
+        ],
       ),
 
       // =============================================

@@ -16,7 +16,13 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
-import { updateLeaderboardScores, updateUserStreak } from "./leaderboard";
+import {
+  processEarningWithSplit,
+  LedgerConfig,
+  getOrCreateDefaultSubAccount,
+} from "./ledger";
+import { updateEngagementStats } from "./engagementStats";
+import { updateDailyScore, updateReferrerAssistScore } from "./dailyScores";
 
 const db = admin.firestore();
 
@@ -279,60 +285,53 @@ export const processEngagement = functions.https.onCall(
       );
     }
 
-    // Get user's wallet
-    const walletQuery = await db
-      .collection("wallets")
-      .where("userId", "==", userId)
-      .limit(1)
-      .get();
-
-    if (walletQuery.empty) {
-      throw new functions.https.HttpsError("not-found", "Wallet not found");
-    }
-
-    const walletDoc = walletQuery.docs[0];
     const rewardAmount = engagement.rewardAmount;
 
     // Get campaignId - support both field names
     const campaignId = engagement.campaignId || engagement.oddienceCampaignId;
 
-    // Process reward in transaction
+    // Calculate user's share for display (90% of total reward)
+    const userShare = Math.floor(rewardAmount * LedgerConfig.EARNING_USER_SHARE);
+
+    // Get or create user's default sub-account
+    const { subAccountId } = await getOrCreateDefaultSubAccount(userId);
+
+    // Process reward through the Trust Ledger system
+    // This handles the 90/5/5 split: 90% to user, 5% daily pot, 5% weekly pot
+    const ledgerResult = await processEarningWithSplit(
+      userId,
+      rewardAmount,
+      engagementId,
+      `Earned from ${engagement.type}`,
+      subAccountId, // Credit to user's default sub-account
+      null, // No account type restriction
+      {
+        engagementType: engagement.type,
+        earnOpportunityId: engagement.earnOpportunityId,
+        campaignId: campaignId,
+        threadId: engagement.threadId,
+      }
+    );
+
+    if (!ledgerResult.success) {
+      throw new functions.https.HttpsError(
+        "internal",
+        `Failed to process earning: ${ledgerResult.error}`
+      );
+    }
+
+    // Update engagement and related records in transaction
     await db.runTransaction(async (transaction) => {
       // Update engagement with Flutter-compatible fields
       transaction.update(engagementDoc.ref, {
         status: EngagementStatus.COMPLETED,
         progress: 100,
         completedAt: admin.firestore.FieldValue.serverTimestamp(),
-        tokensEarned: rewardAmount,
+        tokensEarned: userShare, // User's 90% share
+        totalTokensGenerated: rewardAmount, // Total including pot contributions
+        ledgerJournalId: ledgerResult.journalId, // Link to ledger entry
         evidence: admin.firestore.FieldValue.arrayUnion(evidence),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-
-      // Credit wallet
-      transaction.update(walletDoc.ref, {
-        tokenBalance: admin.firestore.FieldValue.increment(rewardAmount),
-        lifetimeEarned: admin.firestore.FieldValue.increment(rewardAmount),
-        todayEarned: admin.firestore.FieldValue.increment(rewardAmount),
-        totalEngagements: admin.firestore.FieldValue.increment(1),
-        lastEarnedAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-
-      // Create transaction record
-      const txRef = db.collection("transactions").doc();
-      transaction.set(txRef, {
-        id: txRef.id,
-        walletId: walletDoc.id,
-        userId: userId,
-        type: "earn",
-        subType: engagement.type,
-        tokenAmount: rewardAmount,
-        zarAmount: rewardAmount * 0.01,
-        description: `Earned from ${engagement.type}`,
-        status: "completed",
-        referenceId: engagementId,
-        referenceType: "engagement",
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
       // Update campaign stats if campaign exists
@@ -348,7 +347,8 @@ export const processEngagement = functions.https.onCall(
         }
       }
 
-      // Update pot entries
+      // Update pot entries (tracks user's draw eligibility, not actual pot balance)
+      // Pot balances are now managed by the ledger
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const potEntryRef = db
@@ -360,6 +360,7 @@ export const processEngagement = functions.https.onCall(
           userId: userId,
           date: today.toISOString().split("T")[0],
           entries: admin.firestore.FieldValue.increment(rewardAmount),
+          ledgerJournalId: ledgerResult.journalId,
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         },
         { merge: true }
@@ -376,7 +377,22 @@ export const processEngagement = functions.https.onCall(
       }
     });
 
-    // Update leaderboard scores (outside transaction for better performance)
+    // Update engagement stats (streak tracking) - NEW SYSTEM
+    let streakInfo = {
+      currentStreak: 1,
+      longestStreak: 1,
+      multiplier: 1.0,
+      isNewDay: true,
+      streakBroken: false,
+    };
+    try {
+      streakInfo = await updateEngagementStats(userId, userShare);
+    } catch (statsError) {
+      // Log but don't fail - streak update is secondary
+      console.error("Failed to update engagement stats:", statsError);
+    }
+
+    // Update daily score for pot leaderboard - NEW SYSTEM
     try {
       // Get user profile for leaderboard display
       const userDoc = await db.collection("users").doc(userId).get();
@@ -386,21 +402,49 @@ export const processEngagement = functions.https.onCall(
           userData?.profile?.displayName || userData?.displayName || "User",
         username: userData?.profile?.username || userData?.username || null,
         avatarUrl: userData?.profile?.avatarUrl || userData?.avatarUrl || null,
-        avatarColor:
-          userData?.profile?.avatarColor || userData?.avatarColor || null,
       };
 
-      // Update daily, weekly, and all-time leaderboard scores
-      await updateLeaderboardScores(userId, rewardAmount, userProfile);
+      // Update user's daily score
+      await updateDailyScore(
+        userId,
+        userShare,
+        streakInfo.currentStreak,
+        streakInfo.multiplier,
+        userProfile
+      );
 
-      // Update user streak information
-      await updateUserStreak(userId);
-    } catch (leaderboardError) {
-      // Log but don't fail the engagement - leaderboard update is secondary
-      console.error("Failed to update leaderboard:", leaderboardError);
+      // If user has a referrer, update referrer's assist score
+      if (userData?.referredBy) {
+        await updateReferrerAssistScore(userData.referredBy, userShare);
+      }
+    } catch (scoreError) {
+      // Log but don't fail the engagement - score update is secondary
+      console.error("Failed to update daily score:", scoreError);
     }
 
-    return { success: true, tokensEarned: rewardAmount };
+    // Store streak audit fields on the engagement document
+    try {
+      await engagementDoc.ref.update({
+        streakDayAtCompletion: streakInfo.currentStreak,
+        multiplierApplied: streakInfo.multiplier,
+        subAccountId: subAccountId, // Track which sub-account was credited
+      });
+    } catch (auditError) {
+      console.error("Failed to store streak audit fields:", auditError);
+    }
+
+    return {
+      success: true,
+      tokensEarned: userShare, // User's 90% share
+      totalGenerated: rewardAmount, // Total including pot contributions
+      dailyPotContribution: Math.floor(rewardAmount * LedgerConfig.EARNING_DAILY_POT_SHARE),
+      weeklyPotContribution: rewardAmount - userShare - Math.floor(rewardAmount * LedgerConfig.EARNING_DAILY_POT_SHARE),
+      ledgerJournalId: ledgerResult.journalId,
+      streakDay: streakInfo.currentStreak,
+      multiplierApplied: streakInfo.multiplier,
+      streakBroken: streakInfo.streakBroken,
+      subAccountId: subAccountId,
+    };
   }
 );
 

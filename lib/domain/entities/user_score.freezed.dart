@@ -34,7 +34,25 @@ mixin _$UserScore {
   int get longestStreak => throw _privateConstructorUsedError;
   DateTime get periodStart => throw _privateConstructorUsedError;
   DateTime get periodEnd => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt =>
+      throw _privateConstructorUsedError; // New scoring fields
+  /// Base score from completed engagements (before multipliers)
+  int get baseScore => throw _privateConstructorUsedError;
+
+  /// Streak multiplier (1.0 + streak * 0.05, max 2.0)
+  double get streakMultiplier => throw _privateConstructorUsedError;
+
+  /// Score from referred users' activity in this period
+  int get assistScore => throw _privateConstructorUsedError;
+
+  /// Quality score based on active referrals
+  int get referralQualityScore => throw _privateConstructorUsedError;
+
+  /// Final calculated score with all multipliers applied
+  int get finalScore => throw _privateConstructorUsedError;
+
+  /// Timestamp of first engagement completion in this period
+  DateTime? get firstCompletionAt => throw _privateConstructorUsedError;
 
   /// Serializes this UserScore to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -66,6 +84,12 @@ abstract class $UserScoreCopyWith<$Res> {
     DateTime periodStart,
     DateTime periodEnd,
     DateTime updatedAt,
+    int baseScore,
+    double streakMultiplier,
+    int assistScore,
+    int referralQualityScore,
+    int finalScore,
+    DateTime? firstCompletionAt,
   });
 }
 
@@ -98,6 +122,12 @@ class _$UserScoreCopyWithImpl<$Res, $Val extends UserScore>
     Object? periodStart = null,
     Object? periodEnd = null,
     Object? updatedAt = null,
+    Object? baseScore = null,
+    Object? streakMultiplier = null,
+    Object? assistScore = null,
+    Object? referralQualityScore = null,
+    Object? finalScore = null,
+    Object? firstCompletionAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -157,6 +187,30 @@ class _$UserScoreCopyWithImpl<$Res, $Val extends UserScore>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            baseScore: null == baseScore
+                ? _value.baseScore
+                : baseScore // ignore: cast_nullable_to_non_nullable
+                      as int,
+            streakMultiplier: null == streakMultiplier
+                ? _value.streakMultiplier
+                : streakMultiplier // ignore: cast_nullable_to_non_nullable
+                      as double,
+            assistScore: null == assistScore
+                ? _value.assistScore
+                : assistScore // ignore: cast_nullable_to_non_nullable
+                      as int,
+            referralQualityScore: null == referralQualityScore
+                ? _value.referralQualityScore
+                : referralQualityScore // ignore: cast_nullable_to_non_nullable
+                      as int,
+            finalScore: null == finalScore
+                ? _value.finalScore
+                : finalScore // ignore: cast_nullable_to_non_nullable
+                      as int,
+            firstCompletionAt: freezed == firstCompletionAt
+                ? _value.firstCompletionAt
+                : firstCompletionAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -187,6 +241,12 @@ abstract class _$$UserScoreImplCopyWith<$Res>
     DateTime periodStart,
     DateTime periodEnd,
     DateTime updatedAt,
+    int baseScore,
+    double streakMultiplier,
+    int assistScore,
+    int referralQualityScore,
+    int finalScore,
+    DateTime? firstCompletionAt,
   });
 }
 
@@ -218,6 +278,12 @@ class __$$UserScoreImplCopyWithImpl<$Res>
     Object? periodStart = null,
     Object? periodEnd = null,
     Object? updatedAt = null,
+    Object? baseScore = null,
+    Object? streakMultiplier = null,
+    Object? assistScore = null,
+    Object? referralQualityScore = null,
+    Object? finalScore = null,
+    Object? firstCompletionAt = freezed,
   }) {
     return _then(
       _$UserScoreImpl(
@@ -277,6 +343,30 @@ class __$$UserScoreImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        baseScore: null == baseScore
+            ? _value.baseScore
+            : baseScore // ignore: cast_nullable_to_non_nullable
+                  as int,
+        streakMultiplier: null == streakMultiplier
+            ? _value.streakMultiplier
+            : streakMultiplier // ignore: cast_nullable_to_non_nullable
+                  as double,
+        assistScore: null == assistScore
+            ? _value.assistScore
+            : assistScore // ignore: cast_nullable_to_non_nullable
+                  as int,
+        referralQualityScore: null == referralQualityScore
+            ? _value.referralQualityScore
+            : referralQualityScore // ignore: cast_nullable_to_non_nullable
+                  as int,
+        finalScore: null == finalScore
+            ? _value.finalScore
+            : finalScore // ignore: cast_nullable_to_non_nullable
+                  as int,
+        firstCompletionAt: freezed == firstCompletionAt
+            ? _value.firstCompletionAt
+            : firstCompletionAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -300,6 +390,12 @@ class _$UserScoreImpl extends _UserScore {
     required this.periodStart,
     required this.periodEnd,
     required this.updatedAt,
+    this.baseScore = 0,
+    this.streakMultiplier = 1.0,
+    this.assistScore = 0,
+    this.referralQualityScore = 0,
+    this.finalScore = 0,
+    this.firstCompletionAt,
   }) : super._();
 
   factory _$UserScoreImpl.fromJson(Map<String, dynamic> json) =>
@@ -333,10 +429,39 @@ class _$UserScoreImpl extends _UserScore {
   final DateTime periodEnd;
   @override
   final DateTime updatedAt;
+  // New scoring fields
+  /// Base score from completed engagements (before multipliers)
+  @override
+  @JsonKey()
+  final int baseScore;
+
+  /// Streak multiplier (1.0 + streak * 0.05, max 2.0)
+  @override
+  @JsonKey()
+  final double streakMultiplier;
+
+  /// Score from referred users' activity in this period
+  @override
+  @JsonKey()
+  final int assistScore;
+
+  /// Quality score based on active referrals
+  @override
+  @JsonKey()
+  final int referralQualityScore;
+
+  /// Final calculated score with all multipliers applied
+  @override
+  @JsonKey()
+  final int finalScore;
+
+  /// Timestamp of first engagement completion in this period
+  @override
+  final DateTime? firstCompletionAt;
 
   @override
   String toString() {
-    return 'UserScore(userId: $userId, displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, totalTokensEarned: $totalTokensEarned, rank: $rank, previousRank: $previousRank, engagementsCompleted: $engagementsCompleted, currentStreak: $currentStreak, longestStreak: $longestStreak, periodStart: $periodStart, periodEnd: $periodEnd, updatedAt: $updatedAt)';
+    return 'UserScore(userId: $userId, displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, totalTokensEarned: $totalTokensEarned, rank: $rank, previousRank: $previousRank, engagementsCompleted: $engagementsCompleted, currentStreak: $currentStreak, longestStreak: $longestStreak, periodStart: $periodStart, periodEnd: $periodEnd, updatedAt: $updatedAt, baseScore: $baseScore, streakMultiplier: $streakMultiplier, assistScore: $assistScore, referralQualityScore: $referralQualityScore, finalScore: $finalScore, firstCompletionAt: $firstCompletionAt)';
   }
 
   @override
@@ -369,12 +494,24 @@ class _$UserScoreImpl extends _UserScore {
             (identical(other.periodEnd, periodEnd) ||
                 other.periodEnd == periodEnd) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.baseScore, baseScore) ||
+                other.baseScore == baseScore) &&
+            (identical(other.streakMultiplier, streakMultiplier) ||
+                other.streakMultiplier == streakMultiplier) &&
+            (identical(other.assistScore, assistScore) ||
+                other.assistScore == assistScore) &&
+            (identical(other.referralQualityScore, referralQualityScore) ||
+                other.referralQualityScore == referralQualityScore) &&
+            (identical(other.finalScore, finalScore) ||
+                other.finalScore == finalScore) &&
+            (identical(other.firstCompletionAt, firstCompletionAt) ||
+                other.firstCompletionAt == firstCompletionAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     userId,
     displayName,
@@ -390,7 +527,13 @@ class _$UserScoreImpl extends _UserScore {
     periodStart,
     periodEnd,
     updatedAt,
-  );
+    baseScore,
+    streakMultiplier,
+    assistScore,
+    referralQualityScore,
+    finalScore,
+    firstCompletionAt,
+  ]);
 
   /// Create a copy of UserScore
   /// with the given fields replaced by the non-null parameter values.
@@ -422,6 +565,12 @@ abstract class _UserScore extends UserScore {
     required final DateTime periodStart,
     required final DateTime periodEnd,
     required final DateTime updatedAt,
+    final int baseScore,
+    final double streakMultiplier,
+    final int assistScore,
+    final int referralQualityScore,
+    final int finalScore,
+    final DateTime? firstCompletionAt,
   }) = _$UserScoreImpl;
   const _UserScore._() : super._();
 
@@ -455,7 +604,30 @@ abstract class _UserScore extends UserScore {
   @override
   DateTime get periodEnd;
   @override
-  DateTime get updatedAt;
+  DateTime get updatedAt; // New scoring fields
+  /// Base score from completed engagements (before multipliers)
+  @override
+  int get baseScore;
+
+  /// Streak multiplier (1.0 + streak * 0.05, max 2.0)
+  @override
+  double get streakMultiplier;
+
+  /// Score from referred users' activity in this period
+  @override
+  int get assistScore;
+
+  /// Quality score based on active referrals
+  @override
+  int get referralQualityScore;
+
+  /// Final calculated score with all multipliers applied
+  @override
+  int get finalScore;
+
+  /// Timestamp of first engagement completion in this period
+  @override
+  DateTime? get firstCompletionAt;
 
   /// Create a copy of UserScore
   /// with the given fields replaced by the non-null parameter values.

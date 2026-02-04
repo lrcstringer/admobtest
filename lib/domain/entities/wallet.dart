@@ -32,6 +32,15 @@ class Wallet with _$Wallet {
     String? description,
     @Default(1) int version,
     required DateTime updatedAt,
+    // Streak tracking fields
+    /// Current consecutive days with completions
+    @Default(0) int currentStreak,
+    /// Longest streak ever achieved
+    @Default(0) int longestStreak,
+    /// When the current streak started
+    DateTime? streakStartedAt,
+    /// Last date user earned tokens
+    DateTime? lastEarnedAt,
   }) = _Wallet;
 
   const Wallet._();

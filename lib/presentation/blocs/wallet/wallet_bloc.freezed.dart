@@ -26,6 +26,14 @@ mixin _$WalletEvent {
     required TResult Function(Wallet wallet) walletUpdated,
     required TResult Function(List<Transaction> transactions)
     transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
@@ -35,6 +43,13 @@ mixin _$WalletEvent {
     TResult? Function()? loadMoreTransactions,
     TResult? Function(Wallet wallet)? walletUpdated,
     TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
@@ -44,6 +59,13 @@ mixin _$WalletEvent {
     TResult Function()? loadMoreTransactions,
     TResult Function(Wallet wallet)? walletUpdated,
     TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -54,6 +76,15 @@ mixin _$WalletEvent {
     required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
     required TResult Function(_WalletUpdated value) walletUpdated,
     required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
@@ -63,6 +94,13 @@ mixin _$WalletEvent {
     TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult? Function(_WalletUpdated value)? walletUpdated,
     TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
@@ -72,6 +110,13 @@ mixin _$WalletEvent {
     TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult Function(_WalletUpdated value)? walletUpdated,
     TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
 }
@@ -148,6 +193,14 @@ class _$LoadWalletImpl implements _LoadWallet {
     required TResult Function(Wallet wallet) walletUpdated,
     required TResult Function(List<Transaction> transactions)
     transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
   }) {
     return loadWallet();
   }
@@ -161,6 +214,13 @@ class _$LoadWalletImpl implements _LoadWallet {
     TResult? Function()? loadMoreTransactions,
     TResult? Function(Wallet wallet)? walletUpdated,
     TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
   }) {
     return loadWallet?.call();
   }
@@ -174,6 +234,13 @@ class _$LoadWalletImpl implements _LoadWallet {
     TResult Function()? loadMoreTransactions,
     TResult Function(Wallet wallet)? walletUpdated,
     TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
     required TResult orElse(),
   }) {
     if (loadWallet != null) {
@@ -191,6 +258,15 @@ class _$LoadWalletImpl implements _LoadWallet {
     required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
     required TResult Function(_WalletUpdated value) walletUpdated,
     required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
   }) {
     return loadWallet(this);
   }
@@ -204,6 +280,13 @@ class _$LoadWalletImpl implements _LoadWallet {
     TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult? Function(_WalletUpdated value)? walletUpdated,
     TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
   }) {
     return loadWallet?.call(this);
   }
@@ -217,6 +300,13 @@ class _$LoadWalletImpl implements _LoadWallet {
     TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult Function(_WalletUpdated value)? walletUpdated,
     TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
     required TResult orElse(),
   }) {
     if (loadWallet != null) {
@@ -308,6 +398,14 @@ class _$WatchWalletImpl implements _WatchWallet {
     required TResult Function(Wallet wallet) walletUpdated,
     required TResult Function(List<Transaction> transactions)
     transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
   }) {
     return watchWallet(walletId);
   }
@@ -321,6 +419,13 @@ class _$WatchWalletImpl implements _WatchWallet {
     TResult? Function()? loadMoreTransactions,
     TResult? Function(Wallet wallet)? walletUpdated,
     TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
   }) {
     return watchWallet?.call(walletId);
   }
@@ -334,6 +439,13 @@ class _$WatchWalletImpl implements _WatchWallet {
     TResult Function()? loadMoreTransactions,
     TResult Function(Wallet wallet)? walletUpdated,
     TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
     required TResult orElse(),
   }) {
     if (watchWallet != null) {
@@ -351,6 +463,15 @@ class _$WatchWalletImpl implements _WatchWallet {
     required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
     required TResult Function(_WalletUpdated value) walletUpdated,
     required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
   }) {
     return watchWallet(this);
   }
@@ -364,6 +485,13 @@ class _$WatchWalletImpl implements _WatchWallet {
     TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult? Function(_WalletUpdated value)? walletUpdated,
     TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
   }) {
     return watchWallet?.call(this);
   }
@@ -377,6 +505,13 @@ class _$WatchWalletImpl implements _WatchWallet {
     TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult Function(_WalletUpdated value)? walletUpdated,
     TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
     required TResult orElse(),
   }) {
     if (watchWallet != null) {
@@ -487,6 +622,14 @@ class _$LoadTransactionsImpl implements _LoadTransactions {
     required TResult Function(Wallet wallet) walletUpdated,
     required TResult Function(List<Transaction> transactions)
     transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
   }) {
     return loadTransactions(walletId, limit);
   }
@@ -500,6 +643,13 @@ class _$LoadTransactionsImpl implements _LoadTransactions {
     TResult? Function()? loadMoreTransactions,
     TResult? Function(Wallet wallet)? walletUpdated,
     TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
   }) {
     return loadTransactions?.call(walletId, limit);
   }
@@ -513,6 +663,13 @@ class _$LoadTransactionsImpl implements _LoadTransactions {
     TResult Function()? loadMoreTransactions,
     TResult Function(Wallet wallet)? walletUpdated,
     TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
     required TResult orElse(),
   }) {
     if (loadTransactions != null) {
@@ -530,6 +687,15 @@ class _$LoadTransactionsImpl implements _LoadTransactions {
     required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
     required TResult Function(_WalletUpdated value) walletUpdated,
     required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
   }) {
     return loadTransactions(this);
   }
@@ -543,6 +709,13 @@ class _$LoadTransactionsImpl implements _LoadTransactions {
     TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult? Function(_WalletUpdated value)? walletUpdated,
     TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
   }) {
     return loadTransactions?.call(this);
   }
@@ -556,6 +729,13 @@ class _$LoadTransactionsImpl implements _LoadTransactions {
     TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult Function(_WalletUpdated value)? walletUpdated,
     TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
     required TResult orElse(),
   }) {
     if (loadTransactions != null) {
@@ -632,6 +812,14 @@ class _$LoadMoreTransactionsImpl implements _LoadMoreTransactions {
     required TResult Function(Wallet wallet) walletUpdated,
     required TResult Function(List<Transaction> transactions)
     transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
   }) {
     return loadMoreTransactions();
   }
@@ -645,6 +833,13 @@ class _$LoadMoreTransactionsImpl implements _LoadMoreTransactions {
     TResult? Function()? loadMoreTransactions,
     TResult? Function(Wallet wallet)? walletUpdated,
     TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
   }) {
     return loadMoreTransactions?.call();
   }
@@ -658,6 +853,13 @@ class _$LoadMoreTransactionsImpl implements _LoadMoreTransactions {
     TResult Function()? loadMoreTransactions,
     TResult Function(Wallet wallet)? walletUpdated,
     TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
     required TResult orElse(),
   }) {
     if (loadMoreTransactions != null) {
@@ -675,6 +877,15 @@ class _$LoadMoreTransactionsImpl implements _LoadMoreTransactions {
     required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
     required TResult Function(_WalletUpdated value) walletUpdated,
     required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
   }) {
     return loadMoreTransactions(this);
   }
@@ -688,6 +899,13 @@ class _$LoadMoreTransactionsImpl implements _LoadMoreTransactions {
     TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult? Function(_WalletUpdated value)? walletUpdated,
     TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
   }) {
     return loadMoreTransactions?.call(this);
   }
@@ -701,6 +919,13 @@ class _$LoadMoreTransactionsImpl implements _LoadMoreTransactions {
     TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult Function(_WalletUpdated value)? walletUpdated,
     TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
     required TResult orElse(),
   }) {
     if (loadMoreTransactions != null) {
@@ -803,6 +1028,14 @@ class _$WalletUpdatedImpl implements _WalletUpdated {
     required TResult Function(Wallet wallet) walletUpdated,
     required TResult Function(List<Transaction> transactions)
     transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
   }) {
     return walletUpdated(wallet);
   }
@@ -816,6 +1049,13 @@ class _$WalletUpdatedImpl implements _WalletUpdated {
     TResult? Function()? loadMoreTransactions,
     TResult? Function(Wallet wallet)? walletUpdated,
     TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
   }) {
     return walletUpdated?.call(wallet);
   }
@@ -829,6 +1069,13 @@ class _$WalletUpdatedImpl implements _WalletUpdated {
     TResult Function()? loadMoreTransactions,
     TResult Function(Wallet wallet)? walletUpdated,
     TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
     required TResult orElse(),
   }) {
     if (walletUpdated != null) {
@@ -846,6 +1093,15 @@ class _$WalletUpdatedImpl implements _WalletUpdated {
     required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
     required TResult Function(_WalletUpdated value) walletUpdated,
     required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
   }) {
     return walletUpdated(this);
   }
@@ -859,6 +1115,13 @@ class _$WalletUpdatedImpl implements _WalletUpdated {
     TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult? Function(_WalletUpdated value)? walletUpdated,
     TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
   }) {
     return walletUpdated?.call(this);
   }
@@ -872,6 +1135,13 @@ class _$WalletUpdatedImpl implements _WalletUpdated {
     TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult Function(_WalletUpdated value)? walletUpdated,
     TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
     required TResult orElse(),
   }) {
     if (walletUpdated != null) {
@@ -985,6 +1255,14 @@ class _$TransactionsUpdatedImpl implements _TransactionsUpdated {
     required TResult Function(Wallet wallet) walletUpdated,
     required TResult Function(List<Transaction> transactions)
     transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
   }) {
     return transactionsUpdated(transactions);
   }
@@ -998,6 +1276,13 @@ class _$TransactionsUpdatedImpl implements _TransactionsUpdated {
     TResult? Function()? loadMoreTransactions,
     TResult? Function(Wallet wallet)? walletUpdated,
     TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
   }) {
     return transactionsUpdated?.call(transactions);
   }
@@ -1011,6 +1296,13 @@ class _$TransactionsUpdatedImpl implements _TransactionsUpdated {
     TResult Function()? loadMoreTransactions,
     TResult Function(Wallet wallet)? walletUpdated,
     TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
     required TResult orElse(),
   }) {
     if (transactionsUpdated != null) {
@@ -1028,6 +1320,15 @@ class _$TransactionsUpdatedImpl implements _TransactionsUpdated {
     required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
     required TResult Function(_WalletUpdated value) walletUpdated,
     required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
   }) {
     return transactionsUpdated(this);
   }
@@ -1041,6 +1342,13 @@ class _$TransactionsUpdatedImpl implements _TransactionsUpdated {
     TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult? Function(_WalletUpdated value)? walletUpdated,
     TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
   }) {
     return transactionsUpdated?.call(this);
   }
@@ -1054,6 +1362,13 @@ class _$TransactionsUpdatedImpl implements _TransactionsUpdated {
     TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
     TResult Function(_WalletUpdated value)? walletUpdated,
     TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
     required TResult orElse(),
   }) {
     if (transactionsUpdated != null) {
@@ -1077,12 +1392,1433 @@ abstract class _TransactionsUpdated implements WalletEvent {
 }
 
 /// @nodoc
+abstract class _$$WatchLedgerAccountImplCopyWith<$Res> {
+  factory _$$WatchLedgerAccountImplCopyWith(
+    _$WatchLedgerAccountImpl value,
+    $Res Function(_$WatchLedgerAccountImpl) then,
+  ) = __$$WatchLedgerAccountImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$WatchLedgerAccountImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$WatchLedgerAccountImpl>
+    implements _$$WatchLedgerAccountImplCopyWith<$Res> {
+  __$$WatchLedgerAccountImplCopyWithImpl(
+    _$WatchLedgerAccountImpl _value,
+    $Res Function(_$WatchLedgerAccountImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
+  const _$WatchLedgerAccountImpl();
+
+  @override
+  String toString() {
+    return 'WalletEvent.watchLedgerAccount()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$WatchLedgerAccountImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadWallet,
+    required TResult Function(String walletId) watchWallet,
+    required TResult Function(String walletId, int? limit) loadTransactions,
+    required TResult Function() loadMoreTransactions,
+    required TResult Function(Wallet wallet) walletUpdated,
+    required TResult Function(List<Transaction> transactions)
+    transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+  }) {
+    return watchLedgerAccount();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadWallet,
+    TResult? Function(String walletId)? watchWallet,
+    TResult? Function(String walletId, int? limit)? loadTransactions,
+    TResult? Function()? loadMoreTransactions,
+    TResult? Function(Wallet wallet)? walletUpdated,
+    TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+  }) {
+    return watchLedgerAccount?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadWallet,
+    TResult Function(String walletId)? watchWallet,
+    TResult Function(String walletId, int? limit)? loadTransactions,
+    TResult Function()? loadMoreTransactions,
+    TResult Function(Wallet wallet)? walletUpdated,
+    TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (watchLedgerAccount != null) {
+      return watchLedgerAccount();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadWallet value) loadWallet,
+    required TResult Function(_WatchWallet value) watchWallet,
+    required TResult Function(_LoadTransactions value) loadTransactions,
+    required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
+    required TResult Function(_WalletUpdated value) walletUpdated,
+    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+  }) {
+    return watchLedgerAccount(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadWallet value)? loadWallet,
+    TResult? Function(_WatchWallet value)? watchWallet,
+    TResult? Function(_LoadTransactions value)? loadTransactions,
+    TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult? Function(_WalletUpdated value)? walletUpdated,
+    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+  }) {
+    return watchLedgerAccount?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadWallet value)? loadWallet,
+    TResult Function(_WatchWallet value)? watchWallet,
+    TResult Function(_LoadTransactions value)? loadTransactions,
+    TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult Function(_WalletUpdated value)? walletUpdated,
+    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (watchLedgerAccount != null) {
+      return watchLedgerAccount(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _WatchLedgerAccount implements WalletEvent {
+  const factory _WatchLedgerAccount() = _$WatchLedgerAccountImpl;
+}
+
+/// @nodoc
+abstract class _$$LedgerAccountUpdatedImplCopyWith<$Res> {
+  factory _$$LedgerAccountUpdatedImplCopyWith(
+    _$LedgerAccountUpdatedImpl value,
+    $Res Function(_$LedgerAccountUpdatedImpl) then,
+  ) = __$$LedgerAccountUpdatedImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({LedgerAccount ledgerAccount});
+
+  $LedgerAccountCopyWith<$Res> get ledgerAccount;
+}
+
+/// @nodoc
+class __$$LedgerAccountUpdatedImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$LedgerAccountUpdatedImpl>
+    implements _$$LedgerAccountUpdatedImplCopyWith<$Res> {
+  __$$LedgerAccountUpdatedImplCopyWithImpl(
+    _$LedgerAccountUpdatedImpl _value,
+    $Res Function(_$LedgerAccountUpdatedImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? ledgerAccount = null}) {
+    return _then(
+      _$LedgerAccountUpdatedImpl(
+        null == ledgerAccount
+            ? _value.ledgerAccount
+            : ledgerAccount // ignore: cast_nullable_to_non_nullable
+                  as LedgerAccount,
+      ),
+    );
+  }
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $LedgerAccountCopyWith<$Res> get ledgerAccount {
+    return $LedgerAccountCopyWith<$Res>(_value.ledgerAccount, (value) {
+      return _then(_value.copyWith(ledgerAccount: value));
+    });
+  }
+}
+
+/// @nodoc
+
+class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
+  const _$LedgerAccountUpdatedImpl(this.ledgerAccount);
+
+  @override
+  final LedgerAccount ledgerAccount;
+
+  @override
+  String toString() {
+    return 'WalletEvent.ledgerAccountUpdated(ledgerAccount: $ledgerAccount)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LedgerAccountUpdatedImpl &&
+            (identical(other.ledgerAccount, ledgerAccount) ||
+                other.ledgerAccount == ledgerAccount));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, ledgerAccount);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LedgerAccountUpdatedImplCopyWith<_$LedgerAccountUpdatedImpl>
+  get copyWith =>
+      __$$LedgerAccountUpdatedImplCopyWithImpl<_$LedgerAccountUpdatedImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadWallet,
+    required TResult Function(String walletId) watchWallet,
+    required TResult Function(String walletId, int? limit) loadTransactions,
+    required TResult Function() loadMoreTransactions,
+    required TResult Function(Wallet wallet) walletUpdated,
+    required TResult Function(List<Transaction> transactions)
+    transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+  }) {
+    return ledgerAccountUpdated(ledgerAccount);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadWallet,
+    TResult? Function(String walletId)? watchWallet,
+    TResult? Function(String walletId, int? limit)? loadTransactions,
+    TResult? Function()? loadMoreTransactions,
+    TResult? Function(Wallet wallet)? walletUpdated,
+    TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+  }) {
+    return ledgerAccountUpdated?.call(ledgerAccount);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadWallet,
+    TResult Function(String walletId)? watchWallet,
+    TResult Function(String walletId, int? limit)? loadTransactions,
+    TResult Function()? loadMoreTransactions,
+    TResult Function(Wallet wallet)? walletUpdated,
+    TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (ledgerAccountUpdated != null) {
+      return ledgerAccountUpdated(ledgerAccount);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadWallet value) loadWallet,
+    required TResult Function(_WatchWallet value) watchWallet,
+    required TResult Function(_LoadTransactions value) loadTransactions,
+    required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
+    required TResult Function(_WalletUpdated value) walletUpdated,
+    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+  }) {
+    return ledgerAccountUpdated(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadWallet value)? loadWallet,
+    TResult? Function(_WatchWallet value)? watchWallet,
+    TResult? Function(_LoadTransactions value)? loadTransactions,
+    TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult? Function(_WalletUpdated value)? walletUpdated,
+    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+  }) {
+    return ledgerAccountUpdated?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadWallet value)? loadWallet,
+    TResult Function(_WatchWallet value)? watchWallet,
+    TResult Function(_LoadTransactions value)? loadTransactions,
+    TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult Function(_WalletUpdated value)? walletUpdated,
+    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (ledgerAccountUpdated != null) {
+      return ledgerAccountUpdated(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _LedgerAccountUpdated implements WalletEvent {
+  const factory _LedgerAccountUpdated(final LedgerAccount ledgerAccount) =
+      _$LedgerAccountUpdatedImpl;
+
+  LedgerAccount get ledgerAccount;
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$LedgerAccountUpdatedImplCopyWith<_$LedgerAccountUpdatedImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$LoadLedgerJournalsImplCopyWith<$Res> {
+  factory _$$LoadLedgerJournalsImplCopyWith(
+    _$LoadLedgerJournalsImpl value,
+    $Res Function(_$LoadLedgerJournalsImpl) then,
+  ) = __$$LoadLedgerJournalsImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({int? limit});
+}
+
+/// @nodoc
+class __$$LoadLedgerJournalsImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$LoadLedgerJournalsImpl>
+    implements _$$LoadLedgerJournalsImplCopyWith<$Res> {
+  __$$LoadLedgerJournalsImplCopyWithImpl(
+    _$LoadLedgerJournalsImpl _value,
+    $Res Function(_$LoadLedgerJournalsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? limit = freezed}) {
+    return _then(
+      _$LoadLedgerJournalsImpl(
+        limit: freezed == limit
+            ? _value.limit
+            : limit // ignore: cast_nullable_to_non_nullable
+                  as int?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
+  const _$LoadLedgerJournalsImpl({this.limit});
+
+  @override
+  final int? limit;
+
+  @override
+  String toString() {
+    return 'WalletEvent.loadLedgerJournals(limit: $limit)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LoadLedgerJournalsImpl &&
+            (identical(other.limit, limit) || other.limit == limit));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, limit);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LoadLedgerJournalsImplCopyWith<_$LoadLedgerJournalsImpl> get copyWith =>
+      __$$LoadLedgerJournalsImplCopyWithImpl<_$LoadLedgerJournalsImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadWallet,
+    required TResult Function(String walletId) watchWallet,
+    required TResult Function(String walletId, int? limit) loadTransactions,
+    required TResult Function() loadMoreTransactions,
+    required TResult Function(Wallet wallet) walletUpdated,
+    required TResult Function(List<Transaction> transactions)
+    transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+  }) {
+    return loadLedgerJournals(limit);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadWallet,
+    TResult? Function(String walletId)? watchWallet,
+    TResult? Function(String walletId, int? limit)? loadTransactions,
+    TResult? Function()? loadMoreTransactions,
+    TResult? Function(Wallet wallet)? walletUpdated,
+    TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+  }) {
+    return loadLedgerJournals?.call(limit);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadWallet,
+    TResult Function(String walletId)? watchWallet,
+    TResult Function(String walletId, int? limit)? loadTransactions,
+    TResult Function()? loadMoreTransactions,
+    TResult Function(Wallet wallet)? walletUpdated,
+    TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (loadLedgerJournals != null) {
+      return loadLedgerJournals(limit);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadWallet value) loadWallet,
+    required TResult Function(_WatchWallet value) watchWallet,
+    required TResult Function(_LoadTransactions value) loadTransactions,
+    required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
+    required TResult Function(_WalletUpdated value) walletUpdated,
+    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+  }) {
+    return loadLedgerJournals(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadWallet value)? loadWallet,
+    TResult? Function(_WatchWallet value)? watchWallet,
+    TResult? Function(_LoadTransactions value)? loadTransactions,
+    TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult? Function(_WalletUpdated value)? walletUpdated,
+    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+  }) {
+    return loadLedgerJournals?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadWallet value)? loadWallet,
+    TResult Function(_WatchWallet value)? watchWallet,
+    TResult Function(_LoadTransactions value)? loadTransactions,
+    TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult Function(_WalletUpdated value)? walletUpdated,
+    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (loadLedgerJournals != null) {
+      return loadLedgerJournals(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _LoadLedgerJournals implements WalletEvent {
+  const factory _LoadLedgerJournals({final int? limit}) =
+      _$LoadLedgerJournalsImpl;
+
+  int? get limit;
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$LoadLedgerJournalsImplCopyWith<_$LoadLedgerJournalsImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$LoadMoreLedgerJournalsImplCopyWith<$Res> {
+  factory _$$LoadMoreLedgerJournalsImplCopyWith(
+    _$LoadMoreLedgerJournalsImpl value,
+    $Res Function(_$LoadMoreLedgerJournalsImpl) then,
+  ) = __$$LoadMoreLedgerJournalsImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$LoadMoreLedgerJournalsImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$LoadMoreLedgerJournalsImpl>
+    implements _$$LoadMoreLedgerJournalsImplCopyWith<$Res> {
+  __$$LoadMoreLedgerJournalsImplCopyWithImpl(
+    _$LoadMoreLedgerJournalsImpl _value,
+    $Res Function(_$LoadMoreLedgerJournalsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
+  const _$LoadMoreLedgerJournalsImpl();
+
+  @override
+  String toString() {
+    return 'WalletEvent.loadMoreLedgerJournals()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LoadMoreLedgerJournalsImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadWallet,
+    required TResult Function(String walletId) watchWallet,
+    required TResult Function(String walletId, int? limit) loadTransactions,
+    required TResult Function() loadMoreTransactions,
+    required TResult Function(Wallet wallet) walletUpdated,
+    required TResult Function(List<Transaction> transactions)
+    transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+  }) {
+    return loadMoreLedgerJournals();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadWallet,
+    TResult? Function(String walletId)? watchWallet,
+    TResult? Function(String walletId, int? limit)? loadTransactions,
+    TResult? Function()? loadMoreTransactions,
+    TResult? Function(Wallet wallet)? walletUpdated,
+    TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+  }) {
+    return loadMoreLedgerJournals?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadWallet,
+    TResult Function(String walletId)? watchWallet,
+    TResult Function(String walletId, int? limit)? loadTransactions,
+    TResult Function()? loadMoreTransactions,
+    TResult Function(Wallet wallet)? walletUpdated,
+    TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (loadMoreLedgerJournals != null) {
+      return loadMoreLedgerJournals();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadWallet value) loadWallet,
+    required TResult Function(_WatchWallet value) watchWallet,
+    required TResult Function(_LoadTransactions value) loadTransactions,
+    required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
+    required TResult Function(_WalletUpdated value) walletUpdated,
+    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+  }) {
+    return loadMoreLedgerJournals(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadWallet value)? loadWallet,
+    TResult? Function(_WatchWallet value)? watchWallet,
+    TResult? Function(_LoadTransactions value)? loadTransactions,
+    TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult? Function(_WalletUpdated value)? walletUpdated,
+    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+  }) {
+    return loadMoreLedgerJournals?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadWallet value)? loadWallet,
+    TResult Function(_WatchWallet value)? watchWallet,
+    TResult Function(_LoadTransactions value)? loadTransactions,
+    TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult Function(_WalletUpdated value)? walletUpdated,
+    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (loadMoreLedgerJournals != null) {
+      return loadMoreLedgerJournals(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _LoadMoreLedgerJournals implements WalletEvent {
+  const factory _LoadMoreLedgerJournals() = _$LoadMoreLedgerJournalsImpl;
+}
+
+/// @nodoc
+abstract class _$$WatchLedgerJournalsImplCopyWith<$Res> {
+  factory _$$WatchLedgerJournalsImplCopyWith(
+    _$WatchLedgerJournalsImpl value,
+    $Res Function(_$WatchLedgerJournalsImpl) then,
+  ) = __$$WatchLedgerJournalsImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({int? limit});
+}
+
+/// @nodoc
+class __$$WatchLedgerJournalsImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$WatchLedgerJournalsImpl>
+    implements _$$WatchLedgerJournalsImplCopyWith<$Res> {
+  __$$WatchLedgerJournalsImplCopyWithImpl(
+    _$WatchLedgerJournalsImpl _value,
+    $Res Function(_$WatchLedgerJournalsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? limit = freezed}) {
+    return _then(
+      _$WatchLedgerJournalsImpl(
+        limit: freezed == limit
+            ? _value.limit
+            : limit // ignore: cast_nullable_to_non_nullable
+                  as int?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
+  const _$WatchLedgerJournalsImpl({this.limit});
+
+  @override
+  final int? limit;
+
+  @override
+  String toString() {
+    return 'WalletEvent.watchLedgerJournals(limit: $limit)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$WatchLedgerJournalsImpl &&
+            (identical(other.limit, limit) || other.limit == limit));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, limit);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$WatchLedgerJournalsImplCopyWith<_$WatchLedgerJournalsImpl> get copyWith =>
+      __$$WatchLedgerJournalsImplCopyWithImpl<_$WatchLedgerJournalsImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadWallet,
+    required TResult Function(String walletId) watchWallet,
+    required TResult Function(String walletId, int? limit) loadTransactions,
+    required TResult Function() loadMoreTransactions,
+    required TResult Function(Wallet wallet) walletUpdated,
+    required TResult Function(List<Transaction> transactions)
+    transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+  }) {
+    return watchLedgerJournals(limit);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadWallet,
+    TResult? Function(String walletId)? watchWallet,
+    TResult? Function(String walletId, int? limit)? loadTransactions,
+    TResult? Function()? loadMoreTransactions,
+    TResult? Function(Wallet wallet)? walletUpdated,
+    TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+  }) {
+    return watchLedgerJournals?.call(limit);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadWallet,
+    TResult Function(String walletId)? watchWallet,
+    TResult Function(String walletId, int? limit)? loadTransactions,
+    TResult Function()? loadMoreTransactions,
+    TResult Function(Wallet wallet)? walletUpdated,
+    TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (watchLedgerJournals != null) {
+      return watchLedgerJournals(limit);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadWallet value) loadWallet,
+    required TResult Function(_WatchWallet value) watchWallet,
+    required TResult Function(_LoadTransactions value) loadTransactions,
+    required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
+    required TResult Function(_WalletUpdated value) walletUpdated,
+    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+  }) {
+    return watchLedgerJournals(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadWallet value)? loadWallet,
+    TResult? Function(_WatchWallet value)? watchWallet,
+    TResult? Function(_LoadTransactions value)? loadTransactions,
+    TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult? Function(_WalletUpdated value)? walletUpdated,
+    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+  }) {
+    return watchLedgerJournals?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadWallet value)? loadWallet,
+    TResult Function(_WatchWallet value)? watchWallet,
+    TResult Function(_LoadTransactions value)? loadTransactions,
+    TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult Function(_WalletUpdated value)? walletUpdated,
+    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (watchLedgerJournals != null) {
+      return watchLedgerJournals(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _WatchLedgerJournals implements WalletEvent {
+  const factory _WatchLedgerJournals({final int? limit}) =
+      _$WatchLedgerJournalsImpl;
+
+  int? get limit;
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$WatchLedgerJournalsImplCopyWith<_$WatchLedgerJournalsImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$LedgerJournalsUpdatedImplCopyWith<$Res> {
+  factory _$$LedgerJournalsUpdatedImplCopyWith(
+    _$LedgerJournalsUpdatedImpl value,
+    $Res Function(_$LedgerJournalsUpdatedImpl) then,
+  ) = __$$LedgerJournalsUpdatedImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({List<LedgerJournal> journals});
+}
+
+/// @nodoc
+class __$$LedgerJournalsUpdatedImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$LedgerJournalsUpdatedImpl>
+    implements _$$LedgerJournalsUpdatedImplCopyWith<$Res> {
+  __$$LedgerJournalsUpdatedImplCopyWithImpl(
+    _$LedgerJournalsUpdatedImpl _value,
+    $Res Function(_$LedgerJournalsUpdatedImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? journals = null}) {
+    return _then(
+      _$LedgerJournalsUpdatedImpl(
+        null == journals
+            ? _value._journals
+            : journals // ignore: cast_nullable_to_non_nullable
+                  as List<LedgerJournal>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
+  const _$LedgerJournalsUpdatedImpl(final List<LedgerJournal> journals)
+    : _journals = journals;
+
+  final List<LedgerJournal> _journals;
+  @override
+  List<LedgerJournal> get journals {
+    if (_journals is EqualUnmodifiableListView) return _journals;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_journals);
+  }
+
+  @override
+  String toString() {
+    return 'WalletEvent.ledgerJournalsUpdated(journals: $journals)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LedgerJournalsUpdatedImpl &&
+            const DeepCollectionEquality().equals(other._journals, _journals));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(_journals));
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LedgerJournalsUpdatedImplCopyWith<_$LedgerJournalsUpdatedImpl>
+  get copyWith =>
+      __$$LedgerJournalsUpdatedImplCopyWithImpl<_$LedgerJournalsUpdatedImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadWallet,
+    required TResult Function(String walletId) watchWallet,
+    required TResult Function(String walletId, int? limit) loadTransactions,
+    required TResult Function() loadMoreTransactions,
+    required TResult Function(Wallet wallet) walletUpdated,
+    required TResult Function(List<Transaction> transactions)
+    transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+  }) {
+    return ledgerJournalsUpdated(journals);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadWallet,
+    TResult? Function(String walletId)? watchWallet,
+    TResult? Function(String walletId, int? limit)? loadTransactions,
+    TResult? Function()? loadMoreTransactions,
+    TResult? Function(Wallet wallet)? walletUpdated,
+    TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+  }) {
+    return ledgerJournalsUpdated?.call(journals);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadWallet,
+    TResult Function(String walletId)? watchWallet,
+    TResult Function(String walletId, int? limit)? loadTransactions,
+    TResult Function()? loadMoreTransactions,
+    TResult Function(Wallet wallet)? walletUpdated,
+    TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (ledgerJournalsUpdated != null) {
+      return ledgerJournalsUpdated(journals);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadWallet value) loadWallet,
+    required TResult Function(_WatchWallet value) watchWallet,
+    required TResult Function(_LoadTransactions value) loadTransactions,
+    required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
+    required TResult Function(_WalletUpdated value) walletUpdated,
+    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+  }) {
+    return ledgerJournalsUpdated(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadWallet value)? loadWallet,
+    TResult? Function(_WatchWallet value)? watchWallet,
+    TResult? Function(_LoadTransactions value)? loadTransactions,
+    TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult? Function(_WalletUpdated value)? walletUpdated,
+    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+  }) {
+    return ledgerJournalsUpdated?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadWallet value)? loadWallet,
+    TResult Function(_WatchWallet value)? watchWallet,
+    TResult Function(_LoadTransactions value)? loadTransactions,
+    TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult Function(_WalletUpdated value)? walletUpdated,
+    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (ledgerJournalsUpdated != null) {
+      return ledgerJournalsUpdated(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _LedgerJournalsUpdated implements WalletEvent {
+  const factory _LedgerJournalsUpdated(final List<LedgerJournal> journals) =
+      _$LedgerJournalsUpdatedImpl;
+
+  List<LedgerJournal> get journals;
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$LedgerJournalsUpdatedImplCopyWith<_$LedgerJournalsUpdatedImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$RefreshLedgerImplCopyWith<$Res> {
+  factory _$$RefreshLedgerImplCopyWith(
+    _$RefreshLedgerImpl value,
+    $Res Function(_$RefreshLedgerImpl) then,
+  ) = __$$RefreshLedgerImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$RefreshLedgerImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$RefreshLedgerImpl>
+    implements _$$RefreshLedgerImplCopyWith<$Res> {
+  __$$RefreshLedgerImplCopyWithImpl(
+    _$RefreshLedgerImpl _value,
+    $Res Function(_$RefreshLedgerImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$RefreshLedgerImpl implements _RefreshLedger {
+  const _$RefreshLedgerImpl();
+
+  @override
+  String toString() {
+    return 'WalletEvent.refreshLedger()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$RefreshLedgerImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadWallet,
+    required TResult Function(String walletId) watchWallet,
+    required TResult Function(String walletId, int? limit) loadTransactions,
+    required TResult Function() loadMoreTransactions,
+    required TResult Function(Wallet wallet) walletUpdated,
+    required TResult Function(List<Transaction> transactions)
+    transactionsUpdated,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+  }) {
+    return refreshLedger();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadWallet,
+    TResult? Function(String walletId)? watchWallet,
+    TResult? Function(String walletId, int? limit)? loadTransactions,
+    TResult? Function()? loadMoreTransactions,
+    TResult? Function(Wallet wallet)? walletUpdated,
+    TResult? Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+  }) {
+    return refreshLedger?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadWallet,
+    TResult Function(String walletId)? watchWallet,
+    TResult Function(String walletId, int? limit)? loadTransactions,
+    TResult Function()? loadMoreTransactions,
+    TResult Function(Wallet wallet)? walletUpdated,
+    TResult Function(List<Transaction> transactions)? transactionsUpdated,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (refreshLedger != null) {
+      return refreshLedger();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadWallet value) loadWallet,
+    required TResult Function(_WatchWallet value) watchWallet,
+    required TResult Function(_LoadTransactions value) loadTransactions,
+    required TResult Function(_LoadMoreTransactions value) loadMoreTransactions,
+    required TResult Function(_WalletUpdated value) walletUpdated,
+    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+  }) {
+    return refreshLedger(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadWallet value)? loadWallet,
+    TResult? Function(_WatchWallet value)? watchWallet,
+    TResult? Function(_LoadTransactions value)? loadTransactions,
+    TResult? Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult? Function(_WalletUpdated value)? walletUpdated,
+    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+  }) {
+    return refreshLedger?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadWallet value)? loadWallet,
+    TResult Function(_WatchWallet value)? watchWallet,
+    TResult Function(_LoadTransactions value)? loadTransactions,
+    TResult Function(_LoadMoreTransactions value)? loadMoreTransactions,
+    TResult Function(_WalletUpdated value)? walletUpdated,
+    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    required TResult orElse(),
+  }) {
+    if (refreshLedger != null) {
+      return refreshLedger(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _RefreshLedger implements WalletEvent {
+  const factory _RefreshLedger() = _$RefreshLedgerImpl;
+}
+
+/// @nodoc
 mixin _$WalletState {
   WalletStatus get status => throw _privateConstructorUsedError;
   Wallet? get wallet => throw _privateConstructorUsedError;
+  LedgerAccount? get ledgerAccount => throw _privateConstructorUsedError;
   List<Transaction> get transactions => throw _privateConstructorUsedError;
+  List<LedgerJournal> get ledgerJournals => throw _privateConstructorUsedError;
   bool get isLoadingMore => throw _privateConstructorUsedError;
   bool get hasMoreTransactions => throw _privateConstructorUsedError;
+  bool get hasMoreLedgerJournals => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of WalletState
@@ -1102,13 +2838,17 @@ abstract class $WalletStateCopyWith<$Res> {
   $Res call({
     WalletStatus status,
     Wallet? wallet,
+    LedgerAccount? ledgerAccount,
     List<Transaction> transactions,
+    List<LedgerJournal> ledgerJournals,
     bool isLoadingMore,
     bool hasMoreTransactions,
+    bool hasMoreLedgerJournals,
     String? errorMessage,
   });
 
   $WalletCopyWith<$Res>? get wallet;
+  $LedgerAccountCopyWith<$Res>? get ledgerAccount;
 }
 
 /// @nodoc
@@ -1128,9 +2868,12 @@ class _$WalletStateCopyWithImpl<$Res, $Val extends WalletState>
   $Res call({
     Object? status = null,
     Object? wallet = freezed,
+    Object? ledgerAccount = freezed,
     Object? transactions = null,
+    Object? ledgerJournals = null,
     Object? isLoadingMore = null,
     Object? hasMoreTransactions = null,
+    Object? hasMoreLedgerJournals = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -1143,10 +2886,18 @@ class _$WalletStateCopyWithImpl<$Res, $Val extends WalletState>
                 ? _value.wallet
                 : wallet // ignore: cast_nullable_to_non_nullable
                       as Wallet?,
+            ledgerAccount: freezed == ledgerAccount
+                ? _value.ledgerAccount
+                : ledgerAccount // ignore: cast_nullable_to_non_nullable
+                      as LedgerAccount?,
             transactions: null == transactions
                 ? _value.transactions
                 : transactions // ignore: cast_nullable_to_non_nullable
                       as List<Transaction>,
+            ledgerJournals: null == ledgerJournals
+                ? _value.ledgerJournals
+                : ledgerJournals // ignore: cast_nullable_to_non_nullable
+                      as List<LedgerJournal>,
             isLoadingMore: null == isLoadingMore
                 ? _value.isLoadingMore
                 : isLoadingMore // ignore: cast_nullable_to_non_nullable
@@ -1154,6 +2905,10 @@ class _$WalletStateCopyWithImpl<$Res, $Val extends WalletState>
             hasMoreTransactions: null == hasMoreTransactions
                 ? _value.hasMoreTransactions
                 : hasMoreTransactions // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            hasMoreLedgerJournals: null == hasMoreLedgerJournals
+                ? _value.hasMoreLedgerJournals
+                : hasMoreLedgerJournals // ignore: cast_nullable_to_non_nullable
                       as bool,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
@@ -1177,6 +2932,20 @@ class _$WalletStateCopyWithImpl<$Res, $Val extends WalletState>
       return _then(_value.copyWith(wallet: value) as $Val);
     });
   }
+
+  /// Create a copy of WalletState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $LedgerAccountCopyWith<$Res>? get ledgerAccount {
+    if (_value.ledgerAccount == null) {
+      return null;
+    }
+
+    return $LedgerAccountCopyWith<$Res>(_value.ledgerAccount!, (value) {
+      return _then(_value.copyWith(ledgerAccount: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -1191,14 +2960,19 @@ abstract class _$$WalletStateImplCopyWith<$Res>
   $Res call({
     WalletStatus status,
     Wallet? wallet,
+    LedgerAccount? ledgerAccount,
     List<Transaction> transactions,
+    List<LedgerJournal> ledgerJournals,
     bool isLoadingMore,
     bool hasMoreTransactions,
+    bool hasMoreLedgerJournals,
     String? errorMessage,
   });
 
   @override
   $WalletCopyWith<$Res>? get wallet;
+  @override
+  $LedgerAccountCopyWith<$Res>? get ledgerAccount;
 }
 
 /// @nodoc
@@ -1217,9 +2991,12 @@ class __$$WalletStateImplCopyWithImpl<$Res>
   $Res call({
     Object? status = null,
     Object? wallet = freezed,
+    Object? ledgerAccount = freezed,
     Object? transactions = null,
+    Object? ledgerJournals = null,
     Object? isLoadingMore = null,
     Object? hasMoreTransactions = null,
+    Object? hasMoreLedgerJournals = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -1232,10 +3009,18 @@ class __$$WalletStateImplCopyWithImpl<$Res>
             ? _value.wallet
             : wallet // ignore: cast_nullable_to_non_nullable
                   as Wallet?,
+        ledgerAccount: freezed == ledgerAccount
+            ? _value.ledgerAccount
+            : ledgerAccount // ignore: cast_nullable_to_non_nullable
+                  as LedgerAccount?,
         transactions: null == transactions
             ? _value._transactions
             : transactions // ignore: cast_nullable_to_non_nullable
                   as List<Transaction>,
+        ledgerJournals: null == ledgerJournals
+            ? _value._ledgerJournals
+            : ledgerJournals // ignore: cast_nullable_to_non_nullable
+                  as List<LedgerJournal>,
         isLoadingMore: null == isLoadingMore
             ? _value.isLoadingMore
             : isLoadingMore // ignore: cast_nullable_to_non_nullable
@@ -1243,6 +3028,10 @@ class __$$WalletStateImplCopyWithImpl<$Res>
         hasMoreTransactions: null == hasMoreTransactions
             ? _value.hasMoreTransactions
             : hasMoreTransactions // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        hasMoreLedgerJournals: null == hasMoreLedgerJournals
+            ? _value.hasMoreLedgerJournals
+            : hasMoreLedgerJournals // ignore: cast_nullable_to_non_nullable
                   as bool,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
@@ -1259,11 +3048,15 @@ class _$WalletStateImpl extends _WalletState {
   const _$WalletStateImpl({
     this.status = WalletStatus.initial,
     this.wallet,
+    this.ledgerAccount,
     final List<Transaction> transactions = const [],
+    final List<LedgerJournal> ledgerJournals = const [],
     this.isLoadingMore = false,
     this.hasMoreTransactions = false,
+    this.hasMoreLedgerJournals = false,
     this.errorMessage,
   }) : _transactions = transactions,
+       _ledgerJournals = ledgerJournals,
        super._();
 
   @override
@@ -1271,6 +3064,8 @@ class _$WalletStateImpl extends _WalletState {
   final WalletStatus status;
   @override
   final Wallet? wallet;
+  @override
+  final LedgerAccount? ledgerAccount;
   final List<Transaction> _transactions;
   @override
   @JsonKey()
@@ -1280,6 +3075,15 @@ class _$WalletStateImpl extends _WalletState {
     return EqualUnmodifiableListView(_transactions);
   }
 
+  final List<LedgerJournal> _ledgerJournals;
+  @override
+  @JsonKey()
+  List<LedgerJournal> get ledgerJournals {
+    if (_ledgerJournals is EqualUnmodifiableListView) return _ledgerJournals;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_ledgerJournals);
+  }
+
   @override
   @JsonKey()
   final bool isLoadingMore;
@@ -1287,11 +3091,14 @@ class _$WalletStateImpl extends _WalletState {
   @JsonKey()
   final bool hasMoreTransactions;
   @override
+  @JsonKey()
+  final bool hasMoreLedgerJournals;
+  @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'WalletState(status: $status, wallet: $wallet, transactions: $transactions, isLoadingMore: $isLoadingMore, hasMoreTransactions: $hasMoreTransactions, errorMessage: $errorMessage)';
+    return 'WalletState(status: $status, wallet: $wallet, ledgerAccount: $ledgerAccount, transactions: $transactions, ledgerJournals: $ledgerJournals, isLoadingMore: $isLoadingMore, hasMoreTransactions: $hasMoreTransactions, hasMoreLedgerJournals: $hasMoreLedgerJournals, errorMessage: $errorMessage)';
   }
 
   @override
@@ -1301,14 +3108,22 @@ class _$WalletStateImpl extends _WalletState {
             other is _$WalletStateImpl &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.wallet, wallet) || other.wallet == wallet) &&
+            (identical(other.ledgerAccount, ledgerAccount) ||
+                other.ledgerAccount == ledgerAccount) &&
             const DeepCollectionEquality().equals(
               other._transactions,
               _transactions,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._ledgerJournals,
+              _ledgerJournals,
             ) &&
             (identical(other.isLoadingMore, isLoadingMore) ||
                 other.isLoadingMore == isLoadingMore) &&
             (identical(other.hasMoreTransactions, hasMoreTransactions) ||
                 other.hasMoreTransactions == hasMoreTransactions) &&
+            (identical(other.hasMoreLedgerJournals, hasMoreLedgerJournals) ||
+                other.hasMoreLedgerJournals == hasMoreLedgerJournals) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -1318,9 +3133,12 @@ class _$WalletStateImpl extends _WalletState {
     runtimeType,
     status,
     wallet,
+    ledgerAccount,
     const DeepCollectionEquality().hash(_transactions),
+    const DeepCollectionEquality().hash(_ledgerJournals),
     isLoadingMore,
     hasMoreTransactions,
+    hasMoreLedgerJournals,
     errorMessage,
   );
 
@@ -1337,9 +3155,12 @@ abstract class _WalletState extends WalletState {
   const factory _WalletState({
     final WalletStatus status,
     final Wallet? wallet,
+    final LedgerAccount? ledgerAccount,
     final List<Transaction> transactions,
+    final List<LedgerJournal> ledgerJournals,
     final bool isLoadingMore,
     final bool hasMoreTransactions,
+    final bool hasMoreLedgerJournals,
     final String? errorMessage,
   }) = _$WalletStateImpl;
   const _WalletState._() : super._();
@@ -1349,11 +3170,17 @@ abstract class _WalletState extends WalletState {
   @override
   Wallet? get wallet;
   @override
+  LedgerAccount? get ledgerAccount;
+  @override
   List<Transaction> get transactions;
+  @override
+  List<LedgerJournal> get ledgerJournals;
   @override
   bool get isLoadingMore;
   @override
   bool get hasMoreTransactions;
+  @override
+  bool get hasMoreLedgerJournals;
   @override
   String? get errorMessage;
 

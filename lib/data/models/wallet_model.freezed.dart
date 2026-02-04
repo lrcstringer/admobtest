@@ -37,7 +37,12 @@ mixin _$WalletModel {
   String? get icon => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   int get version => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt =>
+      throw _privateConstructorUsedError; // Streak tracking fields
+  int get currentStreak => throw _privateConstructorUsedError;
+  int get longestStreak => throw _privateConstructorUsedError;
+  DateTime? get streakStartedAt => throw _privateConstructorUsedError;
+  DateTime? get lastEarnedAt => throw _privateConstructorUsedError;
 
   /// Serializes this WalletModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -74,6 +79,10 @@ abstract class $WalletModelCopyWith<$Res> {
     String? description,
     int version,
     DateTime updatedAt,
+    int currentStreak,
+    int longestStreak,
+    DateTime? streakStartedAt,
+    DateTime? lastEarnedAt,
   });
 }
 
@@ -109,6 +118,10 @@ class _$WalletModelCopyWithImpl<$Res, $Val extends WalletModel>
     Object? description = freezed,
     Object? version = null,
     Object? updatedAt = null,
+    Object? currentStreak = null,
+    Object? longestStreak = null,
+    Object? streakStartedAt = freezed,
+    Object? lastEarnedAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -180,6 +193,22 @@ class _$WalletModelCopyWithImpl<$Res, $Val extends WalletModel>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            currentStreak: null == currentStreak
+                ? _value.currentStreak
+                : currentStreak // ignore: cast_nullable_to_non_nullable
+                      as int,
+            longestStreak: null == longestStreak
+                ? _value.longestStreak
+                : longestStreak // ignore: cast_nullable_to_non_nullable
+                      as int,
+            streakStartedAt: freezed == streakStartedAt
+                ? _value.streakStartedAt
+                : streakStartedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            lastEarnedAt: freezed == lastEarnedAt
+                ? _value.lastEarnedAt
+                : lastEarnedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -213,6 +242,10 @@ abstract class _$$WalletModelImplCopyWith<$Res>
     String? description,
     int version,
     DateTime updatedAt,
+    int currentStreak,
+    int longestStreak,
+    DateTime? streakStartedAt,
+    DateTime? lastEarnedAt,
   });
 }
 
@@ -247,6 +280,10 @@ class __$$WalletModelImplCopyWithImpl<$Res>
     Object? description = freezed,
     Object? version = null,
     Object? updatedAt = null,
+    Object? currentStreak = null,
+    Object? longestStreak = null,
+    Object? streakStartedAt = freezed,
+    Object? lastEarnedAt = freezed,
   }) {
     return _then(
       _$WalletModelImpl(
@@ -318,6 +355,22 @@ class __$$WalletModelImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        currentStreak: null == currentStreak
+            ? _value.currentStreak
+            : currentStreak // ignore: cast_nullable_to_non_nullable
+                  as int,
+        longestStreak: null == longestStreak
+            ? _value.longestStreak
+            : longestStreak // ignore: cast_nullable_to_non_nullable
+                  as int,
+        streakStartedAt: freezed == streakStartedAt
+            ? _value.streakStartedAt
+            : streakStartedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        lastEarnedAt: freezed == lastEarnedAt
+            ? _value.lastEarnedAt
+            : lastEarnedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -344,6 +397,10 @@ class _$WalletModelImpl extends _WalletModel {
     this.description,
     this.version = 1,
     required this.updatedAt,
+    this.currentStreak = 0,
+    this.longestStreak = 0,
+    this.streakStartedAt,
+    this.lastEarnedAt,
   }) : super._();
 
   factory _$WalletModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -387,10 +444,21 @@ class _$WalletModelImpl extends _WalletModel {
   final int version;
   @override
   final DateTime updatedAt;
+  // Streak tracking fields
+  @override
+  @JsonKey()
+  final int currentStreak;
+  @override
+  @JsonKey()
+  final int longestStreak;
+  @override
+  final DateTime? streakStartedAt;
+  @override
+  final DateTime? lastEarnedAt;
 
   @override
   String toString() {
-    return 'WalletModel(id: $id, userId: $userId, name: $name, type: $type, tokenBalance: $tokenBalance, lifetimeEarned: $lifetimeEarned, lifetimeWithdrawn: $lifetimeWithdrawn, canWithdraw: $canWithdraw, todayEarned: $todayEarned, pendingBalance: $pendingBalance, pendingWithdrawal: $pendingWithdrawal, brandId: $brandId, color: $color, icon: $icon, description: $description, version: $version, updatedAt: $updatedAt)';
+    return 'WalletModel(id: $id, userId: $userId, name: $name, type: $type, tokenBalance: $tokenBalance, lifetimeEarned: $lifetimeEarned, lifetimeWithdrawn: $lifetimeWithdrawn, canWithdraw: $canWithdraw, todayEarned: $todayEarned, pendingBalance: $pendingBalance, pendingWithdrawal: $pendingWithdrawal, brandId: $brandId, color: $color, icon: $icon, description: $description, version: $version, updatedAt: $updatedAt, currentStreak: $currentStreak, longestStreak: $longestStreak, streakStartedAt: $streakStartedAt, lastEarnedAt: $lastEarnedAt)';
   }
 
   @override
@@ -423,12 +491,20 @@ class _$WalletModelImpl extends _WalletModel {
                 other.description == description) &&
             (identical(other.version, version) || other.version == version) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.currentStreak, currentStreak) ||
+                other.currentStreak == currentStreak) &&
+            (identical(other.longestStreak, longestStreak) ||
+                other.longestStreak == longestStreak) &&
+            (identical(other.streakStartedAt, streakStartedAt) ||
+                other.streakStartedAt == streakStartedAt) &&
+            (identical(other.lastEarnedAt, lastEarnedAt) ||
+                other.lastEarnedAt == lastEarnedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     userId,
@@ -447,7 +523,11 @@ class _$WalletModelImpl extends _WalletModel {
     description,
     version,
     updatedAt,
-  );
+    currentStreak,
+    longestStreak,
+    streakStartedAt,
+    lastEarnedAt,
+  ]);
 
   /// Create a copy of WalletModel
   /// with the given fields replaced by the non-null parameter values.
@@ -482,6 +562,10 @@ abstract class _WalletModel extends WalletModel {
     final String? description,
     final int version,
     required final DateTime updatedAt,
+    final int currentStreak,
+    final int longestStreak,
+    final DateTime? streakStartedAt,
+    final DateTime? lastEarnedAt,
   }) = _$WalletModelImpl;
   const _WalletModel._() : super._();
 
@@ -521,7 +605,15 @@ abstract class _WalletModel extends WalletModel {
   @override
   int get version;
   @override
-  DateTime get updatedAt;
+  DateTime get updatedAt; // Streak tracking fields
+  @override
+  int get currentStreak;
+  @override
+  int get longestStreak;
+  @override
+  DateTime? get streakStartedAt;
+  @override
+  DateTime? get lastEarnedAt;
 
   /// Create a copy of WalletModel
   /// with the given fields replaced by the non-null parameter values.

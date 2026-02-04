@@ -96,16 +96,51 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
                     color: AppColors.info.withValues(alpha: 0.1),
                     borderRadius: AppSpacing.borderRadiusMd,
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.info_outline, color: AppColors.info),
-                      AppSpacing.horizontalMd,
-                      Expanded(
-                        child: Text(
-                          'Earn tokens to join pots. Top earners win a share of the pot!',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.info,
-                              ),
+                      Row(
+                        children: [
+                          Icon(Icons.info_outline, color: AppColors.info),
+                          AppSpacing.horizontalMd,
+                          Expanded(
+                            child: Text(
+                              'How Pots Work',
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    color: AppColors.info,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      AppSpacing.verticalSm,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 36),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '5% of every token you earn goes to the Daily Pot',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.info,
+                                  ),
+                            ),
+                            Text(
+                              '5% of every token you earn goes to the Weekly Pot',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.info,
+                                  ),
+                            ),
+                            AppSpacing.verticalXs,
+                            Text(
+                              'Top earners win a share of the pot!',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.info,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

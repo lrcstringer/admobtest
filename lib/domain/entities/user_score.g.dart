@@ -22,6 +22,15 @@ _$UserScoreImpl _$$UserScoreImplFromJson(Map<String, dynamic> json) =>
       periodStart: DateTime.parse(json['periodStart'] as String),
       periodEnd: DateTime.parse(json['periodEnd'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
+      baseScore: (json['baseScore'] as num?)?.toInt() ?? 0,
+      streakMultiplier: (json['streakMultiplier'] as num?)?.toDouble() ?? 1.0,
+      assistScore: (json['assistScore'] as num?)?.toInt() ?? 0,
+      referralQualityScore:
+          (json['referralQualityScore'] as num?)?.toInt() ?? 0,
+      finalScore: (json['finalScore'] as num?)?.toInt() ?? 0,
+      firstCompletionAt: json['firstCompletionAt'] == null
+          ? null
+          : DateTime.parse(json['firstCompletionAt'] as String),
     );
 
 Map<String, dynamic> _$$UserScoreImplToJson(_$UserScoreImpl instance) =>
@@ -40,4 +49,10 @@ Map<String, dynamic> _$$UserScoreImplToJson(_$UserScoreImpl instance) =>
       'periodStart': instance.periodStart.toIso8601String(),
       'periodEnd': instance.periodEnd.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
+      'baseScore': instance.baseScore,
+      'streakMultiplier': instance.streakMultiplier,
+      'assistScore': instance.assistScore,
+      'referralQualityScore': instance.referralQualityScore,
+      'finalScore': instance.finalScore,
+      'firstCompletionAt': instance.firstCompletionAt?.toIso8601String(),
     };

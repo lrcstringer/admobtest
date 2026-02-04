@@ -36,7 +36,13 @@ mixin _$Engagement {
   String? get failureReason => throw _privateConstructorUsedError;
   int get attemptNumber => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime? get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt =>
+      throw _privateConstructorUsedError; // Streak audit fields
+  /// What day of streak this completion was on
+  int? get streakDayAtCompletion => throw _privateConstructorUsedError;
+
+  /// Multiplier applied at time of completion (1.0, 1.2, 1.35, or 1.5)
+  double? get multiplierApplied => throw _privateConstructorUsedError;
 
   /// Serializes this Engagement to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -72,6 +78,8 @@ abstract class $EngagementCopyWith<$Res> {
     int attemptNumber,
     DateTime createdAt,
     DateTime? updatedAt,
+    int? streakDayAtCompletion,
+    double? multiplierApplied,
   });
 
   $EngagementEvidenceCopyWith<$Res>? get evidence;
@@ -108,6 +116,8 @@ class _$EngagementCopyWithImpl<$Res, $Val extends Engagement>
     Object? attemptNumber = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
+    Object? streakDayAtCompletion = freezed,
+    Object? multiplierApplied = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -175,6 +185,14 @@ class _$EngagementCopyWithImpl<$Res, $Val extends Engagement>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            streakDayAtCompletion: freezed == streakDayAtCompletion
+                ? _value.streakDayAtCompletion
+                : streakDayAtCompletion // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            multiplierApplied: freezed == multiplierApplied
+                ? _value.multiplierApplied
+                : multiplierApplied // ignore: cast_nullable_to_non_nullable
+                      as double?,
           )
           as $Val,
     );
@@ -221,6 +239,8 @@ abstract class _$$EngagementImplCopyWith<$Res>
     int attemptNumber,
     DateTime createdAt,
     DateTime? updatedAt,
+    int? streakDayAtCompletion,
+    double? multiplierApplied,
   });
 
   @override
@@ -257,6 +277,8 @@ class __$$EngagementImplCopyWithImpl<$Res>
     Object? attemptNumber = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
+    Object? streakDayAtCompletion = freezed,
+    Object? multiplierApplied = freezed,
   }) {
     return _then(
       _$EngagementImpl(
@@ -324,6 +346,14 @@ class __$$EngagementImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        streakDayAtCompletion: freezed == streakDayAtCompletion
+            ? _value.streakDayAtCompletion
+            : streakDayAtCompletion // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        multiplierApplied: freezed == multiplierApplied
+            ? _value.multiplierApplied
+            : multiplierApplied // ignore: cast_nullable_to_non_nullable
+                  as double?,
       ),
     );
   }
@@ -349,6 +379,8 @@ class _$EngagementImpl extends _Engagement {
     required this.attemptNumber,
     required this.createdAt,
     this.updatedAt,
+    this.streakDayAtCompletion,
+    this.multiplierApplied,
   }) : _answers = answers,
        super._();
 
@@ -393,10 +425,18 @@ class _$EngagementImpl extends _Engagement {
   final DateTime createdAt;
   @override
   final DateTime? updatedAt;
+  // Streak audit fields
+  /// What day of streak this completion was on
+  @override
+  final int? streakDayAtCompletion;
+
+  /// Multiplier applied at time of completion (1.0, 1.2, 1.35, or 1.5)
+  @override
+  final double? multiplierApplied;
 
   @override
   String toString() {
-    return 'Engagement(id: $id, userId: $userId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Engagement(id: $id, userId: $userId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied)';
   }
 
   @override
@@ -434,7 +474,11 @@ class _$EngagementImpl extends _Engagement {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.streakDayAtCompletion, streakDayAtCompletion) ||
+                other.streakDayAtCompletion == streakDayAtCompletion) &&
+            (identical(other.multiplierApplied, multiplierApplied) ||
+                other.multiplierApplied == multiplierApplied));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -457,6 +501,8 @@ class _$EngagementImpl extends _Engagement {
     attemptNumber,
     createdAt,
     updatedAt,
+    streakDayAtCompletion,
+    multiplierApplied,
   );
 
   /// Create a copy of Engagement
@@ -491,6 +537,8 @@ abstract class _Engagement extends Engagement {
     required final int attemptNumber,
     required final DateTime createdAt,
     final DateTime? updatedAt,
+    final int? streakDayAtCompletion,
+    final double? multiplierApplied,
   }) = _$EngagementImpl;
   const _Engagement._() : super._();
 
@@ -528,7 +576,14 @@ abstract class _Engagement extends Engagement {
   @override
   DateTime get createdAt;
   @override
-  DateTime? get updatedAt;
+  DateTime? get updatedAt; // Streak audit fields
+  /// What day of streak this completion was on
+  @override
+  int? get streakDayAtCompletion;
+
+  /// Multiplier applied at time of completion (1.0, 1.2, 1.35, or 1.5)
+  @override
+  double? get multiplierApplied;
 
   /// Create a copy of Engagement
   /// with the given fields replaced by the non-null parameter values.

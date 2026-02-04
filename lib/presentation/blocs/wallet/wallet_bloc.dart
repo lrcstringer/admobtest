@@ -7,6 +7,8 @@ import 'package:injectable/injectable.dart';
 import '../../../core/error/failures.dart';
 import '../../../domain/entities/wallet.dart';
 import '../../../domain/entities/transaction.dart';
+import '../../../domain/entities/ledger_account.dart';
+import '../../../domain/entities/ledger_journal.dart';
 import '../../../domain/repositories/wallet_repository.dart';
 
 part 'wallet_bloc.freezed.dart';
@@ -18,6 +20,8 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
   final WalletRepository _walletRepository;
   StreamSubscription? _walletSubscription;
   StreamSubscription? _transactionsSubscription;
+  StreamSubscription? _ledgerAccountSubscription;
+  StreamSubscription? _ledgerJournalsSubscription;
 
   WalletBloc(this._walletRepository) : super(const WalletState()) {
     on<_LoadWallet>(_onLoadWallet);
@@ -26,6 +30,13 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     on<_LoadMoreTransactions>(_onLoadMoreTransactions);
     on<_WalletUpdated>(_onWalletUpdated);
     on<_TransactionsUpdated>(_onTransactionsUpdated);
+    on<_WatchLedgerAccount>(_onWatchLedgerAccount);
+    on<_LedgerAccountUpdated>(_onLedgerAccountUpdated);
+    on<_LoadLedgerJournals>(_onLoadLedgerJournals);
+    on<_LoadMoreLedgerJournals>(_onLoadMoreLedgerJournals);
+    on<_WatchLedgerJournals>(_onWatchLedgerJournals);
+    on<_LedgerJournalsUpdated>(_onLedgerJournalsUpdated);
+    on<_RefreshLedger>(_onRefreshLedger);
   }
 
   Future<void> _onLoadWallet(
@@ -50,7 +61,11 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
         ));
         // Start watching wallet updates
         add(WalletEvent.watchWallet(walletId: wallet.id));
-        // Load transactions after wallet loads
+        // Start watching ledger account (Trust Ledger)
+        add(const WalletEvent.watchLedgerAccount());
+        // Start watching ledger journals (Trust Ledger transaction history)
+        add(const WalletEvent.watchLedgerJournals());
+        // Load transactions after wallet loads (legacy)
         add(WalletEvent.loadTransactions(walletId: wallet.id));
       },
     );
@@ -148,10 +163,150 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     emit(state.copyWith(transactions: event.transactions));
   }
 
+  void _onWatchLedgerAccount(
+    _WatchLedgerAccount event,
+    Emitter<WalletState> emit,
+  ) {
+    _ledgerAccountSubscription?.cancel();
+    _ledgerAccountSubscription = _walletRepository.watchLedgerAccount().listen(
+      (result) {
+        result.fold(
+          (failure) {
+            // Don't emit error for stream failures, ledger account may not exist yet
+          },
+          (ledgerAccount) {
+            add(WalletEvent.ledgerAccountUpdated(ledgerAccount));
+          },
+        );
+      },
+    );
+  }
+
+  void _onLedgerAccountUpdated(
+    _LedgerAccountUpdated event,
+    Emitter<WalletState> emit,
+  ) {
+    emit(state.copyWith(ledgerAccount: event.ledgerAccount));
+  }
+
+  Future<void> _onLoadLedgerJournals(
+    _LoadLedgerJournals event,
+    Emitter<WalletState> emit,
+  ) async {
+    final result = await _walletRepository.getLedgerJournals(
+      limit: event.limit ?? 20,
+    );
+
+    result.fold(
+      (failure) {
+        // Don't fail the whole state for journals error
+      },
+      (journals) {
+        emit(state.copyWith(
+          ledgerJournals: journals,
+          hasMoreLedgerJournals: journals.length >= (event.limit ?? 20),
+        ));
+      },
+    );
+  }
+
+  Future<void> _onLoadMoreLedgerJournals(
+    _LoadMoreLedgerJournals event,
+    Emitter<WalletState> emit,
+  ) async {
+    if (state.isLoadingMore || !state.hasMoreLedgerJournals) {
+      return;
+    }
+
+    emit(state.copyWith(isLoadingMore: true));
+
+    final lastJournal = state.ledgerJournals.isNotEmpty
+        ? state.ledgerJournals.last
+        : null;
+
+    final result = await _walletRepository.getLedgerJournals(
+      limit: 20,
+      startAfter: lastJournal?.postedAt ?? lastJournal?.createdAt,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoadingMore: false));
+      },
+      (journals) {
+        emit(state.copyWith(
+          isLoadingMore: false,
+          ledgerJournals: [...state.ledgerJournals, ...journals],
+          hasMoreLedgerJournals: journals.length >= 20,
+        ));
+      },
+    );
+  }
+
+  void _onWatchLedgerJournals(
+    _WatchLedgerJournals event,
+    Emitter<WalletState> emit,
+  ) {
+    _ledgerJournalsSubscription?.cancel();
+    _ledgerJournalsSubscription = _walletRepository
+        .watchLedgerJournals(limit: event.limit ?? 20)
+        .listen(
+      (result) {
+        result.fold(
+          (failure) {
+            // Don't emit error for stream failures
+          },
+          (journals) {
+            add(WalletEvent.ledgerJournalsUpdated(journals));
+          },
+        );
+      },
+    );
+  }
+
+  void _onLedgerJournalsUpdated(
+    _LedgerJournalsUpdated event,
+    Emitter<WalletState> emit,
+  ) {
+    emit(state.copyWith(ledgerJournals: event.journals));
+  }
+
+  Future<void> _onRefreshLedger(
+    _RefreshLedger event,
+    Emitter<WalletState> emit,
+  ) async {
+    // Fetch latest ledger account balance
+    final accountResult = await _walletRepository.getLedgerAccount();
+    accountResult.fold(
+      (failure) {
+        // Silent fail - watchers will eventually update
+      },
+      (ledgerAccount) {
+        emit(state.copyWith(ledgerAccount: ledgerAccount));
+      },
+    );
+
+    // Refresh ledger journals
+    final journalsResult = await _walletRepository.getLedgerJournals(limit: 20);
+    journalsResult.fold(
+      (failure) {
+        // Silent fail - watchers will eventually update
+      },
+      (journals) {
+        emit(state.copyWith(
+          ledgerJournals: journals,
+          hasMoreLedgerJournals: journals.length >= 20,
+        ));
+      },
+    );
+  }
+
   @override
   Future<void> close() {
     _walletSubscription?.cancel();
     _transactionsSubscription?.cancel();
+    _ledgerAccountSubscription?.cancel();
+    _ledgerJournalsSubscription?.cancel();
     return super.close();
   }
 }

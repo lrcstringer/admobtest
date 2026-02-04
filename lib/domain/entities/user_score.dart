@@ -21,6 +21,19 @@ class UserScore with _$UserScore {
     required DateTime periodStart,
     required DateTime periodEnd,
     required DateTime updatedAt,
+    // New scoring fields
+    /// Base score from completed engagements (before multipliers)
+    @Default(0) int baseScore,
+    /// Streak multiplier (1.0 + streak * 0.05, max 2.0)
+    @Default(1.0) double streakMultiplier,
+    /// Score from referred users' activity in this period
+    @Default(0) int assistScore,
+    /// Quality score based on active referrals
+    @Default(0) int referralQualityScore,
+    /// Final calculated score with all multipliers applied
+    @Default(0) int finalScore,
+    /// Timestamp of first engagement completion in this period
+    DateTime? firstCompletionAt,
   }) = _UserScore;
 
   const UserScore._();

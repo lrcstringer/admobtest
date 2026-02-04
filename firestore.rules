@@ -289,5 +289,162 @@ service cloud.firestore {
       allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow create, update, delete: if false;
     }
+
+    // =========================================================================
+    // TRUST LEDGER COLLECTIONS
+    // All ledger collections are server-only to maintain integrity
+    // =========================================================================
+
+    // Ledger accounts collection
+    // Stores all account balances (user, system, pot, supplier, cashout)
+    match /ledgerAccounts/{accountId} {
+      // Users can read their own account
+      // Account IDs follow format: "user:{userId}", "supplier:{id}", etc.
+      allow read: if isAuthenticated()
+        && (accountId == 'user:' + request.auth.uid
+            || resource.data.ownerId == request.auth.uid);
+
+      // All writes handled by Cloud Functions only
+      // This ensures balance integrity through atomic transactions
+      allow create, update, delete: if false;
+    }
+
+    // Ledger journals collection
+    // Immutable double-entry bookkeeping records
+    match /ledgerJournals/{journalId} {
+      // Users can read journals where they are involved
+      // (journals that affect their account)
+      allow read: if isAuthenticated();
+
+      // Journals are immutable and created by Cloud Functions only
+      // Corrections are done via reversal journals, never mutation
+      allow create, update, delete: if false;
+    }
+
+    // Ledger snapshots collection
+    // Periodic balance snapshots for reconciliation
+    match /ledgerSnapshots/{snapshotId} {
+      // Snapshots are server-only for reconciliation
+      allow read, write: if false;
+    }
+
+    // Ledger audit collection
+    // Complete audit trail of all ledger operations
+    match /ledgerAudit/{auditId} {
+      // Audit logs are admin-only
+      allow read, write: if false;
+    }
+
+    // =========================================================================
+    // GROUP ACCOUNT COLLECTIONS
+    // Groups allow multiple users to share pooled funds with role-based permissions
+    // =========================================================================
+
+    // Helper function to check if user is a member of a group
+    function isGroupMember(groupId) {
+      return request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.memberIds;
+    }
+
+    // Helper function to check if user is owner of a group
+    function isGroupOwner(groupId) {
+      return request.auth.uid == get(/databases/$(database)/documents/groups/$(groupId)).data.ownerId;
+    }
+
+    // Groups collection
+    match /groups/{groupId} {
+      // Members can read their groups
+      allow read: if isAuthenticated() && isGroupMember(groupId);
+
+      // Any authenticated user can create a group
+      allow create: if isAuthenticated()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.auth.uid in request.resource.data.memberIds;
+
+      // Only owner can update group settings
+      // Most updates should go through Cloud Functions for validation
+      allow update: if isAuthenticated() && isGroupOwner(groupId);
+
+      // Only owner can delete (close) group
+      allow delete: if isAuthenticated() && isGroupOwner(groupId);
+
+      // Group members subcollection
+      match /members/{memberId} {
+        // Members can read all member records in their group
+        allow read: if isAuthenticated() && isGroupMember(groupId);
+
+        // Member management is handled by Cloud Functions only
+        // This ensures proper permission checking and notifications
+        allow create, update, delete: if false;
+      }
+
+      // Group transactions subcollection
+      match /transactions/{transactionId} {
+        // Members can read transactions in their group
+        allow read: if isAuthenticated() && isGroupMember(groupId);
+
+        // All transactions are processed by Cloud Functions only
+        // This ensures ledger integrity and proper balance tracking
+        allow create, update, delete: if false;
+      }
+
+      // Pending approvals subcollection
+      match /pendingApprovals/{approvalId} {
+        // Members can read pending approvals in their group
+        allow read: if isAuthenticated() && isGroupMember(groupId);
+
+        // Approvals are managed by Cloud Functions only
+        allow create, update, delete: if false;
+      }
+    }
+
+    // Pots collection (legacy, now backed by ledger)
+    match /pots/{potId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
+    }
+
+    // Leaderboards collection with subcollections
+    match /leaderboards/{leaderboardId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
+
+      match /scores/{scoreId} {
+        allow read: if isAuthenticated();
+        allow create, update, delete: if false;
+      }
+    }
+
+    // Earn opportunities collection
+    match /earnOpportunities/{opportunityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
+    }
+
+    // Earn threads collection
+    match /earnThreads/{threadId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
+    }
+
+    // Engagements collection
+    match /engagements/{engagementId} {
+      allow read: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    // Payment requests collection (legacy)
+    match /paymentRequests/{requestId} {
+      allow read: if isAuthenticated()
+        && (resource.data.requesterId == request.auth.uid
+            || resource.data.payerId == request.auth.uid);
+      allow create, update, delete: if false;
+    }
+
+    // Campaigns collection
+    match /campaigns/{campaignId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
+    }
   }
 }

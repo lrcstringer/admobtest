@@ -88,8 +88,7 @@ export const deleteUserAccount = functions
       // Each entry: [collectionName, fieldName]
 
       const fieldQueryCollections: [string, string][] = [
-        // Financial
-        ["wallets", "userId"],
+        // Financial (wallets collection deprecated - use ledgerAccounts)
         ["transactions", "userId"],
         ["cashouts", "userId"],
         ["earnings", "userId"],
@@ -153,11 +152,11 @@ export const deleteUserAccount = functions
       // Some collections use userId as document ID.
 
       const docIdCollections = [
-        "wallets",
         "leaderboard",
         "referralStats",
         "referralCodes",
         "blockedUsers",
+        "userEngagementStats", // New: streak tracking
       ];
 
       const docIdBatch = db.batch();
@@ -165,6 +164,47 @@ export const deleteUserAccount = functions
         docIdBatch.delete(db.collection(collection).doc(userId));
       }
       await docIdBatch.commit();
+
+      // ── Phase 5b: Delete ledgerAccounts subcollections ────────────────
+      //
+      // Delete subAccounts subcollection, then the ledgerAccount document.
+
+      const subAccountsSnap = await db
+        .collection("ledgerAccounts")
+        .doc(userId)
+        .collection("subAccounts")
+        .get();
+
+      if (!subAccountsSnap.empty) {
+        const subAccountBatch = db.batch();
+        subAccountsSnap.docs.forEach((doc) => {
+          subAccountBatch.delete(doc.ref);
+        });
+        await subAccountBatch.commit();
+        console.log(`  Deleted ${subAccountsSnap.size} subAccounts for user`);
+      }
+
+      await db.collection("ledgerAccounts").doc(userId).delete();
+      console.log("  Deleted ledgerAccount document");
+
+      // ── Phase 5c: Delete dailyScores subcollection ────────────────────
+      //
+      // User's daily score history stored as users/{userId}/dailyScores/{date}
+
+      const dailyScoresSnap = await db
+        .collection("users")
+        .doc(userId)
+        .collection("dailyScores")
+        .get();
+
+      if (!dailyScoresSnap.empty) {
+        const dailyScoresBatch = db.batch();
+        dailyScoresSnap.docs.forEach((doc) => {
+          dailyScoresBatch.delete(doc.ref);
+        });
+        await dailyScoresBatch.commit();
+        console.log(`  Deleted ${dailyScoresSnap.size} dailyScores for user`);
+      }
 
       // ── Phase 6: Delete rate limit documents ────────────────────────
       //

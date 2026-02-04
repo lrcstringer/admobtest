@@ -12,6 +12,13 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
+import {
+  processP2PTransfer,
+  getOrCreateDefaultSubAccount,
+  getDefaultSubAccount,
+  validateSubAccountAllows,
+  validateSubAccountBalance,
+} from "./ledger";
 
 const db = admin.firestore();
 
@@ -47,114 +54,84 @@ export const sendTokens = functions.https.onCall(async (data, context) => {
     );
   }
 
-  // Get sender's wallet
-  const senderWalletQuery = await db
-    .collection("wallets")
-    .where("userId", "==", senderId)
-    .limit(1)
-    .get();
-
-  if (senderWalletQuery.empty) {
-    throw new functions.https.HttpsError("not-found", "Sender wallet not found");
-  }
-
-  const senderWallet = senderWalletQuery.docs[0];
-  const senderBalance = senderWallet.data().tokenBalance || 0;
-
-  // Check balance
-  if (senderBalance < amount) {
+  // Get sender's default sub-account
+  const senderSubAccount = await getDefaultSubAccount(senderId);
+  if (!senderSubAccount) {
     throw new functions.https.HttpsError(
       "failed-precondition",
-      "Insufficient balance"
+      "Sender account not found. Please complete setup first."
     );
   }
 
-  // Get recipient's wallet
-  const recipientWalletQuery = await db
-    .collection("wallets")
-    .where("userId", "==", recipientId)
-    .limit(1)
-    .get();
-
-  if (recipientWalletQuery.empty) {
+  // Validate sender's account type allows P2P sends
+  const p2pAllowed = await validateSubAccountAllows(
+    senderSubAccount.accountTypeId,
+    "p2p_send"
+  );
+  if (!p2pAllowed.allowed) {
     throw new functions.https.HttpsError(
-      "not-found",
-      "Recipient wallet not found"
+      "failed-precondition",
+      p2pAllowed.reason || "This account cannot send P2P transfers"
     );
   }
 
-  const recipientWallet = recipientWalletQuery.docs[0];
-  const recipientBalance = recipientWallet.data().tokenBalance || 0;
+  // Validate sender's sub-account has sufficient balance
+  const balanceCheck = await validateSubAccountBalance(
+    senderId,
+    senderSubAccount.id,
+    amount
+  );
+  if (!balanceCheck.allowed) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      balanceCheck.reason || "Insufficient balance"
+    );
+  }
 
-  // Process transfer in transaction
-  await db.runTransaction(async (transaction) => {
-    // Calculate balances after transfer
-    const senderBalanceAfter = senderBalance - amount;
-    const recipientBalanceAfter = recipientBalance + amount;
+  // Get or create recipient's default sub-account
+  const { subAccountId: recipientSubAccountId } = await getOrCreateDefaultSubAccount(recipientId);
 
-    // Deduct from sender
-    transaction.update(senderWallet.ref, {
-      tokenBalance: admin.firestore.FieldValue.increment(-amount),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      version: admin.firestore.FieldValue.increment(1),
-    });
+  // Generate a unique transfer ID for idempotency
+  const transferId = db.collection("p2pTransfers").doc().id;
 
-    // Add to recipient
-    transaction.update(recipientWallet.ref, {
-      tokenBalance: admin.firestore.FieldValue.increment(amount),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      version: admin.firestore.FieldValue.increment(1),
-    });
+  // Process transfer through the Trust Ledger system using sub-accounts
+  const ledgerResult = await processP2PTransfer(
+    senderId,
+    recipientId,
+    amount,
+    transferId,
+    senderSubAccount.id, // Sender's sub-account to debit
+    recipientSubAccountId, // Recipient's sub-account to credit
+    message,
+    {
+      threadId,
+      source: "chat",
+    }
+  );
 
-    // Create sender transaction record (p2pSend)
-    const senderTxRef = db.collection("transactions").doc();
-    transaction.set(senderTxRef, {
-      id: senderTxRef.id,
-      walletId: senderWallet.id,
-      userId: senderId,
-      type: "p2pSend",
-      tokenAmount: -amount,
-      balanceAfter: senderBalanceAfter,
-      zarAmount: -amount * 0.01,
-      description: "Sent to user",
-      status: "completed",
-      counterpartyId: recipientId,
-      metadata: { threadId, message },
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+  if (!ledgerResult.success) {
+    throw new functions.https.HttpsError(
+      "internal",
+      `Failed to process transfer: ${ledgerResult.error}`
+    );
+  }
 
-    // Create recipient transaction record (p2pReceive)
-    const recipientTxRef = db.collection("transactions").doc();
-    transaction.set(recipientTxRef, {
-      id: recipientTxRef.id,
-      walletId: recipientWallet.id,
-      userId: recipientId,
-      type: "p2pReceive",
-      tokenAmount: amount,
-      balanceAfter: recipientBalanceAfter,
-      zarAmount: amount * 0.01,
-      description: "Received from user",
-      status: "completed",
-      counterpartyId: senderId,
-      metadata: { threadId, message },
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+  // Create chat message for transfer if threadId provided
+  if (threadId) {
+    const messageRef = db.collection("chatMessages").doc();
+    const now = admin.firestore.FieldValue.serverTimestamp();
 
-    // Create chat message for transfer (Flutter-compatible fields)
-    if (threadId) {
-      const messageRef = db.collection("chatMessages").doc();
-      const now = admin.firestore.FieldValue.serverTimestamp();
-
+    await db.runTransaction(async (transaction) => {
       transaction.set(messageRef, {
         id: messageRef.id,
         threadId: threadId,
         senderId: senderId,
         recipientId: recipientId,
-        // Flutter-compatible field names
         textContent: message || null,
-        type: "tokenSend", // Flutter expects tokenSend
-        status: "paid", // Transfer is already paid/completed
-        tokenAmount: amount, // Flutter expects tokenAmount directly
+        type: "tokenSend",
+        status: "paid",
+        tokenAmount: amount,
+        ledgerJournalId: ledgerResult.journalId,
         mediaUrl: null,
         mediaType: null,
         actionData: null,
@@ -174,10 +151,14 @@ export const sendTokens = functions.https.onCall(async (data, context) => {
         lastMessageAt: now,
         updatedAt: now,
       });
-    }
-  });
+    });
+  }
 
-  return { success: true, amount };
+  return {
+    success: true,
+    amount,
+    ledgerJournalId: ledgerResult.journalId,
+  };
 });
 
 /**
@@ -332,100 +313,78 @@ export const acceptChatTokenRequest = functions.https.onCall(
     const amount = messageData.tokenAmount;
     const threadId = messageData.threadId;
 
-    // Get payer's wallet
-    const payerWalletQuery = await db
-      .collection("wallets")
-      .where("userId", "==", payerId)
-      .limit(1)
-      .get();
-
-    if (payerWalletQuery.empty) {
-      throw new functions.https.HttpsError("not-found", "Wallet not found");
-    }
-
-    const payerWallet = payerWalletQuery.docs[0];
-    const payerBalance = payerWallet.data().tokenBalance || 0;
-
-    if (payerBalance < amount) {
+    // Get payer's default sub-account
+    const payerSubAccount = await getDefaultSubAccount(payerId);
+    if (!payerSubAccount) {
       throw new functions.https.HttpsError(
         "failed-precondition",
-        "Insufficient balance"
+        "Payer account not found. Please complete setup first."
       );
     }
 
-    // Get requester's wallet
-    const requesterWalletQuery = await db
-      .collection("wallets")
-      .where("userId", "==", requesterId)
-      .limit(1)
-      .get();
-
-    if (requesterWalletQuery.empty) {
+    // Validate payer's account type allows P2P sends
+    const p2pAllowed = await validateSubAccountAllows(
+      payerSubAccount.accountTypeId,
+      "p2p_send"
+    );
+    if (!p2pAllowed.allowed) {
       throw new functions.https.HttpsError(
-        "not-found",
-        "Requester wallet not found"
+        "failed-precondition",
+        p2pAllowed.reason || "This account cannot send P2P transfers"
       );
     }
 
-    const requesterWallet = requesterWalletQuery.docs[0];
-    const requesterBalance = requesterWallet.data().tokenBalance || 0;
+    // Validate payer's sub-account has sufficient balance
+    const balanceCheck = await validateSubAccountBalance(
+      payerId,
+      payerSubAccount.id,
+      amount
+    );
+    if (!balanceCheck.allowed) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        balanceCheck.reason || "Insufficient balance"
+      );
+    }
 
-    // Process payment in transaction
+    // Get or create requester's default sub-account
+    const { subAccountId: requesterSubAccountId } = await getOrCreateDefaultSubAccount(requesterId);
+
+    // Generate a unique transfer ID using the messageId for idempotency
+    const transferId = `request_${messageId}`;
+
+    // Process transfer through the Trust Ledger system using sub-accounts
+    const ledgerResult = await processP2PTransfer(
+      payerId,
+      requesterId,
+      amount,
+      transferId,
+      payerSubAccount.id, // Payer's sub-account to debit
+      requesterSubAccountId, // Requester's sub-account to credit
+      "Paid token request",
+      {
+        messageId,
+        threadId,
+        source: "chatRequest",
+      }
+    );
+
+    if (!ledgerResult.success) {
+      throw new functions.https.HttpsError(
+        "internal",
+        `Failed to process payment: ${ledgerResult.error}`
+      );
+    }
+
+    // Update message and thread
+    const now = admin.firestore.FieldValue.serverTimestamp();
+
     await db.runTransaction(async (transaction) => {
-      const now = admin.firestore.FieldValue.serverTimestamp();
-      const payerBalanceAfter = payerBalance - amount;
-      const requesterBalanceAfter = requesterBalance + amount;
-
-      // Update message status to paid
+      // Update message status to paid with ledger reference
       transaction.update(messageDoc.ref, {
         status: "paid",
         actionedAt: now,
-      });
-
-      // Transfer tokens
-      transaction.update(payerWallet.ref, {
-        tokenBalance: admin.firestore.FieldValue.increment(-amount),
-        updatedAt: now,
-        version: admin.firestore.FieldValue.increment(1),
-      });
-
-      transaction.update(requesterWallet.ref, {
-        tokenBalance: admin.firestore.FieldValue.increment(amount),
-        updatedAt: now,
-        version: admin.firestore.FieldValue.increment(1),
-      });
-
-      // Create transaction records
-      const payerTxRef = db.collection("transactions").doc();
-      transaction.set(payerTxRef, {
-        id: payerTxRef.id,
-        walletId: payerWallet.id,
-        userId: payerId,
-        type: "p2pSend",
-        tokenAmount: -amount,
-        balanceAfter: payerBalanceAfter,
-        zarAmount: -amount * 0.01,
-        description: "Paid token request",
-        status: "completed",
-        counterpartyId: requesterId,
-        metadata: { messageId, threadId },
-        createdAt: now,
-      });
-
-      const requesterTxRef = db.collection("transactions").doc();
-      transaction.set(requesterTxRef, {
-        id: requesterTxRef.id,
-        walletId: requesterWallet.id,
-        userId: requesterId,
-        type: "p2pReceive",
-        tokenAmount: amount,
-        balanceAfter: requesterBalanceAfter,
-        zarAmount: amount * 0.01,
-        description: "Received from token request",
-        status: "completed",
-        counterpartyId: payerId,
-        metadata: { messageId, threadId },
-        createdAt: now,
+        ledgerJournalId: ledgerResult.journalId,
       });
 
       // Update thread
@@ -438,7 +397,11 @@ export const acceptChatTokenRequest = functions.https.onCall(
       }
     });
 
-    return { success: true, amount };
+    return {
+      success: true,
+      amount,
+      ledgerJournalId: ledgerResult.journalId,
+    };
   }
 );
 
@@ -657,100 +620,78 @@ export const payRequest = functions.https.onCall(async (data, context) => {
     );
   }
 
-  // Get payer's wallet
-  const payerWalletQuery = await db
-    .collection("wallets")
-    .where("userId", "==", payerId)
-    .limit(1)
-    .get();
-
-  if (payerWalletQuery.empty) {
-    throw new functions.https.HttpsError("not-found", "Wallet not found");
-  }
-
-  const payerWallet = payerWalletQuery.docs[0];
-  const payerBalance = payerWallet.data().tokenBalance || 0;
-
-  if (payerBalance < request.amount) {
+  // Get payer's default sub-account
+  const payerSubAccount = await getDefaultSubAccount(payerId);
+  if (!payerSubAccount) {
     throw new functions.https.HttpsError(
       "failed-precondition",
-      "Insufficient balance"
+      "Payer account not found"
     );
   }
 
-  // Get requester's wallet
-  const requesterWalletQuery = await db
-    .collection("wallets")
-    .where("userId", "==", request.requesterId)
-    .limit(1)
-    .get();
-
-  if (requesterWalletQuery.empty) {
+  // Validate payer's account type allows P2P sends
+  const p2pAllowed = await validateSubAccountAllows(
+    payerSubAccount.accountTypeId,
+    "p2p_send"
+  );
+  if (!p2pAllowed.allowed) {
     throw new functions.https.HttpsError(
-      "not-found",
-      "Requester wallet not found"
+      "failed-precondition",
+      p2pAllowed.reason || "This account cannot send P2P transfers"
     );
   }
 
-  const requesterWallet = requesterWalletQuery.docs[0];
-  const requesterBalance = requesterWallet.data().tokenBalance || 0;
+  // Validate payer's sub-account has sufficient balance
+  const balanceCheck = await validateSubAccountBalance(
+    payerId,
+    payerSubAccount.id,
+    request.amount
+  );
+  if (!balanceCheck.allowed) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      balanceCheck.reason || "Insufficient balance"
+    );
+  }
 
-  // Process payment
+  // Get or create requester's default sub-account
+  const { subAccountId: requesterSubAccountId } = await getOrCreateDefaultSubAccount(request.requesterId);
+
+  // Generate a unique transfer ID using the requestId for idempotency
+  const transferId = `legacy_request_${requestId}`;
+
+  // Process transfer through the Trust Ledger system using sub-accounts
+  const ledgerResult = await processP2PTransfer(
+    payerId,
+    request.requesterId,
+    request.amount,
+    transferId,
+    payerSubAccount.id, // Payer's sub-account to debit
+    requesterSubAccountId, // Requester's sub-account to credit
+    "Paid payment request",
+    {
+      requestId,
+      threadId: request.threadId,
+      source: "legacyPaymentRequest",
+    }
+  );
+
+  if (!ledgerResult.success) {
+    throw new functions.https.HttpsError(
+      "internal",
+      `Failed to process payment: ${ledgerResult.error}`
+    );
+  }
+
+  // Update request and related records
+  const now = admin.firestore.FieldValue.serverTimestamp();
+
   await db.runTransaction(async (transaction) => {
-    const now = admin.firestore.FieldValue.serverTimestamp();
-    const payerBalanceAfter = payerBalance - request.amount;
-    const requesterBalanceAfter = requesterBalance + request.amount;
-
-    // Update request status
+    // Update request status with ledger reference
     transaction.update(requestDoc.ref, {
       status: "paid",
       paidAt: now,
-    });
-
-    // Transfer tokens
-    transaction.update(payerWallet.ref, {
-      tokenBalance: admin.firestore.FieldValue.increment(-request.amount),
-      updatedAt: now,
-      version: admin.firestore.FieldValue.increment(1),
-    });
-
-    transaction.update(requesterWallet.ref, {
-      tokenBalance: admin.firestore.FieldValue.increment(request.amount),
-      updatedAt: now,
-      version: admin.firestore.FieldValue.increment(1),
-    });
-
-    // Create transaction records
-    const payerTxRef = db.collection("transactions").doc();
-    transaction.set(payerTxRef, {
-      id: payerTxRef.id,
-      walletId: payerWallet.id,
-      userId: payerId,
-      type: "p2pSend",
-      tokenAmount: -request.amount,
-      balanceAfter: payerBalanceAfter,
-      zarAmount: -request.amount * 0.01,
-      description: "Paid payment request",
-      status: "completed",
-      counterpartyId: request.requesterId,
-      metadata: { requestId },
-      createdAt: now,
-    });
-
-    const requesterTxRef = db.collection("transactions").doc();
-    transaction.set(requesterTxRef, {
-      id: requesterTxRef.id,
-      walletId: requesterWallet.id,
-      userId: request.requesterId,
-      type: "p2pReceive",
-      tokenAmount: request.amount,
-      balanceAfter: requesterBalanceAfter,
-      zarAmount: request.amount * 0.01,
-      description: "Received from payment request",
-      status: "completed",
-      counterpartyId: payerId,
-      metadata: { requestId },
-      createdAt: now,
+      ledgerJournalId: ledgerResult.journalId,
     });
 
     // Update linked chatMessage if exists
@@ -765,6 +706,7 @@ export const payRequest = functions.https.onCall(async (data, context) => {
         transaction.update(chatMsgQuery.docs[0].ref, {
           status: "paid",
           actionedAt: now,
+          ledgerJournalId: ledgerResult.journalId,
         });
       }
 
@@ -776,7 +718,11 @@ export const payRequest = functions.https.onCall(async (data, context) => {
     }
   });
 
-  return { success: true, amount: request.amount };
+  return {
+    success: true,
+    amount: request.amount,
+    ledgerJournalId: ledgerResult.journalId,
+  };
 });
 
 /**

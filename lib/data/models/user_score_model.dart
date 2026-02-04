@@ -22,6 +22,13 @@ class UserScoreModel with _$UserScoreModel {
     required DateTime periodStart,
     required DateTime periodEnd,
     required DateTime updatedAt,
+    // New scoring fields
+    @Default(0) int baseScore,
+    @Default(1.0) double streakMultiplier,
+    @Default(0) int assistScore,
+    @Default(0) int referralQualityScore,
+    @Default(0) int finalScore,
+    DateTime? firstCompletionAt,
   }) = _UserScoreModel;
 
   const UserScoreModel._();
@@ -30,6 +37,7 @@ class UserScoreModel with _$UserScoreModel {
     final periodStart = json['periodStart'];
     final periodEnd = json['periodEnd'];
     final updatedAt = json['updatedAt'];
+    final firstCompletionAt = json['firstCompletionAt'];
 
     return UserScoreModel(
       userId: json['userId'] as String,
@@ -52,6 +60,17 @@ class UserScoreModel with _$UserScoreModel {
       updatedAt: updatedAt is Timestamp
           ? updatedAt.toDate()
           : DateTime.parse(updatedAt as String),
+      // New scoring fields
+      baseScore: json['baseScore'] as int? ?? 0,
+      streakMultiplier: (json['streakMultiplier'] as num?)?.toDouble() ?? 1.0,
+      assistScore: json['assistScore'] as int? ?? 0,
+      referralQualityScore: json['referralQualityScore'] as int? ?? 0,
+      finalScore: json['finalScore'] as int? ?? 0,
+      firstCompletionAt: firstCompletionAt == null
+          ? null
+          : firstCompletionAt is Timestamp
+              ? firstCompletionAt.toDate()
+              : DateTime.parse(firstCompletionAt as String),
     );
   }
 
@@ -71,6 +90,14 @@ class UserScoreModel with _$UserScoreModel {
       'periodStart': Timestamp.fromDate(periodStart),
       'periodEnd': Timestamp.fromDate(periodEnd),
       'updatedAt': Timestamp.fromDate(updatedAt),
+      // New scoring fields
+      'baseScore': baseScore,
+      'streakMultiplier': streakMultiplier,
+      'assistScore': assistScore,
+      'referralQualityScore': referralQualityScore,
+      'finalScore': finalScore,
+      if (firstCompletionAt != null)
+        'firstCompletionAt': Timestamp.fromDate(firstCompletionAt!),
     };
   }
 
@@ -90,6 +117,13 @@ class UserScoreModel with _$UserScoreModel {
       periodStart: periodStart,
       periodEnd: periodEnd,
       updatedAt: updatedAt,
+      // New scoring fields
+      baseScore: baseScore,
+      streakMultiplier: streakMultiplier,
+      assistScore: assistScore,
+      referralQualityScore: referralQualityScore,
+      finalScore: finalScore,
+      firstCompletionAt: firstCompletionAt,
     );
   }
 
@@ -109,6 +143,13 @@ class UserScoreModel with _$UserScoreModel {
       periodStart: entity.periodStart,
       periodEnd: entity.periodEnd,
       updatedAt: entity.updatedAt,
+      // New scoring fields
+      baseScore: entity.baseScore,
+      streakMultiplier: entity.streakMultiplier,
+      assistScore: entity.assistScore,
+      referralQualityScore: entity.referralQualityScore,
+      finalScore: entity.finalScore,
+      firstCompletionAt: entity.firstCompletionAt,
     );
   }
 }

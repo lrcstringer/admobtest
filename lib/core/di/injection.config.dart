@@ -30,6 +30,7 @@ import '../../data/datasources/remote/device_remote_datasource.dart' as _i433;
 import '../../data/datasources/remote/earn_remote_datasource.dart' as _i520;
 import '../../data/datasources/remote/gamification_remote_datasource.dart'
     as _i749;
+import '../../data/datasources/remote/group_remote_datasource.dart' as _i42;
 import '../../data/datasources/remote/purchase_remote_datasource.dart' as _i267;
 import '../../data/datasources/remote/referral_remote_datasource.dart' as _i9;
 import '../../data/datasources/remote/user_remote_datasource.dart' as _i50;
@@ -39,6 +40,7 @@ import '../../data/repositories/chat_repository_impl.dart' as _i838;
 import '../../data/repositories/device_repository_impl.dart' as _i34;
 import '../../data/repositories/earn_repository_impl.dart' as _i965;
 import '../../data/repositories/gamification_repository_impl.dart' as _i500;
+import '../../data/repositories/group_repository_impl.dart' as _i654;
 import '../../data/repositories/purchase_repository_impl.dart' as _i1044;
 import '../../data/repositories/referral_repository_impl.dart' as _i904;
 import '../../data/repositories/user_repository_impl.dart' as _i790;
@@ -48,6 +50,7 @@ import '../../domain/repositories/chat_repository.dart' as _i1072;
 import '../../domain/repositories/device_repository.dart' as _i454;
 import '../../domain/repositories/earn_repository.dart' as _i805;
 import '../../domain/repositories/gamification_repository.dart' as _i1010;
+import '../../domain/repositories/group_repository.dart' as _i708;
 import '../../domain/repositories/purchase_repository.dart' as _i742;
 import '../../domain/repositories/referral_repository.dart' as _i633;
 import '../../domain/repositories/user_repository.dart' as _i271;
@@ -56,6 +59,7 @@ import '../../presentation/blocs/auth/auth_bloc.dart' as _i141;
 import '../../presentation/blocs/cashout/cashout_bloc.dart' as _i772;
 import '../../presentation/blocs/chat/chat_bloc.dart' as _i142;
 import '../../presentation/blocs/earn/earn_bloc.dart' as _i775;
+import '../../presentation/blocs/group/group_bloc.dart' as _i275;
 import '../../presentation/blocs/home/home_bloc.dart' as _i973;
 import '../../presentation/blocs/pot/pot_bloc.dart' as _i58;
 import '../../presentation/blocs/profile/profile_bloc.dart' as _i344;
@@ -266,6 +270,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i742.PurchaseRepository>(
       () => _i1044.PurchaseRepositoryImpl(gh<_i267.PurchaseRemoteDataSource>()),
     );
+    gh.lazySingleton<_i42.GroupRemoteDataSource>(
+      () => _i42.GroupRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i351.PlayIntegrityService>(),
+      ),
+    );
     gh.lazySingleton<_i720.StepUpAuthService>(
       () => _i720.StepUpAuthService(
         gh<_i309.DeviceCapabilityService>(),
@@ -302,6 +314,15 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i805.EarnRepository>(
       () => _i965.EarnRepositoryImpl(gh<_i520.EarnRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i708.GroupRepository>(
+      () => _i654.GroupRepositoryImpl(
+        gh<_i42.GroupRemoteDataSource>(),
+        gh<_i932.NetworkInfo>(),
+      ),
+    );
+    gh.factory<_i275.GroupBloc>(
+      () => _i275.GroupBloc(gh<_i708.GroupRepository>()),
     );
     gh.lazySingleton<_i727.RaspService>(
       () => _i727.RaspService(gh<_i141.AuthBloc>()),

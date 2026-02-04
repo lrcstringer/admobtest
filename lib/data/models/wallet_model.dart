@@ -25,6 +25,11 @@ class WalletModel with _$WalletModel {
     String? description,
     @Default(1) int version,
     required DateTime updatedAt,
+    // Streak tracking fields
+    @Default(0) int currentStreak,
+    @Default(0) int longestStreak,
+    DateTime? streakStartedAt,
+    DateTime? lastEarnedAt,
   }) = _WalletModel;
 
   const WalletModel._();
@@ -50,6 +55,11 @@ class WalletModel with _$WalletModel {
         description: description,
         version: version,
         updatedAt: updatedAt,
+        // Streak fields
+        currentStreak: currentStreak,
+        longestStreak: longestStreak,
+        streakStartedAt: streakStartedAt,
+        lastEarnedAt: lastEarnedAt,
       );
 
   factory WalletModel.fromEntity(Wallet wallet) => WalletModel(
@@ -70,6 +80,11 @@ class WalletModel with _$WalletModel {
         description: wallet.description,
         version: wallet.version,
         updatedAt: wallet.updatedAt,
+        // Streak fields
+        currentStreak: wallet.currentStreak,
+        longestStreak: wallet.longestStreak,
+        streakStartedAt: wallet.streakStartedAt,
+        lastEarnedAt: wallet.lastEarnedAt,
       );
 
   static WalletType _parseWalletType(String type) {

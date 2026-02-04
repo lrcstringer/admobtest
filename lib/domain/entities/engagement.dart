@@ -25,6 +25,11 @@ class Engagement with _$Engagement {
     required int attemptNumber,
     required DateTime createdAt,
     DateTime? updatedAt,
+    // Streak audit fields
+    /// What day of streak this completion was on
+    int? streakDayAtCompletion,
+    /// Multiplier applied at time of completion (1.0, 1.2, 1.35, or 1.5)
+    double? multiplierApplied,
   }) = _Engagement;
 
   const Engagement._();

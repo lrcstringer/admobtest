@@ -165,6 +165,9 @@ class EngagementModel with _$EngagementModel {
     required int attemptNumber,
     required DateTime createdAt,
     DateTime? updatedAt,
+    // Streak audit fields
+    int? streakDayAtCompletion,
+    double? multiplierApplied,
   }) = _EngagementModel;
 
   const EngagementModel._();
@@ -211,6 +214,9 @@ class EngagementModel with _$EngagementModel {
           : updatedAt is Timestamp
               ? updatedAt.toDate()
               : DateTime.parse(updatedAt as String),
+      // Streak audit fields
+      streakDayAtCompletion: json['streakDayAtCompletion'] as int?,
+      multiplierApplied: (json['multiplierApplied'] as num?)?.toDouble(),
     );
   }
 
@@ -232,6 +238,9 @@ class EngagementModel with _$EngagementModel {
       attemptNumber: attemptNumber,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      // Streak audit fields
+      streakDayAtCompletion: streakDayAtCompletion,
+      multiplierApplied: multiplierApplied,
     );
   }
 
@@ -256,6 +265,9 @@ class EngagementModel with _$EngagementModel {
       attemptNumber: entity.attemptNumber,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      // Streak audit fields
+      streakDayAtCompletion: entity.streakDayAtCompletion,
+      multiplierApplied: entity.multiplierApplied,
     );
   }
 
@@ -276,6 +288,10 @@ class EngagementModel with _$EngagementModel {
       'attemptNumber': attemptNumber,
       'createdAt': Timestamp.fromDate(createdAt),
       if (updatedAt != null) 'updatedAt': Timestamp.fromDate(updatedAt!),
+      // Streak audit fields
+      if (streakDayAtCompletion != null)
+        'streakDayAtCompletion': streakDayAtCompletion,
+      if (multiplierApplied != null) 'multiplierApplied': multiplierApplied,
     };
   }
 

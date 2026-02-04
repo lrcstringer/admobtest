@@ -622,7 +622,10 @@ mixin _$EngagementModel {
   String? get failureReason => throw _privateConstructorUsedError;
   int get attemptNumber => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime? get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt =>
+      throw _privateConstructorUsedError; // Streak audit fields
+  int? get streakDayAtCompletion => throw _privateConstructorUsedError;
+  double? get multiplierApplied => throw _privateConstructorUsedError;
 
   /// Create a copy of EngagementModel
   /// with the given fields replaced by the non-null parameter values.
@@ -655,6 +658,8 @@ abstract class $EngagementModelCopyWith<$Res> {
     int attemptNumber,
     DateTime createdAt,
     DateTime? updatedAt,
+    int? streakDayAtCompletion,
+    double? multiplierApplied,
   });
 
   $EngagementEvidenceModelCopyWith<$Res>? get evidence;
@@ -691,6 +696,8 @@ class _$EngagementModelCopyWithImpl<$Res, $Val extends EngagementModel>
     Object? attemptNumber = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
+    Object? streakDayAtCompletion = freezed,
+    Object? multiplierApplied = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -758,6 +765,14 @@ class _$EngagementModelCopyWithImpl<$Res, $Val extends EngagementModel>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            streakDayAtCompletion: freezed == streakDayAtCompletion
+                ? _value.streakDayAtCompletion
+                : streakDayAtCompletion // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            multiplierApplied: freezed == multiplierApplied
+                ? _value.multiplierApplied
+                : multiplierApplied // ignore: cast_nullable_to_non_nullable
+                      as double?,
           )
           as $Val,
     );
@@ -804,6 +819,8 @@ abstract class _$$EngagementModelImplCopyWith<$Res>
     int attemptNumber,
     DateTime createdAt,
     DateTime? updatedAt,
+    int? streakDayAtCompletion,
+    double? multiplierApplied,
   });
 
   @override
@@ -840,6 +857,8 @@ class __$$EngagementModelImplCopyWithImpl<$Res>
     Object? attemptNumber = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
+    Object? streakDayAtCompletion = freezed,
+    Object? multiplierApplied = freezed,
   }) {
     return _then(
       _$EngagementModelImpl(
@@ -907,6 +926,14 @@ class __$$EngagementModelImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        streakDayAtCompletion: freezed == streakDayAtCompletion
+            ? _value.streakDayAtCompletion
+            : streakDayAtCompletion // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        multiplierApplied: freezed == multiplierApplied
+            ? _value.multiplierApplied
+            : multiplierApplied // ignore: cast_nullable_to_non_nullable
+                  as double?,
       ),
     );
   }
@@ -932,6 +959,8 @@ class _$EngagementModelImpl extends _EngagementModel {
     required this.attemptNumber,
     required this.createdAt,
     this.updatedAt,
+    this.streakDayAtCompletion,
+    this.multiplierApplied,
   }) : _answers = answers,
        super._();
 
@@ -973,10 +1002,15 @@ class _$EngagementModelImpl extends _EngagementModel {
   final DateTime createdAt;
   @override
   final DateTime? updatedAt;
+  // Streak audit fields
+  @override
+  final int? streakDayAtCompletion;
+  @override
+  final double? multiplierApplied;
 
   @override
   String toString() {
-    return 'EngagementModel(id: $id, userId: $userId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'EngagementModel(id: $id, userId: $userId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied)';
   }
 
   @override
@@ -1014,7 +1048,11 @@ class _$EngagementModelImpl extends _EngagementModel {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.streakDayAtCompletion, streakDayAtCompletion) ||
+                other.streakDayAtCompletion == streakDayAtCompletion) &&
+            (identical(other.multiplierApplied, multiplierApplied) ||
+                other.multiplierApplied == multiplierApplied));
   }
 
   @override
@@ -1036,6 +1074,8 @@ class _$EngagementModelImpl extends _EngagementModel {
     attemptNumber,
     createdAt,
     updatedAt,
+    streakDayAtCompletion,
+    multiplierApplied,
   );
 
   /// Create a copy of EngagementModel
@@ -1068,6 +1108,8 @@ abstract class _EngagementModel extends EngagementModel {
     required final int attemptNumber,
     required final DateTime createdAt,
     final DateTime? updatedAt,
+    final int? streakDayAtCompletion,
+    final double? multiplierApplied,
   }) = _$EngagementModelImpl;
   const _EngagementModel._() : super._();
 
@@ -1102,7 +1144,11 @@ abstract class _EngagementModel extends EngagementModel {
   @override
   DateTime get createdAt;
   @override
-  DateTime? get updatedAt;
+  DateTime? get updatedAt; // Streak audit fields
+  @override
+  int? get streakDayAtCompletion;
+  @override
+  double? get multiplierApplied;
 
   /// Create a copy of EngagementModel
   /// with the given fields replaced by the non-null parameter values.

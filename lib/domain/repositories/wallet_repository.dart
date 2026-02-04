@@ -3,6 +3,8 @@ import '../../core/error/failures.dart';
 import '../entities/wallet.dart';
 import '../entities/transaction.dart';
 import '../entities/cashout.dart';
+import '../entities/ledger_account.dart';
+import '../entities/ledger_journal.dart';
 
 /// Wallet repository interface
 abstract class WalletRepository {
@@ -57,4 +59,22 @@ abstract class WalletRepository {
 
   /// Cancel pending cashout
   Future<Either<Failure, void>> cancelCashout(String cashoutId);
+
+  /// Get user's ledger account (Trust Ledger)
+  Future<Either<Failure, LedgerAccount>> getLedgerAccount();
+
+  /// Stream ledger account updates
+  Stream<Either<Failure, LedgerAccount>> watchLedgerAccount();
+
+  /// Get ledger balance (convenience method)
+  Future<Either<Failure, int>> getLedgerBalance();
+
+  /// Get ledger journals (Trust Ledger transaction history)
+  Future<Either<Failure, List<LedgerJournal>>> getLedgerJournals({
+    int? limit,
+    DateTime? startAfter,
+  });
+
+  /// Stream ledger journals
+  Stream<Either<Failure, List<LedgerJournal>>> watchLedgerJournals({int? limit});
 }

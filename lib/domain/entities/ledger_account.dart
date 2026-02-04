@@ -1,0 +1,61 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'ledger_account.freezed.dart';
+part 'ledger_account.g.dart';
+
+/// Account type in the Trust Ledger system
+enum LedgerAccountType {
+  system,   // iMali system accounts (treasury, referrals, operations)
+  pot,      // Daily and weekly pot accounts
+  user,     // Individual user wallet accounts
+  supplier, // Service providers (Vodacom, MTN, Eskom, etc.)
+  cashout,  // Pending cashout holding account
+}
+
+/// Account status
+enum LedgerAccountStatus {
+  active,
+  frozen,
+  closed,
+}
+
+/// Ledger account entity
+/// Represents an account in the Trust Ledger double-entry bookkeeping system
+@freezed
+class LedgerAccount with _$LedgerAccount {
+  const factory LedgerAccount({
+    required String id,
+    required LedgerAccountType type,
+    required String name,
+    String? ownerId,
+    required int balance,
+    @Default('TOKEN') String currency,
+    required LedgerAccountStatus status,
+    @Default({}) Map<String, dynamic> metadata,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    @Default(1) int version,
+  }) = _LedgerAccount;
+
+  const LedgerAccount._();
+
+  factory LedgerAccount.fromJson(Map<String, dynamic> json) =>
+      _$LedgerAccountFromJson(json);
+
+  /// Check if this is a user account
+  bool get isUserAccount => type == LedgerAccountType.user;
+
+  /// Check if account is active
+  bool get isActive => status == LedgerAccountStatus.active;
+
+  /// Get balance in ZAR (100 tokens = R1)
+  double get balanceZar => balance / 100;
+
+  /// Extract user ID from account ID (format: "user:userId")
+  String? get userId {
+    if (id.startsWith('user:')) {
+      return id.substring(5);
+    }
+    return null;
+  }
+}

@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "emalichat-d5a4c"
-  }
+  },
+  "targets": {
+    "emalichat-d5a4c": {
+      "hosting": {
+        "admin": [
+          "imalichat-admin"
+        ],
+        "client": [
+          "imalichat-client"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

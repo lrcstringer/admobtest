@@ -1,4 +1,50 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+/// JSON converter for Firestore Timestamp to DateTime
+class TimestampConverter implements JsonConverter<DateTime, dynamic> {
+  const TimestampConverter();
+
+  @override
+  DateTime fromJson(dynamic json) {
+    if (json is Timestamp) {
+      return json.toDate();
+    }
+    if (json is String) {
+      return DateTime.parse(json);
+    }
+    if (json is DateTime) {
+      return json;
+    }
+    throw ArgumentError('Cannot convert $json to DateTime');
+  }
+
+  @override
+  dynamic toJson(DateTime date) => date.toIso8601String();
+}
+
+/// JSON converter for nullable Firestore Timestamp to DateTime
+class NullableTimestampConverter implements JsonConverter<DateTime?, dynamic> {
+  const NullableTimestampConverter();
+
+  @override
+  DateTime? fromJson(dynamic json) {
+    if (json == null) return null;
+    if (json is Timestamp) {
+      return json.toDate();
+    }
+    if (json is String) {
+      return DateTime.parse(json);
+    }
+    if (json is DateTime) {
+      return json;
+    }
+    return null;
+  }
+
+  @override
+  dynamic toJson(DateTime? date) => date?.toIso8601String();
+}
 
 /// Converts all [Timestamp] values in a Firestore document map to ISO 8601
 /// strings so that freezed/json_serializable generated `fromJson` code

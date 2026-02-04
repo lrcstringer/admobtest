@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/entities/earn_thread.dart';
 import '../../blocs/earn/earn_bloc.dart';
+import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
@@ -47,6 +48,11 @@ class _EarnScreenState extends State<EarnScreen> {
             );
             context.read<EarnBloc>().add(const EarnEvent.clearError());
           }
+
+          // Refresh wallet ledger when engagement completes to show updated balance
+          if (state.engagementPhase == EngagementPhase.completed) {
+            context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+          }
         },
         builder: (context, state) {
           if (state.status == EarnStatus.loading && state.threads.isEmpty) {
@@ -64,6 +70,8 @@ class _EarnScreenState extends State<EarnScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildDailyProgressCard(context, state),
+                  AppSpacing.verticalMd,
+                  _buildTokenDistributionInfo(context),
                   AppSpacing.verticalXl,
                   _buildThreadsSection(context, state),
                 ],
@@ -143,6 +151,84 @@ class _EarnScreenState extends State<EarnScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTokenDistributionInfo(BuildContext context) {
+    return Container(
+      padding: AppSpacing.cardPadding,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppSpacing.borderRadiusMd,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 18,
+                color: AppColors.primary,
+              ),
+              AppSpacing.horizontalSm,
+              Text(
+                'How Your Earnings Are Distributed',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
+          AppSpacing.verticalMd,
+          _buildDistributionRow(context, '90%', 'Your Wallet', AppColors.success),
+          AppSpacing.verticalSm,
+          _buildDistributionRow(context, '5%', 'Daily Pot', AppColors.primary),
+          AppSpacing.verticalSm,
+          _buildDistributionRow(context, '5%', 'Weekly Pot', AppColors.secondary),
+          AppSpacing.verticalMd,
+          Text(
+            'Pot contributions give you chances to win bonus tokens in daily and weekly draws!',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDistributionRow(
+    BuildContext context,
+    String percentage,
+    String label,
+    Color color,
+  ) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        AppSpacing.horizontalSm,
+        Text(
+          percentage,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+        ),
+        AppSpacing.horizontalSm,
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ],
     );
   }
 
@@ -479,11 +565,10 @@ class EngagementHistorySheet extends StatelessWidget {
                             ),
                           ),
                           title: Text('Engagement #${engagement.id.substring(0, 8)}'),
-                          subtitle: Text(
-                            engagement.isComplete
-                                ? '+${engagement.tokensEarned ?? 0} tokens'
-                                : engagement.status.name,
-                          ),
+                          subtitle: engagement.isComplete
+                              ? _buildEarningsBreakdown(
+                                  context, engagement.tokensEarned ?? 0)
+                              : Text(engagement.status.name),
                           trailing: Text(
                             _formatDate(engagement.createdAt),
                             style: Theme.of(context)
@@ -501,6 +586,32 @@ class EngagementHistorySheet extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildEarningsBreakdown(BuildContext context, int totalTokens) {
+    // Calculate 90/5/5 split
+    final walletAmount = (totalTokens * 0.90).round();
+    final dailyPot = (totalTokens * 0.05).round();
+    final weeklyPot = totalTokens - walletAmount - dailyPot; // Remainder to weekly
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '+$walletAmount to wallet',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.success,
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+        Text(
+          '+$dailyPot daily pot, +$weeklyPot weekly pot',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: AppColors.textSecondary,
+              ),
+        ),
+      ],
     );
   }
 

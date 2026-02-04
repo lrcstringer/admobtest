@@ -6,12 +6,19 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
+import {
+  processPurchaseTransaction,
+  reverseJournal,
+  getDefaultSubAccount,
+  validateSubAccountBalance,
+  validatePurchaseAllowed,
+} from "./ledger";
 
 const db = admin.firestore();
 
 /**
  * Process a service purchase (airtime, data, electricity)
- * In a real app, this would integrate with a VAS provider API
+ * Creates purchase document, deducts wallet balance, calls VAS provider
  */
 export const processPurchase = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
@@ -21,87 +28,241 @@ export const processPurchase = functions.https.onCall(async (data, context) => {
   await requirePlayIntegrity(data, context, "processPurchase", "HIGH");
 
   const userId = context.auth.uid;
+  const { productId, recipientNumber } = data;
+
+  if (!productId) {
+    throw new functions.https.HttpsError("invalid-argument", "Product ID is required");
+  }
+
+  if (!recipientNumber) {
+    throw new functions.https.HttpsError("invalid-argument", "Recipient number is required");
+  }
+
+  // Get product details
+  const productDoc = await db.collection("serviceProducts").doc(productId).get();
+  if (!productDoc.exists) {
+    throw new functions.https.HttpsError("not-found", "Product not found");
+  }
+  const product = productDoc.data()!;
+
+  // Get provider details
+  const providerDoc = await db.collection("serviceProviders").doc(product.providerId).get();
+  if (!providerDoc.exists) {
+    throw new functions.https.HttpsError("not-found", "Provider not found");
+  }
+  const provider = providerDoc.data()!;
+
+  const tokenAmount = product.priceTokens || 0;
+  const zarAmount = product.priceZar || 0;
+  const purchaseCategory = provider.category || "airtime";
+
+  // Get user's default sub-account
+  const subAccount = await getDefaultSubAccount(userId);
+  if (!subAccount) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      "Account not found. Please complete setup first."
+    );
+  }
+
+  // Validate user's account type allows this purchase category
+  const purchaseAllowed = await validatePurchaseAllowed(
+    subAccount.accountTypeId,
+    purchaseCategory
+  );
+  if (!purchaseAllowed.allowed) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      purchaseAllowed.reason || `This account cannot purchase ${purchaseCategory}`
+    );
+  }
+
+  // Validate user's sub-account has sufficient balance
+  const balanceCheck = await validateSubAccountBalance(
+    userId,
+    subAccount.id,
+    tokenAmount
+  );
+  if (!balanceCheck.allowed) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      balanceCheck.reason || "Insufficient balance"
+    );
+  }
+
+  // Create purchase document first
+  const purchaseRef = db.collection("purchases").doc();
+
+  try {
+    // Create initial purchase record
+    await purchaseRef.set({
+      id: purchaseRef.id,
+      userId,
+      productId,
+      productCode: product.code || product.id,
+      productName: product.name,
+      providerId: product.providerId,
+      providerName: provider.name,
+      category: purchaseCategory,
+      tokenAmount,
+      zarAmount,
+      recipientNumber,
+      subAccountId: subAccount.id,
+      status: "processing",
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      processedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Process purchase through the Trust Ledger system
+    // This transfers tokens from user's sub-account to supplier's account
+    const ledgerResult = await processPurchaseTransaction(
+      userId,
+      product.providerId,
+      provider.name,
+      tokenAmount,
+      purchaseRef.id,
+      subAccount.id, // User's sub-account to debit
+      subAccount.accountTypeId, // For audit
+      {
+        productId,
+        productName: product.name,
+        recipientNumber,
+        zarAmount,
+        category: purchaseCategory,
+      }
+    );
+
+    if (!ledgerResult.success) {
+      throw new Error(ledgerResult.error || "Ledger transaction failed");
+    }
+
+    // Update purchase with ledger reference
+    await purchaseRef.update({
+      ledgerJournalId: ledgerResult.journalId,
+    });
+
+    // Simulate VAS provider API call
+    const purchaseData = {
+      category: provider.category || "airtime",
+      productName: product.name,
+      tokenAmount,
+      zarAmount,
+      recipientNumber,
+    };
+    const result = await simulateVasProviderCall(purchaseData);
+
+    if (result.success) {
+      // Update purchase as completed
+      await purchaseRef.update({
+        status: "completed",
+        voucherCode: result.voucherCode || null,
+        voucherPin: result.voucherPin || null,
+        reference: result.reference,
+        completedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      // Return full purchase data for the client
+      return {
+        id: purchaseRef.id,
+        userId,
+        productId,
+        productCode: product.code || product.id,
+        productName: product.name,
+        providerId: product.providerId,
+        providerName: provider.name,
+        category: provider.category || "airtime",
+        tokenAmount,
+        zarAmount,
+        recipientNumber,
+        status: "completed",
+        voucherCode: result.voucherCode || null,
+        voucherPin: result.voucherPin || null,
+        reference: result.reference,
+        ledgerJournalId: ledgerResult.journalId,
+        createdAt: new Date().toISOString(),
+        processedAt: new Date().toISOString(),
+        completedAt: new Date().toISOString(),
+      };
+    } else {
+      throw new Error(result.error || "Purchase failed");
+    }
+  } catch (error) {
+    // Handle failure - reverse ledger transaction if it was created
+    const purchaseSnap = await purchaseRef.get();
+    if (purchaseSnap.exists) {
+      const purchaseData = purchaseSnap.data()!;
+
+      // If ledger transaction exists, reverse it
+      if (purchaseData.ledgerJournalId) {
+        await reverseJournal(
+          purchaseData.ledgerJournalId,
+          `Purchase failed: ${error instanceof Error ? error.message : String(error)}`,
+          "system"
+        );
+      }
+
+      // Update purchase as failed
+      await purchaseRef.update({
+        status: "failed",
+        failureReason: String(error),
+        completedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new functions.https.HttpsError("internal", `Purchase failed: ${errorMessage}`);
+  }
+});
+
+/**
+ * Get purchase details by ID
+ */
+export const getPurchaseDetails = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+  }
+  requireAppCheck(context, "getPurchaseDetails");
+
+  const userId = context.auth.uid;
   const { purchaseId } = data;
 
   if (!purchaseId) {
     throw new functions.https.HttpsError("invalid-argument", "Purchase ID is required");
   }
 
-  // Get purchase document
-  const purchaseRef = db.collection("purchases").doc(purchaseId);
-  const purchaseDoc = await purchaseRef.get();
+  const purchaseDoc = await db.collection("purchases").doc(purchaseId).get();
 
   if (!purchaseDoc.exists) {
     throw new functions.https.HttpsError("not-found", "Purchase not found");
   }
 
-  const purchase = purchaseDoc.data();
+  const purchase = purchaseDoc.data()!;
 
-  if (purchase?.userId !== userId) {
-    throw new functions.https.HttpsError("permission-denied", "Not authorized to process this purchase");
+  if (purchase.userId !== userId) {
+    throw new functions.https.HttpsError("permission-denied", "Not authorized to view this purchase");
   }
 
-  if (purchase?.status !== "pending") {
-    throw new functions.https.HttpsError("failed-precondition", "Purchase is not in pending state");
-  }
-
-  try {
-    // Update status to processing
-    await purchaseRef.update({
-      status: "processing",
-      processedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    // Simulate VAS provider API call
-    // In production, this would call the actual provider API
-    const result = await simulateVasProviderCall(purchase);
-
-    if (result.success) {
-      // Update purchase as completed
-      await purchaseRef.update({
-        status: "completed",
-        voucherCode: result.voucherCode,
-        voucherPin: result.voucherPin,
-        reference: result.reference,
-        completedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-
-      // Update transaction status
-      const txQuery = await db.collection("transactions")
-        .where("referenceId", "==", purchaseId)
-        .where("referenceType", "==", "purchase")
-        .limit(1)
-        .get();
-
-      if (!txQuery.empty) {
-        await txQuery.docs[0].ref.update({
-          status: "completed",
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-      }
-
-      return {
-        success: true,
-        voucherCode: result.voucherCode,
-        voucherPin: result.voucherPin,
-        reference: result.reference,
-      };
-    } else {
-      throw new Error(result.error || "Purchase failed");
-    }
-  } catch (error) {
-    // Handle failure - refund tokens
-    await handlePurchaseFailure(purchaseRef, purchase, error);
-
-    throw new functions.https.HttpsError("internal", `Purchase failed: ${error}`);
-  }
+  return {
+    ...purchase,
+    createdAt: purchase.createdAt?.toDate?.()?.toISOString() || null,
+    processedAt: purchase.processedAt?.toDate?.()?.toISOString() || null,
+    completedAt: purchase.completedAt?.toDate?.()?.toISOString() || null,
+  };
 });
 
 /**
  * Simulate VAS provider API call
  * In production, replace with actual API integration
  */
-async function simulateVasProviderCall(purchase: FirebaseFirestore.DocumentData): Promise<{
+interface PurchaseRequest {
+  category: string;
+  productName: string;
+  tokenAmount: number;
+  zarAmount: number;
+  recipientNumber: string;
+}
+
+async function simulateVasProviderCall(purchase: PurchaseRequest): Promise<{
   success: boolean;
   voucherCode?: string;
   voucherPin?: string;
@@ -145,68 +306,6 @@ async function simulateVasProviderCall(purchase: FirebaseFirestore.DocumentData)
       error: "Provider unavailable. Please try again.",
     };
   }
-}
-
-/**
- * Handle purchase failure - refund tokens
- */
-async function handlePurchaseFailure(
-  purchaseRef: FirebaseFirestore.DocumentReference,
-  purchase: FirebaseFirestore.DocumentData,
-  error: unknown
-) {
-  await db.runTransaction(async (transaction) => {
-    // Update purchase as failed
-    transaction.update(purchaseRef, {
-      status: "failed",
-      failureReason: String(error),
-      completedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    // Refund tokens to wallet
-    const walletQuery = await db.collection("wallets")
-      .where("userId", "==", purchase.userId)
-      .limit(1)
-      .get();
-
-    if (!walletQuery.empty) {
-      const walletDoc = walletQuery.docs[0];
-      transaction.update(walletDoc.ref, {
-        tokenBalance: admin.firestore.FieldValue.increment(purchase.tokenAmount),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-
-      // Create refund transaction
-      const refundRef = db.collection("transactions").doc();
-      transaction.set(refundRef, {
-        id: refundRef.id,
-        walletId: walletDoc.id,
-        userId: purchase.userId,
-        type: "refund",
-        tokenAmount: purchase.tokenAmount,
-        zarAmount: purchase.zarAmount,
-        description: `Refund for failed purchase: ${purchase.productName}`,
-        status: "completed",
-        referenceId: purchaseRef.id,
-        referenceType: "purchase",
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-    }
-
-    // Update original transaction as failed
-    const txQuery = await db.collection("transactions")
-      .where("referenceId", "==", purchaseRef.id)
-      .where("referenceType", "==", "purchase")
-      .limit(1)
-      .get();
-
-    if (!txQuery.empty) {
-      transaction.update(txQuery.docs[0].ref, {
-        status: "failed",
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-    }
-  });
 }
 
 // Helper functions

@@ -54,8 +54,8 @@ export const exportUserData = functions
       }
 
       // ── Collections where user is referenced by field ──────────────
+      // Note: wallets collection deprecated - use ledgerAccounts
       const collections: [string, string, string][] = [
-        ["wallets", "userId", "wallet"],
         ["transactions", "userId", "transactions"],
         ["earnings", "userId", "earnings"],
         ["cashouts", "userId", "cashouts"],
@@ -85,6 +85,64 @@ export const exportUserData = functions
             ...doc.data(),
           }));
         }
+      }
+
+      // ── Engagement Stats (streak tracking) ───────────────────────────
+      const engagementStatsDoc = await db
+        .collection("userEngagementStats")
+        .doc(userId)
+        .get();
+
+      if (engagementStatsDoc.exists) {
+        exportData.engagementStats = {
+          id: engagementStatsDoc.id,
+          ...engagementStatsDoc.data(),
+        };
+      }
+
+      // ── Ledger Account and Sub-Accounts ──────────────────────────────
+      const ledgerAccountDoc = await db
+        .collection("ledgerAccounts")
+        .doc(userId)
+        .get();
+
+      if (ledgerAccountDoc.exists) {
+        const ledgerAccount: Record<string, unknown> = {
+          id: ledgerAccountDoc.id,
+          ...ledgerAccountDoc.data(),
+        };
+
+        // Get sub-accounts
+        const subAccountsSnap = await db
+          .collection("ledgerAccounts")
+          .doc(userId)
+          .collection("subAccounts")
+          .get();
+
+        if (!subAccountsSnap.empty) {
+          ledgerAccount.subAccounts = subAccountsSnap.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+        }
+
+        exportData.ledgerAccount = ledgerAccount;
+      }
+
+      // ── Daily Scores (score history) ─────────────────────────────────
+      const dailyScoresSnap = await db
+        .collection("users")
+        .doc(userId)
+        .collection("dailyScores")
+        .orderBy("date", "desc")
+        .limit(365) // Last year of scores
+        .get();
+
+      if (!dailyScoresSnap.empty) {
+        exportData.dailyScores = dailyScoresSnap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
       }
 
       // ── Leaderboard scores (new structure: leaderboards/{type}/scores) ──

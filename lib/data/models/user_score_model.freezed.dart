@@ -30,7 +30,14 @@ mixin _$UserScoreModel {
   int get longestStreak => throw _privateConstructorUsedError;
   DateTime get periodStart => throw _privateConstructorUsedError;
   DateTime get periodEnd => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt =>
+      throw _privateConstructorUsedError; // New scoring fields
+  int get baseScore => throw _privateConstructorUsedError;
+  double get streakMultiplier => throw _privateConstructorUsedError;
+  int get assistScore => throw _privateConstructorUsedError;
+  int get referralQualityScore => throw _privateConstructorUsedError;
+  int get finalScore => throw _privateConstructorUsedError;
+  DateTime? get firstCompletionAt => throw _privateConstructorUsedError;
 
   /// Create a copy of UserScoreModel
   /// with the given fields replaced by the non-null parameter values.
@@ -61,6 +68,12 @@ abstract class $UserScoreModelCopyWith<$Res> {
     DateTime periodStart,
     DateTime periodEnd,
     DateTime updatedAt,
+    int baseScore,
+    double streakMultiplier,
+    int assistScore,
+    int referralQualityScore,
+    int finalScore,
+    DateTime? firstCompletionAt,
   });
 }
 
@@ -93,6 +106,12 @@ class _$UserScoreModelCopyWithImpl<$Res, $Val extends UserScoreModel>
     Object? periodStart = null,
     Object? periodEnd = null,
     Object? updatedAt = null,
+    Object? baseScore = null,
+    Object? streakMultiplier = null,
+    Object? assistScore = null,
+    Object? referralQualityScore = null,
+    Object? finalScore = null,
+    Object? firstCompletionAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -152,6 +171,30 @@ class _$UserScoreModelCopyWithImpl<$Res, $Val extends UserScoreModel>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            baseScore: null == baseScore
+                ? _value.baseScore
+                : baseScore // ignore: cast_nullable_to_non_nullable
+                      as int,
+            streakMultiplier: null == streakMultiplier
+                ? _value.streakMultiplier
+                : streakMultiplier // ignore: cast_nullable_to_non_nullable
+                      as double,
+            assistScore: null == assistScore
+                ? _value.assistScore
+                : assistScore // ignore: cast_nullable_to_non_nullable
+                      as int,
+            referralQualityScore: null == referralQualityScore
+                ? _value.referralQualityScore
+                : referralQualityScore // ignore: cast_nullable_to_non_nullable
+                      as int,
+            finalScore: null == finalScore
+                ? _value.finalScore
+                : finalScore // ignore: cast_nullable_to_non_nullable
+                      as int,
+            firstCompletionAt: freezed == firstCompletionAt
+                ? _value.firstCompletionAt
+                : firstCompletionAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -182,6 +225,12 @@ abstract class _$$UserScoreModelImplCopyWith<$Res>
     DateTime periodStart,
     DateTime periodEnd,
     DateTime updatedAt,
+    int baseScore,
+    double streakMultiplier,
+    int assistScore,
+    int referralQualityScore,
+    int finalScore,
+    DateTime? firstCompletionAt,
   });
 }
 
@@ -213,6 +262,12 @@ class __$$UserScoreModelImplCopyWithImpl<$Res>
     Object? periodStart = null,
     Object? periodEnd = null,
     Object? updatedAt = null,
+    Object? baseScore = null,
+    Object? streakMultiplier = null,
+    Object? assistScore = null,
+    Object? referralQualityScore = null,
+    Object? finalScore = null,
+    Object? firstCompletionAt = freezed,
   }) {
     return _then(
       _$UserScoreModelImpl(
@@ -272,6 +327,30 @@ class __$$UserScoreModelImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        baseScore: null == baseScore
+            ? _value.baseScore
+            : baseScore // ignore: cast_nullable_to_non_nullable
+                  as int,
+        streakMultiplier: null == streakMultiplier
+            ? _value.streakMultiplier
+            : streakMultiplier // ignore: cast_nullable_to_non_nullable
+                  as double,
+        assistScore: null == assistScore
+            ? _value.assistScore
+            : assistScore // ignore: cast_nullable_to_non_nullable
+                  as int,
+        referralQualityScore: null == referralQualityScore
+            ? _value.referralQualityScore
+            : referralQualityScore // ignore: cast_nullable_to_non_nullable
+                  as int,
+        finalScore: null == finalScore
+            ? _value.finalScore
+            : finalScore // ignore: cast_nullable_to_non_nullable
+                  as int,
+        firstCompletionAt: freezed == firstCompletionAt
+            ? _value.firstCompletionAt
+            : firstCompletionAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -295,6 +374,12 @@ class _$UserScoreModelImpl extends _UserScoreModel {
     required this.periodStart,
     required this.periodEnd,
     required this.updatedAt,
+    this.baseScore = 0,
+    this.streakMultiplier = 1.0,
+    this.assistScore = 0,
+    this.referralQualityScore = 0,
+    this.finalScore = 0,
+    this.firstCompletionAt,
   }) : super._();
 
   @override
@@ -325,10 +410,28 @@ class _$UserScoreModelImpl extends _UserScoreModel {
   final DateTime periodEnd;
   @override
   final DateTime updatedAt;
+  // New scoring fields
+  @override
+  @JsonKey()
+  final int baseScore;
+  @override
+  @JsonKey()
+  final double streakMultiplier;
+  @override
+  @JsonKey()
+  final int assistScore;
+  @override
+  @JsonKey()
+  final int referralQualityScore;
+  @override
+  @JsonKey()
+  final int finalScore;
+  @override
+  final DateTime? firstCompletionAt;
 
   @override
   String toString() {
-    return 'UserScoreModel(userId: $userId, displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, totalTokensEarned: $totalTokensEarned, rank: $rank, previousRank: $previousRank, engagementsCompleted: $engagementsCompleted, currentStreak: $currentStreak, longestStreak: $longestStreak, periodStart: $periodStart, periodEnd: $periodEnd, updatedAt: $updatedAt)';
+    return 'UserScoreModel(userId: $userId, displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, totalTokensEarned: $totalTokensEarned, rank: $rank, previousRank: $previousRank, engagementsCompleted: $engagementsCompleted, currentStreak: $currentStreak, longestStreak: $longestStreak, periodStart: $periodStart, periodEnd: $periodEnd, updatedAt: $updatedAt, baseScore: $baseScore, streakMultiplier: $streakMultiplier, assistScore: $assistScore, referralQualityScore: $referralQualityScore, finalScore: $finalScore, firstCompletionAt: $firstCompletionAt)';
   }
 
   @override
@@ -361,11 +464,23 @@ class _$UserScoreModelImpl extends _UserScoreModel {
             (identical(other.periodEnd, periodEnd) ||
                 other.periodEnd == periodEnd) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.baseScore, baseScore) ||
+                other.baseScore == baseScore) &&
+            (identical(other.streakMultiplier, streakMultiplier) ||
+                other.streakMultiplier == streakMultiplier) &&
+            (identical(other.assistScore, assistScore) ||
+                other.assistScore == assistScore) &&
+            (identical(other.referralQualityScore, referralQualityScore) ||
+                other.referralQualityScore == referralQualityScore) &&
+            (identical(other.finalScore, finalScore) ||
+                other.finalScore == finalScore) &&
+            (identical(other.firstCompletionAt, firstCompletionAt) ||
+                other.firstCompletionAt == firstCompletionAt));
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     userId,
     displayName,
@@ -381,7 +496,13 @@ class _$UserScoreModelImpl extends _UserScoreModel {
     periodStart,
     periodEnd,
     updatedAt,
-  );
+    baseScore,
+    streakMultiplier,
+    assistScore,
+    referralQualityScore,
+    finalScore,
+    firstCompletionAt,
+  ]);
 
   /// Create a copy of UserScoreModel
   /// with the given fields replaced by the non-null parameter values.
@@ -411,6 +532,12 @@ abstract class _UserScoreModel extends UserScoreModel {
     required final DateTime periodStart,
     required final DateTime periodEnd,
     required final DateTime updatedAt,
+    final int baseScore,
+    final double streakMultiplier,
+    final int assistScore,
+    final int referralQualityScore,
+    final int finalScore,
+    final DateTime? firstCompletionAt,
   }) = _$UserScoreModelImpl;
   const _UserScoreModel._() : super._();
 
@@ -441,7 +568,19 @@ abstract class _UserScoreModel extends UserScoreModel {
   @override
   DateTime get periodEnd;
   @override
-  DateTime get updatedAt;
+  DateTime get updatedAt; // New scoring fields
+  @override
+  int get baseScore;
+  @override
+  double get streakMultiplier;
+  @override
+  int get assistScore;
+  @override
+  int get referralQualityScore;
+  @override
+  int get finalScore;
+  @override
+  DateTime? get firstCompletionAt;
 
   /// Create a copy of UserScoreModel
   /// with the given fields replaced by the non-null parameter values.

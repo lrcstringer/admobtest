@@ -9,141 +9,33 @@ import * as admin from "firebase-admin";
 const db = admin.firestore();
 
 /**
- * Create wallet when new user is created
+ * Initialize user data when new user is created
+ *
+ * NOTE: Ledger account, sub-account, and engagement stats are now created
+ * by the generateReferralCode trigger in referrals.ts to ensure atomicity.
+ *
+ * This trigger only handles non-financial initialization that doesn't need
+ * the full ledger setup.
  */
 export const onUserCreated = functions.firestore
   .document("users/{userId}")
   .onCreate(async (snap, context) => {
     const userId = context.params.userId;
-    const userData = snap.data();
+    // const userData = snap.data();
 
-    // Create wallet for new user
-    const walletRef = db.collection("wallets").doc();
-    await walletRef.set({
-      id: walletRef.id,
-      userId: userId,
-      type: "main",
-      name: "Main Wallet",
-      tokenBalance: 0,
-      pendingBalance: 0,
-      lifetimeEarned: 0,
-      lifetimeWithdrawn: 0,
-      todayEarned: 0,
-      pendingWithdrawal: 0,
-      lastEarnedAt: null,
-      canWithdraw: true,
-      version: 1,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    // Ledger account with default sub-account is created by generateReferralCode
+    // Engagement stats are created by generateReferralCode
+    // Referral code is created by generateReferralCode
 
-    console.log(`Created wallet ${walletRef.id} for user ${userId}`);
-
-    // Initialize leaderboard entry in new structure (leaderboards/{type}/scores)
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const weekStart = new Date(today);
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1); // Monday
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 7);
-
-    const displayName = userData.displayName ||
-      userData.profile?.displayName || "User";
-    const username = userData.profile?.username || null;
-    const avatarUrl = userData.profile?.avatarUrl || null;
-
-    const baseScoreData = {
-      userId: userId,
-      displayName: displayName,
-      username: username,
-      avatarUrl: avatarUrl,
-      avatarColor: null,
-      totalTokensEarned: 0,
-      rank: 0,
-      engagementsCompleted: 0,
-      currentStreak: 0,
-      longestStreak: 0,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    };
-
-    // Create entries in all three leaderboards
-    const batch = db.batch();
-
-    // Daily leaderboard
-    batch.set(
-      db.collection("leaderboards").doc("daily").collection("scores").doc(userId),
-      {
-        ...baseScoreData,
-        periodStart: admin.firestore.Timestamp.fromDate(today),
-        periodEnd: admin.firestore.Timestamp.fromDate(tomorrow),
-      }
-    );
-
-    // Weekly leaderboard
-    batch.set(
-      db.collection("leaderboards").doc("weekly").collection("scores").doc(userId),
-      {
-        ...baseScoreData,
-        periodStart: admin.firestore.Timestamp.fromDate(weekStart),
-        periodEnd: admin.firestore.Timestamp.fromDate(weekEnd),
-      }
-    );
-
-    // All-time leaderboard
-    batch.set(
-      db.collection("leaderboards").doc("allTime").collection("scores").doc(userId),
-      {
-        ...baseScoreData,
-        periodStart: admin.firestore.Timestamp.fromDate(new Date(0)),
-        periodEnd: admin.firestore.Timestamp.fromDate(now),
-      }
-    );
-
-    await batch.commit();
+    console.log(`User ${userId} created. Ledger setup handled by generateReferralCode trigger.`);
 
     return null;
   });
 
-/**
- * Update leaderboard when wallet balance changes
- */
-export const onWalletUpdated = functions.firestore
-  .document("wallets/{walletId}")
-  .onUpdate(async (change, context) => {
-    const before = change.before.data();
-    const after = change.after.data();
-
-    // Only update if lifetime earned changed
-    if (before.lifetimeEarned === after.lifetimeEarned) {
-      return null;
-    }
-
-    const userId = after.userId;
-    const now = admin.firestore.FieldValue.serverTimestamp();
-
-    // Update all-time leaderboard score (daily/weekly updated by leaderboard.ts)
-    try {
-      await db
-        .collection("leaderboards")
-        .doc("allTime")
-        .collection("scores")
-        .doc(userId)
-        .update({
-          totalTokensEarned: after.lifetimeEarned,
-          currentStreak: after.currentStreak || 0,
-          longestStreak: after.longestStreak || 0,
-          updatedAt: now,
-        });
-    } catch (e) {
-      // Document might not exist yet, create it
-      console.log(`Creating allTime leaderboard entry for user ${userId}`);
-    }
-
-    return null;
-  });
+// NOTE: onWalletUpdated trigger removed
+// The wallets collection is deprecated. Balances are now tracked via:
+// - ledgerAccounts/{userId}/subAccounts/{subAccountId}
+// - Leaderboard scores are now calculated from dailyScores at pot draw time
 
 /**
  * Update user display name in leaderboard when profile changes
@@ -305,7 +197,6 @@ export const onUserDeleted = functions.firestore
 
     // Collections to clean up (by userId field)
     const collectionsToClean = [
-      "wallets",
       "referralCodes",
       "referralStats",
       "engagements",
@@ -338,7 +229,45 @@ export const onUserDeleted = functions.firestore
     batch.delete(db.collection("referralStats").doc(userId));
     batch.delete(db.collection("referralCodes").doc(userId));
 
+    // Delete userEngagementStats document
+    batch.delete(db.collection("userEngagementStats").doc(userId));
+
     await batch.commit();
+
+    // Delete ledgerAccounts subcollections (must be done separately)
+    // Delete subAccounts subcollection first
+    const subAccountsSnap = await db
+      .collection("ledgerAccounts")
+      .doc(userId)
+      .collection("subAccounts")
+      .get();
+
+    if (!subAccountsSnap.empty) {
+      const subAccountBatch = db.batch();
+      subAccountsSnap.docs.forEach((doc) => {
+        subAccountBatch.delete(doc.ref);
+      });
+      await subAccountBatch.commit();
+    }
+
+    // Delete the ledgerAccount document
+    await db.collection("ledgerAccounts").doc(userId).delete();
+
+    // Delete dailyScores subcollection
+    const dailyScoresSnap = await db
+      .collection("users")
+      .doc(userId)
+      .collection("dailyScores")
+      .get();
+
+    if (!dailyScoresSnap.empty) {
+      const dailyScoresBatch = db.batch();
+      dailyScoresSnap.docs.forEach((doc) => {
+        dailyScoresBatch.delete(doc.ref);
+      });
+      await dailyScoresBatch.commit();
+    }
+
     console.log(`Cleaned up data for deleted user ${userId}`);
 
     return null;

@@ -24,6 +24,14 @@ _$WalletImpl _$$WalletImplFromJson(Map<String, dynamic> json) => _$WalletImpl(
   description: json['description'] as String?,
   version: (json['version'] as num?)?.toInt() ?? 1,
   updatedAt: DateTime.parse(json['updatedAt'] as String),
+  currentStreak: (json['currentStreak'] as num?)?.toInt() ?? 0,
+  longestStreak: (json['longestStreak'] as num?)?.toInt() ?? 0,
+  streakStartedAt: json['streakStartedAt'] == null
+      ? null
+      : DateTime.parse(json['streakStartedAt'] as String),
+  lastEarnedAt: json['lastEarnedAt'] == null
+      ? null
+      : DateTime.parse(json['lastEarnedAt'] as String),
 );
 
 Map<String, dynamic> _$$WalletImplToJson(_$WalletImpl instance) =>
@@ -45,6 +53,10 @@ Map<String, dynamic> _$$WalletImplToJson(_$WalletImpl instance) =>
       'description': instance.description,
       'version': instance.version,
       'updatedAt': instance.updatedAt.toIso8601String(),
+      'currentStreak': instance.currentStreak,
+      'longestStreak': instance.longestStreak,
+      'streakStartedAt': instance.streakStartedAt?.toIso8601String(),
+      'lastEarnedAt': instance.lastEarnedAt?.toIso8601String(),
     };
 
 const _$WalletTypeEnumMap = {

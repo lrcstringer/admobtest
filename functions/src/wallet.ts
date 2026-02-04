@@ -1,110 +1,27 @@
 /**
  * Wallet-related Cloud Functions
+ *
+ * NOTE: "Wallet" is UI terminology only. Backend uses the Trust Ledger system
+ * with sub-accounts for actual balance tracking.
+ *
+ * Legacy processEarning function removed - earnings are now processed via
+ * engagement.ts → processEngagement which uses the ledger system.
  */
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
+import {
+  initiateCashout,
+  completeCashout,
+  failCashout,
+  LedgerConfig,
+  getDefaultSubAccount,
+  validateSubAccountAllows,
+  validateSubAccountBalance,
+} from "./ledger";
 
 const db = admin.firestore();
-
-/**
- * Process token earnings from ads/surveys
- * Called when user completes an earning activity
- */
-export const processEarning = functions.https.onCall(async (data, context) => {
-  // Verify authentication
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
-  }
-  requireAppCheck(context, "processEarning");
-  await requirePlayIntegrity(data, context, "processEarning", "HIGH");
-
-  const userId = context.auth.uid;
-  const { type, amount, source, metadata } = data;
-
-  // Validate input
-  if (!type || !amount || amount <= 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Invalid earning data");
-  }
-
-  // Check daily cap (500 tokens per day)
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const earningsToday = await db.collection("transactions")
-    .where("userId", "==", userId)
-    .where("type", "==", "earn")
-    .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(today))
-    .get();
-
-  const totalEarnedToday = earningsToday.docs.reduce((sum, doc) => {
-    return sum + (doc.data().tokenAmount || 0);
-  }, 0);
-
-  if (totalEarnedToday + amount > 500) {
-    throw new functions.https.HttpsError("resource-exhausted", "Daily earning cap reached");
-  }
-
-  // Get user's wallet
-  const walletQuery = await db.collection("wallets")
-    .where("userId", "==", userId)
-    .limit(1)
-    .get();
-
-  if (walletQuery.empty) {
-    throw new functions.https.HttpsError("not-found", "Wallet not found");
-  }
-
-  const walletDoc = walletQuery.docs[0];
-  const walletId = walletDoc.id;
-
-  // Use transaction for atomicity
-  await db.runTransaction(async (transaction) => {
-    // Read current wallet data inside transaction for accurate balance
-    const currentWallet = await transaction.get(walletDoc.ref);
-    const currentBalance = currentWallet.data()?.tokenBalance || 0;
-    const balanceAfter = currentBalance + amount;
-
-    // Update wallet balance
-    transaction.update(walletDoc.ref, {
-      tokenBalance: admin.firestore.FieldValue.increment(amount),
-      lifetimeEarned: admin.firestore.FieldValue.increment(amount),
-      todayEarned: admin.firestore.FieldValue.increment(amount),
-      lastEarnedAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      version: admin.firestore.FieldValue.increment(1),
-    });
-
-    // Create transaction record
-    const transactionRef = db.collection("transactions").doc();
-    transaction.set(transactionRef, {
-      id: transactionRef.id,
-      walletId: walletId,
-      userId: userId,
-      type: "earn",
-      subType: type,
-      tokenAmount: amount,
-      balanceAfter: balanceAfter,
-      zarAmount: amount * 0.01,
-      description: `Earned from ${source || type}`,
-      status: "completed",
-      metadata: metadata || {},
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    // Update user's pot entries for today
-    const potEntryRef = db.collection("potEntries").doc(`${userId}_${today.toISOString().split("T")[0]}`);
-    transaction.set(potEntryRef, {
-      userId: userId,
-      date: today.toISOString().split("T")[0],
-      entries: admin.firestore.FieldValue.increment(amount),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    }, { merge: true });
-  });
-
-  return { success: true, amount };
-});
 
 /**
  * Process cashout request
@@ -119,98 +36,245 @@ export const processCashout = functions.https.onCall(async (data, context) => {
   const userId = context.auth.uid;
   const { amount, bankDetails } = data;
 
-  // Validate minimum cashout (5000 tokens = R50)
-  if (amount < 5000) {
-    throw new functions.https.HttpsError("invalid-argument", "Minimum cashout is 5000 tokens (R50)");
+  // Validate minimum cashout (from ledger config)
+  if (amount < LedgerConfig.MIN_CASHOUT_AMOUNT) {
+    throw new functions.https.HttpsError(
+      "invalid-argument",
+      `Minimum cashout is ${LedgerConfig.MIN_CASHOUT_AMOUNT} tokens (R${LedgerConfig.MIN_CASHOUT_AMOUNT / LedgerConfig.TOKENS_PER_ZAR})`
+    );
   }
 
-  // Get user's wallet
-  const walletQuery = await db.collection("wallets")
-    .where("userId", "==", userId)
-    .limit(1)
-    .get();
-
-  if (walletQuery.empty) {
-    throw new functions.https.HttpsError("not-found", "Wallet not found");
+  // Get user's default sub-account
+  const subAccount = await getDefaultSubAccount(userId);
+  if (!subAccount) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      "Account not found. Please complete setup first."
+    );
   }
 
-  const walletDoc = walletQuery.docs[0];
-  const walletData = walletDoc.data();
-
-  // Check balance
-  if (walletData.tokenBalance < amount) {
-    throw new functions.https.HttpsError("failed-precondition", "Insufficient balance");
+  // Validate user's account type allows cashout
+  const cashoutAllowed = await validateSubAccountAllows(
+    subAccount.accountTypeId,
+    "cashout"
+  );
+  if (!cashoutAllowed.allowed) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      cashoutAllowed.reason || "This account cannot perform cashouts"
+    );
   }
 
-  const zarAmount = amount * 0.01;
+  // Validate user's sub-account has sufficient balance
+  const balanceCheck = await validateSubAccountBalance(
+    userId,
+    subAccount.id,
+    amount
+  );
+  if (!balanceCheck.allowed) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      balanceCheck.reason || "Insufficient balance"
+    );
+  }
 
-  // Create cashout request
-  await db.runTransaction(async (transaction) => {
-    // Read current wallet data inside transaction for accurate balance
-    const currentWallet = await transaction.get(walletDoc.ref);
-    const currentBalance = currentWallet.data()?.tokenBalance || 0;
-    const balanceAfter = currentBalance - amount;
+  const zarAmount = amount / LedgerConfig.TOKENS_PER_ZAR;
 
-    // Deduct from wallet
-    transaction.update(walletDoc.ref, {
-      tokenBalance: admin.firestore.FieldValue.increment(-amount),
-      pendingWithdrawal: admin.firestore.FieldValue.increment(amount),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      version: admin.firestore.FieldValue.increment(1),
-    });
-
-    // Create cashout record
-    const cashoutRef = db.collection("cashouts").doc();
-    transaction.set(cashoutRef, {
-      id: cashoutRef.id,
-      walletId: walletDoc.id,
-      userId: userId,
-      tokenAmount: amount,
-      zarAmount: zarAmount,
-      status: "pending",
-      bankDetails: bankDetails,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    // Create transaction record
-    const transactionRef = db.collection("transactions").doc();
-    transaction.set(transactionRef, {
-      id: transactionRef.id,
-      walletId: walletDoc.id,
-      userId: userId,
-      type: "cashout",
-      tokenAmount: -amount,
-      balanceAfter: balanceAfter,
-      zarAmount: -zarAmount,
-      description: "Cashout request",
-      status: "pending",
-      referenceId: cashoutRef.id,
-      referenceType: "cashout",
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+  // Create cashout record first
+  const cashoutRef = db.collection("cashouts").doc();
+  await cashoutRef.set({
+    id: cashoutRef.id,
+    userId: userId,
+    tokenAmount: amount,
+    zarAmount: zarAmount,
+    subAccountId: subAccount.id,
+    status: "processing",
+    bankDetails: bankDetails,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  return { success: true, zarAmount };
+  // Process cashout through the Trust Ledger system
+  // This moves tokens from user's sub-account to cashout:pending
+  const ledgerResult = await initiateCashout(
+    userId,
+    amount,
+    cashoutRef.id,
+    subAccount.id, // User's sub-account to debit
+    {
+      bankDetails,
+      zarAmount,
+    }
+  );
+
+  if (!ledgerResult.success) {
+    // Update cashout as failed
+    await cashoutRef.update({
+      status: "failed",
+      failureReason: ledgerResult.error,
+    });
+    throw new functions.https.HttpsError(
+      "internal",
+      `Failed to initiate cashout: ${ledgerResult.error}`
+    );
+  }
+
+  // Update cashout with ledger reference
+  await cashoutRef.update({
+    status: "pending",
+    ledgerJournalId: ledgerResult.journalId,
+  });
+
+  return {
+    success: true,
+    cashoutId: cashoutRef.id,
+    zarAmount,
+    ledgerJournalId: ledgerResult.journalId,
+  };
 });
 
 /**
- * Reset daily earnings at midnight
+ * Complete a pending cashout (called after bank transfer is confirmed)
  */
-export const resetDailyEarnings = functions.pubsub
-  .schedule("0 0 * * *")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
-    const batch = db.batch();
-    const walletsSnapshot = await db.collection("wallets").get();
+export const completeCashoutRequest = functions.https.onCall(async (data, context) => {
+  // This should be called by an admin or automated system
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+  }
+  requireAppCheck(context, "completeCashoutRequest");
 
-    walletsSnapshot.docs.forEach((doc) => {
-      batch.update(doc.ref, {
-        todayEarned: 0,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-    });
+  const { cashoutId, adminNotes } = data;
 
-    await batch.commit();
-    console.log(`Reset daily earnings for ${walletsSnapshot.size} wallets`);
-    return null;
+  if (!cashoutId) {
+    throw new functions.https.HttpsError("invalid-argument", "Cashout ID is required");
+  }
+
+  // Get cashout record
+  const cashoutDoc = await db.collection("cashouts").doc(cashoutId).get();
+  if (!cashoutDoc.exists) {
+    throw new functions.https.HttpsError("not-found", "Cashout not found");
+  }
+
+  const cashoutData = cashoutDoc.data()!;
+
+  if (cashoutData.status !== "pending") {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      `Cashout is not pending (status: ${cashoutData.status})`
+    );
+  }
+
+  // Complete cashout through ledger (moves from pending to treasury - burns tokens)
+  const ledgerResult = await completeCashout(
+    cashoutId,
+    cashoutData.tokenAmount,
+    {
+      completedBy: context.auth.uid,
+      adminNotes,
+    }
+  );
+
+  if (!ledgerResult.success) {
+    throw new functions.https.HttpsError(
+      "internal",
+      `Failed to complete cashout: ${ledgerResult.error}`
+    );
+  }
+
+  // Update cashout record
+  await cashoutDoc.ref.update({
+    status: "completed",
+    completedAt: admin.firestore.FieldValue.serverTimestamp(),
+    completedBy: context.auth.uid,
+    completionLedgerJournalId: ledgerResult.journalId,
+    adminNotes: adminNotes || null,
   });
+
+  return {
+    success: true,
+    ledgerJournalId: ledgerResult.journalId,
+  };
+});
+
+/**
+ * Fail/refund a cashout (if bank transfer fails)
+ */
+export const failCashoutRequest = functions.https.onCall(async (data, context) => {
+  // This should be called by an admin or automated system
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+  }
+  requireAppCheck(context, "failCashoutRequest");
+
+  const { cashoutId, reason } = data;
+
+  if (!cashoutId || !reason) {
+    throw new functions.https.HttpsError("invalid-argument", "Cashout ID and reason are required");
+  }
+
+  // Get cashout record
+  const cashoutDoc = await db.collection("cashouts").doc(cashoutId).get();
+  if (!cashoutDoc.exists) {
+    throw new functions.https.HttpsError("not-found", "Cashout not found");
+  }
+
+  const cashoutData = cashoutDoc.data()!;
+
+  if (cashoutData.status !== "pending") {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      `Cashout is not pending (status: ${cashoutData.status})`
+    );
+  }
+
+  // Fail/refund cashout through ledger (moves from pending back to user's sub-account)
+  // Get the subAccountId from the cashout record (if not stored, use default)
+  let subAccountId = cashoutData.subAccountId;
+  if (!subAccountId) {
+    // Fallback: get user's default sub-account
+    const subAccount = await getDefaultSubAccount(cashoutData.userId);
+    if (!subAccount) {
+      throw new functions.https.HttpsError(
+        "internal",
+        "Could not find sub-account for refund"
+      );
+    }
+    subAccountId = subAccount.id;
+  }
+
+  const ledgerResult = await failCashout(
+    cashoutData.userId,
+    cashoutId,
+    cashoutData.tokenAmount,
+    reason,
+    subAccountId, // User's sub-account to credit with refund
+    {
+      failedBy: context.auth.uid,
+    }
+  );
+
+  if (!ledgerResult.success) {
+    throw new functions.https.HttpsError(
+      "internal",
+      `Failed to refund cashout: ${ledgerResult.error}`
+    );
+  }
+
+  // Update cashout record
+  await cashoutDoc.ref.update({
+    status: "failed",
+    failureReason: reason,
+    failedAt: admin.firestore.FieldValue.serverTimestamp(),
+    failedBy: context.auth.uid,
+    refundLedgerJournalId: ledgerResult.journalId,
+  });
+
+  return {
+    success: true,
+    ledgerJournalId: ledgerResult.journalId,
+  };
+});
+
+// NOTE: resetDailyEarnings removed
+// The wallets collection is deprecated. Daily earning caps are now tracked via:
+// - userEngagementStats/{userId} document (tokensEarnedToday field)
+// - Daily scores in users/{userId}/dailyScores/{date}

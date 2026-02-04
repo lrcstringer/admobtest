@@ -85,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildHeader(context, user, potState),
+                              _buildHeader(context, user, walletState),
                               const SizedBox(height: 24),
                               _buildTokenBalanceCard(context, walletState),
                               const SizedBox(height: 24),
@@ -112,8 +112,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeader(
-      BuildContext context, dynamic user, PotState potState) {
-    final streak = potState.currentUserScore?.currentStreak ?? 0;
+      BuildContext context, dynamic user, WalletState walletState) {
+    // Use wallet's streak as the authoritative source (persists across pot periods)
+    final streak = walletState.wallet?.currentStreak ?? 0;
     final avatarUrl = user?.profile?.avatarUrl as String?;
 
     return Row(

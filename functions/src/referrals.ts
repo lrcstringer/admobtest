@@ -5,12 +5,18 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
+import {
+  processReferralRewards,
+  LedgerConfig,
+  getOrCreateDefaultSubAccount,
+} from "./ledger";
+import { createEngagementStats } from "./engagementStats";
 
 const db = admin.firestore();
 
-// Referral reward amounts
-const REFERRER_REWARD = 100; // Tokens for the referrer
-const REFEREE_REWARD = 50; // Tokens for the new user
+// Referral reward amounts (now from ledger config for consistency)
+const REFERRER_REWARD = LedgerConfig.REFERRER_REWARD; // Tokens for the referrer
+const REFEREE_REWARD = LedgerConfig.REFEREE_REWARD; // Tokens for the new user
 
 /**
  * Process referral code application
@@ -66,99 +72,65 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
 
   const now = admin.firestore.FieldValue.serverTimestamp();
 
-  // Process referral rewards
-  await db.runTransaction(async (transaction) => {
-    // Create referral record with Flutter-compatible field names
-    const referralRef = db.collection("referrals").doc();
-    transaction.set(referralRef, {
-      id: referralRef.id,
-      referrerUserId: referrerUserId,
-      refereeUserId: refereeUserId,
-      refereeDisplayName: refereeDisplayName,
-      refereeUsername: refereeUsername,
-      refereeAvatarUrl: refereeAvatarUrl,
+  // Get or create default sub-accounts for both users
+  const { subAccountId: referrerSubAccountId } = await getOrCreateDefaultSubAccount(referrerUserId);
+  const { subAccountId: refereeSubAccountId } = await getOrCreateDefaultSubAccount(refereeUserId);
+
+  // Create referral record first
+  const referralRef = db.collection("referrals").doc();
+  await referralRef.set({
+    id: referralRef.id,
+    referrerUserId: referrerUserId,
+    refereeUserId: refereeUserId,
+    refereeDisplayName: refereeDisplayName,
+    refereeUsername: refereeUsername,
+    refereeAvatarUrl: refereeAvatarUrl,
+    referralCode: code.toUpperCase(),
+    status: "processing",
+    referrerReward: REFERRER_REWARD,
+    refereeReward: REFEREE_REWARD,
+    referrerSubAccountId: referrerSubAccountId,
+    refereeSubAccountId: refereeSubAccountId,
+    createdAt: now,
+    registeredAt: now,
+    qualifiedAt: now,
+    expiresAt: null,
+  });
+
+  // Process referral rewards through the Trust Ledger system
+  // This transfers tokens from system:referrals account to both users' sub-accounts
+  const ledgerResult = await processReferralRewards(
+    referrerUserId,
+    refereeUserId,
+    referralRef.id,
+    referrerSubAccountId,
+    refereeSubAccountId,
+    {
       referralCode: code.toUpperCase(),
-      status: "rewarded", // Flutter enum value
-      referrerReward: REFERRER_REWARD,
-      refereeReward: REFEREE_REWARD,
-      createdAt: now,
-      registeredAt: now,
-      qualifiedAt: now,
-      rewardedAt: now,
-      expiresAt: null,
+      refereeDisplayName,
+    }
+  );
+
+  if (!ledgerResult.success) {
+    // Update referral as failed
+    await referralRef.update({
+      status: "failed",
+      failureReason: ledgerResult.error,
     });
+    throw new functions.https.HttpsError(
+      "internal",
+      `Failed to process referral rewards: ${ledgerResult.error}`
+    );
+  }
 
-    // Get referrer's wallet and add reward
-    const referrerWalletQuery = await db.collection("wallets")
-      .where("userId", "==", referrerUserId)
-      .limit(1)
-      .get();
-
-    if (!referrerWalletQuery.empty) {
-      const referrerWallet = referrerWalletQuery.docs[0];
-      const referrerWalletData = referrerWallet.data();
-      const referrerNewBalance = (referrerWalletData.tokenBalance || 0) + REFERRER_REWARD;
-
-      transaction.update(referrerWallet.ref, {
-        tokenBalance: admin.firestore.FieldValue.increment(REFERRER_REWARD),
-        lifetimeEarned: admin.firestore.FieldValue.increment(REFERRER_REWARD),
-        version: admin.firestore.FieldValue.increment(1),
-        updatedAt: now,
-      });
-
-      // Create transaction for referrer with balanceAfter
-      const referrerTxRef = db.collection("transactions").doc();
-      transaction.set(referrerTxRef, {
-        id: referrerTxRef.id,
-        walletId: referrerWallet.id,
-        userId: referrerUserId,
-        type: "referral_bonus",
-        tokenAmount: REFERRER_REWARD,
-        zarAmount: REFERRER_REWARD * 0.01,
-        balanceAfter: referrerNewBalance,
-        description: "Referral bonus - friend signed up!",
-        status: "completed",
-        referenceId: referralRef.id,
-        referenceType: "referral",
-        createdAt: now,
-      });
-    }
-
-    // Get referee's wallet and add reward
-    const refereeWalletQuery = await db.collection("wallets")
-      .where("userId", "==", refereeUserId)
-      .limit(1)
-      .get();
-
-    if (!refereeWalletQuery.empty) {
-      const refereeWallet = refereeWalletQuery.docs[0];
-      const refereeWalletData = refereeWallet.data();
-      const refereeNewBalance = (refereeWalletData.tokenBalance || 0) + REFEREE_REWARD;
-
-      transaction.update(refereeWallet.ref, {
-        tokenBalance: admin.firestore.FieldValue.increment(REFEREE_REWARD),
-        lifetimeEarned: admin.firestore.FieldValue.increment(REFEREE_REWARD),
-        version: admin.firestore.FieldValue.increment(1),
-        updatedAt: now,
-      });
-
-      // Create transaction for referee with balanceAfter
-      const refereeTxRef = db.collection("transactions").doc();
-      transaction.set(refereeTxRef, {
-        id: refereeTxRef.id,
-        walletId: refereeWallet.id,
-        userId: refereeUserId,
-        type: "referral_bonus",
-        tokenAmount: REFEREE_REWARD,
-        zarAmount: REFEREE_REWARD * 0.01,
-        balanceAfter: refereeNewBalance,
-        description: "Welcome bonus - used referral code!",
-        status: "completed",
-        referenceId: referralRef.id,
-        referenceType: "referral",
-        createdAt: now,
-      });
-    }
+  // Update referral and related records in transaction
+  await db.runTransaction(async (transaction) => {
+    // Update referral record as rewarded with ledger reference
+    transaction.update(referralRef, {
+      status: "rewarded",
+      rewardedAt: now,
+      ledgerJournalId: ledgerResult.journalId,
+    });
 
     // Update referee's user record with referredBy
     transaction.update(db.collection("users").doc(refereeUserId), {
@@ -181,12 +153,17 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
     success: true,
     referrerReward: REFERRER_REWARD,
     refereeReward: REFEREE_REWARD,
+    ledgerJournalId: ledgerResult.journalId,
   };
 });
 
 /**
  * Generate referral code for new user
  * Triggered when a new user is created
+ *
+ * Also creates:
+ * - Ledger account with default sub-account
+ * - Engagement stats document
  */
 export const generateReferralCode = functions.firestore
   .document("users/{userId}")
@@ -230,6 +207,22 @@ export const generateReferralCode = functions.firestore
       totalEarned: 0,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+
+    // Create ledger account with default sub-account
+    try {
+      const { subAccountId } = await getOrCreateDefaultSubAccount(userId);
+      console.log(`Created ledger account with sub-account ${subAccountId} for user ${userId}`);
+    } catch (error) {
+      console.error(`Failed to create ledger account for user ${userId}:`, error);
+    }
+
+    // Create engagement stats document
+    try {
+      await createEngagementStats(userId);
+      console.log(`Created engagement stats for user ${userId}`);
+    } catch (error) {
+      console.error(`Failed to create engagement stats for user ${userId}:`, error);
+    }
 
     // Sync referral code to users collection for Flutter to read
     await db.collection("users").doc(userId).update({

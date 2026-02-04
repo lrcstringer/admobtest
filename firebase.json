@@ -1,1 +1,70 @@
-{"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"storage":{"rules":"storage.rules"},"functions":[{"source":"functions","codebase":"default","ignore":["node_modules",".git","firebase-debug.log","firebase-debug.*.log"]}],"emulators":{"auth":{"port":9099},"functions":{"port":5001},"firestore":{"port":8080},"storage":{"port":9199},"ui":{"enabled":true,"port":4000},"singleProjectMode":true},"flutter":{"platforms":{"android":{"default":{"projectId":"emalichat-d5a4c","appId":"1:448966313128:android:d85774466bbce763b22e9d","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"emalichat-d5a4c","configurations":{"android":"1:448966313128:android:d85774466bbce763b22e9d","ios":"1:448966313128:ios:364e584eee436827b22e9d","web":"1:448966313128:web:34f9fb6377783a54b22e9d"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": ["node_modules", ".git", "firebase-debug.log", "firebase-debug.*.log"]
+    }
+  ],
+  "hosting": [
+    {
+      "target": "admin",
+      "public": "build/admin",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    },
+    {
+      "target": "client",
+      "public": "build/client",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    }
+  ],
+  "emulators": {
+    "auth": {"port": 9099},
+    "functions": {"port": 5001},
+    "firestore": {"port": 8080},
+    "storage": {"port": 9199},
+    "hosting": {"port": 5000},
+    "ui": {"enabled": true, "port": 4000},
+    "singleProjectMode": true
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "emalichat-d5a4c",
+          "appId": "1:448966313128:android:d85774466bbce763b22e9d",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "emalichat-d5a4c",
+          "configurations": {
+            "android": "1:448966313128:android:d85774466bbce763b22e9d",
+            "ios": "1:448966313128:ios:364e584eee436827b22e9d",
+            "web": "1:448966313128:web:34f9fb6377783a54b22e9d"
+          }
+        }
+      }
+    }
+  }
+}
