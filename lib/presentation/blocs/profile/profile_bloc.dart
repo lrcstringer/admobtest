@@ -50,17 +50,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           ));
         },
         (user) async {
-          // Also load wallet to get lifetime stats
-          final walletResult = await _walletRepository.getMainWallet();
+          // Load engagement stats to get lifetime earned tokens
+          final statsResult = await _walletRepository.getEngagementStats();
 
           int lifetimeEarned = 0;
-          int lifetimeWithdrawn = 0;
 
-          walletResult.fold(
+          statsResult.fold(
             (failure) => null,
-            (wallet) {
-              lifetimeEarned = wallet.lifetimeEarned;
-              lifetimeWithdrawn = wallet.lifetimeWithdrawn;
+            (stats) {
+              lifetimeEarned = stats.totalTokensEarned;
             },
           );
 
@@ -68,7 +66,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
             status: ProfileStatus.loaded,
             user: user,
             lifetimeEarned: lifetimeEarned,
-            lifetimeWithdrawn: lifetimeWithdrawn,
+            lifetimeWithdrawn: 0, // Withdrawn amount tracked separately via cashout history
           ));
 
           // Start watching user updates

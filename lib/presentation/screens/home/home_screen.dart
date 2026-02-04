@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<WalletBloc>().add(const WalletEvent.loadWallet());
+    context.read<WalletBloc>().add(const WalletEvent.loadLedger());
     final potBloc = context.read<PotBloc>();
     potBloc.add(const PotEvent.watchDailyPot());
     potBloc.add(const PotEvent.watchWeeklyPot());
@@ -57,9 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
             return BlocBuilder<PotBloc, PotState>(
               builder: (context, potState) {
                 return Scaffold(
-                  // TODO: Remove AbsorbPointer when Home screen is ready
-                  body: AbsorbPointer(
-                    child: Container(
+                  body: Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
@@ -72,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onRefresh: () async {
                           context
                               .read<WalletBloc>()
-                              .add(const WalletEvent.loadWallet());
+                              .add(const WalletEvent.loadLedger());
                           final potBloc = context.read<PotBloc>();
                           potBloc.add(const PotEvent.loadDailyPot());
                           potBloc.add(const PotEvent.loadWeeklyPot());
@@ -101,7 +99,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  ),
                 );
               },
             );
@@ -113,8 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeader(
       BuildContext context, dynamic user, WalletState walletState) {
-    // Use wallet's streak as the authoritative source (persists across pot periods)
-    final streak = walletState.wallet?.currentStreak ?? 0;
+    // Use engagement stats as the authoritative source for streak
+    final streak = walletState.currentStreak;
     final avatarUrl = user?.profile?.avatarUrl as String?;
 
     return Row(

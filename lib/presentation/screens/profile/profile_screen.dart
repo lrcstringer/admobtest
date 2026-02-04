@@ -114,8 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         builder: (context, walletState) {
                           return BlocBuilder<ReferralBloc, ReferralState>(
                             builder: (context, referralState) {
-                              final totalEarned =
-                                  walletState.wallet?.lifetimeEarned ?? 0;
+                              final totalEarned = walletState.totalTokensEarned;
                               final referralCount =
                                   referralState.stats?.totalReferrals ?? 0;
 

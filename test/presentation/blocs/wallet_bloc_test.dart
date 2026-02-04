@@ -22,47 +22,49 @@ void main() {
     test('initial state is correct', () {
       final bloc = WalletBloc(mockWalletRepository);
       expect(bloc.state.status, WalletStatus.initial);
-      expect(bloc.state.wallet, isNull);
-      expect(bloc.state.transactions, isEmpty);
+      expect(bloc.state.ledgerAccount, isNull);
+      expect(bloc.state.ledgerJournals, isEmpty);
+      expect(bloc.state.engagementStats, isNull);
       bloc.close();
     });
 
-    group('LoadWallet', () {
+    group('LoadLedger', () {
       blocTest<WalletBloc, WalletState>(
-        'emits [loading, loaded, transactions] when getMainWallet succeeds',
+        'emits [loading, loaded] when getLedgerAccount succeeds',
         build: () {
-          when(() => mockWalletRepository.getMainWallet())
-              .thenAnswer((_) async => Right(TestData.testWallet));
-          when(() => mockWalletRepository.watchWallet(any()))
-              .thenAnswer((_) => Stream.value(Right(TestData.testWallet)));
-          when(() => mockWalletRepository.getTransactions(
-                walletId: any(named: 'walletId'),
+          when(() => mockWalletRepository.getLedgerAccount())
+              .thenAnswer((_) async => Right(TestData.testLedgerAccount));
+          when(() => mockWalletRepository.watchLedgerAccount())
+              .thenAnswer((_) => Stream.value(Right(TestData.testLedgerAccount)));
+          when(() => mockWalletRepository.watchLedgerJournals(limit: any(named: 'limit')))
+              .thenAnswer((_) => Stream.value(Right(TestData.ledgerJournalList)));
+          when(() => mockWalletRepository.watchEngagementStats())
+              .thenAnswer((_) => const Stream.empty());
+          when(() => mockWalletRepository.getLedgerJournals(
                 limit: any(named: 'limit'),
-              )).thenAnswer((_) async => Right(TestData.transactionList));
+              )).thenAnswer((_) async => Right(TestData.ledgerJournalList));
           return WalletBloc(mockWalletRepository);
         },
-        act: (bloc) => bloc.add(const WalletEvent.loadWallet()),
+        act: (bloc) => bloc.add(const WalletEvent.loadLedger()),
         expect: () => [
           isA<WalletState>().having((s) => s.status, 'status', WalletStatus.loading),
           isA<WalletState>()
               .having((s) => s.status, 'status', WalletStatus.loaded)
-              .having((s) => s.wallet, 'wallet', TestData.testWallet),
-          isA<WalletState>()
-              .having((s) => s.transactions, 'transactions', TestData.transactionList),
+              .having((s) => s.ledgerAccount, 'ledgerAccount', TestData.testLedgerAccount),
         ],
         verify: (_) {
-          verify(() => mockWalletRepository.getMainWallet()).called(1);
+          verify(() => mockWalletRepository.getLedgerAccount()).called(1);
         },
       );
 
       blocTest<WalletBloc, WalletState>(
-        'emits [loading, error] when getMainWallet fails',
+        'emits [loading, error] when getLedgerAccount fails',
         build: () {
-          when(() => mockWalletRepository.getMainWallet())
+          when(() => mockWalletRepository.getLedgerAccount())
               .thenAnswer((_) async => const Left(Failure.network()));
           return WalletBloc(mockWalletRepository);
         },
-        act: (bloc) => bloc.add(const WalletEvent.loadWallet()),
+        act: (bloc) => bloc.add(const WalletEvent.loadLedger()),
         expect: () => [
           isA<WalletState>().having((s) => s.status, 'status', WalletStatus.loading),
           isA<WalletState>()
@@ -72,122 +74,138 @@ void main() {
       );
     });
 
-    group('LoadTransactions', () {
+    group('LoadLedgerJournals', () {
       blocTest<WalletBloc, WalletState>(
-        'loads transactions successfully',
+        'loads ledger journals successfully',
         build: () {
-          when(() => mockWalletRepository.getTransactions(
-                walletId: any(named: 'walletId'),
+          when(() => mockWalletRepository.getLedgerJournals(
                 limit: any(named: 'limit'),
-              )).thenAnswer((_) async => Right(TestData.transactionList));
+              )).thenAnswer((_) async => Right(TestData.ledgerJournalList));
           return WalletBloc(mockWalletRepository);
         },
-        act: (bloc) => bloc.add(const WalletEvent.loadTransactions(walletId: 'wallet123')),
+        act: (bloc) => bloc.add(const WalletEvent.loadLedgerJournals()),
         expect: () => [
           isA<WalletState>().having(
-            (s) => s.transactions,
-            'transactions',
-            TestData.transactionList,
+            (s) => s.ledgerJournals,
+            'ledgerJournals',
+            TestData.ledgerJournalList,
           ),
         ],
       );
 
       blocTest<WalletBloc, WalletState>(
-        'sets hasMoreTransactions correctly when less than limit',
+        'sets hasMoreLedgerJournals correctly when less than limit',
         build: () {
-          when(() => mockWalletRepository.getTransactions(
-                walletId: any(named: 'walletId'),
+          when(() => mockWalletRepository.getLedgerJournals(
                 limit: any(named: 'limit'),
-              )).thenAnswer((_) async => Right([TestData.earnTransaction]));
+              )).thenAnswer((_) async => Right([TestData.earnJournal]));
           return WalletBloc(mockWalletRepository);
         },
-        act: (bloc) => bloc.add(const WalletEvent.loadTransactions(walletId: 'wallet123')),
+        act: (bloc) => bloc.add(const WalletEvent.loadLedgerJournals()),
         expect: () => [
-          isA<WalletState>().having((s) => s.hasMoreTransactions, 'hasMoreTransactions', false),
+          isA<WalletState>().having((s) => s.hasMoreLedgerJournals, 'hasMoreLedgerJournals', false),
         ],
       );
     });
 
-    group('LoadMoreTransactions', () {
+    group('LoadMoreLedgerJournals', () {
       blocTest<WalletBloc, WalletState>(
         'does nothing when already loading',
         build: () => WalletBloc(mockWalletRepository),
         seed: () => const WalletState(isLoadingMore: true),
-        act: (bloc) => bloc.add(const WalletEvent.loadMoreTransactions()),
+        act: (bloc) => bloc.add(const WalletEvent.loadMoreLedgerJournals()),
         expect: () => [],
       );
 
       blocTest<WalletBloc, WalletState>(
-        'does nothing when no more transactions',
+        'does nothing when no more journals',
         build: () => WalletBloc(mockWalletRepository),
-        seed: () => const WalletState(hasMoreTransactions: false),
-        act: (bloc) => bloc.add(const WalletEvent.loadMoreTransactions()),
+        seed: () => const WalletState(hasMoreLedgerJournals: false),
+        act: (bloc) => bloc.add(const WalletEvent.loadMoreLedgerJournals()),
         expect: () => [],
       );
 
       blocTest<WalletBloc, WalletState>(
-        'does nothing when wallet is null',
-        build: () => WalletBloc(mockWalletRepository),
-        seed: () => const WalletState(hasMoreTransactions: true),
-        act: (bloc) => bloc.add(const WalletEvent.loadMoreTransactions()),
-        expect: () => [],
-      );
-
-      blocTest<WalletBloc, WalletState>(
-        'loads more transactions when conditions are met',
+        'loads more journals when conditions are met',
         build: () {
-          when(() => mockWalletRepository.getTransactions(
-                walletId: any(named: 'walletId'),
+          when(() => mockWalletRepository.getLedgerJournals(
                 limit: any(named: 'limit'),
                 startAfter: any(named: 'startAfter'),
-              )).thenAnswer((_) async => Right([TestData.p2pReceiveTransaction]));
+              )).thenAnswer((_) async => Right([TestData.cashoutJournal]));
           return WalletBloc(mockWalletRepository);
         },
         seed: () => WalletState(
-          wallet: TestData.testWallet,
-          transactions: [TestData.earnTransaction],
-          hasMoreTransactions: true,
+          ledgerJournals: [TestData.earnJournal],
+          hasMoreLedgerJournals: true,
         ),
-        act: (bloc) => bloc.add(const WalletEvent.loadMoreTransactions()),
+        act: (bloc) => bloc.add(const WalletEvent.loadMoreLedgerJournals()),
         expect: () => [
           isA<WalletState>().having((s) => s.isLoadingMore, 'isLoadingMore', true),
           isA<WalletState>()
               .having((s) => s.isLoadingMore, 'isLoadingMore', false)
-              .having((s) => s.transactions.length, 'transactions.length', 2),
+              .having((s) => s.ledgerJournals.length, 'ledgerJournals.length', 2),
         ],
       );
     });
 
-    group('WalletUpdated', () {
-      final updatedWallet = TestData.testWallet.copyWith(balanceTokens: 15000);
+    group('LedgerAccountUpdated', () {
+      final updatedAccount = TestData.testLedgerAccount.copyWith(balance: 15000);
 
       blocTest<WalletBloc, WalletState>(
-        'updates wallet in state',
+        'updates ledger account in state',
         build: () => WalletBloc(mockWalletRepository),
-        seed: () => WalletState(wallet: TestData.testWallet),
-        act: (bloc) => bloc.add(WalletEvent.walletUpdated(updatedWallet)),
+        seed: () => WalletState(ledgerAccount: TestData.testLedgerAccount),
+        act: (bloc) => bloc.add(WalletEvent.ledgerAccountUpdated(updatedAccount)),
         expect: () => [
           isA<WalletState>()
-              .having((s) => s.status, 'status', WalletStatus.loaded)
-              .having((s) => s.wallet?.balanceTokens, 'balanceTokens', 15000),
+              .having((s) => s.ledgerAccount?.balance, 'balance', 15000),
         ],
       );
     });
 
-    group('TransactionsUpdated', () {
+    group('LedgerJournalsUpdated', () {
       blocTest<WalletBloc, WalletState>(
-        'updates transactions in state',
+        'updates ledger journals in state',
         build: () => WalletBloc(mockWalletRepository),
-        seed: () => WalletState(transactions: [TestData.earnTransaction]),
-        act: (bloc) => bloc.add(WalletEvent.transactionsUpdated(TestData.transactionList)),
+        seed: () => WalletState(ledgerJournals: [TestData.earnJournal]),
+        act: (bloc) => bloc.add(WalletEvent.ledgerJournalsUpdated(TestData.ledgerJournalList)),
         expect: () => [
           isA<WalletState>().having(
-            (s) => s.transactions,
-            'transactions',
-            TestData.transactionList,
+            (s) => s.ledgerJournals,
+            'ledgerJournals',
+            TestData.ledgerJournalList,
           ),
         ],
       );
+    });
+
+    group('balance getter', () {
+      test('returns 0 when ledgerAccount is null', () {
+        const state = WalletState();
+        expect(state.balance, 0);
+      });
+
+      test('returns ledgerAccount balance when available', () {
+        final state = WalletState(ledgerAccount: TestData.testLedgerAccount);
+        expect(state.balance, 10000);
+      });
+    });
+
+    group('canCashout getter', () {
+      test('returns false when ledgerAccount is null', () {
+        const state = WalletState();
+        expect(state.canCashout, false);
+      });
+
+      test('returns false when balance is below minimum', () {
+        final state = WalletState(ledgerAccount: TestData.poorLedgerAccount);
+        expect(state.canCashout, false);
+      });
+
+      test('returns true when account is active and balance is sufficient', () {
+        final state = WalletState(ledgerAccount: TestData.richLedgerAccount);
+        expect(state.canCashout, true);
+      });
     });
   });
 }

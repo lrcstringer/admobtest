@@ -45,7 +45,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
           );
           context.read<PurchaseBloc>().add(const PurchaseEvent.clearSuccess());
           // Refresh wallet balance after purchase
-          context.read<WalletBloc>().add(const WalletEvent.loadWallet());
+          context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
         }
       },
       builder: (context, state) {

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../domain/entities/transaction.dart';
-import '../../../domain/enums/transaction_type.dart';
+import '../../../domain/entities/ledger_journal.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -32,7 +31,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      context.read<WalletBloc>().add(const WalletEvent.loadMoreTransactions());
+      context.read<WalletBloc>().add(const WalletEvent.loadMoreLedgerJournals());
     }
   }
 
@@ -44,28 +43,24 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       ),
       body: BlocBuilder<WalletBloc, WalletState>(
         builder: (context, state) {
-          if (state.status == WalletStatus.loading && state.transactions.isEmpty) {
+          if (state.status == WalletStatus.loading && state.ledgerJournals.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state.transactions.isEmpty) {
+          if (state.ledgerJournals.isEmpty) {
             return _buildEmptyState(context);
           }
 
           return RefreshIndicator(
             onRefresh: () async {
-              if (state.wallet != null) {
-                context.read<WalletBloc>().add(
-                      WalletEvent.loadTransactions(walletId: state.wallet!.id),
-                    );
-              }
+              context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
             },
             child: ListView.builder(
               controller: _scrollController,
               padding: AppSpacing.pagePadding,
-              itemCount: state.transactions.length + (state.isLoadingMore ? 1 : 0),
+              itemCount: state.ledgerJournals.length + (state.isLoadingMore ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index == state.transactions.length) {
+                if (index == state.ledgerJournals.length) {
                   return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(16),
@@ -74,8 +69,8 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                   );
                 }
 
-                final transaction = state.transactions[index];
-                return _buildTransactionCard(context, transaction);
+                final journal = state.ledgerJournals[index];
+                return _buildJournalCard(context, journal, state.ledgerAccount?.id);
               },
             ),
           );
@@ -117,13 +112,21 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     );
   }
 
-  Widget _buildTransactionCard(BuildContext context, Transaction transaction) {
-    final isPositive = transaction.isCredit;
-    final icon = _getTransactionIcon(transaction.type);
-    final color = isPositive ? AppColors.success : AppColors.error;
+  Widget _buildJournalCard(BuildContext context, LedgerJournal journal, String? userAccountId) {
+    // Find the user's entry in the journal (if any)
+    final userEntry = userAccountId != null
+        ? journal.entries.where((e) => e.accountId == userAccountId).firstOrNull
+        : null;
+
+    // Determine if this is a credit (positive) or debit (negative) for the user
+    final isCredit = userEntry?.entryType == LedgerEntryType.credit;
+    final amount = userEntry?.amount ?? journal.totalCredits;
+
+    final icon = _getJournalIcon(journal.type);
+    final color = isCredit ? AppColors.success : AppColors.error;
 
     return InkWell(
-      onTap: () => _showTransactionDetails(context, transaction),
+      onTap: () => _showJournalDetails(context, journal, userEntry),
       borderRadius: AppSpacing.borderRadiusMd,
       child: Container(
         padding: AppSpacing.cardPadding,
@@ -149,14 +152,14 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    transaction.description ?? transaction.type.displayName,
+                    journal.description,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                   ),
                   AppSpacing.verticalXs,
                   Text(
-                    _formatDateTime(transaction.createdAt),
+                    _formatDateTime(journal.postedAt ?? journal.createdAt),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -168,7 +171,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  transaction.formattedAmount,
+                  '${isCredit ? '+' : '-'}$amount',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: color,
                         fontWeight: FontWeight.bold,
@@ -188,28 +191,31 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     );
   }
 
-  IconData _getTransactionIcon(TransactionType type) {
+  IconData _getJournalIcon(LedgerJournalType type) {
     switch (type) {
-      case TransactionType.earn:
+      case LedgerJournalType.earn:
         return Icons.monetization_on;
-      case TransactionType.referral:
-        return Icons.people;
-      case TransactionType.p2pSend:
-        return Icons.arrow_upward;
-      case TransactionType.p2pReceive:
-        return Icons.arrow_downward;
-      case TransactionType.cashout:
-        return Icons.account_balance_wallet;
-      case TransactionType.potWin:
+      case LedgerJournalType.potContribution:
+        return Icons.savings;
+      case LedgerJournalType.potWin:
         return Icons.emoji_events;
-      case TransactionType.purchase:
+      case LedgerJournalType.purchase:
         return Icons.shopping_bag;
-      case TransactionType.refund:
-        return Icons.replay;
-      case TransactionType.adjustment:
-        return Icons.tune;
-      case TransactionType.reversal:
+      case LedgerJournalType.referralReward:
+        return Icons.people;
+      case LedgerJournalType.p2pTransfer:
+        return Icons.swap_horiz;
+      case LedgerJournalType.cashoutInitiate:
+      case LedgerJournalType.cashoutComplete:
+        return Icons.account_balance_wallet;
+      case LedgerJournalType.cashoutFailed:
+        return Icons.error_outline;
+      case LedgerJournalType.reversal:
         return Icons.undo;
+      case LedgerJournalType.adjustment:
+        return Icons.tune;
+      case LedgerJournalType.systemSeed:
+        return Icons.settings;
     }
   }
 
@@ -227,25 +233,31 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  void _showTransactionDetails(BuildContext context, Transaction transaction) {
+  void _showJournalDetails(BuildContext context, LedgerJournal journal, LedgerEntry? userEntry) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => TransactionDetailSheet(transaction: transaction),
+      builder: (context) => JournalDetailSheet(journal: journal, userEntry: userEntry),
     );
   }
 }
 
-class TransactionDetailSheet extends StatelessWidget {
-  final Transaction transaction;
+class JournalDetailSheet extends StatelessWidget {
+  final LedgerJournal journal;
+  final LedgerEntry? userEntry;
 
-  const TransactionDetailSheet({super.key, required this.transaction});
+  const JournalDetailSheet({
+    super.key,
+    required this.journal,
+    this.userEntry,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isPositive = transaction.isCredit;
-    final color = isPositive ? AppColors.success : AppColors.error;
+    final isCredit = userEntry?.entryType == LedgerEntryType.credit;
+    final amount = userEntry?.amount ?? journal.totalCredits;
+    final color = isCredit ? AppColors.success : AppColors.error;
     // 1 token = R0.01
-    final zarAmount = transaction.amount * 0.01;
+    final zarAmount = amount * 0.01;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -280,14 +292,14 @@ class TransactionDetailSheet extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    isPositive ? Icons.add : Icons.remove,
+                    isCredit ? Icons.add : Icons.remove,
                     color: color,
                     size: 32,
                   ),
                 ),
                 AppSpacing.verticalMd,
                 Text(
-                  '${transaction.formattedAmount} Tokens',
+                  '${isCredit ? '+' : '-'}$amount Tokens',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: color,
                         fontWeight: FontWeight.bold,
@@ -303,24 +315,55 @@ class TransactionDetailSheet extends StatelessWidget {
             ),
           ),
           AppSpacing.verticalLg,
-          _buildDetailRow(context, 'Type', transaction.type.displayName),
-          _buildDetailRow(
-            context,
-            'Description',
-            transaction.description ?? 'No description',
-          ),
+          _buildDetailRow(context, 'Type', _getTypeDisplayName(journal.type)),
+          _buildDetailRow(context, 'Description', journal.description),
           _buildDetailRow(
             context,
             'Date',
-            '${transaction.createdAt.day}/${transaction.createdAt.month}/${transaction.createdAt.year} '
-                '${transaction.createdAt.hour.toString().padLeft(2, '0')}:${transaction.createdAt.minute.toString().padLeft(2, '0')}',
+            _formatFullDate(journal.postedAt ?? journal.createdAt),
           ),
-          _buildDetailRow(context, 'Balance After', '${transaction.balanceAfter} tokens'),
-          _buildDetailRow(context, 'Transaction ID', transaction.id),
+          if (userEntry != null)
+            _buildDetailRow(context, 'Balance After', '${userEntry!.balanceAfter} tokens'),
+          _buildDetailRow(context, 'Status', journal.status.name.toUpperCase()),
+          _buildDetailRow(context, 'Transaction ID', journal.id),
           AppSpacing.verticalLg,
         ],
       ),
     );
+  }
+
+  String _getTypeDisplayName(LedgerJournalType type) {
+    switch (type) {
+      case LedgerJournalType.earn:
+        return 'Earned';
+      case LedgerJournalType.potContribution:
+        return 'Pot Contribution';
+      case LedgerJournalType.potWin:
+        return 'Pot Win';
+      case LedgerJournalType.purchase:
+        return 'Purchase';
+      case LedgerJournalType.referralReward:
+        return 'Referral Reward';
+      case LedgerJournalType.p2pTransfer:
+        return 'Transfer';
+      case LedgerJournalType.cashoutInitiate:
+        return 'Cashout Started';
+      case LedgerJournalType.cashoutComplete:
+        return 'Cashout Completed';
+      case LedgerJournalType.cashoutFailed:
+        return 'Cashout Failed';
+      case LedgerJournalType.reversal:
+        return 'Reversal';
+      case LedgerJournalType.adjustment:
+        return 'Adjustment';
+      case LedgerJournalType.systemSeed:
+        return 'System';
+    }
+  }
+
+  String _formatFullDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year} '
+        '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
 
   Widget _buildDetailRow(BuildContext context, String label, String value) {

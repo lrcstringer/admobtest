@@ -89,43 +89,29 @@ class CashoutBloc extends Bloc<CashoutEvent, CashoutState> {
   ) async {
     emit(state.copyWith(requestStatus: CashoutRequestStatus.loading));
 
-    // Get main wallet first
-    final walletResult = await _walletRepository.getMainWallet();
+    final result = await _walletRepository.requestCashout(
+      tokenAmount: event.tokenAmount,
+      method: event.method,
+      destinationDetails: event.destinationDetails,
+      bankName: event.bankName,
+      accountNumber: event.accountNumber,
+      accountHolderName: event.accountHolderName,
+      mobileNumber: event.mobileNumber,
+    );
 
-    await walletResult.fold(
-      (failure) async {
+    result.fold(
+      (failure) {
         emit(state.copyWith(
           requestStatus: CashoutRequestStatus.error,
           errorMessage: failure.displayMessage,
         ));
       },
-      (wallet) async {
-        final result = await _walletRepository.requestCashout(
-          walletId: wallet.id,
-          tokenAmount: event.tokenAmount,
-          method: event.method,
-          destinationDetails: event.destinationDetails,
-          bankName: event.bankName,
-          accountNumber: event.accountNumber,
-          accountHolderName: event.accountHolderName,
-          mobileNumber: event.mobileNumber,
-        );
-
-        result.fold(
-          (failure) {
-            emit(state.copyWith(
-              requestStatus: CashoutRequestStatus.error,
-              errorMessage: failure.displayMessage,
-            ));
-          },
-          (cashout) {
-            emit(state.copyWith(
-              requestStatus: CashoutRequestStatus.success,
-              lastCashout: cashout,
-              history: [cashout, ...state.history],
-            ));
-          },
-        );
+      (cashout) {
+        emit(state.copyWith(
+          requestStatus: CashoutRequestStatus.success,
+          lastCashout: cashout,
+          history: [cashout, ...state.history],
+        ));
       },
     );
   }

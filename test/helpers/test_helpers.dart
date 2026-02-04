@@ -1,14 +1,13 @@
 import 'package:imalichat/domain/entities/user.dart';
-import 'package:imalichat/domain/entities/wallet.dart';
-import 'package:imalichat/domain/entities/transaction.dart';
 import 'package:imalichat/domain/entities/chat_thread.dart';
 import 'package:imalichat/domain/entities/chat_card.dart';
 import 'package:imalichat/domain/entities/referral.dart';
 import 'package:imalichat/domain/entities/pot_pool.dart';
 import 'package:imalichat/domain/entities/earn_thread.dart';
 import 'package:imalichat/domain/entities/engagement.dart';
+import 'package:imalichat/domain/entities/ledger_account.dart';
+import 'package:imalichat/domain/entities/ledger_journal.dart';
 import 'package:imalichat/domain/enums/user_status.dart';
-import 'package:imalichat/domain/enums/transaction_type.dart';
 import 'package:imalichat/domain/enums/engagement_status.dart';
 import 'package:imalichat/domain/enums/pot_type.dart';
 import 'package:imalichat/domain/enums/chat_card_type.dart';
@@ -67,160 +66,141 @@ class TestData {
         createdAt: DateTime(2024, 1, 1),
       );
 
-  // ==================== WALLETS ====================
+  // ==================== LEDGER ACCOUNTS ====================
 
-  /// Test wallet
-  static Wallet get testWallet => Wallet(
-        id: 'wallet123',
-        userId: 'user123',
-        name: 'Main Wallet',
-        type: WalletType.main,
-        balanceTokens: 10000,
-        lifetimeEarned: 50000,
-        lifetimeWithdrawn: 20000,
-        canWithdraw: true,
-        version: 1,
+  /// Test ledger account
+  static LedgerAccount get testLedgerAccount => LedgerAccount(
+        id: 'user:user123',
+        type: LedgerAccountType.user,
+        name: 'Test User Account',
+        ownerId: 'user123',
+        balance: 10000,
+        status: LedgerAccountStatus.active,
+        createdAt: DateTime(2024, 1, 1),
         updatedAt: DateTime(2024, 1, 1),
       );
 
-  /// Test wallet with high balance
-  static Wallet get richWallet => Wallet(
-        id: 'wallet456',
-        userId: 'user456',
-        name: 'Rich Wallet',
-        type: WalletType.main,
-        balanceTokens: 500000,
-        lifetimeEarned: 1000000,
-        lifetimeWithdrawn: 500000,
-        canWithdraw: true,
-        version: 1,
+  /// Test ledger account with high balance
+  static LedgerAccount get richLedgerAccount => LedgerAccount(
+        id: 'user:user456',
+        type: LedgerAccountType.user,
+        name: 'Rich User Account',
+        ownerId: 'user456',
+        balance: 500000,
+        status: LedgerAccountStatus.active,
+        createdAt: DateTime(2024, 1, 1),
         updatedAt: DateTime(2024, 1, 1),
       );
 
-  /// Test wallet with low balance
-  static Wallet get poorWallet => Wallet(
-        id: 'wallet789',
-        userId: 'user789',
-        name: 'Poor Wallet',
-        type: WalletType.main,
-        balanceTokens: 1000,
-        lifetimeEarned: 5000,
-        lifetimeWithdrawn: 4000,
-        canWithdraw: true,
-        version: 1,
+  /// Test ledger account with low balance
+  static LedgerAccount get poorLedgerAccount => LedgerAccount(
+        id: 'user:user789',
+        type: LedgerAccountType.user,
+        name: 'Poor User Account',
+        ownerId: 'user789',
+        balance: 1000,
+        status: LedgerAccountStatus.active,
+        createdAt: DateTime(2024, 1, 1),
         updatedAt: DateTime(2024, 1, 1),
       );
 
-  /// Brand wallet
-  static Wallet get brandWallet => Wallet(
-        id: 'wallet_brand',
-        userId: 'brand123',
-        name: 'Brand Wallet',
-        type: WalletType.brand,
-        balanceTokens: 100000,
-        lifetimeEarned: 100000,
-        lifetimeWithdrawn: 0,
-        canWithdraw: false,
-        brandId: 'brand123',
-        color: '#FF5733',
-        version: 1,
-        updatedAt: DateTime(2024, 1, 1),
-      );
+  // ==================== LEDGER JOURNALS ====================
 
-  // ==================== TRANSACTIONS ====================
-
-  /// Test transaction - earning
-  static Transaction get earnTransaction => Transaction(
-        id: 'tx123',
-        walletId: 'wallet123',
-        type: TransactionType.earn,
-        amount: 100,
-        balanceAfter: 10100,
+  /// Test ledger journal - earning
+  static LedgerJournal get earnJournal => LedgerJournal(
+        id: 'journal123',
+        idempotencyKey: 'earn-user123-20240101-001',
+        type: LedgerJournalType.earn,
+        status: LedgerJournalStatus.posted,
         description: 'Watched ad',
+        entries: [
+          LedgerEntry(
+            id: 'entry1',
+            accountId: 'user:user123',
+            entryType: LedgerEntryType.credit,
+            amount: 100,
+            balanceAfter: 10100,
+          ),
+          LedgerEntry(
+            id: 'entry2',
+            accountId: 'system:earn',
+            entryType: LedgerEntryType.debit,
+            amount: 100,
+            balanceAfter: 0,
+          ),
+        ],
+        totalDebits: 100,
+        totalCredits: 100,
+        initiatedBy: 'system',
         createdAt: DateTime(2024, 1, 1),
+        postedAt: DateTime(2024, 1, 1),
       );
 
-  /// Test transaction - p2p send
-  static Transaction get p2pSendTransaction => Transaction(
-        id: 'tx456',
-        walletId: 'wallet123',
-        type: TransactionType.p2pSend,
-        amount: 500,
-        balanceAfter: 9500,
-        description: 'Transfer to Friend',
-        counterpartyId: 'user456',
-        counterpartyName: 'Friend',
-        createdAt: DateTime(2024, 1, 1),
-      );
-
-  /// Test transaction - p2p receive
-  static Transaction get p2pReceiveTransaction => Transaction(
-        id: 'tx789',
-        walletId: 'wallet123',
-        type: TransactionType.p2pReceive,
-        amount: 1000,
-        balanceAfter: 11000,
-        description: 'Transfer from Friend',
-        counterpartyId: 'user456',
-        counterpartyName: 'Friend',
-        createdAt: DateTime(2024, 1, 1),
-      );
-
-  /// Test transaction - cashout
-  static Transaction get cashoutTransaction => Transaction(
-        id: 'tx101',
-        walletId: 'wallet123',
-        type: TransactionType.cashout,
-        amount: 5000,
-        balanceAfter: 5000,
+  /// Test ledger journal - cashout
+  static LedgerJournal get cashoutJournal => LedgerJournal(
+        id: 'journal456',
+        idempotencyKey: 'cashout-user123-20240101-001',
+        type: LedgerJournalType.cashoutInitiate,
+        status: LedgerJournalStatus.posted,
         description: 'Cashout to bank',
+        entries: [
+          LedgerEntry(
+            id: 'entry3',
+            accountId: 'user:user123',
+            entryType: LedgerEntryType.debit,
+            amount: 5000,
+            balanceAfter: 5000,
+          ),
+          LedgerEntry(
+            id: 'entry4',
+            accountId: 'system:cashout',
+            entryType: LedgerEntryType.credit,
+            amount: 5000,
+            balanceAfter: 5000,
+          ),
+        ],
+        totalDebits: 5000,
+        totalCredits: 5000,
+        initiatedBy: 'user123',
         createdAt: DateTime(2024, 1, 1),
+        postedAt: DateTime(2024, 1, 1),
       );
 
-  /// Test transaction - pot win
-  static Transaction get potWinTransaction => Transaction(
-        id: 'tx102',
-        walletId: 'wallet123',
-        type: TransactionType.potWin,
-        amount: 10000,
-        balanceAfter: 20000,
+  /// Test ledger journal - pot win
+  static LedgerJournal get potWinJournal => LedgerJournal(
+        id: 'journal789',
+        idempotencyKey: 'potwin-user123-20240101-001',
+        type: LedgerJournalType.potWin,
+        status: LedgerJournalStatus.posted,
         description: 'Daily pot winner!',
+        entries: [
+          LedgerEntry(
+            id: 'entry5',
+            accountId: 'user:user123',
+            entryType: LedgerEntryType.credit,
+            amount: 10000,
+            balanceAfter: 20000,
+          ),
+          LedgerEntry(
+            id: 'entry6',
+            accountId: 'system:pot',
+            entryType: LedgerEntryType.debit,
+            amount: 10000,
+            balanceAfter: 0,
+          ),
+        ],
+        totalDebits: 10000,
+        totalCredits: 10000,
+        initiatedBy: 'system',
         createdAt: DateTime(2024, 1, 1),
+        postedAt: DateTime(2024, 1, 1),
       );
 
-  /// Test transaction - referral bonus
-  static Transaction get referralTransaction => Transaction(
-        id: 'tx103',
-        walletId: 'wallet123',
-        type: TransactionType.referral,
-        amount: 500,
-        balanceAfter: 10500,
-        description: 'Referral bonus',
-        referralId: 'ref123',
-        createdAt: DateTime(2024, 1, 1),
-      );
-
-  /// Test transaction - purchase
-  static Transaction get purchaseTransaction => Transaction(
-        id: 'tx104',
-        walletId: 'wallet123',
-        type: TransactionType.purchase,
-        amount: 2000,
-        balanceAfter: 8000,
-        description: 'Airtime purchase',
-        purchaseId: 'purchase123',
-        createdAt: DateTime(2024, 1, 1),
-      );
-
-  /// List of test transactions
-  static List<Transaction> get transactionList => [
-        earnTransaction,
-        p2pSendTransaction,
-        p2pReceiveTransaction,
-        cashoutTransaction,
-        potWinTransaction,
-        referralTransaction,
-        purchaseTransaction,
+  /// List of test ledger journals
+  static List<LedgerJournal> get ledgerJournalList => [
+        earnJournal,
+        cashoutJournal,
+        potWinJournal,
       ];
 
   // ==================== CHAT ====================

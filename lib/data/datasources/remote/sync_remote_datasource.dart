@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../core/utils/firestore_helpers.dart';
-import '../../models/wallet_model.dart';
-import '../../models/transaction_model.dart';
 import '../../models/earn_thread_model.dart';
 import '../../models/chat_thread_model.dart';
 import '../../../domain/entities/contact.dart';
@@ -13,46 +11,6 @@ class SyncRemoteDataSource {
 
   SyncRemoteDataSource({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
-
-  /// Fetch user's wallet from Firestore
-  Future<WalletModel?> fetchWallet(String userId) async {
-    final query = await _firestore
-        .collection('wallets')
-        .where('userId', isEqualTo: userId)
-        .limit(1)
-        .get();
-
-    if (query.docs.isEmpty) {
-      return null;
-    }
-
-    return WalletModel.fromJson(sanitizeFirestoreData(query.docs.first.data()));
-  }
-
-  /// Fetch transactions since a given timestamp
-  Future<List<TransactionModel>> fetchTransactionsSince(
-    String userId,
-    DateTime? since,
-  ) async {
-    Query<Map<String, dynamic>> query = _firestore
-        .collection('transactions')
-        .where('userId', isEqualTo: userId)
-        .orderBy('createdAt', descending: true)
-        .limit(100);
-
-    if (since != null) {
-      query = query.where(
-        'createdAt',
-        isGreaterThan: Timestamp.fromDate(since),
-      );
-    }
-
-    final snapshot = await query.get();
-
-    return snapshot.docs
-        .map((doc) => TransactionModel.fromJson(sanitizeFirestoreData(doc.data())))
-        .toList();
-  }
 
   /// Fetch earn threads since a given timestamp
   Future<List<EarnThreadModel>> fetchEarnThreadsSince(
@@ -143,22 +101,6 @@ class SyncRemoteDataSource {
     required Map<String, dynamic> changeData,
   }) async {
     switch (tableName) {
-      case 'localTransactions':
-        if (changeType == 'insert') {
-          await _firestore
-              .collection('transactions')
-              .doc(recordId)
-              .set(changeData);
-        } else if (changeType == 'update') {
-          await _firestore
-              .collection('transactions')
-              .doc(recordId)
-              .update(changeData);
-        } else if (changeType == 'delete') {
-          await _firestore.collection('transactions').doc(recordId).delete();
-        }
-        break;
-
       case 'localChatMessages':
         if (changeType == 'insert') {
           await _firestore
@@ -235,8 +177,6 @@ class SyncRemoteDataSource {
 
   String _tableToCollection(String tableName) {
     switch (tableName) {
-      case 'localTransactions':
-        return 'transactions';
       case 'localChatMessages':
         return 'chatMessages';
       case 'localChatThreads':
@@ -245,8 +185,6 @@ class SyncRemoteDataSource {
         return 'contacts';
       case 'localEarnThreads':
         return 'earnThreads';
-      case 'localWallets':
-        return 'wallets';
       default:
         return tableName.replaceFirst('local', '').toLowerCase();
     }

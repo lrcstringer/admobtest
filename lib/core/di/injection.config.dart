@@ -342,13 +342,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i851.WalletRepository>(),
       ),
     );
-    gh.factory<_i973.HomeBloc>(
-      () => _i973.HomeBloc(
-        gh<_i851.WalletRepository>(),
-        gh<_i805.EarnRepository>(),
-        gh<_i1010.GamificationRepository>(),
-      ),
-    );
     gh.factory<_i142.ChatBloc>(
       () => _i142.ChatBloc(gh<_i1072.ChatRepository>()),
     );
@@ -360,6 +353,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i775.EarnBloc>(
       () => _i775.EarnBloc(gh<_i805.EarnRepository>()),
+    );
+    gh.factory<_i973.HomeBloc>(
+      () => _i973.HomeBloc(
+        gh<_i805.EarnRepository>(),
+        gh<_i1010.GamificationRepository>(),
+      ),
     );
     return this;
   }

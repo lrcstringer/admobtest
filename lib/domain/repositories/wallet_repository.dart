@@ -1,44 +1,56 @@
 import 'package:dartz/dartz.dart';
 import '../../core/error/failures.dart';
-import '../entities/wallet.dart';
-import '../entities/transaction.dart';
 import '../entities/cashout.dart';
 import '../entities/ledger_account.dart';
 import '../entities/ledger_journal.dart';
+import '../entities/user_engagement_stats.dart';
 
-/// Wallet repository interface
+/// Repository for ledger, cashout, and engagement stats operations
+/// Note: Legacy wallet methods have been removed. Balance and transactions
+/// are now managed through the Trust Ledger system.
 abstract class WalletRepository {
-  /// Get user's main wallet
-  Future<Either<Failure, Wallet>> getMainWallet();
+  // ============================================================
+  // Ledger Account Methods
+  // ============================================================
 
-  /// Stream wallet updates
-  Stream<Either<Failure, Wallet>> watchWallet(String walletId);
+  /// Get user's ledger account (Trust Ledger)
+  Future<Either<Failure, LedgerAccount>> getLedgerAccount();
 
-  /// Get wallet by ID
-  Future<Either<Failure, Wallet>> getWalletById(String walletId);
+  /// Stream ledger account updates
+  Stream<Either<Failure, LedgerAccount>> watchLedgerAccount();
 
-  /// Get all wallets for user
-  Future<Either<Failure, List<Wallet>>> getUserWallets();
+  /// Get ledger balance (convenience method)
+  Future<Either<Failure, int>> getLedgerBalance();
 
-  /// Get transaction history
-  Future<Either<Failure, List<Transaction>>> getTransactions({
-    required String walletId,
+  // ============================================================
+  // Ledger Journal Methods (Transaction History)
+  // ============================================================
+
+  /// Get ledger journals (Trust Ledger transaction history)
+  Future<Either<Failure, List<LedgerJournal>>> getLedgerJournals({
     int? limit,
     DateTime? startAfter,
   });
 
-  /// Stream transactions
-  Stream<Either<Failure, List<Transaction>>> watchTransactions({
-    required String walletId,
-    int? limit,
-  });
+  /// Stream ledger journals
+  Stream<Either<Failure, List<LedgerJournal>>> watchLedgerJournals({int? limit});
 
-  /// Get transaction by ID
-  Future<Either<Failure, Transaction>> getTransactionById(String transactionId);
+  // ============================================================
+  // Engagement Stats Methods
+  // ============================================================
 
-  /// Request cashout
+  /// Get user's engagement stats (streak tracking)
+  Future<Either<Failure, UserEngagementStats>> getEngagementStats();
+
+  /// Stream engagement stats updates
+  Stream<Either<Failure, UserEngagementStats>> watchEngagementStats();
+
+  // ============================================================
+  // Cashout Methods
+  // ============================================================
+
+  /// Request cashout from ledger account
   Future<Either<Failure, Cashout>> requestCashout({
-    required String walletId,
     required int tokenAmount,
     required CashoutMethod method,
     required String destinationDetails,
@@ -59,22 +71,4 @@ abstract class WalletRepository {
 
   /// Cancel pending cashout
   Future<Either<Failure, void>> cancelCashout(String cashoutId);
-
-  /// Get user's ledger account (Trust Ledger)
-  Future<Either<Failure, LedgerAccount>> getLedgerAccount();
-
-  /// Stream ledger account updates
-  Stream<Either<Failure, LedgerAccount>> watchLedgerAccount();
-
-  /// Get ledger balance (convenience method)
-  Future<Either<Failure, int>> getLedgerBalance();
-
-  /// Get ledger journals (Trust Ledger transaction history)
-  Future<Either<Failure, List<LedgerJournal>>> getLedgerJournals({
-    int? limit,
-    DateTime? startAfter,
-  });
-
-  /// Stream ledger journals
-  Stream<Either<Failure, List<LedgerJournal>>> watchLedgerJournals({int? limit});
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../domain/entities/ledger_journal.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -17,7 +18,7 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<WalletBloc>().add(const WalletEvent.loadWallet());
+    context.read<WalletBloc>().add(const WalletEvent.loadLedger());
   }
 
   @override
@@ -30,7 +31,7 @@ class _WalletScreenState extends State<WalletScreen> {
 
         return RefreshIndicator(
           onRefresh: () async {
-            context.read<WalletBloc>().add(const WalletEvent.loadWallet());
+            context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -123,13 +124,13 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
                 AppSpacing.verticalXl,
 
-                // Recent transactions
+                // Recent transactions (using ledger journals)
                 Text(
                   'Recent Transactions',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 AppSpacing.verticalMd,
-                if (walletState.transactions.isEmpty)
+                if (walletState.ledgerJournals.isEmpty)
                   Container(
                     width: double.infinity,
                     padding: AppSpacing.cardPaddingLarge,
@@ -163,10 +164,14 @@ class _WalletScreenState extends State<WalletScreen> {
                     ),
                   )
                 else
-                  ...walletState.transactions.take(5).map(
-                        (tx) => _buildTransactionItem(context, tx),
+                  ...walletState.ledgerJournals.take(5).map(
+                        (journal) => _buildJournalItem(
+                          context,
+                          journal,
+                          walletState.ledgerAccount?.id,
+                        ),
                       ),
-                if (walletState.transactions.length > 5) ...[
+                if (walletState.ledgerJournals.length > 5) ...[
                   AppSpacing.verticalMd,
                   Center(
                     child: TextButton(
@@ -223,8 +228,18 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  Widget _buildTransactionItem(BuildContext context, dynamic tx) {
-    final isPositive = tx.amount > 0;
+  Widget _buildJournalItem(
+    BuildContext context,
+    LedgerJournal journal,
+    String? userAccountId,
+  ) {
+    // Find the user's entry in the journal
+    final userEntry = userAccountId != null
+        ? journal.entries.where((e) => e.accountId == userAccountId).firstOrNull
+        : null;
+
+    final isPositive = userEntry?.entryType == LedgerEntryType.credit;
+    final amount = userEntry?.amount ?? journal.totalCredits;
 
     return Container(
       padding: AppSpacing.cardPadding,
@@ -255,13 +270,13 @@ class _WalletScreenState extends State<WalletScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  tx.description ?? tx.type.name,
+                  journal.description,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
                 ),
                 Text(
-                  _formatDate(tx.createdAt),
+                  _formatDate(journal.postedAt ?? journal.createdAt),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -270,7 +285,7 @@ class _WalletScreenState extends State<WalletScreen> {
             ),
           ),
           Text(
-            '${isPositive ? '+' : ''}${tx.amount}',
+            '${isPositive ? '+' : '-'}$amount',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: isPositive ? AppColors.success : AppColors.error,
                   fontWeight: FontWeight.bold,

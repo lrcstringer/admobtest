@@ -11,7 +11,6 @@ enum HomeStatus {
 class HomeState with _$HomeState {
   const factory HomeState({
     @Default(HomeStatus.initial) HomeStatus status,
-    Wallet? wallet,
     @Default([]) List<EarnThread> earnOpportunities,
     @Default([]) List<PotPool> activePots,
     @Default(false) bool isRefreshing,
@@ -24,16 +23,6 @@ extension HomeStateX on HomeState {
   bool get isLoading => status == HomeStatus.loading;
   bool get isLoaded => status == HomeStatus.loaded;
   bool get hasError => status == HomeStatus.error;
-  bool get hasWallet => wallet != null;
-
-  /// Get total balance in tokens
-  int get tokenBalance => wallet?.tokenBalance ?? 0;
-
-  /// Get balance formatted for display
-  String get balanceFormatted => wallet?.balance.formatted ?? '0';
-
-  /// Check if wallet can cashout
-  bool get canCashout => wallet?.canCashout ?? false;
 
   /// Get greeting based on time of day
   String get greeting {

@@ -4,11 +4,10 @@ import 'package:injectable/injectable.dart';
 import '../../core/error/exceptions.dart';
 import '../../core/error/failures.dart';
 import '../../core/network/network_info.dart';
-import '../../domain/entities/wallet.dart';
-import '../../domain/entities/transaction.dart';
 import '../../domain/entities/cashout.dart';
 import '../../domain/entities/ledger_account.dart';
 import '../../domain/entities/ledger_journal.dart';
+import '../../domain/entities/user_engagement_stats.dart';
 import '../../domain/repositories/wallet_repository.dart';
 import '../datasources/remote/wallet_remote_datasource.dart';
 
@@ -19,18 +18,22 @@ class WalletRepositoryImpl implements WalletRepository {
 
   WalletRepositoryImpl(this._remoteDataSource, this._networkInfo);
 
+  // ============================================================
+  // Ledger Account Methods
+  // ============================================================
+
   @override
-  Future<Either<Failure, Wallet>> getMainWallet() async {
+  Future<Either<Failure, LedgerAccount>> getLedgerAccount() async {
     if (!await _networkInfo.isConnected) {
       return const Left(Failure.network());
     }
 
     try {
-      final walletModel = await _remoteDataSource.getMainWallet();
-      if (walletModel == null) {
-        return const Left(Failure.serverError(message: 'Wallet not found'));
+      final ledgerModel = await _remoteDataSource.getLedgerAccount();
+      if (ledgerModel == null) {
+        return const Left(Failure.serverError(message: 'Ledger account not found'));
       }
-      return Right(walletModel.toEntity());
+      return Right(ledgerModel.toEntity());
     } on AuthException {
       return const Left(Failure.unauthenticated());
     } on ServerException catch (e) {
@@ -41,43 +44,24 @@ class WalletRepositoryImpl implements WalletRepository {
   }
 
   @override
-  Stream<Either<Failure, Wallet>> watchWallet(String walletId) {
-    return _remoteDataSource.watchWallet(walletId).map((walletModel) {
-      if (walletModel == null) {
-        return const Left(Failure.serverError(message: 'Wallet not found'));
+  Stream<Either<Failure, LedgerAccount>> watchLedgerAccount() {
+    return _remoteDataSource.watchLedgerAccount().map((ledgerModel) {
+      if (ledgerModel == null) {
+        return const Left(Failure.serverError(message: 'Ledger account not found'));
       }
-      return Right(walletModel.toEntity());
+      return Right(ledgerModel.toEntity());
     });
   }
 
   @override
-  Future<Either<Failure, Wallet>> getWalletById(String walletId) async {
+  Future<Either<Failure, int>> getLedgerBalance() async {
     if (!await _networkInfo.isConnected) {
       return const Left(Failure.network());
     }
 
     try {
-      final walletModel = await _remoteDataSource.getWallet(walletId);
-      if (walletModel == null) {
-        return const Left(Failure.serverError(message: 'Wallet not found'));
-      }
-      return Right(walletModel.toEntity());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
-    } catch (e) {
-      return Left(Failure.serverError(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, List<Wallet>>> getUserWallets() async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(Failure.network());
-    }
-
-    try {
-      final walletModels = await _remoteDataSource.getUserWallets();
-      return Right(walletModels.map((m) => m.toEntity()).toList());
+      final balance = await _remoteDataSource.getLedgerBalance();
+      return Right(balance);
     } on AuthException {
       return const Left(Failure.unauthenticated());
     } on ServerException catch (e) {
@@ -87,9 +71,12 @@ class WalletRepositoryImpl implements WalletRepository {
     }
   }
 
+  // ============================================================
+  // Ledger Journal Methods
+  // ============================================================
+
   @override
-  Future<Either<Failure, List<Transaction>>> getTransactions({
-    required String walletId,
+  Future<Either<Failure, List<LedgerJournal>>> getLedgerJournals({
     int? limit,
     DateTime? startAfter,
   }) async {
@@ -98,12 +85,13 @@ class WalletRepositoryImpl implements WalletRepository {
     }
 
     try {
-      final transactions = await _remoteDataSource.getTransactions(
-        walletId: walletId,
+      final journals = await _remoteDataSource.getLedgerJournals(
         limit: limit,
         startAfter: startAfter,
       );
-      return Right(transactions.map((m) => m.toEntity()).toList());
+      return Right(journals.map((m) => m.toEntity()).toList());
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
     } on ServerException catch (e) {
       return Left(Failure.serverError(message: e.message));
     } catch (e) {
@@ -112,31 +100,35 @@ class WalletRepositoryImpl implements WalletRepository {
   }
 
   @override
-  Stream<Either<Failure, List<Transaction>>> watchTransactions({
-    required String walletId,
-    int? limit,
-  }) {
-    return _remoteDataSource
-        .watchTransactions(walletId: walletId, limit: limit)
-        .map((transactions) {
-      return Right(transactions.map((m) => m.toEntity()).toList());
+  Stream<Either<Failure, List<LedgerJournal>>> watchLedgerJournals({int? limit}) {
+    return _remoteDataSource.watchLedgerJournals(limit: limit).map((journals) {
+      return Right(journals.map((m) => m.toEntity()).toList());
     });
   }
 
+  // ============================================================
+  // Engagement Stats Methods
+  // ============================================================
+
   @override
-  Future<Either<Failure, Transaction>> getTransactionById(
-      String transactionId) async {
+  Future<Either<Failure, UserEngagementStats>> getEngagementStats() async {
     if (!await _networkInfo.isConnected) {
       return const Left(Failure.network());
     }
 
     try {
-      final transactionModel =
-          await _remoteDataSource.getTransaction(transactionId);
-      if (transactionModel == null) {
-        return const Left(Failure.serverError(message: 'Transaction not found'));
+      final statsModel = await _remoteDataSource.getEngagementStats();
+      if (statsModel == null) {
+        // Return empty stats for new users
+        final userId = _remoteDataSource.currentUserId;
+        if (userId == null) {
+          return const Left(Failure.unauthenticated());
+        }
+        return Right(UserEngagementStats.empty(userId));
       }
-      return Right(transactionModel.toEntity());
+      return Right(statsModel.toEntity());
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
     } on ServerException catch (e) {
       return Left(Failure.serverError(message: e.message));
     } catch (e) {
@@ -145,8 +137,26 @@ class WalletRepositoryImpl implements WalletRepository {
   }
 
   @override
+  Stream<Either<Failure, UserEngagementStats>> watchEngagementStats() {
+    return _remoteDataSource.watchEngagementStats().map((statsModel) {
+      if (statsModel == null) {
+        // Return empty stats for new users
+        final userId = _remoteDataSource.currentUserId;
+        if (userId == null) {
+          return Left<Failure, UserEngagementStats>(const Failure.unauthenticated());
+        }
+        return Right<Failure, UserEngagementStats>(UserEngagementStats.empty(userId));
+      }
+      return Right<Failure, UserEngagementStats>(statsModel.toEntity());
+    });
+  }
+
+  // ============================================================
+  // Cashout Methods
+  // ============================================================
+
+  @override
   Future<Either<Failure, Cashout>> requestCashout({
-    required String walletId,
     required int tokenAmount,
     required CashoutMethod method,
     required String destinationDetails,
@@ -161,7 +171,6 @@ class WalletRepositoryImpl implements WalletRepository {
 
     try {
       final cashoutModel = await _remoteDataSource.requestCashout(
-        walletId: walletId,
         tokenAmount: tokenAmount,
         method: method,
         destinationDetails: destinationDetails,
@@ -239,85 +248,5 @@ class WalletRepositoryImpl implements WalletRepository {
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
-  }
-
-  @override
-  Future<Either<Failure, LedgerAccount>> getLedgerAccount() async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(Failure.network());
-    }
-
-    try {
-      final ledgerModel = await _remoteDataSource.getLedgerAccount();
-      if (ledgerModel == null) {
-        return const Left(Failure.serverError(message: 'Ledger account not found'));
-      }
-      return Right(ledgerModel.toEntity());
-    } on AuthException {
-      return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
-    } catch (e) {
-      return Left(Failure.serverError(message: e.toString()));
-    }
-  }
-
-  @override
-  Stream<Either<Failure, LedgerAccount>> watchLedgerAccount() {
-    return _remoteDataSource.watchLedgerAccount().map((ledgerModel) {
-      if (ledgerModel == null) {
-        return const Left(Failure.serverError(message: 'Ledger account not found'));
-      }
-      return Right(ledgerModel.toEntity());
-    });
-  }
-
-  @override
-  Future<Either<Failure, int>> getLedgerBalance() async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(Failure.network());
-    }
-
-    try {
-      final balance = await _remoteDataSource.getLedgerBalance();
-      return Right(balance);
-    } on AuthException {
-      return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
-    } catch (e) {
-      return Left(Failure.serverError(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, List<LedgerJournal>>> getLedgerJournals({
-    int? limit,
-    DateTime? startAfter,
-  }) async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(Failure.network());
-    }
-
-    try {
-      final journals = await _remoteDataSource.getLedgerJournals(
-        limit: limit,
-        startAfter: startAfter,
-      );
-      return Right(journals.map((m) => m.toEntity()).toList());
-    } on AuthException {
-      return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
-    } catch (e) {
-      return Left(Failure.serverError(message: e.toString()));
-    }
-  }
-
-  @override
-  Stream<Either<Failure, List<LedgerJournal>>> watchLedgerJournals({int? limit}) {
-    return _remoteDataSource.watchLedgerJournals(limit: limit).map((journals) {
-      return Right(journals.map((m) => m.toEntity()).toList());
-    });
   }
 }
