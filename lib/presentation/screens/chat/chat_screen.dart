@@ -28,7 +28,6 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: IMaliAppBar(
         title: 'Chat',
-        showHomeButton: false,
         extraActions: [
           IconButton(
             icon: const Icon(Icons.search, color: AppColors.textPrimary),

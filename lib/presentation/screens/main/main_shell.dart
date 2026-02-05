@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../theme/app_colors.dart';
 import '../../widgets/common/bottom_nav_bar.dart';
 
 /// Main shell scaffold used by all primary app screens.
@@ -18,7 +17,7 @@ class MainShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       body: navigationShell,
       bottomNavigationBar: BottomNavBar(
         currentIndex: navigationShell.currentIndex,

@@ -29,7 +29,6 @@ class _EarnScreenState extends State<EarnScreen> {
     return Scaffold(
       appBar: IMaliAppBar(
         title: 'Earn',
-        showHomeButton: false,
         extraActions: [
           IconButton(
             icon: const Icon(Icons.history, color: AppColors.textPrimary),
@@ -419,9 +418,7 @@ class ThreadOpportunitiesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(thread.brandName),
-      ),
+      appBar: IMaliAppBar(title: thread.brandName),
       body: BlocBuilder<EarnBloc, EarnState>(
         builder: (context, state) {
           if (state.opportunities.isEmpty) {

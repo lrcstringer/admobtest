@@ -7,6 +7,7 @@ import '../../../domain/enums/pot_type.dart';
 import '../../blocs/pot/pot_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class PotsScreen extends StatefulWidget {
   const PotsScreen({super.key});
@@ -30,6 +31,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
     potBloc.add(const PotEvent.checkEligibility());
     potBloc.add(const PotEvent.loadLeaderboard(type: PotType.daily, limit: 10));
     potBloc.add(const PotEvent.loadCurrentUserScore(PotType.daily));
+    potBloc.add(const PotEvent.loadPotHistory(type: PotType.daily, limit: 20));
   }
 
   @override
@@ -41,8 +43,15 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pots'),
+      appBar: IMaliAppBar(
+        title: 'Pots',
+        extraActions: [
+          IconButton(
+            icon: const Icon(Icons.leaderboard_outlined),
+            onPressed: () => _showLeaderboardSheet(context),
+            tooltip: 'Leaderboard',
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -52,13 +61,6 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
           labelColor: AppColors.primary,
           indicatorColor: AppColors.primary,
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.leaderboard_outlined),
-            onPressed: () => _showLeaderboardSheet(context),
-            tooltip: 'Leaderboard',
-          ),
-        ],
       ),
       body: TabBarView(
         controller: _tabController,
@@ -89,65 +91,6 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Info Card
-                Container(
-                  padding: AppSpacing.cardPadding,
-                  decoration: BoxDecoration(
-                    color: AppColors.info.withValues(alpha: 0.1),
-                    borderRadius: AppSpacing.borderRadiusMd,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.info_outline, color: AppColors.info),
-                          AppSpacing.horizontalMd,
-                          Expanded(
-                            child: Text(
-                              'How Pots Work',
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    color: AppColors.info,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      AppSpacing.verticalSm,
-                      Padding(
-                        padding: const EdgeInsets.only(left: 36),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '5% of every token you earn goes to the Daily Pot',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.info,
-                                  ),
-                            ),
-                            Text(
-                              '5% of every token you earn goes to the Weekly Pot',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.info,
-                                  ),
-                            ),
-                            AppSpacing.verticalXs,
-                            Text(
-                              'Top earners win a share of the pot!',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.info,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                AppSpacing.verticalLg,
-
                 // Daily Pot
                 if (state.dailyPot != null)
                   _buildPotCard(
@@ -185,15 +128,6 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
   Widget _buildHistoryTab(BuildContext context) {
     return BlocBuilder<PotBloc, PotState>(
       builder: (context, state) {
-        if (state.potHistory.isEmpty && !state.isLoadingHistory) {
-          // Load history when tab is viewed
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            context.read<PotBloc>().add(
-                  const PotEvent.loadPotHistory(type: PotType.daily, limit: 20),
-                );
-          });
-        }
-
         if (state.isLoadingHistory) {
           return const Center(child: CircularProgressIndicator());
         }

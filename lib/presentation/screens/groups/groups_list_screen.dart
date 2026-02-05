@@ -6,6 +6,7 @@ import '../../../domain/entities/group.dart';
 import '../../blocs/group/group_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class GroupsListScreen extends StatefulWidget {
   const GroupsListScreen({super.key});
@@ -25,9 +26,9 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Groups'),
-        actions: [
+      appBar: IMaliAppBar(
+        title: 'My Groups',
+        extraActions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => context.go('/groups/create'),

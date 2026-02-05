@@ -9,6 +9,7 @@ import '../../../domain/repositories/user_repository.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -66,9 +67,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Profile'),
-      ),
+      appBar: const IMaliAppBar(title: 'Edit Profile'),
       body: SingleChildScrollView(
         padding: AppSpacing.pagePadding,
         child: Form(

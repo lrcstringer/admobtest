@@ -12,6 +12,7 @@ import '../../../domain/repositories/device_repository.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class SecuritySettingsScreen extends StatefulWidget {
   const SecuritySettingsScreen({super.key});
@@ -49,15 +50,13 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
   Widget build(BuildContext context) {
     if (_isLoadingSettings) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Security')),
+        appBar: const IMaliAppBar(title: 'Security'),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Security'),
-      ),
+      appBar: const IMaliAppBar(title: 'Security'),
       body: ListView(
         children: [
           // PIN section

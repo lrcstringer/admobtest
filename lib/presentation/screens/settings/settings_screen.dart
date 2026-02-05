@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -16,9 +17,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: const IMaliAppBar(title: 'Settings'),
       body: ListView(
         children: [
           // Account section

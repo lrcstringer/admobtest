@@ -1,12 +1,17 @@
+import 'dart:convert';
+
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/referral/referral_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,7 +24,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Load referral stats for the profile
     context.read<ReferralBloc>().add(const ReferralEvent.loadStats());
   }
 
@@ -30,15 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final user = authState.user;
 
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Profile'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.settings_outlined),
-                onPressed: () => context.push('/home/profile/settings'),
-              ),
-            ],
-          ),
+          appBar: const IMaliAppBar(title: 'Profile'),
           body: SingleChildScrollView(
             child: Column(
               children: [
@@ -57,9 +53,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             CircleAvatar(
                               radius: 50,
                               backgroundColor: AppColors.primary,
-                              backgroundImage: user?.profile?.avatarUrl != null
-                                  ? NetworkImage(user!.profile!.avatarUrl!)
-                                  : null,
+                              backgroundImage:
+                                  user?.profile?.avatarUrl != null
+                                      ? NetworkImage(
+                                          user!.profile!.avatarUrl!)
+                                      : null,
                               child: user?.profile?.avatarUrl == null
                                   ? Text(
                                       user?.initials ?? 'U',
@@ -80,7 +78,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 decoration: BoxDecoration(
                                   color: AppColors.primary,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
+                                  border: Border.all(
+                                      color: Colors.white, width: 2),
                                 ),
                                 child: const Icon(
                                   Icons.edit,
@@ -95,7 +94,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       AppSpacing.verticalMd,
                       Text(
                         user?.displayName ?? 'User',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                       ),
@@ -103,23 +105,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         AppSpacing.verticalXs,
                         Text(
                           '@${user!.profile!.username}',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
                                 color: AppColors.textSecondary,
                               ),
                         ),
                       ],
                       AppSpacing.verticalMd,
-                      // Stats row with real data
+                      // Stats row
                       BlocBuilder<WalletBloc, WalletState>(
                         builder: (context, walletState) {
                           return BlocBuilder<ReferralBloc, ReferralState>(
                             builder: (context, referralState) {
-                              final totalEarned = walletState.totalTokensEarned;
+                              final totalEarned =
+                                  walletState.totalTokensEarned;
                               final referralCount =
-                                  referralState.stats?.totalReferrals ?? 0;
+                                  referralState.stats?.totalReferrals ??
+                                      0;
 
                               return Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.center,
                                 children: [
                                   _buildStat(
                                     context,
@@ -130,7 +138,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     height: 30,
                                     width: 1,
                                     color: AppColors.divider,
-                                    margin: const EdgeInsets.symmetric(horizontal: 24),
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 24),
                                   ),
                                   _buildStat(
                                     context,
@@ -141,7 +150,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     height: 30,
                                     width: 1,
                                     color: AppColors.divider,
-                                    margin: const EdgeInsets.symmetric(horizontal: 24),
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 24),
                                   ),
                                   _buildStat(context, '0', 'Pots Won'),
                                 ],
@@ -155,38 +165,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 AppSpacing.verticalMd,
 
-                // Quick Actions
+                // Account section
+                _buildSectionHeader(context, 'Account'),
                 Container(
                   color: AppColors.surface,
                   child: Column(
                     children: [
                       _buildMenuItem(
                         context,
-                        icon: Icons.account_balance_wallet_outlined,
-                        title: 'Wallet',
-                        subtitle: 'View balance and transactions',
-                        onTap: () => context.push('/wallet/transactions'),
+                        icon: Icons.person_outline,
+                        title: 'Edit Profile',
+                        subtitle: 'Name, username, avatar',
+                        onTap: () =>
+                            context.push('/home/profile/edit'),
                       ),
                       _buildMenuItem(
                         context,
-                        icon: Icons.shopping_bag_outlined,
-                        title: 'Buy Services',
-                        subtitle: 'Airtime, data, electricity & more',
-                        onTap: () => context.push('/buy'),
-                      ),
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.people_outline,
-                        title: 'Referrals',
-                        subtitle: 'Invite friends and earn',
-                        onTap: () => context.push('/home/profile/referrals'),
+                        icon: Icons.verified_user_outlined,
+                        title: 'Verify Identity',
+                        subtitle: 'KYC verification for cashouts',
+                        onTap: () =>
+                            context.push('/home/profile/kyc'),
                       ),
                     ],
                   ),
                 ),
                 AppSpacing.verticalMd,
 
-                // Settings Section
+                // Preferences section
+                _buildSectionHeader(context, 'Preferences'),
                 Container(
                   color: AppColors.surface,
                   child: Column(
@@ -196,28 +203,94 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         icon: Icons.notifications_outlined,
                         title: 'Notifications',
                         subtitle: 'Manage notification preferences',
-                        onTap: () => context.push('/home/profile/notifications'),
+                        onTap: () =>
+                            context.push('/home/profile/notifications'),
                       ),
+                    ],
+                  ),
+                ),
+                AppSpacing.verticalMd,
+
+                // Security section
+                _buildSectionHeader(context, 'Security'),
+                Container(
+                  color: AppColors.surface,
+                  child: Column(
+                    children: [
                       _buildMenuItem(
                         context,
-                        icon: Icons.security_outlined,
+                        icon: Icons.lock_outline,
                         title: 'Security',
                         subtitle: 'PIN and biometric settings',
-                        onTap: () => context.push('/home/profile/security'),
+                        onTap: () =>
+                            context.push('/home/profile/security'),
                       ),
+                    ],
+                  ),
+                ),
+                AppSpacing.verticalMd,
+
+                // Support section
+                _buildSectionHeader(context, 'Support'),
+                Container(
+                  color: AppColors.surface,
+                  child: Column(
+                    children: [
                       _buildMenuItem(
                         context,
                         icon: Icons.help_outline,
                         title: 'Help & Support',
                         subtitle: 'FAQs and contact support',
-                        onTap: () => context.push('/home/profile/help'),
+                        onTap: () =>
+                            context.push('/home/profile/help'),
                       ),
                       _buildMenuItem(
                         context,
                         icon: Icons.info_outline,
                         title: 'About',
                         subtitle: 'App version and legal',
-                        onTap: () => context.push('/home/profile/about'),
+                        onTap: () =>
+                            context.push('/home/profile/about'),
+                      ),
+                      _buildMenuItem(
+                        context,
+                        icon: Icons.description_outlined,
+                        title: 'Terms of Service',
+                        onTap: () =>
+                            context.push('/auth/terms-of-service'),
+                      ),
+                      _buildMenuItem(
+                        context,
+                        icon: Icons.shield_outlined,
+                        title: 'Privacy Policy',
+                        onTap: () =>
+                            context.push('/auth/privacy-policy'),
+                      ),
+                    ],
+                  ),
+                ),
+                AppSpacing.verticalMd,
+
+                // Data & Privacy section
+                _buildSectionHeader(context, 'Data & Privacy'),
+                Container(
+                  color: AppColors.surface,
+                  child: Column(
+                    children: [
+                      _buildMenuItem(
+                        context,
+                        icon: Icons.download_outlined,
+                        title: 'Download My Data',
+                        subtitle: 'Export your data (POPIA/GDPR)',
+                        onTap: () => _exportUserData(context),
+                      ),
+                      _buildMenuItem(
+                        context,
+                        icon: Icons.delete_outline,
+                        title: 'Delete Account',
+                        onTap: () =>
+                            _showDeleteAccountDialog(context),
+                        isDestructive: true,
                       ),
                     ],
                   ),
@@ -231,10 +304,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     context,
                     icon: Icons.logout,
                     title: 'Sign Out',
-                    subtitle: 'Sign out of your account',
-                    onTap: () {
-                      _showSignOutDialog(context);
-                    },
+                    onTap: () => _showSignOutDialog(context),
                     isDestructive: true,
                   ),
                 ),
@@ -246,6 +316,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
 
   String _formatNumber(int number) {
     if (number >= 1000000) {
@@ -276,11 +350,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          title.toUpperCase(),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.2,
+              ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildMenuItem(
     BuildContext context, {
     required IconData icon,
     required String title,
-    required String subtitle,
+    String? subtitle,
     required VoidCallback onTap,
     bool isDestructive = false,
   }) {
@@ -292,19 +383,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
       title: Text(
         title,
         style: TextStyle(
-          color: isDestructive ? AppColors.error : AppColors.textPrimary,
+          color:
+              isDestructive ? AppColors.error : AppColors.textPrimary,
         ),
       ),
-      subtitle: Text(
-        subtitle,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textSecondary,
-            ),
-      ),
-      trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style:
+                  Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+            )
+          : null,
+      trailing: const Icon(Icons.chevron_right,
+          color: AppColors.textSecondary),
       onTap: onTap,
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Dialogs
+  // ---------------------------------------------------------------------------
 
   void _showSignOutDialog(BuildContext context) {
     showDialog(
@@ -320,13 +420,134 @@ class _ProfileScreenState extends State<ProfileScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              context.read<AuthBloc>().add(const AuthEvent.signOut());
+              context
+                  .read<AuthBloc>()
+                  .add(const AuthEvent.signOut());
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(
+                foregroundColor: AppColors.error),
             child: const Text('Sign Out'),
           ),
         ],
       ),
     );
+  }
+
+  void _showDeleteAccountDialog(BuildContext context) {
+    final authBloc = context.read<AuthBloc>();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => BlocProvider.value(
+        value: authBloc,
+        child: BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state.status == AuthStatus.unauthenticated) {
+              if (Navigator.of(dialogContext).canPop()) {
+                Navigator.of(dialogContext).pop();
+              }
+            } else if (state.errorMessage != null &&
+                !state.isLoading) {
+              Navigator.of(dialogContext).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage!),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          },
+          builder: (context, state) {
+            final isDeleting = state.isLoading;
+
+            return AlertDialog(
+              title: const Text('Delete Account'),
+              content: isDeleting
+                  ? const Row(
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child:
+                              Text('Deleting your account...'),
+                        ),
+                      ],
+                    )
+                  : const Text(
+                      'Are you sure you want to delete your account? '
+                      'This action cannot be undone. All your data including '
+                      'tokens, transaction history, and referrals will be '
+                      'permanently deleted.',
+                    ),
+              actions: isDeleting
+                  ? []
+                  : [
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.pop(dialogContext),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          context.read<AuthBloc>().add(
+                              const AuthEvent.deleteAccount());
+                        },
+                        style: TextButton.styleFrom(
+                            foregroundColor: AppColors.error),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportUserData(BuildContext context) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) =>
+          const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final result = await FirebaseFunctions.instance
+          .httpsCallable('exportUserData')
+          .call();
+
+      if (context.mounted) Navigator.of(context).pop();
+
+      final data = result.data as Map<String, dynamic>;
+      final jsonString =
+          const JsonEncoder.withIndent('  ').convert(data);
+
+      await Share.share(jsonString,
+          subject: 'iMaliChat Data Export');
+    } on FirebaseFunctionsException catch (e) {
+      if (context.mounted) Navigator.of(context).pop();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                e.message ?? 'Export failed. Please try again.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) Navigator.of(context).pop();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text('Something went wrong. Please try again.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 }

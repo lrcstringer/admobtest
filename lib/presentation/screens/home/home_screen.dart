@@ -9,6 +9,7 @@ import '../../blocs/pot/pot_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     potBloc.add(const PotEvent.watchDailyPot());
     potBloc.add(const PotEvent.watchWeeklyPot());
     potBloc.add(const PotEvent.loadCurrentUserScore(PotType.daily));
+    potBloc.add(const PotEvent.loadCurrentUserScore(PotType.weekly));
   }
 
   String _getGreeting() {
@@ -57,25 +59,19 @@ class _HomeScreenState extends State<HomeScreen> {
             return BlocBuilder<PotBloc, PotState>(
               builder: (context, potState) {
                 return Scaffold(
-                  body: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: AppColors.backgroundGradient,
-                      ),
-                    ),
-                    child: SafeArea(
-                      child: RefreshIndicator(
+                  appBar: const IMaliAppBar(title: 'Home'),
+                  body: RefreshIndicator(
                         onRefresh: () async {
                           context
                               .read<WalletBloc>()
-                              .add(const WalletEvent.loadLedger());
+                              .add(const WalletEvent.refreshLedger());
                           final potBloc = context.read<PotBloc>();
                           potBloc.add(const PotEvent.loadDailyPot());
                           potBloc.add(const PotEvent.loadWeeklyPot());
                           potBloc.add(const PotEvent.loadCurrentUserScore(
                               PotType.daily));
+                          potBloc.add(const PotEvent.loadCurrentUserScore(
+                              PotType.weekly));
                         },
                         child: SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
@@ -97,8 +93,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                    ),
-                  ),
                 );
               },
             );
@@ -112,35 +106,26 @@ class _HomeScreenState extends State<HomeScreen> {
       BuildContext context, dynamic user, WalletState walletState) {
     // Use engagement stats as the authoritative source for streak
     final streak = walletState.currentStreak;
-    final avatarUrl = user?.profile?.avatarUrl as String?;
 
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _getGreeting(),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+        Text(
+          _getGreeting(),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppColors.textSecondary,
               ),
-              const SizedBox(height: 4),
-              Text(
-                user?.displayName ?? 'User',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              _buildStreakBadge(context, streak),
-            ],
-          ),
         ),
-        _buildProfileAvatar(context, user, avatarUrl),
+        const SizedBox(height: 4),
+        Text(
+          user?.displayName ?? 'User',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 8),
+        _buildStreakBadge(context, streak),
       ],
     );
   }
@@ -173,56 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildProfileAvatar(
-      BuildContext context, dynamic user, String? avatarUrl) {
-    return GestureDetector(
-      onTap: () => context.go('/home/profile'),
-      child: SizedBox(
-        width: 56,
-        height: 56,
-        child: Stack(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.primary, width: 2),
-              ),
-              child: CircleAvatar(
-                radius: 24,
-                backgroundColor: AppColors.surfaceElevated,
-                backgroundImage:
-                    avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                child: avatarUrl == null
-                    ? Icon(
-                        Icons.person,
-                        color: AppColors.primary,
-                        size: 28,
-                      )
-                    : null,
-              ),
-            ),
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.background, width: 2),
-                ),
-                child: const Icon(Icons.add, size: 12, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -276,7 +211,6 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            height: 48,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
@@ -317,7 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'DAILY',
             title: "TODAY'S POT",
             accentColors: AppColors.goldGradient,
-            userRank: potState.currentUserScore?.rank,
+            userRank: potState.dailyUserScore?.rank,
             isDaily: true,
           ),
         ),
@@ -329,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'WEEKLY',
             title: "THIS WEEK'S POT",
             accentColors: AppColors.primaryGradient,
-            userRank: null,
+            userRank: potState.weeklyUserScore?.rank,
             isDaily: false,
           ),
         ),
@@ -354,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
         : '--';
 
     return GestureDetector(
-      onTap: () => context.go('/pots'),
+      onTap: () => context.push('/pots'),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -459,7 +393,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildInviteFriendsButton(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.go('/home/profile/referrals'),
+      onTap: () => context.push('/home/profile/referrals'),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

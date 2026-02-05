@@ -1,35 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 
-/// Shared AppBar builder for consistent branding across all screens.
-/// Provides: back button (auto), home button, page title, sign out button.
+/// Shared AppBar for consistent branding across all screens.
+/// Layout: [Back (auto)] | Title | [extraActions] | Notifications | Profile
 class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final bool showHomeButton;
-  final bool showSignOut;
   final List<Widget>? extraActions;
+  final PreferredSizeWidget? bottom;
 
   const IMaliAppBar({
     super.key,
     required this.title,
-    this.showHomeButton = true,
-    this.showSignOut = true,
     this.extraActions,
+    this.bottom,
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => Size.fromHeight(
+        kToolbarHeight + (bottom?.preferredSize.height ?? 0),
+      );
 
   @override
   Widget build(BuildContext context) {
     final canPop = Navigator.of(context).canPop();
 
     return AppBar(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       leading: canPop
@@ -50,50 +48,31 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       actions: [
         if (extraActions != null) ...extraActions!,
-        if (showHomeButton && canPop)
-          IconButton(
-            icon: const Icon(Icons.home_outlined, color: AppColors.textPrimary),
-            onPressed: () => context.go('/home'),
+        IconButton(
+          icon: const Icon(
+            Icons.notifications_outlined,
+            color: AppColors.textSecondary,
           ),
-        if (showSignOut)
-          IconButton(
-            icon: const Icon(Icons.logout, color: AppColors.textSecondary),
-            onPressed: () => _showSignOutDialog(context),
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Notifications coming soon'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          },
+          tooltip: 'Notifications',
+        ),
+        IconButton(
+          icon: const Icon(
+            Icons.person_outline,
+            color: AppColors.textSecondary,
           ),
+          onPressed: () => context.push('/home/profile'),
+          tooltip: 'Profile',
+        ),
       ],
-    );
-  }
-
-  void _showSignOutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text(
-          'Sign Out',
-          style: TextStyle(color: AppColors.textPrimary),
-        ),
-        content: const Text(
-          'Are you sure you want to sign out?',
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              context.read<AuthBloc>().add(const AuthEvent.signOut());
-            },
-            child: Text(
-              'Sign Out',
-              style: TextStyle(color: AppColors.error),
-            ),
-          ),
-        ],
-      ),
+      bottom: bottom,
     );
   }
 }

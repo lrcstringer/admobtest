@@ -11,6 +11,8 @@ class PotState with _$PotState {
     @Default([]) List<UserScore> leaderboard,
     @Default([]) List<PotPool> potHistory,
     UserScore? currentUserScore,
+    UserScore? dailyUserScore,
+    UserScore? weeklyUserScore,
     @Default(PotType.daily) PotType selectedPotType,
     @Default(false) bool isLoadingDaily,
     @Default(false) bool isLoadingWeekly,

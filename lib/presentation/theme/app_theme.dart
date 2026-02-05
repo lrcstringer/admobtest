@@ -47,7 +47,7 @@ class AppTheme {
         brightness: Brightness.dark,
         colorScheme: _darkColorScheme,
         textTheme: AppTypography.darkTextTheme,
-        scaffoldBackgroundColor: AppColors.backgroundDark,
+        scaffoldBackgroundColor: Colors.transparent,
         appBarTheme: _darkAppBarTheme,
         cardTheme: _darkCardTheme,
         elevatedButtonTheme: _elevatedButtonTheme,

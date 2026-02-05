@@ -5,6 +5,7 @@ import '../../../domain/entities/ledger_journal.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   const TransactionHistoryScreen({super.key});
@@ -15,6 +16,7 @@ class TransactionHistoryScreen extends StatefulWidget {
 
 class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   final ScrollController _scrollController = ScrollController();
+  LedgerJournalType? _selectedFilter;
 
   @override
   void initState() {
@@ -38,8 +40,18 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Transaction History'),
+      appBar: IMaliAppBar(
+        title: 'Transaction History',
+        extraActions: [
+          IconButton(
+            icon: Badge(
+              isLabelVisible: _selectedFilter != null,
+              child: const Icon(Icons.filter_list),
+            ),
+            tooltip: 'Filter',
+            onPressed: () => _showFilterSheet(context),
+          ),
+        ],
       ),
       body: BlocBuilder<WalletBloc, WalletState>(
         builder: (context, state) {
@@ -47,8 +59,17 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
+          // Apply filter
+          final filteredJournals = _selectedFilter == null
+              ? state.ledgerJournals
+              : state.ledgerJournals.where((j) => j.type == _selectedFilter).toList();
+
           if (state.ledgerJournals.isEmpty) {
             return _buildEmptyState(context);
+          }
+
+          if (filteredJournals.isEmpty && _selectedFilter != null) {
+            return _buildNoFilterResultsState(context);
           }
 
           return RefreshIndicator(
@@ -58,9 +79,9 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             child: ListView.builder(
               controller: _scrollController,
               padding: AppSpacing.pagePadding,
-              itemCount: state.ledgerJournals.length + (state.isLoadingMore ? 1 : 0),
+              itemCount: filteredJournals.length + (state.isLoadingMore ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index == state.ledgerJournals.length) {
+                if (index == filteredJournals.length) {
                   return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(16),
@@ -69,12 +90,63 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                   );
                 }
 
-                final journal = state.ledgerJournals[index];
+                final journal = filteredJournals[index];
                 return _buildJournalCard(context, journal, state.ledgerAccount?.id);
               },
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showFilterSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => _FilterSheet(
+        selectedFilter: _selectedFilter,
+        onFilterSelected: (filter) {
+          setState(() => _selectedFilter = filter);
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
+  Widget _buildNoFilterResultsState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.filter_list_off,
+              size: 80,
+              color: AppColors.textHint,
+            ),
+            AppSpacing.verticalLg,
+            Text(
+              'No matching transactions',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            AppSpacing.verticalSm,
+            Text(
+              'Try changing your filter',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            AppSpacing.verticalLg,
+            TextButton(
+              onPressed: () => setState(() => _selectedFilter = null),
+              child: const Text('Clear Filter'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -389,6 +461,90 @@ class JournalDetailSheet extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _FilterSheet extends StatelessWidget {
+  final LedgerJournalType? selectedFilter;
+  final ValueChanged<LedgerJournalType?> onFilterSelected;
+
+  const _FilterSheet({
+    required this.selectedFilter,
+    required this.onFilterSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Filter Transactions',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              if (selectedFilter != null)
+                TextButton(
+                  onPressed: () => onFilterSelected(null),
+                  child: const Text('Clear'),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildFilterChip(context, LedgerJournalType.earn, 'Earned', Icons.monetization_on),
+              _buildFilterChip(context, LedgerJournalType.potWin, 'Pot Wins', Icons.emoji_events),
+              _buildFilterChip(context, LedgerJournalType.potContribution, 'Pot Entry', Icons.savings),
+              _buildFilterChip(context, LedgerJournalType.purchase, 'Purchases', Icons.shopping_bag),
+              _buildFilterChip(context, LedgerJournalType.p2pTransfer, 'Transfers', Icons.swap_horiz),
+              _buildFilterChip(context, LedgerJournalType.cashoutInitiate, 'Cashouts', Icons.account_balance_wallet),
+              _buildFilterChip(context, LedgerJournalType.referralReward, 'Referrals', Icons.people),
+            ],
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(
+    BuildContext context,
+    LedgerJournalType type,
+    String label,
+    IconData icon,
+  ) {
+    final isSelected = selectedFilter == type;
+    return FilterChip(
+      selected: isSelected,
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: isSelected ? Colors.white : AppColors.textSecondary,
+          ),
+          const SizedBox(width: 6),
+          Text(label),
+        ],
+      ),
+      onSelected: (_) => onFilterSelected(isSelected ? null : type),
+      selectedColor: AppColors.primary,
+      checkmarkColor: Colors.white,
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.white : AppColors.textPrimary,
       ),
     );
   }

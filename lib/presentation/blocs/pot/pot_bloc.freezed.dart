@@ -3025,6 +3025,8 @@ mixin _$PotState {
   List<UserScore> get leaderboard => throw _privateConstructorUsedError;
   List<PotPool> get potHistory => throw _privateConstructorUsedError;
   UserScore? get currentUserScore => throw _privateConstructorUsedError;
+  UserScore? get dailyUserScore => throw _privateConstructorUsedError;
+  UserScore? get weeklyUserScore => throw _privateConstructorUsedError;
   PotType get selectedPotType => throw _privateConstructorUsedError;
   bool get isLoadingDaily => throw _privateConstructorUsedError;
   bool get isLoadingWeekly => throw _privateConstructorUsedError;
@@ -3053,6 +3055,8 @@ abstract class $PotStateCopyWith<$Res> {
     List<UserScore> leaderboard,
     List<PotPool> potHistory,
     UserScore? currentUserScore,
+    UserScore? dailyUserScore,
+    UserScore? weeklyUserScore,
     PotType selectedPotType,
     bool isLoadingDaily,
     bool isLoadingWeekly,
@@ -3066,6 +3070,8 @@ abstract class $PotStateCopyWith<$Res> {
   $PotPoolCopyWith<$Res>? get dailyPot;
   $PotPoolCopyWith<$Res>? get weeklyPot;
   $UserScoreCopyWith<$Res>? get currentUserScore;
+  $UserScoreCopyWith<$Res>? get dailyUserScore;
+  $UserScoreCopyWith<$Res>? get weeklyUserScore;
 }
 
 /// @nodoc
@@ -3089,6 +3095,8 @@ class _$PotStateCopyWithImpl<$Res, $Val extends PotState>
     Object? leaderboard = null,
     Object? potHistory = null,
     Object? currentUserScore = freezed,
+    Object? dailyUserScore = freezed,
+    Object? weeklyUserScore = freezed,
     Object? selectedPotType = null,
     Object? isLoadingDaily = null,
     Object? isLoadingWeekly = null,
@@ -3123,6 +3131,14 @@ class _$PotStateCopyWithImpl<$Res, $Val extends PotState>
             currentUserScore: freezed == currentUserScore
                 ? _value.currentUserScore
                 : currentUserScore // ignore: cast_nullable_to_non_nullable
+                      as UserScore?,
+            dailyUserScore: freezed == dailyUserScore
+                ? _value.dailyUserScore
+                : dailyUserScore // ignore: cast_nullable_to_non_nullable
+                      as UserScore?,
+            weeklyUserScore: freezed == weeklyUserScore
+                ? _value.weeklyUserScore
+                : weeklyUserScore // ignore: cast_nullable_to_non_nullable
                       as UserScore?,
             selectedPotType: null == selectedPotType
                 ? _value.selectedPotType
@@ -3202,6 +3218,34 @@ class _$PotStateCopyWithImpl<$Res, $Val extends PotState>
       return _then(_value.copyWith(currentUserScore: value) as $Val);
     });
   }
+
+  /// Create a copy of PotState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $UserScoreCopyWith<$Res>? get dailyUserScore {
+    if (_value.dailyUserScore == null) {
+      return null;
+    }
+
+    return $UserScoreCopyWith<$Res>(_value.dailyUserScore!, (value) {
+      return _then(_value.copyWith(dailyUserScore: value) as $Val);
+    });
+  }
+
+  /// Create a copy of PotState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $UserScoreCopyWith<$Res>? get weeklyUserScore {
+    if (_value.weeklyUserScore == null) {
+      return null;
+    }
+
+    return $UserScoreCopyWith<$Res>(_value.weeklyUserScore!, (value) {
+      return _then(_value.copyWith(weeklyUserScore: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -3220,6 +3264,8 @@ abstract class _$$PotStateImplCopyWith<$Res>
     List<UserScore> leaderboard,
     List<PotPool> potHistory,
     UserScore? currentUserScore,
+    UserScore? dailyUserScore,
+    UserScore? weeklyUserScore,
     PotType selectedPotType,
     bool isLoadingDaily,
     bool isLoadingWeekly,
@@ -3236,6 +3282,10 @@ abstract class _$$PotStateImplCopyWith<$Res>
   $PotPoolCopyWith<$Res>? get weeklyPot;
   @override
   $UserScoreCopyWith<$Res>? get currentUserScore;
+  @override
+  $UserScoreCopyWith<$Res>? get dailyUserScore;
+  @override
+  $UserScoreCopyWith<$Res>? get weeklyUserScore;
 }
 
 /// @nodoc
@@ -3258,6 +3308,8 @@ class __$$PotStateImplCopyWithImpl<$Res>
     Object? leaderboard = null,
     Object? potHistory = null,
     Object? currentUserScore = freezed,
+    Object? dailyUserScore = freezed,
+    Object? weeklyUserScore = freezed,
     Object? selectedPotType = null,
     Object? isLoadingDaily = null,
     Object? isLoadingWeekly = null,
@@ -3292,6 +3344,14 @@ class __$$PotStateImplCopyWithImpl<$Res>
         currentUserScore: freezed == currentUserScore
             ? _value.currentUserScore
             : currentUserScore // ignore: cast_nullable_to_non_nullable
+                  as UserScore?,
+        dailyUserScore: freezed == dailyUserScore
+            ? _value.dailyUserScore
+            : dailyUserScore // ignore: cast_nullable_to_non_nullable
+                  as UserScore?,
+        weeklyUserScore: freezed == weeklyUserScore
+            ? _value.weeklyUserScore
+            : weeklyUserScore // ignore: cast_nullable_to_non_nullable
                   as UserScore?,
         selectedPotType: null == selectedPotType
             ? _value.selectedPotType
@@ -3340,6 +3400,8 @@ class _$PotStateImpl implements _PotState {
     final List<UserScore> leaderboard = const [],
     final List<PotPool> potHistory = const [],
     this.currentUserScore,
+    this.dailyUserScore,
+    this.weeklyUserScore,
     this.selectedPotType = PotType.daily,
     this.isLoadingDaily = false,
     this.isLoadingWeekly = false,
@@ -3379,6 +3441,10 @@ class _$PotStateImpl implements _PotState {
   @override
   final UserScore? currentUserScore;
   @override
+  final UserScore? dailyUserScore;
+  @override
+  final UserScore? weeklyUserScore;
+  @override
   @JsonKey()
   final PotType selectedPotType;
   @override
@@ -3404,7 +3470,7 @@ class _$PotStateImpl implements _PotState {
 
   @override
   String toString() {
-    return 'PotState(status: $status, dailyPot: $dailyPot, weeklyPot: $weeklyPot, leaderboard: $leaderboard, potHistory: $potHistory, currentUserScore: $currentUserScore, selectedPotType: $selectedPotType, isLoadingDaily: $isLoadingDaily, isLoadingWeekly: $isLoadingWeekly, isLoadingLeaderboard: $isLoadingLeaderboard, isLoadingHistory: $isLoadingHistory, isDailyEligible: $isDailyEligible, isWeeklyEligible: $isWeeklyEligible, errorMessage: $errorMessage)';
+    return 'PotState(status: $status, dailyPot: $dailyPot, weeklyPot: $weeklyPot, leaderboard: $leaderboard, potHistory: $potHistory, currentUserScore: $currentUserScore, dailyUserScore: $dailyUserScore, weeklyUserScore: $weeklyUserScore, selectedPotType: $selectedPotType, isLoadingDaily: $isLoadingDaily, isLoadingWeekly: $isLoadingWeekly, isLoadingLeaderboard: $isLoadingLeaderboard, isLoadingHistory: $isLoadingHistory, isDailyEligible: $isDailyEligible, isWeeklyEligible: $isWeeklyEligible, errorMessage: $errorMessage)';
   }
 
   @override
@@ -3427,6 +3493,10 @@ class _$PotStateImpl implements _PotState {
             ) &&
             (identical(other.currentUserScore, currentUserScore) ||
                 other.currentUserScore == currentUserScore) &&
+            (identical(other.dailyUserScore, dailyUserScore) ||
+                other.dailyUserScore == dailyUserScore) &&
+            (identical(other.weeklyUserScore, weeklyUserScore) ||
+                other.weeklyUserScore == weeklyUserScore) &&
             (identical(other.selectedPotType, selectedPotType) ||
                 other.selectedPotType == selectedPotType) &&
             (identical(other.isLoadingDaily, isLoadingDaily) ||
@@ -3454,6 +3524,8 @@ class _$PotStateImpl implements _PotState {
     const DeepCollectionEquality().hash(_leaderboard),
     const DeepCollectionEquality().hash(_potHistory),
     currentUserScore,
+    dailyUserScore,
+    weeklyUserScore,
     selectedPotType,
     isLoadingDaily,
     isLoadingWeekly,
@@ -3481,6 +3553,8 @@ abstract class _PotState implements PotState {
     final List<UserScore> leaderboard,
     final List<PotPool> potHistory,
     final UserScore? currentUserScore,
+    final UserScore? dailyUserScore,
+    final UserScore? weeklyUserScore,
     final PotType selectedPotType,
     final bool isLoadingDaily,
     final bool isLoadingWeekly,
@@ -3503,6 +3577,10 @@ abstract class _PotState implements PotState {
   List<PotPool> get potHistory;
   @override
   UserScore? get currentUserScore;
+  @override
+  UserScore? get dailyUserScore;
+  @override
+  UserScore? get weeklyUserScore;
   @override
   PotType get selectedPotType;
   @override

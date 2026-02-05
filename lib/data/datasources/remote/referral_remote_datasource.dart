@@ -263,16 +263,18 @@ class ReferralRemoteDataSourceImpl implements ReferralRemoteDataSource {
     final referralCode = await getReferralCode();
 
     final defaultMessage = '''
-Join iMali and start earning! Use my referral code: $referralCode
+Join iMaliChat, the app that allows you to Earn. Chat. Buy.
+
+Use my referral code: $referralCode and start increasing your imali!
 
 Download now: $referralLink
 
-You'll get 50 tokens when you sign up and I'll get 100 tokens when you complete your first engagement!
+You'll get 10 tokens when you sign up and complete your first engagement!
 ''';
 
     final message = customMessage ?? defaultMessage;
 
-    await Share.share(message, subject: 'Join iMali and earn tokens!');
+    await Share.share(message, subject: 'Join iMaliChat - Earn. Chat. Buy.');
   }
 
   @override

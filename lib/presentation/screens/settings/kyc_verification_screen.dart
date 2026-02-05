@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class KycVerificationScreen extends StatefulWidget {
   const KycVerificationScreen({super.key});
@@ -19,9 +20,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Verify Identity'),
-      ),
+      appBar: const IMaliAppBar(title: 'Verify Identity'),
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           final tier = state.user?.kycTier ?? 'none';

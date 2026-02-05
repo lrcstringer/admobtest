@@ -22,7 +22,7 @@ import {
   getOrCreateDefaultSubAccount,
 } from "./ledger";
 import { updateEngagementStats } from "./engagementStats";
-import { updateDailyScore, updateReferrerAssistScore } from "./dailyScores";
+import { updateDailyScore, updateReferrerAssistScore, updateLeaderboardScores } from "./dailyScores";
 
 const db = admin.firestore();
 
@@ -405,11 +405,19 @@ export const processEngagement = functions.https.onCall(
       };
 
       // Update user's daily score
-      await updateDailyScore(
+      const updatedDailyScore = await updateDailyScore(
         userId,
         userShare,
         streakInfo.currentStreak,
         streakInfo.multiplier,
+        userProfile
+      );
+
+      // Update live leaderboard scores (daily + weekly)
+      await updateLeaderboardScores(
+        userId,
+        updatedDailyScore,
+        streakInfo.currentStreak,
         userProfile
       );
 

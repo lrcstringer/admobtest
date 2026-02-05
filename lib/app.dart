@@ -18,6 +18,7 @@ import 'presentation/blocs/purchase/purchase_bloc.dart';
 import 'presentation/blocs/referral/referral_bloc.dart';
 import 'presentation/blocs/wallet/wallet_bloc.dart';
 import 'presentation/router/app_router.dart';
+import 'presentation/theme/app_colors.dart';
 import 'presentation/theme/app_theme.dart';
 
 /// Main application widget
@@ -189,6 +190,18 @@ class _IMaliChatAppState extends State<IMaliChatApp>
         darkTheme: AppTheme.dark,
         themeMode: ThemeMode.dark,
         routerConfig: _appRouter.router,
+        builder: (context, child) {
+          return Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: AppColors.backgroundGradient,
+              ),
+            ),
+            child: child,
+          );
+        },
       ),
     );
   }

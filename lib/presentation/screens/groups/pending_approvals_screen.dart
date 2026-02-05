@@ -5,6 +5,7 @@ import '../../../domain/entities/group_transaction.dart';
 import '../../blocs/group/group_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class PendingApprovalsScreen extends StatelessWidget {
   final String groupId;
@@ -14,9 +15,7 @@ class PendingApprovalsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pending Approvals'),
-      ),
+      appBar: const IMaliAppBar(title: 'Pending Approvals'),
       body: BlocConsumer<GroupBloc, GroupState>(
         listener: (context, state) {
           if (state.operationStatus == GroupOperationStatus.success &&

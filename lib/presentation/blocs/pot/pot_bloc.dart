@@ -195,7 +195,17 @@ class PotBloc extends Bloc<PotEvent, PotState> {
     final result = await _gamificationRepository.getCurrentUserScore(event.type);
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
-      (score) => emit(state.copyWith(currentUserScore: score)),
+      (score) {
+        // Always update currentUserScore (used by pots screen / leaderboard sheet)
+        var newState = state.copyWith(currentUserScore: score);
+        // Also update type-specific field (used by home screen)
+        if (event.type == PotType.daily) {
+          newState = newState.copyWith(dailyUserScore: score);
+        } else {
+          newState = newState.copyWith(weeklyUserScore: score);
+        }
+        emit(newState);
+      },
     );
   }
 

@@ -8,6 +8,7 @@ import '../../../domain/entities/group_transaction.dart';
 import '../../blocs/group/group_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class GroupDetailScreen extends StatefulWidget {
   final String groupId;
@@ -66,15 +67,15 @@ class _GroupDetailScreenState extends State<GroupDetailScreen>
 
         if (group == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Group')),
+            appBar: const IMaliAppBar(title: 'Group'),
             body: const Center(child: CircularProgressIndicator()),
           );
         }
 
         return Scaffold(
-          appBar: AppBar(
-            title: Text(group.name),
-            actions: [
+          appBar: IMaliAppBar(
+            title: group.name,
+            extraActions: [
               if (state.hasPendingApprovals)
                 Badge(
                   label: Text('${state.selectedGroupApprovals.length}'),

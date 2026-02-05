@@ -7,6 +7,7 @@ import '../../../domain/repositories/group_repository.dart';
 import '../../blocs/group/group_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({super.key});
@@ -36,9 +37,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Group'),
-      ),
+      appBar: const IMaliAppBar(title: 'Create Group'),
       body: BlocConsumer<GroupBloc, GroupState>(
         listener: (context, state) {
           if (state.operationStatus == GroupOperationStatus.success) {

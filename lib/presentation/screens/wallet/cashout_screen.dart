@@ -11,6 +11,7 @@ import '../../blocs/cashout/cashout_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 class CashoutScreen extends StatefulWidget {
   const CashoutScreen({super.key});
@@ -58,9 +59,9 @@ class _CashoutScreenState extends State<CashoutScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Cash Out'),
-          actions: [
+        appBar: IMaliAppBar(
+          title: 'Cash Out',
+          extraActions: [
             TextButton(
               onPressed: () => _showHistorySheet(context),
               child: const Text('History'),

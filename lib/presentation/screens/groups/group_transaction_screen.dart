@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../blocs/group/group_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 
 enum TransactionType { contribute, withdraw }
 
@@ -39,9 +40,7 @@ class _GroupTransactionScreenState extends State<GroupTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isContribution ? 'Contribute' : 'Withdraw'),
-      ),
+      appBar: IMaliAppBar(title: isContribution ? 'Contribute' : 'Withdraw'),
       body: BlocConsumer<GroupBloc, GroupState>(
         listener: (context, state) {
           if (state.operationStatus == GroupOperationStatus.success) {

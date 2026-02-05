@@ -470,3 +470,125 @@ export async function aggregateWeeklyScores(
 
   return aggregated;
 }
+
+/**
+ * Get the Monday of the current week in SAST timezone
+ */
+function getSASTWeekStart(): Date {
+  const now = new Date();
+  // Convert to SAST
+  const sastTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+  const day = sastTime.getUTCDay(); // 0=Sun, 1=Mon, ...
+  const diff = day === 0 ? -6 : 1 - day; // Days to subtract to get to Monday
+  const monday = new Date(sastTime);
+  monday.setUTCDate(monday.getUTCDate() + diff);
+  monday.setUTCHours(0, 0, 0, 0);
+  return monday;
+}
+
+/**
+ * Update leaderboard score documents for both daily and weekly
+ *
+ * Called after each engagement to keep leaderboards/daily/scores/{userId}
+ * and leaderboards/weekly/scores/{userId} in sync for live ranking queries.
+ *
+ * @param userId - The user's ID
+ * @param dailyScore - The updated daily score for today
+ * @param streakDay - Current streak day count
+ * @param profile - User profile info for display
+ */
+export async function updateLeaderboardScores(
+  userId: string,
+  dailyScore: DailyScore,
+  streakDay: number,
+  profile: {
+    displayName: string;
+    username?: string | null;
+    avatarUrl?: string | null;
+  }
+): Promise<void> {
+  const now = admin.firestore.Timestamp.now();
+  const today = getSASTDateString();
+
+  // --- Daily leaderboard ---
+  const dailyPeriodStart = new Date(today + "T00:00:00+02:00");
+  const dailyPeriodEnd = new Date(dailyPeriodStart.getTime() + 24 * 60 * 60 * 1000);
+
+  await db
+    .collection("leaderboards")
+    .doc("daily")
+    .collection("scores")
+    .doc(userId)
+    .set(
+      {
+        userId,
+        displayName: profile.displayName,
+        username: profile.username || null,
+        avatarUrl: profile.avatarUrl || null,
+        totalTokensEarned: dailyScore.finalScore,
+        engagementsCompleted: dailyScore.engagementsCompleted,
+        currentStreak: streakDay,
+        longestStreak: streakDay,
+        periodStart: admin.firestore.Timestamp.fromDate(dailyPeriodStart),
+        periodEnd: admin.firestore.Timestamp.fromDate(dailyPeriodEnd),
+        updatedAt: now,
+      },
+      { merge: true }
+    );
+
+  // --- Weekly leaderboard ---
+  // Read all of this user's dailyScores for the current week (Mon-Sun)
+  const weekStart = getSASTWeekStart();
+  const dates: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000);
+    dates.push(d.toISOString().split("T")[0]);
+  }
+
+  let weeklyTotalScore = 0;
+  let weeklyTotalEngagements = 0;
+
+  // Query only this user's subcollection (max 7 docs, fast)
+  for (const date of dates) {
+    const scoreDoc = await db
+      .collection("users")
+      .doc(userId)
+      .collection("dailyScores")
+      .doc(date)
+      .get();
+
+    if (scoreDoc.exists) {
+      const s = scoreDoc.data() as DailyScore;
+      weeklyTotalScore += s.finalScore;
+      weeklyTotalEngagements += s.engagementsCompleted;
+    }
+  }
+
+  const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  await db
+    .collection("leaderboards")
+    .doc("weekly")
+    .collection("scores")
+    .doc(userId)
+    .set(
+      {
+        userId,
+        displayName: profile.displayName,
+        username: profile.username || null,
+        avatarUrl: profile.avatarUrl || null,
+        totalTokensEarned: weeklyTotalScore,
+        engagementsCompleted: weeklyTotalEngagements,
+        currentStreak: streakDay,
+        longestStreak: streakDay,
+        periodStart: admin.firestore.Timestamp.fromDate(weekStart),
+        periodEnd: admin.firestore.Timestamp.fromDate(weekEnd),
+        updatedAt: now,
+      },
+      { merge: true }
+    );
+
+  console.log(
+    `Updated leaderboard scores for ${userId}: daily=${dailyScore.finalScore}, weekly=${weeklyTotalScore}`
+  );
+}

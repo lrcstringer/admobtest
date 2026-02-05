@@ -439,11 +439,20 @@ export const runWeeklyPotDraw = functions.pubsub
 
 /**
  * Reset daily leaderboard scores for a new day
+ * Clears all previous scores so rankings start fresh
  */
 async function resetDailyLeaderboard(periodStart: Date, periodEnd: Date): Promise<void> {
-  // The daily leaderboard will be populated as users earn tokens
-  // This just ensures the structure exists
   const dailyRef = db.collection("leaderboards").doc("daily");
+
+  // Delete all previous day's scores
+  const oldScores = await dailyRef.collection("scores").limit(500).get();
+  if (!oldScores.empty) {
+    const batch = db.batch();
+    oldScores.docs.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+    console.log(`Cleared ${oldScores.size} daily leaderboard scores`);
+  }
+
   await dailyRef.set({
     type: "daily",
     periodStart: admin.firestore.Timestamp.fromDate(periodStart),
@@ -454,9 +463,20 @@ async function resetDailyLeaderboard(periodStart: Date, periodEnd: Date): Promis
 
 /**
  * Reset weekly leaderboard scores for a new week
+ * Clears all previous scores so rankings start fresh
  */
 async function resetWeeklyLeaderboard(periodStart: Date, periodEnd: Date): Promise<void> {
   const weeklyRef = db.collection("leaderboards").doc("weekly");
+
+  // Delete all previous week's scores
+  const oldScores = await weeklyRef.collection("scores").limit(500).get();
+  if (!oldScores.empty) {
+    const batch = db.batch();
+    oldScores.docs.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+    console.log(`Cleared ${oldScores.size} weekly leaderboard scores`);
+  }
+
   await weeklyRef.set({
     type: "weekly",
     periodStart: admin.firestore.Timestamp.fromDate(periodStart),

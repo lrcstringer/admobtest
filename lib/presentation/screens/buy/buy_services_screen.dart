@@ -52,7 +52,6 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
         return Scaffold(
           appBar: IMaliAppBar(
             title: _getAppBarTitle(state),
-            showHomeButton: false,
             extraActions: [
               IconButton(
                 icon: const Icon(Icons.history, color: AppColors.textPrimary),
