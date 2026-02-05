@@ -7,6 +7,7 @@ import '../../core/network/network_info.dart';
 import '../../domain/entities/cashout.dart';
 import '../../domain/entities/ledger_account.dart';
 import '../../domain/entities/ledger_journal.dart';
+import '../../domain/entities/sub_account.dart';
 import '../../domain/entities/user_engagement_stats.dart';
 import '../../domain/repositories/wallet_repository.dart';
 import '../datasources/remote/wallet_remote_datasource.dart';
@@ -149,6 +150,97 @@ class WalletRepositoryImpl implements WalletRepository {
       }
       return Right<Failure, UserEngagementStats>(statsModel.toEntity());
     });
+  }
+
+  // ============================================================
+  // Sub-Account Methods (Multi-Wallet)
+  // ============================================================
+
+  @override
+  Future<Either<Failure, List<SubAccount>>> getSubAccounts() async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(Failure.network());
+    }
+
+    try {
+      final models = await _remoteDataSource.getSubAccounts();
+      return Right(models.map((m) => m.toEntity()).toList());
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Stream<Either<Failure, List<SubAccount>>> watchSubAccounts() {
+    return _remoteDataSource.watchSubAccounts().map((models) {
+      try {
+        return Right<Failure, List<SubAccount>>(
+          models.map((m) => m.toEntity()).toList(),
+        );
+      } catch (e) {
+        return Left<Failure, List<SubAccount>>(
+          Failure.serverError(message: e.toString()),
+        );
+      }
+    });
+  }
+
+  @override
+  Future<Either<Failure, void>> transferBetweenWallets({
+    required String fromSubAccountId,
+    required String toSubAccountId,
+    required int amount,
+  }) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(Failure.network());
+    }
+
+    try {
+      await _remoteDataSource.transferBetweenWallets(
+        fromSubAccountId: fromSubAccountId,
+        toSubAccountId: toSubAccountId,
+        amount: amount,
+      );
+      return const Right(null);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> sendP2PTransfer({
+    required String recipientUserId,
+    required int amount,
+    required String subAccountId,
+    String? note,
+  }) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(Failure.network());
+    }
+
+    try {
+      await _remoteDataSource.sendP2PTransfer(
+        recipientUserId: recipientUserId,
+        amount: amount,
+        subAccountId: subAccountId,
+        note: note,
+      );
+      return const Right(null);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
   }
 
   // ============================================================

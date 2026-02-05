@@ -123,16 +123,16 @@ class ReferralRepositoryImpl implements ReferralRepository {
   }
 
   @override
-  Future<Either<Failure, void>> shareReferral({
+  Future<Either<Failure, bool>> shareReferral({
     required String platform,
     String? customMessage,
   }) async {
     try {
-      await _remoteDataSource.shareReferral(
+      final shared = await _remoteDataSource.shareReferral(
         platform: platform,
         customMessage: customMessage,
       );
-      return const Right(null);
+      return Right(shared);
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }

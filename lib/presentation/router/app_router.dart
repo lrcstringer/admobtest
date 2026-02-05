@@ -90,8 +90,9 @@ import '../screens/splash/splash_screen.dart';
 // Wallet screens
 import '../screens/wallet/cashout_screen.dart';
 import '../screens/wallet/transaction_history_screen.dart';
-import '../screens/wallet/wallet_action_selection_screen.dart';
+import '../screens/wallet/wallet_detail_screen.dart';
 import '../screens/wallet/wallet_screen.dart';
+import '../screens/wallet/wallet_send_amount_screen.dart';
 import '../screens/wallet/wallet_send_failure_screen.dart';
 import '../screens/wallet/wallet_send_screen.dart';
 import '../screens/wallet/wallet_send_success_screen.dart';
@@ -569,37 +570,80 @@ class AppRouter {
                 name: 'wallet',
                 builder: (context, state) => const WalletScreen(),
                 routes: [
-                  // 9.1) Wallet Action Selection
+                  // 9.1) Wallet Detail (single wallet view)
                   GoRoute(
-                    path: 'actions',
-                    name: 'walletActions',
-                    builder: (context, state) =>
-                        const WalletActionSelectionScreen(),
+                    path: 'detail/:subAccountId',
+                    name: 'walletDetail',
+                    builder: (context, state) {
+                      final subAccountId =
+                          state.pathParameters['subAccountId'] ?? '';
+                      return WalletDetailScreen(
+                          subAccountId: subAccountId);
+                    },
                   ),
-                  // 9.2) Wallet Send
+                  // 9.2) Wallet Send (contact picker)
                   GoRoute(
                     path: 'send',
                     name: 'walletSend',
-                    builder: (context, state) =>
-                        const WalletSendScreen(),
+                    builder: (context, state) {
+                      final extra =
+                          state.extra as Map<String, dynamic>?;
+                      return WalletSendScreen(
+                        subAccountId:
+                            extra?['subAccountId'] as String?,
+                      );
+                    },
                     routes: [
-                      // 9.2.1) Wallet Send Success
+                      // 9.2.1) Wallet Send Amount
+                      GoRoute(
+                        path: 'amount',
+                        name: 'walletSendAmount',
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>?;
+                          return WalletSendAmountScreen(
+                            recipientUserId:
+                                extra?['recipientUserId']
+                                    as String? ??
+                                    '',
+                            recipientName:
+                                extra?['recipientName']
+                                    as String? ??
+                                    'Unknown',
+                            subAccountId:
+                                extra?['subAccountId'] as String?,
+                          );
+                        },
+                      ),
+                      // 9.2.2) Wallet Send Success
                       GoRoute(
                         path: 'success',
                         name: 'walletSendSuccess',
-                        builder: (context, state) =>
-                            const WalletSendSuccessScreen(),
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>?;
+                          return WalletSendSuccessScreen(
+                            amount: extra?['amount'] as int?,
+                            recipientName:
+                                extra?['recipientName'] as String?,
+                          );
+                        },
                       ),
-                      // 9.2.2) Wallet Send Failure
+                      // 9.2.3) Wallet Send Failure
                       GoRoute(
                         path: 'failure',
                         name: 'walletSendFailure',
-                        builder: (context, state) =>
-                            const WalletSendFailureScreen(),
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>?;
+                          return WalletSendFailureScreen(
+                            error: extra?['error'] as String?,
+                          );
+                        },
                       ),
                     ],
                   ),
-                  // 9.3) Wallet Withdraw
+                  // 9.3) Wallet Withdraw (Cash Out)
                   GoRoute(
                     path: 'withdraw',
                     name: 'walletWithdraw',
@@ -610,25 +654,36 @@ class AppRouter {
                       GoRoute(
                         path: 'success',
                         name: 'walletWithdrawSuccess',
-                        builder: (context, state) =>
-                            const WalletWithdrawSuccessScreen(),
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>?;
+                          return WalletWithdrawSuccessScreen(
+                            amount: extra?['amount'] as int?,
+                          );
+                        },
                       ),
                       // 9.3.2) Wallet Withdraw Failure
                       GoRoute(
                         path: 'failure',
                         name: 'walletWithdrawFailure',
-                        builder: (context, state) =>
-                            const WalletWithdrawFailureScreen(),
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>?;
+                          return WalletWithdrawFailureScreen(
+                            error: extra?['error'] as String?,
+                          );
+                        },
                       ),
                     ],
                   ),
-                  // Keep legacy cashout & transactions routes
+                  // 9.4) Transaction History
                   GoRoute(
                     path: 'transactions',
                     name: 'transactions',
                     builder: (context, state) =>
                         const TransactionHistoryScreen(),
                   ),
+                  // 9.5) Cashout (legacy route alias)
                   GoRoute(
                     path: 'cashout',
                     name: 'cashout',

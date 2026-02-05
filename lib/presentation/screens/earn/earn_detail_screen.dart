@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 import '../../theme/app_colors.dart';
 
 class EarnDetailScreen extends StatelessWidget {
@@ -10,13 +11,15 @@ class EarnDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IMaliAppBar(title: 'Earn Detail'),
-      body: const Center(
-        child: Text(
-          'Earn Detail\nComing Soon',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 16,
+      body: const WaveBackground(
+        child: Center(
+          child: Text(
+            'Earn Detail\nComing Soon',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 16,
+            ),
           ),
         ),
       ),

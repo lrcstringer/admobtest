@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 import '../../theme/app_colors.dart';
 
 class ChatSendFailureScreen extends StatelessWidget {
@@ -10,11 +11,13 @@ class ChatSendFailureScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IMaliAppBar(title: 'Send Failed'),
-      body: Center(
-        child: Text(
-          'Send Failed\nComing Soon',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+      body: const WaveBackground(
+        child: Center(
+          child: Text(
+            'Send Failed\nComing Soon',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+          ),
         ),
       ),
     );

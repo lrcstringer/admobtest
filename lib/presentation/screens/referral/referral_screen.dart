@@ -16,6 +16,8 @@ class ReferralScreen extends StatefulWidget {
 }
 
 class _ReferralScreenState extends State<ReferralScreen> {
+  bool _showAllReferrals = false;
+
   @override
   void initState() {
     super.initState();
@@ -71,261 +73,126 @@ class _ReferralScreenState extends State<ReferralScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Summary card
+                  // 1. Compact summary stats
                   if (state.stats != null)
-                    _buildSummaryCard(context, state.stats!),
+                    _buildSummaryRow(context, state.stats!),
                   AppSpacing.verticalLg,
 
-                  // Share card
+                  // 2. Primary CTA — "Invite Friends"
+                  _buildInviteCTA(context),
+                  AppSpacing.verticalLg,
+
+                  // 3. Referral code card
                   if (state.stats != null)
                     _buildShareCard(context, state.stats!),
-                  AppSpacing.verticalSm,
+                  AppSpacing.verticalMd,
 
-                  // Enter code link
-                  Center(
-                    child: GestureDetector(
-                      onTap: () => _showApplyCodeSheet(context),
-                      child: Text(
-                        'Have a referral code? Apply it here',
-                        style:
-                            Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                      ),
-                    ),
-                  ),
-                  AppSpacing.verticalLg,
+                  // 4. "Have a referral code?" card
+                  _buildApplyCodeCard(context),
+                  AppSpacing.verticalMd,
 
-                  // How referrals work link
+                  // 5. How referrals work link
                   _buildHowReferralsWorkLink(context),
                   AppSpacing.verticalLg,
 
-                  // Referral list header
-                  Text(
-                    "People you've brought to iMaliChat",
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  AppSpacing.verticalMd,
+                  // 6. Referral list (collapsed)
+                  if (state.referrals.isNotEmpty) ...[
+                    _buildReferralListHeader(
+                        context, state.referrals.length),
+                    AppSpacing.verticalMd,
+                    ..._buildReferralList(context, state.referrals),
+                  ],
 
-                  // Referral list
-                  if (state.referrals.isEmpty)
-                    _buildEmptyReferrals(context)
-                  else
-                    ...state.referrals.map(
-                      (referral) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _buildReferralItem(context, referral),
-                      ),
-                    ),
-
-                  // Extra padding for fixed footer
-                  const SizedBox(height: 80),
+                  AppSpacing.verticalXl,
                 ],
               ),
             ),
           );
         },
       ),
-      bottomNavigationBar: _buildInviteFooter(context),
     );
   }
 
   // ---------------------------------------------------------------------------
-  // Summary card (Total Earned + Assist Score + Invited/Joined)
+  // 1. Compact summary row
   // ---------------------------------------------------------------------------
-  Widget _buildSummaryCard(BuildContext context, ReferralStats stats) {
-    final totalEarned = stats.totalEarned;
-    final assistScore = stats.completedReferrals;
-    final invited = stats.totalReferrals;
-    final joined = stats.completedReferrals;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.secondary.withValues(alpha: 0.15),
-            AppColors.orange.withValues(alpha: 0.08),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+  Widget _buildSummaryRow(BuildContext context, ReferralStats stats) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildStatChip(
+            context,
+            icon: Icons.toll,
+            iconColor: AppColors.gold,
+            value: '${stats.totalEarned}',
+            label: 'Earned',
+          ),
         ),
-        borderRadius: AppSpacing.borderRadiusXl,
-        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.2)),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildStatChip(
+            context,
+            icon: Icons.people_outline,
+            iconColor: AppColors.secondary,
+            value: '${stats.totalReferrals}',
+            label: 'Invited',
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildStatChip(
+            context,
+            icon: Icons.check_circle_outline,
+            iconColor: AppColors.success,
+            value: '${stats.completedReferrals}',
+            label: 'Joined',
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildStatChip(
+            context,
+            icon: Icons.trending_up,
+            iconColor: AppColors.orange,
+            value: '${stats.completedReferrals}',
+            label: 'Assist',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatChip(
+    BuildContext context, {
+    required IconData icon,
+    required Color iconColor,
+    required String value,
+    required String label,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppSpacing.borderRadiusMd,
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Invite friends & earn',
-                      style:
-                          Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'You and your friend both get bonus tokens when they join using your invite.',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                    ),
-                  ],
+          Icon(icon, size: 18, color: iconColor),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.secondary.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.card_giftcard,
-                    color: AppColors.secondary, size: 20),
-              ),
-            ],
           ),
-          const SizedBox(height: 16),
-
-          // Stats grid (2 columns)
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.background.withValues(alpha: 0.6),
-                    borderRadius: AppSpacing.borderRadiusMd,
-                    border: Border.all(
-                        color: AppColors.border.withValues(alpha: 0.3)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'TOTAL EARNED',
-                        style:
-                            Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: AppColors.textSecondary,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.0,
-                                  fontSize: 10,
-                                ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$totalEarned Tokens',
-                        style:
-                            Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                      ),
-                    ],
-                  ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 10,
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.background.withValues(alpha: 0.6),
-                    borderRadius: AppSpacing.borderRadiusMd,
-                    border: Border.all(
-                        color: AppColors.border.withValues(alpha: 0.3)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ASSIST SCORE',
-                        style:
-                            Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: AppColors.textSecondary,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.0,
-                                  fontSize: 10,
-                                ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$assistScore',
-                        style:
-                            Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.secondary,
-                                ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Invited / Joined counts
-          Row(
-            children: [
-              const Icon(Icons.people_outline,
-                  size: 14, color: AppColors.textSecondary),
-              const SizedBox(width: 6),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '$invited',
-                      style:
-                          Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                    ),
-                    TextSpan(
-                      text: ' Invited',
-                      style:
-                          Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              const Icon(Icons.check, size: 14, color: AppColors.success),
-              const SizedBox(width: 6),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '$joined',
-                      style:
-                          Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                    ),
-                    TextSpan(
-                      text: ' Joined',
-                      style:
-                          Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -333,7 +200,46 @@ class _ReferralScreenState extends State<ReferralScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // Share card
+  // 2. Primary CTA — gradient "Invite Friends" button
+  // ---------------------------------------------------------------------------
+  Widget _buildInviteCTA(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(colors: AppColors.primaryGradient),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: ElevatedButton.icon(
+          onPressed: () {
+            context.read<ReferralBloc>().add(
+                  const ReferralEvent.shareReferral(platform: 'share'),
+                );
+          },
+          icon: const Icon(Icons.person_add, size: 20),
+          label: Text(
+            'Invite Friends',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // 3. Referral code card
   // ---------------------------------------------------------------------------
   Widget _buildShareCard(BuildContext context, ReferralStats stats) {
     return Container(
@@ -391,19 +297,6 @@ class _ReferralScreenState extends State<ReferralScreen> {
             ],
           ),
           AppSpacing.verticalMd,
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                context.read<ReferralBloc>().add(
-                      const ReferralEvent.shareReferral(platform: 'share'),
-                    );
-              },
-              icon: const Icon(Icons.share),
-              label: const Text('Share with Friends'),
-            ),
-          ),
-          AppSpacing.verticalSm,
           Row(
             children: [
               Expanded(
@@ -436,7 +329,59 @@ class _ReferralScreenState extends State<ReferralScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // How referrals work — centered link that opens a dialog
+  // 4. "Have a referral code?" card
+  // ---------------------------------------------------------------------------
+  Widget _buildApplyCodeCard(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showApplyCodeSheet(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppSpacing.borderRadiusMd,
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child:
+                  const Icon(Icons.redeem, size: 18, color: AppColors.primary),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Have a referral code?',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  Text(
+                    'Enter it to earn bonus tokens',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // 5. How referrals work link
   // ---------------------------------------------------------------------------
   Widget _buildHowReferralsWorkLink(BuildContext context) {
     return Center(
@@ -460,6 +405,190 @@ class _ReferralScreenState extends State<ReferralScreen> {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // 6. Referral list (collapsed to 3 by default)
+  // ---------------------------------------------------------------------------
+  Widget _buildReferralListHeader(BuildContext context, int totalCount) {
+    return Row(
+      children: [
+        Text(
+          'Your Referrals',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(width: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceElevated,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            '$totalCount',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildReferralList(
+      BuildContext context, List<Referral> referrals) {
+    final maxVisible = 3;
+    final showExpander = referrals.length > maxVisible && !_showAllReferrals;
+    final visible =
+        _showAllReferrals ? referrals : referrals.take(maxVisible).toList();
+
+    return [
+      ...visible.map(
+        (referral) => Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: _buildReferralItem(context, referral),
+        ),
+      ),
+      if (showExpander)
+        Center(
+          child: TextButton(
+            onPressed: () => setState(() => _showAllReferrals = true),
+            child: Text(
+              'See all ${referrals.length} referrals',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ),
+        ),
+    ];
+  }
+
+  // ---------------------------------------------------------------------------
+  // Referral item
+  // ---------------------------------------------------------------------------
+  Widget _buildReferralItem(BuildContext context, Referral referral) {
+    final isJoined = referral.status == ReferralStatus.registered ||
+        referral.status == ReferralStatus.qualified ||
+        referral.status == ReferralStatus.rewarded;
+    final statusText = isJoined ? 'Joined' : 'Invited';
+    final statusColor =
+        isJoined ? AppColors.success : AppColors.textSecondary;
+    final avatarColor = isJoined
+        ? AppColors.primary.withValues(alpha: 0.15)
+        : AppColors.background;
+    final avatarBorderColor = isJoined
+        ? AppColors.primary.withValues(alpha: 0.2)
+        : AppColors.border;
+
+    return Container(
+      padding: AppSpacing.cardPadding,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppSpacing.borderRadiusMd,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          // Avatar
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: avatarColor,
+              shape: BoxShape.circle,
+              border: Border.all(color: avatarBorderColor),
+            ),
+            child: referral.refereeAvatarUrl != null
+                ? ClipOval(
+                    child: Image.network(
+                      referral.refereeAvatarUrl!,
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Center(
+                        child: Text(
+                          referral.refereeInitials,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: isJoined
+                                    ? AppColors.primary
+                                    : AppColors.textSecondary,
+                              ),
+                        ),
+                      ),
+                    ),
+                  )
+                : Center(
+                    child: Text(
+                      referral.refereeInitials,
+                      style:
+                          Theme.of(context).textTheme.labelSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: isJoined
+                                    ? AppColors.primary
+                                    : AppColors.textSecondary,
+                              ),
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 12),
+
+          // Name and secondary info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  referral.refereeDisplayName ?? 'User',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                if (referral.refereeUsername != null)
+                  Text(
+                    '@${referral.refereeUsername}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 11,
+                        ),
+                  ),
+              ],
+            ),
+          ),
+
+          // Status badge
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: isJoined
+                  ? AppColors.success.withValues(alpha: 0.1)
+                  : AppColors.background,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              statusText,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: statusColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Dialogs & Bottom Sheets
+  // ---------------------------------------------------------------------------
+
   void _showHowItWorksDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -470,7 +599,6 @@ class _ReferralScreenState extends State<ReferralScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header with gift icon
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 24),
@@ -499,8 +627,6 @@ class _ReferralScreenState extends State<ReferralScreen> {
                 ),
               ),
             ),
-
-            // Steps
             Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -575,220 +701,6 @@ class _ReferralScreenState extends State<ReferralScreen> {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Empty referrals
-  // ---------------------------------------------------------------------------
-  Widget _buildEmptyReferrals(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppSpacing.borderRadiusXl,
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: const BoxDecoration(
-              color: AppColors.background,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.people_outline,
-              size: 28,
-              color: AppColors.textHint,
-            ),
-          ),
-          AppSpacing.verticalMd,
-          Text(
-            'No referrals yet',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          AppSpacing.verticalSm,
-          Text(
-            'Invite your contacts to start earning bonus tokens.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Referral item with simplified Joined / Invited badges
-  // ---------------------------------------------------------------------------
-  Widget _buildReferralItem(BuildContext context, Referral referral) {
-    final isJoined = referral.status == ReferralStatus.registered ||
-        referral.status == ReferralStatus.qualified ||
-        referral.status == ReferralStatus.rewarded;
-    final statusText = isJoined ? 'Joined' : 'Invited';
-    final statusColor =
-        isJoined ? AppColors.success : AppColors.textSecondary;
-    final avatarColor = isJoined
-        ? AppColors.primary.withValues(alpha: 0.15)
-        : AppColors.background;
-    final avatarBorderColor = isJoined
-        ? AppColors.primary.withValues(alpha: 0.2)
-        : AppColors.border;
-
-    return Container(
-      padding: AppSpacing.cardPadding,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppSpacing.borderRadiusMd,
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          // Avatar
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: avatarColor,
-              shape: BoxShape.circle,
-              border: Border.all(color: avatarBorderColor),
-            ),
-            child: referral.refereeAvatarUrl != null
-                ? ClipOval(
-                    child: Image.network(
-                      referral.refereeAvatarUrl!,
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Center(
-                        child: Text(
-                          referral.refereeInitials,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: isJoined
-                                    ? AppColors.primary
-                                    : AppColors.textSecondary,
-                              ),
-                        ),
-                      ),
-                    ),
-                  )
-                : Center(
-                    child: Text(
-                      referral.refereeInitials,
-                      style:
-                          Theme.of(context).textTheme.labelMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: isJoined
-                                    ? AppColors.primary
-                                    : AppColors.textSecondary,
-                              ),
-                    ),
-                  ),
-          ),
-          const SizedBox(width: 12),
-
-          // Name and secondary info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  referral.refereeDisplayName ?? 'User',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-                if (referral.refereeUsername != null)
-                  Text(
-                    '@${referral.refereeUsername}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-              ],
-            ),
-          ),
-
-          // Status badge
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: isJoined
-                  ? AppColors.success.withValues(alpha: 0.1)
-                  : AppColors.background,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              statusText,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: statusColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Fixed footer — "Invite Friends" CTA
-  // ---------------------------------------------------------------------------
-  Widget _buildInviteFooter(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-          20, 12, 20, 12 + MediaQuery.of(context).padding.bottom),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
-        border: Border(top: BorderSide(color: AppColors.border)),
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        height: 48,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient:
-                const LinearGradient(colors: AppColors.primaryGradient),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ElevatedButton(
-            onPressed: () {
-              context.read<ReferralBloc>().add(
-                    const ReferralEvent.shareReferral(platform: 'share'),
-                  );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Text(
-              'Invite Friends',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Apply code bottom sheet (accessible via "Have a referral code?" link)
-  // ---------------------------------------------------------------------------
   void _showApplyCodeSheet(BuildContext context) {
     final controller = TextEditingController();
     final bloc = context.read<ReferralBloc>();
@@ -913,9 +825,6 @@ class _ReferralScreenState extends State<ReferralScreen> {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // QR code bottom sheet
-  // ---------------------------------------------------------------------------
   void _showQRCodeSheet(BuildContext context, String code) {
     showModalBottomSheet(
       context: context,

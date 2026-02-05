@@ -30,6 +30,24 @@ mixin _$WalletEvent {
     required TResult Function() refreshLedger,
     required TResult Function() watchEngagementStats,
     required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
@@ -43,6 +61,24 @@ mixin _$WalletEvent {
     TResult? Function()? refreshLedger,
     TResult? Function()? watchEngagementStats,
     TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
@@ -56,6 +92,24 @@ mixin _$WalletEvent {
     TResult Function()? refreshLedger,
     TResult Function()? watchEngagementStats,
     TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -73,6 +127,14 @@ mixin _$WalletEvent {
     required TResult Function(_WatchEngagementStats value) watchEngagementStats,
     required TResult Function(_EngagementStatsUpdated value)
     engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
@@ -86,6 +148,13 @@ mixin _$WalletEvent {
     TResult? Function(_RefreshLedger value)? refreshLedger,
     TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
@@ -99,6 +168,13 @@ mixin _$WalletEvent {
     TResult Function(_RefreshLedger value)? refreshLedger,
     TResult Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
 }
@@ -179,6 +255,24 @@ class _$LoadLedgerImpl implements _LoadLedger {
     required TResult Function() refreshLedger,
     required TResult Function() watchEngagementStats,
     required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
   }) {
     return loadLedger();
   }
@@ -196,6 +290,24 @@ class _$LoadLedgerImpl implements _LoadLedger {
     TResult? Function()? refreshLedger,
     TResult? Function()? watchEngagementStats,
     TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
   }) {
     return loadLedger?.call();
   }
@@ -213,6 +325,24 @@ class _$LoadLedgerImpl implements _LoadLedger {
     TResult Function()? refreshLedger,
     TResult Function()? watchEngagementStats,
     TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
     if (loadLedger != null) {
@@ -237,6 +367,14 @@ class _$LoadLedgerImpl implements _LoadLedger {
     required TResult Function(_WatchEngagementStats value) watchEngagementStats,
     required TResult Function(_EngagementStatsUpdated value)
     engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return loadLedger(this);
   }
@@ -254,6 +392,13 @@ class _$LoadLedgerImpl implements _LoadLedger {
     TResult? Function(_RefreshLedger value)? refreshLedger,
     TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return loadLedger?.call(this);
   }
@@ -271,6 +416,13 @@ class _$LoadLedgerImpl implements _LoadLedger {
     TResult Function(_RefreshLedger value)? refreshLedger,
     TResult Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
     if (loadLedger != null) {
@@ -338,6 +490,24 @@ class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
     required TResult Function() refreshLedger,
     required TResult Function() watchEngagementStats,
     required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
   }) {
     return watchLedgerAccount();
   }
@@ -355,6 +525,24 @@ class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
     TResult? Function()? refreshLedger,
     TResult? Function()? watchEngagementStats,
     TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
   }) {
     return watchLedgerAccount?.call();
   }
@@ -372,6 +560,24 @@ class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
     TResult Function()? refreshLedger,
     TResult Function()? watchEngagementStats,
     TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
     if (watchLedgerAccount != null) {
@@ -396,6 +602,14 @@ class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
     required TResult Function(_WatchEngagementStats value) watchEngagementStats,
     required TResult Function(_EngagementStatsUpdated value)
     engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return watchLedgerAccount(this);
   }
@@ -413,6 +627,13 @@ class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
     TResult? Function(_RefreshLedger value)? refreshLedger,
     TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return watchLedgerAccount?.call(this);
   }
@@ -430,6 +651,13 @@ class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
     TResult Function(_RefreshLedger value)? refreshLedger,
     TResult Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
     if (watchLedgerAccount != null) {
@@ -541,6 +769,24 @@ class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
     required TResult Function() refreshLedger,
     required TResult Function() watchEngagementStats,
     required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
   }) {
     return ledgerAccountUpdated(ledgerAccount);
   }
@@ -558,6 +804,24 @@ class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
     TResult? Function()? refreshLedger,
     TResult? Function()? watchEngagementStats,
     TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
   }) {
     return ledgerAccountUpdated?.call(ledgerAccount);
   }
@@ -575,6 +839,24 @@ class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
     TResult Function()? refreshLedger,
     TResult Function()? watchEngagementStats,
     TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
     if (ledgerAccountUpdated != null) {
@@ -599,6 +881,14 @@ class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
     required TResult Function(_WatchEngagementStats value) watchEngagementStats,
     required TResult Function(_EngagementStatsUpdated value)
     engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return ledgerAccountUpdated(this);
   }
@@ -616,6 +906,13 @@ class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
     TResult? Function(_RefreshLedger value)? refreshLedger,
     TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return ledgerAccountUpdated?.call(this);
   }
@@ -633,6 +930,13 @@ class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
     TResult Function(_RefreshLedger value)? refreshLedger,
     TResult Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
     if (ledgerAccountUpdated != null) {
@@ -739,6 +1043,24 @@ class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
     required TResult Function() refreshLedger,
     required TResult Function() watchEngagementStats,
     required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
   }) {
     return loadLedgerJournals(limit);
   }
@@ -756,6 +1078,24 @@ class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
     TResult? Function()? refreshLedger,
     TResult? Function()? watchEngagementStats,
     TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
   }) {
     return loadLedgerJournals?.call(limit);
   }
@@ -773,6 +1113,24 @@ class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
     TResult Function()? refreshLedger,
     TResult Function()? watchEngagementStats,
     TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
     if (loadLedgerJournals != null) {
@@ -797,6 +1155,14 @@ class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
     required TResult Function(_WatchEngagementStats value) watchEngagementStats,
     required TResult Function(_EngagementStatsUpdated value)
     engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return loadLedgerJournals(this);
   }
@@ -814,6 +1180,13 @@ class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
     TResult? Function(_RefreshLedger value)? refreshLedger,
     TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return loadLedgerJournals?.call(this);
   }
@@ -831,6 +1204,13 @@ class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
     TResult Function(_RefreshLedger value)? refreshLedger,
     TResult Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
     if (loadLedgerJournals != null) {
@@ -908,6 +1288,24 @@ class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
     required TResult Function() refreshLedger,
     required TResult Function() watchEngagementStats,
     required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
   }) {
     return loadMoreLedgerJournals();
   }
@@ -925,6 +1323,24 @@ class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
     TResult? Function()? refreshLedger,
     TResult? Function()? watchEngagementStats,
     TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
   }) {
     return loadMoreLedgerJournals?.call();
   }
@@ -942,6 +1358,24 @@ class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
     TResult Function()? refreshLedger,
     TResult Function()? watchEngagementStats,
     TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
     if (loadMoreLedgerJournals != null) {
@@ -966,6 +1400,14 @@ class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
     required TResult Function(_WatchEngagementStats value) watchEngagementStats,
     required TResult Function(_EngagementStatsUpdated value)
     engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return loadMoreLedgerJournals(this);
   }
@@ -983,6 +1425,13 @@ class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
     TResult? Function(_RefreshLedger value)? refreshLedger,
     TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return loadMoreLedgerJournals?.call(this);
   }
@@ -1000,6 +1449,13 @@ class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
     TResult Function(_RefreshLedger value)? refreshLedger,
     TResult Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
     if (loadMoreLedgerJournals != null) {
@@ -1097,6 +1553,24 @@ class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
     required TResult Function() refreshLedger,
     required TResult Function() watchEngagementStats,
     required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
   }) {
     return watchLedgerJournals(limit);
   }
@@ -1114,6 +1588,24 @@ class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
     TResult? Function()? refreshLedger,
     TResult? Function()? watchEngagementStats,
     TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
   }) {
     return watchLedgerJournals?.call(limit);
   }
@@ -1131,6 +1623,24 @@ class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
     TResult Function()? refreshLedger,
     TResult Function()? watchEngagementStats,
     TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
     if (watchLedgerJournals != null) {
@@ -1155,6 +1665,14 @@ class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
     required TResult Function(_WatchEngagementStats value) watchEngagementStats,
     required TResult Function(_EngagementStatsUpdated value)
     engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return watchLedgerJournals(this);
   }
@@ -1172,6 +1690,13 @@ class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
     TResult? Function(_RefreshLedger value)? refreshLedger,
     TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return watchLedgerJournals?.call(this);
   }
@@ -1189,6 +1714,13 @@ class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
     TResult Function(_RefreshLedger value)? refreshLedger,
     TResult Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
     if (watchLedgerJournals != null) {
@@ -1303,6 +1835,24 @@ class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
     required TResult Function() refreshLedger,
     required TResult Function() watchEngagementStats,
     required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
   }) {
     return ledgerJournalsUpdated(journals);
   }
@@ -1320,6 +1870,24 @@ class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
     TResult? Function()? refreshLedger,
     TResult? Function()? watchEngagementStats,
     TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
   }) {
     return ledgerJournalsUpdated?.call(journals);
   }
@@ -1337,6 +1905,24 @@ class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
     TResult Function()? refreshLedger,
     TResult Function()? watchEngagementStats,
     TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
     if (ledgerJournalsUpdated != null) {
@@ -1361,6 +1947,14 @@ class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
     required TResult Function(_WatchEngagementStats value) watchEngagementStats,
     required TResult Function(_EngagementStatsUpdated value)
     engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return ledgerJournalsUpdated(this);
   }
@@ -1378,6 +1972,13 @@ class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
     TResult? Function(_RefreshLedger value)? refreshLedger,
     TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return ledgerJournalsUpdated?.call(this);
   }
@@ -1395,6 +1996,13 @@ class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
     TResult Function(_RefreshLedger value)? refreshLedger,
     TResult Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
     if (ledgerJournalsUpdated != null) {
@@ -1471,6 +2079,24 @@ class _$RefreshLedgerImpl implements _RefreshLedger {
     required TResult Function() refreshLedger,
     required TResult Function() watchEngagementStats,
     required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
   }) {
     return refreshLedger();
   }
@@ -1488,6 +2114,24 @@ class _$RefreshLedgerImpl implements _RefreshLedger {
     TResult? Function()? refreshLedger,
     TResult? Function()? watchEngagementStats,
     TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
   }) {
     return refreshLedger?.call();
   }
@@ -1505,6 +2149,24 @@ class _$RefreshLedgerImpl implements _RefreshLedger {
     TResult Function()? refreshLedger,
     TResult Function()? watchEngagementStats,
     TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
     if (refreshLedger != null) {
@@ -1529,6 +2191,14 @@ class _$RefreshLedgerImpl implements _RefreshLedger {
     required TResult Function(_WatchEngagementStats value) watchEngagementStats,
     required TResult Function(_EngagementStatsUpdated value)
     engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return refreshLedger(this);
   }
@@ -1546,6 +2216,13 @@ class _$RefreshLedgerImpl implements _RefreshLedger {
     TResult? Function(_RefreshLedger value)? refreshLedger,
     TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return refreshLedger?.call(this);
   }
@@ -1563,6 +2240,13 @@ class _$RefreshLedgerImpl implements _RefreshLedger {
     TResult Function(_RefreshLedger value)? refreshLedger,
     TResult Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
     if (refreshLedger != null) {
@@ -1631,6 +2315,24 @@ class _$WatchEngagementStatsImpl implements _WatchEngagementStats {
     required TResult Function() refreshLedger,
     required TResult Function() watchEngagementStats,
     required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
   }) {
     return watchEngagementStats();
   }
@@ -1648,6 +2350,24 @@ class _$WatchEngagementStatsImpl implements _WatchEngagementStats {
     TResult? Function()? refreshLedger,
     TResult? Function()? watchEngagementStats,
     TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
   }) {
     return watchEngagementStats?.call();
   }
@@ -1665,6 +2385,24 @@ class _$WatchEngagementStatsImpl implements _WatchEngagementStats {
     TResult Function()? refreshLedger,
     TResult Function()? watchEngagementStats,
     TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
     if (watchEngagementStats != null) {
@@ -1689,6 +2427,14 @@ class _$WatchEngagementStatsImpl implements _WatchEngagementStats {
     required TResult Function(_WatchEngagementStats value) watchEngagementStats,
     required TResult Function(_EngagementStatsUpdated value)
     engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return watchEngagementStats(this);
   }
@@ -1706,6 +2452,13 @@ class _$WatchEngagementStatsImpl implements _WatchEngagementStats {
     TResult? Function(_RefreshLedger value)? refreshLedger,
     TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return watchEngagementStats?.call(this);
   }
@@ -1723,6 +2476,13 @@ class _$WatchEngagementStatsImpl implements _WatchEngagementStats {
     TResult Function(_RefreshLedger value)? refreshLedger,
     TResult Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
     if (watchEngagementStats != null) {
@@ -1833,6 +2593,24 @@ class _$EngagementStatsUpdatedImpl implements _EngagementStatsUpdated {
     required TResult Function() refreshLedger,
     required TResult Function() watchEngagementStats,
     required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
   }) {
     return engagementStatsUpdated(stats);
   }
@@ -1850,6 +2628,24 @@ class _$EngagementStatsUpdatedImpl implements _EngagementStatsUpdated {
     TResult? Function()? refreshLedger,
     TResult? Function()? watchEngagementStats,
     TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
   }) {
     return engagementStatsUpdated?.call(stats);
   }
@@ -1867,6 +2663,24 @@ class _$EngagementStatsUpdatedImpl implements _EngagementStatsUpdated {
     TResult Function()? refreshLedger,
     TResult Function()? watchEngagementStats,
     TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
     if (engagementStatsUpdated != null) {
@@ -1891,6 +2705,14 @@ class _$EngagementStatsUpdatedImpl implements _EngagementStatsUpdated {
     required TResult Function(_WatchEngagementStats value) watchEngagementStats,
     required TResult Function(_EngagementStatsUpdated value)
     engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return engagementStatsUpdated(this);
   }
@@ -1908,6 +2730,13 @@ class _$EngagementStatsUpdatedImpl implements _EngagementStatsUpdated {
     TResult? Function(_RefreshLedger value)? refreshLedger,
     TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return engagementStatsUpdated?.call(this);
   }
@@ -1925,6 +2754,13 @@ class _$EngagementStatsUpdatedImpl implements _EngagementStatsUpdated {
     TResult Function(_RefreshLedger value)? refreshLedger,
     TResult Function(_WatchEngagementStats value)? watchEngagementStats,
     TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
     if (engagementStatsUpdated != null) {
@@ -1948,6 +2784,1901 @@ abstract class _EngagementStatsUpdated implements WalletEvent {
 }
 
 /// @nodoc
+abstract class _$$LoadSubAccountsImplCopyWith<$Res> {
+  factory _$$LoadSubAccountsImplCopyWith(
+    _$LoadSubAccountsImpl value,
+    $Res Function(_$LoadSubAccountsImpl) then,
+  ) = __$$LoadSubAccountsImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$LoadSubAccountsImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$LoadSubAccountsImpl>
+    implements _$$LoadSubAccountsImplCopyWith<$Res> {
+  __$$LoadSubAccountsImplCopyWithImpl(
+    _$LoadSubAccountsImpl _value,
+    $Res Function(_$LoadSubAccountsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$LoadSubAccountsImpl implements _LoadSubAccounts {
+  const _$LoadSubAccountsImpl();
+
+  @override
+  String toString() {
+    return 'WalletEvent.loadSubAccounts()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$LoadSubAccountsImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadLedger,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+    required TResult Function() watchEngagementStats,
+    required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
+  }) {
+    return loadSubAccounts();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadLedger,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+    TResult? Function()? watchEngagementStats,
+    TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
+  }) {
+    return loadSubAccounts?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadLedger,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    TResult Function()? watchEngagementStats,
+    TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (loadSubAccounts != null) {
+      return loadSubAccounts();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadLedger value) loadLedger,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+    required TResult Function(_WatchEngagementStats value) watchEngagementStats,
+    required TResult Function(_EngagementStatsUpdated value)
+    engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
+  }) {
+    return loadSubAccounts(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadLedger value)? loadLedger,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+    TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
+  }) {
+    return loadSubAccounts?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadLedger value)? loadLedger,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    TResult Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (loadSubAccounts != null) {
+      return loadSubAccounts(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _LoadSubAccounts implements WalletEvent {
+  const factory _LoadSubAccounts() = _$LoadSubAccountsImpl;
+}
+
+/// @nodoc
+abstract class _$$WatchSubAccountsImplCopyWith<$Res> {
+  factory _$$WatchSubAccountsImplCopyWith(
+    _$WatchSubAccountsImpl value,
+    $Res Function(_$WatchSubAccountsImpl) then,
+  ) = __$$WatchSubAccountsImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$WatchSubAccountsImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$WatchSubAccountsImpl>
+    implements _$$WatchSubAccountsImplCopyWith<$Res> {
+  __$$WatchSubAccountsImplCopyWithImpl(
+    _$WatchSubAccountsImpl _value,
+    $Res Function(_$WatchSubAccountsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$WatchSubAccountsImpl implements _WatchSubAccounts {
+  const _$WatchSubAccountsImpl();
+
+  @override
+  String toString() {
+    return 'WalletEvent.watchSubAccounts()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$WatchSubAccountsImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadLedger,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+    required TResult Function() watchEngagementStats,
+    required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
+  }) {
+    return watchSubAccounts();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadLedger,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+    TResult? Function()? watchEngagementStats,
+    TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
+  }) {
+    return watchSubAccounts?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadLedger,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    TResult Function()? watchEngagementStats,
+    TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (watchSubAccounts != null) {
+      return watchSubAccounts();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadLedger value) loadLedger,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+    required TResult Function(_WatchEngagementStats value) watchEngagementStats,
+    required TResult Function(_EngagementStatsUpdated value)
+    engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
+  }) {
+    return watchSubAccounts(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadLedger value)? loadLedger,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+    TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
+  }) {
+    return watchSubAccounts?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadLedger value)? loadLedger,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    TResult Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (watchSubAccounts != null) {
+      return watchSubAccounts(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _WatchSubAccounts implements WalletEvent {
+  const factory _WatchSubAccounts() = _$WatchSubAccountsImpl;
+}
+
+/// @nodoc
+abstract class _$$SubAccountsUpdatedImplCopyWith<$Res> {
+  factory _$$SubAccountsUpdatedImplCopyWith(
+    _$SubAccountsUpdatedImpl value,
+    $Res Function(_$SubAccountsUpdatedImpl) then,
+  ) = __$$SubAccountsUpdatedImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({List<SubAccount> subAccounts});
+}
+
+/// @nodoc
+class __$$SubAccountsUpdatedImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$SubAccountsUpdatedImpl>
+    implements _$$SubAccountsUpdatedImplCopyWith<$Res> {
+  __$$SubAccountsUpdatedImplCopyWithImpl(
+    _$SubAccountsUpdatedImpl _value,
+    $Res Function(_$SubAccountsUpdatedImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? subAccounts = null}) {
+    return _then(
+      _$SubAccountsUpdatedImpl(
+        null == subAccounts
+            ? _value._subAccounts
+            : subAccounts // ignore: cast_nullable_to_non_nullable
+                  as List<SubAccount>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$SubAccountsUpdatedImpl implements _SubAccountsUpdated {
+  const _$SubAccountsUpdatedImpl(final List<SubAccount> subAccounts)
+    : _subAccounts = subAccounts;
+
+  final List<SubAccount> _subAccounts;
+  @override
+  List<SubAccount> get subAccounts {
+    if (_subAccounts is EqualUnmodifiableListView) return _subAccounts;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_subAccounts);
+  }
+
+  @override
+  String toString() {
+    return 'WalletEvent.subAccountsUpdated(subAccounts: $subAccounts)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SubAccountsUpdatedImpl &&
+            const DeepCollectionEquality().equals(
+              other._subAccounts,
+              _subAccounts,
+            ));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_subAccounts),
+  );
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SubAccountsUpdatedImplCopyWith<_$SubAccountsUpdatedImpl> get copyWith =>
+      __$$SubAccountsUpdatedImplCopyWithImpl<_$SubAccountsUpdatedImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadLedger,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+    required TResult Function() watchEngagementStats,
+    required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
+  }) {
+    return subAccountsUpdated(subAccounts);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadLedger,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+    TResult? Function()? watchEngagementStats,
+    TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
+  }) {
+    return subAccountsUpdated?.call(subAccounts);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadLedger,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    TResult Function()? watchEngagementStats,
+    TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (subAccountsUpdated != null) {
+      return subAccountsUpdated(subAccounts);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadLedger value) loadLedger,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+    required TResult Function(_WatchEngagementStats value) watchEngagementStats,
+    required TResult Function(_EngagementStatsUpdated value)
+    engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
+  }) {
+    return subAccountsUpdated(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadLedger value)? loadLedger,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+    TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
+  }) {
+    return subAccountsUpdated?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadLedger value)? loadLedger,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    TResult Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (subAccountsUpdated != null) {
+      return subAccountsUpdated(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _SubAccountsUpdated implements WalletEvent {
+  const factory _SubAccountsUpdated(final List<SubAccount> subAccounts) =
+      _$SubAccountsUpdatedImpl;
+
+  List<SubAccount> get subAccounts;
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SubAccountsUpdatedImplCopyWith<_$SubAccountsUpdatedImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$SelectSubAccountImplCopyWith<$Res> {
+  factory _$$SelectSubAccountImplCopyWith(
+    _$SelectSubAccountImpl value,
+    $Res Function(_$SelectSubAccountImpl) then,
+  ) = __$$SelectSubAccountImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String subAccountId});
+}
+
+/// @nodoc
+class __$$SelectSubAccountImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$SelectSubAccountImpl>
+    implements _$$SelectSubAccountImplCopyWith<$Res> {
+  __$$SelectSubAccountImplCopyWithImpl(
+    _$SelectSubAccountImpl _value,
+    $Res Function(_$SelectSubAccountImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? subAccountId = null}) {
+    return _then(
+      _$SelectSubAccountImpl(
+        null == subAccountId
+            ? _value.subAccountId
+            : subAccountId // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$SelectSubAccountImpl implements _SelectSubAccount {
+  const _$SelectSubAccountImpl(this.subAccountId);
+
+  @override
+  final String subAccountId;
+
+  @override
+  String toString() {
+    return 'WalletEvent.selectSubAccount(subAccountId: $subAccountId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SelectSubAccountImpl &&
+            (identical(other.subAccountId, subAccountId) ||
+                other.subAccountId == subAccountId));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, subAccountId);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SelectSubAccountImplCopyWith<_$SelectSubAccountImpl> get copyWith =>
+      __$$SelectSubAccountImplCopyWithImpl<_$SelectSubAccountImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadLedger,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+    required TResult Function() watchEngagementStats,
+    required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
+  }) {
+    return selectSubAccount(subAccountId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadLedger,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+    TResult? Function()? watchEngagementStats,
+    TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
+  }) {
+    return selectSubAccount?.call(subAccountId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadLedger,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    TResult Function()? watchEngagementStats,
+    TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (selectSubAccount != null) {
+      return selectSubAccount(subAccountId);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadLedger value) loadLedger,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+    required TResult Function(_WatchEngagementStats value) watchEngagementStats,
+    required TResult Function(_EngagementStatsUpdated value)
+    engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
+  }) {
+    return selectSubAccount(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadLedger value)? loadLedger,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+    TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
+  }) {
+    return selectSubAccount?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadLedger value)? loadLedger,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    TResult Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (selectSubAccount != null) {
+      return selectSubAccount(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _SelectSubAccount implements WalletEvent {
+  const factory _SelectSubAccount(final String subAccountId) =
+      _$SelectSubAccountImpl;
+
+  String get subAccountId;
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SelectSubAccountImplCopyWith<_$SelectSubAccountImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$TransferBetweenWalletsImplCopyWith<$Res> {
+  factory _$$TransferBetweenWalletsImplCopyWith(
+    _$TransferBetweenWalletsImpl value,
+    $Res Function(_$TransferBetweenWalletsImpl) then,
+  ) = __$$TransferBetweenWalletsImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String fromSubAccountId, String toSubAccountId, int amount});
+}
+
+/// @nodoc
+class __$$TransferBetweenWalletsImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$TransferBetweenWalletsImpl>
+    implements _$$TransferBetweenWalletsImplCopyWith<$Res> {
+  __$$TransferBetweenWalletsImplCopyWithImpl(
+    _$TransferBetweenWalletsImpl _value,
+    $Res Function(_$TransferBetweenWalletsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? fromSubAccountId = null,
+    Object? toSubAccountId = null,
+    Object? amount = null,
+  }) {
+    return _then(
+      _$TransferBetweenWalletsImpl(
+        fromSubAccountId: null == fromSubAccountId
+            ? _value.fromSubAccountId
+            : fromSubAccountId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        toSubAccountId: null == toSubAccountId
+            ? _value.toSubAccountId
+            : toSubAccountId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        amount: null == amount
+            ? _value.amount
+            : amount // ignore: cast_nullable_to_non_nullable
+                  as int,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$TransferBetweenWalletsImpl implements _TransferBetweenWallets {
+  const _$TransferBetweenWalletsImpl({
+    required this.fromSubAccountId,
+    required this.toSubAccountId,
+    required this.amount,
+  });
+
+  @override
+  final String fromSubAccountId;
+  @override
+  final String toSubAccountId;
+  @override
+  final int amount;
+
+  @override
+  String toString() {
+    return 'WalletEvent.transferBetweenWallets(fromSubAccountId: $fromSubAccountId, toSubAccountId: $toSubAccountId, amount: $amount)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$TransferBetweenWalletsImpl &&
+            (identical(other.fromSubAccountId, fromSubAccountId) ||
+                other.fromSubAccountId == fromSubAccountId) &&
+            (identical(other.toSubAccountId, toSubAccountId) ||
+                other.toSubAccountId == toSubAccountId) &&
+            (identical(other.amount, amount) || other.amount == amount));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, fromSubAccountId, toSubAccountId, amount);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$TransferBetweenWalletsImplCopyWith<_$TransferBetweenWalletsImpl>
+  get copyWith =>
+      __$$TransferBetweenWalletsImplCopyWithImpl<_$TransferBetweenWalletsImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadLedger,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+    required TResult Function() watchEngagementStats,
+    required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
+  }) {
+    return transferBetweenWallets(fromSubAccountId, toSubAccountId, amount);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadLedger,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+    TResult? Function()? watchEngagementStats,
+    TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
+  }) {
+    return transferBetweenWallets?.call(
+      fromSubAccountId,
+      toSubAccountId,
+      amount,
+    );
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadLedger,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    TResult Function()? watchEngagementStats,
+    TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (transferBetweenWallets != null) {
+      return transferBetweenWallets(fromSubAccountId, toSubAccountId, amount);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadLedger value) loadLedger,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+    required TResult Function(_WatchEngagementStats value) watchEngagementStats,
+    required TResult Function(_EngagementStatsUpdated value)
+    engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
+  }) {
+    return transferBetweenWallets(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadLedger value)? loadLedger,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+    TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
+  }) {
+    return transferBetweenWallets?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadLedger value)? loadLedger,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    TResult Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (transferBetweenWallets != null) {
+      return transferBetweenWallets(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _TransferBetweenWallets implements WalletEvent {
+  const factory _TransferBetweenWallets({
+    required final String fromSubAccountId,
+    required final String toSubAccountId,
+    required final int amount,
+  }) = _$TransferBetweenWalletsImpl;
+
+  String get fromSubAccountId;
+  String get toSubAccountId;
+  int get amount;
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$TransferBetweenWalletsImplCopyWith<_$TransferBetweenWalletsImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$SendP2PTransferImplCopyWith<$Res> {
+  factory _$$SendP2PTransferImplCopyWith(
+    _$SendP2PTransferImpl value,
+    $Res Function(_$SendP2PTransferImpl) then,
+  ) = __$$SendP2PTransferImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({
+    String recipientUserId,
+    int amount,
+    String subAccountId,
+    String? note,
+  });
+}
+
+/// @nodoc
+class __$$SendP2PTransferImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$SendP2PTransferImpl>
+    implements _$$SendP2PTransferImplCopyWith<$Res> {
+  __$$SendP2PTransferImplCopyWithImpl(
+    _$SendP2PTransferImpl _value,
+    $Res Function(_$SendP2PTransferImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? recipientUserId = null,
+    Object? amount = null,
+    Object? subAccountId = null,
+    Object? note = freezed,
+  }) {
+    return _then(
+      _$SendP2PTransferImpl(
+        recipientUserId: null == recipientUserId
+            ? _value.recipientUserId
+            : recipientUserId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        amount: null == amount
+            ? _value.amount
+            : amount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        subAccountId: null == subAccountId
+            ? _value.subAccountId
+            : subAccountId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        note: freezed == note
+            ? _value.note
+            : note // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$SendP2PTransferImpl implements _SendP2PTransfer {
+  const _$SendP2PTransferImpl({
+    required this.recipientUserId,
+    required this.amount,
+    required this.subAccountId,
+    this.note,
+  });
+
+  @override
+  final String recipientUserId;
+  @override
+  final int amount;
+  @override
+  final String subAccountId;
+  @override
+  final String? note;
+
+  @override
+  String toString() {
+    return 'WalletEvent.sendP2PTransfer(recipientUserId: $recipientUserId, amount: $amount, subAccountId: $subAccountId, note: $note)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SendP2PTransferImpl &&
+            (identical(other.recipientUserId, recipientUserId) ||
+                other.recipientUserId == recipientUserId) &&
+            (identical(other.amount, amount) || other.amount == amount) &&
+            (identical(other.subAccountId, subAccountId) ||
+                other.subAccountId == subAccountId) &&
+            (identical(other.note, note) || other.note == note));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, recipientUserId, amount, subAccountId, note);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SendP2PTransferImplCopyWith<_$SendP2PTransferImpl> get copyWith =>
+      __$$SendP2PTransferImplCopyWithImpl<_$SendP2PTransferImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadLedger,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+    required TResult Function() watchEngagementStats,
+    required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
+  }) {
+    return sendP2PTransfer(recipientUserId, amount, subAccountId, note);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadLedger,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+    TResult? Function()? watchEngagementStats,
+    TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
+  }) {
+    return sendP2PTransfer?.call(recipientUserId, amount, subAccountId, note);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadLedger,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    TResult Function()? watchEngagementStats,
+    TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (sendP2PTransfer != null) {
+      return sendP2PTransfer(recipientUserId, amount, subAccountId, note);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadLedger value) loadLedger,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+    required TResult Function(_WatchEngagementStats value) watchEngagementStats,
+    required TResult Function(_EngagementStatsUpdated value)
+    engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
+  }) {
+    return sendP2PTransfer(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadLedger value)? loadLedger,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+    TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
+  }) {
+    return sendP2PTransfer?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadLedger value)? loadLedger,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    TResult Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (sendP2PTransfer != null) {
+      return sendP2PTransfer(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _SendP2PTransfer implements WalletEvent {
+  const factory _SendP2PTransfer({
+    required final String recipientUserId,
+    required final int amount,
+    required final String subAccountId,
+    final String? note,
+  }) = _$SendP2PTransferImpl;
+
+  String get recipientUserId;
+  int get amount;
+  String get subAccountId;
+  String? get note;
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SendP2PTransferImplCopyWith<_$SendP2PTransferImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$ClearMessagesImplCopyWith<$Res> {
+  factory _$$ClearMessagesImplCopyWith(
+    _$ClearMessagesImpl value,
+    $Res Function(_$ClearMessagesImpl) then,
+  ) = __$$ClearMessagesImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$ClearMessagesImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$ClearMessagesImpl>
+    implements _$$ClearMessagesImplCopyWith<$Res> {
+  __$$ClearMessagesImplCopyWithImpl(
+    _$ClearMessagesImpl _value,
+    $Res Function(_$ClearMessagesImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$ClearMessagesImpl implements _ClearMessages {
+  const _$ClearMessagesImpl();
+
+  @override
+  String toString() {
+    return 'WalletEvent.clearMessages()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$ClearMessagesImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadLedger,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+    required TResult Function() watchEngagementStats,
+    required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
+  }) {
+    return clearMessages();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadLedger,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+    TResult? Function()? watchEngagementStats,
+    TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
+  }) {
+    return clearMessages?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadLedger,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    TResult Function()? watchEngagementStats,
+    TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (clearMessages != null) {
+      return clearMessages();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadLedger value) loadLedger,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+    required TResult Function(_WatchEngagementStats value) watchEngagementStats,
+    required TResult Function(_EngagementStatsUpdated value)
+    engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
+  }) {
+    return clearMessages(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadLedger value)? loadLedger,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+    TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
+  }) {
+    return clearMessages?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadLedger value)? loadLedger,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    TResult Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (clearMessages != null) {
+      return clearMessages(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ClearMessages implements WalletEvent {
+  const factory _ClearMessages() = _$ClearMessagesImpl;
+}
+
+/// @nodoc
 mixin _$WalletState {
   WalletStatus get status => throw _privateConstructorUsedError;
   LedgerAccount? get ledgerAccount => throw _privateConstructorUsedError;
@@ -1956,7 +4687,11 @@ mixin _$WalletState {
   List<LedgerJournal> get ledgerJournals => throw _privateConstructorUsedError;
   bool get isLoadingMore => throw _privateConstructorUsedError;
   bool get hasMoreLedgerJournals => throw _privateConstructorUsedError;
+  List<SubAccount> get subAccounts => throw _privateConstructorUsedError;
+  String? get selectedSubAccountId => throw _privateConstructorUsedError;
+  bool get isTransferring => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
+  String? get successMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of WalletState
   /// with the given fields replaced by the non-null parameter values.
@@ -1979,7 +4714,11 @@ abstract class $WalletStateCopyWith<$Res> {
     List<LedgerJournal> ledgerJournals,
     bool isLoadingMore,
     bool hasMoreLedgerJournals,
+    List<SubAccount> subAccounts,
+    String? selectedSubAccountId,
+    bool isTransferring,
     String? errorMessage,
+    String? successMessage,
   });
 
   $LedgerAccountCopyWith<$Res>? get ledgerAccount;
@@ -2007,7 +4746,11 @@ class _$WalletStateCopyWithImpl<$Res, $Val extends WalletState>
     Object? ledgerJournals = null,
     Object? isLoadingMore = null,
     Object? hasMoreLedgerJournals = null,
+    Object? subAccounts = null,
+    Object? selectedSubAccountId = freezed,
+    Object? isTransferring = null,
     Object? errorMessage = freezed,
+    Object? successMessage = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -2035,9 +4778,25 @@ class _$WalletStateCopyWithImpl<$Res, $Val extends WalletState>
                 ? _value.hasMoreLedgerJournals
                 : hasMoreLedgerJournals // ignore: cast_nullable_to_non_nullable
                       as bool,
+            subAccounts: null == subAccounts
+                ? _value.subAccounts
+                : subAccounts // ignore: cast_nullable_to_non_nullable
+                      as List<SubAccount>,
+            selectedSubAccountId: freezed == selectedSubAccountId
+                ? _value.selectedSubAccountId
+                : selectedSubAccountId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            isTransferring: null == isTransferring
+                ? _value.isTransferring
+                : isTransferring // ignore: cast_nullable_to_non_nullable
+                      as bool,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            successMessage: freezed == successMessage
+                ? _value.successMessage
+                : successMessage // ignore: cast_nullable_to_non_nullable
                       as String?,
           )
           as $Val,
@@ -2089,7 +4848,11 @@ abstract class _$$WalletStateImplCopyWith<$Res>
     List<LedgerJournal> ledgerJournals,
     bool isLoadingMore,
     bool hasMoreLedgerJournals,
+    List<SubAccount> subAccounts,
+    String? selectedSubAccountId,
+    bool isTransferring,
     String? errorMessage,
+    String? successMessage,
   });
 
   @override
@@ -2118,7 +4881,11 @@ class __$$WalletStateImplCopyWithImpl<$Res>
     Object? ledgerJournals = null,
     Object? isLoadingMore = null,
     Object? hasMoreLedgerJournals = null,
+    Object? subAccounts = null,
+    Object? selectedSubAccountId = freezed,
+    Object? isTransferring = null,
     Object? errorMessage = freezed,
+    Object? successMessage = freezed,
   }) {
     return _then(
       _$WalletStateImpl(
@@ -2146,9 +4913,25 @@ class __$$WalletStateImplCopyWithImpl<$Res>
             ? _value.hasMoreLedgerJournals
             : hasMoreLedgerJournals // ignore: cast_nullable_to_non_nullable
                   as bool,
+        subAccounts: null == subAccounts
+            ? _value._subAccounts
+            : subAccounts // ignore: cast_nullable_to_non_nullable
+                  as List<SubAccount>,
+        selectedSubAccountId: freezed == selectedSubAccountId
+            ? _value.selectedSubAccountId
+            : selectedSubAccountId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        isTransferring: null == isTransferring
+            ? _value.isTransferring
+            : isTransferring // ignore: cast_nullable_to_non_nullable
+                  as bool,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        successMessage: freezed == successMessage
+            ? _value.successMessage
+            : successMessage // ignore: cast_nullable_to_non_nullable
                   as String?,
       ),
     );
@@ -2165,8 +4948,13 @@ class _$WalletStateImpl extends _WalletState {
     final List<LedgerJournal> ledgerJournals = const [],
     this.isLoadingMore = false,
     this.hasMoreLedgerJournals = false,
+    final List<SubAccount> subAccounts = const [],
+    this.selectedSubAccountId,
+    this.isTransferring = false,
     this.errorMessage,
+    this.successMessage,
   }) : _ledgerJournals = ledgerJournals,
+       _subAccounts = subAccounts,
        super._();
 
   @override
@@ -2191,12 +4979,28 @@ class _$WalletStateImpl extends _WalletState {
   @override
   @JsonKey()
   final bool hasMoreLedgerJournals;
+  final List<SubAccount> _subAccounts;
+  @override
+  @JsonKey()
+  List<SubAccount> get subAccounts {
+    if (_subAccounts is EqualUnmodifiableListView) return _subAccounts;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_subAccounts);
+  }
+
+  @override
+  final String? selectedSubAccountId;
+  @override
+  @JsonKey()
+  final bool isTransferring;
   @override
   final String? errorMessage;
+  @override
+  final String? successMessage;
 
   @override
   String toString() {
-    return 'WalletState(status: $status, ledgerAccount: $ledgerAccount, engagementStats: $engagementStats, ledgerJournals: $ledgerJournals, isLoadingMore: $isLoadingMore, hasMoreLedgerJournals: $hasMoreLedgerJournals, errorMessage: $errorMessage)';
+    return 'WalletState(status: $status, ledgerAccount: $ledgerAccount, engagementStats: $engagementStats, ledgerJournals: $ledgerJournals, isLoadingMore: $isLoadingMore, hasMoreLedgerJournals: $hasMoreLedgerJournals, subAccounts: $subAccounts, selectedSubAccountId: $selectedSubAccountId, isTransferring: $isTransferring, errorMessage: $errorMessage, successMessage: $successMessage)';
   }
 
   @override
@@ -2217,8 +5021,18 @@ class _$WalletStateImpl extends _WalletState {
                 other.isLoadingMore == isLoadingMore) &&
             (identical(other.hasMoreLedgerJournals, hasMoreLedgerJournals) ||
                 other.hasMoreLedgerJournals == hasMoreLedgerJournals) &&
+            const DeepCollectionEquality().equals(
+              other._subAccounts,
+              _subAccounts,
+            ) &&
+            (identical(other.selectedSubAccountId, selectedSubAccountId) ||
+                other.selectedSubAccountId == selectedSubAccountId) &&
+            (identical(other.isTransferring, isTransferring) ||
+                other.isTransferring == isTransferring) &&
             (identical(other.errorMessage, errorMessage) ||
-                other.errorMessage == errorMessage));
+                other.errorMessage == errorMessage) &&
+            (identical(other.successMessage, successMessage) ||
+                other.successMessage == successMessage));
   }
 
   @override
@@ -2230,7 +5044,11 @@ class _$WalletStateImpl extends _WalletState {
     const DeepCollectionEquality().hash(_ledgerJournals),
     isLoadingMore,
     hasMoreLedgerJournals,
+    const DeepCollectionEquality().hash(_subAccounts),
+    selectedSubAccountId,
+    isTransferring,
     errorMessage,
+    successMessage,
   );
 
   /// Create a copy of WalletState
@@ -2250,7 +5068,11 @@ abstract class _WalletState extends WalletState {
     final List<LedgerJournal> ledgerJournals,
     final bool isLoadingMore,
     final bool hasMoreLedgerJournals,
+    final List<SubAccount> subAccounts,
+    final String? selectedSubAccountId,
+    final bool isTransferring,
     final String? errorMessage,
+    final String? successMessage,
   }) = _$WalletStateImpl;
   const _WalletState._() : super._();
 
@@ -2267,7 +5089,15 @@ abstract class _WalletState extends WalletState {
   @override
   bool get hasMoreLedgerJournals;
   @override
+  List<SubAccount> get subAccounts;
+  @override
+  String? get selectedSubAccountId;
+  @override
+  bool get isTransferring;
+  @override
   String? get errorMessage;
+  @override
+  String? get successMessage;
 
   /// Create a copy of WalletState
   /// with the given fields replaced by the non-null parameter values.

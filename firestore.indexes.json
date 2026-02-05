@@ -165,6 +165,14 @@
       "collectionGroup": "ledgerJournals",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "postedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "ledgerJournals",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "type", "order": "ASCENDING" },
         { "fieldPath": "postedAt", "order": "DESCENDING" }
       ]

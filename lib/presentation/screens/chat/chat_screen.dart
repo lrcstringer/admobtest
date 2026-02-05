@@ -7,6 +7,7 @@ import '../../blocs/chat/chat_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -52,46 +53,48 @@ class _ChatScreenState extends State<ChatScreen> {
           }
         },
         builder: (context, state) {
-          return Column(
-            children: [
-              // Quick Actions
-              Container(
-                padding: AppSpacing.cardPadding,
-                color: AppColors.surface,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildQuickAction(
-                      context,
-                      icon: Icons.send,
-                      label: 'Send',
-                      color: AppColors.primary,
-                      onTap: () => _showSendTokensDialog(context),
-                    ),
-                    _buildQuickAction(
-                      context,
-                      icon: Icons.call_received,
-                      label: 'Request',
-                      color: AppColors.accent,
-                      onTap: () => _showRequestTokensDialog(context),
-                    ),
-                    _buildQuickAction(
-                      context,
-                      icon: Icons.qr_code,
-                      label: 'QR Code',
-                      color: AppColors.secondary,
-                      onTap: () => _showQRCode(context),
-                    ),
-                  ],
+          return WaveBackground(
+            child: Column(
+              children: [
+                // Quick Actions
+                Container(
+                  padding: AppSpacing.cardPadding,
+                  color: AppColors.surface,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildQuickAction(
+                        context,
+                        icon: Icons.send,
+                        label: 'Send',
+                        color: AppColors.primary,
+                        onTap: () => _showSendTokensDialog(context),
+                      ),
+                      _buildQuickAction(
+                        context,
+                        icon: Icons.call_received,
+                        label: 'Request',
+                        color: AppColors.accent,
+                        onTap: () => _showRequestTokensDialog(context),
+                      ),
+                      _buildQuickAction(
+                        context,
+                        icon: Icons.qr_code,
+                        label: 'QR Code',
+                        color: AppColors.secondary,
+                        onTap: () => _showQRCode(context),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const Divider(height: 1),
+                const Divider(height: 1),
 
-              // Thread List or Empty State
-              Expanded(
-                child: _buildContent(context, state),
-              ),
-            ],
+                // Thread List or Empty State
+                Expanded(
+                  child: _buildContent(context, state),
+                ),
+              ],
+            ),
           );
         },
       ),

@@ -10,6 +10,7 @@ import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -75,21 +76,24 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildHeader(context, user, walletState),
-                              const SizedBox(height: 24),
-                              _buildTokenBalanceCard(context, walletState),
-                              const SizedBox(height: 24),
-                              _buildPotCardsRow(context, potState),
-                              const SizedBox(height: 24),
-                              _buildInviteFriendsButton(context),
-                              const SizedBox(height: 16),
-                              _buildHowItWorksLink(context),
-                              const SizedBox(height: 24),
-                            ],
+                          child: WaveBackground(
+                            child: Padding(
+                                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildHeader(context, user, walletState),
+                                    const SizedBox(height: 12),
+                                    _buildTokenBalanceCard(context, walletState),
+                                    const SizedBox(height: 24),
+                                    _buildPotCardsRow(context, potState),
+                                    const SizedBox(height: 24),
+                                    _buildInviteFriendsButton(context),
+                                    const SizedBox(height: 16),
+                                    _buildHowItWorksLink(context),
+                                  ],
+                                ),
+                              ),
                           ),
                         ),
                       ),
@@ -117,15 +121,23 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
         ),
         const SizedBox(height: 4),
-        Text(
-          user?.displayName ?? 'User',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.bold,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Text(
+                user?.displayName ?? 'User',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                overflow: TextOverflow.ellipsis,
               ),
+            ),
+            const SizedBox(width: 12),
+            _buildStreakBadge(context, streak),
+          ],
         ),
-        const SizedBox(height: 8),
-        _buildStreakBadge(context, streak),
       ],
     );
   }
@@ -169,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: AppSpacing.borderRadiusLg,
@@ -182,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Total Token Balance',
+                'Tokens Balance',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -191,10 +203,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: AppColors.primary, size: 24),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           if (isLoading)
             const SizedBox(
-              height: 40,
+              height: 36,
               child: Center(
                 child: CircularProgressIndicator(
                     color: AppColors.primary, strokeWidth: 2),
@@ -208,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.bold,
                   ),
             ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: DecoratedBox(
@@ -426,7 +438,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: GestureDetector(
         onTap: () => context.go('/home/how-to-earn'),
         child: Text(
-          'How it works',
+          'How iMaliChat works',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,

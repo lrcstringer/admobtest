@@ -137,9 +137,9 @@ class ReferralBloc extends Bloc<ReferralEvent, ReferralState> {
         isSharing: false,
         errorMessage: failure.displayMessage,
       )),
-      (_) => emit(state.copyWith(
+      (shared) => emit(state.copyWith(
         isSharing: false,
-        successMessage: 'Referral shared successfully!',
+        successMessage: shared ? 'Referral shared successfully!' : null,
       )),
     );
   }

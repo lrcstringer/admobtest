@@ -7,6 +7,7 @@ import 'package:injectable/injectable.dart';
 import '../../../core/error/failures.dart';
 import '../../../domain/entities/ledger_account.dart';
 import '../../../domain/entities/ledger_journal.dart';
+import '../../../domain/entities/sub_account.dart';
 import '../../../domain/entities/user_engagement_stats.dart';
 import '../../../domain/repositories/wallet_repository.dart';
 
@@ -20,6 +21,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
   StreamSubscription? _ledgerAccountSubscription;
   StreamSubscription? _ledgerJournalsSubscription;
   StreamSubscription? _engagementStatsSubscription;
+  StreamSubscription? _subAccountsSubscription;
 
   WalletBloc(this._walletRepository) : super(const WalletState()) {
     on<_LoadLedger>(_onLoadLedger);
@@ -32,6 +34,13 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     on<_RefreshLedger>(_onRefreshLedger);
     on<_WatchEngagementStats>(_onWatchEngagementStats);
     on<_EngagementStatsUpdated>(_onEngagementStatsUpdated);
+    on<_LoadSubAccounts>(_onLoadSubAccounts);
+    on<_WatchSubAccounts>(_onWatchSubAccounts);
+    on<_SubAccountsUpdated>(_onSubAccountsUpdated);
+    on<_SelectSubAccount>(_onSelectSubAccount);
+    on<_TransferBetweenWallets>(_onTransferBetweenWallets);
+    on<_SendP2PTransfer>(_onSendP2PTransfer);
+    on<_ClearMessages>(_onClearMessages);
   }
 
   Future<void> _onLoadLedger(
@@ -63,6 +72,9 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
         add(const WalletEvent.watchEngagementStats());
         // Load initial journals
         add(const WalletEvent.loadLedgerJournals());
+        // Load and watch sub-accounts (multi-wallet)
+        add(const WalletEvent.loadSubAccounts());
+        add(const WalletEvent.watchSubAccounts());
       },
     );
   }
@@ -75,9 +87,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     _ledgerAccountSubscription = _walletRepository.watchLedgerAccount().listen(
       (result) {
         result.fold(
-          (failure) {
-            // Don't emit error for stream failures, ledger account may not exist yet
-          },
+          (failure) {},
           (ledgerAccount) {
             add(WalletEvent.ledgerAccountUpdated(ledgerAccount));
           },
@@ -102,9 +112,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     );
 
     result.fold(
-      (failure) {
-        // Don't fail the whole state for journals error
-      },
+      (failure) {},
       (journals) {
         emit(state.copyWith(
           ledgerJournals: journals,
@@ -157,9 +165,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
         .listen(
       (result) {
         result.fold(
-          (failure) {
-            // Don't emit error for stream failures
-          },
+          (failure) {},
           (journals) {
             add(WalletEvent.ledgerJournalsUpdated(journals));
           },
@@ -183,9 +189,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     _engagementStatsSubscription = _walletRepository.watchEngagementStats().listen(
       (result) {
         result.fold(
-          (failure) {
-            // Don't emit error for stream failures, stats may not exist yet
-          },
+          (failure) {},
           (stats) {
             add(WalletEvent.engagementStatsUpdated(stats));
           },
@@ -208,9 +212,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     // Fetch latest ledger account balance
     final accountResult = await _walletRepository.getLedgerAccount();
     accountResult.fold(
-      (failure) {
-        // Silent fail - watchers will eventually update
-      },
+      (failure) {},
       (ledgerAccount) {
         emit(state.copyWith(ledgerAccount: ledgerAccount));
       },
@@ -219,9 +221,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     // Refresh ledger journals
     final journalsResult = await _walletRepository.getLedgerJournals(limit: 20);
     journalsResult.fold(
-      (failure) {
-        // Silent fail - watchers will eventually update
-      },
+      (failure) {},
       (journals) {
         emit(state.copyWith(
           ledgerJournals: journals,
@@ -233,13 +233,120 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     // Refresh engagement stats (streak)
     final statsResult = await _walletRepository.getEngagementStats();
     statsResult.fold(
-      (failure) {
-        // Silent fail - watchers will eventually update
-      },
+      (failure) {},
       (stats) {
         emit(state.copyWith(engagementStats: stats));
       },
     );
+
+    // Refresh sub-accounts
+    final subAccountsResult = await _walletRepository.getSubAccounts();
+    subAccountsResult.fold(
+      (failure) {},
+      (subAccounts) {
+        emit(state.copyWith(subAccounts: subAccounts));
+      },
+    );
+  }
+
+  // ============================================================
+  // Sub-Account Handlers
+  // ============================================================
+
+  Future<void> _onLoadSubAccounts(
+    _LoadSubAccounts event,
+    Emitter<WalletState> emit,
+  ) async {
+    final result = await _walletRepository.getSubAccounts();
+    result.fold(
+      (failure) {},
+      (subAccounts) => emit(state.copyWith(subAccounts: subAccounts)),
+    );
+  }
+
+  void _onWatchSubAccounts(
+    _WatchSubAccounts event,
+    Emitter<WalletState> emit,
+  ) {
+    _subAccountsSubscription?.cancel();
+    _subAccountsSubscription = _walletRepository.watchSubAccounts().listen(
+      (result) {
+        result.fold(
+          (failure) {},
+          (subAccounts) => add(WalletEvent.subAccountsUpdated(subAccounts)),
+        );
+      },
+    );
+  }
+
+  void _onSubAccountsUpdated(
+    _SubAccountsUpdated event,
+    Emitter<WalletState> emit,
+  ) {
+    emit(state.copyWith(subAccounts: event.subAccounts));
+  }
+
+  void _onSelectSubAccount(
+    _SelectSubAccount event,
+    Emitter<WalletState> emit,
+  ) {
+    emit(state.copyWith(selectedSubAccountId: event.subAccountId));
+  }
+
+  Future<void> _onTransferBetweenWallets(
+    _TransferBetweenWallets event,
+    Emitter<WalletState> emit,
+  ) async {
+    emit(state.copyWith(isTransferring: true));
+
+    final result = await _walletRepository.transferBetweenWallets(
+      fromSubAccountId: event.fromSubAccountId,
+      toSubAccountId: event.toSubAccountId,
+      amount: event.amount,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isTransferring: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isTransferring: false,
+        successMessage: 'Transfer complete',
+      )),
+    );
+  }
+
+  Future<void> _onSendP2PTransfer(
+    _SendP2PTransfer event,
+    Emitter<WalletState> emit,
+  ) async {
+    emit(state.copyWith(isTransferring: true));
+
+    final result = await _walletRepository.sendP2PTransfer(
+      recipientUserId: event.recipientUserId,
+      amount: event.amount,
+      subAccountId: event.subAccountId,
+      note: event.note,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isTransferring: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isTransferring: false,
+        successMessage: 'Transfer sent successfully',
+      )),
+    );
+  }
+
+  void _onClearMessages(
+    _ClearMessages event,
+    Emitter<WalletState> emit,
+  ) {
+    emit(state.copyWith(errorMessage: null, successMessage: null));
   }
 
   @override
@@ -247,6 +354,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     _ledgerAccountSubscription?.cancel();
     _ledgerJournalsSubscription?.cancel();
     _engagementStatsSubscription?.cancel();
+    _subAccountsSubscription?.cancel();
     return super.close();
   }
 }

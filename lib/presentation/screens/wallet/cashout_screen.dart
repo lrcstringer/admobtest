@@ -12,6 +12,7 @@ import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 class CashoutScreen extends StatefulWidget {
   const CashoutScreen({super.key});
@@ -75,10 +76,12 @@ class _CashoutScreenState extends State<CashoutScreen> {
             final minCashout = 1000; // Minimum 1000 tokens (R10)
 
             return SingleChildScrollView(
-              padding: AppSpacing.pagePadding,
-              child: Form(
-                key: _formKey,
-                child: Column(
+              child: WaveBackground(
+                child: Padding(
+                  padding: AppSpacing.pagePadding,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Balance Card
@@ -218,9 +221,11 @@ class _CashoutScreenState extends State<CashoutScreen> {
                         );
                       },
                     ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
+            ),
             );
           },
         ),

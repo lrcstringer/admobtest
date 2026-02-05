@@ -3,6 +3,7 @@ import '../../core/error/failures.dart';
 import '../entities/cashout.dart';
 import '../entities/ledger_account.dart';
 import '../entities/ledger_journal.dart';
+import '../entities/sub_account.dart';
 import '../entities/user_engagement_stats.dart';
 
 /// Repository for ledger, cashout, and engagement stats operations
@@ -44,6 +45,31 @@ abstract class WalletRepository {
 
   /// Stream engagement stats updates
   Stream<Either<Failure, UserEngagementStats>> watchEngagementStats();
+
+  // ============================================================
+  // Sub-Account Methods (Multi-Wallet)
+  // ============================================================
+
+  /// Get all sub-accounts (wallets) for the current user
+  Future<Either<Failure, List<SubAccount>>> getSubAccounts();
+
+  /// Stream sub-account updates
+  Stream<Either<Failure, List<SubAccount>>> watchSubAccounts();
+
+  /// Transfer tokens between the user's own wallets
+  Future<Either<Failure, void>> transferBetweenWallets({
+    required String fromSubAccountId,
+    required String toSubAccountId,
+    required int amount,
+  });
+
+  /// Send tokens to another user (P2P transfer)
+  Future<Either<Failure, void>> sendP2PTransfer({
+    required String recipientUserId,
+    required int amount,
+    required String subAccountId,
+    String? note,
+  });
 
   // ============================================================
   // Cashout Methods

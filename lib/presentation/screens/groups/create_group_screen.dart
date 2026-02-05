@@ -143,7 +143,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                                 ),
                                 AppSpacing.verticalSm,
                                 DropdownButtonFormField<ContributionCycle>(
-                                  value: _contributionCycle,
+                                  initialValue: _contributionCycle,
                                   decoration: const InputDecoration(
                                     labelText: 'Cycle',
                                     prefixIcon: Icon(Icons.repeat),

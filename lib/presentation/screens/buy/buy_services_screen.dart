@@ -8,6 +8,7 @@ import '../../blocs/purchase/purchase_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 class BuyServicesScreen extends StatefulWidget {
   const BuyServicesScreen({super.key});
@@ -59,7 +60,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
               ),
             ],
           ),
-          body: _buildBody(context, state),
+          body: WaveBackground(child: _buildBody(context, state)),
         );
       },
     );

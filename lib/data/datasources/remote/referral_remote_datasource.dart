@@ -36,8 +36,8 @@ abstract class ReferralRemoteDataSource {
   /// Generate shareable referral link
   Future<String> generateShareableLink();
 
-  /// Share referral via platform
-  Future<void> shareReferral({
+  /// Share referral via platform. Returns true if the user actually shared.
+  Future<bool> shareReferral({
     required String platform,
     String? customMessage,
   });
@@ -255,7 +255,7 @@ class ReferralRemoteDataSourceImpl implements ReferralRemoteDataSource {
   }
 
   @override
-  Future<void> shareReferral({
+  Future<bool> shareReferral({
     required String platform,
     String? customMessage,
   }) async {
@@ -274,7 +274,11 @@ You'll get 10 tokens when you sign up and complete your first engagement!
 
     final message = customMessage ?? defaultMessage;
 
-    await Share.share(message, subject: 'Join iMaliChat - Earn. Chat. Buy.');
+    final result = await Share.share(
+      message,
+      subject: 'Join iMaliChat - Earn. Chat. Buy.',
+    );
+    return result.status != ShareResultStatus.dismissed;
   }
 
   @override

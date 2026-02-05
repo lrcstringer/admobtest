@@ -21,4 +21,22 @@ class WalletEvent with _$WalletEvent {
   /// Watch engagement stats (streak tracking)
   const factory WalletEvent.watchEngagementStats() = _WatchEngagementStats;
   const factory WalletEvent.engagementStatsUpdated(UserEngagementStats stats) = _EngagementStatsUpdated;
+
+  /// Sub-account (multi-wallet) events
+  const factory WalletEvent.loadSubAccounts() = _LoadSubAccounts;
+  const factory WalletEvent.watchSubAccounts() = _WatchSubAccounts;
+  const factory WalletEvent.subAccountsUpdated(List<SubAccount> subAccounts) = _SubAccountsUpdated;
+  const factory WalletEvent.selectSubAccount(String subAccountId) = _SelectSubAccount;
+  const factory WalletEvent.transferBetweenWallets({
+    required String fromSubAccountId,
+    required String toSubAccountId,
+    required int amount,
+  }) = _TransferBetweenWallets;
+  const factory WalletEvent.sendP2PTransfer({
+    required String recipientUserId,
+    required int amount,
+    required String subAccountId,
+    String? note,
+  }) = _SendP2PTransfer;
+  const factory WalletEvent.clearMessages() = _ClearMessages;
 }

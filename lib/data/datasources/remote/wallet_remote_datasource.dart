@@ -10,6 +10,7 @@ import '../../../domain/entities/cashout.dart';
 import '../../models/cashout_model.dart';
 import '../../models/ledger_account_model.dart';
 import '../../models/ledger_journal_model.dart';
+import '../../models/sub_account_model.dart';
 import '../../models/user_engagement_stats_model.dart';
 
 abstract class WalletRemoteDataSource {
@@ -30,6 +31,21 @@ abstract class WalletRemoteDataSource {
   // Engagement stats methods (streak tracking)
   Future<UserEngagementStatsModel?> getEngagementStats();
   Stream<UserEngagementStatsModel?> watchEngagementStats();
+
+  // Sub-account methods (multi-wallet)
+  Future<List<SubAccountModel>> getSubAccounts();
+  Stream<List<SubAccountModel>> watchSubAccounts();
+  Future<void> transferBetweenWallets({
+    required String fromSubAccountId,
+    required String toSubAccountId,
+    required int amount,
+  });
+  Future<void> sendP2PTransfer({
+    required String recipientUserId,
+    required int amount,
+    required String subAccountId,
+    String? note,
+  });
 
   // Cashout methods
   Future<CashoutModel> requestCashout({
@@ -250,6 +266,101 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       }
       return UserEngagementStatsModel.fromFirestore(doc);
     });
+  }
+
+  // ============================================================
+  // Sub-Account Methods (Multi-Wallet)
+  // ============================================================
+
+  @override
+  Future<List<SubAccountModel>> getSubAccounts() async {
+    final userId = currentUserId;
+    if (userId == null) {
+      throw const AuthException(message: 'User not authenticated');
+    }
+
+    try {
+      final callable = _functions.httpsCallable('getSubAccounts');
+      final result = await callable.call<List<dynamic>>({});
+
+      return (result.data).map((item) {
+        final map = Map<String, dynamic>.from(item as Map);
+        return SubAccountModel.fromJson({
+          ...sanitizeFirestoreData(map),
+          'userId': userId,
+        });
+      }).toList();
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Stream<List<SubAccountModel>> watchSubAccounts() {
+    final userId = currentUserId;
+    if (userId == null) {
+      return Stream.error(const AuthException(message: 'User not authenticated'));
+    }
+
+    return _ledgerAccountsCollection
+        .doc(userId)
+        .collection('subAccounts')
+        .where('isActive', isEqualTo: true)
+        .snapshots()
+        .map((snapshot) {
+      final models = snapshot.docs.map((doc) {
+        return SubAccountModel.fromFirestore(doc);
+      }).toList();
+      // Sort: default first, then by name
+      models.sort((a, b) {
+        if (a.isDefault && !b.isDefault) return -1;
+        if (!a.isDefault && b.isDefault) return 1;
+        return a.name.compareTo(b.name);
+      });
+      return models;
+    });
+  }
+
+  @override
+  Future<void> transferBetweenWallets({
+    required String fromSubAccountId,
+    required String toSubAccountId,
+    required int amount,
+  }) async {
+    try {
+      final callable = _functions.httpsCallable('transferBetweenWallets');
+      await callable.call<Map<String, dynamic>>({
+        'fromSubAccountId': fromSubAccountId,
+        'toSubAccountId': toSubAccountId,
+        'amount': amount,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Transfer failed');
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> sendP2PTransfer({
+    required String recipientUserId,
+    required int amount,
+    required String subAccountId,
+    String? note,
+  }) async {
+    try {
+      final callable = _functions.httpsCallable('sendP2PTransfer');
+      await callable.call<Map<String, dynamic>>({
+        'recipientUserId': recipientUserId,
+        'amount': amount,
+        'subAccountId': subAccountId,
+        if (note != null) 'note': note,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Transfer failed');
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
   }
 
   // ============================================================

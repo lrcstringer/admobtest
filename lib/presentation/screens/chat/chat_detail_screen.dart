@@ -9,6 +9,7 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/chat/chat_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/wave_background.dart';
 
 class ChatDetailScreen extends StatefulWidget {
   final String threadId;
@@ -76,13 +77,15 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               ),
             ],
           ),
-          body: Column(
-            children: [
-              Expanded(
-                child: _buildMessageList(context, state, currentUserId),
-              ),
-              _buildInputBar(context, state, currentUserId),
-            ],
+          body: WaveBackground(
+            child: Column(
+              children: [
+                Expanded(
+                  child: _buildMessageList(context, state, currentUserId),
+                ),
+                _buildInputBar(context, state, currentUserId),
+              ],
+            ),
           ),
         );
       },

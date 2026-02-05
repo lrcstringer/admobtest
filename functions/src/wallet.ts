@@ -17,6 +17,10 @@ import {
   failCashout,
   LedgerConfig,
   getDefaultSubAccount,
+  getOrCreateDefaultSubAccount,
+  getUserSubAccounts,
+  transferBetweenSubAccounts,
+  processP2PTransfer,
   validateSubAccountAllows,
   validateSubAccountBalance,
 } from "./ledger";
@@ -274,7 +278,129 @@ export const failCashoutRequest = functions.https.onCall(async (data, context) =
   };
 });
 
-// NOTE: resetDailyEarnings removed
-// The wallets collection is deprecated. Daily earning caps are now tracked via:
-// - userEngagementStats/{userId} document (tokensEarnedToday field)
-// - Daily scores in users/{userId}/dailyScores/{date}
+/**
+ * Get all sub-accounts (wallets) for the current user.
+ * Auto-creates the default sub-account if none exists.
+ */
+export const getSubAccounts = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+  }
+
+  const userId = context.auth.uid;
+
+  // Ensure default sub-account exists
+  await getOrCreateDefaultSubAccount(userId);
+
+  // Return all active sub-accounts
+  const subAccounts = await getUserSubAccounts(userId);
+  return subAccounts;
+});
+
+/**
+ * Transfer tokens between the current user's own sub-accounts (wallets).
+ */
+export const transferBetweenWallets = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+  }
+
+  const userId = context.auth.uid;
+  const { fromSubAccountId, toSubAccountId, amount } = data;
+
+  if (!fromSubAccountId || !toSubAccountId || !amount) {
+    throw new functions.https.HttpsError(
+      "invalid-argument",
+      "fromSubAccountId, toSubAccountId, and amount are required"
+    );
+  }
+
+  if (amount <= 0) {
+    throw new functions.https.HttpsError("invalid-argument", "Amount must be positive");
+  }
+
+  if (fromSubAccountId === toSubAccountId) {
+    throw new functions.https.HttpsError("invalid-argument", "Source and destination must be different");
+  }
+
+  try {
+    await transferBetweenSubAccounts(userId, fromSubAccountId, userId, toSubAccountId, amount);
+    return { success: true };
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "Transfer failed";
+    throw new functions.https.HttpsError("internal", message);
+  }
+});
+
+/**
+ * Send tokens to another user (P2P transfer).
+ */
+export const sendP2PTransfer = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+  }
+  requireAppCheck(context, "sendP2PTransfer");
+
+  const userId = context.auth.uid;
+  const { recipientUserId, amount, subAccountId, note } = data;
+
+  if (!recipientUserId || !amount || !subAccountId) {
+    throw new functions.https.HttpsError(
+      "invalid-argument",
+      "recipientUserId, amount, and subAccountId are required"
+    );
+  }
+
+  if (amount <= 0) {
+    throw new functions.https.HttpsError("invalid-argument", "Amount must be positive");
+  }
+
+  if (recipientUserId === userId) {
+    throw new functions.https.HttpsError("invalid-argument", "Cannot send to yourself");
+  }
+
+  // Validate sender's sub-account allows P2P sends
+  const subAccount = await getDefaultSubAccount(userId);
+  if (subAccount) {
+    const allowed = await validateSubAccountAllows(subAccount.accountTypeId, "p2p_send");
+    if (!allowed.allowed) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        allowed.reason || "This wallet cannot send tokens"
+      );
+    }
+  }
+
+  // Validate sufficient balance
+  const balanceCheck = await validateSubAccountBalance(userId, subAccountId, amount);
+  if (!balanceCheck.allowed) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      balanceCheck.reason || "Insufficient balance"
+    );
+  }
+
+  // Generate a transfer ID
+  const transferRef = db.collection("p2pTransfers").doc();
+
+  const result = await processP2PTransfer(
+    userId,
+    recipientUserId,
+    amount,
+    transferRef.id,
+    subAccountId,
+    undefined, // recipient gets default sub-account
+    note || "P2P Transfer",
+    { initiatedFrom: "wallet" }
+  );
+
+  if (!result.success) {
+    throw new functions.https.HttpsError("internal", result.error || "Transfer failed");
+  }
+
+  return {
+    success: true,
+    journalId: result.journalId,
+    amount,
+  };
+});

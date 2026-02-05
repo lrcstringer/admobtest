@@ -9,7 +9,11 @@ class WalletState with _$WalletState {
     @Default([]) List<LedgerJournal> ledgerJournals,
     @Default(false) bool isLoadingMore,
     @Default(false) bool hasMoreLedgerJournals,
+    @Default([]) List<SubAccount> subAccounts,
+    String? selectedSubAccountId,
+    @Default(false) bool isTransferring,
     String? errorMessage,
+    String? successMessage,
   }) = _WalletState;
 
   const WalletState._();
@@ -34,6 +38,26 @@ class WalletState with _$WalletState {
 
   /// Get total tokens earned from engagement stats
   int get totalTokensEarned => engagementStats?.totalTokensEarned ?? 0;
+
+  /// Total portfolio value in tokens (sum of all sub-account balances)
+  int get portfolioBalance =>
+      subAccounts.fold(0, (sum, sa) => sum + sa.balance);
+
+  /// Total portfolio value in ZAR
+  double get portfolioBalanceZar => portfolioBalance / 100;
+
+  /// Get the default (iMaliChat) sub-account
+  SubAccount? get defaultSubAccount =>
+      subAccounts.where((sa) => sa.isDefault).firstOrNull;
+
+  /// Get the currently selected sub-account
+  SubAccount? get selectedSubAccount => selectedSubAccountId != null
+      ? subAccounts.where((sa) => sa.id == selectedSubAccountId).firstOrNull
+      : null;
+
+  /// Brand (restricted) sub-accounts only
+  List<SubAccount> get brandSubAccounts =>
+      subAccounts.where((sa) => sa.isRestricted).toList();
 }
 
 enum WalletStatus {

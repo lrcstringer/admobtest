@@ -7,6 +7,7 @@ import '../../../domain/entities/purchase.dart';
 import '../../blocs/purchase/purchase_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 class BuySuccessScreen extends StatelessWidget {
   const BuySuccessScreen({super.key});
@@ -20,29 +21,31 @@ class BuySuccessScreen extends StatelessWidget {
         if (purchase == null) {
           return Scaffold(
             appBar: IMaliAppBar(title: 'Purchase Successful'),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.check_circle,
-                    color: AppColors.success,
-                    size: 80,
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Purchase Complete',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+            body: WaveBackground(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      color: AppColors.success,
+                      size: 80,
                     ),
-                  ),
-                  const SizedBox(height: 32),
-                  ElevatedButton(
-                    onPressed: () => context.go('/buy'),
-                    child: const Text('Back to Buy'),
-                  ),
-                ],
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Purchase Complete',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    ElevatedButton(
+                      onPressed: () => context.go('/buy'),
+                      child: const Text('Back to Buy'),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -50,7 +53,8 @@ class BuySuccessScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: IMaliAppBar(title: 'Purchase Successful'),
-          body: SingleChildScrollView(
+          body: WaveBackground(
+            child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
@@ -191,6 +195,7 @@ class BuySuccessScreen extends StatelessWidget {
                 ),
               ],
             ),
+          ),
           ),
         );
       },

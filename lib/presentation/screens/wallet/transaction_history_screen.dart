@@ -6,6 +6,7 @@ import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   const TransactionHistoryScreen({super.key});
@@ -53,7 +54,8 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
           ),
         ],
       ),
-      body: BlocBuilder<WalletBloc, WalletState>(
+      body: WaveBackground(
+        child: BlocBuilder<WalletBloc, WalletState>(
         builder: (context, state) {
           if (state.status == WalletStatus.loading && state.ledgerJournals.isEmpty) {
             return const Center(child: CircularProgressIndicator());
@@ -96,6 +98,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             ),
           );
         },
+      ),
       ),
     );
   }

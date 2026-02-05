@@ -7,6 +7,7 @@ import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 class EarnScreen extends StatefulWidget {
   const EarnScreen({super.key});
@@ -55,7 +56,7 @@ class _EarnScreenState extends State<EarnScreen> {
         },
         builder: (context, state) {
           if (state.status == EarnStatus.loading && state.threads.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const WaveBackground(child: Center(child: CircularProgressIndicator()));
           }
 
           return RefreshIndicator(
@@ -64,16 +65,20 @@ class _EarnScreenState extends State<EarnScreen> {
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: AppSpacing.pagePadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildDailyProgressCard(context, state),
-                  AppSpacing.verticalMd,
-                  _buildTokenDistributionInfo(context),
-                  AppSpacing.verticalXl,
-                  _buildThreadsSection(context, state),
-                ],
+              child: WaveBackground(
+                child: Padding(
+                  padding: AppSpacing.pagePadding,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildDailyProgressCard(context, state),
+                      AppSpacing.verticalMd,
+                      _buildTokenDistributionInfo(context),
+                      AppSpacing.verticalXl,
+                      _buildThreadsSection(context, state),
+                    ],
+                  ),
+                ),
               ),
             ),
           );
@@ -419,47 +424,49 @@ class ThreadOpportunitiesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IMaliAppBar(title: thread.brandName),
-      body: BlocBuilder<EarnBloc, EarnState>(
-        builder: (context, state) {
-          if (state.opportunities.isEmpty) {
-            return const Center(
-              child: Text('No opportunities available'),
-            );
-          }
-
-          return ListView.builder(
-            padding: AppSpacing.pagePadding,
-            itemCount: state.opportunities.length,
-            itemBuilder: (context, index) {
-              final opportunity = state.opportunities[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: Icon(
-                    opportunity.mediaType.name == 'video'
-                        ? Icons.smart_display
-                        : Icons.image,
-                    color: AppColors.primary,
-                  ),
-                  title: Text(opportunity.title),
-                  subtitle: Text(
-                    '${opportunity.tokenReward} tokens - ${opportunity.durationSeconds}s',
-                  ),
-                  trailing: ElevatedButton(
-                    onPressed: () {
-                      context.read<EarnBloc>().add(
-                            EarnEvent.startEngagement(
-                              opportunityId: opportunity.id,
-                            ),
-                          );
-                    },
-                    child: const Text('Start'),
-                  ),
-                ),
+      body: WaveBackground(
+        child: BlocBuilder<EarnBloc, EarnState>(
+          builder: (context, state) {
+            if (state.opportunities.isEmpty) {
+              return const Center(
+                child: Text('No opportunities available'),
               );
-            },
-          );
-        },
+            }
+
+            return ListView.builder(
+              padding: AppSpacing.pagePadding,
+              itemCount: state.opportunities.length,
+              itemBuilder: (context, index) {
+                final opportunity = state.opportunities[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    leading: Icon(
+                      opportunity.mediaType.name == 'video'
+                          ? Icons.smart_display
+                          : Icons.image,
+                      color: AppColors.primary,
+                    ),
+                    title: Text(opportunity.title),
+                    subtitle: Text(
+                      '${opportunity.tokenReward} tokens - ${opportunity.durationSeconds}s',
+                    ),
+                    trailing: ElevatedButton(
+                      onPressed: () {
+                        context.read<EarnBloc>().add(
+                              EarnEvent.startEngagement(
+                                opportunityId: opportunity.id,
+                              ),
+                            );
+                      },
+                      child: const Text('Start'),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

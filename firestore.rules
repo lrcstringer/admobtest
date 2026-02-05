@@ -168,8 +168,8 @@ service cloud.firestore {
     match /referrals/{referralId} {
       // Users can read referrals where they are referrer or referee
       allow read: if isAuthenticated()
-        && (resource.data.referrerId == request.auth.uid
-            || resource.data.refereeId == request.auth.uid);
+        && (resource.data.referrerUserId == request.auth.uid
+            || resource.data.refereeUserId == request.auth.uid);
 
       // Referrals are processed by Cloud Functions only
       allow create, update, delete: if false;
@@ -306,6 +306,19 @@ service cloud.firestore {
 
       // All writes handled by Cloud Functions only
       // This ensures balance integrity through atomic transactions
+      allow create, update, delete: if false;
+
+      // Sub-accounts (wallets) subcollection
+      match /subAccounts/{subAccountId} {
+        allow read: if isAuthenticated()
+          && accountId == request.auth.uid;
+        allow create, update, delete: if false;
+      }
+    }
+
+    // Account types collection (brand wallet definitions)
+    match /accountTypes/{typeId} {
+      allow read: if isAuthenticated();
       allow create, update, delete: if false;
     }
 

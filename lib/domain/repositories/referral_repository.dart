@@ -29,8 +29,8 @@ abstract class ReferralRepository {
   /// Generate shareable referral link
   Future<Either<Failure, String>> generateShareableLink();
 
-  /// Share referral via platform
-  Future<Either<Failure, void>> shareReferral({
+  /// Share referral via platform. Returns true if the user actually shared.
+  Future<Either<Failure, bool>> shareReferral({
     required String platform,
     String? customMessage,
   });
