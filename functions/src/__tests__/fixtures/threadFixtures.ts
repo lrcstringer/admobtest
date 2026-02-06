@@ -21,10 +21,37 @@ const daysFromNow = (days: number): Date => {
 };
 
 /**
- * Standard active thread
+ * Standard active thread (NO client funding - simpler for basic tests)
  */
 export const activeThread = {
   id: "thread_001",
+  clientId: null,
+  clientName: "Test Brand",
+  clientAvatarImage: null,
+  clientAvatarColor: "#FF5733",
+  title: "Test Brand Opportunities",
+  description: "Earn tokens with Test Brand",
+  isPinned: false,
+  isFeatured: false,
+  isActive: true,
+  activeFrom: null,
+  activeTo: null,
+  tokenSourceSubAccountId: null, // No client funding - simpler for basic tests
+  tokenDestAccountTypeId: null,
+  availableOpportunities: 5,
+  completedOpportunities: 100,
+  completedUniqueUsers: 50,
+  targeting: null,
+  createdAt: createTimestamp(daysAgo(30)),
+  updatedAt: createTimestamp(daysAgo(1)),
+  lastActivityAt: createTimestamp(daysAgo(1)),
+};
+
+/**
+ * Thread with client funding (for budget validation tests)
+ */
+export const clientFundedActiveThread = {
+  id: "thread_funded_001",
   clientId: "client_001",
   clientName: "Test Brand",
   clientAvatarImage: null,
@@ -304,6 +331,38 @@ export const emptyThread = {
   createdAt: createTimestamp(daysAgo(5)),
   updatedAt: createTimestamp(daysAgo(1)),
   lastActivityAt: null,
+};
+
+/**
+ * Thread with client-funded budget
+ */
+export const clientFundedThread = {
+  ...activeThread,
+  id: "thread_client_funded_001",
+  clientId: "client_011",
+  clientName: "Funded Brand",
+  tokenSourceSubAccountId: "sub_client_011",
+  tokenDestAccountTypeId: null,
+};
+
+/**
+ * Thread with restricted wallet destination
+ */
+export const restrictedWalletThread = {
+  ...brandWalletThread,
+  id: "thread_restricted_wallet_001",
+};
+
+/**
+ * Thread with depleted budget
+ */
+export const depletedBudgetThread = {
+  ...activeThread,
+  id: "thread_depleted_001",
+  clientId: "client_012",
+  clientName: "Depleted Brand",
+  tokenSourceSubAccountId: "sub_depleted_001",
+  isActive: true, // Still active but budget is depleted
 };
 
 /**

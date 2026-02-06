@@ -65,22 +65,29 @@ export function createMockCallContext(options: {
   uid?: string;
   email?: string;
   token?: Record<string, unknown>;
+  admin?: boolean;
   appCheckToken?: boolean;
   rawRequest?: {
     ip?: string;
     headers?: Record<string, string>;
   };
-} = {}): {
+} | null = {}): {
   auth: { uid: string; token: Record<string, unknown> } | null;
   app?: { appId: string };
   rawRequest?: { ip?: string; headers?: Record<string, string> };
 } {
+  // Handle null for unauthenticated context
+  if (options === null) {
+    return { auth: null };
+  }
+
   return {
     auth: options.uid
       ? {
           uid: options.uid,
           token: {
             email: options.email || `${options.uid}@test.com`,
+            admin: options.admin || false,
             ...(options.token || {}),
           },
         }

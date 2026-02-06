@@ -77,58 +77,72 @@ function createMockDocRef(
   collectionName: string,
   docId: string
 ): Record<string, unknown> {
-  return {
+  // Create the ref object first so we can reference it in the snapshot
+  const docRef: Record<string, unknown> = {
     id: docId,
     path: `${collectionName}/${docId}`,
-    get: jest.fn().mockImplementation(async () => {
-      mockOperations.gets.push({ collection: collectionName, doc: docId });
-      const data = mockCollections.get(collectionName)?.get(docId);
-      return {
-        exists: data !== undefined,
-        id: docId,
-        ref: { id: docId, path: `${collectionName}/${docId}` },
-        data: () => data,
-      };
-    }),
-    set: jest.fn().mockImplementation(async (data, options) => {
-      mockOperations.sets.push({ collection: collectionName, doc: docId, data });
-      if (!mockCollections.has(collectionName)) {
-        mockCollections.set(collectionName, new Map());
-      }
-      if (options?.merge) {
-        const existing = mockCollections.get(collectionName)?.get(docId) || {};
-        mockCollections
-          .get(collectionName)!
-          .set(docId, { ...(existing as object), ...(data as object) });
-      } else {
-        mockCollections.get(collectionName)!.set(docId, data);
-      }
-      return { writeTime: new Date() };
-    }),
-    update: jest.fn().mockImplementation(async (data) => {
-      mockOperations.updates.push({
-        collection: collectionName,
-        doc: docId,
-        data,
-      });
-      if (!mockCollections.has(collectionName)) {
-        mockCollections.set(collectionName, new Map());
-      }
+    get: jest.fn(),
+    set: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+    collection: jest.fn(),
+  };
+
+  // Now set up the implementations
+  docRef.get = jest.fn().mockImplementation(async () => {
+    mockOperations.gets.push({ collection: collectionName, doc: docId });
+    const data = mockCollections.get(collectionName)?.get(docId);
+    return {
+      exists: data !== undefined,
+      id: docId,
+      ref: docRef, // Return the full docRef with update method
+      data: () => data,
+    };
+  });
+
+  docRef.set = jest.fn().mockImplementation(async (data, options) => {
+    mockOperations.sets.push({ collection: collectionName, doc: docId, data });
+    if (!mockCollections.has(collectionName)) {
+      mockCollections.set(collectionName, new Map());
+    }
+    if (options?.merge) {
       const existing = mockCollections.get(collectionName)?.get(docId) || {};
       mockCollections
         .get(collectionName)!
         .set(docId, { ...(existing as object), ...(data as object) });
-      return { writeTime: new Date() };
-    }),
-    delete: jest.fn().mockImplementation(async () => {
-      mockOperations.deletes.push({ collection: collectionName, doc: docId });
-      mockCollections.get(collectionName)?.delete(docId);
-      return { writeTime: new Date() };
-    }),
-    collection: jest.fn().mockImplementation((subcollectionName: string) => {
-      return createMockCollectionRef(`${collectionName}/${docId}/${subcollectionName}`);
-    }),
-  };
+    } else {
+      mockCollections.get(collectionName)!.set(docId, data);
+    }
+    return { writeTime: new Date() };
+  });
+
+  docRef.update = jest.fn().mockImplementation(async (data) => {
+    mockOperations.updates.push({
+      collection: collectionName,
+      doc: docId,
+      data,
+    });
+    if (!mockCollections.has(collectionName)) {
+      mockCollections.set(collectionName, new Map());
+    }
+    const existing = mockCollections.get(collectionName)?.get(docId) || {};
+    mockCollections
+      .get(collectionName)!
+      .set(docId, { ...(existing as object), ...(data as object) });
+    return { writeTime: new Date() };
+  });
+
+  docRef.delete = jest.fn().mockImplementation(async () => {
+    mockOperations.deletes.push({ collection: collectionName, doc: docId });
+    mockCollections.get(collectionName)?.delete(docId);
+    return { writeTime: new Date() };
+  });
+
+  docRef.collection = jest.fn().mockImplementation((subcollectionName: string) => {
+    return createMockCollectionRef(`${collectionName}/${docId}/${subcollectionName}`);
+  });
+
+  return docRef;
 }
 
 // Create mock query
@@ -188,6 +202,10 @@ function createMockQuery(
           data: () => ({ count: collectionData?.size || 0 }),
         };
       }),
+    }),
+    select: jest.fn().mockImplementation((..._fields: string[]) => {
+      // select() returns the same query with limited fields (we return all for simplicity)
+      return createMockQuery(collectionName, conditions);
     }),
   };
   return query;

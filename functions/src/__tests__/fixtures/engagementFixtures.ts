@@ -390,6 +390,24 @@ export const validImageEvidence = {
   appInForeground: true,
 };
 
+// Shorter aliases for common use in tests
+export const videoEvidence = validVideoEvidence;
+export const surveyEvidence = validSurveyEvidence;
+export const pollEvidence = validPollEvidence;
+export const imageEvidence = validImageEvidence;
+
+/**
+ * Incomplete video evidence (not enough watch time)
+ */
+export const incompleteVideoEvidence = {
+  deviceFingerprint: "device_abc123",
+  watchDurationMs: 5000, // Only 5 seconds
+  videoSeeked: false,
+  screenVisible: true,
+  appInForeground: true,
+  watchPercentage: 20, // Only 20% watched
+};
+
 /**
  * All engagement fixtures for iteration
  */
