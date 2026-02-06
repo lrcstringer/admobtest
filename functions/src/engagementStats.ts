@@ -143,11 +143,13 @@ export async function getStreakInfo(userId: string): Promise<StreakInfo> {
  *
  * @param userId - The user's ID
  * @param tokensEarned - Tokens earned from this engagement
+ * @param streakPoints - Streak points earned from this engagement (defaults to 1)
  * @returns Updated streak info
  */
 export async function updateEngagementStats(
   userId: string,
-  tokensEarned: number
+  tokensEarned: number,
+  streakPoints: number = 1
 ): Promise<StreakInfo> {
   const statsRef = db
     .collection(SubAccountConfig.COLLECTION_ENGAGEMENT_STATS)
@@ -167,7 +169,7 @@ export async function updateEngagementStats(
         longestStreak: 1,
         streakStartedAt: now,
         lastEarnedDate: today,
-        totalEngagementsCompleted: 1,
+        totalEngagementsCompleted: streakPoints,
         totalTokensEarned: tokensEarned,
         updatedAt: now,
       };
@@ -218,7 +220,7 @@ export async function updateEngagementStats(
       longestStreak: newLongestStreak,
       streakStartedAt: streakStartedAt,
       lastEarnedDate: today,
-      totalEngagementsCompleted: admin.firestore.FieldValue.increment(1),
+      totalEngagementsCompleted: admin.firestore.FieldValue.increment(streakPoints),
       totalTokensEarned: admin.firestore.FieldValue.increment(tokensEarned),
       updatedAt: now,
     });

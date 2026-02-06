@@ -30,7 +30,13 @@ mixin _$UserProfile {
   String? get province => throw _privateConstructorUsedError;
   String? get city => throw _privateConstructorUsedError;
   String? get firstName => throw _privateConstructorUsedError;
-  String? get lastName => throw _privateConstructorUsedError;
+  String? get lastName =>
+      throw _privateConstructorUsedError; // Targeting fields
+  /// Preferred languages (e.g. ['en', 'zu'])
+  List<String>? get languages => throw _privateConstructorUsedError;
+
+  /// Interest categories (e.g. ['sports', 'tech'])
+  List<String>? get interests => throw _privateConstructorUsedError;
 
   /// Serializes this UserProfile to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -60,6 +66,8 @@ abstract class $UserProfileCopyWith<$Res> {
     String? city,
     String? firstName,
     String? lastName,
+    List<String>? languages,
+    List<String>? interests,
   });
 }
 
@@ -88,6 +96,8 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? city = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
+    Object? languages = freezed,
+    Object? interests = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -131,6 +141,14 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
                 ? _value.lastName
                 : lastName // ignore: cast_nullable_to_non_nullable
                       as String?,
+            languages: freezed == languages
+                ? _value.languages
+                : languages // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
+            interests: freezed == interests
+                ? _value.interests
+                : interests // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
           )
           as $Val,
     );
@@ -157,6 +175,8 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     String? city,
     String? firstName,
     String? lastName,
+    List<String>? languages,
+    List<String>? interests,
   });
 }
 
@@ -184,6 +204,8 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? city = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
+    Object? languages = freezed,
+    Object? interests = freezed,
   }) {
     return _then(
       _$UserProfileImpl(
@@ -227,6 +249,14 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value.lastName
             : lastName // ignore: cast_nullable_to_non_nullable
                   as String?,
+        languages: freezed == languages
+            ? _value._languages
+            : languages // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
+        interests: freezed == interests
+            ? _value._interests
+            : interests // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
       ),
     );
   }
@@ -246,7 +276,11 @@ class _$UserProfileImpl extends _UserProfile {
     this.city,
     this.firstName,
     this.lastName,
-  }) : super._();
+    final List<String>? languages,
+    final List<String>? interests,
+  }) : _languages = languages,
+       _interests = interests,
+       super._();
 
   factory _$UserProfileImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserProfileImplFromJson(json);
@@ -271,10 +305,36 @@ class _$UserProfileImpl extends _UserProfile {
   final String? firstName;
   @override
   final String? lastName;
+  // Targeting fields
+  /// Preferred languages (e.g. ['en', 'zu'])
+  final List<String>? _languages;
+  // Targeting fields
+  /// Preferred languages (e.g. ['en', 'zu'])
+  @override
+  List<String>? get languages {
+    final value = _languages;
+    if (value == null) return null;
+    if (_languages is EqualUnmodifiableListView) return _languages;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  /// Interest categories (e.g. ['sports', 'tech'])
+  final List<String>? _interests;
+
+  /// Interest categories (e.g. ['sports', 'tech'])
+  @override
+  List<String>? get interests {
+    final value = _interests;
+    if (value == null) return null;
+    if (_interests is EqualUnmodifiableListView) return _interests;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
-    return 'UserProfile(displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName)';
+    return 'UserProfile(displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests)';
   }
 
   @override
@@ -299,7 +359,15 @@ class _$UserProfileImpl extends _UserProfile {
             (identical(other.firstName, firstName) ||
                 other.firstName == firstName) &&
             (identical(other.lastName, lastName) ||
-                other.lastName == lastName));
+                other.lastName == lastName) &&
+            const DeepCollectionEquality().equals(
+              other._languages,
+              _languages,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._interests,
+              _interests,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -316,6 +384,8 @@ class _$UserProfileImpl extends _UserProfile {
     city,
     firstName,
     lastName,
+    const DeepCollectionEquality().hash(_languages),
+    const DeepCollectionEquality().hash(_interests),
   );
 
   /// Create a copy of UserProfile
@@ -344,6 +414,8 @@ abstract class _UserProfile extends UserProfile {
     final String? city,
     final String? firstName,
     final String? lastName,
+    final List<String>? languages,
+    final List<String>? interests,
   }) = _$UserProfileImpl;
   const _UserProfile._() : super._();
 
@@ -369,7 +441,14 @@ abstract class _UserProfile extends UserProfile {
   @override
   String? get firstName;
   @override
-  String? get lastName;
+  String? get lastName; // Targeting fields
+  /// Preferred languages (e.g. ['en', 'zu'])
+  @override
+  List<String>? get languages;
+
+  /// Interest categories (e.g. ['sports', 'tech'])
+  @override
+  List<String>? get interests;
 
   /// Create a copy of UserProfile
   /// with the given fields replaced by the non-null parameter values.

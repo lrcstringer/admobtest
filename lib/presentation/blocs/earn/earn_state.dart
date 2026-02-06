@@ -24,6 +24,7 @@ class EarnState with _$EarnState {
     @Default(EarnStatus.initial) EarnStatus status,
     @Default([]) List<EarnThread> threads,
     EarnThread? selectedThread,
+    @Default(EarnStatus.initial) EarnStatus opportunitiesStatus,
     @Default([]) List<EarnOpportunity> opportunities,
     EarnOpportunity? selectedOpportunity,
     Engagement? currentEngagement,
@@ -34,6 +35,10 @@ class EarnState with _$EarnState {
     DateTime? lastHistoryTimestamp,
     String? errorMessage,
     @Default(0) int totalAvailableOpportunities,
+    // Daily completion limit
+    @Default(0) int dailyCompletions,
+    @Default(30) int dailyEarnCap,
+    @Default(false) bool dailyLimitReached,
   }) = _EarnState;
 
   const EarnState._();

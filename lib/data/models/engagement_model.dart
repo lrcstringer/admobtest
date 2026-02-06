@@ -165,6 +165,9 @@ class EngagementModel with _$EngagementModel {
     required int attemptNumber,
     required DateTime createdAt,
     DateTime? updatedAt,
+    // Denormalized fields for targeting queries
+    String? threadId,
+    String? clientId,
     // Streak audit fields
     int? streakDayAtCompletion,
     double? multiplierApplied,
@@ -214,6 +217,9 @@ class EngagementModel with _$EngagementModel {
           : updatedAt is Timestamp
               ? updatedAt.toDate()
               : DateTime.parse(updatedAt as String),
+      // Denormalized fields
+      threadId: json['threadId'] as String?,
+      clientId: json['clientId'] as String?,
       // Streak audit fields
       streakDayAtCompletion: json['streakDayAtCompletion'] as int?,
       multiplierApplied: (json['multiplierApplied'] as num?)?.toDouble(),
@@ -238,6 +244,9 @@ class EngagementModel with _$EngagementModel {
       attemptNumber: attemptNumber,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      // Denormalized fields
+      threadId: threadId,
+      clientId: clientId,
       // Streak audit fields
       streakDayAtCompletion: streakDayAtCompletion,
       multiplierApplied: multiplierApplied,
@@ -265,6 +274,9 @@ class EngagementModel with _$EngagementModel {
       attemptNumber: entity.attemptNumber,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      // Denormalized fields
+      threadId: entity.threadId,
+      clientId: entity.clientId,
       // Streak audit fields
       streakDayAtCompletion: entity.streakDayAtCompletion,
       multiplierApplied: entity.multiplierApplied,
@@ -288,6 +300,9 @@ class EngagementModel with _$EngagementModel {
       'attemptNumber': attemptNumber,
       'createdAt': Timestamp.fromDate(createdAt),
       if (updatedAt != null) 'updatedAt': Timestamp.fromDate(updatedAt!),
+      // Denormalized fields
+      if (threadId != null) 'threadId': threadId,
+      if (clientId != null) 'clientId': clientId,
       // Streak audit fields
       if (streakDayAtCompletion != null)
         'streakDayAtCompletion': streakDayAtCompletion,

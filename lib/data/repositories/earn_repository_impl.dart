@@ -17,10 +17,15 @@ class EarnRepositoryImpl implements EarnRepository {
   EarnRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<Either<Failure, List<EarnThread>>> getEarnThreads() async {
+  Future<Either<Failure, EligibleThreadsResult>> getEligibleThreads() async {
     try {
-      final threads = await _remoteDataSource.getEarnThreads();
-      return Right(threads.map((t) => t.toEntity()).toList());
+      final response = await _remoteDataSource.getEligibleThreads();
+      return Right(EligibleThreadsResult(
+        threads: response.threads.map((t) => t.toEntity()).toList(),
+        dailyCompletions: response.dailyCompletions,
+        dailyEarnCap: response.dailyEarnCap,
+        dailyLimitReached: response.dailyLimitReached,
+      ));
     } on AuthException {
       return const Left(Failure.unauthenticated());
     } on ServerException catch (e) {
@@ -28,22 +33,6 @@ class EarnRepositoryImpl implements EarnRepository {
     } catch (e) {
       return Left(Failure.unknown(message: e.toString()));
     }
-  }
-
-  @override
-  Stream<Either<Failure, List<EarnThread>>> watchEarnThreads() {
-    return _remoteDataSource.watchEarnThreads().map((threads) {
-      return Right<Failure, List<EarnThread>>(
-        threads.map((t) => t.toEntity()).toList(),
-      );
-    }).handleError((error) {
-      if (error is AuthException) {
-        return const Left<Failure, List<EarnThread>>(Failure.unauthenticated());
-      }
-      return Left<Failure, List<EarnThread>>(
-        Failure.serverError(message: error.toString()),
-      );
-    });
   }
 
   @override
@@ -64,14 +53,12 @@ class EarnRepositoryImpl implements EarnRepository {
   }
 
   @override
-  Future<Either<Failure, List<EarnOpportunity>>> getOpportunities({
+  Future<Either<Failure, List<EarnOpportunity>>> getEligibleOpportunities({
     required String threadId,
-    bool activeOnly = true,
   }) async {
     try {
-      final opportunities = await _remoteDataSource.getOpportunities(
+      final opportunities = await _remoteDataSource.getEligibleOpportunities(
         threadId: threadId,
-        activeOnly: activeOnly,
       );
       return Right(opportunities.map((o) => o.toEntity()).toList());
     } on AuthException {
@@ -81,29 +68,6 @@ class EarnRepositoryImpl implements EarnRepository {
     } catch (e) {
       return Left(Failure.unknown(message: e.toString()));
     }
-  }
-
-  @override
-  Stream<Either<Failure, List<EarnOpportunity>>> watchOpportunities({
-    required String threadId,
-    bool activeOnly = true,
-  }) {
-    return _remoteDataSource
-        .watchOpportunities(threadId: threadId, activeOnly: activeOnly)
-        .map((opportunities) {
-      return Right<Failure, List<EarnOpportunity>>(
-        opportunities.map((o) => o.toEntity()).toList(),
-      );
-    }).handleError((error) {
-      if (error is AuthException) {
-        return const Left<Failure, List<EarnOpportunity>>(
-          Failure.unauthenticated(),
-        );
-      }
-      return Left<Failure, List<EarnOpportunity>>(
-        Failure.serverError(message: error.toString()),
-      );
-    });
   }
 
   @override

@@ -459,5 +459,18 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update, delete: if false;
     }
+
+    // Clients collection (advertising clients)
+    // Reads via Cloud Functions (getEligibleThreads denormalizes client data)
+    // Admin CRUD via Cloud Functions with admin token
+    match /clients/{clientId} {
+      allow read: if false; // All reads via Cloud Functions
+      allow create, update, delete: if false; // Admin CRUD via Cloud Functions
+
+      // Client sub-accounts for budget tracking
+      match /subAccounts/{subAccountId} {
+        allow read, write: if false;
+      }
+    }
   }
 }

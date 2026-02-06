@@ -34,6 +34,8 @@ _$EngagementImpl _$$EngagementImplFromJson(Map<String, dynamic> json) =>
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),
+      threadId: json['threadId'] as String?,
+      clientId: json['clientId'] as String?,
       streakDayAtCompletion: (json['streakDayAtCompletion'] as num?)?.toInt(),
       multiplierApplied: (json['multiplierApplied'] as num?)?.toDouble(),
     );
@@ -56,6 +58,8 @@ Map<String, dynamic> _$$EngagementImplToJson(_$EngagementImpl instance) =>
       'attemptNumber': instance.attemptNumber,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
+      'threadId': instance.threadId,
+      'clientId': instance.clientId,
       'streakDayAtCompletion': instance.streakDayAtCompletion,
       'multiplierApplied': instance.multiplierApplied,
     };

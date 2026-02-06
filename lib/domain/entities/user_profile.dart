@@ -17,6 +17,11 @@ class UserProfile with _$UserProfile {
     String? city,
     String? firstName,
     String? lastName,
+    // Targeting fields
+    /// Preferred languages (e.g. ['en', 'zu'])
+    List<String>? languages,
+    /// Interest categories (e.g. ['sports', 'tech'])
+    List<String>? interests,
   }) = _UserProfile;
 
   const UserProfile._();

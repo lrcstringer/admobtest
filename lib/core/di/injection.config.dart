@@ -24,6 +24,8 @@ import 'package:local_auth/local_auth.dart' as _i152;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 import '../../data/datasources/local/app_database.dart' as _i483;
+import '../../data/datasources/remote/admin_earn_remote_datasource.dart'
+    as _i48;
 import '../../data/datasources/remote/auth_remote_datasource.dart' as _i1057;
 import '../../data/datasources/remote/chat_remote_datasource.dart' as _i224;
 import '../../data/datasources/remote/device_remote_datasource.dart' as _i433;
@@ -55,6 +57,8 @@ import '../../domain/repositories/purchase_repository.dart' as _i742;
 import '../../domain/repositories/referral_repository.dart' as _i633;
 import '../../domain/repositories/user_repository.dart' as _i271;
 import '../../domain/repositories/wallet_repository.dart' as _i851;
+import '../../presentation/admin/blocs/admin_earn/admin_earn_bloc.dart'
+    as _i1026;
 import '../../presentation/blocs/auth/auth_bloc.dart' as _i141;
 import '../../presentation/blocs/cashout/cashout_bloc.dart' as _i772;
 import '../../presentation/blocs/chat/chat_bloc.dart' as _i142;
@@ -179,6 +183,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i351.PlayIntegrityService>(
       () => _i351.PlayIntegrityService(gh<_i809.FirebaseFunctions>()),
     );
+    gh.lazySingleton<_i48.AdminEarnRemoteDataSource>(
+      () => _i48.AdminEarnRemoteDataSource(gh<_i809.FirebaseFunctions>()),
+    );
     gh.lazySingleton<_i454.DeviceRepository>(
       () => _i34.DeviceRepositoryImpl(
         gh<_i433.DeviceRemoteDataSource>(),
@@ -239,6 +246,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i1010.GamificationRepository>(
       () => _i500.GamificationRepositoryImpl(
         gh<_i749.GamificationRemoteDataSource>(),
+      ),
+    );
+    gh.factory<_i1026.AdminEarnBloc>(
+      () => _i1026.AdminEarnBloc(
+        gh<_i48.AdminEarnRemoteDataSource>(),
+        gh<_i974.FirebaseFirestore>(),
       ),
     );
     gh.lazySingleton<_i224.ChatRemoteDataSource>(

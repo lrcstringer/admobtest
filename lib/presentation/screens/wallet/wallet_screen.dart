@@ -6,6 +6,7 @@ import '../../../domain/entities/sub_account.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -24,11 +25,13 @@ class _WalletScreenState extends State<WalletScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WalletBloc, WalletState>(
-      builder: (context, state) {
-        final isLoading = state.status == WalletStatus.loading;
+    return Scaffold(
+      appBar: const IMaliAppBar(title: 'Wallet'),
+      body: BlocBuilder<WalletBloc, WalletState>(
+        builder: (context, state) {
+          final isLoading = state.status == WalletStatus.loading;
 
-        return RefreshIndicator(
+          return RefreshIndicator(
           onRefresh: () async {
             context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
           },
@@ -92,7 +95,8 @@ class _WalletScreenState extends State<WalletScreen> {
             ),
           ),
         );
-      },
+        },
+      ),
     );
   }
 
@@ -103,7 +107,7 @@ class _WalletScreenState extends State<WalletScreen> {
   ) {
     return Container(
       width: double.infinity,
-      padding: AppSpacing.cardPaddingLarge,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: AppColors.logoGradient,
@@ -111,63 +115,67 @@ class _WalletScreenState extends State<WalletScreen> {
           end: Alignment.bottomRight,
         ),
         borderRadius: AppSpacing.borderRadiusLg,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.tertiary.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            'Portfolio Balance',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Portfolio Balance',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.8),
+                      ),
                 ),
-          ),
-          AppSpacing.verticalSm,
-          if (isLoading)
-            const SizedBox(
-              height: 48,
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
-                ),
-              ),
-            )
-          else
-            Text(
-              '${state.portfolioBalance}',
-              style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-          AppSpacing.verticalXs,
-          Text(
-            '= R${state.portfolioBalanceZar.toStringAsFixed(2)}',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.9),
-                ),
-          ),
-          AppSpacing.verticalSm,
-          Row(
-            children: [
-              Icon(
-                Icons.account_balance_wallet_outlined,
-                color: Colors.white.withValues(alpha: 0.7),
-                size: 16,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '${state.subAccounts.length} wallet${state.subAccounts.length == 1 ? '' : 's'}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.7),
+                const SizedBox(height: 4),
+                if (isLoading)
+                  const SizedBox(
+                    height: 28,
+                    width: 28,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
                     ),
+                  )
+                else
+                  Text(
+                    '${state.portfolioBalance}',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'R${state.portfolioBalanceZar.toStringAsFixed(2)}',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.account_balance_wallet_outlined,
+                    color: Colors.white.withValues(alpha: 0.7),
+                    size: 14,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${state.subAccounts.length} wallet${state.subAccounts.length == 1 ? '' : 's'}',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.7),
+                        ),
+                  ),
+                ],
               ),
             ],
           ),

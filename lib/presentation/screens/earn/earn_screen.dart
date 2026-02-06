@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/earn_thread.dart';
 import '../../blocs/earn/earn_bloc.dart';
@@ -8,6 +9,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
+import '../../widgets/earn/engagement_history_sheet.dart';
 
 class EarnScreen extends StatefulWidget {
   const EarnScreen({super.key});
@@ -56,12 +58,13 @@ class _EarnScreenState extends State<EarnScreen> {
         },
         builder: (context, state) {
           if (state.status == EarnStatus.loading && state.threads.isEmpty) {
-            return const WaveBackground(child: Center(child: CircularProgressIndicator()));
+            return const WaveBackground(
+                child: Center(child: CircularProgressIndicator()));
           }
 
           return RefreshIndicator(
             onRefresh: () async {
-              context.read<EarnBloc>().add(const EarnEvent.loadThreads());
+              context.read<EarnBloc>().add(const EarnEvent.refresh());
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -88,9 +91,9 @@ class _EarnScreenState extends State<EarnScreen> {
   }
 
   Widget _buildDailyProgressCard(BuildContext context, EarnState state) {
-    final tokensToday = state.tokensEarnedToday;
-    const dailyCap = 100; // Daily cap in tokens
-    final progress = (tokensToday / dailyCap).clamp(0.0, 1.0);
+    final completions = state.dailyCompletions;
+    final cap = state.dailyEarnCap;
+    final progress = (completions / cap).clamp(0.0, 1.0);
 
     return Container(
       width: double.infinity,
@@ -122,7 +125,7 @@ class _EarnScreenState extends State<EarnScreen> {
                   borderRadius: AppSpacing.borderRadiusSm,
                 ),
                 child: Text(
-                  '${state.completedCount} completed',
+                  '$completions / $cap completed',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: AppColors.textOnSecondary,
                       ),
@@ -132,7 +135,7 @@ class _EarnScreenState extends State<EarnScreen> {
           ),
           AppSpacing.verticalSm,
           Text(
-            '$tokensToday / $dailyCap Tokens',
+            '$completions of $cap Opportunities',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   color: AppColors.textOnSecondary,
                   fontWeight: FontWeight.bold,
@@ -142,13 +145,14 @@ class _EarnScreenState extends State<EarnScreen> {
           LinearProgressIndicator(
             value: progress,
             backgroundColor: AppColors.textOnSecondary.withValues(alpha: 0.3),
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.textOnSecondary),
+            valueColor:
+                AlwaysStoppedAnimation<Color>(AppColors.textOnSecondary),
           ),
           AppSpacing.verticalXs,
           Text(
-            progress >= 1.0
-                ? 'Daily cap reached! Come back tomorrow.'
-                : '${(progress * 100).toStringAsFixed(0)}% of daily cap',
+            state.dailyLimitReached
+                ? 'Daily limit reached!'
+                : '${(progress * 100).toStringAsFixed(0)}% of daily limit',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.textOnSecondary.withValues(alpha: 0.8),
                 ),
@@ -190,7 +194,8 @@ class _EarnScreenState extends State<EarnScreen> {
           AppSpacing.verticalSm,
           _buildDistributionRow(context, '5%', 'Daily Pot', AppColors.primary),
           AppSpacing.verticalSm,
-          _buildDistributionRow(context, '5%', 'Weekly Pot', AppColors.secondary),
+          _buildDistributionRow(
+              context, '5%', 'Weekly Pot', AppColors.secondary),
           AppSpacing.verticalMd,
           Text(
             'Pot contributions give you chances to win bonus tokens in daily and weekly draws!',
@@ -241,20 +246,31 @@ class _EarnScreenState extends State<EarnScreen> {
       return _buildEmptyState(context);
     }
 
+    // Separate featured and regular threads
+    final featuredThreads =
+        state.threads.where((t) => t.isFeatured).toList();
+    final regularThreads =
+        state.threads.where((t) => !t.isFeatured).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Daily limit reached banner
+        if (state.dailyLimitReached) ...[
+          _buildDailyLimitBanner(context),
+          AppSpacing.verticalMd,
+        ],
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Brand Opportunities',
+              'Earning Opportunities',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
             Text(
-              '${state.threads.length} brands',
+              '${state.totalAvailableOpportunities} available',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -262,31 +278,105 @@ class _EarnScreenState extends State<EarnScreen> {
           ],
         ),
         AppSpacing.verticalMd,
-        ...state.threads.map((thread) => Padding(
+        // Featured threads first
+        if (featuredThreads.isNotEmpty) ...[
+          ...featuredThreads.map((thread) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _buildThreadCard(
+                  context,
+                  thread,
+                  isFeatured: true,
+                  isDisabled: state.dailyLimitReached,
+                ),
+              )),
+        ],
+        // Then regular threads
+        ...regularThreads.map((thread) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: _buildThreadCard(context, thread),
+              child: _buildThreadCard(
+                context,
+                thread,
+                isDisabled: state.dailyLimitReached,
+              ),
             )),
       ],
     );
   }
 
-  Widget _buildThreadCard(BuildContext context, EarnThread thread) {
-    return InkWell(
-      onTap: () => _navigateToThread(context, thread),
-      borderRadius: AppSpacing.borderRadiusMd,
-      child: Container(
-        padding: AppSpacing.cardPadding,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: AppSpacing.borderRadiusMd,
-          border: Border.all(
-            color: thread.isPinned ? AppColors.primary : AppColors.border,
-            width: thread.isPinned ? 2 : 1,
-          ),
+  Widget _buildDailyLimitBanner(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: AppSpacing.cardPadding,
+      decoration: BoxDecoration(
+        color: AppColors.success.withValues(alpha: 0.1),
+        borderRadius: AppSpacing.borderRadiusMd,
+        border: Border.all(
+          color: AppColors.success.withValues(alpha: 0.3),
         ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.celebration,
+            color: AppColors.success,
+            size: 24,
+          ),
+          AppSpacing.horizontalMd,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Good going!',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.success,
+                      ),
+                ),
+                AppSpacing.verticalXs,
+                Text(
+                  'You have reached the 30 completions per day limit. This will reset at midnight tonight so that you can keep earning.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildThreadCard(
+    BuildContext context,
+    EarnThread thread, {
+    bool isFeatured = false,
+    bool isDisabled = false,
+  }) {
+    return Opacity(
+      opacity: isDisabled ? 0.5 : 1.0,
+      child: InkWell(
+        onTap: isDisabled ? null : () => _navigateToThread(context, thread),
+        borderRadius: AppSpacing.borderRadiusMd,
+        child: Container(
+          padding: AppSpacing.cardPadding,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: AppSpacing.borderRadiusMd,
+            border: Border.all(
+              color: isFeatured
+                  ? AppColors.accent
+                  : thread.isPinned
+                      ? AppColors.primary
+                      : AppColors.border,
+              width: isFeatured || thread.isPinned ? 2 : 1,
+            ),
+          ),
         child: Row(
           children: [
-            _buildBrandAvatar(context, thread),
+            _buildClientAvatar(context, thread),
             AppSpacing.horizontalMd,
             Expanded(
               child: Column(
@@ -296,36 +386,79 @@ class _EarnScreenState extends State<EarnScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          thread.brandName,
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          thread.title,
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                         ),
                       ),
-                      if (thread.isPinned)
-                        const Icon(
-                          Icons.push_pin,
-                          size: 16,
-                          color: AppColors.primary,
+                      if (isFeatured)
+                        Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.accent.withValues(alpha: 0.2),
+                            borderRadius: AppSpacing.borderRadiusSm,
+                          ),
+                          child: Text(
+                            'Featured',
+                            style:
+                                Theme.of(context).textTheme.labelSmall?.copyWith(
+                                      color: AppColors.accent,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                          ),
+                        ),
+                      if (thread.isPinned && !isFeatured)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Icon(
+                            Icons.push_pin,
+                            size: 16,
+                            color: AppColors.primary,
+                          ),
                         ),
                     ],
                   ),
                   AppSpacing.verticalXs,
                   Text(
-                    '${thread.availableOpportunities} opportunities available',
+                    thread.clientName,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppColors.textSecondary,
                         ),
                   ),
-                  if (thread.completedOpportunities > 0) ...[
-                    AppSpacing.verticalXs,
-                    Text(
-                      '${thread.completedOpportunities} completed',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.success,
-                          ),
-                    ),
-                  ],
+                  AppSpacing.verticalXs,
+                  Row(
+                    children: [
+                      Text(
+                        '${thread.availableOpportunities} opportunities',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                      ),
+                      if (thread.completedOpportunities > 0) ...[
+                        Text(
+                          ' · ',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.textHint,
+                                  ),
+                        ),
+                        Text(
+                          '${thread.completedOpportunities} completed',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.success,
+                                  ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -335,19 +468,21 @@ class _EarnScreenState extends State<EarnScreen> {
             ),
           ],
         ),
+        ),
       ),
     );
   }
 
-  Widget _buildBrandAvatar(BuildContext context, EarnThread thread) {
-    final color = thread.avatarColor != null
-        ? Color(int.parse(thread.avatarColor!.replaceFirst('#', '0xFF')))
+  Widget _buildClientAvatar(BuildContext context, EarnThread thread) {
+    final color = thread.clientAvatarColor != null
+        ? Color(
+            int.parse(thread.clientAvatarColor!.replaceFirst('#', '0xFF')))
         : AppColors.primary;
 
-    if (thread.avatarImage != null) {
+    if (thread.clientAvatarImage != null) {
       return CircleAvatar(
         radius: 24,
-        backgroundImage: NetworkImage(thread.avatarImage!),
+        backgroundImage: NetworkImage(thread.clientAvatarImage!),
       );
     }
 
@@ -355,7 +490,7 @@ class _EarnScreenState extends State<EarnScreen> {
       radius: 24,
       backgroundColor: color.withValues(alpha: 0.2),
       child: Text(
-        thread.brandName.isNotEmpty ? thread.brandName[0].toUpperCase() : 'B',
+        thread.clientName.isNotEmpty ? thread.clientName[0].toUpperCase() : 'C',
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: color,
               fontWeight: FontWeight.bold,
@@ -399,238 +534,10 @@ class _EarnScreenState extends State<EarnScreen> {
 
   void _navigateToThread(BuildContext context, EarnThread thread) {
     context.read<EarnBloc>().add(EarnEvent.selectThread(thread.id));
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => ThreadOpportunitiesScreen(thread: thread),
-      ),
-    );
+    context.push('/earn/thread/${thread.id}');
   }
 
   void _showHistory(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => const EngagementHistorySheet(),
-    );
-  }
-}
-
-class ThreadOpportunitiesScreen extends StatelessWidget {
-  final EarnThread thread;
-
-  const ThreadOpportunitiesScreen({super.key, required this.thread});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: IMaliAppBar(title: thread.brandName),
-      body: WaveBackground(
-        child: BlocBuilder<EarnBloc, EarnState>(
-          builder: (context, state) {
-            if (state.opportunities.isEmpty) {
-              return const Center(
-                child: Text('No opportunities available'),
-              );
-            }
-
-            return ListView.builder(
-              padding: AppSpacing.pagePadding,
-              itemCount: state.opportunities.length,
-              itemBuilder: (context, index) {
-                final opportunity = state.opportunities[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: Icon(
-                      opportunity.mediaType.name == 'video'
-                          ? Icons.smart_display
-                          : Icons.image,
-                      color: AppColors.primary,
-                    ),
-                    title: Text(opportunity.title),
-                    subtitle: Text(
-                      '${opportunity.tokenReward} tokens - ${opportunity.durationSeconds}s',
-                    ),
-                    trailing: ElevatedButton(
-                      onPressed: () {
-                        context.read<EarnBloc>().add(
-                              EarnEvent.startEngagement(
-                                opportunityId: opportunity.id,
-                              ),
-                            );
-                      },
-                      child: const Text('Start'),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class EngagementHistorySheet extends StatelessWidget {
-  const EngagementHistorySheet({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.6,
-      minChildSize: 0.3,
-      maxChildSize: 0.9,
-      expand: false,
-      builder: (context, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.textHint,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Earning History',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(),
-              Expanded(
-                child: BlocBuilder<EarnBloc, EarnState>(
-                  builder: (context, state) {
-                    if (state.isLoadingHistory && state.history.isEmpty) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (state.history.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.history,
-                              size: 64,
-                              color: AppColors.textHint,
-                            ),
-                            AppSpacing.verticalMd,
-                            Text(
-                              'No history yet',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      controller: scrollController,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: state.history.length,
-                      itemBuilder: (context, index) {
-                        final engagement = state.history[index];
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: engagement.isComplete
-                                ? AppColors.success.withValues(alpha: 0.2)
-                                : AppColors.error.withValues(alpha: 0.2),
-                            child: Icon(
-                              engagement.isComplete
-                                  ? Icons.check
-                                  : Icons.close,
-                              color: engagement.isComplete
-                                  ? AppColors.success
-                                  : AppColors.error,
-                            ),
-                          ),
-                          title: Text('Engagement #${engagement.id.substring(0, 8)}'),
-                          subtitle: engagement.isComplete
-                              ? _buildEarningsBreakdown(
-                                  context, engagement.tokensEarned ?? 0)
-                              : Text(engagement.status.name),
-                          trailing: Text(
-                            _formatDate(engagement.createdAt),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: AppColors.textSecondary),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildEarningsBreakdown(BuildContext context, int totalTokens) {
-    // Calculate 90/5/5 split
-    final walletAmount = (totalTokens * 0.90).round();
-    final dailyPot = (totalTokens * 0.05).round();
-    final weeklyPot = totalTokens - walletAmount - dailyPot; // Remainder to weekly
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '+$walletAmount to wallet',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.success,
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-        Text(
-          '+$dailyPot daily pot, +$weeklyPot weekly pot',
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppColors.textSecondary,
-              ),
-        ),
-      ],
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inDays == 0) {
-      return 'Today';
-    } else if (diff.inDays == 1) {
-      return 'Yesterday';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays} days ago';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
+    EngagementHistorySheet.show(context);
   }
 }

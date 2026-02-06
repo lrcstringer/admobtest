@@ -7,6 +7,7 @@ import '../screens/admin_dashboard_screen.dart';
 import '../screens/admin_login_screen.dart';
 import '../screens/cashout_approval_screen.dart';
 import '../screens/client_management_screen.dart';
+import '../screens/earn_management_screen.dart';
 import '../screens/ledger_recon_screen.dart';
 import '../screens/pot_management_screen.dart';
 import '../screens/supplier_management_screen.dart';
@@ -82,6 +83,13 @@ class AdminRouter {
             path: '/clients',
             name: 'adminClients',
             builder: (context, state) => const ClientManagementScreen(),
+          ),
+
+          // Earn Management (Campaigns, Threads, Opportunities)
+          GoRoute(
+            path: '/earn',
+            name: 'adminEarn',
+            builder: (context, state) => const EarnManagementScreen(),
           ),
         ],
       ),

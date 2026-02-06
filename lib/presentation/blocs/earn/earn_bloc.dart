@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -19,11 +17,9 @@ part 'earn_state.dart';
 @injectable
 class EarnBloc extends Bloc<EarnEvent, EarnState> {
   final EarnRepository _earnRepository;
-  StreamSubscription? _threadsSubscription;
 
   EarnBloc(this._earnRepository) : super(const EarnState()) {
     on<_LoadThreads>(_onLoadThreads);
-    on<_WatchThreads>(_onWatchThreads);
     on<_SelectThread>(_onSelectThread);
     on<_LoadOpportunities>(_onLoadOpportunities);
     on<_SelectOpportunity>(_onSelectOpportunity);
@@ -33,7 +29,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     on<_AbandonEngagement>(_onAbandonEngagement);
     on<_LoadHistory>(_onLoadHistory);
     on<_LoadMoreHistory>(_onLoadMoreHistory);
-    on<_ThreadsUpdated>(_onThreadsUpdated);
+    on<_Refresh>(_onRefresh);
     on<_ClearError>(_onClearError);
     on<_ResetEngagement>(_onResetEngagement);
   }
@@ -44,7 +40,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
   ) async {
     emit(state.copyWith(status: EarnStatus.loading));
 
-    final result = await _earnRepository.getEarnThreads();
+    final result = await _earnRepository.getEligibleThreads();
 
     result.fold(
       (failure) {
@@ -53,32 +49,21 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
           errorMessage: failure.displayMessage,
         ));
       },
-      (threads) {
+      (threadsResult) {
+        // Calculate total available opportunities
+        final totalOpportunities = threadsResult.threads.fold<int>(
+          0,
+          (total, thread) => total + thread.availableOpportunities,
+        );
+
         emit(state.copyWith(
           status: EarnStatus.loaded,
-          threads: threads,
+          threads: threadsResult.threads,
+          totalAvailableOpportunities: totalOpportunities,
+          dailyCompletions: threadsResult.dailyCompletions,
+          dailyEarnCap: threadsResult.dailyEarnCap,
+          dailyLimitReached: threadsResult.dailyLimitReached,
         ));
-        // Start watching for real-time updates
-        add(const EarnEvent.watchThreads());
-      },
-    );
-  }
-
-  void _onWatchThreads(
-    _WatchThreads event,
-    Emitter<EarnState> emit,
-  ) {
-    _threadsSubscription?.cancel();
-    _threadsSubscription = _earnRepository.watchEarnThreads().listen(
-      (result) {
-        result.fold(
-          (failure) {
-            // Don't emit error for stream failures
-          },
-          (threads) {
-            add(EarnEvent.threadsUpdated(threads));
-          },
-        );
       },
     );
   }
@@ -95,6 +80,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     emit(state.copyWith(
       selectedThread: thread,
       opportunities: [],
+      opportunitiesStatus: EarnStatus.loading,
     ));
 
     // Load opportunities for the selected thread
@@ -105,20 +91,23 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _LoadOpportunities event,
     Emitter<EarnState> emit,
   ) async {
-    final result = await _earnRepository.getOpportunities(
+    emit(state.copyWith(opportunitiesStatus: EarnStatus.loading));
+
+    final result = await _earnRepository.getEligibleOpportunities(
       threadId: event.threadId,
-      activeOnly: event.activeOnly,
     );
 
     result.fold(
       (failure) {
         emit(state.copyWith(
+          opportunitiesStatus: EarnStatus.error,
           errorMessage: failure.displayMessage,
         ));
       },
       (opportunities) {
         emit(state.copyWith(
           opportunities: opportunities,
+          opportunitiesStatus: EarnStatus.loaded,
         ));
       },
     );
@@ -305,11 +294,52 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     );
   }
 
-  void _onThreadsUpdated(
-    _ThreadsUpdated event,
+  Future<void> _onRefresh(
+    _Refresh event,
     Emitter<EarnState> emit,
-  ) {
-    emit(state.copyWith(threads: event.threads));
+  ) async {
+    // Reload threads
+    final result = await _earnRepository.getEligibleThreads();
+
+    await result.fold(
+      (failure) async {
+        emit(state.copyWith(
+          errorMessage: failure.displayMessage,
+        ));
+      },
+      (threadsResult) async {
+        final totalOpportunities = threadsResult.threads.fold<int>(
+          0,
+          (total, thread) => total + thread.availableOpportunities,
+        );
+
+        emit(state.copyWith(
+          threads: threadsResult.threads,
+          totalAvailableOpportunities: totalOpportunities,
+          dailyCompletions: threadsResult.dailyCompletions,
+          dailyEarnCap: threadsResult.dailyEarnCap,
+          dailyLimitReached: threadsResult.dailyLimitReached,
+        ));
+
+        // If a thread was selected, reload its opportunities
+        if (state.selectedThread != null) {
+          final oppsResult = await _earnRepository.getEligibleOpportunities(
+            threadId: state.selectedThread!.id,
+          );
+
+          oppsResult.fold(
+            (failure) {
+              // Ignore opportunity refresh failures
+            },
+            (opportunities) {
+              emit(state.copyWith(
+                opportunities: opportunities,
+              ));
+            },
+          );
+        }
+      },
+    );
   }
 
   void _onClearError(
@@ -328,11 +358,5 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
       selectedOpportunity: null,
       engagementPhase: EngagementPhase.idle,
     ));
-  }
-
-  @override
-  Future<void> close() {
-    _threadsSubscription?.cancel();
-    return super.close();
   }
 }

@@ -144,6 +144,11 @@ import {
  *
  * Distributes tokens: 90% to user's sub-account, 5% to daily pot, 5% to weekly pot
  *
+ * For client-funded threads:
+ * - If clientId and clientSubAccountId are provided, debits the client's sub-account
+ *   instead of the treasury
+ * - Uses `client:{clientId}` as the source account in the journal entry
+ *
  * @param userId - The user's ID
  * @param totalAmount - Total tokens earned
  * @param engagementId - Reference to the engagement
@@ -151,6 +156,8 @@ import {
  * @param subAccountId - The sub-account to credit (optional, uses default if not provided)
  * @param accountTypeId - The account type for audit (optional)
  * @param metadata - Additional metadata
+ * @param clientId - Client ID for client-funded threads (optional)
+ * @param clientSubAccountId - Client sub-account to debit (optional, required if clientId provided)
  */
 export async function processEarningWithSplit(
   userId: string,
@@ -159,7 +166,9 @@ export async function processEarningWithSplit(
   description: string,
   subAccountId?: string,
   accountTypeId?: string | null,
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
+  clientId?: string,
+  clientSubAccountId?: string
 ): Promise<PostJournalResult> {
   // Ensure user account exists (legacy ledgerAccounts)
   await getOrCreateUserAccount(userId);
@@ -176,8 +185,13 @@ export async function processEarningWithSplit(
   const dailyPotShare = Math.floor(totalAmount * LedgerConfig.EARNING_DAILY_POT_SHARE);
   const weeklyPotShare = totalAmount - userShare - dailyPotShare;
 
+  // Determine source account: client or treasury
+  const sourceAccountId = clientId
+    ? AccountId.client(clientId)
+    : SystemAccounts.TREASURY;
+
   // Create earning entries with split
-  const entries = createEarningEntries(userId, totalAmount, SystemAccounts.TREASURY);
+  const entries = createEarningEntries(userId, totalAmount, sourceAccountId);
 
   // Post journal entry
   const journalResult = await postJournal({
@@ -197,6 +211,8 @@ export async function processEarningWithSplit(
       userShare,
       dailyPotShare,
       weeklyPotShare,
+      clientId: clientId || null,
+      clientSubAccountId: clientSubAccountId || null,
     },
   });
 
@@ -207,6 +223,21 @@ export async function processEarningWithSplit(
   // Credit the user's sub-account with their share (90%)
   if (userShare > 0 && !journalResult.isDuplicate) {
     await creditSubAccount(userId, finalSubAccountId, userShare);
+  }
+
+  // If client-funded, debit the client's sub-account
+  if (clientId && clientSubAccountId && !journalResult.isDuplicate) {
+    const admin = await import("firebase-admin");
+    const db = admin.firestore();
+    await db
+      .collection("clients")
+      .doc(clientId)
+      .collection("subAccounts")
+      .doc(clientSubAccountId)
+      .update({
+        balance: admin.firestore.FieldValue.increment(-totalAmount),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
   }
 
   return journalResult;

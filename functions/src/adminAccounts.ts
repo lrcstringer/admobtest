@@ -196,6 +196,11 @@ export const adminCreateClient = functions.https.onCall(
       industry?: string;
       billingAddress?: string;
       vatNumber?: string;
+      displayName?: string;
+      avatarImage?: string;
+      avatarColor?: string;
+      brandAccountTypeId?: string;
+      budgetWarningThreshold?: number;
     },
     context
   ) => {
@@ -211,6 +216,11 @@ export const adminCreateClient = functions.https.onCall(
       industry,
       billingAddress,
       vatNumber,
+      displayName,
+      avatarImage,
+      avatarColor,
+      brandAccountTypeId,
+      budgetWarningThreshold,
     } = data;
 
     if (!clientId || !companyName || !contactEmail || !contactName) {
@@ -240,6 +250,13 @@ export const adminCreateClient = functions.https.onCall(
       vatNumber: vatNumber || null,
       ledgerAccountId: account.id,
       status: "active",
+      isActive: true,
+      // Earn-specific fields
+      displayName: displayName || companyName,
+      avatarImage: avatarImage || null,
+      avatarColor: avatarColor || null,
+      brandAccountTypeId: brandAccountTypeId || null,
+      budgetWarningThreshold: budgetWarningThreshold ?? 0.20,
       // Campaign stats
       totalCampaigns: 0,
       activeCampaigns: 0,
@@ -257,6 +274,7 @@ export const adminCreateClient = functions.https.onCall(
       client: {
         id: clientId,
         companyName,
+        displayName: displayName || companyName,
         ledgerAccountId: account.id,
       },
     };
@@ -387,6 +405,11 @@ export const adminUpdateClient = functions.https.onCall(
         industry?: string;
         billingAddress?: string;
         vatNumber?: string;
+        displayName?: string;
+        avatarImage?: string;
+        avatarColor?: string;
+        brandAccountTypeId?: string;
+        budgetWarningThreshold?: number;
       };
     },
     context
@@ -415,6 +438,35 @@ export const adminUpdateClient = functions.https.onCall(
         name: updates.companyName,
         updatedAt: admin.firestore.Timestamp.now(),
       });
+    }
+
+    // Denormalization cascade: update earnThreads if display fields changed
+    if (updates.displayName || updates.avatarImage || updates.avatarColor) {
+      const threadsSnapshot = await db
+        .collection("earnThreads")
+        .where("clientId", "==", clientId)
+        .get();
+
+      if (!threadsSnapshot.empty) {
+        const batch = db.batch();
+        const threadUpdates: Record<string, unknown> = {
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+        if (updates.displayName !== undefined) {
+          threadUpdates.clientName = updates.displayName;
+        }
+        if (updates.avatarImage !== undefined) {
+          threadUpdates.clientAvatarImage = updates.avatarImage;
+        }
+        if (updates.avatarColor !== undefined) {
+          threadUpdates.clientAvatarColor = updates.avatarColor;
+        }
+
+        for (const doc of threadsSnapshot.docs) {
+          batch.update(doc.ref, threadUpdates);
+        }
+        await batch.commit();
+      }
     }
 
     return { success: true };
@@ -495,5 +547,232 @@ export const adminFundClientAccount = functions.https.onCall(
       journalId: result.journalId,
       newBalance: result.data?.entries.find((e) => e.accountId === accountId)?.balanceAfter,
     };
+  }
+);
+
+// ============================================================================
+// CLIENT SUB-ACCOUNT MANAGEMENT (Earn Overhaul)
+// ============================================================================
+
+/**
+ * Create a client sub-account for per-campaign budget tracking
+ */
+export const adminCreateClientSubAccount = functions.https.onCall(
+  async (
+    data: {
+      clientId: string;
+      name: string;
+      initialBudget: number;
+    },
+    context
+  ) => {
+    requireAppCheck(context, "adminCreateClientSubAccount");
+    await requireAdmin(context);
+
+    const { clientId, name, initialBudget } = data;
+
+    if (!clientId || !name || !initialBudget || initialBudget <= 0) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Client ID, name, and positive initial budget are required"
+      );
+    }
+
+    // Validate client exists
+    const clientDoc = await db.collection("clients").doc(clientId).get();
+    if (!clientDoc.exists) {
+      throw new functions.https.HttpsError("not-found", "Client not found");
+    }
+
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const subAccountRef = db
+      .collection("clients")
+      .doc(clientId)
+      .collection("subAccounts")
+      .doc();
+
+    await subAccountRef.set({
+      id: subAccountRef.id,
+      name,
+      balance: initialBudget,
+      initialBudget,
+      isActive: true,
+      warningNotifiedAt: null,
+      depletedAt: null,
+      createdAt: now,
+      updatedAt: now,
+      createdBy: context.auth!.uid,
+    });
+
+    // Post journal: Treasury → Client master account (audit trail)
+    const { postJournal: pj } = await import("./ledger/journals");
+    const { SystemAccounts: SA } = await import("./ledger/types");
+
+    const accountId = AccountId.client(clientId);
+    await pj({
+      idempotencyKey: `client_subaccount_fund:${clientId}:${subAccountRef.id}`,
+      type: "adjustment",
+      description: `Client sub-account created: ${name}`,
+      entries: [
+        {
+          accountId: SA.TREASURY,
+          entryType: "debit",
+          amount: initialBudget,
+          description: "Client sub-account initial funding",
+        },
+        {
+          accountId,
+          entryType: "credit",
+          amount: initialBudget,
+          description: `Sub-account: ${name}`,
+        },
+      ],
+      referenceType: "campaign",
+      referenceId: subAccountRef.id,
+      initiatedBy: context.auth!.uid,
+      metadata: {
+        subAccountId: subAccountRef.id,
+        subAccountName: name,
+      },
+    });
+
+    return { success: true, subAccountId: subAccountRef.id };
+  }
+);
+
+/**
+ * Fund (top up) a client sub-account
+ */
+export const adminFundClientSubAccount = functions.https.onCall(
+  async (
+    data: {
+      clientId: string;
+      subAccountId: string;
+      amount: number;
+      reference: string;
+    },
+    context
+  ) => {
+    requireAppCheck(context, "adminFundClientSubAccount");
+    await requireAdmin(context);
+
+    const { clientId, subAccountId, amount, reference } = data;
+
+    if (!clientId || !subAccountId || !amount || amount <= 0 || !reference) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Client ID, sub-account ID, positive amount, and reference are required"
+      );
+    }
+
+    const subAccountRef = db
+      .collection("clients")
+      .doc(clientId)
+      .collection("subAccounts")
+      .doc(subAccountId);
+
+    const subAccountDoc = await subAccountRef.get();
+    if (!subAccountDoc.exists) {
+      throw new functions.https.HttpsError("not-found", "Sub-account not found");
+    }
+
+    const now = admin.firestore.FieldValue.serverTimestamp();
+
+    // Increment balance and initialBudget, clear depletion
+    await subAccountRef.update({
+      balance: admin.firestore.FieldValue.increment(amount),
+      initialBudget: admin.firestore.FieldValue.increment(amount),
+      isActive: true,
+      depletedAt: null,
+      updatedAt: now,
+    });
+
+    // Re-activate threads that were auto-deactivated due to depleted budget
+    const threadsSnapshot = await db
+      .collection("earnThreads")
+      .where("tokenSourceSubAccountId", "==", subAccountId)
+      .where("isActive", "==", false)
+      .get();
+
+    if (!threadsSnapshot.empty) {
+      const batch = db.batch();
+      for (const doc of threadsSnapshot.docs) {
+        batch.update(doc.ref, { isActive: true, updatedAt: now });
+      }
+      await batch.commit();
+    }
+
+    // Post journal for audit trail
+    const { postJournal: pj } = await import("./ledger/journals");
+    const { SystemAccounts: SA } = await import("./ledger/types");
+
+    const accountId = AccountId.client(clientId);
+    await pj({
+      idempotencyKey: `client_subaccount_topup:${clientId}:${subAccountId}:${reference}`,
+      type: "adjustment",
+      description: `Client sub-account top-up: ${reference}`,
+      entries: [
+        {
+          accountId: SA.TREASURY,
+          entryType: "debit",
+          amount,
+          description: "Client sub-account top-up",
+        },
+        {
+          accountId,
+          entryType: "credit",
+          amount,
+          description: `Sub-account top-up: ${reference}`,
+        },
+      ],
+      referenceType: "campaign",
+      referenceId: reference,
+      initiatedBy: context.auth!.uid,
+      metadata: {
+        subAccountId,
+        fundedBy: context.auth!.uid,
+      },
+    });
+
+    return { success: true };
+  }
+);
+
+/**
+ * List all sub-accounts for a client
+ */
+export const adminListClientSubAccounts = functions.https.onCall(
+  async (data: { clientId: string }, context) => {
+    requireAppCheck(context, "adminListClientSubAccounts");
+    await requireAdmin(context);
+
+    const { clientId } = data;
+
+    if (!clientId) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Client ID is required"
+      );
+    }
+
+    const snapshot = await db
+      .collection("clients")
+      .doc(clientId)
+      .collection("subAccounts")
+      .orderBy("createdAt", "desc")
+      .get();
+
+    const subAccounts = snapshot.docs.map((doc) => {
+      const d = doc.data();
+      const remainingPercent =
+        d.initialBudget > 0 ? d.balance / d.initialBudget : 0;
+      return {
+        id: doc.id,
+        ...d,
+        remainingPercent,
+      };
+    });
+
+    return { subAccounts };
   }
 );

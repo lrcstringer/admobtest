@@ -37,6 +37,7 @@ import '../screens/chat/chat_send_wallet_selection_screen.dart';
 import '../screens/earn/earn_detail_screen.dart';
 import '../screens/earn/earn_interaction_screen.dart';
 import '../screens/earn/earn_screen.dart';
+import '../screens/earn/earn_thread_screen.dart';
 import '../screens/earn/earn_wallet_confirm_screen.dart';
 
 // Home screens
@@ -465,19 +466,26 @@ class AppRouter {
                 name: 'earn',
                 builder: (context, state) => const EarnScreen(),
                 routes: [
-                  // 7.1) Earn Detail
+                  // 7.1) Thread Detail (opportunities list)
                   GoRoute(
-                    path: 'detail',
-                    name: 'earnDetail',
-                    builder: (context, state) =>
-                        const EarnDetailScreen(),
+                    path: 'thread/:threadId',
+                    name: 'earnThread',
+                    builder: (context, state) {
+                      final threadId =
+                          state.pathParameters['threadId'] ?? '';
+                      return EarnThreadScreen(threadId: threadId);
+                    },
                   ),
-                  // 7.2) Earn Interaction
+                  // 7.2) Opportunity / Interaction Screen
                   GoRoute(
-                    path: 'interaction',
-                    name: 'earnInteraction',
-                    builder: (context, state) =>
-                        const EarnInteractionScreen(),
+                    path: 'opportunity/:opportunityId',
+                    name: 'earnOpportunity',
+                    builder: (context, state) {
+                      final opportunityId =
+                          state.pathParameters['opportunityId'] ?? '';
+                      return EarnInteractionScreen(
+                          opportunityId: opportunityId);
+                    },
                     routes: [
                       // 7.2.1) Earn Wallet Confirm
                       GoRoute(
@@ -487,6 +495,24 @@ class AppRouter {
                             const EarnWalletConfirmScreen(),
                       ),
                     ],
+                  ),
+                  // 7.3) Legacy Detail (for backwards compat)
+                  GoRoute(
+                    path: 'detail',
+                    name: 'earnDetail',
+                    builder: (context, state) =>
+                        const EarnDetailScreen(),
+                  ),
+                  // 7.4) Legacy Interaction (gets opportunityId from query param)
+                  GoRoute(
+                    path: 'interaction',
+                    name: 'earnInteraction',
+                    builder: (context, state) {
+                      final opportunityId =
+                          state.uri.queryParameters['opportunityId'] ?? '';
+                      return EarnInteractionScreen(
+                          opportunityId: opportunityId);
+                    },
                   ),
                 ],
               ),

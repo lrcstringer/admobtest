@@ -623,6 +623,9 @@ mixin _$EngagementModel {
   int get attemptNumber => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt =>
+      throw _privateConstructorUsedError; // Denormalized fields for targeting queries
+  String? get threadId => throw _privateConstructorUsedError;
+  String? get clientId =>
       throw _privateConstructorUsedError; // Streak audit fields
   int? get streakDayAtCompletion => throw _privateConstructorUsedError;
   double? get multiplierApplied => throw _privateConstructorUsedError;
@@ -658,6 +661,8 @@ abstract class $EngagementModelCopyWith<$Res> {
     int attemptNumber,
     DateTime createdAt,
     DateTime? updatedAt,
+    String? threadId,
+    String? clientId,
     int? streakDayAtCompletion,
     double? multiplierApplied,
   });
@@ -696,6 +701,8 @@ class _$EngagementModelCopyWithImpl<$Res, $Val extends EngagementModel>
     Object? attemptNumber = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
+    Object? threadId = freezed,
+    Object? clientId = freezed,
     Object? streakDayAtCompletion = freezed,
     Object? multiplierApplied = freezed,
   }) {
@@ -765,6 +772,14 @@ class _$EngagementModelCopyWithImpl<$Res, $Val extends EngagementModel>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            threadId: freezed == threadId
+                ? _value.threadId
+                : threadId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            clientId: freezed == clientId
+                ? _value.clientId
+                : clientId // ignore: cast_nullable_to_non_nullable
+                      as String?,
             streakDayAtCompletion: freezed == streakDayAtCompletion
                 ? _value.streakDayAtCompletion
                 : streakDayAtCompletion // ignore: cast_nullable_to_non_nullable
@@ -819,6 +834,8 @@ abstract class _$$EngagementModelImplCopyWith<$Res>
     int attemptNumber,
     DateTime createdAt,
     DateTime? updatedAt,
+    String? threadId,
+    String? clientId,
     int? streakDayAtCompletion,
     double? multiplierApplied,
   });
@@ -857,6 +874,8 @@ class __$$EngagementModelImplCopyWithImpl<$Res>
     Object? attemptNumber = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
+    Object? threadId = freezed,
+    Object? clientId = freezed,
     Object? streakDayAtCompletion = freezed,
     Object? multiplierApplied = freezed,
   }) {
@@ -926,6 +945,14 @@ class __$$EngagementModelImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        threadId: freezed == threadId
+            ? _value.threadId
+            : threadId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        clientId: freezed == clientId
+            ? _value.clientId
+            : clientId // ignore: cast_nullable_to_non_nullable
+                  as String?,
         streakDayAtCompletion: freezed == streakDayAtCompletion
             ? _value.streakDayAtCompletion
             : streakDayAtCompletion // ignore: cast_nullable_to_non_nullable
@@ -959,6 +986,8 @@ class _$EngagementModelImpl extends _EngagementModel {
     required this.attemptNumber,
     required this.createdAt,
     this.updatedAt,
+    this.threadId,
+    this.clientId,
     this.streakDayAtCompletion,
     this.multiplierApplied,
   }) : _answers = answers,
@@ -1002,6 +1031,11 @@ class _$EngagementModelImpl extends _EngagementModel {
   final DateTime createdAt;
   @override
   final DateTime? updatedAt;
+  // Denormalized fields for targeting queries
+  @override
+  final String? threadId;
+  @override
+  final String? clientId;
   // Streak audit fields
   @override
   final int? streakDayAtCompletion;
@@ -1010,7 +1044,7 @@ class _$EngagementModelImpl extends _EngagementModel {
 
   @override
   String toString() {
-    return 'EngagementModel(id: $id, userId: $userId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied)';
+    return 'EngagementModel(id: $id, userId: $userId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, threadId: $threadId, clientId: $clientId, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied)';
   }
 
   @override
@@ -1049,6 +1083,10 @@ class _$EngagementModelImpl extends _EngagementModel {
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
+            (identical(other.threadId, threadId) ||
+                other.threadId == threadId) &&
+            (identical(other.clientId, clientId) ||
+                other.clientId == clientId) &&
             (identical(other.streakDayAtCompletion, streakDayAtCompletion) ||
                 other.streakDayAtCompletion == streakDayAtCompletion) &&
             (identical(other.multiplierApplied, multiplierApplied) ||
@@ -1056,7 +1094,7 @@ class _$EngagementModelImpl extends _EngagementModel {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     userId,
@@ -1074,9 +1112,11 @@ class _$EngagementModelImpl extends _EngagementModel {
     attemptNumber,
     createdAt,
     updatedAt,
+    threadId,
+    clientId,
     streakDayAtCompletion,
     multiplierApplied,
-  );
+  ]);
 
   /// Create a copy of EngagementModel
   /// with the given fields replaced by the non-null parameter values.
@@ -1108,6 +1148,8 @@ abstract class _EngagementModel extends EngagementModel {
     required final int attemptNumber,
     required final DateTime createdAt,
     final DateTime? updatedAt,
+    final String? threadId,
+    final String? clientId,
     final int? streakDayAtCompletion,
     final double? multiplierApplied,
   }) = _$EngagementModelImpl;
@@ -1144,7 +1186,11 @@ abstract class _EngagementModel extends EngagementModel {
   @override
   DateTime get createdAt;
   @override
-  DateTime? get updatedAt; // Streak audit fields
+  DateTime? get updatedAt; // Denormalized fields for targeting queries
+  @override
+  String? get threadId;
+  @override
+  String? get clientId; // Streak audit fields
   @override
   int? get streakDayAtCompletion;
   @override

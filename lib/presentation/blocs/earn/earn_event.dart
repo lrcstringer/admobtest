@@ -2,19 +2,15 @@ part of 'earn_bloc.dart';
 
 @freezed
 class EarnEvent with _$EarnEvent {
-  /// Load earn threads
+  /// Load eligible threads for the current user (via Cloud Function)
   const factory EarnEvent.loadThreads() = _LoadThreads;
-
-  /// Watch earn threads (real-time updates)
-  const factory EarnEvent.watchThreads() = _WatchThreads;
 
   /// Select a thread to view opportunities
   const factory EarnEvent.selectThread(String threadId) = _SelectThread;
 
-  /// Load opportunities for selected thread
+  /// Load eligible opportunities for selected thread (via Cloud Function)
   const factory EarnEvent.loadOpportunities({
     required String threadId,
-    @Default(true) bool activeOnly,
   }) = _LoadOpportunities;
 
   /// Select an opportunity to start engagement
@@ -48,9 +44,8 @@ class EarnEvent with _$EarnEvent {
   /// Load more history (pagination)
   const factory EarnEvent.loadMoreHistory() = _LoadMoreHistory;
 
-  /// Internal: threads updated from stream
-  const factory EarnEvent.threadsUpdated(List<EarnThread> threads) =
-      _ThreadsUpdated;
+  /// Refresh threads and opportunities (pull to refresh)
+  const factory EarnEvent.refresh() = _Refresh;
 
   /// Clear error
   const factory EarnEvent.clearError() = _ClearError;

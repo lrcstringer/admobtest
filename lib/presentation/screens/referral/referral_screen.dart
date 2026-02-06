@@ -7,6 +7,7 @@ import '../../blocs/referral/referral_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 class ReferralScreen extends StatefulWidget {
   const ReferralScreen({super.key});
@@ -30,7 +31,8 @@ class _ReferralScreenState extends State<ReferralScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const IMaliAppBar(title: 'Invite & Earn'),
-      body: BlocConsumer<ReferralBloc, ReferralState>(
+      body: WaveBackground(
+        child: BlocConsumer<ReferralBloc, ReferralState>(
         listener: (context, state) {
           if (state.errorMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -109,6 +111,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
             ),
           );
         },
+      ),
       ),
     );
   }

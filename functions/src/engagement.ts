@@ -23,6 +23,13 @@ import {
 } from "./ledger";
 import { updateEngagementStats } from "./engagementStats";
 import { updateDailyScore, updateReferrerAssistScore, updateLeaderboardScores } from "./dailyScores";
+import {
+  shouldAwardBonus,
+  shouldAwardEveryXBonus,
+  stateFromFirestore,
+  stateToFirestore,
+  DEFAULT_BONUS_CONFIG,
+} from "./bonus";
 
 const db = admin.firestore();
 
@@ -39,6 +46,9 @@ const EngagementStatus = {
   // Legacy status for backward compatibility
   IN_PROGRESS: "in_progress",
 } as const;
+
+// Daily completion limit - resets at midnight local time
+const DAILY_EARN_CAP = 30;
 
 /**
  * Start a new engagement (ad view or survey)
@@ -57,14 +67,38 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
   requireAppCheck(context, "startEngagement");
 
   const userId = context.auth.uid;
+
+  // Check daily completion limit (resets at midnight)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const todayCompletionsSnapshot = await db
+    .collection("engagements")
+    .where("userId", "==", userId)
+    .where("status", "==", EngagementStatus.COMPLETED)
+    .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(today))
+    .count()
+    .get();
+
+  const dailyCompletions = todayCompletionsSnapshot.data().count;
+
+  if (dailyCompletions >= DAILY_EARN_CAP) {
+    throw new functions.https.HttpsError(
+      "resource-exhausted",
+      "DAILY_LIMIT_REACHED"
+    );
+  }
+
   const { earnOpportunityId, campaignId, type, threadId } = data;
 
   // Support both earnOpportunityId (preferred) and campaignId (legacy)
   let rewardAmount: number;
+  let streakPoints: number = 1; // Default to 1 for backward compatibility
   let engagementType: string;
   let resolvedCampaignId: string | null = null;
   let resolvedOpportunityId: string | null = earnOpportunityId || null;
   let resolvedThreadId: string | null = threadId || null;
+  let resolvedClientId: string | null = null;
 
   if (earnOpportunityId) {
     // New flow: Get opportunity from earnOpportunities collection
@@ -95,9 +129,46 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     }
 
     rewardAmount = opportunity.tokenReward;
-    engagementType = opportunity.mediaType || "video";
+    streakPoints = opportunity.streakPoints ?? 1; // Default to 1 if not set
+    engagementType = opportunity.earningType || opportunity.mediaType || "video";
     resolvedCampaignId = opportunity.campaignId || null;
     resolvedThreadId = opportunity.threadId || threadId || null;
+
+    // Get thread to denormalize clientId and perform budget pre-check
+    if (resolvedThreadId) {
+      const threadDoc = await db
+        .collection("earnThreads")
+        .doc(resolvedThreadId)
+        .get();
+
+      if (threadDoc.exists) {
+        const threadData = threadDoc.data()!;
+        resolvedClientId = threadData.clientId || null;
+
+        // Budget pre-check: verify client sub-account has sufficient balance
+        if (
+          resolvedClientId &&
+          threadData.tokenSourceSubAccountId
+        ) {
+          const subAccountDoc = await db
+            .collection("clients")
+            .doc(resolvedClientId)
+            .collection("subAccounts")
+            .doc(threadData.tokenSourceSubAccountId)
+            .get();
+
+          if (subAccountDoc.exists) {
+            const subAccount = subAccountDoc.data()!;
+            if (!subAccount.isActive || subAccount.balance < rewardAmount) {
+              throw new functions.https.HttpsError(
+                "failed-precondition",
+                "This offer is currently unavailable"
+              );
+            }
+          }
+        }
+      }
+    }
 
     // Check if user has already completed this opportunity
     const existingEngagement = await db
@@ -176,10 +247,12 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     oddienceCampaignId: resolvedCampaignId,
     campaignId: resolvedCampaignId,
     threadId: resolvedThreadId,
+    clientId: resolvedClientId, // Denormalized for targeting queries
     type: engagementType,
     status: EngagementStatus.STARTED,
     progress: 0,
     rewardAmount: rewardAmount,
+    streakPoints: streakPoints, // Streak points from opportunity
     watchDurationSeconds: 0,
     requiredDurationSeconds: 0, // Will be updated by client
     answers: [],
@@ -285,7 +358,94 @@ export const processEngagement = functions.https.onCall(
       );
     }
 
-    const rewardAmount = engagement.rewardAmount;
+    let rewardAmount = engagement.rewardAmount;
+    let bonusApplied = false;
+    let bonusMultiplier = 1.0;
+
+    // =========================================================================
+    // Bonus Reward Logic
+    // =========================================================================
+    if (engagement.earnOpportunityId) {
+      try {
+        // Fetch opportunity to get bonus configuration
+        const opportunityDoc = await db
+          .collection("earnOpportunities")
+          .doc(engagement.earnOpportunityId)
+          .get();
+
+        if (opportunityDoc.exists) {
+          const opportunity = opportunityDoc.data()!;
+
+          if (opportunity.bonusReward) {
+            const bonusIntervalType = opportunity.bonusIntervalType;
+            const bonusIntervalX = opportunity.bonusIntervalX;
+            bonusMultiplier = opportunity.bonusRewardMultiplier || 1.0;
+
+            if (bonusIntervalType === "every_x" && bonusIntervalX) {
+              // ── "Every X Completions" Mode ──
+              // Get user's completion count for this opportunity
+              const userDoc = await db.collection("users").doc(userId).get();
+              const userData = userDoc.exists ? userDoc.data()! : {};
+              const opportunityCompletions = userData.opportunityCompletions || {};
+              const currentCount = (opportunityCompletions[engagement.earnOpportunityId] || 0) + 1;
+
+              // Check if this is an Xth completion
+              if (shouldAwardEveryXBonus(currentCount, bonusIntervalX)) {
+                bonusApplied = true;
+                rewardAmount = Math.floor(rewardAmount * bonusMultiplier);
+              }
+
+              // Update the completion count
+              await db
+                .collection("users")
+                .doc(userId)
+                .set(
+                  {
+                    opportunityCompletions: {
+                      [engagement.earnOpportunityId]: currentCount,
+                    },
+                  },
+                  { merge: true }
+                );
+            } else if (bonusIntervalType === "random") {
+              // ── "Random" Mode (Adaptive Algorithm) ──
+              // Get user's bonus engine state
+              const userDoc = await db.collection("users").doc(userId).get();
+              const userData = userDoc.exists ? userDoc.data()! : {};
+              const currentBonusState = stateFromFirestore(
+                userData.bonusEngineState,
+                DEFAULT_BONUS_CONFIG
+              );
+
+              // Determine if bonus should be awarded
+              const decision = shouldAwardBonus(
+                currentBonusState,
+                DEFAULT_BONUS_CONFIG
+              );
+
+              if (decision.awarded) {
+                bonusApplied = true;
+                rewardAmount = Math.floor(rewardAmount * bonusMultiplier);
+              }
+
+              // Persist updated state
+              await db
+                .collection("users")
+                .doc(userId)
+                .set(
+                  {
+                    bonusEngineState: stateToFirestore(decision.newState),
+                  },
+                  { merge: true }
+                );
+            }
+          }
+        }
+      } catch (bonusError) {
+        console.error("Failed to process bonus reward:", bonusError);
+        // Continue without bonus - don't fail the engagement
+      }
+    }
 
     // Get campaignId - support both field names
     const campaignId = engagement.campaignId || engagement.oddienceCampaignId;
@@ -293,8 +453,104 @@ export const processEngagement = functions.https.onCall(
     // Calculate user's share for display (90% of total reward)
     const userShare = Math.floor(rewardAmount * LedgerConfig.EARNING_USER_SHARE);
 
-    // Get or create user's default sub-account
-    const { subAccountId } = await getOrCreateDefaultSubAccount(userId);
+    // ===========================================================================
+    // Client-funded token flow: fetch thread and validate budget
+    // ===========================================================================
+    let clientId: string | null = engagement.clientId || null;
+    let clientSubAccountId: string | null = null;
+    let tokenDestAccountTypeId: string | null = null;
+    let clientName: string | null = null;
+
+    if (engagement.threadId) {
+      const threadDoc = await db
+        .collection("earnThreads")
+        .doc(engagement.threadId)
+        .get();
+
+      if (threadDoc.exists) {
+        const threadData = threadDoc.data()!;
+        clientId = threadData.clientId || null;
+        clientSubAccountId = threadData.tokenSourceSubAccountId || null;
+        tokenDestAccountTypeId = threadData.tokenDestAccountTypeId || null;
+        clientName = threadData.clientName || null;
+
+        // Validate client sub-account balance
+        if (clientId && clientSubAccountId) {
+          const subAccountDoc = await db
+            .collection("clients")
+            .doc(clientId)
+            .collection("subAccounts")
+            .doc(clientSubAccountId)
+            .get();
+
+          if (!subAccountDoc.exists) {
+            throw new functions.https.HttpsError(
+              "failed-precondition",
+              "Client budget not found"
+            );
+          }
+
+          const subAccount = subAccountDoc.data()!;
+          if (!subAccount.isActive) {
+            throw new functions.https.HttpsError(
+              "failed-precondition",
+              "This offer is currently unavailable"
+            );
+          }
+          if (subAccount.balance < rewardAmount) {
+            throw new functions.https.HttpsError(
+              "failed-precondition",
+              "Insufficient budget for this offer"
+            );
+          }
+        }
+      }
+    }
+
+    // ===========================================================================
+    // Determine user sub-account (default or brand-restricted)
+    // ===========================================================================
+    let subAccountId: string;
+
+    if (tokenDestAccountTypeId && clientName) {
+      // Thread specifies a restricted wallet type - find or create brand wallet
+      const userSubAccountsSnapshot = await db
+        .collection("users")
+        .doc(userId)
+        .collection("subAccounts")
+        .where("accountTypeId", "==", tokenDestAccountTypeId)
+        .limit(1)
+        .get();
+
+      if (!userSubAccountsSnapshot.empty) {
+        subAccountId = userSubAccountsSnapshot.docs[0].id;
+      } else {
+        // Auto-create brand-restricted wallet
+        const newSubAccountRef = db
+          .collection("users")
+          .doc(userId)
+          .collection("subAccounts")
+          .doc();
+
+        await newSubAccountRef.set({
+          id: newSubAccountRef.id,
+          userId: userId,
+          accountTypeId: tokenDestAccountTypeId,
+          name: `${clientName} Wallet`,
+          balance: 0,
+          isDefault: false,
+          isActive: true,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        subAccountId = newSubAccountRef.id;
+      }
+    } else {
+      // Use default sub-account
+      const defaultResult = await getOrCreateDefaultSubAccount(userId);
+      subAccountId = defaultResult.subAccountId;
+    }
 
     // Process reward through the Trust Ledger system
     // This handles the 90/5/5 split: 90% to user, 5% daily pot, 5% weekly pot
@@ -303,14 +559,17 @@ export const processEngagement = functions.https.onCall(
       rewardAmount,
       engagementId,
       `Earned from ${engagement.type}`,
-      subAccountId, // Credit to user's default sub-account
-      null, // No account type restriction
+      subAccountId, // Credit to user's sub-account
+      tokenDestAccountTypeId, // Account type for audit
       {
         engagementType: engagement.type,
         earnOpportunityId: engagement.earnOpportunityId,
         campaignId: campaignId,
         threadId: engagement.threadId,
-      }
+        clientId: clientId,
+      },
+      clientId || undefined, // Client ID for client-funded threads
+      clientSubAccountId || undefined // Client sub-account to debit
     );
 
     if (!ledgerResult.success) {
@@ -318,6 +577,96 @@ export const processEngagement = functions.https.onCall(
         "internal",
         `Failed to process earning: ${ledgerResult.error}`
       );
+    }
+
+    // ===========================================================================
+    // Budget monitoring: check for low balance warnings and depletion
+    // ===========================================================================
+    if (clientId && clientSubAccountId) {
+      try {
+        const updatedSubAccountDoc = await db
+          .collection("clients")
+          .doc(clientId)
+          .collection("subAccounts")
+          .doc(clientSubAccountId)
+          .get();
+
+        if (updatedSubAccountDoc.exists) {
+          const subAccount = updatedSubAccountDoc.data()!;
+          const balance = subAccount.balance || 0;
+          const initialBudget = subAccount.initialBudget || 1;
+          const remainingPercent = balance / initialBudget;
+          const warningThreshold = subAccount.warningThreshold ?? 0.20;
+
+          // Check for low balance warning
+          const warningNotifiedAt = subAccount.warningNotifiedAt?.toDate?.();
+          const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+          if (
+            remainingPercent <= warningThreshold &&
+            (!warningNotifiedAt || warningNotifiedAt < dayAgo)
+          ) {
+            // Set warning notification timestamp
+            await updatedSubAccountDoc.ref.update({
+              warningNotifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+
+            // Create admin notification
+            await db.collection("adminNotifications").add({
+              type: "budget_warning",
+              clientId: clientId,
+              subAccountId: clientSubAccountId,
+              balance: balance,
+              remainingPercent: remainingPercent,
+              message: `Client sub-account is at ${Math.round(remainingPercent * 100)}% budget`,
+              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+              read: false,
+            });
+          }
+
+          // Check for budget depletion
+          if (balance <= 0) {
+            // Deactivate sub-account and related threads
+            await updatedSubAccountDoc.ref.update({
+              isActive: false,
+              depletedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+
+            // Auto-deactivate threads using this sub-account
+            const threadsToDeactivate = await db
+              .collection("earnThreads")
+              .where("tokenSourceSubAccountId", "==", clientSubAccountId)
+              .where("isActive", "==", true)
+              .get();
+
+            if (!threadsToDeactivate.empty) {
+              const batch = db.batch();
+              for (const threadDoc of threadsToDeactivate.docs) {
+                batch.update(threadDoc.ref, {
+                  isActive: false,
+                  deactivatedReason: "budget_depleted",
+                  updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                });
+              }
+              await batch.commit();
+            }
+
+            // Create admin notification for depletion
+            await db.collection("adminNotifications").add({
+              type: "budget_depleted",
+              clientId: clientId,
+              subAccountId: clientSubAccountId,
+              threadsDeactivated: threadsToDeactivate.size,
+              message: `Client sub-account budget depleted. ${threadsToDeactivate.size} threads auto-deactivated.`,
+              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+              read: false,
+            });
+          }
+        }
+      } catch (budgetError) {
+        console.error("Failed to process budget monitoring:", budgetError);
+        // Don't fail the engagement for budget monitoring errors
+      }
     }
 
     // Update engagement and related records in transaction
@@ -331,6 +680,9 @@ export const processEngagement = functions.https.onCall(
         totalTokensGenerated: rewardAmount, // Total including pot contributions
         ledgerJournalId: ledgerResult.journalId, // Link to ledger entry
         evidence: admin.firestore.FieldValue.arrayUnion(evidence),
+        // Bonus reward tracking
+        bonusApplied: bonusApplied,
+        bonusMultiplier: bonusApplied ? bonusMultiplier : null,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
@@ -377,7 +729,55 @@ export const processEngagement = functions.https.onCall(
       }
     });
 
+    // ===========================================================================
+    // Targeting tracking updates
+    // ===========================================================================
+
+    // Update user's interactedClientIds for previousBrandInteraction targeting
+    if (clientId) {
+      try {
+        await db
+          .collection("users")
+          .doc(userId)
+          .update({
+            interactedClientIds: admin.firestore.FieldValue.arrayUnion(clientId),
+          });
+      } catch (clientTrackingError) {
+        console.error("Failed to update interactedClientIds:", clientTrackingError);
+      }
+    }
+
+    // Update thread's completedUniqueUsers for maxAudience targeting
+    if (engagement.threadId) {
+      try {
+        // Check if this is the user's first completed engagement for this thread
+        const previousCompletedEngagements = await db
+          .collection("engagements")
+          .where("userId", "==", userId)
+          .where("threadId", "==", engagement.threadId)
+          .where("status", "==", EngagementStatus.COMPLETED)
+          .limit(2)
+          .get();
+
+        // If this is the only completed engagement (the one we just updated),
+        // increment the uniqueUsers counter
+        if (previousCompletedEngagements.size === 1) {
+          await db
+            .collection("earnThreads")
+            .doc(engagement.threadId)
+            .update({
+              completedUniqueUsers: admin.firestore.FieldValue.increment(1),
+            });
+        }
+      } catch (uniqueUsersError) {
+        console.error("Failed to update completedUniqueUsers:", uniqueUsersError);
+      }
+    }
+
     // Update engagement stats (streak tracking) - NEW SYSTEM
+    // Get streakPoints from engagement (defaults to 1 for backward compatibility)
+    const engagementStreakPoints = engagement.streakPoints ?? 1;
+
     let streakInfo = {
       currentStreak: 1,
       longestStreak: 1,
@@ -386,7 +786,7 @@ export const processEngagement = functions.https.onCall(
       streakBroken: false,
     };
     try {
-      streakInfo = await updateEngagementStats(userId, userShare);
+      streakInfo = await updateEngagementStats(userId, userShare, engagementStreakPoints);
     } catch (statsError) {
       // Log but don't fail - streak update is secondary
       console.error("Failed to update engagement stats:", statsError);
@@ -452,6 +852,9 @@ export const processEngagement = functions.https.onCall(
       multiplierApplied: streakInfo.multiplier,
       streakBroken: streakInfo.streakBroken,
       subAccountId: subAccountId,
+      // Bonus reward info
+      bonusApplied: bonusApplied,
+      bonusMultiplier: bonusApplied ? bonusMultiplier : null,
     };
   }
 );

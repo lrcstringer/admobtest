@@ -5,27 +5,33 @@ import '../entities/earn_opportunity.dart';
 import '../entities/engagement.dart';
 import '../value_objects/engagement_evidence.dart';
 
+/// Result from getEligibleThreads including daily limit info
+class EligibleThreadsResult {
+  final List<EarnThread> threads;
+  final int dailyCompletions;
+  final int dailyEarnCap;
+  final bool dailyLimitReached;
+
+  const EligibleThreadsResult({
+    required this.threads,
+    required this.dailyCompletions,
+    required this.dailyEarnCap,
+    required this.dailyLimitReached,
+  });
+}
+
 /// Earn repository interface
 abstract class EarnRepository {
-  /// Get all earn threads
-  Future<Either<Failure, List<EarnThread>>> getEarnThreads();
-
-  /// Stream earn threads
-  Stream<Either<Failure, List<EarnThread>>> watchEarnThreads();
+  /// Get eligible earn threads for the current user (server-side targeting)
+  /// Returns threads and daily limit info
+  Future<Either<Failure, EligibleThreadsResult>> getEligibleThreads();
 
   /// Get earn thread by ID
   Future<Either<Failure, EarnThread>> getEarnThreadById(String threadId);
 
-  /// Get opportunities for a thread
-  Future<Either<Failure, List<EarnOpportunity>>> getOpportunities({
+  /// Get eligible opportunities for a thread (server-side targeting)
+  Future<Either<Failure, List<EarnOpportunity>>> getEligibleOpportunities({
     required String threadId,
-    bool activeOnly = true,
-  });
-
-  /// Stream opportunities for a thread
-  Stream<Either<Failure, List<EarnOpportunity>>> watchOpportunities({
-    required String threadId,
-    bool activeOnly = true,
   });
 
   /// Get opportunity by ID
@@ -33,7 +39,7 @@ abstract class EarnRepository {
     String opportunityId,
   );
 
-  /// Start engagement with an opportunity
+  /// Start engagement with an opportunity (via Cloud Function)
   Future<Either<Failure, Engagement>> startEngagement({
     required String opportunityId,
   });
@@ -44,7 +50,7 @@ abstract class EarnRepository {
     required int watchDurationSeconds,
   });
 
-  /// Submit survey answers
+  /// Submit survey answers (via Cloud Function)
   Future<Either<Failure, Engagement>> submitSurvey({
     required String engagementId,
     required List<EngagementAnswer> answers,
@@ -68,6 +74,6 @@ abstract class EarnRepository {
   /// Abandon engagement
   Future<Either<Failure, void>> abandonEngagement(String engagementId);
 
-  /// Get total available opportunities count
+  /// Get total available opportunities count for the user
   Future<Either<Failure, int>> getAvailableOpportunitiesCount();
 }

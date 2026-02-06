@@ -36,9 +36,11 @@ _$EarnOpportunityImpl _$$EarnOpportunityImplFromJson(
   threadId: json['threadId'] as String,
   title: json['title'] as String,
   description: json['description'] as String?,
+  earningType: $enumDecode(_$EarningTypeEnumMap, json['earningType']),
   tokenReward: (json['tokenReward'] as num).toInt(),
+  streakPoints: (json['streakPoints'] as num?)?.toInt() ?? 1,
   mediaType: $enumDecode(_$MediaTypeEnumMap, json['mediaType']),
-  mediaUrl: json['mediaUrl'] as String,
+  mediaUrl: json['mediaUrl'] as String?,
   questions: (json['questions'] as List<dynamic>)
       .map((e) => SurveyQuestion.fromJson(e as Map<String, dynamic>))
       .toList(),
@@ -47,9 +49,23 @@ _$EarnOpportunityImpl _$$EarnOpportunityImplFromJson(
       ? null
       : DateTime.parse(json['expiresAt'] as String),
   isActive: json['isActive'] as bool,
-  brandName: json['brandName'] as String?,
-  brandAvatarColor: json['brandAvatarColor'] as String?,
+  clientId: json['clientId'] as String?,
+  clientName: json['clientName'] as String?,
+  clientAvatarColor: json['clientAvatarColor'] as String?,
   campaignId: json['campaignId'] as String?,
+  targeting: json['targeting'] == null
+      ? null
+      : TargetingCriteria.fromJson(json['targeting'] as Map<String, dynamic>),
+  bonusReward: json['bonusReward'] as bool? ?? false,
+  bonusRewardMultiplier:
+      (json['bonusRewardMultiplier'] as num?)?.toDouble() ?? 1.0,
+  bonusIntervalType: $enumDecodeNullable(
+    _$BonusIntervalTypeEnumMap,
+    json['bonusIntervalType'],
+  ),
+  bonusIntervalX: (json['bonusIntervalX'] as num?)?.toInt(),
+  userEngagementStatus: json['userEngagementStatus'] as String?,
+  userEngagementId: json['userEngagementId'] as String?,
 );
 
 Map<String, dynamic> _$$EarnOpportunityImplToJson(
@@ -59,20 +75,43 @@ Map<String, dynamic> _$$EarnOpportunityImplToJson(
   'threadId': instance.threadId,
   'title': instance.title,
   'description': instance.description,
+  'earningType': _$EarningTypeEnumMap[instance.earningType]!,
   'tokenReward': instance.tokenReward,
+  'streakPoints': instance.streakPoints,
   'mediaType': _$MediaTypeEnumMap[instance.mediaType]!,
   'mediaUrl': instance.mediaUrl,
   'questions': instance.questions,
   'durationSeconds': instance.durationSeconds,
   'expiresAt': instance.expiresAt?.toIso8601String(),
   'isActive': instance.isActive,
-  'brandName': instance.brandName,
-  'brandAvatarColor': instance.brandAvatarColor,
+  'clientId': instance.clientId,
+  'clientName': instance.clientName,
+  'clientAvatarColor': instance.clientAvatarColor,
   'campaignId': instance.campaignId,
+  'targeting': instance.targeting,
+  'bonusReward': instance.bonusReward,
+  'bonusRewardMultiplier': instance.bonusRewardMultiplier,
+  'bonusIntervalType': _$BonusIntervalTypeEnumMap[instance.bonusIntervalType],
+  'bonusIntervalX': instance.bonusIntervalX,
+  'userEngagementStatus': instance.userEngagementStatus,
+  'userEngagementId': instance.userEngagementId,
+};
+
+const _$EarningTypeEnumMap = {
+  EarningType.survey: 'survey',
+  EarningType.video: 'video',
+  EarningType.trivia: 'trivia',
+  EarningType.rating: 'rating',
+  EarningType.poll: 'poll',
 };
 
 const _$MediaTypeEnumMap = {
   MediaType.video: 'video',
   MediaType.image: 'image',
   MediaType.text: 'text',
+};
+
+const _$BonusIntervalTypeEnumMap = {
+  BonusIntervalType.random: 'random',
+  BonusIntervalType.everyX: 'everyX',
 };

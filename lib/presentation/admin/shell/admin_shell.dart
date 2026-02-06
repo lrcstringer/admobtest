@@ -149,6 +149,28 @@ class _AdminSidebar extends StatelessWidget {
                   path: '/clients',
                   isSelected: currentPath == '/clients',
                 ),
+
+                // Earn Management section
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+                  child: Text(
+                    'EARN MANAGEMENT',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                _NavItem(
+                  icon: Icons.campaign_outlined,
+                  selectedIcon: Icons.campaign,
+                  label: 'Campaigns',
+                  path: '/earn',
+                  isSelected: currentPath == '/earn' ||
+                      currentPath.startsWith('/earn/'),
+                ),
               ],
             ),
           ),

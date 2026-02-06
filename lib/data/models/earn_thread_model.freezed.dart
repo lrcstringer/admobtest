@@ -17,17 +17,31 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$EarnThreadModel {
-  String get id => throw _privateConstructorUsedError;
-  String get brandId => throw _privateConstructorUsedError;
-  String get brandName => throw _privateConstructorUsedError;
-  String? get avatarColor => throw _privateConstructorUsedError;
-  String? get avatarImage => throw _privateConstructorUsedError;
+  String get id => throw _privateConstructorUsedError; // Client fields
+  String get clientId => throw _privateConstructorUsedError;
+  String get clientName => throw _privateConstructorUsedError;
+  String? get clientAvatarImage => throw _privateConstructorUsedError;
+  String? get clientAvatarColor =>
+      throw _privateConstructorUsedError; // Thread display
+  String get title => throw _privateConstructorUsedError;
+  String? get description => throw _privateConstructorUsedError; // Flags
   bool get isPinned => throw _privateConstructorUsedError;
-  bool get isActive => throw _privateConstructorUsedError;
+  bool get isFeatured => throw _privateConstructorUsedError;
+  bool get isActive => throw _privateConstructorUsedError; // Scheduling
+  DateTime? get activeFrom => throw _privateConstructorUsedError;
+  DateTime? get activeTo =>
+      throw _privateConstructorUsedError; // Token configuration
+  String? get tokenSourceSubAccountId => throw _privateConstructorUsedError;
+  String? get tokenDestAccountTypeId =>
+      throw _privateConstructorUsedError; // Counts
   int get availableOpportunities => throw _privateConstructorUsedError;
   int get completedOpportunities => throw _privateConstructorUsedError;
+  int get completedUniqueUsers =>
+      throw _privateConstructorUsedError; // Timestamps
   DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime? get lastActivityAt => throw _privateConstructorUsedError;
+  DateTime? get lastActivityAt =>
+      throw _privateConstructorUsedError; // Targeting (stored as JSON map)
+  Map<String, dynamic>? get targeting => throw _privateConstructorUsedError;
 
   /// Create a copy of EarnThreadModel
   /// with the given fields replaced by the non-null parameter values.
@@ -45,16 +59,25 @@ abstract class $EarnThreadModelCopyWith<$Res> {
   @useResult
   $Res call({
     String id,
-    String brandId,
-    String brandName,
-    String? avatarColor,
-    String? avatarImage,
+    String clientId,
+    String clientName,
+    String? clientAvatarImage,
+    String? clientAvatarColor,
+    String title,
+    String? description,
     bool isPinned,
+    bool isFeatured,
     bool isActive,
+    DateTime? activeFrom,
+    DateTime? activeTo,
+    String? tokenSourceSubAccountId,
+    String? tokenDestAccountTypeId,
     int availableOpportunities,
     int completedOpportunities,
+    int completedUniqueUsers,
     DateTime createdAt,
     DateTime? lastActivityAt,
+    Map<String, dynamic>? targeting,
   });
 }
 
@@ -74,16 +97,25 @@ class _$EarnThreadModelCopyWithImpl<$Res, $Val extends EarnThreadModel>
   @override
   $Res call({
     Object? id = null,
-    Object? brandId = null,
-    Object? brandName = null,
-    Object? avatarColor = freezed,
-    Object? avatarImage = freezed,
+    Object? clientId = null,
+    Object? clientName = null,
+    Object? clientAvatarImage = freezed,
+    Object? clientAvatarColor = freezed,
+    Object? title = null,
+    Object? description = freezed,
     Object? isPinned = null,
+    Object? isFeatured = null,
     Object? isActive = null,
+    Object? activeFrom = freezed,
+    Object? activeTo = freezed,
+    Object? tokenSourceSubAccountId = freezed,
+    Object? tokenDestAccountTypeId = freezed,
     Object? availableOpportunities = null,
     Object? completedOpportunities = null,
+    Object? completedUniqueUsers = null,
     Object? createdAt = null,
     Object? lastActivityAt = freezed,
+    Object? targeting = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -91,30 +123,58 @@ class _$EarnThreadModelCopyWithImpl<$Res, $Val extends EarnThreadModel>
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
                       as String,
-            brandId: null == brandId
-                ? _value.brandId
-                : brandId // ignore: cast_nullable_to_non_nullable
+            clientId: null == clientId
+                ? _value.clientId
+                : clientId // ignore: cast_nullable_to_non_nullable
                       as String,
-            brandName: null == brandName
-                ? _value.brandName
-                : brandName // ignore: cast_nullable_to_non_nullable
+            clientName: null == clientName
+                ? _value.clientName
+                : clientName // ignore: cast_nullable_to_non_nullable
                       as String,
-            avatarColor: freezed == avatarColor
-                ? _value.avatarColor
-                : avatarColor // ignore: cast_nullable_to_non_nullable
+            clientAvatarImage: freezed == clientAvatarImage
+                ? _value.clientAvatarImage
+                : clientAvatarImage // ignore: cast_nullable_to_non_nullable
                       as String?,
-            avatarImage: freezed == avatarImage
-                ? _value.avatarImage
-                : avatarImage // ignore: cast_nullable_to_non_nullable
+            clientAvatarColor: freezed == clientAvatarColor
+                ? _value.clientAvatarColor
+                : clientAvatarColor // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            title: null == title
+                ? _value.title
+                : title // ignore: cast_nullable_to_non_nullable
+                      as String,
+            description: freezed == description
+                ? _value.description
+                : description // ignore: cast_nullable_to_non_nullable
                       as String?,
             isPinned: null == isPinned
                 ? _value.isPinned
                 : isPinned // ignore: cast_nullable_to_non_nullable
                       as bool,
+            isFeatured: null == isFeatured
+                ? _value.isFeatured
+                : isFeatured // ignore: cast_nullable_to_non_nullable
+                      as bool,
             isActive: null == isActive
                 ? _value.isActive
                 : isActive // ignore: cast_nullable_to_non_nullable
                       as bool,
+            activeFrom: freezed == activeFrom
+                ? _value.activeFrom
+                : activeFrom // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            activeTo: freezed == activeTo
+                ? _value.activeTo
+                : activeTo // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            tokenSourceSubAccountId: freezed == tokenSourceSubAccountId
+                ? _value.tokenSourceSubAccountId
+                : tokenSourceSubAccountId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            tokenDestAccountTypeId: freezed == tokenDestAccountTypeId
+                ? _value.tokenDestAccountTypeId
+                : tokenDestAccountTypeId // ignore: cast_nullable_to_non_nullable
+                      as String?,
             availableOpportunities: null == availableOpportunities
                 ? _value.availableOpportunities
                 : availableOpportunities // ignore: cast_nullable_to_non_nullable
@@ -122,6 +182,10 @@ class _$EarnThreadModelCopyWithImpl<$Res, $Val extends EarnThreadModel>
             completedOpportunities: null == completedOpportunities
                 ? _value.completedOpportunities
                 : completedOpportunities // ignore: cast_nullable_to_non_nullable
+                      as int,
+            completedUniqueUsers: null == completedUniqueUsers
+                ? _value.completedUniqueUsers
+                : completedUniqueUsers // ignore: cast_nullable_to_non_nullable
                       as int,
             createdAt: null == createdAt
                 ? _value.createdAt
@@ -131,6 +195,10 @@ class _$EarnThreadModelCopyWithImpl<$Res, $Val extends EarnThreadModel>
                 ? _value.lastActivityAt
                 : lastActivityAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            targeting: freezed == targeting
+                ? _value.targeting
+                : targeting // ignore: cast_nullable_to_non_nullable
+                      as Map<String, dynamic>?,
           )
           as $Val,
     );
@@ -148,16 +216,25 @@ abstract class _$$EarnThreadModelImplCopyWith<$Res>
   @useResult
   $Res call({
     String id,
-    String brandId,
-    String brandName,
-    String? avatarColor,
-    String? avatarImage,
+    String clientId,
+    String clientName,
+    String? clientAvatarImage,
+    String? clientAvatarColor,
+    String title,
+    String? description,
     bool isPinned,
+    bool isFeatured,
     bool isActive,
+    DateTime? activeFrom,
+    DateTime? activeTo,
+    String? tokenSourceSubAccountId,
+    String? tokenDestAccountTypeId,
     int availableOpportunities,
     int completedOpportunities,
+    int completedUniqueUsers,
     DateTime createdAt,
     DateTime? lastActivityAt,
+    Map<String, dynamic>? targeting,
   });
 }
 
@@ -176,16 +253,25 @@ class __$$EarnThreadModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? brandId = null,
-    Object? brandName = null,
-    Object? avatarColor = freezed,
-    Object? avatarImage = freezed,
+    Object? clientId = null,
+    Object? clientName = null,
+    Object? clientAvatarImage = freezed,
+    Object? clientAvatarColor = freezed,
+    Object? title = null,
+    Object? description = freezed,
     Object? isPinned = null,
+    Object? isFeatured = null,
     Object? isActive = null,
+    Object? activeFrom = freezed,
+    Object? activeTo = freezed,
+    Object? tokenSourceSubAccountId = freezed,
+    Object? tokenDestAccountTypeId = freezed,
     Object? availableOpportunities = null,
     Object? completedOpportunities = null,
+    Object? completedUniqueUsers = null,
     Object? createdAt = null,
     Object? lastActivityAt = freezed,
+    Object? targeting = freezed,
   }) {
     return _then(
       _$EarnThreadModelImpl(
@@ -193,30 +279,58 @@ class __$$EarnThreadModelImplCopyWithImpl<$Res>
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
                   as String,
-        brandId: null == brandId
-            ? _value.brandId
-            : brandId // ignore: cast_nullable_to_non_nullable
+        clientId: null == clientId
+            ? _value.clientId
+            : clientId // ignore: cast_nullable_to_non_nullable
                   as String,
-        brandName: null == brandName
-            ? _value.brandName
-            : brandName // ignore: cast_nullable_to_non_nullable
+        clientName: null == clientName
+            ? _value.clientName
+            : clientName // ignore: cast_nullable_to_non_nullable
                   as String,
-        avatarColor: freezed == avatarColor
-            ? _value.avatarColor
-            : avatarColor // ignore: cast_nullable_to_non_nullable
+        clientAvatarImage: freezed == clientAvatarImage
+            ? _value.clientAvatarImage
+            : clientAvatarImage // ignore: cast_nullable_to_non_nullable
                   as String?,
-        avatarImage: freezed == avatarImage
-            ? _value.avatarImage
-            : avatarImage // ignore: cast_nullable_to_non_nullable
+        clientAvatarColor: freezed == clientAvatarColor
+            ? _value.clientAvatarColor
+            : clientAvatarColor // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        title: null == title
+            ? _value.title
+            : title // ignore: cast_nullable_to_non_nullable
+                  as String,
+        description: freezed == description
+            ? _value.description
+            : description // ignore: cast_nullable_to_non_nullable
                   as String?,
         isPinned: null == isPinned
             ? _value.isPinned
             : isPinned // ignore: cast_nullable_to_non_nullable
                   as bool,
+        isFeatured: null == isFeatured
+            ? _value.isFeatured
+            : isFeatured // ignore: cast_nullable_to_non_nullable
+                  as bool,
         isActive: null == isActive
             ? _value.isActive
             : isActive // ignore: cast_nullable_to_non_nullable
                   as bool,
+        activeFrom: freezed == activeFrom
+            ? _value.activeFrom
+            : activeFrom // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        activeTo: freezed == activeTo
+            ? _value.activeTo
+            : activeTo // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        tokenSourceSubAccountId: freezed == tokenSourceSubAccountId
+            ? _value.tokenSourceSubAccountId
+            : tokenSourceSubAccountId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        tokenDestAccountTypeId: freezed == tokenDestAccountTypeId
+            ? _value.tokenDestAccountTypeId
+            : tokenDestAccountTypeId // ignore: cast_nullable_to_non_nullable
+                  as String?,
         availableOpportunities: null == availableOpportunities
             ? _value.availableOpportunities
             : availableOpportunities // ignore: cast_nullable_to_non_nullable
@@ -224,6 +338,10 @@ class __$$EarnThreadModelImplCopyWithImpl<$Res>
         completedOpportunities: null == completedOpportunities
             ? _value.completedOpportunities
             : completedOpportunities // ignore: cast_nullable_to_non_nullable
+                  as int,
+        completedUniqueUsers: null == completedUniqueUsers
+            ? _value.completedUniqueUsers
+            : completedUniqueUsers // ignore: cast_nullable_to_non_nullable
                   as int,
         createdAt: null == createdAt
             ? _value.createdAt
@@ -233,6 +351,10 @@ class __$$EarnThreadModelImplCopyWithImpl<$Res>
             ? _value.lastActivityAt
             : lastActivityAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        targeting: freezed == targeting
+            ? _value._targeting
+            : targeting // ignore: cast_nullable_to_non_nullable
+                  as Map<String, dynamic>?,
       ),
     );
   }
@@ -243,44 +365,89 @@ class __$$EarnThreadModelImplCopyWithImpl<$Res>
 class _$EarnThreadModelImpl extends _EarnThreadModel {
   const _$EarnThreadModelImpl({
     required this.id,
-    required this.brandId,
-    required this.brandName,
-    this.avatarColor,
-    this.avatarImage,
+    required this.clientId,
+    required this.clientName,
+    this.clientAvatarImage,
+    this.clientAvatarColor,
+    required this.title,
+    this.description,
     required this.isPinned,
+    required this.isFeatured,
     required this.isActive,
+    this.activeFrom,
+    this.activeTo,
+    this.tokenSourceSubAccountId,
+    this.tokenDestAccountTypeId,
     required this.availableOpportunities,
     required this.completedOpportunities,
+    this.completedUniqueUsers = 0,
     required this.createdAt,
     this.lastActivityAt,
-  }) : super._();
+    final Map<String, dynamic>? targeting,
+  }) : _targeting = targeting,
+       super._();
 
   @override
   final String id;
+  // Client fields
   @override
-  final String brandId;
+  final String clientId;
   @override
-  final String brandName;
+  final String clientName;
   @override
-  final String? avatarColor;
+  final String? clientAvatarImage;
   @override
-  final String? avatarImage;
+  final String? clientAvatarColor;
+  // Thread display
+  @override
+  final String title;
+  @override
+  final String? description;
+  // Flags
   @override
   final bool isPinned;
   @override
+  final bool isFeatured;
+  @override
   final bool isActive;
+  // Scheduling
+  @override
+  final DateTime? activeFrom;
+  @override
+  final DateTime? activeTo;
+  // Token configuration
+  @override
+  final String? tokenSourceSubAccountId;
+  @override
+  final String? tokenDestAccountTypeId;
+  // Counts
   @override
   final int availableOpportunities;
   @override
   final int completedOpportunities;
   @override
+  @JsonKey()
+  final int completedUniqueUsers;
+  // Timestamps
+  @override
   final DateTime createdAt;
   @override
   final DateTime? lastActivityAt;
+  // Targeting (stored as JSON map)
+  final Map<String, dynamic>? _targeting;
+  // Targeting (stored as JSON map)
+  @override
+  Map<String, dynamic>? get targeting {
+    final value = _targeting;
+    if (value == null) return null;
+    if (_targeting is EqualUnmodifiableMapView) return _targeting;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
 
   @override
   String toString() {
-    return 'EarnThreadModel(id: $id, brandId: $brandId, brandName: $brandName, avatarColor: $avatarColor, avatarImage: $avatarImage, isPinned: $isPinned, isActive: $isActive, availableOpportunities: $availableOpportunities, completedOpportunities: $completedOpportunities, createdAt: $createdAt, lastActivityAt: $lastActivityAt)';
+    return 'EarnThreadModel(id: $id, clientId: $clientId, clientName: $clientName, clientAvatarImage: $clientAvatarImage, clientAvatarColor: $clientAvatarColor, title: $title, description: $description, isPinned: $isPinned, isFeatured: $isFeatured, isActive: $isActive, activeFrom: $activeFrom, activeTo: $activeTo, tokenSourceSubAccountId: $tokenSourceSubAccountId, tokenDestAccountTypeId: $tokenDestAccountTypeId, availableOpportunities: $availableOpportunities, completedOpportunities: $completedOpportunities, completedUniqueUsers: $completedUniqueUsers, createdAt: $createdAt, lastActivityAt: $lastActivityAt, targeting: $targeting)';
   }
 
   @override
@@ -289,42 +456,74 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
         (other.runtimeType == runtimeType &&
             other is _$EarnThreadModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.brandId, brandId) || other.brandId == brandId) &&
-            (identical(other.brandName, brandName) ||
-                other.brandName == brandName) &&
-            (identical(other.avatarColor, avatarColor) ||
-                other.avatarColor == avatarColor) &&
-            (identical(other.avatarImage, avatarImage) ||
-                other.avatarImage == avatarImage) &&
+            (identical(other.clientId, clientId) ||
+                other.clientId == clientId) &&
+            (identical(other.clientName, clientName) ||
+                other.clientName == clientName) &&
+            (identical(other.clientAvatarImage, clientAvatarImage) ||
+                other.clientAvatarImage == clientAvatarImage) &&
+            (identical(other.clientAvatarColor, clientAvatarColor) ||
+                other.clientAvatarColor == clientAvatarColor) &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
             (identical(other.isPinned, isPinned) ||
                 other.isPinned == isPinned) &&
+            (identical(other.isFeatured, isFeatured) ||
+                other.isFeatured == isFeatured) &&
             (identical(other.isActive, isActive) ||
                 other.isActive == isActive) &&
+            (identical(other.activeFrom, activeFrom) ||
+                other.activeFrom == activeFrom) &&
+            (identical(other.activeTo, activeTo) ||
+                other.activeTo == activeTo) &&
+            (identical(
+                  other.tokenSourceSubAccountId,
+                  tokenSourceSubAccountId,
+                ) ||
+                other.tokenSourceSubAccountId == tokenSourceSubAccountId) &&
+            (identical(other.tokenDestAccountTypeId, tokenDestAccountTypeId) ||
+                other.tokenDestAccountTypeId == tokenDestAccountTypeId) &&
             (identical(other.availableOpportunities, availableOpportunities) ||
                 other.availableOpportunities == availableOpportunities) &&
             (identical(other.completedOpportunities, completedOpportunities) ||
                 other.completedOpportunities == completedOpportunities) &&
+            (identical(other.completedUniqueUsers, completedUniqueUsers) ||
+                other.completedUniqueUsers == completedUniqueUsers) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.lastActivityAt, lastActivityAt) ||
-                other.lastActivityAt == lastActivityAt));
+                other.lastActivityAt == lastActivityAt) &&
+            const DeepCollectionEquality().equals(
+              other._targeting,
+              _targeting,
+            ));
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
-    brandId,
-    brandName,
-    avatarColor,
-    avatarImage,
+    clientId,
+    clientName,
+    clientAvatarImage,
+    clientAvatarColor,
+    title,
+    description,
     isPinned,
+    isFeatured,
     isActive,
+    activeFrom,
+    activeTo,
+    tokenSourceSubAccountId,
+    tokenDestAccountTypeId,
     availableOpportunities,
     completedOpportunities,
+    completedUniqueUsers,
     createdAt,
     lastActivityAt,
-  );
+    const DeepCollectionEquality().hash(_targeting),
+  ]);
 
   /// Create a copy of EarnThreadModel
   /// with the given fields replaced by the non-null parameter values.
@@ -341,41 +540,68 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
 abstract class _EarnThreadModel extends EarnThreadModel {
   const factory _EarnThreadModel({
     required final String id,
-    required final String brandId,
-    required final String brandName,
-    final String? avatarColor,
-    final String? avatarImage,
+    required final String clientId,
+    required final String clientName,
+    final String? clientAvatarImage,
+    final String? clientAvatarColor,
+    required final String title,
+    final String? description,
     required final bool isPinned,
+    required final bool isFeatured,
     required final bool isActive,
+    final DateTime? activeFrom,
+    final DateTime? activeTo,
+    final String? tokenSourceSubAccountId,
+    final String? tokenDestAccountTypeId,
     required final int availableOpportunities,
     required final int completedOpportunities,
+    final int completedUniqueUsers,
     required final DateTime createdAt,
     final DateTime? lastActivityAt,
+    final Map<String, dynamic>? targeting,
   }) = _$EarnThreadModelImpl;
   const _EarnThreadModel._() : super._();
 
   @override
-  String get id;
+  String get id; // Client fields
   @override
-  String get brandId;
+  String get clientId;
   @override
-  String get brandName;
+  String get clientName;
   @override
-  String? get avatarColor;
+  String? get clientAvatarImage;
   @override
-  String? get avatarImage;
+  String? get clientAvatarColor; // Thread display
+  @override
+  String get title;
+  @override
+  String? get description; // Flags
   @override
   bool get isPinned;
   @override
-  bool get isActive;
+  bool get isFeatured;
+  @override
+  bool get isActive; // Scheduling
+  @override
+  DateTime? get activeFrom;
+  @override
+  DateTime? get activeTo; // Token configuration
+  @override
+  String? get tokenSourceSubAccountId;
+  @override
+  String? get tokenDestAccountTypeId; // Counts
   @override
   int get availableOpportunities;
   @override
   int get completedOpportunities;
   @override
+  int get completedUniqueUsers; // Timestamps
+  @override
   DateTime get createdAt;
   @override
-  DateTime? get lastActivityAt;
+  DateTime? get lastActivityAt; // Targeting (stored as JSON map)
+  @override
+  Map<String, dynamic>? get targeting;
 
   /// Create a copy of EarnThreadModel
   /// with the given fields replaced by the non-null parameter values.

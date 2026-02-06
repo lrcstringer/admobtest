@@ -29,6 +29,7 @@ export * from "./earnAdmin";
 export * from "./adminAccounts";
 export * from "./groups";
 export * from "./groupTriggers";
+export * from "./migrations/earnOverhaulMigration";
 
 // Ledger initialization and reconciliation
 import * as functions from "firebase-functions";

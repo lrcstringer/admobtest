@@ -20,10 +20,8 @@ mixin _$EarnEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -37,16 +35,15 @@ mixin _$EarnEvent {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -60,16 +57,15 @@ mixin _$EarnEvent {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -83,7 +79,7 @@ mixin _$EarnEvent {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
@@ -91,7 +87,6 @@ mixin _$EarnEvent {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -101,14 +96,13 @@ mixin _$EarnEvent {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -118,14 +112,13 @@ mixin _$EarnEvent {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -135,7 +128,7 @@ mixin _$EarnEvent {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -206,10 +199,8 @@ class _$LoadThreadsImpl implements _LoadThreads {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -223,7 +214,7 @@ class _$LoadThreadsImpl implements _LoadThreads {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
@@ -234,9 +225,8 @@ class _$LoadThreadsImpl implements _LoadThreads {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -250,7 +240,7 @@ class _$LoadThreadsImpl implements _LoadThreads {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
@@ -261,9 +251,8 @@ class _$LoadThreadsImpl implements _LoadThreads {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -277,7 +266,7 @@ class _$LoadThreadsImpl implements _LoadThreads {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
@@ -292,7 +281,6 @@ class _$LoadThreadsImpl implements _LoadThreads {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -302,7 +290,7 @@ class _$LoadThreadsImpl implements _LoadThreads {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
@@ -313,7 +301,6 @@ class _$LoadThreadsImpl implements _LoadThreads {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -323,7 +310,7 @@ class _$LoadThreadsImpl implements _LoadThreads {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
@@ -334,7 +321,6 @@ class _$LoadThreadsImpl implements _LoadThreads {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -344,7 +330,7 @@ class _$LoadThreadsImpl implements _LoadThreads {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -358,204 +344,6 @@ class _$LoadThreadsImpl implements _LoadThreads {
 
 abstract class _LoadThreads implements EarnEvent {
   const factory _LoadThreads() = _$LoadThreadsImpl;
-}
-
-/// @nodoc
-abstract class _$$WatchThreadsImplCopyWith<$Res> {
-  factory _$$WatchThreadsImplCopyWith(
-    _$WatchThreadsImpl value,
-    $Res Function(_$WatchThreadsImpl) then,
-  ) = __$$WatchThreadsImplCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$$WatchThreadsImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$WatchThreadsImpl>
-    implements _$$WatchThreadsImplCopyWith<$Res> {
-  __$$WatchThreadsImplCopyWithImpl(
-    _$WatchThreadsImpl _value,
-    $Res Function(_$WatchThreadsImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-}
-
-/// @nodoc
-
-class _$WatchThreadsImpl implements _WatchThreads {
-  const _$WatchThreadsImpl();
-
-  @override
-  String toString() {
-    return 'EarnEvent.watchThreads()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$WatchThreadsImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<EngagementAnswer> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-  }) {
-    return watchThreads();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<EngagementAnswer> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-  }) {
-    return watchThreads?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<EngagementAnswer> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    required TResult orElse(),
-  }) {
-    if (watchThreads != null) {
-      return watchThreads();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-  }) {
-    return watchThreads(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-  }) {
-    return watchThreads?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    required TResult orElse(),
-  }) {
-    if (watchThreads != null) {
-      return watchThreads(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _WatchThreads implements EarnEvent {
-  const factory _WatchThreads() = _$WatchThreadsImpl;
 }
 
 /// @nodoc
@@ -630,10 +418,8 @@ class _$SelectThreadImpl implements _SelectThread {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -647,7 +433,7 @@ class _$SelectThreadImpl implements _SelectThread {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
@@ -658,9 +444,8 @@ class _$SelectThreadImpl implements _SelectThread {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -674,7 +459,7 @@ class _$SelectThreadImpl implements _SelectThread {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
@@ -685,9 +470,8 @@ class _$SelectThreadImpl implements _SelectThread {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -701,7 +485,7 @@ class _$SelectThreadImpl implements _SelectThread {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
@@ -716,7 +500,6 @@ class _$SelectThreadImpl implements _SelectThread {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -726,7 +509,7 @@ class _$SelectThreadImpl implements _SelectThread {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
@@ -737,7 +520,6 @@ class _$SelectThreadImpl implements _SelectThread {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -747,7 +529,7 @@ class _$SelectThreadImpl implements _SelectThread {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
@@ -758,7 +540,6 @@ class _$SelectThreadImpl implements _SelectThread {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -768,7 +549,7 @@ class _$SelectThreadImpl implements _SelectThread {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -799,7 +580,7 @@ abstract class _$$LoadOpportunitiesImplCopyWith<$Res> {
     $Res Function(_$LoadOpportunitiesImpl) then,
   ) = __$$LoadOpportunitiesImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({String threadId, bool activeOnly});
+  $Res call({String threadId});
 }
 
 /// @nodoc
@@ -815,17 +596,13 @@ class __$$LoadOpportunitiesImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? threadId = null, Object? activeOnly = null}) {
+  $Res call({Object? threadId = null}) {
     return _then(
       _$LoadOpportunitiesImpl(
         threadId: null == threadId
             ? _value.threadId
             : threadId // ignore: cast_nullable_to_non_nullable
                   as String,
-        activeOnly: null == activeOnly
-            ? _value.activeOnly
-            : activeOnly // ignore: cast_nullable_to_non_nullable
-                  as bool,
       ),
     );
   }
@@ -834,20 +611,14 @@ class __$$LoadOpportunitiesImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$LoadOpportunitiesImpl implements _LoadOpportunities {
-  const _$LoadOpportunitiesImpl({
-    required this.threadId,
-    this.activeOnly = true,
-  });
+  const _$LoadOpportunitiesImpl({required this.threadId});
 
   @override
   final String threadId;
-  @override
-  @JsonKey()
-  final bool activeOnly;
 
   @override
   String toString() {
-    return 'EarnEvent.loadOpportunities(threadId: $threadId, activeOnly: $activeOnly)';
+    return 'EarnEvent.loadOpportunities(threadId: $threadId)';
   }
 
   @override
@@ -856,13 +627,11 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
         (other.runtimeType == runtimeType &&
             other is _$LoadOpportunitiesImpl &&
             (identical(other.threadId, threadId) ||
-                other.threadId == threadId) &&
-            (identical(other.activeOnly, activeOnly) ||
-                other.activeOnly == activeOnly));
+                other.threadId == threadId));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, threadId, activeOnly);
+  int get hashCode => Object.hash(runtimeType, threadId);
 
   /// Create a copy of EarnEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -879,10 +648,8 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -896,20 +663,19 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
-    return loadOpportunities(threadId, activeOnly);
+    return loadOpportunities(threadId);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -923,20 +689,19 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
-    return loadOpportunities?.call(threadId, activeOnly);
+    return loadOpportunities?.call(threadId);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -950,13 +715,13 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
   }) {
     if (loadOpportunities != null) {
-      return loadOpportunities(threadId, activeOnly);
+      return loadOpportunities(threadId);
     }
     return orElse();
   }
@@ -965,7 +730,6 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -975,7 +739,7 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
@@ -986,7 +750,6 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -996,7 +759,7 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
@@ -1007,7 +770,6 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -1017,7 +779,7 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -1030,13 +792,10 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
 }
 
 abstract class _LoadOpportunities implements EarnEvent {
-  const factory _LoadOpportunities({
-    required final String threadId,
-    final bool activeOnly,
-  }) = _$LoadOpportunitiesImpl;
+  const factory _LoadOpportunities({required final String threadId}) =
+      _$LoadOpportunitiesImpl;
 
   String get threadId;
-  bool get activeOnly;
 
   /// Create a copy of EarnEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -1120,10 +879,8 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -1137,7 +894,7 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
@@ -1148,9 +905,8 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -1164,7 +920,7 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
@@ -1175,9 +931,8 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -1191,7 +946,7 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
@@ -1206,7 +961,6 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -1216,7 +970,7 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
@@ -1227,7 +981,6 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -1237,7 +990,7 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
@@ -1248,7 +1001,6 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -1258,7 +1010,7 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -1358,10 +1110,8 @@ class _$StartEngagementImpl implements _StartEngagement {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -1375,7 +1125,7 @@ class _$StartEngagementImpl implements _StartEngagement {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
@@ -1386,9 +1136,8 @@ class _$StartEngagementImpl implements _StartEngagement {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -1402,7 +1151,7 @@ class _$StartEngagementImpl implements _StartEngagement {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
@@ -1413,9 +1162,8 @@ class _$StartEngagementImpl implements _StartEngagement {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -1429,7 +1177,7 @@ class _$StartEngagementImpl implements _StartEngagement {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
@@ -1444,7 +1192,6 @@ class _$StartEngagementImpl implements _StartEngagement {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -1454,7 +1201,7 @@ class _$StartEngagementImpl implements _StartEngagement {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
@@ -1465,7 +1212,6 @@ class _$StartEngagementImpl implements _StartEngagement {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -1475,7 +1221,7 @@ class _$StartEngagementImpl implements _StartEngagement {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
@@ -1486,7 +1232,6 @@ class _$StartEngagementImpl implements _StartEngagement {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -1496,7 +1241,7 @@ class _$StartEngagementImpl implements _StartEngagement {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -1611,10 +1356,8 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -1628,7 +1371,7 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
@@ -1639,9 +1382,8 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -1655,7 +1397,7 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
@@ -1666,9 +1408,8 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -1682,7 +1423,7 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
@@ -1697,7 +1438,6 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -1707,7 +1447,7 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
@@ -1718,7 +1458,6 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -1728,7 +1467,7 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
@@ -1739,7 +1478,6 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -1749,7 +1487,7 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -1899,10 +1637,8 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -1916,7 +1652,7 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
@@ -1927,9 +1663,8 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -1943,7 +1678,7 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
@@ -1954,9 +1689,8 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -1970,7 +1704,7 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
@@ -1985,7 +1719,6 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -1995,7 +1728,7 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
@@ -2006,7 +1739,6 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -2016,7 +1748,7 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
@@ -2027,7 +1759,6 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -2037,7 +1768,7 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -2142,10 +1873,8 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -2159,7 +1888,7 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
@@ -2170,9 +1899,8 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -2186,7 +1914,7 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
@@ -2197,9 +1925,8 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -2213,7 +1940,7 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
@@ -2228,7 +1955,6 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -2238,7 +1964,7 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
@@ -2249,7 +1975,6 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -2259,7 +1984,7 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
@@ -2270,7 +1995,6 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -2280,7 +2004,7 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -2376,10 +2100,8 @@ class _$LoadHistoryImpl implements _LoadHistory {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -2393,7 +2115,7 @@ class _$LoadHistoryImpl implements _LoadHistory {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
@@ -2404,9 +2126,8 @@ class _$LoadHistoryImpl implements _LoadHistory {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -2420,7 +2141,7 @@ class _$LoadHistoryImpl implements _LoadHistory {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
@@ -2431,9 +2152,8 @@ class _$LoadHistoryImpl implements _LoadHistory {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -2447,7 +2167,7 @@ class _$LoadHistoryImpl implements _LoadHistory {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
@@ -2462,7 +2182,6 @@ class _$LoadHistoryImpl implements _LoadHistory {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -2472,7 +2191,7 @@ class _$LoadHistoryImpl implements _LoadHistory {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
@@ -2483,7 +2202,6 @@ class _$LoadHistoryImpl implements _LoadHistory {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -2493,7 +2211,7 @@ class _$LoadHistoryImpl implements _LoadHistory {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
@@ -2504,7 +2222,6 @@ class _$LoadHistoryImpl implements _LoadHistory {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -2514,7 +2231,7 @@ class _$LoadHistoryImpl implements _LoadHistory {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -2582,10 +2299,8 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -2599,7 +2314,7 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
@@ -2610,9 +2325,8 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -2626,7 +2340,7 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
@@ -2637,9 +2351,8 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -2653,7 +2366,7 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
@@ -2668,7 +2381,6 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -2678,7 +2390,7 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
@@ -2689,7 +2401,6 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -2699,7 +2410,7 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
@@ -2710,7 +2421,6 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -2720,7 +2430,7 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -2737,90 +2447,51 @@ abstract class _LoadMoreHistory implements EarnEvent {
 }
 
 /// @nodoc
-abstract class _$$ThreadsUpdatedImplCopyWith<$Res> {
-  factory _$$ThreadsUpdatedImplCopyWith(
-    _$ThreadsUpdatedImpl value,
-    $Res Function(_$ThreadsUpdatedImpl) then,
-  ) = __$$ThreadsUpdatedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({List<EarnThread> threads});
+abstract class _$$RefreshImplCopyWith<$Res> {
+  factory _$$RefreshImplCopyWith(
+    _$RefreshImpl value,
+    $Res Function(_$RefreshImpl) then,
+  ) = __$$RefreshImplCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class __$$ThreadsUpdatedImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$ThreadsUpdatedImpl>
-    implements _$$ThreadsUpdatedImplCopyWith<$Res> {
-  __$$ThreadsUpdatedImplCopyWithImpl(
-    _$ThreadsUpdatedImpl _value,
-    $Res Function(_$ThreadsUpdatedImpl) _then,
+class __$$RefreshImplCopyWithImpl<$Res>
+    extends _$EarnEventCopyWithImpl<$Res, _$RefreshImpl>
+    implements _$$RefreshImplCopyWith<$Res> {
+  __$$RefreshImplCopyWithImpl(
+    _$RefreshImpl _value,
+    $Res Function(_$RefreshImpl) _then,
   ) : super(_value, _then);
 
   /// Create a copy of EarnEvent
   /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? threads = null}) {
-    return _then(
-      _$ThreadsUpdatedImpl(
-        null == threads
-            ? _value._threads
-            : threads // ignore: cast_nullable_to_non_nullable
-                  as List<EarnThread>,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$ThreadsUpdatedImpl implements _ThreadsUpdated {
-  const _$ThreadsUpdatedImpl(final List<EarnThread> threads)
-    : _threads = threads;
-
-  final List<EarnThread> _threads;
-  @override
-  List<EarnThread> get threads {
-    if (_threads is EqualUnmodifiableListView) return _threads;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_threads);
-  }
+class _$RefreshImpl implements _Refresh {
+  const _$RefreshImpl();
 
   @override
   String toString() {
-    return 'EarnEvent.threadsUpdated(threads: $threads)';
+    return 'EarnEvent.refresh()';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ThreadsUpdatedImpl &&
-            const DeepCollectionEquality().equals(other._threads, _threads));
+        (other.runtimeType == runtimeType && other is _$RefreshImpl);
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_threads));
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ThreadsUpdatedImplCopyWith<_$ThreadsUpdatedImpl> get copyWith =>
-      __$$ThreadsUpdatedImplCopyWithImpl<_$ThreadsUpdatedImpl>(
-        this,
-        _$identity,
-      );
+  int get hashCode => runtimeType.hashCode;
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -2834,20 +2505,19 @@ class _$ThreadsUpdatedImpl implements _ThreadsUpdated {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
-    return threadsUpdated(threads);
+    return refresh();
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -2861,20 +2531,19 @@ class _$ThreadsUpdatedImpl implements _ThreadsUpdated {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
-    return threadsUpdated?.call(threads);
+    return refresh?.call();
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -2888,13 +2557,13 @@ class _$ThreadsUpdatedImpl implements _ThreadsUpdated {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
   }) {
-    if (threadsUpdated != null) {
-      return threadsUpdated(threads);
+    if (refresh != null) {
+      return refresh();
     }
     return orElse();
   }
@@ -2903,7 +2572,6 @@ class _$ThreadsUpdatedImpl implements _ThreadsUpdated {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -2913,18 +2581,17 @@ class _$ThreadsUpdatedImpl implements _ThreadsUpdated {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
-    return threadsUpdated(this);
+    return refresh(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -2934,18 +2601,17 @@ class _$ThreadsUpdatedImpl implements _ThreadsUpdated {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
-    return threadsUpdated?.call(this);
+    return refresh?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -2955,29 +2621,20 @@ class _$ThreadsUpdatedImpl implements _ThreadsUpdated {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
   }) {
-    if (threadsUpdated != null) {
-      return threadsUpdated(this);
+    if (refresh != null) {
+      return refresh(this);
     }
     return orElse();
   }
 }
 
-abstract class _ThreadsUpdated implements EarnEvent {
-  const factory _ThreadsUpdated(final List<EarnThread> threads) =
-      _$ThreadsUpdatedImpl;
-
-  List<EarnThread> get threads;
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ThreadsUpdatedImplCopyWith<_$ThreadsUpdatedImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+abstract class _Refresh implements EarnEvent {
+  const factory _Refresh() = _$RefreshImpl;
 }
 
 /// @nodoc
@@ -3024,10 +2681,8 @@ class _$ClearErrorImpl implements _ClearError {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -3041,7 +2696,7 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
@@ -3052,9 +2707,8 @@ class _$ClearErrorImpl implements _ClearError {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -3068,7 +2722,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
@@ -3079,9 +2733,8 @@ class _$ClearErrorImpl implements _ClearError {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -3095,7 +2748,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
@@ -3110,7 +2763,6 @@ class _$ClearErrorImpl implements _ClearError {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -3120,7 +2772,7 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
@@ -3131,7 +2783,6 @@ class _$ClearErrorImpl implements _ClearError {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -3141,7 +2792,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
@@ -3152,7 +2803,6 @@ class _$ClearErrorImpl implements _ClearError {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -3162,7 +2812,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -3222,10 +2872,8 @@ class _$ResetEngagementImpl implements _ResetEngagement {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loadThreads,
-    required TResult Function() watchThreads,
     required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId, bool activeOnly)
-    loadOpportunities,
+    required TResult Function(String threadId) loadOpportunities,
     required TResult Function(String opportunityId) selectOpportunity,
     required TResult Function(String opportunityId) startEngagement,
     required TResult Function(String engagementId, int watchDurationSeconds)
@@ -3239,7 +2887,7 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     required TResult Function(String engagementId) abandonEngagement,
     required TResult Function(int? limit) loadHistory,
     required TResult Function() loadMoreHistory,
-    required TResult Function(List<EarnThread> threads) threadsUpdated,
+    required TResult Function() refresh,
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
   }) {
@@ -3250,9 +2898,8 @@ class _$ResetEngagementImpl implements _ResetEngagement {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loadThreads,
-    TResult? Function()? watchThreads,
     TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult? Function(String threadId)? loadOpportunities,
     TResult? Function(String opportunityId)? selectOpportunity,
     TResult? Function(String opportunityId)? startEngagement,
     TResult? Function(String engagementId, int watchDurationSeconds)?
@@ -3266,7 +2913,7 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     TResult? Function(String engagementId)? abandonEngagement,
     TResult? Function(int? limit)? loadHistory,
     TResult? Function()? loadMoreHistory,
-    TResult? Function(List<EarnThread> threads)? threadsUpdated,
+    TResult? Function()? refresh,
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
   }) {
@@ -3277,9 +2924,8 @@ class _$ResetEngagementImpl implements _ResetEngagement {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loadThreads,
-    TResult Function()? watchThreads,
     TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId, bool activeOnly)? loadOpportunities,
+    TResult Function(String threadId)? loadOpportunities,
     TResult Function(String opportunityId)? selectOpportunity,
     TResult Function(String opportunityId)? startEngagement,
     TResult Function(String engagementId, int watchDurationSeconds)?
@@ -3293,7 +2939,7 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     TResult Function(String engagementId)? abandonEngagement,
     TResult Function(int? limit)? loadHistory,
     TResult Function()? loadMoreHistory,
-    TResult Function(List<EarnThread> threads)? threadsUpdated,
+    TResult Function()? refresh,
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     required TResult orElse(),
@@ -3308,7 +2954,6 @@ class _$ResetEngagementImpl implements _ResetEngagement {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_WatchThreads value) watchThreads,
     required TResult Function(_SelectThread value) selectThread,
     required TResult Function(_LoadOpportunities value) loadOpportunities,
     required TResult Function(_SelectOpportunity value) selectOpportunity,
@@ -3318,7 +2963,7 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     required TResult Function(_AbandonEngagement value) abandonEngagement,
     required TResult Function(_LoadHistory value) loadHistory,
     required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_ThreadsUpdated value) threadsUpdated,
+    required TResult Function(_Refresh value) refresh,
     required TResult Function(_ClearError value) clearError,
     required TResult Function(_ResetEngagement value) resetEngagement,
   }) {
@@ -3329,7 +2974,6 @@ class _$ResetEngagementImpl implements _ResetEngagement {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_WatchThreads value)? watchThreads,
     TResult? Function(_SelectThread value)? selectThread,
     TResult? Function(_LoadOpportunities value)? loadOpportunities,
     TResult? Function(_SelectOpportunity value)? selectOpportunity,
@@ -3339,7 +2983,7 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     TResult? Function(_AbandonEngagement value)? abandonEngagement,
     TResult? Function(_LoadHistory value)? loadHistory,
     TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult? Function(_Refresh value)? refresh,
     TResult? Function(_ClearError value)? clearError,
     TResult? Function(_ResetEngagement value)? resetEngagement,
   }) {
@@ -3350,7 +2994,6 @@ class _$ResetEngagementImpl implements _ResetEngagement {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_WatchThreads value)? watchThreads,
     TResult Function(_SelectThread value)? selectThread,
     TResult Function(_LoadOpportunities value)? loadOpportunities,
     TResult Function(_SelectOpportunity value)? selectOpportunity,
@@ -3360,7 +3003,7 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     TResult Function(_AbandonEngagement value)? abandonEngagement,
     TResult Function(_LoadHistory value)? loadHistory,
     TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_ThreadsUpdated value)? threadsUpdated,
+    TResult Function(_Refresh value)? refresh,
     TResult Function(_ClearError value)? clearError,
     TResult Function(_ResetEngagement value)? resetEngagement,
     required TResult orElse(),
@@ -3381,6 +3024,7 @@ mixin _$EarnState {
   EarnStatus get status => throw _privateConstructorUsedError;
   List<EarnThread> get threads => throw _privateConstructorUsedError;
   EarnThread? get selectedThread => throw _privateConstructorUsedError;
+  EarnStatus get opportunitiesStatus => throw _privateConstructorUsedError;
   List<EarnOpportunity> get opportunities => throw _privateConstructorUsedError;
   EarnOpportunity? get selectedOpportunity =>
       throw _privateConstructorUsedError;
@@ -3391,7 +3035,11 @@ mixin _$EarnState {
   bool get hasMoreHistory => throw _privateConstructorUsedError;
   DateTime? get lastHistoryTimestamp => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
-  int get totalAvailableOpportunities => throw _privateConstructorUsedError;
+  int get totalAvailableOpportunities =>
+      throw _privateConstructorUsedError; // Daily completion limit
+  int get dailyCompletions => throw _privateConstructorUsedError;
+  int get dailyEarnCap => throw _privateConstructorUsedError;
+  bool get dailyLimitReached => throw _privateConstructorUsedError;
 
   /// Create a copy of EarnState
   /// with the given fields replaced by the non-null parameter values.
@@ -3409,6 +3057,7 @@ abstract class $EarnStateCopyWith<$Res> {
     EarnStatus status,
     List<EarnThread> threads,
     EarnThread? selectedThread,
+    EarnStatus opportunitiesStatus,
     List<EarnOpportunity> opportunities,
     EarnOpportunity? selectedOpportunity,
     Engagement? currentEngagement,
@@ -3419,6 +3068,9 @@ abstract class $EarnStateCopyWith<$Res> {
     DateTime? lastHistoryTimestamp,
     String? errorMessage,
     int totalAvailableOpportunities,
+    int dailyCompletions,
+    int dailyEarnCap,
+    bool dailyLimitReached,
   });
 
   $EarnThreadCopyWith<$Res>? get selectedThread;
@@ -3444,6 +3096,7 @@ class _$EarnStateCopyWithImpl<$Res, $Val extends EarnState>
     Object? status = null,
     Object? threads = null,
     Object? selectedThread = freezed,
+    Object? opportunitiesStatus = null,
     Object? opportunities = null,
     Object? selectedOpportunity = freezed,
     Object? currentEngagement = freezed,
@@ -3454,6 +3107,9 @@ class _$EarnStateCopyWithImpl<$Res, $Val extends EarnState>
     Object? lastHistoryTimestamp = freezed,
     Object? errorMessage = freezed,
     Object? totalAvailableOpportunities = null,
+    Object? dailyCompletions = null,
+    Object? dailyEarnCap = null,
+    Object? dailyLimitReached = null,
   }) {
     return _then(
       _value.copyWith(
@@ -3469,6 +3125,10 @@ class _$EarnStateCopyWithImpl<$Res, $Val extends EarnState>
                 ? _value.selectedThread
                 : selectedThread // ignore: cast_nullable_to_non_nullable
                       as EarnThread?,
+            opportunitiesStatus: null == opportunitiesStatus
+                ? _value.opportunitiesStatus
+                : opportunitiesStatus // ignore: cast_nullable_to_non_nullable
+                      as EarnStatus,
             opportunities: null == opportunities
                 ? _value.opportunities
                 : opportunities // ignore: cast_nullable_to_non_nullable
@@ -3509,6 +3169,18 @@ class _$EarnStateCopyWithImpl<$Res, $Val extends EarnState>
                 ? _value.totalAvailableOpportunities
                 : totalAvailableOpportunities // ignore: cast_nullable_to_non_nullable
                       as int,
+            dailyCompletions: null == dailyCompletions
+                ? _value.dailyCompletions
+                : dailyCompletions // ignore: cast_nullable_to_non_nullable
+                      as int,
+            dailyEarnCap: null == dailyEarnCap
+                ? _value.dailyEarnCap
+                : dailyEarnCap // ignore: cast_nullable_to_non_nullable
+                      as int,
+            dailyLimitReached: null == dailyLimitReached
+                ? _value.dailyLimitReached
+                : dailyLimitReached // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -3570,6 +3242,7 @@ abstract class _$$EarnStateImplCopyWith<$Res>
     EarnStatus status,
     List<EarnThread> threads,
     EarnThread? selectedThread,
+    EarnStatus opportunitiesStatus,
     List<EarnOpportunity> opportunities,
     EarnOpportunity? selectedOpportunity,
     Engagement? currentEngagement,
@@ -3580,6 +3253,9 @@ abstract class _$$EarnStateImplCopyWith<$Res>
     DateTime? lastHistoryTimestamp,
     String? errorMessage,
     int totalAvailableOpportunities,
+    int dailyCompletions,
+    int dailyEarnCap,
+    bool dailyLimitReached,
   });
 
   @override
@@ -3607,6 +3283,7 @@ class __$$EarnStateImplCopyWithImpl<$Res>
     Object? status = null,
     Object? threads = null,
     Object? selectedThread = freezed,
+    Object? opportunitiesStatus = null,
     Object? opportunities = null,
     Object? selectedOpportunity = freezed,
     Object? currentEngagement = freezed,
@@ -3617,6 +3294,9 @@ class __$$EarnStateImplCopyWithImpl<$Res>
     Object? lastHistoryTimestamp = freezed,
     Object? errorMessage = freezed,
     Object? totalAvailableOpportunities = null,
+    Object? dailyCompletions = null,
+    Object? dailyEarnCap = null,
+    Object? dailyLimitReached = null,
   }) {
     return _then(
       _$EarnStateImpl(
@@ -3632,6 +3312,10 @@ class __$$EarnStateImplCopyWithImpl<$Res>
             ? _value.selectedThread
             : selectedThread // ignore: cast_nullable_to_non_nullable
                   as EarnThread?,
+        opportunitiesStatus: null == opportunitiesStatus
+            ? _value.opportunitiesStatus
+            : opportunitiesStatus // ignore: cast_nullable_to_non_nullable
+                  as EarnStatus,
         opportunities: null == opportunities
             ? _value._opportunities
             : opportunities // ignore: cast_nullable_to_non_nullable
@@ -3672,6 +3356,18 @@ class __$$EarnStateImplCopyWithImpl<$Res>
             ? _value.totalAvailableOpportunities
             : totalAvailableOpportunities // ignore: cast_nullable_to_non_nullable
                   as int,
+        dailyCompletions: null == dailyCompletions
+            ? _value.dailyCompletions
+            : dailyCompletions // ignore: cast_nullable_to_non_nullable
+                  as int,
+        dailyEarnCap: null == dailyEarnCap
+            ? _value.dailyEarnCap
+            : dailyEarnCap // ignore: cast_nullable_to_non_nullable
+                  as int,
+        dailyLimitReached: null == dailyLimitReached
+            ? _value.dailyLimitReached
+            : dailyLimitReached // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -3684,6 +3380,7 @@ class _$EarnStateImpl extends _EarnState {
     this.status = EarnStatus.initial,
     final List<EarnThread> threads = const [],
     this.selectedThread,
+    this.opportunitiesStatus = EarnStatus.initial,
     final List<EarnOpportunity> opportunities = const [],
     this.selectedOpportunity,
     this.currentEngagement,
@@ -3694,6 +3391,9 @@ class _$EarnStateImpl extends _EarnState {
     this.lastHistoryTimestamp,
     this.errorMessage,
     this.totalAvailableOpportunities = 0,
+    this.dailyCompletions = 0,
+    this.dailyEarnCap = 30,
+    this.dailyLimitReached = false,
   }) : _threads = threads,
        _opportunities = opportunities,
        _history = history,
@@ -3713,6 +3413,9 @@ class _$EarnStateImpl extends _EarnState {
 
   @override
   final EarnThread? selectedThread;
+  @override
+  @JsonKey()
+  final EarnStatus opportunitiesStatus;
   final List<EarnOpportunity> _opportunities;
   @override
   @JsonKey()
@@ -3751,10 +3454,20 @@ class _$EarnStateImpl extends _EarnState {
   @override
   @JsonKey()
   final int totalAvailableOpportunities;
+  // Daily completion limit
+  @override
+  @JsonKey()
+  final int dailyCompletions;
+  @override
+  @JsonKey()
+  final int dailyEarnCap;
+  @override
+  @JsonKey()
+  final bool dailyLimitReached;
 
   @override
   String toString() {
-    return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities)';
+    return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached)';
   }
 
   @override
@@ -3766,6 +3479,8 @@ class _$EarnStateImpl extends _EarnState {
             const DeepCollectionEquality().equals(other._threads, _threads) &&
             (identical(other.selectedThread, selectedThread) ||
                 other.selectedThread == selectedThread) &&
+            (identical(other.opportunitiesStatus, opportunitiesStatus) ||
+                other.opportunitiesStatus == opportunitiesStatus) &&
             const DeepCollectionEquality().equals(
               other._opportunities,
               _opportunities,
@@ -3790,7 +3505,13 @@ class _$EarnStateImpl extends _EarnState {
                   totalAvailableOpportunities,
                 ) ||
                 other.totalAvailableOpportunities ==
-                    totalAvailableOpportunities));
+                    totalAvailableOpportunities) &&
+            (identical(other.dailyCompletions, dailyCompletions) ||
+                other.dailyCompletions == dailyCompletions) &&
+            (identical(other.dailyEarnCap, dailyEarnCap) ||
+                other.dailyEarnCap == dailyEarnCap) &&
+            (identical(other.dailyLimitReached, dailyLimitReached) ||
+                other.dailyLimitReached == dailyLimitReached));
   }
 
   @override
@@ -3799,6 +3520,7 @@ class _$EarnStateImpl extends _EarnState {
     status,
     const DeepCollectionEquality().hash(_threads),
     selectedThread,
+    opportunitiesStatus,
     const DeepCollectionEquality().hash(_opportunities),
     selectedOpportunity,
     currentEngagement,
@@ -3809,6 +3531,9 @@ class _$EarnStateImpl extends _EarnState {
     lastHistoryTimestamp,
     errorMessage,
     totalAvailableOpportunities,
+    dailyCompletions,
+    dailyEarnCap,
+    dailyLimitReached,
   );
 
   /// Create a copy of EarnState
@@ -3825,6 +3550,7 @@ abstract class _EarnState extends EarnState {
     final EarnStatus status,
     final List<EarnThread> threads,
     final EarnThread? selectedThread,
+    final EarnStatus opportunitiesStatus,
     final List<EarnOpportunity> opportunities,
     final EarnOpportunity? selectedOpportunity,
     final Engagement? currentEngagement,
@@ -3835,6 +3561,9 @@ abstract class _EarnState extends EarnState {
     final DateTime? lastHistoryTimestamp,
     final String? errorMessage,
     final int totalAvailableOpportunities,
+    final int dailyCompletions,
+    final int dailyEarnCap,
+    final bool dailyLimitReached,
   }) = _$EarnStateImpl;
   const _EarnState._() : super._();
 
@@ -3844,6 +3573,8 @@ abstract class _EarnState extends EarnState {
   List<EarnThread> get threads;
   @override
   EarnThread? get selectedThread;
+  @override
+  EarnStatus get opportunitiesStatus;
   @override
   List<EarnOpportunity> get opportunities;
   @override
@@ -3863,7 +3594,13 @@ abstract class _EarnState extends EarnState {
   @override
   String? get errorMessage;
   @override
-  int get totalAvailableOpportunities;
+  int get totalAvailableOpportunities; // Daily completion limit
+  @override
+  int get dailyCompletions;
+  @override
+  int get dailyEarnCap;
+  @override
+  bool get dailyLimitReached;
 
   /// Create a copy of EarnState
   /// with the given fields replaced by the non-null parameter values.

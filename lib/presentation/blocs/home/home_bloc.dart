@@ -36,7 +36,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
     try {
       // Load earn threads and pots in parallel
-      final earnResult = await _earnRepository.getEarnThreads();
+      final earnResult = await _earnRepository.getEligibleThreads();
       final dailyPotResult = await _gamificationRepository.getCurrentDailyPot();
       final weeklyPotResult = await _gamificationRepository.getCurrentWeeklyPot();
 
@@ -45,7 +45,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       earnResult.fold(
         (failure) => null,
-        (threads) => earnThreads = threads,
+        (result) => earnThreads = result.threads,
       );
 
       dailyPotResult.fold(
@@ -79,7 +79,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(state.copyWith(isRefreshing: true));
 
     try {
-      final earnResult = await _earnRepository.getEarnThreads();
+      final earnResult = await _earnRepository.getEligibleThreads();
       final dailyPotResult = await _gamificationRepository.getCurrentDailyPot();
       final weeklyPotResult = await _gamificationRepository.getCurrentWeeklyPot();
 
@@ -88,7 +88,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       earnResult.fold(
         (failure) => null,
-        (threads) => earnThreads = threads,
+        (result) => earnThreads = result.threads,
       );
 
       dailyPotResult.fold(

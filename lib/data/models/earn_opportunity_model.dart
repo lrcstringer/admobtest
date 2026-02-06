@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/earn_opportunity.dart';
+import '../../domain/entities/targeting_criteria.dart';
 
 part 'earn_opportunity_model.freezed.dart';
 
@@ -50,6 +51,17 @@ class SurveyQuestionModel with _$SurveyQuestionModel {
       correctAnswer: entity.correctAnswer,
     );
   }
+
+  Map<String, dynamic> toFirestoreJson() {
+    return {
+      'id': id,
+      'text': text,
+      'options': options,
+      'orderIndex': orderIndex,
+      if (isAttentionCheck != null) 'isAttentionCheck': isAttentionCheck,
+      if (correctAnswer != null) 'correctAnswer': correctAnswer,
+    };
+  }
 }
 
 @freezed
@@ -59,16 +71,32 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
     required String threadId,
     required String title,
     String? description,
+    // Earning configuration
+    required String earningType,
     required int tokenReward,
+    @Default(1) int streakPoints,
     required String mediaType,
-    required String mediaUrl,
+    String? mediaUrl,
     required List<SurveyQuestionModel> questions,
     required int durationSeconds,
     DateTime? expiresAt,
     required bool isActive,
-    String? brandName,
-    String? brandAvatarColor,
+    // Denormalized client info
+    String? clientId,
+    String? clientName,
+    String? clientAvatarColor,
+    // Legacy campaign reference
     String? campaignId,
+    // Targeting (stored as JSON map)
+    Map<String, dynamic>? targeting,
+    // Bonus reward configuration
+    @Default(false) bool bonusReward,
+    @Default(1.0) double bonusRewardMultiplier,
+    String? bonusIntervalType,
+    int? bonusIntervalX,
+    // User engagement status (populated by getEligibleOpportunities)
+    String? userEngagementStatus,
+    String? userEngagementId,
   }) = _EarnOpportunityModel;
 
   const EarnOpportunityModel._();
@@ -81,9 +109,11 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       threadId: json['threadId'] as String,
       title: json['title'] as String,
       description: json['description'] as String?,
+      earningType: json['earningType'] as String? ?? 'video',
       tokenReward: json['tokenReward'] as int,
+      streakPoints: json['streakPoints'] as int? ?? 1,
       mediaType: json['mediaType'] as String? ?? 'video',
-      mediaUrl: json['mediaUrl'] as String,
+      mediaUrl: json['mediaUrl'] as String?,
       questions: (json['questions'] as List?)
               ?.map((e) =>
                   SurveyQuestionModel.fromJson(e as Map<String, dynamic>))
@@ -96,9 +126,21 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
               ? expiresAt.toDate()
               : DateTime.parse(expiresAt as String),
       isActive: json['isActive'] as bool? ?? true,
-      brandName: json['brandName'] as String?,
-      brandAvatarColor: json['brandAvatarColor'] as String?,
+      // Client info (with legacy brandName fallback)
+      clientId: json['clientId'] as String?,
+      clientName: json['clientName'] as String? ?? json['brandName'] as String?,
+      clientAvatarColor: json['clientAvatarColor'] as String? ??
+          json['brandAvatarColor'] as String?,
       campaignId: json['campaignId'] as String?,
+      targeting: json['targeting'] as Map<String, dynamic>?,
+      // Bonus reward configuration
+      bonusReward: json['bonusReward'] as bool? ?? false,
+      bonusRewardMultiplier:
+          (json['bonusRewardMultiplier'] as num?)?.toDouble() ?? 1.0,
+      bonusIntervalType: json['bonusIntervalType'] as String?,
+      bonusIntervalX: json['bonusIntervalX'] as int?,
+      userEngagementStatus: json['userEngagementStatus'] as String?,
+      userEngagementId: json['userEngagementId'] as String?,
     );
   }
 
@@ -108,16 +150,28 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       threadId: threadId,
       title: title,
       description: description,
+      earningType: _parseEarningType(earningType),
       tokenReward: tokenReward,
+      streakPoints: streakPoints,
       mediaType: _parseMediaType(mediaType),
       mediaUrl: mediaUrl,
       questions: questions.map((q) => q.toEntity()).toList(),
       durationSeconds: durationSeconds,
       expiresAt: expiresAt,
       isActive: isActive,
-      brandName: brandName,
-      brandAvatarColor: brandAvatarColor,
+      clientId: clientId,
+      clientName: clientName,
+      clientAvatarColor: clientAvatarColor,
       campaignId: campaignId,
+      targeting:
+          targeting != null ? TargetingCriteria.fromJson(targeting!) : null,
+      // Bonus reward configuration
+      bonusReward: bonusReward,
+      bonusRewardMultiplier: bonusRewardMultiplier,
+      bonusIntervalType: _parseBonusIntervalType(bonusIntervalType),
+      bonusIntervalX: bonusIntervalX,
+      userEngagementStatus: userEngagementStatus,
+      userEngagementId: userEngagementId,
     );
   }
 
@@ -127,7 +181,9 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       threadId: entity.threadId,
       title: entity.title,
       description: entity.description,
+      earningType: entity.earningType.name,
       tokenReward: entity.tokenReward,
+      streakPoints: entity.streakPoints,
       mediaType: entity.mediaType.name,
       mediaUrl: entity.mediaUrl,
       questions: entity.questions
@@ -136,10 +192,49 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       durationSeconds: entity.durationSeconds,
       expiresAt: entity.expiresAt,
       isActive: entity.isActive,
-      brandName: entity.brandName,
-      brandAvatarColor: entity.brandAvatarColor,
+      clientId: entity.clientId,
+      clientName: entity.clientName,
+      clientAvatarColor: entity.clientAvatarColor,
       campaignId: entity.campaignId,
+      targeting: entity.targeting?.toJson(),
+      // Bonus reward configuration
+      bonusReward: entity.bonusReward,
+      bonusRewardMultiplier: entity.bonusRewardMultiplier,
+      bonusIntervalType: entity.bonusIntervalType != null
+          ? _bonusIntervalTypeToString(entity.bonusIntervalType!)
+          : null,
+      bonusIntervalX: entity.bonusIntervalX,
+      userEngagementStatus: entity.userEngagementStatus,
+      userEngagementId: entity.userEngagementId,
     );
+  }
+
+  Map<String, dynamic> toFirestoreJson() {
+    return {
+      'id': id,
+      'threadId': threadId,
+      'title': title,
+      'description': description,
+      'earningType': earningType,
+      'tokenReward': tokenReward,
+      'streakPoints': streakPoints,
+      'mediaType': mediaType,
+      'mediaUrl': mediaUrl,
+      'questions': questions.map((q) => q.toFirestoreJson()).toList(),
+      'durationSeconds': durationSeconds,
+      'expiresAt': expiresAt != null ? Timestamp.fromDate(expiresAt!) : null,
+      'isActive': isActive,
+      'clientId': clientId,
+      'clientName': clientName,
+      'clientAvatarColor': clientAvatarColor,
+      'campaignId': campaignId,
+      'targeting': targeting,
+      // Bonus reward configuration
+      'bonusReward': bonusReward,
+      'bonusRewardMultiplier': bonusRewardMultiplier,
+      'bonusIntervalType': bonusIntervalType,
+      'bonusIntervalX': bonusIntervalX,
+    };
   }
 
   static MediaType _parseMediaType(String type) {
@@ -152,6 +247,44 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
         return MediaType.text;
       default:
         return MediaType.video;
+    }
+  }
+
+  static EarningType _parseEarningType(String type) {
+    switch (type) {
+      case 'survey':
+        return EarningType.survey;
+      case 'video':
+        return EarningType.video;
+      case 'trivia':
+        return EarningType.trivia;
+      case 'rating':
+        return EarningType.rating;
+      case 'poll':
+        return EarningType.poll;
+      default:
+        return EarningType.video;
+    }
+  }
+
+  static BonusIntervalType? _parseBonusIntervalType(String? type) {
+    if (type == null) return null;
+    switch (type) {
+      case 'random':
+        return BonusIntervalType.random;
+      case 'every_x':
+        return BonusIntervalType.everyX;
+      default:
+        return null;
+    }
+  }
+
+  static String? _bonusIntervalTypeToString(BonusIntervalType type) {
+    switch (type) {
+      case BonusIntervalType.random:
+        return 'random';
+      case BonusIntervalType.everyX:
+        return 'every_x';
     }
   }
 }

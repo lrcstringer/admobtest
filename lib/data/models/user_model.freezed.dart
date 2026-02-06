@@ -33,7 +33,10 @@ mixin _$UserModel {
   String? get province => throw _privateConstructorUsedError;
   String? get city => throw _privateConstructorUsedError;
   String? get firstName => throw _privateConstructorUsedError;
-  String? get lastName => throw _privateConstructorUsedError;
+  String? get lastName =>
+      throw _privateConstructorUsedError; // Targeting fields
+  List<String>? get languages => throw _privateConstructorUsedError;
+  List<String>? get interests => throw _privateConstructorUsedError;
   UserStatus get status => throw _privateConstructorUsedError;
   String? get referralCode => throw _privateConstructorUsedError;
   String? get referredBy => throw _privateConstructorUsedError;
@@ -80,6 +83,8 @@ abstract class $UserModelCopyWith<$Res> {
     String? city,
     String? firstName,
     String? lastName,
+    List<String>? languages,
+    List<String>? interests,
     UserStatus status,
     String? referralCode,
     String? referredBy,
@@ -127,6 +132,8 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? city = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
+    Object? languages = freezed,
+    Object? interests = freezed,
     Object? status = null,
     Object? referralCode = freezed,
     Object? referredBy = freezed,
@@ -198,6 +205,14 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
                 ? _value.lastName
                 : lastName // ignore: cast_nullable_to_non_nullable
                       as String?,
+            languages: freezed == languages
+                ? _value.languages
+                : languages // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
+            interests: freezed == interests
+                ? _value.interests
+                : interests // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
             status: null == status
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
@@ -291,6 +306,8 @@ abstract class _$$UserModelImplCopyWith<$Res>
     String? city,
     String? firstName,
     String? lastName,
+    List<String>? languages,
+    List<String>? interests,
     UserStatus status,
     String? referralCode,
     String? referredBy,
@@ -337,6 +354,8 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? city = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
+    Object? languages = freezed,
+    Object? interests = freezed,
     Object? status = null,
     Object? referralCode = freezed,
     Object? referredBy = freezed,
@@ -408,6 +427,14 @@ class __$$UserModelImplCopyWithImpl<$Res>
             ? _value.lastName
             : lastName // ignore: cast_nullable_to_non_nullable
                   as String?,
+        languages: freezed == languages
+            ? _value._languages
+            : languages // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
+        interests: freezed == interests
+            ? _value._interests
+            : interests // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
         status: null == status
             ? _value.status
             : status // ignore: cast_nullable_to_non_nullable
@@ -494,6 +521,8 @@ class _$UserModelImpl extends _UserModel {
     this.city,
     this.firstName,
     this.lastName,
+    final List<String>? languages,
+    final List<String>? interests,
     required this.status,
     this.referralCode,
     this.referredBy,
@@ -510,7 +539,9 @@ class _$UserModelImpl extends _UserModel {
     required this.createdAt,
     this.updatedAt,
     this.lastActiveAt,
-  }) : super._();
+  }) : _languages = languages,
+       _interests = interests,
+       super._();
 
   factory _$UserModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserModelImplFromJson(json);
@@ -541,6 +572,28 @@ class _$UserModelImpl extends _UserModel {
   final String? firstName;
   @override
   final String? lastName;
+  // Targeting fields
+  final List<String>? _languages;
+  // Targeting fields
+  @override
+  List<String>? get languages {
+    final value = _languages;
+    if (value == null) return null;
+    if (_languages is EqualUnmodifiableListView) return _languages;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  final List<String>? _interests;
+  @override
+  List<String>? get interests {
+    final value = _interests;
+    if (value == null) return null;
+    if (_interests is EqualUnmodifiableListView) return _interests;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   final UserStatus status;
   @override
@@ -577,7 +630,7 @@ class _$UserModelImpl extends _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(userId: $userId, phoneNumber: $phoneNumber, displayName: $displayName, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, kycTier: $kycTier, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
+    return 'UserModel(userId: $userId, phoneNumber: $phoneNumber, displayName: $displayName, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, kycTier: $kycTier, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
   }
 
   @override
@@ -608,6 +661,14 @@ class _$UserModelImpl extends _UserModel {
                 other.firstName == firstName) &&
             (identical(other.lastName, lastName) ||
                 other.lastName == lastName) &&
+            const DeepCollectionEquality().equals(
+              other._languages,
+              _languages,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._interests,
+              _interests,
+            ) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.referralCode, referralCode) ||
                 other.referralCode == referralCode) &&
@@ -657,6 +718,8 @@ class _$UserModelImpl extends _UserModel {
     city,
     firstName,
     lastName,
+    const DeepCollectionEquality().hash(_languages),
+    const DeepCollectionEquality().hash(_interests),
     status,
     referralCode,
     referredBy,
@@ -704,6 +767,8 @@ abstract class _UserModel extends UserModel {
     final String? city,
     final String? firstName,
     final String? lastName,
+    final List<String>? languages,
+    final List<String>? interests,
     required final UserStatus status,
     final String? referralCode,
     final String? referredBy,
@@ -751,7 +816,11 @@ abstract class _UserModel extends UserModel {
   @override
   String? get firstName;
   @override
-  String? get lastName;
+  String? get lastName; // Targeting fields
+  @override
+  List<String>? get languages;
+  @override
+  List<String>? get interests;
   @override
   UserStatus get status;
   @override

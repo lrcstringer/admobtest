@@ -25,6 +25,11 @@ class Engagement with _$Engagement {
     required int attemptNumber,
     required DateTime createdAt,
     DateTime? updatedAt,
+    // Denormalized fields for targeting queries
+    /// Thread ID denormalized from opportunity
+    String? threadId,
+    /// Client ID denormalized from thread
+    String? clientId,
     // Streak audit fields
     /// What day of streak this completion was on
     int? streakDayAtCompletion,

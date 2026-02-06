@@ -12,37 +12,71 @@ import '../../models/earn_thread_model.dart';
 import '../../models/earn_opportunity_model.dart';
 import '../../models/engagement_model.dart';
 
+/// Response from getEligibleThreads including daily limit info
+class EligibleThreadsResponse {
+  final List<EarnThreadModel> threads;
+  final int dailyCompletions;
+  final int dailyEarnCap;
+  final bool dailyLimitReached;
+
+  EligibleThreadsResponse({
+    required this.threads,
+    required this.dailyCompletions,
+    required this.dailyEarnCap,
+    required this.dailyLimitReached,
+  });
+}
+
 abstract class EarnRemoteDataSource {
   String? get currentUserId;
-  Future<List<EarnThreadModel>> getEarnThreads();
-  Stream<List<EarnThreadModel>> watchEarnThreads();
+
+  /// Get eligible threads via Cloud Function (server-side targeting)
+  /// Returns threads and daily limit info
+  Future<EligibleThreadsResponse> getEligibleThreads();
+
+  /// Get thread by ID
   Future<EarnThreadModel?> getEarnThread(String threadId);
-  Future<List<EarnOpportunityModel>> getOpportunities({
+
+  /// Get eligible opportunities via Cloud Function (server-side targeting)
+  Future<List<EarnOpportunityModel>> getEligibleOpportunities({
     required String threadId,
-    bool activeOnly = true,
   });
-  Stream<List<EarnOpportunityModel>> watchOpportunities({
-    required String threadId,
-    bool activeOnly = true,
-  });
+
+  /// Get opportunity by ID
   Future<EarnOpportunityModel?> getOpportunity(String opportunityId);
+
+  /// Start engagement via Cloud Function
   Future<EngagementModel> startEngagement({required String opportunityId});
+
+  /// Update engagement progress
   Future<EngagementModel> updateEngagementProgress({
     required String engagementId,
     required int watchDurationSeconds,
   });
+
+  /// Submit survey via Cloud Function
   Future<EngagementModel> submitSurvey({
     required String engagementId,
     required List<EngagementAnswer> answers,
     required EngagementEvidence evidence,
   });
+
+  /// Get engagement by ID
   Future<EngagementModel?> getEngagement(String engagementId);
+
+  /// Get user's engagement history
   Future<List<EngagementModel>> getEngagementHistory({
     int? limit,
     DateTime? startAfter,
   });
+
+  /// Get active engagement for opportunity
   Future<EngagementModel?> getActiveEngagement(String opportunityId);
+
+  /// Abandon engagement
   Future<void> abandonEngagement(String engagementId);
+
+  /// Get available opportunities count for user
   Future<int> getAvailableOpportunitiesCount();
 }
 
@@ -73,44 +107,41 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
   String? get currentUserId => _firebaseAuth.currentUser?.uid;
 
   @override
-  Future<List<EarnThreadModel>> getEarnThreads() async {
+  Future<EligibleThreadsResponse> getEligibleThreads() async {
     final userId = currentUserId;
     if (userId == null) {
       throw const AuthException(message: 'User not authenticated');
     }
 
     try {
-      final snapshot = await _threadsCollection
-          .where('isActive', isEqualTo: true)
-          .orderBy('isPinned', descending: true)
-          .orderBy('lastActivityAt', descending: true)
-          .get();
+      final callable = _functions.httpsCallable('getEligibleThreads');
+      final result = await callable.call<Map<String, dynamic>>({});
 
-      return snapshot.docs.map((doc) {
-        return EarnThreadModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
+      final data = result.data;
+      final threads = (data['threads'] as List?) ?? [];
+
+      // Parse daily limit info
+      final dailyLimit = data['dailyLimit'] as Map<String, dynamic>?;
+      final dailyCompletions = dailyLimit?['completions'] as int? ?? 0;
+      final dailyEarnCap = dailyLimit?['cap'] as int? ?? 30;
+      final dailyLimitReached = dailyLimit?['limitReached'] as bool? ?? false;
+
+      final threadModels = threads.map((thread) {
+        final threadMap = Map<String, dynamic>.from(thread as Map);
+        return EarnThreadModel.fromJson(threadMap);
       }).toList();
+
+      return EligibleThreadsResponse(
+        threads: threadModels,
+        dailyCompletions: dailyCompletions,
+        dailyEarnCap: dailyEarnCap,
+        dailyLimitReached: dailyLimitReached,
+      );
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Failed to fetch threads');
     } catch (e) {
       throw ServerException(message: e.toString());
     }
-  }
-
-  @override
-  Stream<List<EarnThreadModel>> watchEarnThreads() {
-    final userId = currentUserId;
-    if (userId == null) {
-      return Stream.error(const AuthException(message: 'User not authenticated'));
-    }
-
-    return _threadsCollection
-        .where('isActive', isEqualTo: true)
-        .orderBy('isPinned', descending: true)
-        .orderBy('lastActivityAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return EarnThreadModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
-      }).toList();
-    });
   }
 
   @override
@@ -120,50 +151,43 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return EarnThreadModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
+      return EarnThreadModel.fromJson({
+        ...sanitizeFirestoreData(doc.data()!),
+        'id': doc.id,
+      });
     } catch (e) {
       throw ServerException(message: e.toString());
     }
   }
 
   @override
-  Future<List<EarnOpportunityModel>> getOpportunities({
+  Future<List<EarnOpportunityModel>> getEligibleOpportunities({
     required String threadId,
-    bool activeOnly = true,
   }) async {
+    final userId = currentUserId;
+    if (userId == null) {
+      throw const AuthException(message: 'User not authenticated');
+    }
+
     try {
-      var query = _opportunitiesCollection.where('threadId', isEqualTo: threadId);
+      final callable = _functions.httpsCallable('getEligibleOpportunities');
+      final result = await callable.call<Map<String, dynamic>>({
+        'threadId': threadId,
+      });
 
-      if (activeOnly) {
-        query = query.where('isActive', isEqualTo: true);
-      }
+      final data = result.data;
+      final opportunities = (data['opportunities'] as List?) ?? [];
 
-      final snapshot = await query.orderBy('createdAt', descending: true).get();
-
-      return snapshot.docs.map((doc) {
-        return EarnOpportunityModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
+      return opportunities.map((opp) {
+        final oppMap = Map<String, dynamic>.from(opp as Map);
+        return EarnOpportunityModel.fromJson(oppMap);
       }).toList();
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(
+          message: e.message ?? 'Failed to fetch opportunities');
     } catch (e) {
       throw ServerException(message: e.toString());
     }
-  }
-
-  @override
-  Stream<List<EarnOpportunityModel>> watchOpportunities({
-    required String threadId,
-    bool activeOnly = true,
-  }) {
-    var query = _opportunitiesCollection.where('threadId', isEqualTo: threadId);
-
-    if (activeOnly) {
-      query = query.where('isActive', isEqualTo: true);
-    }
-
-    return query.orderBy('createdAt', descending: true).snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return EarnOpportunityModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
-      }).toList();
-    });
   }
 
   @override
@@ -173,68 +197,41 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return EarnOpportunityModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
+      return EarnOpportunityModel.fromJson({
+        ...sanitizeFirestoreData(doc.data()!),
+        'id': doc.id,
+      });
     } catch (e) {
       throw ServerException(message: e.toString());
     }
   }
 
   @override
-  Future<EngagementModel> startEngagement({required String opportunityId}) async {
+  Future<EngagementModel> startEngagement({
+    required String opportunityId,
+  }) async {
     final userId = currentUserId;
     if (userId == null) {
       throw const AuthException(message: 'User not authenticated');
     }
 
     try {
-      // Get opportunity details
-      final opportunity = await getOpportunity(opportunityId);
-      if (opportunity == null) {
-        throw const ServerException(message: 'Opportunity not found');
+      final callable = _functions.httpsCallable('startEngagement');
+      final result = await callable.call<Map<String, dynamic>>({
+        'opportunityId': opportunityId,
+      });
+
+      final data = result.data;
+      if (data['success'] != true) {
+        throw ServerException(
+            message: data['error'] as String? ?? 'Failed to start engagement');
       }
 
-      // Check for existing active engagement
-      final existing = await getActiveEngagement(opportunityId);
-      if (existing != null) {
-        return existing;
-      }
-
-      // Get attempt count for this user/opportunity
-      final previousAttempts = await _engagementsCollection
-          .where('userId', isEqualTo: userId)
-          .where('earnOpportunityId', isEqualTo: opportunityId)
-          .get();
-
-      final now = DateTime.now();
-      final engagement = EngagementModel(
-        id: '',
-        userId: userId,
-        oddienceCampaignId: opportunity.campaignId ?? '',
-        earnOpportunityId: opportunityId,
-        status: 'started',
-        startedAt: now,
-        watchDurationSeconds: 0,
-        requiredDurationSeconds: opportunity.durationSeconds,
-        answers: [],
-        attemptNumber: previousAttempts.docs.length + 1,
-        createdAt: now,
-      );
-
-      final docRef = await _engagementsCollection.add(engagement.toFirestoreJson());
-
-      return EngagementModel(
-        id: docRef.id,
-        userId: userId,
-        oddienceCampaignId: opportunity.campaignId ?? '',
-        earnOpportunityId: opportunityId,
-        status: 'started',
-        startedAt: now,
-        watchDurationSeconds: 0,
-        requiredDurationSeconds: opportunity.durationSeconds,
-        answers: [],
-        attemptNumber: previousAttempts.docs.length + 1,
-        createdAt: now,
-      );
+      final engagement = data['engagement'] as Map<String, dynamic>;
+      return EngagementModel.fromJson(Map<String, dynamic>.from(engagement));
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(
+          message: e.message ?? 'Failed to start engagement');
     } catch (e) {
       if (e is ServerException || e is AuthException) rethrow;
       throw ServerException(message: e.toString());
@@ -263,7 +260,8 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       }
 
       final requiredDuration = data['requiredDurationSeconds'] as int;
-      final newStatus = watchDurationSeconds >= requiredDuration ? 'surveying' : 'watching';
+      final newStatus =
+          watchDurationSeconds >= requiredDuration ? 'surveying' : 'watching';
 
       await _engagementsCollection.doc(engagementId).update({
         'watchDurationSeconds': watchDurationSeconds,
@@ -306,14 +304,14 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
         throw const ServerException(message: 'Not authorized');
       }
 
-      final answersModels = answers
-          .map((a) => EngagementAnswerModel.fromEntity(a))
-          .toList();
+      final answersModels =
+          answers.map((a) => EngagementAnswerModel.fromEntity(a)).toList();
       final evidenceModel = EngagementEvidenceModel.fromEntity(evidence);
 
       // Get Play Integrity token for this sensitive operation
       final nonce = _playIntegrity.generateNonce();
-      final integrityToken = await _playIntegrity.getIntegrityToken(nonce: nonce);
+      final integrityToken =
+          await _playIntegrity.getIntegrityToken(nonce: nonce);
 
       final callable = _functions.httpsCallable('processEngagement');
       await callable.call<Map<String, dynamic>>({
@@ -338,7 +336,8 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
         'updatedAt': now.toIso8601String(),
       });
     } on FirebaseFunctionsException catch (e) {
-      throw ServerException(message: e.message ?? 'Engagement submission failed');
+      throw ServerException(
+          message: e.message ?? 'Engagement submission failed');
     } catch (e) {
       if (e is ServerException || e is AuthException) rethrow;
       throw ServerException(message: e.toString());
@@ -352,7 +351,10 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return EngagementModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'id': doc.id});
+      return EngagementModel.fromJson({
+        ...sanitizeFirestoreData(doc.data()!),
+        'id': doc.id,
+      });
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -383,7 +385,10 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
 
       final snapshot = await query.get();
       return snapshot.docs.map((doc) {
-        return EngagementModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
+        return EngagementModel.fromJson({
+          ...sanitizeFirestoreData(doc.data()),
+          'id': doc.id,
+        });
       }).toList();
     } catch (e) {
       throw ServerException(message: e.toString());
@@ -410,7 +415,10 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       }
 
       final doc = snapshot.docs.first;
-      return EngagementModel.fromJson({...sanitizeFirestoreData(doc.data()), 'id': doc.id});
+      return EngagementModel.fromJson({
+        ...sanitizeFirestoreData(doc.data()),
+        'id': doc.id,
+      });
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -452,12 +460,10 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
     }
 
     try {
-      final snapshot = await _opportunitiesCollection
-          .where('isActive', isEqualTo: true)
-          .count()
-          .get();
-
-      return snapshot.count ?? 0;
+      // Call getEligibleThreads and sum up available opportunities
+      final response = await getEligibleThreads();
+      return response.threads.fold<int>(
+          0, (total, thread) => total + thread.availableOpportunities);
     } catch (e) {
       throw ServerException(message: e.toString());
     }

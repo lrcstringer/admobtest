@@ -23,6 +23,9 @@ class UserModel with _$UserModel {
     String? city,
     String? firstName,
     String? lastName,
+    // Targeting fields
+    List<String>? languages,
+    List<String>? interests,
     required UserStatus status,
     String? referralCode,
     String? referredBy,
@@ -76,6 +79,8 @@ class UserModel with _$UserModel {
           city: city,
           firstName: firstName,
           lastName: lastName,
+          languages: languages,
+          interests: interests,
         ),
       );
 
@@ -94,6 +99,8 @@ class UserModel with _$UserModel {
         city: user.profile?.city,
         firstName: user.profile?.firstName,
         lastName: user.profile?.lastName,
+        languages: user.profile?.languages,
+        interests: user.profile?.interests,
         status: user.status,
         referralCode: user.referralCode,
         referredBy: user.referredBy,

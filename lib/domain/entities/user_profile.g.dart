@@ -20,6 +20,12 @@ _$UserProfileImpl _$$UserProfileImplFromJson(Map<String, dynamic> json) =>
       city: json['city'] as String?,
       firstName: json['firstName'] as String?,
       lastName: json['lastName'] as String?,
+      languages: (json['languages'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      interests: (json['interests'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
@@ -34,4 +40,6 @@ Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
       'city': instance.city,
       'firstName': instance.firstName,
       'lastName': instance.lastName,
+      'languages': instance.languages,
+      'interests': instance.interests,
     };

@@ -8,6 +8,7 @@ import '../../blocs/pot/pot_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 class PotsScreen extends StatefulWidget {
   const PotsScreen({super.key});
@@ -62,12 +63,14 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
           indicatorColor: AppColors.primary,
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildActivePotsTab(context),
-          _buildHistoryTab(context),
-        ],
+      body: WaveBackground(
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildActivePotsTab(context),
+            _buildHistoryTab(context),
+          ],
+        ),
       ),
     );
   }
