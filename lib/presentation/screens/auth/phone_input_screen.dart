@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/services/fcm_challenge_handler.dart';
 import '../../../core/utils/phone_utils.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -26,13 +24,9 @@ class PhoneInputScreen extends StatefulWidget {
 }
 
 class _PhoneInputScreenState extends State<PhoneInputScreen> {
-  final _challengeHandler = GetIt.instance<FcmChallengeHandler>();
-
   String _phoneDigits = '';
   String _selectedCountryCode = '+27';
   String? _errorText;
-  bool _isPushLoginLoading = false;
-  late final bool _skipPushLogin = widget.skipPushLogin;
 
   static const List<Map<String, String>> _countryCodes = [
     {'code': '+27', 'country': 'ZA', 'name': 'South Africa'},
@@ -102,22 +96,13 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
   /// Parse an E.164 phone number into country code + local digits.
   void _prefillPhoneNumber() {
     final phone = widget.initialPhoneNumber;
-    if (phone == null || !phone.startsWith('+')) return;
+    if (phone == null) return;
 
-    // Try to match the longest country code first (e.g. +852 before +8)
-    String? matchedCode;
-    for (final entry in _countryCodes) {
-      final code = entry['code']!;
-      if (phone.startsWith(code)) {
-        if (matchedCode == null || code.length > matchedCode.length) {
-          matchedCode = code;
-        }
-      }
-    }
-
-    if (matchedCode != null) {
-      _selectedCountryCode = matchedCode;
-      _phoneDigits = phone.substring(matchedCode.length);
+    final countryCodes = _countryCodes.map((c) => c['code']!).toList();
+    final result = parseE164ToComponents(phone, countryCodes);
+    if (result != null) {
+      _selectedCountryCode = result.countryCode;
+      _phoneDigits = result.localNumber;
     }
   }
 
@@ -129,7 +114,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
     return _getE164PhoneNumber() != null;
   }
 
-  Future<void> _onSubmit() async {
+  void _onSubmit() {
     final phoneNumber = _getE164PhoneNumber();
     if (phoneNumber == null) {
       setState(() {
@@ -140,43 +125,12 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
 
     setState(() => _errorText = null);
 
-    // Try push login first (unless skipped)
-    if (!_skipPushLogin) {
-      debugPrint('========================================');
-      debugPrint('PUSH LOGIN: Attempting for $phoneNumber');
-      debugPrint('========================================');
-      setState(() => _isPushLoginLoading = true);
-
-      final result = await _challengeHandler.requestLogin(phoneNumber);
-
-      if (!mounted) return;
-
-      debugPrint('========================================');
-      debugPrint('PUSH LOGIN RESULT: hasTrustedDevice=${result.hasTrustedDevice}, challengeId=${result.challengeId}');
-      debugPrint('========================================');
-
-      if (result.hasTrustedDevice && result.challengeId != null) {
-        setState(() => _isPushLoginLoading = false);
-        // Navigate to push login waiting screen
-        context.go('/auth/push-login', extra: {
-          'challengeId': result.challengeId,
-          'phoneNumber': phoneNumber,
-        });
-        return;
-      }
-
-      setState(() => _isPushLoginLoading = false);
-    } else {
-      debugPrint('========================================');
-      debugPrint('PUSH LOGIN: Skipped (_skipPushLogin=true)');
-      debugPrint('========================================');
-    }
-
-    // Fall back to OTP
-    debugPrint('PUSH LOGIN: Falling back to SMS OTP');
-    if (!mounted) return;
+    // Dispatch push login request to BLoC (handles fallback to OTP internally)
     context.read<AuthBloc>().add(
-          AuthEvent.sendOtp(phoneNumber: phoneNumber),
+          AuthEvent.requestPushLogin(
+            phoneNumber: phoneNumber,
+            skipPushLogin: widget.skipPushLogin,
+          ),
         );
   }
 
@@ -224,10 +178,16 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
           });
         } else if (state.status == AuthStatus.error) {
           setState(() => _errorText = state.errorMessage);
+        } else if (state.hasTrustedDevice && state.pushLoginChallengeId != null) {
+          // Navigate to push login waiting screen
+          context.go('/auth/push-login', extra: {
+            'challengeId': state.pushLoginChallengeId,
+            'phoneNumber': state.phoneNumber ?? _getE164PhoneNumber() ?? '',
+          });
         }
       },
       builder: (context, state) {
-        final isLoading = state.isLoading || _isPushLoginLoading;
+        final isLoading = state.isLoading || state.isPushLoginLoading;
 
         return Scaffold(
           body: Container(

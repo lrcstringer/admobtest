@@ -7,6 +7,7 @@ import '../../core/network/network_info.dart';
 import '../../domain/entities/group.dart';
 import '../../domain/entities/group_member.dart';
 import '../../domain/entities/group_transaction.dart';
+import '../../domain/entities/stokvel_analytics.dart';
 import '../../domain/repositories/group_repository.dart';
 import '../datasources/remote/group_remote_datasource.dart';
 

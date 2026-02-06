@@ -655,7 +655,7 @@ abstract class _EngagementEvidenceModel extends EngagementEvidenceModel {
 mixin _$EngagementModel {
   String get id => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
-  String get oddienceCampaignId => throw _privateConstructorUsedError;
+  String get audienceCampaignId => throw _privateConstructorUsedError;
   String get earnOpportunityId => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
   DateTime get startedAt => throw _privateConstructorUsedError;
@@ -697,7 +697,7 @@ abstract class $EngagementModelCopyWith<$Res> {
   $Res call({
     String id,
     String userId,
-    String oddienceCampaignId,
+    String audienceCampaignId,
     String earnOpportunityId,
     String status,
     DateTime startedAt,
@@ -740,7 +740,7 @@ class _$EngagementModelCopyWithImpl<$Res, $Val extends EngagementModel>
   $Res call({
     Object? id = null,
     Object? userId = null,
-    Object? oddienceCampaignId = null,
+    Object? audienceCampaignId = null,
     Object? earnOpportunityId = null,
     Object? status = null,
     Object? startedAt = null,
@@ -772,9 +772,9 @@ class _$EngagementModelCopyWithImpl<$Res, $Val extends EngagementModel>
                 ? _value.userId
                 : userId // ignore: cast_nullable_to_non_nullable
                       as String,
-            oddienceCampaignId: null == oddienceCampaignId
-                ? _value.oddienceCampaignId
-                : oddienceCampaignId // ignore: cast_nullable_to_non_nullable
+            audienceCampaignId: null == audienceCampaignId
+                ? _value.audienceCampaignId
+                : audienceCampaignId // ignore: cast_nullable_to_non_nullable
                       as String,
             earnOpportunityId: null == earnOpportunityId
                 ? _value.earnOpportunityId
@@ -888,7 +888,7 @@ abstract class _$$EngagementModelImplCopyWith<$Res>
   $Res call({
     String id,
     String userId,
-    String oddienceCampaignId,
+    String audienceCampaignId,
     String earnOpportunityId,
     String status,
     DateTime startedAt,
@@ -931,7 +931,7 @@ class __$$EngagementModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? userId = null,
-    Object? oddienceCampaignId = null,
+    Object? audienceCampaignId = null,
     Object? earnOpportunityId = null,
     Object? status = null,
     Object? startedAt = null,
@@ -963,9 +963,9 @@ class __$$EngagementModelImplCopyWithImpl<$Res>
             ? _value.userId
             : userId // ignore: cast_nullable_to_non_nullable
                   as String,
-        oddienceCampaignId: null == oddienceCampaignId
-            ? _value.oddienceCampaignId
-            : oddienceCampaignId // ignore: cast_nullable_to_non_nullable
+        audienceCampaignId: null == audienceCampaignId
+            ? _value.audienceCampaignId
+            : audienceCampaignId // ignore: cast_nullable_to_non_nullable
                   as String,
         earnOpportunityId: null == earnOpportunityId
             ? _value.earnOpportunityId
@@ -1058,7 +1058,7 @@ class _$EngagementModelImpl extends _EngagementModel {
   const _$EngagementModelImpl({
     required this.id,
     required this.userId,
-    required this.oddienceCampaignId,
+    required this.audienceCampaignId,
     required this.earnOpportunityId,
     required this.status,
     required this.startedAt,
@@ -1087,7 +1087,7 @@ class _$EngagementModelImpl extends _EngagementModel {
   @override
   final String userId;
   @override
-  final String oddienceCampaignId;
+  final String audienceCampaignId;
   @override
   final String earnOpportunityId;
   @override
@@ -1141,7 +1141,7 @@ class _$EngagementModelImpl extends _EngagementModel {
 
   @override
   String toString() {
-    return 'EngagementModel(id: $id, userId: $userId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, threadId: $threadId, clientId: $clientId, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied, adWatched: $adWatched, adTransactionId: $adTransactionId, adCompletedAt: $adCompletedAt)';
+    return 'EngagementModel(id: $id, userId: $userId, audienceCampaignId: $audienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, threadId: $threadId, clientId: $clientId, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied, adWatched: $adWatched, adTransactionId: $adTransactionId, adCompletedAt: $adCompletedAt)';
   }
 
   @override
@@ -1151,8 +1151,8 @@ class _$EngagementModelImpl extends _EngagementModel {
             other is _$EngagementModelImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.oddienceCampaignId, oddienceCampaignId) ||
-                other.oddienceCampaignId == oddienceCampaignId) &&
+            (identical(other.audienceCampaignId, audienceCampaignId) ||
+                other.audienceCampaignId == audienceCampaignId) &&
             (identical(other.earnOpportunityId, earnOpportunityId) ||
                 other.earnOpportunityId == earnOpportunityId) &&
             (identical(other.status, status) || other.status == status) &&
@@ -1201,7 +1201,7 @@ class _$EngagementModelImpl extends _EngagementModel {
     runtimeType,
     id,
     userId,
-    oddienceCampaignId,
+    audienceCampaignId,
     earnOpportunityId,
     status,
     startedAt,
@@ -1240,7 +1240,7 @@ abstract class _EngagementModel extends EngagementModel {
   const factory _EngagementModel({
     required final String id,
     required final String userId,
-    required final String oddienceCampaignId,
+    required final String audienceCampaignId,
     required final String earnOpportunityId,
     required final String status,
     required final DateTime startedAt,
@@ -1269,7 +1269,7 @@ abstract class _EngagementModel extends EngagementModel {
   @override
   String get userId;
   @override
-  String get oddienceCampaignId;
+  String get audienceCampaignId;
   @override
   String get earnOpportunityId;
   @override

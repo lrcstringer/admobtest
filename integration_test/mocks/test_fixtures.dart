@@ -138,7 +138,7 @@ class TestFixtures {
   /// Started engagement
   static Engagement get startedEngagement => Engagement(
         id: 'engagement_1',
-        oddienceCampaignId: 'camp_1',
+        audienceCampaignId: 'camp_1',
         userId: 'test_user_123',
         earnOpportunityId: 'opp_1',
         threadId: 'thread_1',
@@ -155,7 +155,7 @@ class TestFixtures {
   /// Watching engagement (in progress)
   static Engagement get watchingEngagement => Engagement(
         id: 'engagement_1',
-        oddienceCampaignId: 'camp_1',
+        audienceCampaignId: 'camp_1',
         userId: 'test_user_123',
         earnOpportunityId: 'opp_1',
         threadId: 'thread_1',
@@ -172,7 +172,7 @@ class TestFixtures {
   /// Completed engagement
   static Engagement get completedEngagement => Engagement(
         id: 'engagement_1',
-        oddienceCampaignId: 'camp_1',
+        audienceCampaignId: 'camp_1',
         userId: 'test_user_123',
         earnOpportunityId: 'opp_1',
         threadId: 'thread_1',
@@ -193,7 +193,7 @@ class TestFixtures {
         completedEngagement,
         Engagement(
           id: 'engagement_2',
-          oddienceCampaignId: 'camp_1',
+          audienceCampaignId: 'camp_1',
           userId: 'test_user_123',
           earnOpportunityId: 'opp_2',
           threadId: 'thread_1',

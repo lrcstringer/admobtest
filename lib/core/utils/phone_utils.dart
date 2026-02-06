@@ -48,6 +48,44 @@ bool isValidPhoneInput(String rawInput, String countryDialCode) {
   return e164 != null;
 }
 
+/// Parse an E.164 phone number into its components (country code + local digits).
+///
+/// Returns a record with `countryCode` (e.g. "+27") and `localNumber` (e.g. "812345678").
+/// Returns null if the phone number is invalid or doesn't match any known country code.
+({String countryCode, String localNumber})? parseE164ToComponents(
+  String e164Phone,
+  List<String> knownCountryCodes,
+) {
+  if (!e164Phone.startsWith('+')) return null;
+
+  // Try to match the longest country code first (e.g. +852 before +8)
+  String? matchedCode;
+  for (final code in knownCountryCodes) {
+    if (e164Phone.startsWith(code)) {
+      if (matchedCode == null || code.length > matchedCode.length) {
+        matchedCode = code;
+      }
+    }
+  }
+
+  if (matchedCode == null) return null;
+
+  return (
+    countryCode: matchedCode,
+    localNumber: e164Phone.substring(matchedCode.length),
+  );
+}
+
+/// List of supported country dial codes (sorted by length for parsing).
+const supportedDialCodes = [
+  '+27', '+1', '+44', '+61', '+86', '+91', '+49', '+33', '+81', '+55',
+  '+234', '+254', '+255', '+256', '+260', '+263', '+265', '+267', '+268',
+  '+266', '+258', '+264', '+7', '+82', '+39', '+34', '+52', '+62', '+60',
+  '+63', '+66', '+84', '+20', '+212', '+233', '+237', '+251', '+971',
+  '+966', '+92', '+880', '+90', '+48', '+31', '+46', '+47', '+45', '+358',
+  '+41', '+43', '+32', '+351', '+353', '+64', '+65', '+852',
+];
+
 /// Maps dial codes to ISO 3166-1 alpha-2 codes used by the parser.
 const _dialCodeToIso = <String, String>{
   '+27': 'ZA',

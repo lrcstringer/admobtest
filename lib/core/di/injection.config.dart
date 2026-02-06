@@ -304,14 +304,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i988.AuditLogger>(),
       ),
     );
-    gh.factory<_i141.AuthBloc>(
-      () => _i141.AuthBloc(
-        gh<_i1073.AuthRepository>(),
-        gh<_i271.UserRepository>(),
-        gh<_i693.DeviceBindingService>(),
-        gh<_i290.BiometricLoginService>(),
-      ),
-    );
     gh.lazySingleton<_i520.EarnRemoteDataSource>(
       () => _i520.EarnRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
@@ -340,6 +332,15 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i275.GroupBloc>(
       () => _i275.GroupBloc(gh<_i708.GroupRepository>()),
+    );
+    gh.factory<_i141.AuthBloc>(
+      () => _i141.AuthBloc(
+        gh<_i1073.AuthRepository>(),
+        gh<_i271.UserRepository>(),
+        gh<_i693.DeviceBindingService>(),
+        gh<_i290.BiometricLoginService>(),
+        gh<_i830.FcmChallengeHandler>(),
+      ),
     );
     gh.lazySingleton<_i727.RaspService>(
       () => _i727.RaspService(gh<_i141.AuthBloc>()),

@@ -8,7 +8,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/core/security/device_binding_service.dart';
 import 'package:imalichat/core/services/biometric_login_service.dart';
-import 'package:imalichat/data/datasources/local/app_database.dart';
+import 'package:imalichat/core/services/fcm_challenge_handler.dart';
 import 'package:imalichat/domain/entities/trusted_device.dart';
 import 'package:imalichat/domain/entities/user.dart';
 import 'package:imalichat/domain/repositories/auth_repository.dart';
@@ -25,14 +25,14 @@ class MockDeviceBindingService extends Mock implements DeviceBindingService {}
 
 class MockBiometricLoginService extends Mock implements BiometricLoginService {}
 
-class MockAppDatabase extends Mock implements AppDatabase {}
+class MockFcmChallengeHandler extends Mock implements FcmChallengeHandler {}
 
 void main() {
   late MockAuthRepository mockAuthRepository;
   late MockUserRepository mockUserRepository;
   late MockDeviceBindingService mockDeviceBindingService;
   late MockBiometricLoginService mockBiometricLoginService;
-  late MockAppDatabase mockAppDatabase;
+  late MockFcmChallengeHandler mockFcmChallengeHandler;
   late StreamController<User?> authStateController;
 
   AuthBloc createBloc() => AuthBloc(
@@ -40,7 +40,7 @@ void main() {
         mockUserRepository,
         mockDeviceBindingService,
         mockBiometricLoginService,
-        mockAppDatabase,
+        mockFcmChallengeHandler,
       );
 
   setUp(() {
@@ -48,7 +48,7 @@ void main() {
     mockUserRepository = MockUserRepository();
     mockDeviceBindingService = MockDeviceBindingService();
     mockBiometricLoginService = MockBiometricLoginService();
-    mockAppDatabase = MockAppDatabase();
+    mockFcmChallengeHandler = MockFcmChallengeHandler();
     authStateController = StreamController<User?>.broadcast();
 
     when(() => mockAuthRepository.authStateChanges)

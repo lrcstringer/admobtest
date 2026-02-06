@@ -8,6 +8,7 @@ import 'package:injectable/injectable.dart';
 import '../../../core/error/failures.dart';
 import '../../../core/security/device_binding_service.dart';
 import '../../../core/services/biometric_login_service.dart';
+import '../../../core/services/fcm_challenge_handler.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/repositories/user_repository.dart';
@@ -22,6 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UserRepository _userRepository;
   final DeviceBindingService _deviceBindingService;
   final BiometricLoginService _biometricLoginService;
+  final FcmChallengeHandler _fcmChallengeHandler;
   StreamSubscription<User?>? _authStateSubscription;
   Timer? _resendTimer;
 
@@ -30,6 +32,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     this._userRepository,
     this._deviceBindingService,
     this._biometricLoginService,
+    this._fcmChallengeHandler,
   ) : super(const AuthState()) {
     on<_CheckAuthStatus>(_onCheckAuthStatus);
     on<_SendOtp>(_onSendOtp);
@@ -44,6 +47,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<_UnlockSession>(_onUnlockSession);
     on<_ForceReauth>(_onForceReauth);
     on<_AuthenticateWithPushToken>(_onAuthenticateWithPushToken);
+    on<_RequestPushLogin>(_onRequestPushLogin);
+    on<_ClearPushLoginState>(_onClearPushLoginState);
 
     // Listen to auth state changes
     _authStateSubscription = _authRepository.authStateChanges.listen(
@@ -469,6 +474,69 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       status: AuthStatus.authenticated,
       user: freshUser,
       isLoading: false,
+    ));
+  }
+
+  Future<void> _onRequestPushLogin(
+    _RequestPushLogin event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(
+      isPushLoginLoading: true,
+      phoneNumber: event.phoneNumber,
+      errorMessage: null,
+      pushLoginChallengeId: null,
+      hasTrustedDevice: false,
+    ));
+
+    // Skip push login if requested
+    if (event.skipPushLogin) {
+      debugPrint('========================================');
+      debugPrint('PUSH LOGIN: Skipped (skipPushLogin=true)');
+      debugPrint('========================================');
+      emit(state.copyWith(isPushLoginLoading: false));
+      // Fall back to OTP
+      add(AuthEvent.sendOtp(phoneNumber: event.phoneNumber));
+      return;
+    }
+
+    debugPrint('========================================');
+    debugPrint('PUSH LOGIN: Attempting for ${event.phoneNumber}');
+    debugPrint('========================================');
+
+    final result = await _fcmChallengeHandler.requestLogin(event.phoneNumber);
+
+    debugPrint('========================================');
+    debugPrint('PUSH LOGIN RESULT: hasTrustedDevice=${result.hasTrustedDevice}, challengeId=${result.challengeId}');
+    debugPrint('========================================');
+
+    if (result.hasTrustedDevice && result.challengeId != null) {
+      // Push login available - emit state with challengeId
+      emit(state.copyWith(
+        isPushLoginLoading: false,
+        pushLoginChallengeId: result.challengeId,
+        hasTrustedDevice: true,
+      ));
+      return;
+    }
+
+    // No trusted device - fall back to OTP
+    debugPrint('PUSH LOGIN: Falling back to SMS OTP');
+    emit(state.copyWith(
+      isPushLoginLoading: false,
+      hasTrustedDevice: false,
+    ));
+    add(AuthEvent.sendOtp(phoneNumber: event.phoneNumber));
+  }
+
+  Future<void> _onClearPushLoginState(
+    _ClearPushLoginState event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(
+      isPushLoginLoading: false,
+      pushLoginChallengeId: null,
+      hasTrustedDevice: false,
     ));
   }
 

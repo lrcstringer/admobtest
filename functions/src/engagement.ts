@@ -267,7 +267,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     userId: userId,
     // Support both field names for Flutter compatibility
     earnOpportunityId: resolvedOpportunityId,
-    oddienceCampaignId: resolvedCampaignId,
+    audienceCampaignId: resolvedCampaignId,
     campaignId: resolvedCampaignId,
     threadId: resolvedThreadId,
     clientId: resolvedClientId, // Denormalized for targeting queries
@@ -470,8 +470,8 @@ export const processEngagement = functions.https.onCall(
       }
     }
 
-    // Get campaignId - support both field names
-    const campaignId = engagement.campaignId || engagement.oddienceCampaignId;
+    // Get campaignId - support multiple field names
+    const campaignId = engagement.campaignId || engagement.audienceCampaignId;
 
     // Calculate user's share for display (90% of total reward)
     const userShare = Math.floor(rewardAmount * LedgerConfig.EARNING_USER_SHARE);

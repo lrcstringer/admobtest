@@ -639,7 +639,7 @@ class TestData {
   static Engagement get inProgressEngagement => Engagement(
         id: 'engagement123',
         userId: 'user123',
-        oddienceCampaignId: 'campaign123',
+        audienceCampaignId: 'campaign123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.watching,
         startedAt: DateTime(2024, 1, 1),
@@ -656,7 +656,7 @@ class TestData {
   static Engagement get completedEngagement => Engagement(
         id: 'engagement456',
         userId: 'user123',
-        oddienceCampaignId: 'campaign123',
+        audienceCampaignId: 'campaign123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.completed,
         startedAt: DateTime(2024, 1, 1),
@@ -684,7 +684,7 @@ class TestData {
   static Engagement get surveyingEngagement => Engagement(
         id: 'engagement789',
         userId: 'user123',
-        oddienceCampaignId: 'campaign123',
+        audienceCampaignId: 'campaign123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.surveying,
         startedAt: DateTime(2024, 1, 1),
@@ -699,7 +699,7 @@ class TestData {
   static Engagement get failedEngagement => Engagement(
         id: 'engagement_failed',
         userId: 'user123',
-        oddienceCampaignId: 'campaign123',
+        audienceCampaignId: 'campaign123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.failed,
         startedAt: DateTime(2024, 1, 1),
@@ -715,7 +715,7 @@ class TestData {
   static Engagement get abandonedEngagement => Engagement(
         id: 'engagement_abandoned',
         userId: 'user123',
-        oddienceCampaignId: 'campaign123',
+        audienceCampaignId: 'campaign123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.abandoned,
         startedAt: DateTime(2024, 1, 1),

@@ -164,7 +164,7 @@ class EngagementModel with _$EngagementModel {
   const factory EngagementModel({
     required String id,
     required String userId,
-    required String oddienceCampaignId,
+    required String audienceCampaignId,
     required String earnOpportunityId,
     required String status,
     required DateTime startedAt,
@@ -202,7 +202,7 @@ class EngagementModel with _$EngagementModel {
     return EngagementModel(
       id: json['id'] as String,
       userId: json['userId'] as String,
-      oddienceCampaignId: json['oddienceCampaignId'] as String,
+      audienceCampaignId: json['audienceCampaignId'] as String,
       earnOpportunityId: json['earnOpportunityId'] as String,
       status: json['status'] as String,
       startedAt: startedAt is Timestamp
@@ -257,7 +257,7 @@ class EngagementModel with _$EngagementModel {
     return Engagement(
       id: id,
       userId: userId,
-      oddienceCampaignId: oddienceCampaignId,
+      audienceCampaignId: audienceCampaignId,
       earnOpportunityId: earnOpportunityId,
       status: _parseEngagementStatus(status),
       startedAt: startedAt,
@@ -288,7 +288,7 @@ class EngagementModel with _$EngagementModel {
     return EngagementModel(
       id: entity.id,
       userId: entity.userId,
-      oddienceCampaignId: entity.oddienceCampaignId,
+      audienceCampaignId: entity.audienceCampaignId,
       earnOpportunityId: entity.earnOpportunityId,
       status: entity.status.name,
       startedAt: entity.startedAt,
@@ -321,7 +321,7 @@ class EngagementModel with _$EngagementModel {
   Map<String, dynamic> toFirestoreJson() {
     return {
       'userId': userId,
-      'oddienceCampaignId': oddienceCampaignId,
+      'audienceCampaignId': audienceCampaignId,
       'earnOpportunityId': earnOpportunityId,
       'status': status,
       'startedAt': Timestamp.fromDate(startedAt),

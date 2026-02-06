@@ -61,7 +61,7 @@ void main() {
     late AdMobService adMobService;
 
     setUp(() {
-      adMobService = AdMobService(useTestAds: true);
+      adMobService = AdMobService.withTestAds();
     });
 
     tearDown(() {
@@ -100,7 +100,7 @@ void main() {
     });
 
     test('dispose cleans up ValueNotifiers', () {
-      final service = AdMobService(useTestAds: true);
+      final service = AdMobService.withTestAds();
       service.dispose();
 
       // After dispose, adding listeners should throw

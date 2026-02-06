@@ -12,6 +12,10 @@ class AuthState with _$AuthState {
     @Default(0) int resendCountdown,
     @Default(false) bool isDeviceBound,
     String? deviceId,
+    // Push login state
+    @Default(false) bool isPushLoginLoading,
+    String? pushLoginChallengeId,
+    @Default(false) bool hasTrustedDevice,
   }) = _AuthState;
 
   const AuthState._();

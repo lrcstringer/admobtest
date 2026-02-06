@@ -10,7 +10,7 @@ _$EngagementImpl _$$EngagementImplFromJson(Map<String, dynamic> json) =>
     _$EngagementImpl(
       id: json['id'] as String,
       userId: json['userId'] as String,
-      oddienceCampaignId: json['oddienceCampaignId'] as String,
+      audienceCampaignId: json['audienceCampaignId'] as String,
       earnOpportunityId: json['earnOpportunityId'] as String,
       status: $enumDecode(_$EngagementStatusEnumMap, json['status']),
       startedAt: DateTime.parse(json['startedAt'] as String),
@@ -49,7 +49,7 @@ Map<String, dynamic> _$$EngagementImplToJson(_$EngagementImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'userId': instance.userId,
-      'oddienceCampaignId': instance.oddienceCampaignId,
+      'audienceCampaignId': instance.audienceCampaignId,
       'earnOpportunityId': instance.earnOpportunityId,
       'status': _$EngagementStatusEnumMap[instance.status]!,
       'startedAt': instance.startedAt.toIso8601String(),

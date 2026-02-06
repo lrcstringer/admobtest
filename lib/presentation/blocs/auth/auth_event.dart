@@ -45,4 +45,14 @@ class AuthEvent with _$AuthEvent {
   const factory AuthEvent.authenticateWithPushToken({
     required String customToken,
   }) = _AuthenticateWithPushToken;
+
+  /// Request push-based login for a phone number.
+  /// If a trusted device exists, returns challengeId; otherwise falls back to OTP.
+  const factory AuthEvent.requestPushLogin({
+    required String phoneNumber,
+    @Default(false) bool skipPushLogin,
+  }) = _RequestPushLogin;
+
+  /// Clear push login state (e.g., when navigating away)
+  const factory AuthEvent.clearPushLoginState() = _ClearPushLoginState;
 }

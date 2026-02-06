@@ -259,7 +259,7 @@ void main() {
       return {
         'id': 'eng_001',
         'userId': 'user_001',
-        'oddienceCampaignId': 'campaign_001',
+        'audienceCampaignId': 'campaign_001',
         'earnOpportunityId': 'opp_001',
         'status': status,
         'startedAt': now.toIso8601String(),
@@ -307,7 +307,7 @@ void main() {
 
         expect(model.id, equals('eng_001'));
         expect(model.userId, equals('user_001'));
-        expect(model.oddienceCampaignId, equals('campaign_001'));
+        expect(model.audienceCampaignId, equals('campaign_001'));
         expect(model.earnOpportunityId, equals('opp_001'));
         expect(model.status, equals('completed'));
         expect(model.watchDurationSeconds, equals(30));
@@ -345,7 +345,7 @@ void main() {
         final json = {
           'id': 'eng_001',
           'userId': 'user_001',
-          'oddienceCampaignId': 'campaign_001',
+          'audienceCampaignId': 'campaign_001',
           'earnOpportunityId': 'opp_001',
           'status': 'started',
           'startedAt': DateTime.now().toIso8601String(),
@@ -425,7 +425,7 @@ void main() {
 
         expect(entity.id, equals('eng_001'));
         expect(entity.userId, equals('user_001'));
-        expect(entity.oddienceCampaignId, equals('campaign_001'));
+        expect(entity.audienceCampaignId, equals('campaign_001'));
         expect(entity.earnOpportunityId, equals('opp_001'));
         expect(entity.status, equals(EngagementStatus.completed));
         expect(entity.watchDurationSeconds, equals(30));
@@ -474,7 +474,7 @@ void main() {
         final entity = Engagement(
           id: 'eng_001',
           userId: 'user_001',
-          oddienceCampaignId: 'campaign_001',
+          audienceCampaignId: 'campaign_001',
           earnOpportunityId: 'opp_001',
           status: EngagementStatus.watching,
           startedAt: now,
@@ -501,7 +501,7 @@ void main() {
         final entity = Engagement(
           id: 'eng_001',
           userId: 'user_001',
-          oddienceCampaignId: 'campaign_001',
+          audienceCampaignId: 'campaign_001',
           earnOpportunityId: 'opp_001',
           status: EngagementStatus.surveying,
           startedAt: now,
@@ -537,7 +537,7 @@ void main() {
         final entity = Engagement(
           id: 'eng_001',
           userId: 'user_001',
-          oddienceCampaignId: 'campaign_001',
+          audienceCampaignId: 'campaign_001',
           earnOpportunityId: 'opp_001',
           status: EngagementStatus.completed,
           startedAt: now,
@@ -577,7 +577,7 @@ void main() {
         final entity = Engagement(
           id: 'eng_001',
           userId: 'user_001',
-          oddienceCampaignId: 'campaign_001',
+          audienceCampaignId: 'campaign_001',
           earnOpportunityId: 'opp_001',
           status: EngagementStatus.started,
           startedAt: now,
@@ -600,7 +600,7 @@ void main() {
         final model = EngagementModel(
           id: 'eng_001',
           userId: 'user_001',
-          oddienceCampaignId: 'campaign_001',
+          audienceCampaignId: 'campaign_001',
           earnOpportunityId: 'opp_001',
           status: 'completed',
           startedAt: now,
@@ -621,7 +621,7 @@ void main() {
         final json = model.toFirestoreJson();
 
         expect(json['userId'], equals('user_001'));
-        expect(json['oddienceCampaignId'], equals('campaign_001'));
+        expect(json['audienceCampaignId'], equals('campaign_001'));
         expect(json['earnOpportunityId'], equals('opp_001'));
         expect(json['status'], equals('completed'));
         expect(json['watchDurationSeconds'], equals(30));
@@ -638,7 +638,7 @@ void main() {
         final model = EngagementModel(
           id: 'eng_001',
           userId: 'user_001',
-          oddienceCampaignId: 'campaign_001',
+          audienceCampaignId: 'campaign_001',
           earnOpportunityId: 'opp_001',
           status: 'surveying',
           startedAt: now,
@@ -667,7 +667,7 @@ void main() {
         final model = EngagementModel(
           id: 'eng_001',
           userId: 'user_001',
-          oddienceCampaignId: 'campaign_001',
+          audienceCampaignId: 'campaign_001',
           earnOpportunityId: 'opp_001',
           status: 'completed',
           startedAt: now,
@@ -699,7 +699,7 @@ void main() {
         final model = EngagementModel(
           id: 'eng_001',
           userId: 'user_001',
-          oddienceCampaignId: 'campaign_001',
+          audienceCampaignId: 'campaign_001',
           earnOpportunityId: 'opp_001',
           status: 'started',
           startedAt: now,
@@ -730,7 +730,7 @@ void main() {
         final model1 = EngagementModel(
           id: 'eng_001',
           userId: 'user_001',
-          oddienceCampaignId: 'campaign_001',
+          audienceCampaignId: 'campaign_001',
           earnOpportunityId: 'opp_001',
           status: 'started',
           startedAt: now,
@@ -743,7 +743,7 @@ void main() {
         final model2 = EngagementModel(
           id: 'eng_001',
           userId: 'user_001',
-          oddienceCampaignId: 'campaign_001',
+          audienceCampaignId: 'campaign_001',
           earnOpportunityId: 'opp_001',
           status: 'started',
           startedAt: now,
@@ -764,7 +764,7 @@ void main() {
         final original = Engagement(
           id: 'eng_001',
           userId: 'user_001',
-          oddienceCampaignId: 'campaign_001',
+          audienceCampaignId: 'campaign_001',
           earnOpportunityId: 'opp_001',
           status: EngagementStatus.completed,
           startedAt: now,

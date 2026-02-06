@@ -12,7 +12,7 @@ void main() {
       inProgressEngagement = Engagement(
         id: 'eng123',
         userId: 'user123',
-        oddienceCampaignId: 'camp123',
+        audienceCampaignId: 'camp123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.watching,
         startedAt: DateTime(2024, 1, 1),
@@ -26,7 +26,7 @@ void main() {
       completedEngagement = Engagement(
         id: 'eng456',
         userId: 'user123',
-        oddienceCampaignId: 'camp123',
+        audienceCampaignId: 'camp123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.completed,
         startedAt: DateTime(2024, 1, 1),
@@ -49,7 +49,7 @@ void main() {
       failedEngagement = Engagement(
         id: 'eng789',
         userId: 'user123',
-        oddienceCampaignId: 'camp123',
+        audienceCampaignId: 'camp123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.failed,
         startedAt: DateTime(2024, 1, 1),
