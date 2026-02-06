@@ -87,6 +87,7 @@ export const EARNING_TYPES = [
   "trivia",
   "rating",
   "poll",
+  "adVideo", // AdMob rewarded video ads
 ] as const;
 
 export type EarningType = (typeof EARNING_TYPES)[number];

@@ -30,7 +30,7 @@ jest.mock("../constants/targeting", () => {
     validateEarningType: jest.fn().mockReturnValue(true),
     calculateEngagementLevel: jest.fn().mockReturnValue("active"),
     calculateAge: jest.fn().mockReturnValue(25),
-    EARNING_TYPES: ["video", "survey", "poll", "image"],
+    EARNING_TYPES: ["video", "survey", "poll", "image", "adVideo"],
   };
 });
 

@@ -74,6 +74,7 @@ describe("Targeting Validation", () => {
       expect(EARNING_TYPES).toContain("trivia");
       expect(EARNING_TYPES).toContain("rating");
       expect(EARNING_TYPES).toContain("poll");
+      expect(EARNING_TYPES).toContain("adVideo"); // AdMob rewarded video
     });
 
     it("should have brand interaction options", () => {
@@ -484,6 +485,10 @@ describe("Targeting Validation", () => {
 
     it("should return true for poll", () => {
       expect(validateEarningType("poll")).toBe(true);
+    });
+
+    it("should return true for adVideo (AdMob rewarded video)", () => {
+      expect(validateEarningType("adVideo")).toBe(true);
     });
 
     it("should return false for invalid type", () => {

@@ -15,6 +15,8 @@
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import * as crypto from "crypto";
+import * as https from "https";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
   processEarningWithSplit,
@@ -133,6 +135,27 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     engagementType = opportunity.earningType || opportunity.mediaType || "video";
     resolvedCampaignId = opportunity.campaignId || null;
     resolvedThreadId = opportunity.threadId || threadId || null;
+
+    // Check per-opportunity daily limit (e.g., adVideo opportunities may have dailyLimitPerUser: 3)
+    const dailyLimitPerUser = opportunity.dailyLimitPerUser ?? null;
+    if (dailyLimitPerUser !== null && dailyLimitPerUser > 0) {
+      const todayOpportunityCompletionsSnapshot = await db
+        .collection("engagements")
+        .where("userId", "==", userId)
+        .where("earnOpportunityId", "==", earnOpportunityId)
+        .where("status", "==", EngagementStatus.COMPLETED)
+        .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(today))
+        .count()
+        .get();
+
+      const todayOpportunityCompletions = todayOpportunityCompletionsSnapshot.data().count;
+      if (todayOpportunityCompletions >= dailyLimitPerUser) {
+        throw new functions.https.HttpsError(
+          "resource-exhausted",
+          "OPPORTUNITY_DAILY_LIMIT_REACHED"
+        );
+      }
+    }
 
     // Get thread to denormalize clientId and perform budget pre-check
     if (resolvedThreadId) {
@@ -1055,6 +1078,121 @@ function validateEngagementEvidence(
 // AdMob Server-Side Verification (SSV) Callback
 // =============================================================================
 
+// Cache for Google's AdMob public keys
+let cachedPublicKeys: Map<string, crypto.KeyObject> | null = null;
+let keysCacheExpiry = 0;
+const KEYS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const GOOGLE_KEYS_URL = "https://www.gstatic.com/admob/reward/verifier-keys.json";
+
+/**
+ * Fetch Google's AdMob public keys for SSV verification
+ * Keys are cached for 24 hours
+ */
+async function getAdMobPublicKeys(): Promise<Map<string, crypto.KeyObject>> {
+  const now = Date.now();
+
+  // Return cached keys if still valid
+  if (cachedPublicKeys && now < keysCacheExpiry) {
+    return cachedPublicKeys;
+  }
+
+  return new Promise((resolve, reject) => {
+    https.get(GOOGLE_KEYS_URL, (response) => {
+      let data = "";
+
+      response.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      response.on("end", () => {
+        try {
+          const keysJson = JSON.parse(data);
+          const keys = new Map<string, crypto.KeyObject>();
+
+          // Parse each key from JWK format
+          for (const key of keysJson.keys || []) {
+            if (key.keyId && key.base64) {
+              try {
+                // AdMob keys are in base64 DER format
+                const derBuffer = Buffer.from(key.base64, "base64");
+                const publicKey = crypto.createPublicKey({
+                  key: derBuffer,
+                  format: "der",
+                  type: "spki",
+                });
+                keys.set(key.keyId.toString(), publicKey);
+              } catch (keyError) {
+                console.warn(`Failed to parse AdMob key ${key.keyId}:`, keyError);
+              }
+            }
+          }
+
+          // Update cache
+          cachedPublicKeys = keys;
+          keysCacheExpiry = now + KEYS_CACHE_TTL_MS;
+
+          console.log(`AdMob SSV: Cached ${keys.size} public keys`);
+          resolve(keys);
+        } catch (parseError) {
+          console.error("AdMob SSV: Failed to parse keys JSON:", parseError);
+          reject(parseError);
+        }
+      });
+    }).on("error", (error) => {
+      console.error("AdMob SSV: Failed to fetch keys:", error);
+      reject(error);
+    });
+  });
+}
+
+/**
+ * Verify AdMob SSV signature using ECDSA
+ * @param queryString The full query string from the callback URL
+ * @param signature Base64-encoded signature from AdMob
+ * @param keyId The key ID used to sign the callback
+ * @returns true if signature is valid, false otherwise
+ */
+async function verifyAdMobSignature(
+  queryString: string,
+  signature: string,
+  keyId: string
+): Promise<boolean> {
+  try {
+    const keys = await getAdMobPublicKeys();
+    const publicKey = keys.get(keyId);
+
+    if (!publicKey) {
+      console.error(`AdMob SSV: Unknown key ID: ${keyId}`);
+      return false;
+    }
+
+    // The message to verify is the query string without signature and key_id params
+    // Parse query string and rebuild without those params
+    const params = new URLSearchParams(queryString);
+    params.delete("signature");
+    params.delete("key_id");
+
+    // Sort params alphabetically and rebuild (AdMob uses sorted params for signing)
+    const sortedParams = new URLSearchParams([...params.entries()].sort());
+    const messageToVerify = sortedParams.toString();
+
+    // Decode the base64 signature (URL-safe base64)
+    const signatureBuffer = Buffer.from(
+      signature.replace(/-/g, "+").replace(/_/g, "/"),
+      "base64"
+    );
+
+    // Verify using ECDSA with SHA256
+    const verifier = crypto.createVerify("SHA256");
+    verifier.update(messageToVerify);
+
+    return verifier.verify(publicKey, signatureBuffer);
+  } catch (error) {
+    console.error("AdMob SSV: Signature verification error:", error);
+    return false;
+  }
+}
+
 /**
  * AdMob SSV callback endpoint
  *
@@ -1123,12 +1261,27 @@ export const admobSSVCallback = functions.https.onRequest(async (req, res) => {
       console.warn("AdMob SSV: User ID mismatch", { ssv_userId, userId });
     }
 
-    // TODO: Implement full signature verification using Google's public keys
-    // For now, we log the callback and store the verification
-    // Full implementation would involve:
-    // 1. Fetch Google's public keys from: https://www.gstatic.com/admob/reward/verifier-keys.json
-    // 2. Verify the ECDSA signature using the key_id
-    // 3. Ensure the callback URL matches the signed content
+    // Verify the signature using Google's public keys
+    let signatureValid = false;
+    if (signature && keyId) {
+      // Reconstruct the query string from the URL
+      const queryString = req.url?.split("?")[1] || "";
+      signatureValid = await verifyAdMobSignature(queryString, signature, keyId);
+
+      if (!signatureValid) {
+        console.error("AdMob SSV: Invalid signature", {
+          transactionId,
+          keyId,
+          userId: ssv_userId,
+        });
+        // Still store the record but mark as unverified
+        // This allows investigation of potential fraud
+      } else {
+        console.log("AdMob SSV: Signature verified successfully", { transactionId });
+      }
+    } else {
+      console.warn("AdMob SSV: Missing signature or key_id", { transactionId });
+    }
 
     // Store the SSV verification record
     const ssvRef = db.collection("admobSSVCallbacks").doc(transactionId as string);
@@ -1152,7 +1305,8 @@ export const admobSSVCallback = functions.https.onRequest(async (req, res) => {
       receivedAt: admin.firestore.FieldValue.serverTimestamp(),
       signature,
       keyId,
-      verified: true, // Set to true after implementing full signature verification
+      verified: signatureValid, // Only true if ECDSA signature verified
+      signaturePresent: !!(signature && keyId),
       rawQuery: req.query,
     });
 
