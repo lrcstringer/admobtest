@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../core/constants/app_constants.dart';
+
 part 'ledger_account.freezed.dart';
 part 'ledger_account.g.dart';
 
@@ -49,7 +51,7 @@ class LedgerAccount with _$LedgerAccount {
   bool get isActive => status == LedgerAccountStatus.active;
 
   /// Get balance in ZAR (100 tokens = R1)
-  double get balanceZar => balance / 100;
+  double get balanceZar => AppConstants.tokensToZar(balance);
 
   /// Extract user ID from account ID (format: "user:userId")
   String? get userId {

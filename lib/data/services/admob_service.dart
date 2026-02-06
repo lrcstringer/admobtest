@@ -57,7 +57,14 @@ class AdMobService {
   /// Callback for when ad is loading
   final ValueNotifier<bool> isLoading = ValueNotifier(false);
 
-  AdMobService({bool useTestAds = kDebugMode}) : _useTestAds = useTestAds;
+  /// Creates AdMobService. Uses test ads in debug mode by default.
+  /// Injectable ignores optional parameters with defaults, so this is DI-safe.
+  @factoryMethod
+  AdMobService() : _useTestAds = kDebugMode;
+
+  /// Constructor for testing - allows overriding test ads setting
+  @visibleForTesting
+  AdMobService.withTestAds({bool useTestAds = true}) : _useTestAds = useTestAds;
 
   String get _adUnitId => _useTestAds
       ? AdMobConstants.testRewardedAdUnitId

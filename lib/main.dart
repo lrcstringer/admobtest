@@ -86,35 +86,42 @@ Future<void> main() async {
   final challengeHandler = GetIt.instance<FcmChallengeHandler>();
   challengeHandler.startListening();
 
-  // Set up Bloc observer for debugging
-  Bloc.observer = AppBlocObserver();
+  // Set up Bloc observer for debugging (only in debug mode)
+  if (kDebugMode) {
+    Bloc.observer = AppBlocObserver();
+  }
 
   runApp(const IMaliChatApp());
 }
 
 /// Bloc observer for debugging and logging
+/// Only active in debug mode to avoid performance overhead in production.
 class AppBlocObserver extends BlocObserver {
   @override
   void onCreate(BlocBase bloc) {
     super.onCreate(bloc);
-    debugPrint('onCreate -- ${bloc.runtimeType}');
+    if (kDebugMode) debugPrint('onCreate -- ${bloc.runtimeType}');
   }
 
   @override
   void onChange(BlocBase bloc, Change change) {
     super.onChange(bloc, change);
-    debugPrint('onChange -- ${bloc.runtimeType}, $change');
+    if (kDebugMode) debugPrint('onChange -- ${bloc.runtimeType}, $change');
   }
 
   @override
   void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
-    debugPrint('onError -- ${bloc.runtimeType}, $error');
+    // Always log errors, but use different strategies for debug vs release
+    if (kDebugMode) {
+      debugPrint('onError -- ${bloc.runtimeType}, $error');
+    }
+    // In production, errors are captured by the ErrorHandler/crash reporting
     super.onError(bloc, error, stackTrace);
   }
 
   @override
   void onClose(BlocBase bloc) {
     super.onClose(bloc);
-    debugPrint('onClose -- ${bloc.runtimeType}');
+    if (kDebugMode) debugPrint('onClose -- ${bloc.runtimeType}');
   }
 }

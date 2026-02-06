@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:injectable/injectable.dart';
 
@@ -5,8 +6,9 @@ import 'package:injectable/injectable.dart';
 @lazySingleton
 class AdminEarnRemoteDataSource {
   final FirebaseFunctions _functions;
+  final FirebaseFirestore _firestore;
 
-  AdminEarnRemoteDataSource(this._functions);
+  AdminEarnRemoteDataSource(this._functions, this._firestore);
 
   // ============================================================================
   // STATISTICS
@@ -54,6 +56,24 @@ class AdminEarnRemoteDataSource {
   // THREAD MANAGEMENT
   // ============================================================================
 
+  /// List all threads for a client
+  Future<List<Map<String, dynamic>>> listThreadsForClient(
+      String clientId) async {
+    final snapshot = await _firestore
+        .collection('earnThreads')
+        .where('clientId', isEqualTo: clientId)
+        .orderBy('createdAt', descending: true)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      return {
+        'id': doc.id,
+        ...data,
+      };
+    }).toList();
+  }
+
   /// Create or update an earn thread
   Future<String> createOrUpdateThread({
     String? id,
@@ -91,6 +111,24 @@ class AdminEarnRemoteDataSource {
   // ============================================================================
   // OPPORTUNITY MANAGEMENT
   // ============================================================================
+
+  /// List all opportunities for a thread
+  Future<List<Map<String, dynamic>>> listOpportunitiesForThread(
+      String threadId) async {
+    final snapshot = await _firestore
+        .collection('earnOpportunities')
+        .where('threadId', isEqualTo: threadId)
+        .orderBy('createdAt', descending: true)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      return {
+        'id': doc.id,
+        ...data,
+      };
+    }).toList();
+  }
 
   /// Create or update an earn opportunity
   Future<String> createOrUpdateOpportunity({

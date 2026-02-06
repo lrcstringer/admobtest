@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../../../core/error/failures.dart';
-import '../../../data/datasources/remote/group_remote_datasource.dart'
-    show StokvelAnalytics;
 import '../../../domain/entities/group.dart';
+import '../../../domain/entities/stokvel_analytics.dart';
 import '../../../domain/entities/group_member.dart';
 import '../../../domain/entities/group_transaction.dart';
 import '../../../domain/repositories/group_repository.dart';

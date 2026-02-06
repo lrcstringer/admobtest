@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -12,10 +11,8 @@ part 'admin_earn_state.dart';
 @injectable
 class AdminEarnBloc extends Bloc<AdminEarnEvent, AdminEarnState> {
   final AdminEarnRemoteDataSource _dataSource;
-  final FirebaseFirestore _firestore;
 
-  AdminEarnBloc(this._dataSource, this._firestore)
-      : super(const AdminEarnState()) {
+  AdminEarnBloc(this._dataSource) : super(const AdminEarnState()) {
     // Statistics
     on<_LoadStatistics>(_onLoadStatistics);
     on<_LoadTargetingOptions>(_onLoadTargetingOptions);
@@ -297,21 +294,7 @@ class AdminEarnBloc extends Bloc<AdminEarnEvent, AdminEarnState> {
   ) async {
     emit(state.copyWith(isLoadingThreads: true));
     try {
-      // Load threads directly from Firestore since admin has access
-      final snapshot = await _firestore
-          .collection('earnThreads')
-          .where('clientId', isEqualTo: event.clientId)
-          .orderBy('createdAt', descending: true)
-          .get();
-
-      final threads = snapshot.docs.map((doc) {
-        final data = doc.data();
-        return {
-          'id': doc.id,
-          ...data,
-        };
-      }).toList();
-
+      final threads = await _dataSource.listThreadsForClient(event.clientId);
       emit(state.copyWith(
         isLoadingThreads: false,
         threads: threads,
@@ -384,21 +367,8 @@ class AdminEarnBloc extends Bloc<AdminEarnEvent, AdminEarnState> {
   ) async {
     emit(state.copyWith(isLoadingOpportunities: true));
     try {
-      // Load opportunities directly from Firestore since admin has access
-      final snapshot = await _firestore
-          .collection('earnOpportunities')
-          .where('threadId', isEqualTo: event.threadId)
-          .orderBy('createdAt', descending: true)
-          .get();
-
-      final opportunities = snapshot.docs.map((doc) {
-        final data = doc.data();
-        return {
-          'id': doc.id,
-          ...data,
-        };
-      }).toList();
-
+      final opportunities =
+          await _dataSource.listOpportunitiesForThread(event.threadId);
       emit(state.copyWith(
         isLoadingOpportunities: false,
         opportunities: opportunities,

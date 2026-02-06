@@ -35,4 +35,8 @@ abstract class AuthRepository {
 
   /// Sign in with a Firebase custom token (used by push-based login).
   Future<Either<Failure, User>> signInWithCustomToken(String token);
+
+  /// Clear all locally cached data (wallets, transactions, chats, etc.)
+  /// Called during sign out to ensure no sensitive data remains.
+  Future<void> clearLocalCache();
 }

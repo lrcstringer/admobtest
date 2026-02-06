@@ -7,6 +7,7 @@ import '../../core/network/network_info.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/enums/user_status.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../datasources/local/app_database.dart';
 import '../datasources/remote/auth_remote_datasource.dart';
 import '../datasources/remote/user_remote_datasource.dart';
 import '../models/user_model.dart';
@@ -16,6 +17,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _authRemoteDataSource;
   final UserRemoteDataSource _userRemoteDataSource;
   final NetworkInfo _networkInfo;
+  final AppDatabase _appDatabase;
 
   // Track OTP send time for local cooldown
   DateTime? _lastOtpSentAt;
@@ -24,6 +26,7 @@ class AuthRepositoryImpl implements AuthRepository {
     this._authRemoteDataSource,
     this._userRemoteDataSource,
     this._networkInfo,
+    this._appDatabase,
   );
 
   @override
@@ -217,6 +220,11 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e) {
       return Left(Failure.auth(message: e.toString()));
     }
+  }
+
+  @override
+  Future<void> clearLocalCache() async {
+    await _appDatabase.clearAllData();
   }
 
   /// Map AuthException to appropriate Failure type

@@ -86,6 +86,7 @@ import '../security/sim_change_detector.dart' as _i925;
 import '../security/step_up_auth_service.dart' as _i720;
 import '../services/biometric_login_service.dart' as _i290;
 import '../services/fcm_challenge_handler.dart' as _i830;
+import '../utils/error_handler.dart' as _i383;
 import 'register_module.dart' as _i291;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -128,7 +129,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i921.ScreenshotPreventionService(),
     );
     gh.lazySingleton<_i383.SecurityService>(() => _i383.SecurityService());
+    gh.lazySingleton<_i383.ErrorHandler>(() => _i383.ErrorHandler());
     gh.lazySingleton<_i483.AppDatabase>(() => _i483.AppDatabase());
+    gh.lazySingleton<_i284.AdMobService>(() => _i284.AdMobService());
     gh.lazySingleton<_i1057.AuthRemoteDataSource>(
       () => _i1057.AuthRemoteDataSourceImpl(
         gh<_i59.FirebaseAuth>(),
@@ -138,11 +141,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i932.NetworkInfo>(
       () => _i932.NetworkInfoImpl(gh<_i161.InternetConnection>()),
     );
-    gh.lazySingleton<_i284.AdMobService>(
-      () => _i284.AdMobService(useTestAds: gh<bool>()),
-    );
     gh.lazySingleton<_i752.PinManager>(
       () => _i752.PinManager(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.lazySingleton<_i48.AdminEarnRemoteDataSource>(
+      () => _i48.AdminEarnRemoteDataSource(
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i974.FirebaseFirestore>(),
+      ),
     );
     gh.lazySingleton<_i433.DeviceRemoteDataSource>(
       () => _i433.DeviceRemoteDataSourceImpl(
@@ -186,9 +192,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i351.PlayIntegrityService>(
       () => _i351.PlayIntegrityService(gh<_i809.FirebaseFunctions>()),
-    );
-    gh.lazySingleton<_i48.AdminEarnRemoteDataSource>(
-      () => _i48.AdminEarnRemoteDataSource(gh<_i809.FirebaseFunctions>()),
     );
     gh.lazySingleton<_i454.DeviceRepository>(
       () => _i34.DeviceRepositoryImpl(
@@ -247,15 +250,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i558.FlutterSecureStorage>(),
       ),
     );
+    gh.factory<_i1026.AdminEarnBloc>(
+      () => _i1026.AdminEarnBloc(gh<_i48.AdminEarnRemoteDataSource>()),
+    );
     gh.lazySingleton<_i1010.GamificationRepository>(
       () => _i500.GamificationRepositoryImpl(
         gh<_i749.GamificationRemoteDataSource>(),
-      ),
-    );
-    gh.factory<_i1026.AdminEarnBloc>(
-      () => _i1026.AdminEarnBloc(
-        gh<_i48.AdminEarnRemoteDataSource>(),
-        gh<_i974.FirebaseFirestore>(),
       ),
     );
     gh.lazySingleton<_i224.ChatRemoteDataSource>(
@@ -274,15 +274,16 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.PlayIntegrityService>(),
       ),
     );
+    gh.factory<_i58.PotBloc>(
+      () => _i58.PotBloc(gh<_i1010.GamificationRepository>()),
+    );
     gh.lazySingleton<_i1073.AuthRepository>(
       () => _i895.AuthRepositoryImpl(
         gh<_i1057.AuthRemoteDataSource>(),
         gh<_i50.UserRemoteDataSource>(),
         gh<_i932.NetworkInfo>(),
+        gh<_i483.AppDatabase>(),
       ),
-    );
-    gh.factory<_i58.PotBloc>(
-      () => _i58.PotBloc(gh<_i1010.GamificationRepository>()),
     );
     gh.lazySingleton<_i742.PurchaseRepository>(
       () => _i1044.PurchaseRepositoryImpl(gh<_i267.PurchaseRemoteDataSource>()),
@@ -303,21 +304,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i988.AuditLogger>(),
       ),
     );
-    gh.lazySingleton<_i520.EarnRemoteDataSource>(
-      () => _i520.EarnRemoteDataSourceImpl(
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i59.FirebaseAuth>(),
-        gh<_i809.FirebaseFunctions>(),
-        gh<_i351.PlayIntegrityService>(),
-      ),
-    );
     gh.factory<_i141.AuthBloc>(
       () => _i141.AuthBloc(
         gh<_i1073.AuthRepository>(),
         gh<_i271.UserRepository>(),
         gh<_i693.DeviceBindingService>(),
         gh<_i290.BiometricLoginService>(),
-        gh<_i483.AppDatabase>(),
+      ),
+    );
+    gh.lazySingleton<_i520.EarnRemoteDataSource>(
+      () => _i520.EarnRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i351.PlayIntegrityService>(),
       ),
     );
     gh.lazySingleton<_i633.ReferralRepository>(

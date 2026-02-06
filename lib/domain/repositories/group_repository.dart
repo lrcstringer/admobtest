@@ -1,8 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../core/error/failures.dart';
-import '../../data/datasources/remote/group_remote_datasource.dart'
-    show StokvelAnalytics, StokvelPayoutResult;
 import '../entities/group.dart';
+import '../entities/stokvel_analytics.dart';
 import '../entities/group_member.dart';
 import '../entities/group_transaction.dart';
 

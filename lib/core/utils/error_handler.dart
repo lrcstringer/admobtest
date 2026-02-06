@@ -4,14 +4,14 @@ library;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:injectable/injectable.dart';
 
 import '../error/failures.dart';
 
 /// Global error handler singleton
+@lazySingleton
 class ErrorHandler {
-  static final ErrorHandler _instance = ErrorHandler._internal();
-  factory ErrorHandler() => _instance;
-  ErrorHandler._internal();
+  ErrorHandler();
 
   final _errorController = StreamController<AppError>.broadcast();
 

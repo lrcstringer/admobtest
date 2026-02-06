@@ -45,7 +45,8 @@ class GroupState with _$GroupState {
   int get selectedGroupBalance => selectedGroup?.totalBalance ?? 0;
 
   /// Get balance in ZAR (100 tokens = R1)
-  double get selectedGroupBalanceZar => selectedGroupBalance / 100;
+  double get selectedGroupBalanceZar =>
+      AppConstants.tokensToZar(selectedGroupBalance);
 
   /// Check if selected group has pending approvals
   bool get hasPendingApprovals => selectedGroupApprovals.isNotEmpty;

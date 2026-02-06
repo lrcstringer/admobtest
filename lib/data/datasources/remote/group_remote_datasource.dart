@@ -7,6 +7,7 @@ import '../../../core/error/exceptions.dart';
 import '../../../core/security/play_integrity_service.dart';
 import '../../../core/utils/firestore_helpers.dart';
 import '../../../domain/entities/group_member.dart';
+import '../../../domain/entities/stokvel_analytics.dart';
 import '../../../domain/repositories/group_repository.dart';
 import '../../models/group_model.dart';
 import '../../models/group_member_model.dart';
@@ -60,113 +61,6 @@ abstract class GroupRemoteDataSource {
   // Stokvel-specific operations
   Future<StokvelPayoutResult> triggerStokvelPayout(String groupId, {String? recipientId});
   Future<StokvelAnalytics> getStokvelAnalytics(String groupId, {int months = 6});
-}
-
-/// Result of a stokvel payout operation
-class StokvelPayoutResult {
-  final String transactionId;
-  final String journalId;
-  final String recipientId;
-  final int amount;
-
-  StokvelPayoutResult({
-    required this.transactionId,
-    required this.journalId,
-    required this.recipientId,
-    required this.amount,
-  });
-
-  factory StokvelPayoutResult.fromJson(Map<String, dynamic> json) {
-    return StokvelPayoutResult(
-      transactionId: json['transactionId'] as String,
-      journalId: json['journalId'] as String,
-      recipientId: json['recipientId'] as String,
-      amount: json['amount'] as int,
-    );
-  }
-}
-
-/// Stokvel analytics data
-class StokvelAnalytics {
-  final int totalContributions;
-  final int totalWithdrawals;
-  final int totalPayouts;
-  final int totalPenalties;
-  final Map<String, MonthlyBreakdown> monthlyBreakdown;
-  final Map<String, int> memberContributions;
-  final Map<String, MemberInfo> memberInfo;
-  final int currentBalance;
-
-  StokvelAnalytics({
-    required this.totalContributions,
-    required this.totalWithdrawals,
-    required this.totalPayouts,
-    required this.totalPenalties,
-    required this.monthlyBreakdown,
-    required this.memberContributions,
-    required this.memberInfo,
-    required this.currentBalance,
-  });
-
-  factory StokvelAnalytics.fromJson(Map<String, dynamic> json) {
-    final analytics = json['analytics'] as Map<String, dynamic>;
-    final memberInfoJson = json['memberInfo'] as Map<String, dynamic>? ?? {};
-
-    return StokvelAnalytics(
-      totalContributions: analytics['totalContributions'] as int? ?? 0,
-      totalWithdrawals: analytics['totalWithdrawals'] as int? ?? 0,
-      totalPayouts: analytics['totalPayouts'] as int? ?? 0,
-      totalPenalties: analytics['totalPenalties'] as int? ?? 0,
-      monthlyBreakdown: (analytics['monthlyBreakdown'] as Map<String, dynamic>? ?? {})
-          .map((k, v) => MapEntry(k, MonthlyBreakdown.fromJson(Map<String, dynamic>.from(v as Map)))),
-      memberContributions: (analytics['memberContributions'] as Map<String, dynamic>? ?? {})
-          .map((k, v) => MapEntry(k, v as int)),
-      memberInfo: memberInfoJson.map((k, v) => MapEntry(k, MemberInfo.fromJson(Map<String, dynamic>.from(v as Map)))),
-      currentBalance: json['currentBalance'] as int? ?? 0,
-    );
-  }
-}
-
-/// Monthly breakdown for stokvel analytics
-class MonthlyBreakdown {
-  final int contributions;
-  final int withdrawals;
-  final int payouts;
-  final int penalties;
-
-  MonthlyBreakdown({
-    required this.contributions,
-    required this.withdrawals,
-    required this.payouts,
-    required this.penalties,
-  });
-
-  factory MonthlyBreakdown.fromJson(Map<String, dynamic> json) {
-    return MonthlyBreakdown(
-      contributions: json['contributions'] as int? ?? 0,
-      withdrawals: json['withdrawals'] as int? ?? 0,
-      payouts: json['payouts'] as int? ?? 0,
-      penalties: json['penalties'] as int? ?? 0,
-    );
-  }
-}
-
-/// Member info for analytics display
-class MemberInfo {
-  final String displayName;
-  final String? avatarUrl;
-
-  MemberInfo({
-    required this.displayName,
-    this.avatarUrl,
-  });
-
-  factory MemberInfo.fromJson(Map<String, dynamic> json) {
-    return MemberInfo(
-      displayName: json['displayName'] as String? ?? 'Unknown',
-      avatarUrl: json['avatarUrl'] as String?,
-    );
-  }
 }
 
 @LazySingleton(as: GroupRemoteDataSource)

@@ -22,7 +22,7 @@ class WalletState with _$WalletState {
   int get balance => ledgerAccount?.balance ?? 0;
 
   /// Get balance in ZAR (100 tokens = R1)
-  double get balanceZar => balance / 100;
+  double get balanceZar => AppConstants.tokensToZar(balance);
 
   /// Check if can cashout - ledger balance must meet minimum and account active
   bool get canCashout => ledgerAccount?.isActive == true && balance >= 5000;
@@ -44,7 +44,7 @@ class WalletState with _$WalletState {
       subAccounts.fold(0, (sum, sa) => sum + sa.balance);
 
   /// Total portfolio value in ZAR
-  double get portfolioBalanceZar => portfolioBalance / 100;
+  double get portfolioBalanceZar => AppConstants.tokensToZar(portfolioBalance);
 
   /// Get the default (iMaliChat) sub-account
   SubAccount? get defaultSubAccount =>

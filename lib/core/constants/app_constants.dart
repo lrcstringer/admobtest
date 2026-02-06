@@ -1,7 +1,18 @@
 /// Application-wide constants for iMaliChat
 abstract class AppConstants {
   // Token Economics
+  /// Value of 1 token in ZAR (R0.01 per token)
   static const double tokenValueZar = 0.01;
+
+  /// Number of tokens per R1 ZAR (100 tokens = R1)
+  static const int tokensPerZar = 100;
+
+  /// Convert tokens to ZAR
+  static double tokensToZar(int tokens) => tokens / tokensPerZar;
+
+  /// Convert ZAR to tokens
+  static int zarToTokens(double zar) => (zar * tokensPerZar).round();
+
   static const int rewardStdTokens = 5;
   static const int rewardBonusTokens = 10;
   static const double bonusShare = 0.20;
