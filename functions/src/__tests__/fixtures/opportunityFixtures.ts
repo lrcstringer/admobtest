@@ -353,6 +353,46 @@ export const triviaOpportunity = {
 };
 
 /**
+ * AdMob rewarded video opportunity (system)
+ */
+export const adMobOpportunity = {
+  id: "opp_admob_001",
+  threadId: "system_admob_thread",
+  title: "Watch Ad",
+  description: "Watch a short video ad to earn tokens",
+  earningType: "adVideo",
+  tokenReward: 5,
+  streakPoints: 1,
+  mediaType: "adMob",
+  mediaUrl: null,
+  adUnitId: "ca-app-pub-9331591670168644/1108724925",
+  questions: [
+    {
+      id: "admob_q1",
+      text: "Did you watch the full video ad?",
+      options: ["Yes, I watched it completely", "Most of it", "Not really"],
+      orderIndex: 0,
+      isAttentionCheck: true,
+      correctAnswer: "Yes, I watched it completely",
+    },
+  ],
+  durationSeconds: 30,
+  dailyLimitPerUser: 3,
+  expiresAt: null, // No expiry for system opportunities
+  isActive: true,
+  clientId: "system_admob",
+  clientName: "iMali Rewards",
+  clientAvatarColor: "#4CAF50",
+  bonusReward: false,
+  bonusRewardMultiplier: 1.0,
+  bonusIntervalType: null,
+  bonusIntervalX: null,
+  targeting: null,
+  createdAt: createTimestamp(daysAgo(30)),
+  updatedAt: createTimestamp(daysAgo(1)),
+};
+
+/**
  * Image opportunity
  */
 export const imageOpportunity = {

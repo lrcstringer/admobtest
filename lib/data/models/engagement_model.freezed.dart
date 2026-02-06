@@ -249,7 +249,10 @@ mixin _$EngagementEvidenceModel {
   List<int> get surveyResponseTimesMs => throw _privateConstructorUsedError;
   DateTime get videoStartedAt => throw _privateConstructorUsedError;
   DateTime get surveySubmittedAt => throw _privateConstructorUsedError;
-  double? get clientAttentionScore => throw _privateConstructorUsedError;
+  double? get clientAttentionScore =>
+      throw _privateConstructorUsedError; // AdMob verification fields
+  String? get adTransactionId => throw _privateConstructorUsedError;
+  bool? get adFullyWatched => throw _privateConstructorUsedError;
 
   /// Create a copy of EngagementEvidenceModel
   /// with the given fields replaced by the non-null parameter values.
@@ -276,6 +279,8 @@ abstract class $EngagementEvidenceModelCopyWith<$Res> {
     DateTime videoStartedAt,
     DateTime surveySubmittedAt,
     double? clientAttentionScore,
+    String? adTransactionId,
+    bool? adFullyWatched,
   });
 }
 
@@ -307,6 +312,8 @@ class _$EngagementEvidenceModelCopyWithImpl<
     Object? videoStartedAt = null,
     Object? surveySubmittedAt = null,
     Object? clientAttentionScore = freezed,
+    Object? adTransactionId = freezed,
+    Object? adFullyWatched = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -350,6 +357,14 @@ class _$EngagementEvidenceModelCopyWithImpl<
                 ? _value.clientAttentionScore
                 : clientAttentionScore // ignore: cast_nullable_to_non_nullable
                       as double?,
+            adTransactionId: freezed == adTransactionId
+                ? _value.adTransactionId
+                : adTransactionId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            adFullyWatched: freezed == adFullyWatched
+                ? _value.adFullyWatched
+                : adFullyWatched // ignore: cast_nullable_to_non_nullable
+                      as bool?,
           )
           as $Val,
     );
@@ -376,6 +391,8 @@ abstract class _$$EngagementEvidenceModelImplCopyWith<$Res>
     DateTime videoStartedAt,
     DateTime surveySubmittedAt,
     double? clientAttentionScore,
+    String? adTransactionId,
+    bool? adFullyWatched,
   });
 }
 
@@ -407,6 +424,8 @@ class __$$EngagementEvidenceModelImplCopyWithImpl<$Res>
     Object? videoStartedAt = null,
     Object? surveySubmittedAt = null,
     Object? clientAttentionScore = freezed,
+    Object? adTransactionId = freezed,
+    Object? adFullyWatched = freezed,
   }) {
     return _then(
       _$EngagementEvidenceModelImpl(
@@ -450,6 +469,14 @@ class __$$EngagementEvidenceModelImplCopyWithImpl<$Res>
             ? _value.clientAttentionScore
             : clientAttentionScore // ignore: cast_nullable_to_non_nullable
                   as double?,
+        adTransactionId: freezed == adTransactionId
+            ? _value.adTransactionId
+            : adTransactionId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        adFullyWatched: freezed == adFullyWatched
+            ? _value.adFullyWatched
+            : adFullyWatched // ignore: cast_nullable_to_non_nullable
+                  as bool?,
       ),
     );
   }
@@ -469,6 +496,8 @@ class _$EngagementEvidenceModelImpl extends _EngagementEvidenceModel {
     required this.videoStartedAt,
     required this.surveySubmittedAt,
     this.clientAttentionScore,
+    this.adTransactionId,
+    this.adFullyWatched,
   }) : _surveyResponseTimesMs = surveyResponseTimesMs,
        super._();
 
@@ -499,10 +528,15 @@ class _$EngagementEvidenceModelImpl extends _EngagementEvidenceModel {
   final DateTime surveySubmittedAt;
   @override
   final double? clientAttentionScore;
+  // AdMob verification fields
+  @override
+  final String? adTransactionId;
+  @override
+  final bool? adFullyWatched;
 
   @override
   String toString() {
-    return 'EngagementEvidenceModel(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore)';
+    return 'EngagementEvidenceModel(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched)';
   }
 
   @override
@@ -531,7 +565,11 @@ class _$EngagementEvidenceModelImpl extends _EngagementEvidenceModel {
             (identical(other.surveySubmittedAt, surveySubmittedAt) ||
                 other.surveySubmittedAt == surveySubmittedAt) &&
             (identical(other.clientAttentionScore, clientAttentionScore) ||
-                other.clientAttentionScore == clientAttentionScore));
+                other.clientAttentionScore == clientAttentionScore) &&
+            (identical(other.adTransactionId, adTransactionId) ||
+                other.adTransactionId == adTransactionId) &&
+            (identical(other.adFullyWatched, adFullyWatched) ||
+                other.adFullyWatched == adFullyWatched));
   }
 
   @override
@@ -547,6 +585,8 @@ class _$EngagementEvidenceModelImpl extends _EngagementEvidenceModel {
     videoStartedAt,
     surveySubmittedAt,
     clientAttentionScore,
+    adTransactionId,
+    adFullyWatched,
   );
 
   /// Create a copy of EngagementEvidenceModel
@@ -573,6 +613,8 @@ abstract class _EngagementEvidenceModel extends EngagementEvidenceModel {
     required final DateTime videoStartedAt,
     required final DateTime surveySubmittedAt,
     final double? clientAttentionScore,
+    final String? adTransactionId,
+    final bool? adFullyWatched,
   }) = _$EngagementEvidenceModelImpl;
   const _EngagementEvidenceModel._() : super._();
 
@@ -595,7 +637,11 @@ abstract class _EngagementEvidenceModel extends EngagementEvidenceModel {
   @override
   DateTime get surveySubmittedAt;
   @override
-  double? get clientAttentionScore;
+  double? get clientAttentionScore; // AdMob verification fields
+  @override
+  String? get adTransactionId;
+  @override
+  bool? get adFullyWatched;
 
   /// Create a copy of EngagementEvidenceModel
   /// with the given fields replaced by the non-null parameter values.
@@ -628,7 +674,11 @@ mixin _$EngagementModel {
   String? get clientId =>
       throw _privateConstructorUsedError; // Streak audit fields
   int? get streakDayAtCompletion => throw _privateConstructorUsedError;
-  double? get multiplierApplied => throw _privateConstructorUsedError;
+  double? get multiplierApplied =>
+      throw _privateConstructorUsedError; // AdMob tracking fields
+  bool get adWatched => throw _privateConstructorUsedError;
+  String? get adTransactionId => throw _privateConstructorUsedError;
+  DateTime? get adCompletedAt => throw _privateConstructorUsedError;
 
   /// Create a copy of EngagementModel
   /// with the given fields replaced by the non-null parameter values.
@@ -665,6 +715,9 @@ abstract class $EngagementModelCopyWith<$Res> {
     String? clientId,
     int? streakDayAtCompletion,
     double? multiplierApplied,
+    bool adWatched,
+    String? adTransactionId,
+    DateTime? adCompletedAt,
   });
 
   $EngagementEvidenceModelCopyWith<$Res>? get evidence;
@@ -705,6 +758,9 @@ class _$EngagementModelCopyWithImpl<$Res, $Val extends EngagementModel>
     Object? clientId = freezed,
     Object? streakDayAtCompletion = freezed,
     Object? multiplierApplied = freezed,
+    Object? adWatched = null,
+    Object? adTransactionId = freezed,
+    Object? adCompletedAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -788,6 +844,18 @@ class _$EngagementModelCopyWithImpl<$Res, $Val extends EngagementModel>
                 ? _value.multiplierApplied
                 : multiplierApplied // ignore: cast_nullable_to_non_nullable
                       as double?,
+            adWatched: null == adWatched
+                ? _value.adWatched
+                : adWatched // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            adTransactionId: freezed == adTransactionId
+                ? _value.adTransactionId
+                : adTransactionId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            adCompletedAt: freezed == adCompletedAt
+                ? _value.adCompletedAt
+                : adCompletedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -838,6 +906,9 @@ abstract class _$$EngagementModelImplCopyWith<$Res>
     String? clientId,
     int? streakDayAtCompletion,
     double? multiplierApplied,
+    bool adWatched,
+    String? adTransactionId,
+    DateTime? adCompletedAt,
   });
 
   @override
@@ -878,6 +949,9 @@ class __$$EngagementModelImplCopyWithImpl<$Res>
     Object? clientId = freezed,
     Object? streakDayAtCompletion = freezed,
     Object? multiplierApplied = freezed,
+    Object? adWatched = null,
+    Object? adTransactionId = freezed,
+    Object? adCompletedAt = freezed,
   }) {
     return _then(
       _$EngagementModelImpl(
@@ -961,6 +1035,18 @@ class __$$EngagementModelImplCopyWithImpl<$Res>
             ? _value.multiplierApplied
             : multiplierApplied // ignore: cast_nullable_to_non_nullable
                   as double?,
+        adWatched: null == adWatched
+            ? _value.adWatched
+            : adWatched // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        adTransactionId: freezed == adTransactionId
+            ? _value.adTransactionId
+            : adTransactionId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        adCompletedAt: freezed == adCompletedAt
+            ? _value.adCompletedAt
+            : adCompletedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -990,6 +1076,9 @@ class _$EngagementModelImpl extends _EngagementModel {
     this.clientId,
     this.streakDayAtCompletion,
     this.multiplierApplied,
+    this.adWatched = false,
+    this.adTransactionId,
+    this.adCompletedAt,
   }) : _answers = answers,
        super._();
 
@@ -1041,10 +1130,18 @@ class _$EngagementModelImpl extends _EngagementModel {
   final int? streakDayAtCompletion;
   @override
   final double? multiplierApplied;
+  // AdMob tracking fields
+  @override
+  @JsonKey()
+  final bool adWatched;
+  @override
+  final String? adTransactionId;
+  @override
+  final DateTime? adCompletedAt;
 
   @override
   String toString() {
-    return 'EngagementModel(id: $id, userId: $userId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, threadId: $threadId, clientId: $clientId, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied)';
+    return 'EngagementModel(id: $id, userId: $userId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, threadId: $threadId, clientId: $clientId, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied, adWatched: $adWatched, adTransactionId: $adTransactionId, adCompletedAt: $adCompletedAt)';
   }
 
   @override
@@ -1090,7 +1187,13 @@ class _$EngagementModelImpl extends _EngagementModel {
             (identical(other.streakDayAtCompletion, streakDayAtCompletion) ||
                 other.streakDayAtCompletion == streakDayAtCompletion) &&
             (identical(other.multiplierApplied, multiplierApplied) ||
-                other.multiplierApplied == multiplierApplied));
+                other.multiplierApplied == multiplierApplied) &&
+            (identical(other.adWatched, adWatched) ||
+                other.adWatched == adWatched) &&
+            (identical(other.adTransactionId, adTransactionId) ||
+                other.adTransactionId == adTransactionId) &&
+            (identical(other.adCompletedAt, adCompletedAt) ||
+                other.adCompletedAt == adCompletedAt));
   }
 
   @override
@@ -1116,6 +1219,9 @@ class _$EngagementModelImpl extends _EngagementModel {
     clientId,
     streakDayAtCompletion,
     multiplierApplied,
+    adWatched,
+    adTransactionId,
+    adCompletedAt,
   ]);
 
   /// Create a copy of EngagementModel
@@ -1152,6 +1258,9 @@ abstract class _EngagementModel extends EngagementModel {
     final String? clientId,
     final int? streakDayAtCompletion,
     final double? multiplierApplied,
+    final bool adWatched,
+    final String? adTransactionId,
+    final DateTime? adCompletedAt,
   }) = _$EngagementModelImpl;
   const _EngagementModel._() : super._();
 
@@ -1194,7 +1303,13 @@ abstract class _EngagementModel extends EngagementModel {
   @override
   int? get streakDayAtCompletion;
   @override
-  double? get multiplierApplied;
+  double? get multiplierApplied; // AdMob tracking fields
+  @override
+  bool get adWatched;
+  @override
+  String? get adTransactionId;
+  @override
+  DateTime? get adCompletedAt;
 
   /// Create a copy of EngagementModel
   /// with the given fields replaced by the non-null parameter values.

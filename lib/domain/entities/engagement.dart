@@ -35,6 +35,13 @@ class Engagement with _$Engagement {
     int? streakDayAtCompletion,
     /// Multiplier applied at time of completion (1.0, 1.2, 1.35, or 1.5)
     double? multiplierApplied,
+    // AdMob tracking fields
+    /// True when ad was fully watched
+    @Default(false) bool adWatched,
+    /// AdMob transaction ID for SSV verification
+    String? adTransactionId,
+    /// Timestamp when ad completed
+    DateTime? adCompletedAt,
   }) = _Engagement;
 
   const Engagement._();
@@ -63,6 +70,9 @@ class Engagement with _$Engagement {
   /// Check if watch requirement is met
   bool get watchRequirementMet =>
       watchDurationSeconds >= requiredDurationSeconds;
+
+  /// Check if ad was watched (for adVideo type)
+  bool get hasWatchedAd => adWatched == true;
 }
 
 /// Answer to a survey question

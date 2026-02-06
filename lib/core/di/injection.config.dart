@@ -47,6 +47,7 @@ import '../../data/repositories/purchase_repository_impl.dart' as _i1044;
 import '../../data/repositories/referral_repository_impl.dart' as _i904;
 import '../../data/repositories/user_repository_impl.dart' as _i790;
 import '../../data/repositories/wallet_repository_impl.dart' as _i520;
+import '../../data/services/admob_service.dart' as _i284;
 import '../../domain/repositories/auth_repository.dart' as _i1073;
 import '../../domain/repositories/chat_repository.dart' as _i1072;
 import '../../domain/repositories/device_repository.dart' as _i454;
@@ -136,6 +137,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i932.NetworkInfo>(
       () => _i932.NetworkInfoImpl(gh<_i161.InternetConnection>()),
+    );
+    gh.lazySingleton<_i284.AdMobService>(
+      () => _i284.AdMobService(useTestAds: gh<bool>()),
     );
     gh.lazySingleton<_i752.PinManager>(
       () => _i752.PinManager(gh<_i558.FlutterSecureStorage>()),
@@ -355,6 +359,10 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i851.WalletRepository>(),
       ),
     );
+    gh.factory<_i775.EarnBloc>(
+      () =>
+          _i775.EarnBloc(gh<_i805.EarnRepository>(), gh<_i284.AdMobService>()),
+    );
     gh.factory<_i142.ChatBloc>(
       () => _i142.ChatBloc(gh<_i1072.ChatRepository>()),
     );
@@ -363,9 +371,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i1019.WalletBloc>(
       () => _i1019.WalletBloc(gh<_i851.WalletRepository>()),
-    );
-    gh.factory<_i775.EarnBloc>(
-      () => _i775.EarnBloc(gh<_i805.EarnRepository>()),
     );
     gh.factory<_i973.HomeBloc>(
       () => _i973.HomeBloc(

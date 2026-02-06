@@ -1,11 +1,13 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/domain/entities/earn_opportunity.dart';
 import 'package:imalichat/domain/entities/earn_thread.dart';
 import 'package:imalichat/domain/entities/user.dart';
+import 'package:imalichat/data/services/admob_service.dart';
 import 'package:imalichat/domain/repositories/earn_repository.dart';
 import 'package:imalichat/presentation/blocs/auth/auth_bloc.dart';
 import 'package:imalichat/presentation/blocs/earn/earn_bloc.dart';
@@ -16,9 +18,13 @@ import 'test_fixtures.dart';
 // Mock repository
 class MockEarnRepository extends Mock implements EarnRepository {}
 
+// Mock AdMob service
+class MockAdMobService extends Mock implements AdMobService {}
+
 /// Container for all mock dependencies used in integration tests.
 class MockDependencies {
   late final MockEarnRepository mockEarnRepository;
+  late final MockAdMobService mockAdMobService;
   late final AuthBloc authBloc;
   late final EarnBloc earnBloc;
   late final WalletBloc walletBloc;
@@ -50,6 +56,10 @@ class MockDependencies {
 
   void _setupMocks() {
     mockEarnRepository = MockEarnRepository();
+    mockAdMobService = MockAdMobService();
+
+    // Setup AdMob service mocks
+    _setupAdMobMocks();
 
     // Setup repository mocks based on configuration
     if (networkError) {
@@ -61,7 +71,7 @@ class MockDependencies {
     }
 
     // Create real blocs with mocked dependencies
-    earnBloc = EarnBloc(mockEarnRepository);
+    earnBloc = EarnBloc(mockEarnRepository, mockAdMobService);
 
     // For auth and wallet, we create pre-configured blocs
     // In a real scenario, these would also use mock repositories
@@ -151,6 +161,13 @@ class MockDependencies {
     when(() => mockEarnRepository.startEngagement(
           opportunityId: any(named: 'opportunityId'),
         )).thenAnswer((_) async => const Left(Failure.insufficientBalance()));
+  }
+
+  void _setupAdMobMocks() {
+    // Mock the ValueNotifier properties
+    when(() => mockAdMobService.isAdReady).thenReturn(ValueNotifier(false));
+    when(() => mockAdMobService.isLoading).thenReturn(ValueNotifier(false));
+    when(() => mockAdMobService.loadAd()).thenAnswer((_) async => true);
   }
 
   AuthBloc _createAuthBloc() {

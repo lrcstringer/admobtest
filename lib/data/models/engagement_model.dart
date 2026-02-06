@@ -72,6 +72,9 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
     required DateTime videoStartedAt,
     required DateTime surveySubmittedAt,
     double? clientAttentionScore,
+    // AdMob verification fields
+    String? adTransactionId,
+    bool? adFullyWatched,
   }) = _EngagementEvidenceModel;
 
   const EngagementEvidenceModel._();
@@ -96,6 +99,9 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
           ? surveySubmittedAt.toDate()
           : DateTime.parse(surveySubmittedAt as String),
       clientAttentionScore: (json['clientAttentionScore'] as num?)?.toDouble(),
+      // AdMob verification fields
+      adTransactionId: json['adTransactionId'] as String?,
+      adFullyWatched: json['adFullyWatched'] as bool?,
     );
   }
 
@@ -111,6 +117,8 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
       videoStartedAt: videoStartedAt,
       surveySubmittedAt: surveySubmittedAt,
       clientAttentionScore: clientAttentionScore,
+      adTransactionId: adTransactionId,
+      adFullyWatched: adFullyWatched,
     );
   }
 
@@ -126,6 +134,8 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
       videoStartedAt: entity.videoStartedAt,
       surveySubmittedAt: entity.surveySubmittedAt,
       clientAttentionScore: entity.clientAttentionScore,
+      adTransactionId: entity.adTransactionId,
+      adFullyWatched: entity.adFullyWatched,
     );
   }
 
@@ -142,6 +152,9 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
       'surveySubmittedAt': Timestamp.fromDate(surveySubmittedAt),
       if (clientAttentionScore != null)
         'clientAttentionScore': clientAttentionScore,
+      // AdMob verification fields
+      if (adTransactionId != null) 'adTransactionId': adTransactionId,
+      if (adFullyWatched != null) 'adFullyWatched': adFullyWatched,
     };
   }
 }
@@ -171,6 +184,10 @@ class EngagementModel with _$EngagementModel {
     // Streak audit fields
     int? streakDayAtCompletion,
     double? multiplierApplied,
+    // AdMob tracking fields
+    @Default(false) bool adWatched,
+    String? adTransactionId,
+    DateTime? adCompletedAt,
   }) = _EngagementModel;
 
   const EngagementModel._();
@@ -223,7 +240,17 @@ class EngagementModel with _$EngagementModel {
       // Streak audit fields
       streakDayAtCompletion: json['streakDayAtCompletion'] as int?,
       multiplierApplied: (json['multiplierApplied'] as num?)?.toDouble(),
+      // AdMob tracking fields
+      adWatched: json['adWatched'] as bool? ?? false,
+      adTransactionId: json['adTransactionId'] as String?,
+      adCompletedAt: _parseOptionalTimestamp(json['adCompletedAt']),
     );
+  }
+
+  static DateTime? _parseOptionalTimestamp(dynamic value) {
+    if (value == null) return null;
+    if (value is Timestamp) return value.toDate();
+    return DateTime.parse(value as String);
   }
 
   Engagement toEntity() {
@@ -250,6 +277,10 @@ class EngagementModel with _$EngagementModel {
       // Streak audit fields
       streakDayAtCompletion: streakDayAtCompletion,
       multiplierApplied: multiplierApplied,
+      // AdMob tracking fields
+      adWatched: adWatched,
+      adTransactionId: adTransactionId,
+      adCompletedAt: adCompletedAt,
     );
   }
 
@@ -280,6 +311,10 @@ class EngagementModel with _$EngagementModel {
       // Streak audit fields
       streakDayAtCompletion: entity.streakDayAtCompletion,
       multiplierApplied: entity.multiplierApplied,
+      // AdMob tracking fields
+      adWatched: entity.adWatched,
+      adTransactionId: entity.adTransactionId,
+      adCompletedAt: entity.adCompletedAt,
     );
   }
 
@@ -307,6 +342,10 @@ class EngagementModel with _$EngagementModel {
       if (streakDayAtCompletion != null)
         'streakDayAtCompletion': streakDayAtCompletion,
       if (multiplierApplied != null) 'multiplierApplied': multiplierApplied,
+      // AdMob tracking fields
+      'adWatched': adWatched,
+      if (adTransactionId != null) 'adTransactionId': adTransactionId,
+      if (adCompletedAt != null) 'adCompletedAt': Timestamp.fromDate(adCompletedAt!),
     };
   }
 

@@ -46,7 +46,9 @@ mixin _$EarnThread {
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get lastActivityAt =>
       throw _privateConstructorUsedError; // Targeting
-  TargetingCriteria? get targeting => throw _privateConstructorUsedError;
+  TargetingCriteria? get targeting =>
+      throw _privateConstructorUsedError; // System thread flag
+  bool get isSystemThread => throw _privateConstructorUsedError;
 
   /// Serializes this EarnThread to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -86,6 +88,7 @@ abstract class $EarnThreadCopyWith<$Res> {
     DateTime createdAt,
     DateTime? lastActivityAt,
     TargetingCriteria? targeting,
+    bool isSystemThread,
   });
 
   $TargetingCriteriaCopyWith<$Res>? get targeting;
@@ -126,6 +129,7 @@ class _$EarnThreadCopyWithImpl<$Res, $Val extends EarnThread>
     Object? createdAt = null,
     Object? lastActivityAt = freezed,
     Object? targeting = freezed,
+    Object? isSystemThread = null,
   }) {
     return _then(
       _value.copyWith(
@@ -209,6 +213,10 @@ class _$EarnThreadCopyWithImpl<$Res, $Val extends EarnThread>
                 ? _value.targeting
                 : targeting // ignore: cast_nullable_to_non_nullable
                       as TargetingCriteria?,
+            isSystemThread: null == isSystemThread
+                ? _value.isSystemThread
+                : isSystemThread // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -259,6 +267,7 @@ abstract class _$$EarnThreadImplCopyWith<$Res>
     DateTime createdAt,
     DateTime? lastActivityAt,
     TargetingCriteria? targeting,
+    bool isSystemThread,
   });
 
   @override
@@ -299,6 +308,7 @@ class __$$EarnThreadImplCopyWithImpl<$Res>
     Object? createdAt = null,
     Object? lastActivityAt = freezed,
     Object? targeting = freezed,
+    Object? isSystemThread = null,
   }) {
     return _then(
       _$EarnThreadImpl(
@@ -382,6 +392,10 @@ class __$$EarnThreadImplCopyWithImpl<$Res>
             ? _value.targeting
             : targeting // ignore: cast_nullable_to_non_nullable
                   as TargetingCriteria?,
+        isSystemThread: null == isSystemThread
+            ? _value.isSystemThread
+            : isSystemThread // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -411,6 +425,7 @@ class _$EarnThreadImpl extends _EarnThread {
     required this.createdAt,
     this.lastActivityAt,
     this.targeting,
+    this.isSystemThread = false,
   }) : super._();
 
   factory _$EarnThreadImpl.fromJson(Map<String, dynamic> json) =>
@@ -465,10 +480,14 @@ class _$EarnThreadImpl extends _EarnThread {
   // Targeting
   @override
   final TargetingCriteria? targeting;
+  // System thread flag
+  @override
+  @JsonKey()
+  final bool isSystemThread;
 
   @override
   String toString() {
-    return 'EarnThread(id: $id, clientId: $clientId, clientName: $clientName, clientAvatarImage: $clientAvatarImage, clientAvatarColor: $clientAvatarColor, title: $title, description: $description, isPinned: $isPinned, isFeatured: $isFeatured, isActive: $isActive, activeFrom: $activeFrom, activeTo: $activeTo, tokenSourceSubAccountId: $tokenSourceSubAccountId, tokenDestAccountTypeId: $tokenDestAccountTypeId, availableOpportunities: $availableOpportunities, completedOpportunities: $completedOpportunities, completedUniqueUsers: $completedUniqueUsers, createdAt: $createdAt, lastActivityAt: $lastActivityAt, targeting: $targeting)';
+    return 'EarnThread(id: $id, clientId: $clientId, clientName: $clientName, clientAvatarImage: $clientAvatarImage, clientAvatarColor: $clientAvatarColor, title: $title, description: $description, isPinned: $isPinned, isFeatured: $isFeatured, isActive: $isActive, activeFrom: $activeFrom, activeTo: $activeTo, tokenSourceSubAccountId: $tokenSourceSubAccountId, tokenDestAccountTypeId: $tokenDestAccountTypeId, availableOpportunities: $availableOpportunities, completedOpportunities: $completedOpportunities, completedUniqueUsers: $completedUniqueUsers, createdAt: $createdAt, lastActivityAt: $lastActivityAt, targeting: $targeting, isSystemThread: $isSystemThread)';
   }
 
   @override
@@ -516,7 +535,9 @@ class _$EarnThreadImpl extends _EarnThread {
             (identical(other.lastActivityAt, lastActivityAt) ||
                 other.lastActivityAt == lastActivityAt) &&
             (identical(other.targeting, targeting) ||
-                other.targeting == targeting));
+                other.targeting == targeting) &&
+            (identical(other.isSystemThread, isSystemThread) ||
+                other.isSystemThread == isSystemThread));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -543,6 +564,7 @@ class _$EarnThreadImpl extends _EarnThread {
     createdAt,
     lastActivityAt,
     targeting,
+    isSystemThread,
   ]);
 
   /// Create a copy of EarnThread
@@ -581,6 +603,7 @@ abstract class _EarnThread extends EarnThread {
     required final DateTime createdAt,
     final DateTime? lastActivityAt,
     final TargetingCriteria? targeting,
+    final bool isSystemThread,
   }) = _$EarnThreadImpl;
   const _EarnThread._() : super._();
 
@@ -626,7 +649,9 @@ abstract class _EarnThread extends EarnThread {
   @override
   DateTime? get lastActivityAt; // Targeting
   @override
-  TargetingCriteria? get targeting;
+  TargetingCriteria? get targeting; // System thread flag
+  @override
+  bool get isSystemThread;
 
   /// Create a copy of EarnThread
   /// with the given fields replaced by the non-null parameter values.

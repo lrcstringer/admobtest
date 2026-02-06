@@ -38,6 +38,11 @@ _$EngagementImpl _$$EngagementImplFromJson(Map<String, dynamic> json) =>
       clientId: json['clientId'] as String?,
       streakDayAtCompletion: (json['streakDayAtCompletion'] as num?)?.toInt(),
       multiplierApplied: (json['multiplierApplied'] as num?)?.toDouble(),
+      adWatched: json['adWatched'] as bool? ?? false,
+      adTransactionId: json['adTransactionId'] as String?,
+      adCompletedAt: json['adCompletedAt'] == null
+          ? null
+          : DateTime.parse(json['adCompletedAt'] as String),
     );
 
 Map<String, dynamic> _$$EngagementImplToJson(_$EngagementImpl instance) =>
@@ -62,6 +67,9 @@ Map<String, dynamic> _$$EngagementImplToJson(_$EngagementImpl instance) =>
       'clientId': instance.clientId,
       'streakDayAtCompletion': instance.streakDayAtCompletion,
       'multiplierApplied': instance.multiplierApplied,
+      'adWatched': instance.adWatched,
+      'adTransactionId': instance.adTransactionId,
+      'adCompletedAt': instance.adCompletedAt?.toIso8601String(),
     };
 
 const _$EngagementStatusEnumMap = {

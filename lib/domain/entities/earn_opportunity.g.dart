@@ -66,6 +66,8 @@ _$EarnOpportunityImpl _$$EarnOpportunityImplFromJson(
   bonusIntervalX: (json['bonusIntervalX'] as num?)?.toInt(),
   userEngagementStatus: json['userEngagementStatus'] as String?,
   userEngagementId: json['userEngagementId'] as String?,
+  adUnitId: json['adUnitId'] as String?,
+  dailyLimitPerUser: (json['dailyLimitPerUser'] as num?)?.toInt() ?? 3,
 );
 
 Map<String, dynamic> _$$EarnOpportunityImplToJson(
@@ -95,6 +97,8 @@ Map<String, dynamic> _$$EarnOpportunityImplToJson(
   'bonusIntervalX': instance.bonusIntervalX,
   'userEngagementStatus': instance.userEngagementStatus,
   'userEngagementId': instance.userEngagementId,
+  'adUnitId': instance.adUnitId,
+  'dailyLimitPerUser': instance.dailyLimitPerUser,
 };
 
 const _$EarningTypeEnumMap = {
@@ -103,12 +107,14 @@ const _$EarningTypeEnumMap = {
   EarningType.trivia: 'trivia',
   EarningType.rating: 'rating',
   EarningType.poll: 'poll',
+  EarningType.adVideo: 'adVideo',
 };
 
 const _$MediaTypeEnumMap = {
   MediaType.video: 'video',
   MediaType.image: 'image',
   MediaType.text: 'text',
+  MediaType.adMob: 'adMob',
 };
 
 const _$BonusIntervalTypeEnumMap = {

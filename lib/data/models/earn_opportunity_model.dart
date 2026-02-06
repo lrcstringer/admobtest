@@ -97,6 +97,9 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
     // User engagement status (populated by getEligibleOpportunities)
     String? userEngagementStatus,
     String? userEngagementId,
+    // AdMob configuration
+    String? adUnitId,
+    @Default(3) int dailyLimitPerUser,
   }) = _EarnOpportunityModel;
 
   const EarnOpportunityModel._();
@@ -141,6 +144,9 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       bonusIntervalX: json['bonusIntervalX'] as int?,
       userEngagementStatus: json['userEngagementStatus'] as String?,
       userEngagementId: json['userEngagementId'] as String?,
+      // AdMob configuration
+      adUnitId: json['adUnitId'] as String?,
+      dailyLimitPerUser: json['dailyLimitPerUser'] as int? ?? 3,
     );
   }
 
@@ -172,6 +178,9 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       bonusIntervalX: bonusIntervalX,
       userEngagementStatus: userEngagementStatus,
       userEngagementId: userEngagementId,
+      // AdMob configuration
+      adUnitId: adUnitId,
+      dailyLimitPerUser: dailyLimitPerUser,
     );
   }
 
@@ -206,6 +215,9 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       bonusIntervalX: entity.bonusIntervalX,
       userEngagementStatus: entity.userEngagementStatus,
       userEngagementId: entity.userEngagementId,
+      // AdMob configuration
+      adUnitId: entity.adUnitId,
+      dailyLimitPerUser: entity.dailyLimitPerUser,
     );
   }
 
@@ -234,6 +246,9 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       'bonusRewardMultiplier': bonusRewardMultiplier,
       'bonusIntervalType': bonusIntervalType,
       'bonusIntervalX': bonusIntervalX,
+      // AdMob configuration
+      if (adUnitId != null) 'adUnitId': adUnitId,
+      'dailyLimitPerUser': dailyLimitPerUser,
     };
   }
 
@@ -245,6 +260,8 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
         return MediaType.image;
       case 'text':
         return MediaType.text;
+      case 'adMob':
+        return MediaType.adMob;
       default:
         return MediaType.video;
     }
@@ -262,6 +279,8 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
         return EarningType.rating;
       case 'poll':
         return EarningType.poll;
+      case 'adVideo':
+        return EarningType.adVideo;
       default:
         return EarningType.video;
     }

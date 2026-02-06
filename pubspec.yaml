@@ -104,6 +104,9 @@ dependencies:
   # Runtime Application Self-Protection
   freerasp: ^6.5.0
 
+  # Google AdMob for rewarded video ads
+  google_mobile_ads: ^7.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

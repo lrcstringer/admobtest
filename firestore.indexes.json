@@ -158,13 +158,6 @@
       "collectionGroup": "ledgerJournals",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "idempotencyKey", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "ledgerJournals",
-      "queryScope": "COLLECTION",
-      "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "postedAt", "order": "DESCENDING" }
       ]
@@ -189,7 +182,7 @@
       "collectionGroup": "ledgerJournals",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "entries.accountId", "arrayContains": true },
+        { "fieldPath": "entries.accountId", "arrayConfig": "CONTAINS" },
         { "fieldPath": "postedAt", "order": "DESCENDING" }
       ]
     },
@@ -294,6 +287,31 @@
       "fields": [
         { "fieldPath": "isActive", "order": "ASCENDING" },
         { "fieldPath": "companyName", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "earnOpportunities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "earningType", "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "earnThreads",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isSystemThread", "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "engagements",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "completedAt", "order": "DESCENDING" }
       ]
     },
     {

@@ -11,6 +11,7 @@ enum EngagementPhase {
   idle,
   starting,
   watching,
+  watchingAd, // Watching AdMob video
   surveying,
   submitting,
   completed,
@@ -39,6 +40,10 @@ class EarnState with _$EarnState {
     @Default(0) int dailyCompletions,
     @Default(30) int dailyEarnCap,
     @Default(false) bool dailyLimitReached,
+    // AdMob state
+    @Default(false) bool isAdLoading,
+    @Default(false) bool isAdReady,
+    String? adTransactionId,
   }) = _EarnState;
 
   const EarnState._();
@@ -47,7 +52,12 @@ class EarnState with _$EarnState {
   bool get hasActiveEngagement =>
       currentEngagement != null &&
       (engagementPhase == EngagementPhase.watching ||
+          engagementPhase == EngagementPhase.watchingAd ||
           engagementPhase == EngagementPhase.surveying);
+
+  /// Check if the selected opportunity is an AdMob video
+  bool get isAdMobOpportunity =>
+      selectedOpportunity?.earningType == EarningType.adVideo;
 
   /// Get total tokens earned today (from history)
   int get tokensEarnedToday {

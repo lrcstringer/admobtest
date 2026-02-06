@@ -472,5 +472,21 @@ service cloud.firestore {
         allow read, write: if false;
       }
     }
+
+    // =========================================================================
+    // ADMOB SSV CALLBACKS
+    // Server-Side Verification records from AdMob
+    // =========================================================================
+
+    // AdMob SSV callbacks collection
+    // Stores verification records from AdMob server-side callbacks
+    // All writes are from Cloud Functions only (the SSV endpoint)
+    match /admobSSVCallbacks/{transactionId} {
+      // No client reads - verification is done via Cloud Function (verifyAdMobTransaction)
+      allow read: if false;
+
+      // All writes are from Cloud Functions only (admobSSVCallback endpoint)
+      allow create, update, delete: if false;
+    }
   }
 }

@@ -8,6 +8,7 @@ import 'package:video_player/video_player.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/security/device_fingerprint.dart';
 import '../../../core/security/play_integrity_service.dart';
+import '../../../domain/entities/earn_opportunity.dart';
 import '../../../domain/entities/engagement.dart';
 import '../../../domain/value_objects/engagement_evidence.dart';
 import '../../blocs/earn/earn_bloc.dart';
@@ -15,6 +16,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/wave_background.dart';
+import '../../widgets/earn/admob_video_widget.dart';
 
 /// Earn Interaction Screen
 /// Handles the full video watching + survey completion flow
@@ -51,6 +53,9 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
   // Services
   late final PlayIntegrityService _integrityService;
+
+  // User ID for AdMob SSV
+  String? _userId;
 
   @override
   void initState() {
@@ -221,11 +226,15 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     // Calculate attention score
     final attentionScore = _calculateAttentionScore();
 
+    // Check if this is an AdMob opportunity
+    final isAdMobOpportunity =
+        state.selectedOpportunity?.earningType == EarningType.adVideo;
+
     // Build evidence
     final evidence = EngagementEvidence(
       deviceFingerprint: fingerprint.hash,
       integrityToken: integrityToken,
-      watchDurationMs: _watchDurationMs,
+      watchDurationMs: isAdMobOpportunity ? 30000 : _watchDurationMs,
       videoSeeked: _videoSeeked,
       screenVisible: _screenVisible,
       appInForeground: _appInForeground,
@@ -233,6 +242,9 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       videoStartedAt: _videoStartedAt ?? DateTime.now(),
       surveySubmittedAt: DateTime.now(),
       clientAttentionScore: attentionScore,
+      // Include AdMob transaction ID if available
+      adTransactionId: state.adTransactionId,
+      adFullyWatched: isAdMobOpportunity && state.adTransactionId != null,
     );
 
     // Submit (check mounted after async gap)
@@ -283,9 +295,15 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   Widget build(BuildContext context) {
     return BlocConsumer<EarnBloc, EarnState>(
       listener: (context, state) {
-        // Initialize video when opportunity is loaded
+        // Capture user ID for AdMob SSV
+        if (state.currentEngagement != null && _userId == null) {
+          _userId = state.currentEngagement!.userId;
+        }
+
+        // Initialize video when opportunity is loaded (non-AdMob only)
         if (state.selectedOpportunity != null &&
             state.selectedOpportunity!.mediaUrl != null &&
+            state.selectedOpportunity!.earningType != EarningType.adVideo &&
             _videoController == null) {
           _initVideoPlayer(state.selectedOpportunity!.mediaUrl!);
         }
@@ -374,8 +392,17 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       return _buildStartState(state);
     }
 
-    // Watching phase
+    // Watching AdMob video phase
+    if (state.engagementPhase == EngagementPhase.watchingAd) {
+      return _buildAdMobWatchingState(state);
+    }
+
+    // Watching phase (regular video)
     if (state.engagementPhase == EngagementPhase.watching) {
+      // For adVideo type, show AdMob widget instead
+      if (state.selectedOpportunity!.earningType == EarningType.adVideo) {
+        return _buildAdMobWatchingState(state);
+      }
       return _buildWatchingState(state);
     }
 
@@ -510,9 +537,15 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   SizedBox(height: AppSpacing.sm),
-                  _buildInstructionStep(1, 'Watch the video completely'),
-                  _buildInstructionStep(2, 'Answer all survey questions'),
-                  _buildInstructionStep(3, 'Receive your tokens instantly'),
+                  if (opportunity.earningType == EarningType.adVideo) ...[
+                    _buildInstructionStep(1, 'Watch the ad video completely'),
+                    _buildInstructionStep(2, 'Answer the bonus question'),
+                    _buildInstructionStep(3, 'Receive your tokens instantly'),
+                  ] else ...[
+                    _buildInstructionStep(1, 'Watch the video completely'),
+                    _buildInstructionStep(2, 'Answer all survey questions'),
+                    _buildInstructionStep(3, 'Receive your tokens instantly'),
+                  ],
                 ],
               ),
             ),
@@ -527,6 +560,24 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
             icon: Icons.play_arrow,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAdMobWatchingState(EarnState state) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(AppSpacing.lg),
+        child: AdMobVideoWidget(
+          userId: _userId ?? state.currentEngagement?.userId ?? 'unknown',
+          onAdCompleted: () {
+            // AdMob completed - transition handled by bloc
+            _questionStartTime = DateTime.now();
+          },
+          onAdFailed: () {
+            // Ad failed - error handled by bloc
+          },
+        ),
       ),
     );
   }
@@ -963,6 +1014,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     final state = context.read<EarnBloc>().state;
     final hasActiveEngagement = state.currentEngagement != null &&
         (state.engagementPhase == EngagementPhase.watching ||
+            state.engagementPhase == EngagementPhase.watchingAd ||
             state.engagementPhase == EngagementPhase.surveying);
 
     if (!hasActiveEngagement) {

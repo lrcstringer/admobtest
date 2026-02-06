@@ -22,6 +22,7 @@ import {
   everyXBonusOpportunity,
   expiredOpportunity,
   inactiveOpportunity,
+  adMobOpportunity,
 } from "./fixtures/opportunityFixtures";
 import {
   startedEngagement,
@@ -33,6 +34,11 @@ import {
   videoEvidence,
   surveyEvidence,
   pollEvidence,
+  adVideoWatchingEngagement,
+  validAdVideoEvidenceWithTransactionId,
+  validAdVideoEvidenceWithFlag,
+  validAdVideoEvidenceWithDuration,
+  invalidAdVideoEvidence,
 } from "./fixtures/engagementFixtures";
 import {
   activeThread,
@@ -709,6 +715,186 @@ describe("Engagement Cloud Functions", () => {
           const handler = (engagement.processEngagement as unknown as { run?: Function }).run || engagement.processEngagement;
           const result = await handler(
             { engagementId: "eng_001", evidence: { viewed: true } },
+            context
+          );
+
+          expect(result.success).toBe(true);
+        });
+      });
+
+      describe("AdMob Video (adVideo) Evidence", () => {
+        it("should accept adTransactionId evidence", async () => {
+          const context = createMockCallContext({ uid: activeUser.id });
+          setMockDoc("engagements", "eng_001", {
+            ...adVideoWatchingEngagement,
+            userId: activeUser.id,
+          });
+          setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
+          setMockDoc("earnThreads", "system_admob_thread", {
+            ...activeThread,
+            id: "system_admob_thread",
+            clientId: "system_admob",
+            isSystemThread: true,
+          });
+          setMockDoc("users", activeUser.id, activeUser);
+
+          const handler = (engagement.processEngagement as unknown as { run?: Function }).run || engagement.processEngagement;
+          const result = await handler(
+            { engagementId: "eng_001", evidence: validAdVideoEvidenceWithTransactionId },
+            context
+          );
+
+          expect(result.success).toBe(true);
+        });
+
+        it("should accept adFullyWatched flag evidence", async () => {
+          const context = createMockCallContext({ uid: activeUser.id });
+          setMockDoc("engagements", "eng_001", {
+            ...adVideoWatchingEngagement,
+            userId: activeUser.id,
+          });
+          setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
+          setMockDoc("earnThreads", "system_admob_thread", {
+            ...activeThread,
+            id: "system_admob_thread",
+            clientId: "system_admob",
+            isSystemThread: true,
+          });
+          setMockDoc("users", activeUser.id, activeUser);
+
+          const handler = (engagement.processEngagement as unknown as { run?: Function }).run || engagement.processEngagement;
+          const result = await handler(
+            { engagementId: "eng_001", evidence: validAdVideoEvidenceWithFlag },
+            context
+          );
+
+          expect(result.success).toBe(true);
+        });
+
+        it("should accept watchDurationMs >= 25 seconds", async () => {
+          const context = createMockCallContext({ uid: activeUser.id });
+          setMockDoc("engagements", "eng_001", {
+            ...adVideoWatchingEngagement,
+            userId: activeUser.id,
+          });
+          setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
+          setMockDoc("earnThreads", "system_admob_thread", {
+            ...activeThread,
+            id: "system_admob_thread",
+            clientId: "system_admob",
+            isSystemThread: true,
+          });
+          setMockDoc("users", activeUser.id, activeUser);
+
+          const handler = (engagement.processEngagement as unknown as { run?: Function }).run || engagement.processEngagement;
+          const result = await handler(
+            { engagementId: "eng_001", evidence: validAdVideoEvidenceWithDuration },
+            context
+          );
+
+          expect(result.success).toBe(true);
+        });
+
+        it("should reject adVideo with insufficient watch duration", async () => {
+          const context = createMockCallContext({ uid: activeUser.id });
+          setMockDoc("engagements", "eng_001", {
+            ...adVideoWatchingEngagement,
+            userId: activeUser.id,
+          });
+          setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
+
+          const handler = (engagement.processEngagement as unknown as { run?: Function }).run || engagement.processEngagement;
+
+          await expect(
+            handler(
+              { engagementId: "eng_001", evidence: invalidAdVideoEvidence },
+              context
+            )
+          ).rejects.toThrow();
+        });
+
+        it("should reject adVideo with empty evidence", async () => {
+          const context = createMockCallContext({ uid: activeUser.id });
+          setMockDoc("engagements", "eng_001", {
+            ...adVideoWatchingEngagement,
+            userId: activeUser.id,
+          });
+          setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
+
+          const handler = (engagement.processEngagement as unknown as { run?: Function }).run || engagement.processEngagement;
+
+          await expect(
+            handler(
+              { engagementId: "eng_001", evidence: {} },
+              context
+            )
+          ).rejects.toThrow();
+        });
+
+        it("should accept adVideo at exact 25 second threshold", async () => {
+          const context = createMockCallContext({ uid: activeUser.id });
+          setMockDoc("engagements", "eng_001", {
+            ...adVideoWatchingEngagement,
+            userId: activeUser.id,
+          });
+          setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
+          setMockDoc("earnThreads", "system_admob_thread", {
+            ...activeThread,
+            id: "system_admob_thread",
+            clientId: "system_admob",
+            isSystemThread: true,
+          });
+          setMockDoc("users", activeUser.id, activeUser);
+
+          const handler = (engagement.processEngagement as unknown as { run?: Function }).run || engagement.processEngagement;
+          const result = await handler(
+            { engagementId: "eng_001", evidence: { watchDurationMs: 25000 } }, // Exact 25 seconds
+            context
+          );
+
+          expect(result.success).toBe(true);
+        });
+
+        it("should reject adVideo just under 25 second threshold", async () => {
+          const context = createMockCallContext({ uid: activeUser.id });
+          setMockDoc("engagements", "eng_001", {
+            ...adVideoWatchingEngagement,
+            userId: activeUser.id,
+          });
+          setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
+
+          const handler = (engagement.processEngagement as unknown as { run?: Function }).run || engagement.processEngagement;
+
+          await expect(
+            handler(
+              { engagementId: "eng_001", evidence: { watchDurationMs: 24999 } }, // Just under 25 seconds
+              context
+            )
+          ).rejects.toThrow();
+        });
+
+        it("should prioritize adTransactionId over watchDurationMs", async () => {
+          const context = createMockCallContext({ uid: activeUser.id });
+          setMockDoc("engagements", "eng_001", {
+            ...adVideoWatchingEngagement,
+            userId: activeUser.id,
+          });
+          setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
+          setMockDoc("earnThreads", "system_admob_thread", {
+            ...activeThread,
+            id: "system_admob_thread",
+            clientId: "system_admob",
+            isSystemThread: true,
+          });
+          setMockDoc("users", activeUser.id, activeUser);
+
+          const handler = (engagement.processEngagement as unknown as { run?: Function }).run || engagement.processEngagement;
+          // Even with short watch duration, transaction ID should make it valid
+          const result = await handler(
+            {
+              engagementId: "eng_001",
+              evidence: { adTransactionId: "admob_txn_123", watchDurationMs: 1000 },
+            },
             context
           );
 

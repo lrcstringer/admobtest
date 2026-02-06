@@ -51,6 +51,12 @@ mixin _$EngagementEvidence {
   /// Client-side calculated attention score (0-100)
   double? get clientAttentionScore => throw _privateConstructorUsedError;
 
+  /// AdMob transaction ID for server-side verification
+  String? get adTransactionId => throw _privateConstructorUsedError;
+
+  /// Client-side flag indicating ad was fully watched
+  bool? get adFullyWatched => throw _privateConstructorUsedError;
+
   /// Serializes this EngagementEvidence to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
@@ -79,6 +85,8 @@ abstract class $EngagementEvidenceCopyWith<$Res> {
     DateTime videoStartedAt,
     DateTime surveySubmittedAt,
     double? clientAttentionScore,
+    String? adTransactionId,
+    bool? adFullyWatched,
   });
 }
 
@@ -107,6 +115,8 @@ class _$EngagementEvidenceCopyWithImpl<$Res, $Val extends EngagementEvidence>
     Object? videoStartedAt = null,
     Object? surveySubmittedAt = null,
     Object? clientAttentionScore = freezed,
+    Object? adTransactionId = freezed,
+    Object? adFullyWatched = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -150,6 +160,14 @@ class _$EngagementEvidenceCopyWithImpl<$Res, $Val extends EngagementEvidence>
                 ? _value.clientAttentionScore
                 : clientAttentionScore // ignore: cast_nullable_to_non_nullable
                       as double?,
+            adTransactionId: freezed == adTransactionId
+                ? _value.adTransactionId
+                : adTransactionId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            adFullyWatched: freezed == adFullyWatched
+                ? _value.adFullyWatched
+                : adFullyWatched // ignore: cast_nullable_to_non_nullable
+                      as bool?,
           )
           as $Val,
     );
@@ -176,6 +194,8 @@ abstract class _$$EngagementEvidenceImplCopyWith<$Res>
     DateTime videoStartedAt,
     DateTime surveySubmittedAt,
     double? clientAttentionScore,
+    String? adTransactionId,
+    bool? adFullyWatched,
   });
 }
 
@@ -203,6 +223,8 @@ class __$$EngagementEvidenceImplCopyWithImpl<$Res>
     Object? videoStartedAt = null,
     Object? surveySubmittedAt = null,
     Object? clientAttentionScore = freezed,
+    Object? adTransactionId = freezed,
+    Object? adFullyWatched = freezed,
   }) {
     return _then(
       _$EngagementEvidenceImpl(
@@ -246,6 +268,14 @@ class __$$EngagementEvidenceImplCopyWithImpl<$Res>
             ? _value.clientAttentionScore
             : clientAttentionScore // ignore: cast_nullable_to_non_nullable
                   as double?,
+        adTransactionId: freezed == adTransactionId
+            ? _value.adTransactionId
+            : adTransactionId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        adFullyWatched: freezed == adFullyWatched
+            ? _value.adFullyWatched
+            : adFullyWatched // ignore: cast_nullable_to_non_nullable
+                  as bool?,
       ),
     );
   }
@@ -265,6 +295,8 @@ class _$EngagementEvidenceImpl extends _EngagementEvidence {
     required this.videoStartedAt,
     required this.surveySubmittedAt,
     this.clientAttentionScore,
+    this.adTransactionId,
+    this.adFullyWatched,
   }) : _surveyResponseTimesMs = surveyResponseTimesMs,
        super._();
 
@@ -319,9 +351,17 @@ class _$EngagementEvidenceImpl extends _EngagementEvidence {
   @override
   final double? clientAttentionScore;
 
+  /// AdMob transaction ID for server-side verification
+  @override
+  final String? adTransactionId;
+
+  /// Client-side flag indicating ad was fully watched
+  @override
+  final bool? adFullyWatched;
+
   @override
   String toString() {
-    return 'EngagementEvidence(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore)';
+    return 'EngagementEvidence(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched)';
   }
 
   @override
@@ -350,7 +390,11 @@ class _$EngagementEvidenceImpl extends _EngagementEvidence {
             (identical(other.surveySubmittedAt, surveySubmittedAt) ||
                 other.surveySubmittedAt == surveySubmittedAt) &&
             (identical(other.clientAttentionScore, clientAttentionScore) ||
-                other.clientAttentionScore == clientAttentionScore));
+                other.clientAttentionScore == clientAttentionScore) &&
+            (identical(other.adTransactionId, adTransactionId) ||
+                other.adTransactionId == adTransactionId) &&
+            (identical(other.adFullyWatched, adFullyWatched) ||
+                other.adFullyWatched == adFullyWatched));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -367,6 +411,8 @@ class _$EngagementEvidenceImpl extends _EngagementEvidence {
     videoStartedAt,
     surveySubmittedAt,
     clientAttentionScore,
+    adTransactionId,
+    adFullyWatched,
   );
 
   /// Create a copy of EngagementEvidence
@@ -398,6 +444,8 @@ abstract class _EngagementEvidence extends EngagementEvidence {
     required final DateTime videoStartedAt,
     required final DateTime surveySubmittedAt,
     final double? clientAttentionScore,
+    final String? adTransactionId,
+    final bool? adFullyWatched,
   }) = _$EngagementEvidenceImpl;
   const _EngagementEvidence._() : super._();
 
@@ -443,6 +491,14 @@ abstract class _EngagementEvidence extends EngagementEvidence {
   /// Client-side calculated attention score (0-100)
   @override
   double? get clientAttentionScore;
+
+  /// AdMob transaction ID for server-side verification
+  @override
+  String? get adTransactionId;
+
+  /// Client-side flag indicating ad was fully watched
+  @override
+  bool? get adFullyWatched;
 
   /// Create a copy of EngagementEvidence
   /// with the given fields replaced by the non-null parameter values.

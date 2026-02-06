@@ -4,6 +4,7 @@ import 'package:imalichat/domain/entities/chat_card.dart';
 import 'package:imalichat/domain/entities/referral.dart';
 import 'package:imalichat/domain/entities/pot_pool.dart';
 import 'package:imalichat/domain/entities/earn_thread.dart';
+import 'package:imalichat/domain/entities/earn_opportunity.dart';
 import 'package:imalichat/domain/entities/engagement.dart';
 import 'package:imalichat/domain/entities/ledger_account.dart';
 import 'package:imalichat/domain/entities/ledger_journal.dart';
@@ -13,6 +14,8 @@ import 'package:imalichat/domain/enums/pot_type.dart';
 import 'package:imalichat/domain/enums/chat_card_type.dart';
 import 'package:imalichat/domain/enums/chat_card_status.dart';
 import 'package:imalichat/domain/entities/user_score.dart';
+import 'package:imalichat/domain/repositories/earn_repository.dart';
+import 'package:imalichat/domain/value_objects/engagement_evidence.dart';
 
 /// Test fixtures and helpers for unit and widget tests
 
@@ -379,7 +382,7 @@ class TestData {
 
   /// Test pot winner
   static PotWinner get testPotWinner => const PotWinner(
-        oddienceUserId: 'user123',
+        userId: 'user123',
         displayName: 'Test User',
         username: 'testuser',
         rank: 1,
@@ -389,7 +392,7 @@ class TestData {
 
   /// Test user score
   static UserScore get testUserScore => UserScore(
-        oddienceUserId: 'user123',
+        userId: 'user123',
         displayName: 'Test User',
         username: 'testuser',
         totalTokensEarned: 5000,
@@ -408,10 +411,12 @@ class TestData {
   /// Test earn thread
   static EarnThread get testEarnThread => EarnThread(
         id: 'earn_thread_1',
-        brandId: 'brand123',
-        brandName: 'Test Brand',
-        avatarColor: '#FF5733',
+        clientId: 'client123',
+        clientName: 'Test Brand',
+        clientAvatarColor: '#FF5733',
+        title: 'Test Thread',
         isPinned: false,
+        isFeatured: false,
         isActive: true,
         availableOpportunities: 5,
         completedOpportunities: 10,
@@ -422,12 +427,29 @@ class TestData {
   /// Test earn thread - no opportunities
   static EarnThread get emptyEarnThread => EarnThread(
         id: 'earn_thread_2',
-        brandId: 'brand456',
-        brandName: 'Empty Brand',
+        clientId: 'client456',
+        clientName: 'Empty Brand',
+        title: 'Empty Thread',
         isPinned: false,
+        isFeatured: false,
         isActive: true,
         availableOpportunities: 0,
         completedOpportunities: 5,
+        createdAt: DateTime(2024, 1, 1),
+      );
+
+  /// Featured earn thread
+  static EarnThread get featuredEarnThread => EarnThread(
+        id: 'earn_thread_3',
+        clientId: 'client789',
+        clientName: 'Featured Brand',
+        clientAvatarColor: '#00FF00',
+        title: 'Featured Campaign',
+        isPinned: true,
+        isFeatured: true,
+        isActive: true,
+        availableOpportunities: 10,
+        completedOpportunities: 100,
         createdAt: DateTime(2024, 1, 1),
       );
 
@@ -435,12 +457,188 @@ class TestData {
   static List<EarnThread> get earnThreadList => [
         testEarnThread,
         emptyEarnThread,
+        featuredEarnThread,
       ];
+
+  /// EligibleThreadsResult with threads and daily limit info
+  static EligibleThreadsResult get eligibleThreadsResult => EligibleThreadsResult(
+        threads: earnThreadList,
+        dailyCompletions: 5,
+        dailyEarnCap: 30,
+        dailyLimitReached: false,
+      );
+
+  /// EligibleThreadsResult when daily limit is reached
+  static EligibleThreadsResult get dailyLimitReachedResult => EligibleThreadsResult(
+        threads: earnThreadList,
+        dailyCompletions: 30,
+        dailyEarnCap: 30,
+        dailyLimitReached: true,
+      );
+
+  /// Empty threads result
+  static EligibleThreadsResult get emptyThreadsResult => const EligibleThreadsResult(
+        threads: [],
+        dailyCompletions: 0,
+        dailyEarnCap: 30,
+        dailyLimitReached: false,
+      );
+
+  // ==================== EARN OPPORTUNITIES ====================
+
+  /// Test video opportunity
+  static EarnOpportunity get videoOpportunity => EarnOpportunity(
+        id: 'opp_video_1',
+        threadId: 'earn_thread_1',
+        title: 'Watch Video',
+        description: 'Watch this video and earn tokens',
+        earningType: EarningType.video,
+        tokenReward: 100,
+        streakPoints: 1,
+        mediaType: MediaType.video,
+        mediaUrl: 'https://example.com/video.mp4',
+        questions: [
+          SurveyQuestion(
+            id: 'q1',
+            text: 'What did you think of the video?',
+            options: ['Great', 'Good', 'OK', 'Bad'],
+            orderIndex: 0,
+          ),
+        ],
+        durationSeconds: 30,
+        isActive: true,
+        clientId: 'client123',
+        clientName: 'Test Brand',
+      );
+
+  /// Test survey opportunity
+  static EarnOpportunity get surveyOpportunity => EarnOpportunity(
+        id: 'opp_survey_1',
+        threadId: 'earn_thread_1',
+        title: 'Complete Survey',
+        description: 'Answer questions and earn tokens',
+        earningType: EarningType.survey,
+        tokenReward: 150,
+        streakPoints: 2,
+        mediaType: MediaType.image,
+        mediaUrl: 'https://example.com/image.png',
+        questions: [
+          SurveyQuestion(
+            id: 'q1',
+            text: 'Question 1',
+            options: ['A', 'B', 'C'],
+            orderIndex: 0,
+          ),
+          SurveyQuestion(
+            id: 'q2',
+            text: 'Question 2',
+            options: ['X', 'Y', 'Z'],
+            orderIndex: 1,
+          ),
+        ],
+        durationSeconds: 60,
+        isActive: true,
+        clientId: 'client123',
+        clientName: 'Test Brand',
+      );
+
+  /// Test bonus opportunity
+  static EarnOpportunity get bonusOpportunity => EarnOpportunity(
+        id: 'opp_bonus_1',
+        threadId: 'earn_thread_1',
+        title: 'Bonus Opportunity',
+        earningType: EarningType.video,
+        tokenReward: 100,
+        mediaType: MediaType.video,
+        questions: [],
+        durationSeconds: 30,
+        isActive: true,
+        bonusReward: true,
+        bonusRewardMultiplier: 2.0,
+        bonusIntervalType: BonusIntervalType.random,
+      );
+
+  /// Expired opportunity
+  static EarnOpportunity get expiredOpportunity => EarnOpportunity(
+        id: 'opp_expired',
+        threadId: 'earn_thread_1',
+        title: 'Expired Opportunity',
+        earningType: EarningType.video,
+        tokenReward: 50,
+        mediaType: MediaType.video,
+        questions: [],
+        durationSeconds: 30,
+        isActive: true,
+        expiresAt: DateTime(2024, 1, 1), // Past date
+      );
+
+  /// AdMob opportunity (rewarded video ad)
+  static EarnOpportunity get adMobOpportunity => EarnOpportunity(
+        id: 'opp_admob_1',
+        threadId: 'system_admob_thread',
+        title: 'Watch Ad',
+        description: 'Watch a short video ad to earn tokens',
+        earningType: EarningType.adVideo,
+        tokenReward: 5,
+        streakPoints: 1,
+        mediaType: MediaType.adMob,
+        questions: [
+          SurveyQuestion(
+            id: 'admob_q1',
+            text: 'Did you watch the full video ad?',
+            options: ['Yes, I watched it completely', 'Most of it', 'Not really'],
+            orderIndex: 0,
+            isAttentionCheck: true,
+            correctAnswer: 'Yes, I watched it completely',
+          ),
+        ],
+        durationSeconds: 30,
+        isActive: true,
+        clientId: 'system_admob',
+        clientName: 'iMali Rewards',
+        dailyLimitPerUser: 3,
+      );
+
+  /// List of opportunities
+  static List<EarnOpportunity> get opportunityList => [
+        videoOpportunity,
+        surveyOpportunity,
+        bonusOpportunity,
+      ];
+
+  // ==================== ENGAGEMENT EVIDENCE ====================
+
+  /// Test engagement evidence
+  static EngagementEvidence get testEvidence => EngagementEvidence(
+        deviceFingerprint: 'device_123abc',
+        integrityToken: 'integrity_token_xyz',
+        watchDurationMs: 30000,
+        videoSeeked: false,
+        screenVisible: true,
+        appInForeground: true,
+        surveyResponseTimesMs: [1500, 2000, 1800],
+        videoStartedAt: DateTime(2024, 1, 1, 10, 0, 0),
+        surveySubmittedAt: DateTime(2024, 1, 1, 10, 1, 0),
+        clientAttentionScore: 0.95,
+      );
+
+  /// Evidence with video seeking (suspicious)
+  static EngagementEvidence get suspiciousEvidence => EngagementEvidence(
+        deviceFingerprint: 'device_456def',
+        watchDurationMs: 5000,
+        videoSeeked: true,
+        screenVisible: false,
+        appInForeground: false,
+        surveyResponseTimesMs: [100, 100, 100],
+        videoStartedAt: DateTime(2024, 1, 1, 10, 0, 0),
+        surveySubmittedAt: DateTime(2024, 1, 1, 10, 0, 10),
+        clientAttentionScore: 0.2,
+      );
 
   /// Test engagement - in progress
   static Engagement get inProgressEngagement => Engagement(
         id: 'engagement123',
-        oddienceUserId: 'user123',
+        userId: 'user123',
         oddienceCampaignId: 'campaign123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.watching,
@@ -450,12 +648,14 @@ class TestData {
         answers: const [],
         attemptNumber: 1,
         createdAt: DateTime(2024, 1, 1),
+        threadId: 'earn_thread_1',
+        clientId: 'client123',
       );
 
   /// Test engagement - completed
   static Engagement get completedEngagement => Engagement(
         id: 'engagement456',
-        oddienceUserId: 'user123',
+        userId: 'user123',
         oddienceCampaignId: 'campaign123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.completed,
@@ -474,12 +674,80 @@ class TestData {
         tokensEarned: 100,
         attemptNumber: 1,
         createdAt: DateTime(2024, 1, 1),
+        threadId: 'earn_thread_1',
+        clientId: 'client123',
+        streakDayAtCompletion: 3,
+        multiplierApplied: 1.2,
+      );
+
+  /// Test engagement - surveying phase
+  static Engagement get surveyingEngagement => Engagement(
+        id: 'engagement789',
+        userId: 'user123',
+        oddienceCampaignId: 'campaign123',
+        earnOpportunityId: 'opp123',
+        status: EngagementStatus.surveying,
+        startedAt: DateTime(2024, 1, 1),
+        watchDurationSeconds: 30,
+        requiredDurationSeconds: 30,
+        answers: const [],
+        attemptNumber: 1,
+        createdAt: DateTime(2024, 1, 1),
+      );
+
+  /// Test engagement - failed
+  static Engagement get failedEngagement => Engagement(
+        id: 'engagement_failed',
+        userId: 'user123',
+        oddienceCampaignId: 'campaign123',
+        earnOpportunityId: 'opp123',
+        status: EngagementStatus.failed,
+        startedAt: DateTime(2024, 1, 1),
+        watchDurationSeconds: 10,
+        requiredDurationSeconds: 30,
+        answers: const [],
+        attemptNumber: 1,
+        createdAt: DateTime(2024, 1, 1),
+        failureReason: 'Video not watched fully',
+      );
+
+  /// Test engagement - abandoned
+  static Engagement get abandonedEngagement => Engagement(
+        id: 'engagement_abandoned',
+        userId: 'user123',
+        oddienceCampaignId: 'campaign123',
+        earnOpportunityId: 'opp123',
+        status: EngagementStatus.abandoned,
+        startedAt: DateTime(2024, 1, 1),
+        watchDurationSeconds: 5,
+        requiredDurationSeconds: 30,
+        answers: const [],
+        attemptNumber: 1,
+        createdAt: DateTime(2024, 1, 1),
       );
 
   /// List of engagements
   static List<Engagement> get engagementList => [
         inProgressEngagement,
         completedEngagement,
+        surveyingEngagement,
+      ];
+
+  /// List of completed engagements for history
+  static List<Engagement> get engagementHistoryList => [
+        completedEngagement,
+        completedEngagement.copyWith(
+          id: 'engagement_history_2',
+          tokensEarned: 150,
+          createdAt: DateTime(2024, 1, 2),
+          completedAt: DateTime(2024, 1, 2),
+        ),
+        completedEngagement.copyWith(
+          id: 'engagement_history_3',
+          tokensEarned: 200,
+          createdAt: DateTime(2024, 1, 3),
+          completedAt: DateTime(2024, 1, 3),
+        ),
       ];
 
   // ==================== VALIDATION DATA ====================

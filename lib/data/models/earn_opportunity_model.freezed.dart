@@ -312,7 +312,10 @@ mixin _$EarnOpportunityModel {
   int? get bonusIntervalX =>
       throw _privateConstructorUsedError; // User engagement status (populated by getEligibleOpportunities)
   String? get userEngagementStatus => throw _privateConstructorUsedError;
-  String? get userEngagementId => throw _privateConstructorUsedError;
+  String? get userEngagementId =>
+      throw _privateConstructorUsedError; // AdMob configuration
+  String? get adUnitId => throw _privateConstructorUsedError;
+  int get dailyLimitPerUser => throw _privateConstructorUsedError;
 
   /// Create a copy of EarnOpportunityModel
   /// with the given fields replaced by the non-null parameter values.
@@ -353,6 +356,8 @@ abstract class $EarnOpportunityModelCopyWith<$Res> {
     int? bonusIntervalX,
     String? userEngagementStatus,
     String? userEngagementId,
+    String? adUnitId,
+    int dailyLimitPerUser,
   });
 }
 
@@ -398,6 +403,8 @@ class _$EarnOpportunityModelCopyWithImpl<
     Object? bonusIntervalX = freezed,
     Object? userEngagementStatus = freezed,
     Object? userEngagementId = freezed,
+    Object? adUnitId = freezed,
+    Object? dailyLimitPerUser = null,
   }) {
     return _then(
       _value.copyWith(
@@ -497,6 +504,14 @@ class _$EarnOpportunityModelCopyWithImpl<
                 ? _value.userEngagementId
                 : userEngagementId // ignore: cast_nullable_to_non_nullable
                       as String?,
+            adUnitId: freezed == adUnitId
+                ? _value.adUnitId
+                : adUnitId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            dailyLimitPerUser: null == dailyLimitPerUser
+                ? _value.dailyLimitPerUser
+                : dailyLimitPerUser // ignore: cast_nullable_to_non_nullable
+                      as int,
           )
           as $Val,
     );
@@ -537,6 +552,8 @@ abstract class _$$EarnOpportunityModelImplCopyWith<$Res>
     int? bonusIntervalX,
     String? userEngagementStatus,
     String? userEngagementId,
+    String? adUnitId,
+    int dailyLimitPerUser,
   });
 }
 
@@ -578,6 +595,8 @@ class __$$EarnOpportunityModelImplCopyWithImpl<$Res>
     Object? bonusIntervalX = freezed,
     Object? userEngagementStatus = freezed,
     Object? userEngagementId = freezed,
+    Object? adUnitId = freezed,
+    Object? dailyLimitPerUser = null,
   }) {
     return _then(
       _$EarnOpportunityModelImpl(
@@ -677,6 +696,14 @@ class __$$EarnOpportunityModelImplCopyWithImpl<$Res>
             ? _value.userEngagementId
             : userEngagementId // ignore: cast_nullable_to_non_nullable
                   as String?,
+        adUnitId: freezed == adUnitId
+            ? _value.adUnitId
+            : adUnitId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        dailyLimitPerUser: null == dailyLimitPerUser
+            ? _value.dailyLimitPerUser
+            : dailyLimitPerUser // ignore: cast_nullable_to_non_nullable
+                  as int,
       ),
     );
   }
@@ -710,6 +737,8 @@ class _$EarnOpportunityModelImpl extends _EarnOpportunityModel {
     this.bonusIntervalX,
     this.userEngagementStatus,
     this.userEngagementId,
+    this.adUnitId,
+    this.dailyLimitPerUser = 3,
   }) : _questions = questions,
        _targeting = targeting,
        super._();
@@ -786,10 +815,16 @@ class _$EarnOpportunityModelImpl extends _EarnOpportunityModel {
   final String? userEngagementStatus;
   @override
   final String? userEngagementId;
+  // AdMob configuration
+  @override
+  final String? adUnitId;
+  @override
+  @JsonKey()
+  final int dailyLimitPerUser;
 
   @override
   String toString() {
-    return 'EarnOpportunityModel(id: $id, threadId: $threadId, title: $title, description: $description, earningType: $earningType, tokenReward: $tokenReward, streakPoints: $streakPoints, mediaType: $mediaType, mediaUrl: $mediaUrl, questions: $questions, durationSeconds: $durationSeconds, expiresAt: $expiresAt, isActive: $isActive, clientId: $clientId, clientName: $clientName, clientAvatarColor: $clientAvatarColor, campaignId: $campaignId, targeting: $targeting, bonusReward: $bonusReward, bonusRewardMultiplier: $bonusRewardMultiplier, bonusIntervalType: $bonusIntervalType, bonusIntervalX: $bonusIntervalX, userEngagementStatus: $userEngagementStatus, userEngagementId: $userEngagementId)';
+    return 'EarnOpportunityModel(id: $id, threadId: $threadId, title: $title, description: $description, earningType: $earningType, tokenReward: $tokenReward, streakPoints: $streakPoints, mediaType: $mediaType, mediaUrl: $mediaUrl, questions: $questions, durationSeconds: $durationSeconds, expiresAt: $expiresAt, isActive: $isActive, clientId: $clientId, clientName: $clientName, clientAvatarColor: $clientAvatarColor, campaignId: $campaignId, targeting: $targeting, bonusReward: $bonusReward, bonusRewardMultiplier: $bonusRewardMultiplier, bonusIntervalType: $bonusIntervalType, bonusIntervalX: $bonusIntervalX, userEngagementStatus: $userEngagementStatus, userEngagementId: $userEngagementId, adUnitId: $adUnitId, dailyLimitPerUser: $dailyLimitPerUser)';
   }
 
   @override
@@ -846,7 +881,11 @@ class _$EarnOpportunityModelImpl extends _EarnOpportunityModel {
             (identical(other.userEngagementStatus, userEngagementStatus) ||
                 other.userEngagementStatus == userEngagementStatus) &&
             (identical(other.userEngagementId, userEngagementId) ||
-                other.userEngagementId == userEngagementId));
+                other.userEngagementId == userEngagementId) &&
+            (identical(other.adUnitId, adUnitId) ||
+                other.adUnitId == adUnitId) &&
+            (identical(other.dailyLimitPerUser, dailyLimitPerUser) ||
+                other.dailyLimitPerUser == dailyLimitPerUser));
   }
 
   @override
@@ -876,6 +915,8 @@ class _$EarnOpportunityModelImpl extends _EarnOpportunityModel {
     bonusIntervalX,
     userEngagementStatus,
     userEngagementId,
+    adUnitId,
+    dailyLimitPerUser,
   ]);
 
   /// Create a copy of EarnOpportunityModel
@@ -917,6 +958,8 @@ abstract class _EarnOpportunityModel extends EarnOpportunityModel {
     final int? bonusIntervalX,
     final String? userEngagementStatus,
     final String? userEngagementId,
+    final String? adUnitId,
+    final int dailyLimitPerUser,
   }) = _$EarnOpportunityModelImpl;
   const _EarnOpportunityModel._() : super._();
 
@@ -967,7 +1010,11 @@ abstract class _EarnOpportunityModel extends EarnOpportunityModel {
   @override
   String? get userEngagementStatus;
   @override
-  String? get userEngagementId;
+  String? get userEngagementId; // AdMob configuration
+  @override
+  String? get adUnitId;
+  @override
+  int get dailyLimitPerUser;
 
   /// Create a copy of EarnOpportunityModel
   /// with the given fields replaced by the non-null parameter values.

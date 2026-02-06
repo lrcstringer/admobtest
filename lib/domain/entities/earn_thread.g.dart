@@ -37,6 +37,7 @@ _$EarnThreadImpl _$$EarnThreadImplFromJson(
   targeting: json['targeting'] == null
       ? null
       : TargetingCriteria.fromJson(json['targeting'] as Map<String, dynamic>),
+  isSystemThread: json['isSystemThread'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$$EarnThreadImplToJson(_$EarnThreadImpl instance) =>
@@ -61,4 +62,5 @@ Map<String, dynamic> _$$EarnThreadImplToJson(_$EarnThreadImpl instance) =>
       'createdAt': instance.createdAt.toIso8601String(),
       'lastActivityAt': instance.lastActivityAt?.toIso8601String(),
       'targeting': instance.targeting,
+      'isSystemThread': instance.isSystemThread,
     };

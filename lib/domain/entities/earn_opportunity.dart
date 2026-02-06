@@ -10,6 +10,7 @@ enum MediaType {
   video,
   image,
   text,
+  adMob,
 }
 
 /// Earning type for opportunity classification
@@ -19,6 +20,7 @@ enum EarningType {
   trivia,
   rating,
   poll,
+  adVideo,
 }
 
 /// Survey question for earn opportunity
@@ -77,6 +79,9 @@ class EarnOpportunity with _$EarnOpportunity {
     // User engagement status (populated by getEligibleOpportunities)
     String? userEngagementStatus,
     String? userEngagementId,
+    // AdMob configuration
+    String? adUnitId,
+    @Default(3) int dailyLimitPerUser,
   }) = _EarnOpportunity;
 
   const EarnOpportunity._();
@@ -132,6 +137,14 @@ class EarnOpportunity with _$EarnOpportunity {
         return 'Rating';
       case EarningType.poll:
         return 'Poll';
+      case EarningType.adVideo:
+        return 'Watch & Earn';
     }
   }
+
+  /// Check if this is an AdMob video opportunity
+  bool get isAdMobOpportunity => earningType == EarningType.adVideo;
+
+  /// Check if ad unit ID is configured
+  bool get hasAdUnitId => adUnitId != null && adUnitId!.isNotEmpty;
 }

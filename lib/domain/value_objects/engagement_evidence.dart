@@ -36,6 +36,12 @@ class EngagementEvidence with _$EngagementEvidence {
 
     /// Client-side calculated attention score (0-100)
     double? clientAttentionScore,
+
+    /// AdMob transaction ID for server-side verification
+    String? adTransactionId,
+
+    /// Client-side flag indicating ad was fully watched
+    bool? adFullyWatched,
   }) = _EngagementEvidence;
 
   const EngagementEvidence._();

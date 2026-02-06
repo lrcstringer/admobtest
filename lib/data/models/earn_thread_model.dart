@@ -37,6 +37,8 @@ class EarnThreadModel with _$EarnThreadModel {
     DateTime? lastActivityAt,
     // Targeting (stored as JSON map)
     Map<String, dynamic>? targeting,
+    // System thread flag (for AdMob and other system-generated threads)
+    @Default(false) bool isSystemThread,
   }) = _EarnThreadModel;
 
   const EarnThreadModel._();
@@ -84,6 +86,7 @@ class EarnThreadModel with _$EarnThreadModel {
               ? lastActivityAt.toDate()
               : DateTime.parse(lastActivityAt as String),
       targeting: json['targeting'] as Map<String, dynamic>?,
+      isSystemThread: json['isSystemThread'] as bool? ?? false,
     );
   }
 
@@ -109,6 +112,7 @@ class EarnThreadModel with _$EarnThreadModel {
       createdAt: createdAt,
       lastActivityAt: lastActivityAt,
       targeting: targeting != null ? TargetingCriteria.fromJson(targeting!) : null,
+      isSystemThread: isSystemThread,
     );
   }
 
@@ -134,6 +138,7 @@ class EarnThreadModel with _$EarnThreadModel {
       createdAt: entity.createdAt,
       lastActivityAt: entity.lastActivityAt,
       targeting: entity.targeting?.toJson(),
+      isSystemThread: entity.isSystemThread,
     );
   }
 
@@ -159,6 +164,7 @@ class EarnThreadModel with _$EarnThreadModel {
       'createdAt': Timestamp.fromDate(createdAt),
       'lastActivityAt': lastActivityAt != null ? Timestamp.fromDate(lastActivityAt!) : null,
       'targeting': targeting,
+      'isSystemThread': isSystemThread,
     };
   }
 }

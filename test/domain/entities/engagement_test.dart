@@ -11,7 +11,7 @@ void main() {
     setUp(() {
       inProgressEngagement = Engagement(
         id: 'eng123',
-        oddienceUserId: 'user123',
+        userId: 'user123',
         oddienceCampaignId: 'camp123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.watching,
@@ -25,7 +25,7 @@ void main() {
 
       completedEngagement = Engagement(
         id: 'eng456',
-        oddienceUserId: 'user123',
+        userId: 'user123',
         oddienceCampaignId: 'camp123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.completed,
@@ -48,7 +48,7 @@ void main() {
 
       failedEngagement = Engagement(
         id: 'eng789',
-        oddienceUserId: 'user123',
+        userId: 'user123',
         oddienceCampaignId: 'camp123',
         earnOpportunityId: 'opp123',
         status: EngagementStatus.failed,

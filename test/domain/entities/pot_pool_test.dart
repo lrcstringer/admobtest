@@ -32,7 +32,7 @@ void main() {
         distributedAt: DateTime(2024, 1, 7),
         winners: const [
           PotWinner(
-            oddienceUserId: 'user1',
+            userId: 'user1',
             displayName: 'Winner 1',
             rank: 1,
             tokensWon: 125000,
@@ -103,7 +103,7 @@ void main() {
   group('PotWinner', () {
     test('stores all values correctly', () {
       const winner = PotWinner(
-        oddienceUserId: 'user123',
+        userId: 'user123',
         displayName: 'Test User',
         username: 'testuser',
         rank: 1,
@@ -111,7 +111,7 @@ void main() {
         percentage: 50.0,
       );
 
-      expect(winner.oddienceUserId, 'user123');
+      expect(winner.userId, 'user123');
       expect(winner.displayName, 'Test User');
       expect(winner.username, 'testuser');
       expect(winner.rank, 1);

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'app.dart';
 import 'core/di/injection.dart';
@@ -45,6 +46,9 @@ Future<void> main() async {
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize Google Mobile Ads SDK
+  await MobileAds.instance.initialize();
 
   // TODO: Activate App Check once app is published to Google Play
   // Play Integrity requires the app to be listed on Play Store.

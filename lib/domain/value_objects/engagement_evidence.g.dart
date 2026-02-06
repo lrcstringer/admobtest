@@ -21,6 +21,8 @@ _$EngagementEvidenceImpl _$$EngagementEvidenceImplFromJson(
   videoStartedAt: DateTime.parse(json['videoStartedAt'] as String),
   surveySubmittedAt: DateTime.parse(json['surveySubmittedAt'] as String),
   clientAttentionScore: (json['clientAttentionScore'] as num?)?.toDouble(),
+  adTransactionId: json['adTransactionId'] as String?,
+  adFullyWatched: json['adFullyWatched'] as bool?,
 );
 
 Map<String, dynamic> _$$EngagementEvidenceImplToJson(
@@ -36,4 +38,6 @@ Map<String, dynamic> _$$EngagementEvidenceImplToJson(
   'videoStartedAt': instance.videoStartedAt.toIso8601String(),
   'surveySubmittedAt': instance.surveySubmittedAt.toIso8601String(),
   'clientAttentionScore': instance.clientAttentionScore,
+  'adTransactionId': instance.adTransactionId,
+  'adFullyWatched': instance.adFullyWatched,
 };

@@ -6,6 +6,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:imalichat/core/error/failures.dart';
+import 'package:imalichat/core/security/device_binding_service.dart';
+import 'package:imalichat/core/services/biometric_login_service.dart';
+import 'package:imalichat/data/datasources/local/app_database.dart';
+import 'package:imalichat/domain/entities/trusted_device.dart';
 import 'package:imalichat/domain/entities/user.dart';
 import 'package:imalichat/domain/repositories/auth_repository.dart';
 import 'package:imalichat/domain/repositories/user_repository.dart';
@@ -17,18 +21,52 @@ class MockAuthRepository extends Mock implements AuthRepository {}
 
 class MockUserRepository extends Mock implements UserRepository {}
 
+class MockDeviceBindingService extends Mock implements DeviceBindingService {}
+
+class MockBiometricLoginService extends Mock implements BiometricLoginService {}
+
+class MockAppDatabase extends Mock implements AppDatabase {}
+
 void main() {
   late MockAuthRepository mockAuthRepository;
   late MockUserRepository mockUserRepository;
+  late MockDeviceBindingService mockDeviceBindingService;
+  late MockBiometricLoginService mockBiometricLoginService;
+  late MockAppDatabase mockAppDatabase;
   late StreamController<User?> authStateController;
+
+  AuthBloc createBloc() => AuthBloc(
+        mockAuthRepository,
+        mockUserRepository,
+        mockDeviceBindingService,
+        mockBiometricLoginService,
+        mockAppDatabase,
+      );
 
   setUp(() {
     mockAuthRepository = MockAuthRepository();
     mockUserRepository = MockUserRepository();
+    mockDeviceBindingService = MockDeviceBindingService();
+    mockBiometricLoginService = MockBiometricLoginService();
+    mockAppDatabase = MockAppDatabase();
     authStateController = StreamController<User?>.broadcast();
 
     when(() => mockAuthRepository.authStateChanges)
         .thenAnswer((_) => authStateController.stream);
+    when(() => mockBiometricLoginService.recordSuccessfulAuth())
+        .thenAnswer((_) async {});
+    when(() => mockDeviceBindingService.clearBinding())
+        .thenAnswer((_) async {});
+    when(() => mockDeviceBindingService.bindCurrentDevice(any()))
+        .thenAnswer((_) async => Right(TrustedDevice(
+              deviceId: 'mock_device',
+              userId: 'user123',
+              publicKeyPem: 'mock_key',
+              platform: 'android',
+              trusted: true,
+              revoked: false,
+              registeredAt: DateTime(2024, 1, 1),
+            )));
   });
 
   tearDown(() {
@@ -37,7 +75,7 @@ void main() {
 
   group('AuthBloc', () {
     test('initial state is correct', () {
-      final bloc = AuthBloc(mockAuthRepository, mockUserRepository);
+      final bloc = createBloc();
       expect(bloc.state.status, AuthStatus.initial);
       expect(bloc.state.user, isNull);
       expect(bloc.state.isLoading, false);
@@ -50,7 +88,7 @@ void main() {
         build: () {
           when(() => mockAuthRepository.getCurrentUser())
               .thenAnswer((_) async => Right(TestData.testUser));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         act: (bloc) => bloc.add(const AuthEvent.checkAuthStatus()),
         expect: () => [
@@ -69,7 +107,7 @@ void main() {
         build: () {
           when(() => mockAuthRepository.getCurrentUser())
               .thenAnswer((_) async => Right(TestData.userNeedsOnboarding));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         act: (bloc) => bloc.add(const AuthEvent.checkAuthStatus()),
         expect: () => [
@@ -85,7 +123,7 @@ void main() {
         build: () {
           when(() => mockAuthRepository.getCurrentUser())
               .thenAnswer((_) async => const Right(null));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         act: (bloc) => bloc.add(const AuthEvent.checkAuthStatus()),
         expect: () => [
@@ -101,7 +139,7 @@ void main() {
         build: () {
           when(() => mockAuthRepository.getCurrentUser())
               .thenAnswer((_) async => const Left(Failure.network()));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         act: (bloc) => bloc.add(const AuthEvent.checkAuthStatus()),
         expect: () => [
@@ -117,7 +155,7 @@ void main() {
         build: () {
           when(() => mockAuthRepository.sendOtp(phoneNumber: any(named: 'phoneNumber')))
               .thenAnswer((_) async => const Right('verification_id_123'));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         act: (bloc) => bloc.add(const AuthEvent.sendOtp(phoneNumber: '+27612345678')),
         expect: () => [
@@ -137,7 +175,7 @@ void main() {
         build: () {
           when(() => mockAuthRepository.sendOtp(phoneNumber: any(named: 'phoneNumber')))
               .thenAnswer((_) async => const Left(Failure.invalidPhone()));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         act: (bloc) => bloc.add(const AuthEvent.sendOtp(phoneNumber: 'invalid')),
         expect: () => [
@@ -157,7 +195,7 @@ void main() {
                 verificationId: any(named: 'verificationId'),
                 otp: any(named: 'otp'),
               )).thenAnswer((_) async => Right(TestData.testUser));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         act: (bloc) => bloc.add(const AuthEvent.verifyOtp(
           verificationId: 'verification_id_123',
@@ -179,7 +217,7 @@ void main() {
                 verificationId: any(named: 'verificationId'),
                 otp: any(named: 'otp'),
               )).thenAnswer((_) async => Right(TestData.userNeedsOnboarding));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         act: (bloc) => bloc.add(const AuthEvent.verifyOtp(
           verificationId: 'verification_id_123',
@@ -199,7 +237,7 @@ void main() {
                 verificationId: any(named: 'verificationId'),
                 otp: any(named: 'otp'),
               )).thenAnswer((_) async => const Left(Failure.invalidOtp()));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         act: (bloc) => bloc.add(const AuthEvent.verifyOtp(
           verificationId: 'verification_id_123',
@@ -217,7 +255,7 @@ void main() {
     group('ResendOtp', () {
       blocTest<AuthBloc, AuthState>(
         'does nothing when countdown is active',
-        build: () => AuthBloc(mockAuthRepository, mockUserRepository),
+        build: () => createBloc(),
         seed: () => const AuthState(resendCountdown: 30),
         act: (bloc) => bloc.add(const AuthEvent.resendOtp(phoneNumber: '+27612345678')),
         expect: () => [],
@@ -231,7 +269,7 @@ void main() {
         build: () {
           when(() => mockAuthRepository.sendOtp(phoneNumber: any(named: 'phoneNumber')))
               .thenAnswer((_) async => const Right('new_verification_id'));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         seed: () => const AuthState(resendCountdown: 0),
         act: (bloc) => bloc.add(const AuthEvent.resendOtp(phoneNumber: '+27612345678')),
@@ -252,7 +290,7 @@ void main() {
         build: () {
           when(() => mockAuthRepository.signOut())
               .thenAnswer((_) async => const Right(null));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         seed: () => AuthState(user: TestData.testUser, status: AuthStatus.authenticated),
         act: (bloc) => bloc.add(const AuthEvent.signOut()),
@@ -269,7 +307,7 @@ void main() {
         build: () {
           when(() => mockAuthRepository.signOut())
               .thenAnswer((_) async => const Left(Failure.network()));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         seed: () => AuthState(user: TestData.testUser, status: AuthStatus.authenticated),
         act: (bloc) => bloc.add(const AuthEvent.signOut()),
@@ -288,7 +326,7 @@ void main() {
         build: () {
           when(() => mockAuthRepository.deleteAccount())
               .thenAnswer((_) async => const Right(null));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         seed: () => AuthState(user: TestData.testUser, status: AuthStatus.authenticated),
         act: (bloc) => bloc.add(const AuthEvent.deleteAccount()),
@@ -306,7 +344,7 @@ void main() {
         build: () {
           when(() => mockUserRepository.acceptTerms())
               .thenAnswer((_) async => const Right(null));
-          return AuthBloc(mockAuthRepository, mockUserRepository);
+          return createBloc();
         },
         seed: () => AuthState(
           user: TestData.userNeedsOnboarding.copyWith(hasAcceptedTerms: false),
@@ -325,7 +363,7 @@ void main() {
     group('CompleteOnboarding', () {
       blocTest<AuthBloc, AuthState>(
         'emits authenticated when onboarding is completed',
-        build: () => AuthBloc(mockAuthRepository, mockUserRepository),
+        build: () => createBloc(),
         seed: () => AuthState(
           user: TestData.userNeedsOnboarding.copyWith(hasAcceptedTerms: true),
           status: AuthStatus.onboardingRequired,

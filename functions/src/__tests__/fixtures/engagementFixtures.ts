@@ -390,11 +390,79 @@ export const validImageEvidence = {
   appInForeground: true,
 };
 
+/**
+ * Valid AdMob rewarded video evidence (with transaction ID)
+ */
+export const validAdVideoEvidenceWithTransactionId = {
+  deviceFingerprint: "device_abc123",
+  adTransactionId: "admob_user123_1704067200000",
+  adFullyWatched: true,
+  screenVisible: true,
+  appInForeground: true,
+};
+
+/**
+ * Valid AdMob rewarded video evidence (with adFullyWatched flag)
+ */
+export const validAdVideoEvidenceWithFlag = {
+  deviceFingerprint: "device_abc123",
+  adFullyWatched: true,
+  screenVisible: true,
+  appInForeground: true,
+};
+
+/**
+ * Valid AdMob rewarded video evidence (with watch duration)
+ */
+export const validAdVideoEvidenceWithDuration = {
+  deviceFingerprint: "device_abc123",
+  watchDurationMs: 30000, // 30 seconds
+  screenVisible: true,
+  appInForeground: true,
+};
+
+/**
+ * Invalid AdMob evidence (insufficient watch duration)
+ */
+export const invalidAdVideoEvidence = {
+  deviceFingerprint: "device_abc123",
+  watchDurationMs: 10000, // Only 10 seconds, need 25+
+  adFullyWatched: false,
+  screenVisible: true,
+  appInForeground: true,
+};
+
+/**
+ * AdMob engagement in progress
+ */
+export const adVideoWatchingEngagement = {
+  id: "eng_admob_001",
+  userId: "user_active_001",
+  earnOpportunityId: "opp_admob_001",
+  threadId: "system_admob_thread",
+  clientId: "system_admob",
+  type: "adVideo",
+  status: "watching",
+  rewardAmount: 5,
+  streakPoints: 1,
+  watchDurationSeconds: 0,
+  requiredDurationSeconds: 30,
+  answers: [],
+  evidence: [],
+  tokensEarned: null,
+  failureReason: null,
+  attemptNumber: 1,
+  createdAt: createTimestamp(minutesAgo(1)),
+  updatedAt: createTimestamp(minutesAgo(1)),
+  completedAt: null,
+};
+
 // Shorter aliases for common use in tests
 export const videoEvidence = validVideoEvidence;
 export const surveyEvidence = validSurveyEvidence;
 export const pollEvidence = validPollEvidence;
 export const imageEvidence = validImageEvidence;
+export const adVideoEvidence = validAdVideoEvidenceWithTransactionId;
 
 /**
  * Incomplete video evidence (not enough watch time)

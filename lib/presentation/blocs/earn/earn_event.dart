@@ -52,4 +52,19 @@ class EarnEvent with _$EarnEvent {
 
   /// Reset engagement state (after completion or abandon)
   const factory EarnEvent.resetEngagement() = _ResetEngagement;
+
+  // AdMob Events
+
+  /// Load AdMob rewarded video ad
+  const factory EarnEvent.loadAdVideo() = _LoadAdVideo;
+
+  /// Called when ad video is fully watched and reward earned
+  const factory EarnEvent.adVideoCompleted({
+    required String transactionId,
+    required int rewardAmount,
+  }) = _AdVideoCompleted;
+
+  /// Called when ad video fails to show or is dismissed early
+  const factory EarnEvent.adVideoFailed({required String reason}) =
+      _AdVideoFailed;
 }

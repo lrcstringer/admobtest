@@ -48,7 +48,16 @@ mixin _$Engagement {
   int? get streakDayAtCompletion => throw _privateConstructorUsedError;
 
   /// Multiplier applied at time of completion (1.0, 1.2, 1.35, or 1.5)
-  double? get multiplierApplied => throw _privateConstructorUsedError;
+  double? get multiplierApplied =>
+      throw _privateConstructorUsedError; // AdMob tracking fields
+  /// True when ad was fully watched
+  bool get adWatched => throw _privateConstructorUsedError;
+
+  /// AdMob transaction ID for SSV verification
+  String? get adTransactionId => throw _privateConstructorUsedError;
+
+  /// Timestamp when ad completed
+  DateTime? get adCompletedAt => throw _privateConstructorUsedError;
 
   /// Serializes this Engagement to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -88,6 +97,9 @@ abstract class $EngagementCopyWith<$Res> {
     String? clientId,
     int? streakDayAtCompletion,
     double? multiplierApplied,
+    bool adWatched,
+    String? adTransactionId,
+    DateTime? adCompletedAt,
   });
 
   $EngagementEvidenceCopyWith<$Res>? get evidence;
@@ -128,6 +140,9 @@ class _$EngagementCopyWithImpl<$Res, $Val extends Engagement>
     Object? clientId = freezed,
     Object? streakDayAtCompletion = freezed,
     Object? multiplierApplied = freezed,
+    Object? adWatched = null,
+    Object? adTransactionId = freezed,
+    Object? adCompletedAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -211,6 +226,18 @@ class _$EngagementCopyWithImpl<$Res, $Val extends Engagement>
                 ? _value.multiplierApplied
                 : multiplierApplied // ignore: cast_nullable_to_non_nullable
                       as double?,
+            adWatched: null == adWatched
+                ? _value.adWatched
+                : adWatched // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            adTransactionId: freezed == adTransactionId
+                ? _value.adTransactionId
+                : adTransactionId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            adCompletedAt: freezed == adCompletedAt
+                ? _value.adCompletedAt
+                : adCompletedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -261,6 +288,9 @@ abstract class _$$EngagementImplCopyWith<$Res>
     String? clientId,
     int? streakDayAtCompletion,
     double? multiplierApplied,
+    bool adWatched,
+    String? adTransactionId,
+    DateTime? adCompletedAt,
   });
 
   @override
@@ -301,6 +331,9 @@ class __$$EngagementImplCopyWithImpl<$Res>
     Object? clientId = freezed,
     Object? streakDayAtCompletion = freezed,
     Object? multiplierApplied = freezed,
+    Object? adWatched = null,
+    Object? adTransactionId = freezed,
+    Object? adCompletedAt = freezed,
   }) {
     return _then(
       _$EngagementImpl(
@@ -384,6 +417,18 @@ class __$$EngagementImplCopyWithImpl<$Res>
             ? _value.multiplierApplied
             : multiplierApplied // ignore: cast_nullable_to_non_nullable
                   as double?,
+        adWatched: null == adWatched
+            ? _value.adWatched
+            : adWatched // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        adTransactionId: freezed == adTransactionId
+            ? _value.adTransactionId
+            : adTransactionId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        adCompletedAt: freezed == adCompletedAt
+            ? _value.adCompletedAt
+            : adCompletedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -413,6 +458,9 @@ class _$EngagementImpl extends _Engagement {
     this.clientId,
     this.streakDayAtCompletion,
     this.multiplierApplied,
+    this.adWatched = false,
+    this.adTransactionId,
+    this.adCompletedAt,
   }) : _answers = answers,
        super._();
 
@@ -473,10 +521,23 @@ class _$EngagementImpl extends _Engagement {
   /// Multiplier applied at time of completion (1.0, 1.2, 1.35, or 1.5)
   @override
   final double? multiplierApplied;
+  // AdMob tracking fields
+  /// True when ad was fully watched
+  @override
+  @JsonKey()
+  final bool adWatched;
+
+  /// AdMob transaction ID for SSV verification
+  @override
+  final String? adTransactionId;
+
+  /// Timestamp when ad completed
+  @override
+  final DateTime? adCompletedAt;
 
   @override
   String toString() {
-    return 'Engagement(id: $id, userId: $userId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, threadId: $threadId, clientId: $clientId, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied)';
+    return 'Engagement(id: $id, userId: $userId, oddienceCampaignId: $oddienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, threadId: $threadId, clientId: $clientId, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied, adWatched: $adWatched, adTransactionId: $adTransactionId, adCompletedAt: $adCompletedAt)';
   }
 
   @override
@@ -522,7 +583,13 @@ class _$EngagementImpl extends _Engagement {
             (identical(other.streakDayAtCompletion, streakDayAtCompletion) ||
                 other.streakDayAtCompletion == streakDayAtCompletion) &&
             (identical(other.multiplierApplied, multiplierApplied) ||
-                other.multiplierApplied == multiplierApplied));
+                other.multiplierApplied == multiplierApplied) &&
+            (identical(other.adWatched, adWatched) ||
+                other.adWatched == adWatched) &&
+            (identical(other.adTransactionId, adTransactionId) ||
+                other.adTransactionId == adTransactionId) &&
+            (identical(other.adCompletedAt, adCompletedAt) ||
+                other.adCompletedAt == adCompletedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -549,6 +616,9 @@ class _$EngagementImpl extends _Engagement {
     clientId,
     streakDayAtCompletion,
     multiplierApplied,
+    adWatched,
+    adTransactionId,
+    adCompletedAt,
   ]);
 
   /// Create a copy of Engagement
@@ -587,6 +657,9 @@ abstract class _Engagement extends Engagement {
     final String? clientId,
     final int? streakDayAtCompletion,
     final double? multiplierApplied,
+    final bool adWatched,
+    final String? adTransactionId,
+    final DateTime? adCompletedAt,
   }) = _$EngagementImpl;
   const _Engagement._() : super._();
 
@@ -638,7 +711,18 @@ abstract class _Engagement extends Engagement {
 
   /// Multiplier applied at time of completion (1.0, 1.2, 1.35, or 1.5)
   @override
-  double? get multiplierApplied;
+  double? get multiplierApplied; // AdMob tracking fields
+  /// True when ad was fully watched
+  @override
+  bool get adWatched;
+
+  /// AdMob transaction ID for SSV verification
+  @override
+  String? get adTransactionId;
+
+  /// Timestamp when ad completed
+  @override
+  DateTime? get adCompletedAt;
 
   /// Create a copy of Engagement
   /// with the given fields replaced by the non-null parameter values.

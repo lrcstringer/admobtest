@@ -37,6 +37,8 @@ class EarnThread with _$EarnThread {
     DateTime? lastActivityAt,
     // Targeting
     TargetingCriteria? targeting,
+    // System thread flag
+    @Default(false) bool isSystemThread,
   }) = _EarnThread;
 
   const EarnThread._();
