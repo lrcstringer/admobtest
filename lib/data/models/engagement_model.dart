@@ -220,8 +220,8 @@ class EngagementModel with _$EngagementModel {
                   EngagementAnswerModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      evidence: evidence != null
-          ? EngagementEvidenceModel.fromJson(evidence as Map<String, dynamic>)
+      evidence: evidence is Map<String, dynamic>
+          ? EngagementEvidenceModel.fromJson(evidence)
           : null,
       tokensEarned: json['tokensEarned'] as int?,
       failureReason: json['failureReason'] as String?,

@@ -31,21 +31,19 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocBuilder<EarnBloc, EarnState>(
-        builder: (context, state) {
-          final thread = state.selectedThread;
+    return BlocBuilder<EarnBloc, EarnState>(
+      builder: (context, state) {
+        final thread = state.selectedThread;
 
-          return Scaffold(
-            appBar: IMaliAppBar(
-              title: thread?.title ?? 'Opportunities',
-            ),
-            body: WaveBackground(
-              child: _buildBody(context, state),
-            ),
-          );
-        },
-      ),
+        return Scaffold(
+          appBar: IMaliAppBar(
+            title: thread?.title ?? 'Opportunities',
+          ),
+          body: WaveBackground(
+            child: _buildBody(context, state),
+          ),
+        );
+      },
     );
   }
 
@@ -76,6 +74,9 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
                     .read<EarnBloc>()
                     .add(EarnEvent.loadOpportunities(threadId: widget.threadId));
               },
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(120, 40),
+              ),
               child: const Text('Retry'),
             ),
           ],
@@ -426,6 +427,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           padding: const EdgeInsets.symmetric(horizontal: 12),
+          minimumSize: const Size(0, 36),
         ),
         child: const Text('Resume'),
       );
