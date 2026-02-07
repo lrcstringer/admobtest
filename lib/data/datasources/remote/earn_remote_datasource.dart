@@ -129,7 +129,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       final dailyLimitReached = dailyLimit?['limitReached'] as bool? ?? false;
 
       final threadModels = threads.map((thread) {
-        final threadMap = Map<String, dynamic>.from(thread as Map);
+        final threadMap = deepConvertMap(thread as Map);
         return EarnThreadModel.fromJson(threadMap);
       }).toList();
 
@@ -181,7 +181,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       final opportunities = (data['opportunities'] as List?) ?? [];
 
       return opportunities.map((opp) {
-        final oppMap = Map<String, dynamic>.from(opp as Map);
+        final oppMap = deepConvertMap(opp as Map);
         return EarnOpportunityModel.fromJson(oppMap);
       }).toList();
     } on FirebaseFunctionsException catch (e) {
@@ -220,7 +220,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
     try {
       final callable = _functions.httpsCallable('startEngagement');
       final result = await callable.call<Map<String, dynamic>>({
-        'opportunityId': opportunityId,
+        'earnOpportunityId': opportunityId,
       });
 
       final data = result.data;
@@ -229,8 +229,21 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
             message: data['error'] as String? ?? 'Failed to start engagement');
       }
 
-      final engagement = data['engagement'] as Map<String, dynamic>;
-      return EngagementModel.fromJson(Map<String, dynamic>.from(engagement));
+      // Cloud Function returns { success, engagementId, rewardAmount }
+      // Fetch the full engagement document by ID
+      final engagementId = data['engagementId'] as String;
+      final engagementDoc =
+          await _engagementsCollection.doc(engagementId).get();
+
+      if (!engagementDoc.exists || engagementDoc.data() == null) {
+        throw const ServerException(
+            message: 'Engagement created but not found');
+      }
+
+      return EngagementModel.fromJson({
+        ...sanitizeFirestoreData(engagementDoc.data()!),
+        'id': engagementDoc.id,
+      });
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(
           message: e.message ?? 'Failed to start engagement');

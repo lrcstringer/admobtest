@@ -11,7 +11,7 @@ class Engagement with _$Engagement {
   const factory Engagement({
     required String id,
     required String userId,
-    required String audienceCampaignId,
+    String? audienceCampaignId,
     required String earnOpportunityId,
     required EngagementStatus status,
     required DateTime startedAt,

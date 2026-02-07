@@ -193,4 +193,15 @@ class AppColors {
   static const Color inputBorder = Color(0xFF2A2E3D);
   static const Color inputBorderFocused = Color(0xFFFF328C);
   static const Color inputFill = Color(0xFF0C1124);
+
+  /// Safely parses a hex color string (e.g. '#FF328C') to a [Color].
+  /// Returns [fallback] if the string is null or malformed.
+  static Color parseHex(String? hex, {Color fallback = primary}) {
+    if (hex == null || hex.isEmpty) return fallback;
+    try {
+      return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+    } catch (_) {
+      return fallback;
+    }
+  }
 }

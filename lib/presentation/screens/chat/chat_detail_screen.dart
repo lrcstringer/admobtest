@@ -100,9 +100,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       );
     }
 
-    final color = thread.avatarColor != null
-        ? Color(int.parse(thread.avatarColor!.replaceFirst('#', '0xFF')))
-        : AppColors.primary;
+    final color = AppColors.parseHex(thread.avatarColor);
 
     return CircleAvatar(
       radius: 18,

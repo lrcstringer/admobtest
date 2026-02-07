@@ -925,11 +925,8 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     );
   }
 
-  Widget _buildClientAvatar(dynamic opportunity) {
-    final color = opportunity.clientAvatarColor != null
-        ? Color(int.parse(
-            opportunity.clientAvatarColor!.replaceFirst('#', '0xFF')))
-        : AppColors.primary;
+  Widget _buildClientAvatar(EarnOpportunity opportunity) {
+    final color = AppColors.parseHex(opportunity.clientAvatarColor);
 
     final initials = opportunity.clientName != null &&
             opportunity.clientName!.isNotEmpty

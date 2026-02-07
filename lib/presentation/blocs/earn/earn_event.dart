@@ -67,4 +67,12 @@ class EarnEvent with _$EarnEvent {
   /// Called when ad video fails to show or is dismissed early
   const factory EarnEvent.adVideoFailed({required String reason}) =
       _AdVideoFailed;
+
+  /// Internal: AdMob ready state changed via ValueNotifier
+  const factory EarnEvent.adReadyStateChanged({required bool isReady}) =
+      _AdReadyStateChanged;
+
+  /// Internal: AdMob loading state changed via ValueNotifier
+  const factory EarnEvent.adLoadingStateChanged({required bool isLoading}) =
+      _AdLoadingStateChanged;
 }

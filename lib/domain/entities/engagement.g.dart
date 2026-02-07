@@ -10,7 +10,7 @@ _$EngagementImpl _$$EngagementImplFromJson(Map<String, dynamic> json) =>
     _$EngagementImpl(
       id: json['id'] as String,
       userId: json['userId'] as String,
-      audienceCampaignId: json['audienceCampaignId'] as String,
+      audienceCampaignId: json['audienceCampaignId'] as String?,
       earnOpportunityId: json['earnOpportunityId'] as String,
       status: $enumDecode(_$EngagementStatusEnumMap, json['status']),
       startedAt: DateTime.parse(json['startedAt'] as String),

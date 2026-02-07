@@ -46,6 +46,37 @@ class NullableTimestampConverter implements JsonConverter<DateTime?, dynamic> {
   dynamic toJson(DateTime? date) => date?.toIso8601String();
 }
 
+/// Deeply converts a map from Cloud Functions responses (which contain
+/// `Map<Object?, Object?>` nested maps) to `Map<String, dynamic>`.
+/// Also converts serialized Timestamp maps `{_seconds, _nanoseconds}` and
+/// Firestore [Timestamp] objects to ISO 8601 strings.
+Map<String, dynamic> deepConvertMap(Map<dynamic, dynamic> map) {
+  return map.map((key, value) {
+    return MapEntry(key.toString(), _deepConvertValue(value));
+  });
+}
+
+dynamic _deepConvertValue(dynamic value) {
+  if (value is Timestamp) {
+    return value.toDate().toIso8601String();
+  }
+  if (value is Map) {
+    // Check for serialized Timestamp from Cloud Functions
+    if (value.containsKey('_seconds') && value.containsKey('_nanoseconds')) {
+      final seconds = value['_seconds'] as int;
+      final nanoseconds = value['_nanoseconds'] as int;
+      return DateTime.fromMillisecondsSinceEpoch(
+        seconds * 1000 + nanoseconds ~/ 1000000,
+      ).toIso8601String();
+    }
+    return deepConvertMap(value);
+  }
+  if (value is List) {
+    return value.map(_deepConvertValue).toList();
+  }
+  return value;
+}
+
 /// Converts all [Timestamp] values in a Firestore document map to ISO 8601
 /// strings so that freezed/json_serializable generated `fromJson` code
 /// (which expects `DateTime.parse(json['field'] as String)`) works correctly.

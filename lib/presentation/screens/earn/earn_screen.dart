@@ -456,10 +456,7 @@ class _EarnScreenState extends State<EarnScreen> {
   }
 
   Widget _buildClientAvatar(BuildContext context, EarnThread thread) {
-    final color = thread.clientAvatarColor != null
-        ? Color(
-            int.parse(thread.clientAvatarColor!.replaceFirst('#', '0xFF')))
-        : AppColors.primary;
+    final color = AppColors.parseHex(thread.clientAvatarColor);
 
     if (thread.clientAvatarImage != null) {
       return CircleAvatar(

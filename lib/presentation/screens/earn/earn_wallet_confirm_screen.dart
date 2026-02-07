@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../domain/entities/earn_opportunity.dart';
 import '../../blocs/earn/earn_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -480,11 +481,8 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
     );
   }
 
-  Widget _buildClientAvatar(dynamic opportunity) {
-    final color = opportunity.clientAvatarColor != null
-        ? Color(int.parse(
-            opportunity.clientAvatarColor!.replaceFirst('#', '0xFF')))
-        : AppColors.primary;
+  Widget _buildClientAvatar(EarnOpportunity opportunity) {
+    final color = AppColors.parseHex(opportunity.clientAvatarColor);
 
     final initials =
         opportunity.clientName != null && opportunity.clientName!.isNotEmpty

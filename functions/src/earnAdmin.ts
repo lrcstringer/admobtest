@@ -250,6 +250,9 @@ export const createEarnOpportunity = functions.https.onCall(
       bonusRewardMultiplier = 1.0,
       bonusIntervalType = null,
       bonusIntervalX = null,
+      // AdMob / per-user limits
+      dailyLimitPerUser = null,
+      adUnitId = null,
     } = data;
 
     // Validate required fields
@@ -368,9 +371,13 @@ export const createEarnOpportunity = functions.https.onCall(
       bonusRewardMultiplier: bonusReward ? bonusRewardMultiplier : 1.0,
       bonusIntervalType: bonusReward ? bonusIntervalType : null,
       bonusIntervalX: bonusReward && bonusIntervalType === "every_x" ? bonusIntervalX : null,
+      // AdMob / per-user limits
+      dailyLimitPerUser: dailyLimitPerUser ?? null,
+      adUnitId: adUnitId ?? null,
       // Denormalized from thread
       clientId: threadData.clientId,
       clientName: threadData.clientName,
+      clientAvatarImage: threadData.clientAvatarImage ?? null,
       clientAvatarColor: threadData.clientAvatarColor,
       updatedAt: now,
     };

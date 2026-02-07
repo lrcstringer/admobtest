@@ -38,23 +38,25 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     on<_LoadAdVideo>(_onLoadAdVideo);
     on<_AdVideoCompleted>(_onAdVideoCompleted);
     on<_AdVideoFailed>(_onAdVideoFailed);
+    on<_AdReadyStateChanged>(_onAdReadyStateChanged);
+    on<_AdLoadingStateChanged>(_onAdLoadingStateChanged);
 
-    // Listen to AdMob service state changes
+    // Listen to AdMob service state changes — route through events
     _adMobService.isAdReady.addListener(_onAdReadyChanged);
     _adMobService.isLoading.addListener(_onAdLoadingChanged);
   }
 
   void _onAdReadyChanged() {
     if (!isClosed) {
-      // ignore: invalid_use_of_visible_for_testing_member
-      emit(state.copyWith(isAdReady: _adMobService.isAdReady.value));
+      add(EarnEvent.adReadyStateChanged(
+          isReady: _adMobService.isAdReady.value));
     }
   }
 
   void _onAdLoadingChanged() {
     if (!isClosed) {
-      // ignore: invalid_use_of_visible_for_testing_member
-      emit(state.copyWith(isAdLoading: _adMobService.isLoading.value));
+      add(EarnEvent.adLoadingStateChanged(
+          isLoading: _adMobService.isLoading.value));
     }
   }
 
@@ -110,6 +112,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
 
     emit(state.copyWith(
       selectedThread: thread,
+      selectedOpportunity: null,
       opportunities: [],
       opportunitiesStatus: EarnStatus.loading,
     ));
@@ -427,6 +430,20 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
       errorMessage: event.reason,
       adTransactionId: null,
     ));
+  }
+
+  void _onAdReadyStateChanged(
+    _AdReadyStateChanged event,
+    Emitter<EarnState> emit,
+  ) {
+    emit(state.copyWith(isAdReady: event.isReady));
+  }
+
+  void _onAdLoadingStateChanged(
+    _AdLoadingStateChanged event,
+    Emitter<EarnState> emit,
+  ) {
+    emit(state.copyWith(isAdLoading: event.isLoading));
   }
 
   /// Show the loaded ad and return result

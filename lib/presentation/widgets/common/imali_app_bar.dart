@@ -27,11 +27,11 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
     final canPop = Navigator.of(context).canPop();
 
     const mascot = Padding(
-      padding: EdgeInsets.all(8),
+      padding: EdgeInsets.all(4),
       child: Image(
         image: AssetImage('assets/icons/elephantFinal1.png'),
-        width: 32,
-        height: 32,
+        width: 48,
+        height: 48,
       ),
     );
 
@@ -39,7 +39,7 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      leadingWidth: canPop ? 88 : 48,
+      leadingWidth: canPop ? 104 : 56,
       leading: canPop
           ? Row(
               mainAxisSize: MainAxisSize.min,
@@ -71,12 +71,7 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
             color: AppColors.textSecondary,
           ),
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Notifications coming soon'),
-                duration: Duration(seconds: 2),
-              ),
-            );
+            // TODO: navigate to notifications screen
           },
           tooltip: 'Notifications',
         ),

@@ -181,9 +181,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
     String? imageUrl,
     String? colorHex,
   ) {
-    final color = colorHex != null
-        ? Color(int.parse(colorHex.replaceFirst('#', '0xFF')))
-        : AppColors.primary;
+    final color = AppColors.parseHex(colorHex);
 
     if (imageUrl != null) {
       return CircleAvatar(
