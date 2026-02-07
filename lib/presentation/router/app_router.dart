@@ -34,7 +34,6 @@ import '../screens/chat/chat_send_success_screen.dart';
 import '../screens/chat/chat_send_wallet_selection_screen.dart';
 
 // Earn screens
-import '../screens/earn/earn_detail_screen.dart';
 import '../screens/earn/earn_interaction_screen.dart';
 import '../screens/earn/earn_screen.dart';
 import '../screens/earn/earn_thread_screen.dart';
@@ -495,24 +494,6 @@ class AppRouter {
                             const EarnWalletConfirmScreen(),
                       ),
                     ],
-                  ),
-                  // 7.3) Legacy Detail (for backwards compat)
-                  GoRoute(
-                    path: 'detail',
-                    name: 'earnDetail',
-                    builder: (context, state) =>
-                        const EarnDetailScreen(),
-                  ),
-                  // 7.4) Legacy Interaction (gets opportunityId from query param)
-                  GoRoute(
-                    path: 'interaction',
-                    name: 'earnInteraction',
-                    builder: (context, state) {
-                      final opportunityId =
-                          state.uri.queryParameters['opportunityId'] ?? '';
-                      return EarnInteractionScreen(
-                          opportunityId: opportunityId);
-                    },
                   ),
                 ],
               ),

@@ -77,76 +77,7 @@ class _AdMobVideoWidgetState extends State<AdMobVideoWidget> {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Ad icon
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight.withValues(alpha: 0.3),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.play_circle_filled,
-                size: 80,
-                color: AppColors.primary,
-              ),
-            ),
-            SizedBox(height: AppSpacing.lg),
-
-            // Title
-            Text(
-              'Watch Ad to Continue',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            SizedBox(height: AppSpacing.sm),
-
-            // Description
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: Text(
-                'Watch a short video ad to unlock the bonus question and earn your reward!',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-              ),
-            ),
-            SizedBox(height: AppSpacing.lg),
-
-            // Reward preview
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.gold.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.monetization_on,
-                    color: AppColors.gold,
-                    size: 24,
-                  ),
-                  SizedBox(width: AppSpacing.xs),
-                  Text(
-                    '+${AdMobConstants.adVideoTokenReward} tokens',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: AppColors.gold,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: AppSpacing.xl),
-
-            // Watch ad button
+            // Watch ad button / loading states
             if (state.isAdLoading)
               Column(
                 children: [
@@ -180,17 +111,6 @@ class _AdMobVideoWidgetState extends State<AdMobVideoWidget> {
                 icon: state.isAdReady ? Icons.play_arrow : Icons.refresh,
                 isFullWidth: false,
               ),
-
-            // Retry message if ad failed to load
-            if (!state.isAdLoading && !state.isAdReady && !_isShowingAd) ...[
-              SizedBox(height: AppSpacing.sm),
-              Text(
-                'Tap to load the ad',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-              ),
-            ],
           ],
         );
       },

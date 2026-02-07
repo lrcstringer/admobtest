@@ -129,12 +129,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      thread.clientName,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
+                    _buildBrandedClientName(context, thread.clientName),
                     if (thread.description != null) ...[
                       AppSpacing.verticalXs,
                       Text(
@@ -204,6 +199,30 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
     );
   }
 
+  Widget _buildBrandedClientName(BuildContext context, String name) {
+    final style = Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.w600,
+        );
+
+    if (name.startsWith('iMali')) {
+      return RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: 'iMali',
+              style: style?.copyWith(color: AppColors.gold),
+            ),
+            TextSpan(
+              text: name.substring(5),
+              style: style,
+            ),
+          ],
+        ),
+      );
+    }
+    return Text(name, style: style);
+  }
+
   Widget _buildStatChip(
     BuildContext context,
     String value,
@@ -215,7 +234,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
       child: Container(
         padding: AppSpacing.cardPadding,
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
+          color: color.withValues(alpha: 0.15),
           borderRadius: AppSpacing.borderRadiusMd,
         ),
         child: Row(
@@ -473,9 +492,14 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
   }
 
   void _startOpportunity(BuildContext context, EarnOpportunity opportunity) {
-    context.read<EarnBloc>().add(
-          EarnEvent.startEngagement(opportunityId: opportunity.id),
-        );
+    final bloc = context.read<EarnBloc>();
+    bloc.add(EarnEvent.startEngagement(opportunityId: opportunity.id));
+
+    // Pre-load ad for adVideo opportunities so it's ready when watch screen renders
+    if (opportunity.earningType == EarningType.adVideo) {
+      bloc.add(const EarnEvent.loadAdVideo());
+    }
+
     context.push('/earn/opportunity/${opportunity.id}');
   }
 

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../core/constants/admob_constants.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/security/device_fingerprint.dart';
 import '../../../core/security/play_integrity_service.dart';
@@ -50,6 +51,9 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   final List<EngagementAnswer> _answers = [];
   final List<int> _responseTimesMs = [];
   DateTime? _questionStartTime;
+
+  // AdMob ad state (for adVideo unified screen)
+  bool _isShowingAd = false;
 
   // Services
   late final PlayIntegrityService _integrityService;
@@ -300,6 +304,19 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           _userId = state.currentEngagement!.userId;
         }
 
+        // Auto-fire startEngagement + loadAdVideo for adVideo deep links
+        if (state.selectedOpportunity != null &&
+            state.selectedOpportunity!.earningType == EarningType.adVideo &&
+            state.engagementPhase == EngagementPhase.idle &&
+            state.currentEngagement == null) {
+          final bloc = context.read<EarnBloc>();
+          bloc.add(EarnEvent.startEngagement(
+              opportunityId: widget.opportunityId));
+          if (!state.isAdLoading && !state.isAdReady) {
+            bloc.add(const EarnEvent.loadAdVideo());
+          }
+        }
+
         // Initialize video when opportunity is loaded (non-AdMob only)
         if (state.selectedOpportunity != null &&
             state.selectedOpportunity!.mediaUrl != null &&
@@ -386,24 +403,29 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       return _buildErrorState(state);
     }
 
-    // Starting engagement
+    // AdVideo: unified screen for idle/starting/watching/watchingAd phases
+    if (state.isAdMobOpportunity &&
+        (state.engagementPhase == EngagementPhase.idle ||
+            state.engagementPhase == EngagementPhase.starting ||
+            state.engagementPhase == EngagementPhase.watching ||
+            state.engagementPhase == EngagementPhase.watchingAd)) {
+      return _buildAdVideoScreen(state);
+    }
+
+    // Starting engagement (non-adVideo only)
     if (state.engagementPhase == EngagementPhase.idle ||
         state.engagementPhase == EngagementPhase.starting) {
       return _buildStartState(state);
     }
 
-    // Watching AdMob video phase
-    if (state.engagementPhase == EngagementPhase.watchingAd) {
-      return _buildAdMobWatchingState(state);
+    // Watching phase (regular video only — adVideo handled above)
+    if (state.engagementPhase == EngagementPhase.watching) {
+      return _buildWatchingState(state);
     }
 
-    // Watching phase (regular video)
-    if (state.engagementPhase == EngagementPhase.watching) {
-      // For adVideo type, show AdMob widget instead
-      if (state.selectedOpportunity!.earningType == EarningType.adVideo) {
-        return _buildAdMobWatchingState(state);
-      }
-      return _buildWatchingState(state);
+    // Watching AdMob video phase (fallback)
+    if (state.engagementPhase == EngagementPhase.watchingAd) {
+      return _buildAdMobWatchingState(state);
     }
 
     // Surveying phase
@@ -559,6 +581,148 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
             isLoading: isStarting,
             icon: Icons.play_arrow,
           ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showAd() async {
+    if (_isShowingAd) return;
+
+    setState(() {
+      _isShowingAd = true;
+    });
+
+    final bloc = context.read<EarnBloc>();
+    final userId = _userId ?? bloc.state.currentEngagement?.userId ?? 'unknown';
+    final result = await bloc.showAdVideo(userId);
+
+    if (!mounted) return;
+
+    setState(() {
+      _isShowingAd = false;
+    });
+
+    if (result.success && result.transactionId != null) {
+      bloc.add(EarnEvent.adVideoCompleted(
+        transactionId: result.transactionId!,
+        rewardAmount: result.rewardAmount ?? AdMobConstants.adVideoTokenReward,
+      ));
+      _questionStartTime = DateTime.now();
+    } else {
+      bloc.add(EarnEvent.adVideoFailed(
+        reason: result.errorMessage ?? 'Ad playback failed',
+      ));
+    }
+  }
+
+  Widget _buildAdVideoScreen(EarnState state) {
+    final opportunity = state.selectedOpportunity!;
+    final isEngagementReady = state.currentEngagement != null &&
+        (state.engagementPhase == EngagementPhase.watching ||
+            state.engagementPhase == EngagementPhase.watchingAd);
+    final isAdReady = state.isAdReady;
+    final bothReady = isEngagementReady && isAdReady;
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Token reward badge
+          Center(
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.gold.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.monetization_on, color: AppColors.gold, size: 20),
+                  SizedBox(width: AppSpacing.xs),
+                  Text(
+                    '+${opportunity.tokenReward} tokens',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: AppColors.gold,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: AppSpacing.lg),
+
+          // "How it works" card
+          Card(
+            child: Padding(
+              padding: EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'How it works',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  SizedBox(height: AppSpacing.sm),
+                  _buildInstructionStep(1, 'Watch the ad video completely'),
+                  _buildInstructionStep(2, 'Answer the bonus question'),
+                  _buildInstructionStep(3, 'Receive your tokens instantly'),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: AppSpacing.xl),
+
+          // Ad loading / ready state
+          if (!bothReady && !_isShowingAd) ...[
+            Center(
+              child: Column(
+                children: [
+                  const CircularProgressIndicator(),
+                  SizedBox(height: AppSpacing.md),
+                  Text(
+                    state.isAdLoading
+                        ? 'Loading ad...'
+                        : state.engagementPhase == EngagementPhase.starting
+                            ? 'Preparing...'
+                            : 'Getting ready...',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ] else if (_isShowingAd) ...[
+            Center(
+              child: Column(
+                children: [
+                  const CircularProgressIndicator(),
+                  SizedBox(height: AppSpacing.md),
+                  Text(
+                    'Playing ad...',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ] else ...[
+            // Both ready — show Watch Ad button
+            AppButton(
+              text: 'Watch Ad',
+              onPressed: _showAd,
+              icon: Icons.play_arrow,
+            ),
+          ],
+          SizedBox(height: AppSpacing.lg),
         ],
       ),
     );
