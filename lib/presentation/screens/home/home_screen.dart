@@ -371,32 +371,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            // Rank (daily only)
-            if (isDaily) ...[
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    userRank != null
-                        ? 'Your Rank: #$userRank'
-                        : 'Your Rank: #\u2014',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-                  Icon(Icons.chevron_right,
-                      size: 18, color: AppColors.textSecondary),
-                ],
-              ),
-            ] else ...[
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Icon(Icons.chevron_right,
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  userRank != null
+                      ? 'Your Rank: #$userRank'
+                      : 'Your Rank: #\u2014',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                ),
+                Icon(Icons.chevron_right,
                     size: 18, color: AppColors.textSecondary),
-              ),
-            ],
+              ],
+            ),
           ],
         ),
       ),

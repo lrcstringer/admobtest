@@ -121,7 +121,9 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       final threads = (data['threads'] as List?) ?? [];
 
       // Parse daily limit info
-      final dailyLimit = data['dailyLimit'] as Map<String, dynamic>?;
+      final dailyLimit = data['dailyLimit'] != null
+          ? Map<String, dynamic>.from(data['dailyLimit'] as Map)
+          : null;
       final dailyCompletions = dailyLimit?['completions'] as int? ?? 0;
       final dailyEarnCap = dailyLimit?['cap'] as int? ?? 30;
       final dailyLimitReached = dailyLimit?['limitReached'] as bool? ?? false;

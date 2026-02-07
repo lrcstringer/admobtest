@@ -26,16 +26,33 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final canPop = Navigator.of(context).canPop();
 
+    const mascot = Padding(
+      padding: EdgeInsets.all(8),
+      child: Image(
+        image: AssetImage('assets/icons/elephantFinal1.png'),
+        width: 32,
+        height: 32,
+      ),
+    );
+
     return AppBar(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
+      leadingWidth: canPop ? 88 : 48,
       leading: canPop
-          ? IconButton(
-              icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-              onPressed: () => Navigator.of(context).pop(),
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back,
+                      color: AppColors.textPrimary),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                mascot,
+              ],
             )
-          : null,
+          : mascot,
       title: Text(
         title,
         style: const TextStyle(

@@ -75,9 +75,7 @@ class _EarnScreenState extends State<EarnScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildDailyProgressCard(context, state),
-                      AppSpacing.verticalMd,
-                      _buildTokenDistributionInfo(context),
-                      AppSpacing.verticalXl,
+                      AppSpacing.verticalSm,
                       _buildThreadsSection(context, state),
                     ],
                   ),
@@ -97,14 +95,14 @@ class _EarnScreenState extends State<EarnScreen> {
 
     return Container(
       width: double.infinity,
-      padding: AppSpacing.cardPaddingLarge,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: AppColors.goldGradient,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: AppSpacing.borderRadiusLg,
+        borderRadius: AppSpacing.borderRadiusMd,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,33 +111,24 @@ class _EarnScreenState extends State<EarnScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Daily Progress',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textOnSecondary.withValues(alpha: 0.8),
+                '$completions / $cap Opportunities',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppColors.textOnSecondary,
+                      fontWeight: FontWeight.bold,
                     ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.textOnSecondary.withValues(alpha: 0.2),
-                  borderRadius: AppSpacing.borderRadiusSm,
-                ),
+              GestureDetector(
+                onTap: () => _showDistributionSheet(context),
                 child: Text(
-                  '$completions / $cap completed',
+                  'How earnings work',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: AppColors.textOnSecondary,
+                        decoration: TextDecoration.underline,
+                        decorationColor: AppColors.textOnSecondary,
                       ),
                 ),
               ),
             ],
-          ),
-          AppSpacing.verticalSm,
-          Text(
-            '$completions of $cap Opportunities',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: AppColors.textOnSecondary,
-                  fontWeight: FontWeight.bold,
-                ),
           ),
           AppSpacing.verticalSm,
           LinearProgressIndicator(
@@ -153,7 +142,7 @@ class _EarnScreenState extends State<EarnScreen> {
             state.dailyLimitReached
                 ? 'Daily limit reached!'
                 : '${(progress * 100).toStringAsFixed(0)}% of daily limit',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: AppColors.textOnSecondary.withValues(alpha: 0.8),
                 ),
           ),
@@ -162,48 +151,41 @@ class _EarnScreenState extends State<EarnScreen> {
     );
   }
 
-  Widget _buildTokenDistributionInfo(BuildContext context) {
-    return Container(
-      padding: AppSpacing.cardPadding,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppSpacing.borderRadiusMd,
-        border: Border.all(color: AppColors.border),
+  void _showDistributionSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.info_outline,
-                size: 18,
-                color: AppColors.primary,
-              ),
-              AppSpacing.horizontalSm,
-              Text(
-                'How Your Earnings Are Distributed',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-            ],
-          ),
-          AppSpacing.verticalMd,
-          _buildDistributionRow(context, '90%', 'Your Wallet', AppColors.success),
-          AppSpacing.verticalSm,
-          _buildDistributionRow(context, '5%', 'Daily Pot', AppColors.primary),
-          AppSpacing.verticalSm,
-          _buildDistributionRow(
-              context, '5%', 'Weekly Pot', AppColors.secondary),
-          AppSpacing.verticalMd,
-          Text(
-            'Pot contributions give you chances to win bonus tokens in daily and weekly draws!',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-          ),
-        ],
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'How Your Earnings Are Distributed',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            AppSpacing.verticalLg,
+            _buildDistributionRow(context, '90%', 'Your Wallet', AppColors.success),
+            AppSpacing.verticalSm,
+            _buildDistributionRow(context, '5%', 'Daily Pot', AppColors.primary),
+            AppSpacing.verticalSm,
+            _buildDistributionRow(context, '5%', 'Weekly Pot', AppColors.secondary),
+            AppSpacing.verticalLg,
+            Text(
+              'Pot contributions give you chances to win bonus tokens in daily and weekly draws!',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+            ),
+            AppSpacing.verticalMd,
+          ],
+        ),
       ),
     );
   }

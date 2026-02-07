@@ -88,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen>
                     width: mascotSize,
                     height: mascotSize,
                     child: Image.asset(
-                      'assets/icons/iMaliCrown4.png',
+                      'assets/icons/elephantFinal2.png',
                       width: mascotSize,
                       height: mascotSize,
                       fit: BoxFit.contain,

@@ -239,7 +239,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           width: mascotSize,
           height: mascotSize,
           child: Image.asset(
-            'assets/icons/iMaliCrown4.png',
+            'assets/icons/elephantFinal2.png',
             width: mascotSize,
             height: mascotSize,
             fit: BoxFit.contain,
@@ -295,6 +295,16 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 color: AppColors.gold,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1.2,
+              ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'izandla ziyagezana',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textSecondary,
+                fontStyle: FontStyle.italic,
+                letterSpacing: 0.5,
               ),
         ),
 
@@ -405,7 +415,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           width: mascotSize,
           height: mascotSize,
           child: Image.asset(
-            'assets/icons/iMaliCrown4.png',
+            'assets/icons/elephantFinal2.png',
             width: mascotSize,
             height: mascotSize,
             fit: BoxFit.contain,

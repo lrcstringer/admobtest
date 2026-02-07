@@ -139,7 +139,7 @@ class _OnboardingBirthdayScreenState extends State<OnboardingBirthdayScreen> {
                       width: mascotSize,
                       height: mascotSize,
                       child: Image.asset(
-                        'assets/icons/iMaliCrown4.png',
+                        'assets/icons/elephantFinal2.png',
                         width: mascotSize,
                         height: mascotSize,
                         fit: BoxFit.contain,
