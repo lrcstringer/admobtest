@@ -232,6 +232,16 @@
       "collectionGroup": "engagements",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "earnOpportunityId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "completedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "engagements",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "campaignId", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" }

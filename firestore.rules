@@ -439,6 +439,13 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // User engagement stats collection (streak tracking)
+    // Document ID is the userId
+    match /userEngagementStats/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update, delete: if false;
+    }
+
     // Engagements collection
     match /engagements/{engagementId} {
       allow read: if isAuthenticated()

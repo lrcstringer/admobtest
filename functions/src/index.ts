@@ -10,6 +10,11 @@ import * as admin from "firebase-admin";
 // Initialize Firebase Admin
 admin.initializeApp();
 
+// Allow undefined values in Firestore documents — they are stripped automatically.
+// Without this, any optional field (e.g. ipAddress, userAgent) that is undefined
+// causes "Cannot use undefined as a Firestore value" errors.
+admin.firestore().settings({ ignoreUndefinedProperties: true });
+
 // Export all functions
 export * from "./wallet";
 export * from "./pots";
