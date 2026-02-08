@@ -34,23 +34,27 @@ export { runAdMobSystemMigration, runUpdateAdMobQuestion } from "./migrations/ad
 
 // Ledger initialization and reconciliation
 import * as functions from "firebase-functions";
-import { cleanupRateLimits } from "./security";
+import { cleanupRateLimits, requireAppCheck } from "./security";
 import { initializeLedger, reconcileAllAccounts, verifySystemBalance } from "./ledger";
 
 /**
  * Initialize the Trust Ledger system
- * Call this once during initial deployment
+ * Call this once during initial deployment to create all system accounts.
+ * Must be called by an admin before seeding the treasury.
  */
 export const initializeTrustLedger = functions.https.onCall(async (data, context) => {
-  // Only allow admin users
+  requireAppCheck(context, "initializeTrustLedger");
+
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "Must be authenticated");
   }
-
-  // TODO: Add admin role check
+  const token = context.auth.token;
+  if (!token.admin && !token.superAdmin) {
+    throw new functions.https.HttpsError("permission-denied", "Admin access required");
+  }
 
   await initializeLedger();
-  return { success: true, message: "Trust Ledger initialized" };
+  return { success: true, message: "Trust Ledger initialized — system accounts created" };
 });
 
 /**

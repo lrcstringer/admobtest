@@ -577,6 +577,11 @@ export const processEngagement = functions.https.onCall(
 
     // Process reward through the Trust Ledger system
     // This handles the 90/5/5 split: 90% to user, 5% daily pot, 5% weekly pot
+    // Only treat as client-funded when BOTH clientId and clientSubAccountId exist.
+    // System threads (e.g. AdMob) have a clientId for tracking but no sub-account,
+    // so they should be funded from Treasury instead.
+    const isClientFunded = !!(clientId && clientSubAccountId);
+
     const ledgerResult = await processEarningWithSplit(
       userId,
       rewardAmount,
@@ -591,8 +596,8 @@ export const processEngagement = functions.https.onCall(
         threadId: engagement.threadId,
         clientId: clientId,
       },
-      clientId || undefined, // Client ID for client-funded threads
-      clientSubAccountId || undefined // Client sub-account to debit
+      isClientFunded ? clientId! : undefined,
+      isClientFunded ? clientSubAccountId! : undefined
     );
 
     if (!ledgerResult.success) {

@@ -16,6 +16,7 @@ import {
   LedgerConfig,
   LedgerErrorCodes,
   JournalStatus,
+  AccountId,
 } from "./types";
 import {
   getAccounts,
@@ -123,8 +124,12 @@ export async function postJournal(
     );
   }
 
-  // Validate no account goes negative
+  // Validate no account goes negative.
+  // Only system:mint is exempt — it represents total tokens ever created.
   for (const [accountId, change] of balanceChanges) {
+    if (AccountId.isMintAccount(accountId)) {
+      continue; // Mint is the only account allowed to go negative
+    }
     const account = accounts.get(accountId)!;
     const newBalance = account.balance + change;
     if (newBalance < 0) {
@@ -154,8 +159,11 @@ export async function postJournal(
         freshAccounts.set(accountIds[i], accountDocs[i].data() as LedgerAccount);
       }
 
-      // Re-validate balances inside transaction
+      // Re-validate balances inside transaction (mint is the only exception)
       for (const [accountId, change] of balanceChanges) {
+        if (AccountId.isMintAccount(accountId)) {
+          continue; // Mint is the only account allowed to go negative
+        }
         const account = freshAccounts.get(accountId)!;
         const newBalance = account.balance + change;
         if (newBalance < 0) {

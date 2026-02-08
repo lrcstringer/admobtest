@@ -301,80 +301,94 @@ export async function verifyAllJournalsBalanced(): Promise<{
 }
 
 /**
- * Verify total system balance equals zero
+ * Verify total system balance equals zero (true double-entry invariant)
  *
- * In a proper double-entry system, the sum of all account balances
- * should always equal zero (debits = credits globally).
+ * In a proper double-entry system, the sum of ALL account balances
+ * must always equal zero. With the seeded treasury model:
  *
- * However, in our system, tokens are "minted" from treasury and "burned"
- * back to treasury during cashout, so treasury will have a negative balance
- * equal to all tokens in circulation.
+ *   mint (negative) + treasury + users + pots + suppliers + cashout + other system = 0
+ *
+ * The mint account is the only account allowed to go negative. Its absolute
+ * value represents the total tokens ever created.
  */
 export async function verifySystemBalance(): Promise<{
   isValid: boolean;
-  totalInCirculation: number;
+  sumAllBalances: number;
+  mintBalance: number;
+  totalMinted: number;
   treasuryBalance: number;
   userBalances: number;
   potBalances: number;
   supplierBalances: number;
+  clientBalances: number;
   pendingCashout: number;
+  otherSystemBalances: number;
 }> {
   const snapshot = await db.collection(LedgerConfig.COLLECTION_ACCOUNTS).get();
 
+  let mintBalance = 0;
   let treasuryBalance = 0;
+  let otherSystemBalances = 0;
   let userBalances = 0;
   let potBalances = 0;
   let supplierBalances = 0;
+  let clientBalances = 0;
   let pendingCashout = 0;
 
   for (const doc of snapshot.docs) {
     const account = doc.data() as LedgerAccount;
 
-    switch (account.type) {
-      case "system":
-        if (account.id === "system:treasury") {
-          treasuryBalance = account.balance;
-        }
-        break;
-      case "user":
-        userBalances += account.balance;
-        break;
-      case "pot":
-        potBalances += account.balance;
-        break;
-      case "supplier":
-        supplierBalances += account.balance;
-        break;
-      case "cashout":
-        pendingCashout += account.balance;
-        break;
+    if (account.id === "system:mint") {
+      mintBalance = account.balance;
+    } else if (account.id === "system:treasury") {
+      treasuryBalance = account.balance;
+    } else if (account.type === "system") {
+      otherSystemBalances += account.balance;
+    } else if (account.type === "user") {
+      userBalances += account.balance;
+    } else if (account.type === "pot") {
+      potBalances += account.balance;
+    } else if (account.type === "supplier") {
+      supplierBalances += account.balance;
+    } else if (account.type === "client") {
+      clientBalances += account.balance;
+    } else if (account.type === "cashout") {
+      pendingCashout += account.balance;
     }
   }
 
-  // Total in circulation = everything except treasury
-  const totalInCirculation =
-    userBalances + potBalances + supplierBalances + pendingCashout;
+  // True double-entry invariant: sum of ALL balances must be 0
+  const sumAllBalances =
+    mintBalance +
+    treasuryBalance +
+    otherSystemBalances +
+    userBalances +
+    potBalances +
+    supplierBalances +
+    clientBalances +
+    pendingCashout;
 
-  // Treasury should be negative (or zero), equal to total in circulation
-  // Treasury balance + total in circulation should = 0
-  const isValid = treasuryBalance + totalInCirculation === 0;
+  const isValid = sumAllBalances === 0;
 
   if (!isValid) {
     console.error(
-      `System balance mismatch! Treasury: ${treasuryBalance}, Circulation: ${totalInCirculation}`
+      `System balance mismatch! Sum of all balances: ${sumAllBalances} (expected 0)`
     );
 
     await logAuditEvent({
       eventType: "reconciliation_failed",
       actorId: "system",
       actorType: "system",
-      description: "System balance verification failed",
+      description: "System balance verification failed — double-entry invariant broken",
       metadata: {
+        sumAllBalances,
+        mintBalance,
         treasuryBalance,
-        totalInCirculation,
+        otherSystemBalances,
         userBalances,
         potBalances,
         supplierBalances,
+        clientBalances,
         pendingCashout,
       },
     });
@@ -382,12 +396,16 @@ export async function verifySystemBalance(): Promise<{
 
   return {
     isValid,
-    totalInCirculation,
+    sumAllBalances,
+    mintBalance,
+    totalMinted: Math.abs(mintBalance),
     treasuryBalance,
     userBalances,
     potBalances,
     supplierBalances,
+    clientBalances,
     pendingCashout,
+    otherSystemBalances,
   };
 }
 

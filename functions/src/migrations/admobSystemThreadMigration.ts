@@ -157,6 +157,11 @@ async function runMigration(): Promise<void> {
   console.log("Starting AdMob system thread migration...\n");
 
   try {
+    // Step 0: Ensure Trust Ledger system accounts exist (treasury, pots, etc.)
+    console.log("Step 0: Initializing Trust Ledger system accounts...");
+    const { initializeLedger } = await import("../ledger");
+    await initializeLedger();
+
     // Step 1: Create system client
     console.log("Step 1: Creating system client...");
     await createSystemClient();

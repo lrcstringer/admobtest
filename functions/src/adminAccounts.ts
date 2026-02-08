@@ -14,8 +14,9 @@ import {
   freezeAccount,
   unfreezeAccount,
   getAccount,
+  getBalance,
 } from "./ledger/accounts";
-import { AccountId } from "./ledger/types";
+import { AccountId, SystemAccounts } from "./ledger/types";
 import { requireAppCheck } from "./security";
 
 const db = admin.firestore();
@@ -774,5 +775,100 @@ export const adminListClientSubAccounts = functions.https.onCall(
     });
 
     return { subAccounts };
+  }
+);
+
+// ============================================================================
+// TREASURY MANAGEMENT
+// ============================================================================
+
+/**
+ * Seed the treasury with newly minted tokens.
+ *
+ * Creates a balanced journal: debit system:mint, credit system:treasury.
+ * system:mint is the only account allowed to go negative.
+ */
+export const adminSeedTreasury = functions.https.onCall(
+  async (
+    data: {
+      amount: number;
+      reason: string;
+    },
+    context
+  ) => {
+    requireAppCheck(context, "adminSeedTreasury");
+    await requireAdmin(context);
+
+    const { amount, reason } = data;
+
+    if (!amount || amount <= 0) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "A positive amount is required"
+      );
+    }
+    if (!reason || reason.trim() === "") {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "A reason is required for audit trail"
+      );
+    }
+
+    const { seedTreasury } = await import("./ledger");
+
+    const result = await seedTreasury(amount, reason, context.auth!.uid);
+
+    if (!result.success) {
+      throw new functions.https.HttpsError(
+        "internal",
+        result.error || "Failed to seed treasury"
+      );
+    }
+
+    // Read balances after seed
+    const treasuryBalance = await getBalance(SystemAccounts.TREASURY);
+    const mintBalance = await getBalance(SystemAccounts.MINT);
+
+    return {
+      success: true,
+      journalId: result.journalId,
+      amountMinted: amount,
+      treasuryBalanceAfter: treasuryBalance,
+      mintBalanceAfter: mintBalance,
+    };
+  }
+);
+
+/**
+ * Get current treasury status (balances + monitoring info)
+ */
+export const adminGetTreasuryStatus = functions.https.onCall(
+  async (data, context) => {
+    requireAppCheck(context, "adminGetTreasuryStatus");
+    await requireAdmin(context);
+
+    const treasuryBalance = await getBalance(SystemAccounts.TREASURY);
+    const mintBalance = await getBalance(SystemAccounts.MINT);
+
+    // Get latest notifications for context
+    const notificationsSnapshot = await db
+      .collection("adminNotifications")
+      .where("type", "in", ["treasury_low_balance", "treasury_depleted"])
+      .orderBy("createdAt", "desc")
+      .limit(5)
+      .get();
+
+    const recentNotifications = notificationsSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return {
+      treasuryBalance,
+      mintBalance,
+      totalMinted: Math.abs(mintBalance),
+      tokensInCirculation: Math.abs(mintBalance) - treasuryBalance,
+      recentNotifications,
+    };
   }
 );

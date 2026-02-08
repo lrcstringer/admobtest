@@ -245,6 +245,11 @@ export async function initializeSystemAccounts(): Promise<void> {
     name: string;
   }> = [
     {
+      id: SystemAccounts.MINT,
+      type: "system",
+      name: "Token Mint (Source of Truth)",
+    },
+    {
       id: SystemAccounts.TREASURY,
       type: "system",
       name: "iMali Treasury",

@@ -32,6 +32,7 @@ export type AccountStatus = "active" | "frozen" | "closed";
  * System account identifiers (well-known account IDs)
  */
 export const SystemAccounts = {
+  MINT: "system:mint", // Token mint — only account allowed to go negative
   TREASURY: "system:treasury", // Source/sink of all tokens
   REFERRALS: "system:referrals", // Referral reward pool
   OPERATIONS: "system:operations", // Operational float
@@ -144,7 +145,8 @@ export interface LedgerJournal {
     | "pot_draw"
     | "pot_entry"
     | "campaign"
-    | "group"; // Group transactions
+    | "group" // Group transactions
+    | "system"; // System operations (e.g. treasury seed)
   referenceId?: string;
 
   // Sub-account tracking
@@ -423,6 +425,8 @@ export const AccountId = {
     accountId.startsWith("client:"),
   isGroupAccount: (accountId: string): boolean =>
     accountId.startsWith("group:"),
+  isMintAccount: (accountId: string): boolean =>
+    accountId === "system:mint",
 };
 
 /**

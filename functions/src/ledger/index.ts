@@ -122,6 +122,7 @@ export {
 // HIGH-LEVEL TRANSACTION HELPERS
 // ============================================================================
 
+import * as admin from "firebase-admin";
 import {
   SystemAccounts,
   LedgerConfig,
@@ -130,7 +131,7 @@ import {
   PostJournalResult,
   JournalEntryInput,
 } from "./types";
-import { getOrCreateUserAccount, createSupplierAccount } from "./accounts";
+import { getOrCreateUserAccount, createSupplierAccount, initializeSystemAccounts, getBalance } from "./accounts";
 import { postJournal, createEarningEntries, createReferralEntries, createTransferEntries } from "./journals";
 import {
   getOrCreateDefaultSubAccount,
@@ -138,6 +139,26 @@ import {
   creditSubAccount,
   debitSubAccount,
 } from "./subAccounts";
+
+// Module-level promise to ensure system accounts are initialized once per cold start.
+// This is a SAFETY NET — admins should call initializeTrustLedger explicitly before
+// launching the consumer app. This fallback prevents crashes if they forget.
+let _systemAccountsInitPromise: Promise<void> | null = null;
+
+async function ensureSystemAccounts(): Promise<void> {
+  if (!_systemAccountsInitPromise) {
+    console.warn(
+      "ensureSystemAccounts: auto-initializing system accounts (safety net). " +
+      "Admins should call initializeTrustLedger explicitly before launch."
+    );
+    _systemAccountsInitPromise = initializeSystemAccounts().catch((err) => {
+      // Reset so next call retries
+      _systemAccountsInitPromise = null;
+      throw err;
+    });
+  }
+  return _systemAccountsInitPromise;
+}
 
 /**
  * Process user earning with automatic pot split
@@ -170,6 +191,9 @@ export async function processEarningWithSplit(
   clientId?: string,
   clientSubAccountId?: string
 ): Promise<PostJournalResult> {
+  // Ensure system accounts exist (treasury, pots, etc.) — runs once per cold start
+  await ensureSystemAccounts();
+
   // Ensure user account exists (legacy ledgerAccounts)
   await getOrCreateUserAccount(userId);
 
@@ -220,6 +244,13 @@ export async function processEarningWithSplit(
     return journalResult;
   }
 
+  // Non-blocking treasury balance check after successful earning
+  if (!clientId) {
+    checkTreasuryBalance().catch((err) =>
+      console.error("Treasury balance check failed:", err)
+    );
+  }
+
   // Credit the user's sub-account with their share (90%)
   if (userShare > 0 && !journalResult.isDuplicate) {
     await creditSubAccount(userId, finalSubAccountId, userShare);
@@ -227,7 +258,6 @@ export async function processEarningWithSplit(
 
   // If client-funded, debit the client's sub-account
   if (clientId && clientSubAccountId && !journalResult.isDuplicate) {
-    const admin = await import("firebase-admin");
     const db = admin.firestore();
     await db
       .collection("clients")
@@ -261,6 +291,8 @@ export async function processPotWin(
   subAccountId?: string,
   metadata?: Record<string, unknown>
 ): Promise<PostJournalResult> {
+  await ensureSystemAccounts();
+
   // Ensure winner account exists
   await getOrCreateUserAccount(winnerId);
 
@@ -416,6 +448,8 @@ export async function processReferralRewards(
   refereeSubAccountId?: string,
   metadata?: Record<string, unknown>
 ): Promise<PostJournalResult> {
+  await ensureSystemAccounts();
+
   // Ensure accounts exist
   await getOrCreateUserAccount(referrerId);
   await getOrCreateUserAccount(refereeId);
@@ -574,6 +608,8 @@ export async function initiateCashout(
   subAccountId: string,
   metadata?: Record<string, unknown>
 ): Promise<PostJournalResult> {
+  await ensureSystemAccounts();
+
   // Validate sub-account has sufficient balance
   const subAccount = await getSubAccount(userId, subAccountId);
   if (!subAccount) {
@@ -644,6 +680,8 @@ export async function completeCashout(
   amount: number,
   metadata?: Record<string, unknown>
 ): Promise<PostJournalResult> {
+  await ensureSystemAccounts();
+
   const entries: JournalEntryInput[] = [
     {
       accountId: SystemAccounts.CASHOUT_PENDING,
@@ -692,6 +730,8 @@ export async function failCashout(
   subAccountId: string,
   metadata?: Record<string, unknown>
 ): Promise<PostJournalResult> {
+  await ensureSystemAccounts();
+
   const entries: JournalEntryInput[] = [
     {
       accountId: SystemAccounts.CASHOUT_PENDING,
@@ -738,40 +778,136 @@ export async function failCashout(
 }
 
 /**
- * Seed treasury with initial tokens (admin function)
+ * Seed treasury with tokens (admin function)
  *
- * This creates tokens "out of thin air" by crediting treasury.
- * Treasury will have a negative balance representing tokens in circulation.
- * Should only be called during initial system setup.
+ * Mints new tokens by debiting system:mint and crediting system:treasury.
+ * system:mint is the ONLY account allowed to go negative — it tracks total
+ * tokens ever created. Treasury must have a positive balance to fund earnings.
+ *
+ * @param amount - Number of tokens to mint (must be > 0)
+ * @param reason - Why the seed is happening (audit trail)
+ * @param adminUserId - The admin performing the seed
  */
 export async function seedTreasury(
   amount: number,
   reason: string,
   adminUserId: string
 ): Promise<PostJournalResult> {
-  // For seeding, we credit the target account without a corresponding debit
-  // This is the ONLY operation that creates an imbalance
-  // We handle this by having a special "system:mint" account that can go negative
+  if (amount <= 0) {
+    return {
+      success: false,
+      error: "Seed amount must be positive",
+      errorCode: "INVALID_AMOUNT",
+    };
+  }
 
-  // Actually, let's keep it balanced by having treasury start negative
-  // When tokens are earned, treasury is debited (goes more negative)
-  // When tokens are cashed out, treasury is credited (becomes less negative)
+  // Ensure system accounts (including mint) exist
+  await ensureSystemAccounts();
 
-  // For initial seeding, we don't need to create tokens - treasury starts at 0
-  // and goes negative as tokens are distributed
+  const entries: JournalEntryInput[] = [
+    {
+      accountId: SystemAccounts.MINT,
+      entryType: "debit",
+      amount,
+      description: `Mint ${amount} tokens`,
+    },
+    {
+      accountId: SystemAccounts.TREASURY,
+      entryType: "credit",
+      amount,
+      description: `Treasury seed: ${reason}`,
+    },
+  ];
 
-  // This function should only be used if we need to "reset" or add more capacity
-  console.log(
-    `Treasury seed requested: ${amount} tokens by ${adminUserId} - ${reason}`
-  );
+  // Use timestamp + adminId so the same admin can seed multiple times
+  const idempotencyKey = `${IdempotencyKey.systemSeed(SystemAccounts.TREASURY)}:${Date.now()}:${adminUserId}`;
 
-  // For now, just log this - actual token creation happens through earning
-  return {
-    success: true,
-    data: undefined as any,
-    journalId: "seed_not_required",
-    isDuplicate: false,
-  };
+  return postJournal({
+    idempotencyKey,
+    type: "system_seed",
+    description: `Treasury seed: ${amount} tokens — ${reason}`,
+    entries,
+    referenceType: "system",
+    referenceId: "treasury_seed",
+    initiatedBy: adminUserId,
+    metadata: {
+      amount,
+      reason,
+      adminUserId,
+    },
+  });
+}
+
+// ============================================================================
+// TREASURY MONITORING
+// ============================================================================
+
+/** Default threshold: warn when treasury has fewer than 100,000 tokens */
+const TREASURY_LOW_BALANCE_THRESHOLD = 100_000;
+
+/**
+ * Check treasury balance and create admin notifications if running low.
+ *
+ * - Below threshold → "treasury_low_balance" notification (max 1 per 24h)
+ * - At or below zero → "treasury_depleted" notification (max 1 per 1h)
+ */
+export async function checkTreasuryBalance(): Promise<void> {
+  const db = admin.firestore();
+  const balance = await getBalance(SystemAccounts.TREASURY);
+
+  if (balance > TREASURY_LOW_BALANCE_THRESHOLD) {
+    return; // Healthy
+  }
+
+  const now = Date.now();
+
+  if (balance <= 0) {
+    // CRITICAL — treasury depleted
+    const oneHourAgo = new Date(now - 60 * 60 * 1000);
+    const existing = await db
+      .collection("adminNotifications")
+      .where("type", "==", "treasury_depleted")
+      .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(oneHourAgo))
+      .limit(1)
+      .get();
+
+    if (existing.empty) {
+      await db.collection("adminNotifications").add({
+        type: "treasury_depleted",
+        severity: "critical",
+        title: "Treasury Depleted",
+        message: `Treasury balance is ${balance} tokens. All earnings will fail until treasury is seeded.`,
+        balance,
+        createdAt: admin.firestore.Timestamp.now(),
+        read: false,
+      });
+      console.error(`CRITICAL: Treasury depleted — balance=${balance}`);
+    }
+    return;
+  }
+
+  // WARNING — low balance
+  const twentyFourHoursAgo = new Date(now - 24 * 60 * 60 * 1000);
+  const existing = await db
+    .collection("adminNotifications")
+    .where("type", "==", "treasury_low_balance")
+    .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(twentyFourHoursAgo))
+    .limit(1)
+    .get();
+
+  if (existing.empty) {
+    await db.collection("adminNotifications").add({
+      type: "treasury_low_balance",
+      severity: "warning",
+      title: "Treasury Balance Low",
+      message: `Treasury balance is ${balance} tokens (threshold: ${TREASURY_LOW_BALANCE_THRESHOLD}). Consider seeding more tokens.`,
+      balance,
+      threshold: TREASURY_LOW_BALANCE_THRESHOLD,
+      createdAt: admin.firestore.Timestamp.now(),
+      read: false,
+    });
+    console.warn(`WARNING: Treasury low — balance=${balance}, threshold=${TREASURY_LOW_BALANCE_THRESHOLD}`);
+  }
 }
 
 // ============================================================================
