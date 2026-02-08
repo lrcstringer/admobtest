@@ -48,6 +48,7 @@ class SessionLockService {
   DateTime? _backgroundTimestamp;
   bool _isLocked = false;
   String? _currentUserId;
+  bool _suppressLock = false;
 
   static const _sessionLockDuration = Duration(seconds: 30);
   static const _fullReauthDuration = Duration(minutes: 5);
@@ -67,8 +68,27 @@ class SessionLockService {
   /// Whether the session is currently locked.
   bool get isLocked => _isLocked;
 
+  /// Suppress session locking temporarily (e.g. while showing an ad overlay).
+  /// Call [unsuppressLock] when the overlay is dismissed.
+  void suppressLock() {
+    _suppressLock = true;
+    debugPrint('Session: lock suppressed');
+  }
+
+  /// Re-enable session locking and clear any background timestamp
+  /// that accumulated while suppressed.
+  void unsuppressLock() {
+    _suppressLock = false;
+    _backgroundTimestamp = null;
+    debugPrint('Session: lock unsuppressed');
+  }
+
   /// Call when app goes to background.
   void onAppPaused() {
+    if (_suppressLock) {
+      debugPrint('Session: app paused (lock suppressed — ignoring)');
+      return;
+    }
     _backgroundTimestamp = DateTime.now();
     debugPrint('Session: app paused at $_backgroundTimestamp');
   }
@@ -77,7 +97,7 @@ class SessionLockService {
   ///
   /// Returns the required lock action based on background duration.
   SessionLockResult onAppResumed() {
-    if (_backgroundTimestamp == null) {
+    if (_suppressLock || _backgroundTimestamp == null) {
       return SessionLockResult.noLockNeeded;
     }
 

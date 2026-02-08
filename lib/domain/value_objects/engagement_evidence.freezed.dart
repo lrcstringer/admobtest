@@ -57,6 +57,9 @@ mixin _$EngagementEvidence {
   /// Client-side flag indicating ad was fully watched
   bool? get adFullyWatched => throw _privateConstructorUsedError;
 
+  /// AdMob response ID — uniquely identifies the ad impression for debugging
+  String? get adResponseId => throw _privateConstructorUsedError;
+
   /// Serializes this EngagementEvidence to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
@@ -87,6 +90,7 @@ abstract class $EngagementEvidenceCopyWith<$Res> {
     double? clientAttentionScore,
     String? adTransactionId,
     bool? adFullyWatched,
+    String? adResponseId,
   });
 }
 
@@ -117,6 +121,7 @@ class _$EngagementEvidenceCopyWithImpl<$Res, $Val extends EngagementEvidence>
     Object? clientAttentionScore = freezed,
     Object? adTransactionId = freezed,
     Object? adFullyWatched = freezed,
+    Object? adResponseId = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -168,6 +173,10 @@ class _$EngagementEvidenceCopyWithImpl<$Res, $Val extends EngagementEvidence>
                 ? _value.adFullyWatched
                 : adFullyWatched // ignore: cast_nullable_to_non_nullable
                       as bool?,
+            adResponseId: freezed == adResponseId
+                ? _value.adResponseId
+                : adResponseId // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -196,6 +205,7 @@ abstract class _$$EngagementEvidenceImplCopyWith<$Res>
     double? clientAttentionScore,
     String? adTransactionId,
     bool? adFullyWatched,
+    String? adResponseId,
   });
 }
 
@@ -225,6 +235,7 @@ class __$$EngagementEvidenceImplCopyWithImpl<$Res>
     Object? clientAttentionScore = freezed,
     Object? adTransactionId = freezed,
     Object? adFullyWatched = freezed,
+    Object? adResponseId = freezed,
   }) {
     return _then(
       _$EngagementEvidenceImpl(
@@ -276,6 +287,10 @@ class __$$EngagementEvidenceImplCopyWithImpl<$Res>
             ? _value.adFullyWatched
             : adFullyWatched // ignore: cast_nullable_to_non_nullable
                   as bool?,
+        adResponseId: freezed == adResponseId
+            ? _value.adResponseId
+            : adResponseId // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -297,6 +312,7 @@ class _$EngagementEvidenceImpl extends _EngagementEvidence {
     this.clientAttentionScore,
     this.adTransactionId,
     this.adFullyWatched,
+    this.adResponseId,
   }) : _surveyResponseTimesMs = surveyResponseTimesMs,
        super._();
 
@@ -359,9 +375,13 @@ class _$EngagementEvidenceImpl extends _EngagementEvidence {
   @override
   final bool? adFullyWatched;
 
+  /// AdMob response ID — uniquely identifies the ad impression for debugging
+  @override
+  final String? adResponseId;
+
   @override
   String toString() {
-    return 'EngagementEvidence(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched)';
+    return 'EngagementEvidence(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched, adResponseId: $adResponseId)';
   }
 
   @override
@@ -394,7 +414,9 @@ class _$EngagementEvidenceImpl extends _EngagementEvidence {
             (identical(other.adTransactionId, adTransactionId) ||
                 other.adTransactionId == adTransactionId) &&
             (identical(other.adFullyWatched, adFullyWatched) ||
-                other.adFullyWatched == adFullyWatched));
+                other.adFullyWatched == adFullyWatched) &&
+            (identical(other.adResponseId, adResponseId) ||
+                other.adResponseId == adResponseId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -413,6 +435,7 @@ class _$EngagementEvidenceImpl extends _EngagementEvidence {
     clientAttentionScore,
     adTransactionId,
     adFullyWatched,
+    adResponseId,
   );
 
   /// Create a copy of EngagementEvidence
@@ -446,6 +469,7 @@ abstract class _EngagementEvidence extends EngagementEvidence {
     final double? clientAttentionScore,
     final String? adTransactionId,
     final bool? adFullyWatched,
+    final String? adResponseId,
   }) = _$EngagementEvidenceImpl;
   const _EngagementEvidence._() : super._();
 
@@ -499,6 +523,10 @@ abstract class _EngagementEvidence extends EngagementEvidence {
   /// Client-side flag indicating ad was fully watched
   @override
   bool? get adFullyWatched;
+
+  /// AdMob response ID — uniquely identifies the ad impression for debugging
+  @override
+  String? get adResponseId;
 
   /// Create a copy of EngagementEvidence
   /// with the given fields replaced by the non-null parameter values.

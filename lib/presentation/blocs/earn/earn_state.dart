@@ -44,6 +44,8 @@ class EarnState with _$EarnState {
     @Default(false) bool isAdLoading,
     @Default(false) bool isAdReady,
     String? adTransactionId,
+    /// AdMob response ID — uniquely identifies the ad impression for debugging
+    String? adResponseId,
     /// Current load attempt (1-based) shown during loading; 0 when idle
     @Default(0) int adLoadAttempt,
     /// How many full retry rounds have been exhausted (0 = first attempt, 1 = user retried once)

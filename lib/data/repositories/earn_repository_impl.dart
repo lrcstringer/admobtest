@@ -14,18 +14,36 @@ import '../datasources/remote/earn_remote_datasource.dart';
 class EarnRepositoryImpl implements EarnRepository {
   final EarnRemoteDataSource _remoteDataSource;
 
+  /// In-memory cache for eligible threads to avoid redundant Cloud Function
+  /// calls when navigating between tabs.
+  EligibleThreadsResult? _cachedThreadsResult;
+  DateTime? _cachedAt;
+  static const _cacheTtl = Duration(seconds: 30);
+
   EarnRepositoryImpl(this._remoteDataSource);
 
   @override
   Future<Either<Failure, EligibleThreadsResult>> getEligibleThreads() async {
+    // Return cache if fresh (< 30s old)
+    if (_cachedThreadsResult != null &&
+        _cachedAt != null &&
+        DateTime.now().difference(_cachedAt!) < _cacheTtl) {
+      return Right(_cachedThreadsResult!);
+    }
+
     try {
       final response = await _remoteDataSource.getEligibleThreads();
-      return Right(EligibleThreadsResult(
+      final result = EligibleThreadsResult(
         threads: response.threads.map((t) => t.toEntity()).toList(),
         dailyCompletions: response.dailyCompletions,
         dailyEarnCap: response.dailyEarnCap,
         dailyLimitReached: response.dailyLimitReached,
-      ));
+      );
+
+      _cachedThreadsResult = result;
+      _cachedAt = DateTime.now();
+
+      return Right(result);
     } on AuthException {
       return const Left(Failure.unauthenticated());
     } on ServerException catch (e) {

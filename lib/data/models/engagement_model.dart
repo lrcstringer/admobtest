@@ -75,6 +75,7 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
     // AdMob verification fields
     String? adTransactionId,
     bool? adFullyWatched,
+    String? adResponseId,
   }) = _EngagementEvidenceModel;
 
   const EngagementEvidenceModel._();
@@ -102,6 +103,7 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
       // AdMob verification fields
       adTransactionId: json['adTransactionId'] as String?,
       adFullyWatched: json['adFullyWatched'] as bool?,
+      adResponseId: json['adResponseId'] as String?,
     );
   }
 
@@ -119,6 +121,7 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
       clientAttentionScore: clientAttentionScore,
       adTransactionId: adTransactionId,
       adFullyWatched: adFullyWatched,
+      adResponseId: adResponseId,
     );
   }
 
@@ -136,6 +139,7 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
       clientAttentionScore: entity.clientAttentionScore,
       adTransactionId: entity.adTransactionId,
       adFullyWatched: entity.adFullyWatched,
+      adResponseId: entity.adResponseId,
     );
   }
 
@@ -155,6 +159,7 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
       // AdMob verification fields
       if (adTransactionId != null) 'adTransactionId': adTransactionId,
       if (adFullyWatched != null) 'adFullyWatched': adFullyWatched,
+      if (adResponseId != null) 'adResponseId': adResponseId,
     };
   }
 }

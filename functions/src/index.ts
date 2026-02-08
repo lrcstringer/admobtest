@@ -30,7 +30,7 @@ export * from "./adminAccounts";
 export * from "./groups";
 export * from "./groupTriggers";
 export * from "./migrations/earnOverhaulMigration";
-export { runAdMobSystemMigration } from "./migrations/admobSystemThreadMigration";
+export { runAdMobSystemMigration, runUpdateAdMobQuestion } from "./migrations/admobSystemThreadMigration";
 
 // Ledger initialization and reconciliation
 import * as functions from "firebase-functions";

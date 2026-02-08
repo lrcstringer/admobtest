@@ -62,6 +62,7 @@ class EarnEvent with _$EarnEvent {
   const factory EarnEvent.adVideoCompleted({
     required String transactionId,
     required int rewardAmount,
+    String? responseId,
   }) = _AdVideoCompleted;
 
   /// Called when ad video fails to show or is dismissed early

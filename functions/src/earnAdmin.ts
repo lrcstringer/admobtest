@@ -606,6 +606,32 @@ export const deactivateExpiredOpportunities = functions.pubsub
 // ============================================================================
 
 /**
+ * Return only the fields the client needs for the thread list.
+ * Strips targeting rules, token source IDs, and other server-only data
+ * to reduce payload size.
+ */
+function slimThread(id: string, t: admin.firestore.DocumentData) {
+  return {
+    id,
+    clientId: t.clientId,
+    clientName: t.clientName,
+    clientAvatarColor: t.clientAvatarColor ?? null,
+    clientAvatarImage: t.clientAvatarImage ?? null,
+    title: t.title,
+    description: t.description ?? null,
+    isPinned: t.isPinned ?? false,
+    isFeatured: t.isFeatured ?? false,
+    isActive: t.isActive ?? true,
+    isSystemThread: t.isSystemThread ?? false,
+    availableOpportunities: t.availableOpportunities ?? 0,
+    completedOpportunities: t.completedOpportunities ?? 0,
+    completedUniqueUsers: t.completedUniqueUsers ?? 0,
+    lastActivityAt: t.lastActivityAt ?? null,
+    createdAt: t.createdAt ?? null,
+  };
+}
+
+/**
  * Get eligible threads for the current user
  *
  * This Cloud Function replaces direct Firestore reads for earnThreads.
@@ -678,30 +704,28 @@ export const getEligibleThreads = functions.https.onCall(
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const recentEngagementsQuery = await db
-      .collection("engagements")
-      .where("userId", "==", userId)
-      .where("status", "==", "completed")
-      .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(sevenDaysAgo))
-      .count()
-      .get();
-
-    const thirtyDayEngagementsQuery = await db
-      .collection("engagements")
-      .where("userId", "==", userId)
-      .where("status", "==", "completed")
-      .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(thirtyDaysAgo))
-      .count()
-      .get();
-
-    // Count today's completions for daily limit
-    const todayCompletionsQuery = await db
-      .collection("engagements")
-      .where("userId", "==", userId)
-      .where("status", "==", "completed")
-      .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(today))
-      .count()
-      .get();
+    // Run all three engagement count queries in parallel
+    const [recentEngagementsQuery, thirtyDayEngagementsQuery, todayCompletionsQuery] =
+      await Promise.all([
+        db.collection("engagements")
+          .where("userId", "==", userId)
+          .where("status", "==", "completed")
+          .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(sevenDaysAgo))
+          .count()
+          .get(),
+        db.collection("engagements")
+          .where("userId", "==", userId)
+          .where("status", "==", "completed")
+          .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(thirtyDaysAgo))
+          .count()
+          .get(),
+        db.collection("engagements")
+          .where("userId", "==", userId)
+          .where("status", "==", "completed")
+          .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(today))
+          .count()
+          .get(),
+      ]);
 
     const dailyCompletions = todayCompletionsQuery.data().count;
     const DAILY_EARN_CAP = 30;
@@ -742,7 +766,7 @@ export const getEligibleThreads = functions.https.onCall(
       // Check targeting criteria
       if (!thread.targeting) {
         // No targeting = eligible for everyone
-        eligibleThreads.push({ id: threadDoc.id, ...thread });
+        eligibleThreads.push(slimThread(threadDoc.id, thread));
         continue;
       }
 
@@ -850,7 +874,7 @@ export const getEligibleThreads = functions.https.onCall(
       }
 
       if (isEligible) {
-        eligibleThreads.push({ id: threadDoc.id, ...thread });
+        eligibleThreads.push(slimThread(threadDoc.id, thread));
       }
     }
 
@@ -909,9 +933,38 @@ export const getEligibleOpportunities = functions.https.onCall(
     }
 
     // ========================================================================
-    // 1. Get user profile (same as getEligibleThreads)
+    // 1. Run all independent queries in parallel
     // ========================================================================
-    const userDoc = await db.collection("users").doc(userId).get();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [userDoc, recentEngagementsQuery, thirtyDayEngagementsQuery, opportunitiesSnapshot, existingEngagements] =
+      await Promise.all([
+        db.collection("users").doc(userId).get(),
+        db.collection("engagements")
+          .where("userId", "==", userId)
+          .where("status", "==", "completed")
+          .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(sevenDaysAgo))
+          .count()
+          .get(),
+        db.collection("engagements")
+          .where("userId", "==", userId)
+          .where("status", "==", "completed")
+          .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(thirtyDaysAgo))
+          .count()
+          .get(),
+        db.collection("earnOpportunities")
+          .where("threadId", "==", threadId)
+          .where("isActive", "==", true)
+          .get(),
+        db.collection("engagements")
+          .where("userId", "==", userId)
+          .where("threadId", "==", threadId)
+          .get(),
+      ]);
+
     if (!userDoc.exists) {
       throw new functions.https.HttpsError("not-found", "User profile not found");
     }
@@ -948,28 +1001,6 @@ export const getEligibleOpportunities = functions.https.onCall(
       devicePlatform = "ios";
     }
 
-    // Calculate engagement level
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    const recentEngagementsQuery = await db
-      .collection("engagements")
-      .where("userId", "==", userId)
-      .where("status", "==", "completed")
-      .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(sevenDaysAgo))
-      .count()
-      .get();
-
-    const thirtyDayEngagementsQuery = await db
-      .collection("engagements")
-      .where("userId", "==", userId)
-      .where("status", "==", "completed")
-      .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(thirtyDaysAgo))
-      .count()
-      .get();
-
     const recentCompletedEngagements = recentEngagementsQuery.data().count;
     const hasEngagementIn30Days = thirtyDayEngagementsQuery.data().count > 0;
 
@@ -978,24 +1009,6 @@ export const getEligibleOpportunities = functions.https.onCall(
       recentCompletedEngagements,
       hasEngagementIn30Days
     );
-
-    // ========================================================================
-    // 2. Get all active opportunities for this thread
-    // ========================================================================
-    const opportunitiesSnapshot = await db
-      .collection("earnOpportunities")
-      .where("threadId", "==", threadId)
-      .where("isActive", "==", true)
-      .get();
-
-    // ========================================================================
-    // 3. Get user's existing engagements for this thread
-    // ========================================================================
-    const existingEngagements = await db
-      .collection("engagements")
-      .where("userId", "==", userId)
-      .where("threadId", "==", threadId)
-      .get();
 
     // Map opportunity ID to engagement status
     const engagementStatusMap = new Map<string, { status: string; engagementId: string }>();

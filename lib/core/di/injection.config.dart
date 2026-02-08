@@ -131,7 +131,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i383.SecurityService>(() => _i383.SecurityService());
     gh.lazySingleton<_i383.ErrorHandler>(() => _i383.ErrorHandler());
     gh.lazySingleton<_i483.AppDatabase>(() => _i483.AppDatabase());
-    gh.lazySingleton<_i284.AdMobService>(() => _i284.AdMobService());
     gh.lazySingleton<_i1057.AuthRemoteDataSource>(
       () => _i1057.AuthRemoteDataSourceImpl(
         gh<_i59.FirebaseAuth>(),
@@ -341,6 +340,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i290.BiometricLoginService>(),
         gh<_i830.FcmChallengeHandler>(),
       ),
+    );
+    gh.lazySingleton<_i284.AdMobService>(
+      () => _i284.AdMobService(gh<_i942.SessionLockService>()),
     );
     gh.lazySingleton<_i727.RaspService>(
       () => _i727.RaspService(gh<_i141.AuthBloc>()),

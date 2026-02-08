@@ -39,7 +39,11 @@ mixin _$EarnEvent {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -68,7 +72,12 @@ mixin _$EarnEvent {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -96,7 +105,12 @@ mixin _$EarnEvent {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -256,7 +270,11 @@ class _$LoadThreadsImpl implements _LoadThreads {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -289,7 +307,12 @@ class _$LoadThreadsImpl implements _LoadThreads {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -321,7 +344,12 @@ class _$LoadThreadsImpl implements _LoadThreads {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -513,7 +541,11 @@ class _$SelectThreadImpl implements _SelectThread {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -546,7 +578,12 @@ class _$SelectThreadImpl implements _SelectThread {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -578,7 +615,12 @@ class _$SelectThreadImpl implements _SelectThread {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -781,7 +823,11 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -814,7 +860,12 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -846,7 +897,12 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -1050,7 +1106,11 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -1083,7 +1143,12 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -1115,7 +1180,12 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -1319,7 +1389,11 @@ class _$StartEngagementImpl implements _StartEngagement {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -1352,7 +1426,12 @@ class _$StartEngagementImpl implements _StartEngagement {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -1384,7 +1463,12 @@ class _$StartEngagementImpl implements _StartEngagement {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -1603,7 +1687,11 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -1636,7 +1724,12 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -1668,7 +1761,12 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -1922,7 +2020,11 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -1955,7 +2057,12 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -1987,7 +2094,12 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -2196,7 +2308,11 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -2229,7 +2345,12 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -2261,7 +2382,12 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -2461,7 +2587,11 @@ class _$LoadHistoryImpl implements _LoadHistory {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -2494,7 +2624,12 @@ class _$LoadHistoryImpl implements _LoadHistory {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -2526,7 +2661,12 @@ class _$LoadHistoryImpl implements _LoadHistory {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -2698,7 +2838,11 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -2731,7 +2875,12 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -2763,7 +2912,12 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -2927,7 +3081,11 @@ class _$RefreshImpl implements _Refresh {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -2960,7 +3118,12 @@ class _$RefreshImpl implements _Refresh {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -2992,7 +3155,12 @@ class _$RefreshImpl implements _Refresh {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -3156,7 +3324,11 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -3189,7 +3361,12 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -3221,7 +3398,12 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -3385,7 +3567,11 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -3418,7 +3604,12 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -3450,7 +3641,12 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -3614,7 +3810,11 @@ class _$LoadAdVideoImpl implements _LoadAdVideo {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -3647,7 +3847,12 @@ class _$LoadAdVideoImpl implements _LoadAdVideo {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -3679,7 +3884,12 @@ class _$LoadAdVideoImpl implements _LoadAdVideo {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -3787,7 +3997,7 @@ abstract class _$$AdVideoCompletedImplCopyWith<$Res> {
     $Res Function(_$AdVideoCompletedImpl) then,
   ) = __$$AdVideoCompletedImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({String transactionId, int rewardAmount});
+  $Res call({String transactionId, int rewardAmount, String? responseId});
 }
 
 /// @nodoc
@@ -3803,7 +4013,11 @@ class __$$AdVideoCompletedImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? transactionId = null, Object? rewardAmount = null}) {
+  $Res call({
+    Object? transactionId = null,
+    Object? rewardAmount = null,
+    Object? responseId = freezed,
+  }) {
     return _then(
       _$AdVideoCompletedImpl(
         transactionId: null == transactionId
@@ -3814,6 +4028,10 @@ class __$$AdVideoCompletedImplCopyWithImpl<$Res>
             ? _value.rewardAmount
             : rewardAmount // ignore: cast_nullable_to_non_nullable
                   as int,
+        responseId: freezed == responseId
+            ? _value.responseId
+            : responseId // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -3825,16 +4043,19 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
   const _$AdVideoCompletedImpl({
     required this.transactionId,
     required this.rewardAmount,
+    this.responseId,
   });
 
   @override
   final String transactionId;
   @override
   final int rewardAmount;
+  @override
+  final String? responseId;
 
   @override
   String toString() {
-    return 'EarnEvent.adVideoCompleted(transactionId: $transactionId, rewardAmount: $rewardAmount)';
+    return 'EarnEvent.adVideoCompleted(transactionId: $transactionId, rewardAmount: $rewardAmount, responseId: $responseId)';
   }
 
   @override
@@ -3845,11 +4066,14 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
             (identical(other.transactionId, transactionId) ||
                 other.transactionId == transactionId) &&
             (identical(other.rewardAmount, rewardAmount) ||
-                other.rewardAmount == rewardAmount));
+                other.rewardAmount == rewardAmount) &&
+            (identical(other.responseId, responseId) ||
+                other.responseId == responseId));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, transactionId, rewardAmount);
+  int get hashCode =>
+      Object.hash(runtimeType, transactionId, rewardAmount, responseId);
 
   /// Create a copy of EarnEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -3885,14 +4109,18 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
   }) {
-    return adVideoCompleted(transactionId, rewardAmount);
+    return adVideoCompleted(transactionId, rewardAmount, responseId);
   }
 
   @override
@@ -3918,13 +4146,18 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
   }) {
-    return adVideoCompleted?.call(transactionId, rewardAmount);
+    return adVideoCompleted?.call(transactionId, rewardAmount, responseId);
   }
 
   @override
@@ -3950,7 +4183,12 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -3958,7 +4196,7 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     required TResult orElse(),
   }) {
     if (adVideoCompleted != null) {
-      return adVideoCompleted(transactionId, rewardAmount);
+      return adVideoCompleted(transactionId, rewardAmount, responseId);
     }
     return orElse();
   }
@@ -4051,10 +4289,12 @@ abstract class _AdVideoCompleted implements EarnEvent {
   const factory _AdVideoCompleted({
     required final String transactionId,
     required final int rewardAmount,
+    final String? responseId,
   }) = _$AdVideoCompletedImpl;
 
   String get transactionId;
   int get rewardAmount;
+  String? get responseId;
 
   /// Create a copy of EarnEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -4153,7 +4393,11 @@ class _$AdVideoFailedImpl implements _AdVideoFailed {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -4186,7 +4430,12 @@ class _$AdVideoFailedImpl implements _AdVideoFailed {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -4218,7 +4467,12 @@ class _$AdVideoFailedImpl implements _AdVideoFailed {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -4421,7 +4675,11 @@ class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -4454,7 +4712,12 @@ class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -4486,7 +4749,12 @@ class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -4691,7 +4959,11 @@ class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -4724,7 +4996,12 @@ class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -4756,7 +5033,12 @@ class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -4960,7 +5242,11 @@ class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
     required TResult Function() clearError,
     required TResult Function() resetEngagement,
     required TResult Function() loadAdVideo,
-    required TResult Function(String transactionId, int rewardAmount)
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
     adVideoCompleted,
     required TResult Function(String reason) adVideoFailed,
     required TResult Function(bool isReady) adReadyStateChanged,
@@ -4993,7 +5279,12 @@ class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
     TResult? Function()? clearError,
     TResult? Function()? resetEngagement,
     TResult? Function()? loadAdVideo,
-    TResult? Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult? Function(String reason)? adVideoFailed,
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
@@ -5025,7 +5316,12 @@ class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
     TResult Function()? clearError,
     TResult Function()? resetEngagement,
     TResult Function()? loadAdVideo,
-    TResult Function(String transactionId, int rewardAmount)? adVideoCompleted,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
     TResult Function(String reason)? adVideoFailed,
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
@@ -5161,6 +5457,9 @@ mixin _$EarnState {
   bool get isAdReady => throw _privateConstructorUsedError;
   String? get adTransactionId => throw _privateConstructorUsedError;
 
+  /// AdMob response ID — uniquely identifies the ad impression for debugging
+  String? get adResponseId => throw _privateConstructorUsedError;
+
   /// Current load attempt (1-based) shown during loading; 0 when idle
   int get adLoadAttempt => throw _privateConstructorUsedError;
 
@@ -5200,6 +5499,7 @@ abstract class $EarnStateCopyWith<$Res> {
     bool isAdLoading,
     bool isAdReady,
     String? adTransactionId,
+    String? adResponseId,
     int adLoadAttempt,
     int adRetryRound,
   });
@@ -5244,6 +5544,7 @@ class _$EarnStateCopyWithImpl<$Res, $Val extends EarnState>
     Object? isAdLoading = null,
     Object? isAdReady = null,
     Object? adTransactionId = freezed,
+    Object? adResponseId = freezed,
     Object? adLoadAttempt = null,
     Object? adRetryRound = null,
   }) {
@@ -5328,6 +5629,10 @@ class _$EarnStateCopyWithImpl<$Res, $Val extends EarnState>
             adTransactionId: freezed == adTransactionId
                 ? _value.adTransactionId
                 : adTransactionId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            adResponseId: freezed == adResponseId
+                ? _value.adResponseId
+                : adResponseId // ignore: cast_nullable_to_non_nullable
                       as String?,
             adLoadAttempt: null == adLoadAttempt
                 ? _value.adLoadAttempt
@@ -5415,6 +5720,7 @@ abstract class _$$EarnStateImplCopyWith<$Res>
     bool isAdLoading,
     bool isAdReady,
     String? adTransactionId,
+    String? adResponseId,
     int adLoadAttempt,
     int adRetryRound,
   });
@@ -5461,6 +5767,7 @@ class __$$EarnStateImplCopyWithImpl<$Res>
     Object? isAdLoading = null,
     Object? isAdReady = null,
     Object? adTransactionId = freezed,
+    Object? adResponseId = freezed,
     Object? adLoadAttempt = null,
     Object? adRetryRound = null,
   }) {
@@ -5546,6 +5853,10 @@ class __$$EarnStateImplCopyWithImpl<$Res>
             ? _value.adTransactionId
             : adTransactionId // ignore: cast_nullable_to_non_nullable
                   as String?,
+        adResponseId: freezed == adResponseId
+            ? _value.adResponseId
+            : adResponseId // ignore: cast_nullable_to_non_nullable
+                  as String?,
         adLoadAttempt: null == adLoadAttempt
             ? _value.adLoadAttempt
             : adLoadAttempt // ignore: cast_nullable_to_non_nullable
@@ -5583,6 +5894,7 @@ class _$EarnStateImpl extends _EarnState {
     this.isAdLoading = false,
     this.isAdReady = false,
     this.adTransactionId,
+    this.adResponseId,
     this.adLoadAttempt = 0,
     this.adRetryRound = 0,
   }) : _threads = threads,
@@ -5665,6 +5977,10 @@ class _$EarnStateImpl extends _EarnState {
   @override
   final String? adTransactionId;
 
+  /// AdMob response ID — uniquely identifies the ad impression for debugging
+  @override
+  final String? adResponseId;
+
   /// Current load attempt (1-based) shown during loading; 0 when idle
   @override
   @JsonKey()
@@ -5677,7 +5993,7 @@ class _$EarnStateImpl extends _EarnState {
 
   @override
   String toString() {
-    return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound)';
+    return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adResponseId: $adResponseId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound)';
   }
 
   @override
@@ -5728,6 +6044,8 @@ class _$EarnStateImpl extends _EarnState {
                 other.isAdReady == isAdReady) &&
             (identical(other.adTransactionId, adTransactionId) ||
                 other.adTransactionId == adTransactionId) &&
+            (identical(other.adResponseId, adResponseId) ||
+                other.adResponseId == adResponseId) &&
             (identical(other.adLoadAttempt, adLoadAttempt) ||
                 other.adLoadAttempt == adLoadAttempt) &&
             (identical(other.adRetryRound, adRetryRound) ||
@@ -5757,6 +6075,7 @@ class _$EarnStateImpl extends _EarnState {
     isAdLoading,
     isAdReady,
     adTransactionId,
+    adResponseId,
     adLoadAttempt,
     adRetryRound,
   ]);
@@ -5792,6 +6111,7 @@ abstract class _EarnState extends EarnState {
     final bool isAdLoading,
     final bool isAdReady,
     final String? adTransactionId,
+    final String? adResponseId,
     final int adLoadAttempt,
     final int adRetryRound,
   }) = _$EarnStateImpl;
@@ -5837,6 +6157,10 @@ abstract class _EarnState extends EarnState {
   bool get isAdReady;
   @override
   String? get adTransactionId;
+
+  /// AdMob response ID — uniquely identifies the ad impression for debugging
+  @override
+  String? get adResponseId;
 
   /// Current load attempt (1-based) shown during loading; 0 when idle
   @override

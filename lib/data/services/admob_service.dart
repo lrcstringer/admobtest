@@ -5,6 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../core/constants/admob_constants.dart';
+import '../../core/security/session_lock_service.dart';
 
 /// Result of showing a rewarded ad
 class AdRewardResult {
@@ -14,24 +15,30 @@ class AdRewardResult {
   final String? rewardType;
   final String? errorMessage;
 
+  /// AdMob response ID — uniquely identifies the ad impression (useful for debugging with Google)
+  final String? responseId;
+
   const AdRewardResult({
     required this.success,
     this.transactionId,
     this.rewardAmount,
     this.rewardType,
     this.errorMessage,
+    this.responseId,
   });
 
   factory AdRewardResult.success({
     required String transactionId,
     required int rewardAmount,
     required String rewardType,
+    String? responseId,
   }) {
     return AdRewardResult(
       success: true,
       transactionId: transactionId,
       rewardAmount: rewardAmount,
       rewardType: rewardType,
+      responseId: responseId,
     );
   }
 
@@ -50,6 +57,7 @@ class AdMobService {
   bool _isLoading = false;
   int _loadRetryCount = 0;
   final bool _useTestAds;
+  final SessionLockService _sessionLockService;
 
   /// Callback for when ad loading state changes
   final ValueNotifier<bool> isAdReady = ValueNotifier(false);
@@ -61,13 +69,13 @@ class AdMobService {
   final ValueNotifier<int> currentAttempt = ValueNotifier(0);
 
   /// Creates AdMobService. Uses test ads in debug mode by default.
-  /// Injectable ignores optional parameters with defaults, so this is DI-safe.
   @factoryMethod
-  AdMobService() : _useTestAds = kDebugMode;
+  AdMobService(this._sessionLockService) : _useTestAds = kDebugMode;
 
   /// Constructor for testing - allows overriding test ads setting
   @visibleForTesting
-  AdMobService.withTestAds({bool useTestAds = true}) : _useTestAds = useTestAds;
+  AdMobService.withTestAds(this._sessionLockService, {bool useTestAds = true})
+      : _useTestAds = useTestAds;
 
   String get _adUnitId => _useTestAds
       ? AdMobConstants.testRewardedAdUnitId
@@ -182,9 +190,16 @@ class AdMobService {
     );
     debugPrint('AdMobService: SSV custom data set: $customData');
 
+    // Capture response ID before showing (available after load)
+    final responseId = _rewardedAd!.responseInfo?.responseId;
+    debugPrint('AdMobService: Ad response ID: $responseId');
+
     final completer = Completer<AdRewardResult>();
     String? transactionId;
     bool adCompleted = false;
+
+    // Suppress session lock while the ad overlay is visible
+    _sessionLockService.suppressLock();
 
     _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (ad) {
@@ -195,6 +210,7 @@ class AdMobService {
       },
       onAdDismissedFullScreenContent: (ad) {
         debugPrint('AdMobService: Ad dismissed');
+        _sessionLockService.unsuppressLock();
         ad.dispose();
         _rewardedAd = null;
         isAdReady.value = false;
@@ -206,6 +222,7 @@ class AdMobService {
               transactionId: transactionId!,
               rewardAmount: AdMobConstants.adVideoTokenReward,
               rewardType: 'tokens',
+              responseId: responseId,
             ));
           } else {
             completer.complete(AdRewardResult.failure('Ad was not completed'));
@@ -218,6 +235,7 @@ class AdMobService {
       onAdFailedToShowFullScreenContent: (ad, error) {
         debugPrint(
             'AdMobService: Ad failed to show: ${error.code} - ${error.message}');
+        _sessionLockService.unsuppressLock();
         ad.dispose();
         _rewardedAd = null;
         isAdReady.value = false;

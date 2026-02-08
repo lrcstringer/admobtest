@@ -55,7 +55,8 @@ export async function requirePlayIntegrity(
   context: functions.https.CallableContext,
   functionName: string,
   tier: IntegrityTier,
-  enforce: boolean = true
+  // TODO: Set to true once app is published to Google Play with Play Integrity
+  enforce: boolean = false
 ): Promise<void> {
   const integrityToken = data.integrityToken as string | undefined;
   const integrityNonce = data.integrityNonce as string | undefined;

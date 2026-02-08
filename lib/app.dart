@@ -123,12 +123,18 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   }
 
   /// Propagate the current user ID to security services that need it
-  /// for audit logging.
+  /// for audit logging, and prefetch earn data when authenticated.
   void _setupUserIdPropagation() {
     _authStateSubscription = _authBloc.stream.listen((state) {
       final userId = state.user?.id;
       _sessionLockService.setUserId(userId);
       _simChangeDetector.setUserId(userId);
+
+      // Prefetch earn threads as soon as user is authenticated so the
+      // Earn tab renders instantly instead of showing a loading spinner.
+      if (state.status == AuthStatus.authenticated) {
+        _earnBloc.add(const EarnEvent.loadThreads());
+      }
     });
   }
 

@@ -82,7 +82,11 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _LoadThreads event,
     Emitter<EarnState> emit,
   ) async {
-    emit(state.copyWith(status: EarnStatus.loading));
+    // Only show loading spinner on first load (no cached threads).
+    // On subsequent loads, keep stale data visible while refreshing.
+    if (state.threads.isEmpty) {
+      emit(state.copyWith(status: EarnStatus.loading));
+    }
 
     final result = await _earnRepository.getEligibleThreads();
 
@@ -414,6 +418,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
       selectedOpportunity: null,
       engagementPhase: EngagementPhase.idle,
       adTransactionId: null,
+      adResponseId: null,
     ));
   }
 
@@ -464,6 +469,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     emit(state.copyWith(
       currentEngagement: updatedEngagement,
       adTransactionId: event.transactionId,
+      adResponseId: event.responseId,
       engagementPhase: EngagementPhase.surveying,
     ));
   }

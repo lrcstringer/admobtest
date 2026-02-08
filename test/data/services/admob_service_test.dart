@@ -3,9 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:imalichat/core/security/session_lock_service.dart';
 import 'package:imalichat/data/services/admob_service.dart';
 
 // Mock classes
+class MockSessionLockService extends Mock implements SessionLockService {}
+
 class MockRewardedAd extends Mock implements RewardedAd {}
 
 class FakeAdRequest extends Fake implements AdRequest {}
@@ -59,9 +62,11 @@ void main() {
 
   group('AdMobService', () {
     late AdMobService adMobService;
+    late MockSessionLockService mockSessionLock;
 
     setUp(() {
-      adMobService = AdMobService.withTestAds();
+      mockSessionLock = MockSessionLockService();
+      adMobService = AdMobService.withTestAds(mockSessionLock);
     });
 
     tearDown(() {
@@ -100,7 +105,7 @@ void main() {
     });
 
     test('dispose cleans up ValueNotifiers', () {
-      final service = AdMobService.withTestAds();
+      final service = AdMobService.withTestAds(MockSessionLockService());
       service.dispose();
 
       // After dispose, adding listeners should throw

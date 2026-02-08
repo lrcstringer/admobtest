@@ -50,14 +50,14 @@ const ADMOB_CONFIG = {
   BONUS_MULTIPLIER: 1.0,
 };
 
-// Sample question for the AdMob opportunity
+// Feedback question for the AdMob opportunity
 const SAMPLE_QUESTION = {
-  id: "admob_verification_q1",
-  text: "Did you watch the full video ad?",
-  options: ["Yes, I watched it completely", "Most of it", "Not really"],
+  id: "admob_feedback_q1",
+  text: "What best describes your view of the video?",
+  options: ["It was interesting", "It was enjoyable", "I didn't like it"],
   orderIndex: 0,
-  isAttentionCheck: true,
-  correctAnswer: "Yes, I watched it completely",
+  isAttentionCheck: false,
+  correctAnswer: null,
 };
 
 async function createSystemClient(): Promise<void> {
@@ -181,6 +181,65 @@ async function runMigration(): Promise<void> {
     throw error;
   }
 }
+
+/**
+ * Update the questions array on the existing AdMob opportunity document.
+ * Call once after deploying to apply question text changes to the live document.
+ */
+async function updateAdMobQuestion(): Promise<void> {
+  const opportunityId = "system_admob_opportunity";
+  const opportunityRef = db.collection("earnOpportunities").doc(opportunityId);
+  const opportunityDoc = await opportunityRef.get();
+
+  if (!opportunityDoc.exists) {
+    console.log("AdMob opportunity does not exist — run the full migration first");
+    return;
+  }
+
+  await opportunityRef.update({
+    questions: [SAMPLE_QUESTION],
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  console.log("Updated questions on:", opportunityId);
+}
+
+/**
+ * HTTP endpoint to update the AdMob opportunity question (one-shot).
+ * POST /updateAdMobQuestion with admin Bearer token.
+ */
+export const runUpdateAdMobQuestion = functions.https.onRequest(async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    res.status(401).json({error: "Missing authorization header"});
+    return;
+  }
+
+  const idToken = authHeader.split("Bearer ")[1];
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const adminDoc = await db.collection("admins").doc(decodedToken.uid).get();
+    if (!adminDoc.exists) {
+      res.status(403).json({error: "Admin access required"});
+      return;
+    }
+  } catch {
+    res.status(401).json({error: "Invalid token"});
+    return;
+  }
+
+  try {
+    await updateAdMobQuestion();
+    res.status(200).json({
+      success: true,
+      message: "AdMob question updated successfully",
+      question: SAMPLE_QUESTION,
+    });
+  } catch (error) {
+    console.error("Question update failed:", error);
+    res.status(500).json({success: false, error: String(error)});
+  }
+});
 
 /**
  * HTTP endpoint to run the AdMob system migration

@@ -42,6 +42,9 @@ class EngagementEvidence with _$EngagementEvidence {
 
     /// Client-side flag indicating ad was fully watched
     bool? adFullyWatched,
+
+    /// AdMob response ID — uniquely identifies the ad impression for debugging
+    String? adResponseId,
   }) = _EngagementEvidence;
 
   const EngagementEvidence._();

@@ -23,6 +23,7 @@ _$EngagementEvidenceImpl _$$EngagementEvidenceImplFromJson(
   clientAttentionScore: (json['clientAttentionScore'] as num?)?.toDouble(),
   adTransactionId: json['adTransactionId'] as String?,
   adFullyWatched: json['adFullyWatched'] as bool?,
+  adResponseId: json['adResponseId'] as String?,
 );
 
 Map<String, dynamic> _$$EngagementEvidenceImplToJson(
@@ -40,4 +41,5 @@ Map<String, dynamic> _$$EngagementEvidenceImplToJson(
   'clientAttentionScore': instance.clientAttentionScore,
   'adTransactionId': instance.adTransactionId,
   'adFullyWatched': instance.adFullyWatched,
+  'adResponseId': instance.adResponseId,
 };

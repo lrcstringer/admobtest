@@ -516,7 +516,10 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
                             itemCount: _opportunities.length,
                             itemBuilder: (context, index) {
                               final opp = _opportunities[index];
-                              return _OpportunityCard(opportunity: opp);
+                              return _OpportunityCard(
+                                opportunity: opp,
+                                onQuestionsEdited: _loadData,
+                              );
                             },
                           ),
               ),
@@ -598,7 +601,10 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
           itemBuilder: (context, index) {
             final opp = opportunities[index].data() as Map<String, dynamic>;
             opp['id'] = opportunities[index].id;
-            return _OpportunityCard(opportunity: opp);
+            return _OpportunityCard(
+              opportunity: opp,
+              onQuestionsEdited: () => setState(() {}),
+            );
           },
         );
       },
@@ -799,8 +805,12 @@ class _CampaignCard extends StatelessWidget {
 
 class _OpportunityCard extends StatelessWidget {
   final Map<String, dynamic> opportunity;
+  final VoidCallback? onQuestionsEdited;
 
-  const _OpportunityCard({required this.opportunity});
+  const _OpportunityCard({
+    required this.opportunity,
+    this.onQuestionsEdited,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -904,20 +914,67 @@ class _OpportunityCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: opportunity['isActive'] == true
-                        ? AppColors.success
-                        : AppColors.textSecondary,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: opportunity['isActive'] == true
+                            ? AppColors.success
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    PopupMenuButton<String>(
+                      icon: Icon(Icons.more_vert,
+                          size: 18, color: AppColors.textSecondary),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onSelected: (value) {
+                        if (value == 'edit_questions') {
+                          _showEditQuestionsDialog(context);
+                        }
+                      },
+                      itemBuilder: (_) => [
+                        const PopupMenuItem(
+                          value: 'edit_questions',
+                          child: Row(
+                            children: [
+                              Icon(Icons.quiz_outlined, size: 18),
+                              SizedBox(width: 8),
+                              Text('Edit Questions'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showEditQuestionsDialog(BuildContext context) {
+    final questions = (opportunity['questions'] as List?)
+            ?.map((q) => Map<String, dynamic>.from(q as Map))
+            .toList() ??
+        [];
+    final oppId = opportunity['id'] as String?;
+    if (oppId == null) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => _EditQuestionsDialog(
+        opportunityId: oppId,
+        initialQuestions: questions,
+        onSaved: onQuestionsEdited,
       ),
     );
   }
@@ -1147,6 +1204,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
   String _earningType = 'video';
   bool _isActive = true;
   bool _isLoading = false;
+  final List<Map<String, dynamic>> _questions = [];
 
   final _earningTypes = [
     ('video', 'Video'),
@@ -1199,7 +1257,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
             : _mediaUrlController.text.trim(),
         'tokenReward': int.tryParse(_tokenRewardController.text) ?? 10,
         'durationSeconds': int.tryParse(_durationController.text) ?? 30,
-        'questions': [],
+        'questions': _questions,
         'isActive': _isActive,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
@@ -1233,6 +1291,26 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
           ),
         );
       }
+    }
+  }
+
+  Future<void> _showQuestionEditor({int? index, Map<String, dynamic>? existing}) async {
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (ctx) => _QuestionEditorDialog(existing: existing),
+    );
+    if (result != null) {
+      setState(() {
+        if (index != null) {
+          _questions[index] = result;
+        } else {
+          _questions.add(result);
+        }
+        // Re-assign orderIndex based on list position
+        for (var i = 0; i < _questions.length; i++) {
+          _questions[i]['orderIndex'] = i;
+        }
+      });
     }
   }
 
@@ -1331,7 +1409,83 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
+                // Questions section
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Questions',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimaryDark,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline,
+                          color: AppColors.secondary),
+                      tooltip: 'Add question',
+                      onPressed: () => _showQuestionEditor(),
+                    ),
+                  ],
+                ),
+                if (_questions.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'No questions added yet',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ..._questions.asMap().entries.map((entry) {
+                  final idx = entry.key;
+                  final q = entry.value;
+                  final options = (q['options'] as List?)?.cast<String>() ?? [];
+                  return Card(
+                    color: AppColors.surfaceDark,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      dense: true,
+                      title: Text(
+                        q['text'] ?? '',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textPrimaryDark,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${options.length} options',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, size: 18),
+                            color: AppColors.textSecondary,
+                            onPressed: () =>
+                                _showQuestionEditor(index: idx, existing: q),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, size: 18),
+                            color: AppColors.error,
+                            onPressed: () {
+                              setState(() => _questions.removeAt(idx));
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+                const SizedBox(height: 8),
                 SwitchListTile(
                   value: _isActive,
                   onChanged: (v) => setState(() => _isActive = v),
@@ -1360,6 +1514,411 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               : const Text('Create'),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Question Editor Dialog (used by both Create and Edit flows)
+// ---------------------------------------------------------------------------
+
+class _QuestionEditorDialog extends StatefulWidget {
+  final Map<String, dynamic>? existing;
+
+  const _QuestionEditorDialog({this.existing});
+
+  @override
+  State<_QuestionEditorDialog> createState() => _QuestionEditorDialogState();
+}
+
+class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
+  final _textController = TextEditingController();
+  final List<TextEditingController> _optionControllers = [];
+  bool _isAttentionCheck = false;
+  String? _correctAnswer;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.existing != null) {
+      _textController.text = widget.existing!['text'] ?? '';
+      _isAttentionCheck = widget.existing!['isAttentionCheck'] == true;
+      _correctAnswer = widget.existing!['correctAnswer'] as String?;
+      final options =
+          (widget.existing!['options'] as List?)?.cast<String>() ?? [];
+      for (final opt in options) {
+        _optionControllers.add(TextEditingController(text: opt));
+      }
+    }
+    // Ensure at least 2 option fields
+    while (_optionControllers.length < 2) {
+      _optionControllers.add(TextEditingController());
+    }
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    for (final c in _optionControllers) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  void _addOption() {
+    if (_optionControllers.length >= 6) return;
+    setState(() => _optionControllers.add(TextEditingController()));
+  }
+
+  void _removeOption(int index) {
+    if (_optionControllers.length <= 2) return;
+    setState(() {
+      final removed = _optionControllers.removeAt(index);
+      if (_correctAnswer == removed.text) {
+        _correctAnswer = null;
+      }
+      removed.dispose();
+    });
+  }
+
+  void _handleSave() {
+    final text = _textController.text.trim();
+    if (text.isEmpty) return;
+
+    final options = _optionControllers
+        .map((c) => c.text.trim())
+        .where((t) => t.isNotEmpty)
+        .toList();
+    if (options.length < 2) return;
+
+    final id = widget.existing?['id'] ??
+        'q_${DateTime.now().millisecondsSinceEpoch}';
+
+    Navigator.of(context).pop(<String, dynamic>{
+      'id': id,
+      'text': text,
+      'options': options,
+      'orderIndex': widget.existing?['orderIndex'] ?? 0,
+      'isAttentionCheck': _isAttentionCheck,
+      'correctAnswer': _isAttentionCheck ? _correctAnswer : null,
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.cardDark,
+      title: Text(
+        widget.existing != null ? 'Edit Question' : 'Add Question',
+        style: const TextStyle(color: AppColors.textPrimaryDark),
+      ),
+      content: SizedBox(
+        width: 400,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _textController,
+                decoration: const InputDecoration(
+                  labelText: 'Question text',
+                  hintText: 'e.g., What best describes your view?',
+                ),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Options (${_optionControllers.length})',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimaryDark,
+                    ),
+                  ),
+                  if (_optionControllers.length < 6)
+                    TextButton.icon(
+                      icon: const Icon(Icons.add, size: 16),
+                      label: const Text('Add'),
+                      onPressed: _addOption,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ...List.generate(_optionControllers.length, (i) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _optionControllers[i],
+                          decoration: InputDecoration(
+                            labelText: 'Option ${i + 1}',
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                      if (_optionControllers.length > 2)
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 16),
+                          color: AppColors.error,
+                          onPressed: () => _removeOption(i),
+                        ),
+                    ],
+                  ),
+                );
+              }),
+              const SizedBox(height: 12),
+              SwitchListTile(
+                value: _isAttentionCheck,
+                onChanged: (v) => setState(() {
+                  _isAttentionCheck = v;
+                  if (!v) _correctAnswer = null;
+                }),
+                title: const Text('Attention check',
+                    style: TextStyle(fontSize: 13)),
+                subtitle: const Text('Require a specific correct answer',
+                    style: TextStyle(fontSize: 11)),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+              ),
+              if (_isAttentionCheck) ...[
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  initialValue: _correctAnswer,
+                  decoration:
+                      const InputDecoration(labelText: 'Correct answer'),
+                  items: _optionControllers
+                      .where((c) => c.text.trim().isNotEmpty)
+                      .map((c) => DropdownMenuItem(
+                            value: c.text.trim(),
+                            child: Text(c.text.trim()),
+                          ))
+                      .toList(),
+                  onChanged: (v) => setState(() => _correctAnswer = v),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _handleSave,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.secondary,
+          ),
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Edit Questions Dialog (for existing opportunities)
+// ---------------------------------------------------------------------------
+
+class _EditQuestionsDialog extends StatefulWidget {
+  final String opportunityId;
+  final List<Map<String, dynamic>> initialQuestions;
+  final VoidCallback? onSaved;
+
+  const _EditQuestionsDialog({
+    required this.opportunityId,
+    required this.initialQuestions,
+    this.onSaved,
+  });
+
+  @override
+  State<_EditQuestionsDialog> createState() => _EditQuestionsDialogState();
+}
+
+class _EditQuestionsDialogState extends State<_EditQuestionsDialog> {
+  late List<Map<String, dynamic>> _questions;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _questions = widget.initialQuestions
+        .map((q) => Map<String, dynamic>.from(q))
+        .toList();
+  }
+
+  Future<void> _showQuestionEditor(
+      {int? index, Map<String, dynamic>? existing}) async {
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (ctx) => _QuestionEditorDialog(existing: existing),
+    );
+    if (result != null) {
+      setState(() {
+        if (index != null) {
+          _questions[index] = result;
+        } else {
+          _questions.add(result);
+        }
+        for (var i = 0; i < _questions.length; i++) {
+          _questions[i]['orderIndex'] = i;
+        }
+      });
+    }
+  }
+
+  Future<void> _handleSave() async {
+    setState(() => _isSaving = true);
+    try {
+      await FirebaseFirestore.instance
+          .collection('earnOpportunities')
+          .doc(widget.opportunityId)
+          .update({
+        'questions': _questions,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      if (mounted) {
+        Navigator.of(context).pop();
+        widget.onSaved?.call();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Questions updated successfully'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving questions: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.cardDark,
+      title: const Text(
+        'Edit Questions',
+        style: TextStyle(color: AppColors.textPrimaryDark),
+      ),
+      content: SizedBox(
+        width: 450,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${_questions.length} question${_questions.length == 1 ? '' : 's'}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline,
+                        color: AppColors.secondary),
+                    tooltip: 'Add question',
+                    onPressed: () => _showQuestionEditor(),
+                  ),
+                ],
+              ),
+              if (_questions.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Text(
+                    'No questions — tap + to add one',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ..._questions.asMap().entries.map((entry) {
+                final idx = entry.key;
+                final q = entry.value;
+                final options =
+                    (q['options'] as List?)?.cast<String>() ?? [];
+                return Card(
+                  color: AppColors.surfaceDark,
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    dense: true,
+                    title: Text(
+                      q['text'] ?? '',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textPrimaryDark,
+                      ),
+                    ),
+                    subtitle: Text(
+                      '${options.length} options${q['isAttentionCheck'] == true ? ' · attention check' : ''}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, size: 18),
+                          color: AppColors.textSecondary,
+                          onPressed: () => _showQuestionEditor(
+                              index: idx, existing: q),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, size: 18),
+                          color: AppColors.error,
+                          onPressed: () {
+                            setState(() => _questions.removeAt(idx));
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _isSaving ? null : _handleSave,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.secondary,
+          ),
+          child: _isSaving
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Save'),
         ),
       ],
     );

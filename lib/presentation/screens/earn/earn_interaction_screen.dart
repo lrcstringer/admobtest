@@ -245,9 +245,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       videoStartedAt: _videoStartedAt ?? DateTime.now(),
       surveySubmittedAt: DateTime.now(),
       clientAttentionScore: attentionScore,
-      // Include AdMob transaction ID if available
+      // Include AdMob verification data if available
       adTransactionId: state.adTransactionId,
       adFullyWatched: isAdMobOpportunity && state.adTransactionId != null,
+      adResponseId: state.adResponseId,
     );
 
     // Submit (check mounted after async gap)
@@ -596,6 +597,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       bloc.add(EarnEvent.adVideoCompleted(
         transactionId: result.transactionId!,
         rewardAmount: result.rewardAmount ?? AdMobConstants.adVideoTokenReward,
+        responseId: result.responseId,
       ));
       _questionStartTime = DateTime.now();
     } else {
@@ -660,8 +662,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                   ),
                   SizedBox(height: AppSpacing.sm),
                   _buildInstructionStep(1, 'Watch the ad video completely'),
-                  _buildInstructionStep(2, 'Answer the bonus question'),
-                  _buildInstructionStep(3, 'Receive your tokens instantly'),
+                  _buildInstructionStep(
+                      2, 'Tap the X to close the ad when it finishes'),
+                  _buildInstructionStep(3, 'Answer the bonus question'),
+                  _buildInstructionStep(4, 'Receive your tokens instantly'),
                 ],
               ),
             ),

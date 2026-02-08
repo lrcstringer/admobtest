@@ -1,5 +1,6 @@
 // TODO: Uncomment when enabling App Check after Play Store publish
 // import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -46,6 +47,14 @@ Future<void> main() async {
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Enable Firestore offline persistence with a generous cache size.
+  // Default on mobile is 40 MB; 100 MB gives more headroom for cached
+  // threads, opportunities, and engagement history across sessions.
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: 100 * 1024 * 1024, // 100 MB
+  );
 
   // Initialize Google Mobile Ads SDK
   await MobileAds.instance.initialize();

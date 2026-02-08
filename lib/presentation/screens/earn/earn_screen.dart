@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -22,9 +23,8 @@ class _EarnScreenState extends State<EarnScreen> {
   @override
   void initState() {
     super.initState();
-    // Load threads when screen opens
+    // Load threads when screen opens (history is lazy-loaded when sheet opens)
     context.read<EarnBloc>().add(const EarnEvent.loadThreads());
-    context.read<EarnBloc>().add(const EarnEvent.loadHistory(limit: 10));
   }
 
   @override
@@ -40,8 +40,20 @@ class _EarnScreenState extends State<EarnScreen> {
         ],
       ),
       body: BlocConsumer<EarnBloc, EarnState>(
+        listenWhen: (prev, curr) =>
+            prev.errorMessage != curr.errorMessage ||
+            prev.engagementPhase != curr.engagementPhase,
         listener: (context, state) {
-          if (state.errorMessage != null) {
+          // Only show errors from thread/opportunity loading on this screen.
+          // Engagement-phase errors (failed submissions, etc.) are handled by
+          // the interaction screen — clearing them here would wipe the message
+          // before the interaction screen can display it.
+          final inEngagementFlow =
+              state.engagementPhase != EngagementPhase.idle &&
+              state.engagementPhase != EngagementPhase.completed &&
+              state.engagementPhase != EngagementPhase.abandoned;
+
+          if (state.errorMessage != null && !inEngagementFlow) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage!),
@@ -56,6 +68,14 @@ class _EarnScreenState extends State<EarnScreen> {
             context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
           }
         },
+        buildWhen: (prev, curr) =>
+            prev.status != curr.status ||
+            prev.threads != curr.threads ||
+            prev.dailyCompletions != curr.dailyCompletions ||
+            prev.dailyEarnCap != curr.dailyEarnCap ||
+            prev.dailyLimitReached != curr.dailyLimitReached ||
+            prev.totalAvailableOpportunities !=
+                curr.totalAvailableOpportunities,
         builder: (context, state) {
           if (state.status == EarnStatus.loading && state.threads.isEmpty) {
             return const WaveBackground(
@@ -459,9 +479,34 @@ class _EarnScreenState extends State<EarnScreen> {
     final color = AppColors.parseHex(thread.clientAvatarColor);
 
     if (thread.clientAvatarImage != null) {
-      return CircleAvatar(
-        radius: 24,
-        backgroundImage: NetworkImage(thread.clientAvatarImage!),
+      return CachedNetworkImage(
+        imageUrl: thread.clientAvatarImage!,
+        imageBuilder: (context, imageProvider) => CircleAvatar(
+          radius: 24,
+          backgroundImage: imageProvider,
+        ),
+        placeholder: (context, url) => CircleAvatar(
+          radius: 24,
+          backgroundColor: color.withValues(alpha: 0.2),
+          child: const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+        errorWidget: (context, url, error) => CircleAvatar(
+          radius: 24,
+          backgroundColor: color.withValues(alpha: 0.2),
+          child: Text(
+            thread.clientName.isNotEmpty
+                ? thread.clientName[0].toUpperCase()
+                : 'C',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+        ),
       );
     }
 

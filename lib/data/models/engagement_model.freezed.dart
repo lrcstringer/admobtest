@@ -253,6 +253,7 @@ mixin _$EngagementEvidenceModel {
       throw _privateConstructorUsedError; // AdMob verification fields
   String? get adTransactionId => throw _privateConstructorUsedError;
   bool? get adFullyWatched => throw _privateConstructorUsedError;
+  String? get adResponseId => throw _privateConstructorUsedError;
 
   /// Create a copy of EngagementEvidenceModel
   /// with the given fields replaced by the non-null parameter values.
@@ -281,6 +282,7 @@ abstract class $EngagementEvidenceModelCopyWith<$Res> {
     double? clientAttentionScore,
     String? adTransactionId,
     bool? adFullyWatched,
+    String? adResponseId,
   });
 }
 
@@ -314,6 +316,7 @@ class _$EngagementEvidenceModelCopyWithImpl<
     Object? clientAttentionScore = freezed,
     Object? adTransactionId = freezed,
     Object? adFullyWatched = freezed,
+    Object? adResponseId = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -365,6 +368,10 @@ class _$EngagementEvidenceModelCopyWithImpl<
                 ? _value.adFullyWatched
                 : adFullyWatched // ignore: cast_nullable_to_non_nullable
                       as bool?,
+            adResponseId: freezed == adResponseId
+                ? _value.adResponseId
+                : adResponseId // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -393,6 +400,7 @@ abstract class _$$EngagementEvidenceModelImplCopyWith<$Res>
     double? clientAttentionScore,
     String? adTransactionId,
     bool? adFullyWatched,
+    String? adResponseId,
   });
 }
 
@@ -426,6 +434,7 @@ class __$$EngagementEvidenceModelImplCopyWithImpl<$Res>
     Object? clientAttentionScore = freezed,
     Object? adTransactionId = freezed,
     Object? adFullyWatched = freezed,
+    Object? adResponseId = freezed,
   }) {
     return _then(
       _$EngagementEvidenceModelImpl(
@@ -477,6 +486,10 @@ class __$$EngagementEvidenceModelImplCopyWithImpl<$Res>
             ? _value.adFullyWatched
             : adFullyWatched // ignore: cast_nullable_to_non_nullable
                   as bool?,
+        adResponseId: freezed == adResponseId
+            ? _value.adResponseId
+            : adResponseId // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -498,6 +511,7 @@ class _$EngagementEvidenceModelImpl extends _EngagementEvidenceModel {
     this.clientAttentionScore,
     this.adTransactionId,
     this.adFullyWatched,
+    this.adResponseId,
   }) : _surveyResponseTimesMs = surveyResponseTimesMs,
        super._();
 
@@ -533,10 +547,12 @@ class _$EngagementEvidenceModelImpl extends _EngagementEvidenceModel {
   final String? adTransactionId;
   @override
   final bool? adFullyWatched;
+  @override
+  final String? adResponseId;
 
   @override
   String toString() {
-    return 'EngagementEvidenceModel(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched)';
+    return 'EngagementEvidenceModel(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched, adResponseId: $adResponseId)';
   }
 
   @override
@@ -569,7 +585,9 @@ class _$EngagementEvidenceModelImpl extends _EngagementEvidenceModel {
             (identical(other.adTransactionId, adTransactionId) ||
                 other.adTransactionId == adTransactionId) &&
             (identical(other.adFullyWatched, adFullyWatched) ||
-                other.adFullyWatched == adFullyWatched));
+                other.adFullyWatched == adFullyWatched) &&
+            (identical(other.adResponseId, adResponseId) ||
+                other.adResponseId == adResponseId));
   }
 
   @override
@@ -587,6 +605,7 @@ class _$EngagementEvidenceModelImpl extends _EngagementEvidenceModel {
     clientAttentionScore,
     adTransactionId,
     adFullyWatched,
+    adResponseId,
   );
 
   /// Create a copy of EngagementEvidenceModel
@@ -615,6 +634,7 @@ abstract class _EngagementEvidenceModel extends EngagementEvidenceModel {
     final double? clientAttentionScore,
     final String? adTransactionId,
     final bool? adFullyWatched,
+    final String? adResponseId,
   }) = _$EngagementEvidenceModelImpl;
   const _EngagementEvidenceModel._() : super._();
 
@@ -642,6 +662,8 @@ abstract class _EngagementEvidenceModel extends EngagementEvidenceModel {
   String? get adTransactionId;
   @override
   bool? get adFullyWatched;
+  @override
+  String? get adResponseId;
 
   /// Create a copy of EngagementEvidenceModel
   /// with the given fields replaced by the non-null parameter values.
