@@ -1187,26 +1187,6 @@ void main() {
       });
     });
 
-    group('isAdReady getter', () {
-      test('returns AdMobService hasAdReady value', () {
-        when(() => mockAdMobService.hasAdReady).thenReturn(true);
-
-        final bloc = EarnBloc(mockEarnRepository, mockAdMobService);
-        expect(bloc.isAdReady, isTrue);
-
-        bloc.close();
-      });
-
-      test('returns false when no ad is loaded', () {
-        when(() => mockAdMobService.hasAdReady).thenReturn(false);
-
-        final bloc = EarnBloc(mockEarnRepository, mockAdMobService);
-        expect(bloc.isAdReady, isFalse);
-
-        bloc.close();
-      });
-    });
-
     group('AdMobService listener integration', () {
       test('updates state when isAdReady changes', () async {
         final bloc = EarnBloc(mockEarnRepository, mockAdMobService);

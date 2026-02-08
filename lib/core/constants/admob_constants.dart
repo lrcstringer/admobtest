@@ -11,9 +11,9 @@ abstract class AdMobConstants {
 
   // Ad Unit IDs - Production
   static const String rewardedAdUnitIdAndroid =
-      'ca-app-pub-9331591670168644/1108724925';
+      'ca-app-pub-9331591670168644/3138828175';
   static const String rewardedAdUnitIdIos =
-      'ca-app-pub-9331591670168644/1108724925';
+      'ca-app-pub-9331591670168644/3138828175';
 
   // Ad Unit IDs - Test (for development)
   static const String testRewardedAdUnitIdAndroid =
@@ -52,8 +52,10 @@ abstract class AdMobConstants {
   static const Duration adShowTimeout = Duration(seconds: 60);
 
   // Retry Configuration
-  static const int maxLoadRetries = 3;
-  static const Duration retryDelay = Duration(seconds: 2);
+  static const int maxLoadRetries = 5;
+  static const Duration initialRetryDelay = Duration(seconds: 2);
+  /// Max manual retry rounds the user gets before "unavailable" (no more retry)
+  static const int maxManualRetryRounds = 1;
 
   // System Thread Configuration
   static const String systemThreadClientId = 'system_admob';

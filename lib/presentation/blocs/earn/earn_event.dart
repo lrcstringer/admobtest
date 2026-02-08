@@ -75,4 +75,8 @@ class EarnEvent with _$EarnEvent {
   /// Internal: AdMob loading state changed via ValueNotifier
   const factory EarnEvent.adLoadingStateChanged({required bool isLoading}) =
       _AdLoadingStateChanged;
+
+  /// Internal: AdMob load attempt number changed (1-based during loading, 0 when idle)
+  const factory EarnEvent.adLoadAttemptChanged({required int attempt}) =
+      _AdLoadAttemptChanged;
 }

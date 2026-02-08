@@ -274,12 +274,31 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
         throw const ServerException(message: 'Not authorized');
       }
 
+      // Guard: duration must be positive and monotonically increasing
+      final previousDuration = (data['watchDurationSeconds'] as int?) ?? 0;
+      if (watchDurationSeconds < 0 || watchDurationSeconds < previousDuration) {
+        throw const ServerException(
+            message: 'Invalid watch duration');
+      }
+
+      // Guard: cap duration to max possible elapsed time since engagement started
+      final startedAt = data['startedAt'];
+      int clampedDuration = watchDurationSeconds;
+      if (startedAt != null) {
+        final startTime = startedAt is Timestamp
+            ? startedAt.toDate()
+            : DateTime.parse(startedAt.toString());
+        final maxElapsed =
+            DateTime.now().difference(startTime).inSeconds + 5; // 5s buffer
+        clampedDuration = clampedDuration.clamp(0, maxElapsed);
+      }
+
       final requiredDuration = data['requiredDurationSeconds'] as int;
       final newStatus =
-          watchDurationSeconds >= requiredDuration ? 'surveying' : 'watching';
+          clampedDuration >= requiredDuration ? 'surveying' : 'watching';
 
       await _engagementsCollection.doc(engagementId).update({
-        'watchDurationSeconds': watchDurationSeconds,
+        'watchDurationSeconds': clampedDuration,
         'status': newStatus,
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -287,7 +306,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       return EngagementModel.fromJson({
         ...sanitizeFirestoreData(data),
         'id': doc.id,
-        'watchDurationSeconds': watchDurationSeconds,
+        'watchDurationSeconds': clampedDuration,
         'status': newStatus,
         'updatedAt': DateTime.now().toIso8601String(),
       });
@@ -328,13 +347,17 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       final integrityToken =
           await _playIntegrity.getIntegrityToken(nonce: nonce);
 
+      // sanitizeFirestoreData converts Timestamp → ISO 8601 strings;
+      // callable.call() only accepts JSON-serializable data, not Timestamp.
+      final evidenceData = sanitizeFirestoreData({
+        'responses': answersModels.map((a) => a.toFirestoreJson()).toList(),
+        ...evidenceModel.toFirestoreJson(),
+      });
+
       final callable = _functions.httpsCallable('processEngagement');
       await callable.call<Map<String, dynamic>>({
         'engagementId': engagementId,
-        'evidence': {
-          'responses': answersModels.map((a) => a.toFirestoreJson()).toList(),
-          ...evidenceModel.toFirestoreJson(),
-        },
+        'evidence': evidenceData,
         if (integrityToken != null) 'integrityToken': integrityToken,
         if (integrityToken != null) 'integrityNonce': nonce,
       });
@@ -344,8 +367,8 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       return EngagementModel.fromJson({
         ...sanitizeFirestoreData(data),
         'id': doc.id,
-        'answers': answersModels.map((a) => a.toFirestoreJson()).toList(),
-        'evidence': evidenceModel.toFirestoreJson(),
+        'answers': evidenceData['responses'] as List,
+        'evidence': evidenceData,
         'status': 'completed',
         'completedAt': now.toIso8601String(),
         'updatedAt': now.toIso8601String(),

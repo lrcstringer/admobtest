@@ -67,6 +67,11 @@ class AppButton extends StatelessWidget {
           height: buttonHeight,
           child: ElevatedButton(
             onPressed: isDisabled ? null : onPressed,
+            style: isFullWidth
+                ? null
+                : ElevatedButton.styleFrom(
+                    minimumSize: Size(0, buttonHeight),
+                  ),
             child: child,
           ),
         );
@@ -80,6 +85,7 @@ class AppButton extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.secondary,
               foregroundColor: AppColors.textOnSecondary,
+              minimumSize: isFullWidth ? null : Size(0, buttonHeight),
             ),
             child: child,
           ),
@@ -91,6 +97,11 @@ class AppButton extends StatelessWidget {
           height: buttonHeight,
           child: OutlinedButton(
             onPressed: isDisabled ? null : onPressed,
+            style: isFullWidth
+                ? null
+                : OutlinedButton.styleFrom(
+                    minimumSize: Size(0, buttonHeight),
+                  ),
             child: child,
           ),
         );
@@ -110,6 +121,7 @@ class AppButton extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,
               foregroundColor: AppColors.textOnPrimary,
+              minimumSize: isFullWidth ? null : Size(0, buttonHeight),
             ),
             child: child,
           ),

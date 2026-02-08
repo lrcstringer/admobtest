@@ -17,7 +17,6 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/wave_background.dart';
-import '../../widgets/earn/admob_video_widget.dart';
 
 /// Earn Interaction Screen
 /// Handles the full video watching + survey completion flow
@@ -423,11 +422,6 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       return _buildWatchingState(state);
     }
 
-    // Watching AdMob video phase (fallback)
-    if (state.engagementPhase == EngagementPhase.watchingAd) {
-      return _buildAdMobWatchingState(state);
-    }
-
     // Surveying phase
     if (state.engagementPhase == EngagementPhase.surveying) {
       return _buildSurveyState(state);
@@ -559,15 +553,9 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   SizedBox(height: AppSpacing.sm),
-                  if (opportunity.earningType == EarningType.adVideo) ...[
-                    _buildInstructionStep(1, 'Watch the ad video completely'),
-                    _buildInstructionStep(2, 'Answer the bonus question'),
-                    _buildInstructionStep(3, 'Receive your tokens instantly'),
-                  ] else ...[
-                    _buildInstructionStep(1, 'Watch the video completely'),
-                    _buildInstructionStep(2, 'Answer all survey questions'),
-                    _buildInstructionStep(3, 'Receive your tokens instantly'),
-                  ],
+                  _buildInstructionStep(1, 'Watch the video completely'),
+                  _buildInstructionStep(2, 'Answer all survey questions'),
+                  _buildInstructionStep(3, 'Receive your tokens instantly'),
                 ],
               ),
             ),
@@ -595,7 +583,8 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
     final bloc = context.read<EarnBloc>();
     final userId = _userId ?? bloc.state.currentEngagement?.userId ?? 'unknown';
-    final result = await bloc.showAdVideo(userId);
+    final engagementId = bloc.state.currentEngagement?.id;
+    final result = await bloc.showAdVideo(userId, engagementId: engagementId);
 
     if (!mounted) return;
 
@@ -681,24 +670,111 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
           // Ad loading / ready state
           if (!bothReady && !_isShowingAd) ...[
-            Center(
-              child: Column(
-                children: [
-                  const CircularProgressIndicator(),
-                  SizedBox(height: AppSpacing.md),
-                  Text(
-                    state.isAdLoading
-                        ? 'Loading ad...'
-                        : state.engagementPhase == EngagementPhase.starting
-                            ? 'Preparing...'
-                            : 'Getting ready...',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-                ],
+            // Engagement creating or ad actively loading — show spinner + attempt
+            if (state.isAdLoading ||
+                state.engagementPhase == EngagementPhase.starting ||
+                state.engagementPhase == EngagementPhase.idle)
+              Center(
+                child: Column(
+                  children: [
+                    const CircularProgressIndicator(),
+                    SizedBox(height: AppSpacing.md),
+                    Text(
+                      state.isAdLoading
+                          ? 'Loading ad...'
+                          : state.engagementPhase == EngagementPhase.starting
+                              ? 'Preparing...'
+                              : 'Getting ready...',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                    // Show attempt counter while loading
+                    if (state.isAdLoading && state.adLoadAttempt > 1) ...[
+                      SizedBox(height: AppSpacing.xs),
+                      Text(
+                        'Attempt ${state.adLoadAttempt} of ${AdMobConstants.maxLoadRetries}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textHint,
+                            ),
+                      ),
+                    ],
+                  ],
+                ),
+              )
+            // Ad failed — check if retries exhausted
+            else if (state.adRetryRound > AdMobConstants.maxManualRetryRounds)
+              // All retry rounds exhausted — graceful unavailable message
+              Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.cloud_off_rounded,
+                      size: 48,
+                      color: AppColors.textHint,
+                    ),
+                    SizedBox(height: AppSpacing.md),
+                    Text(
+                      'Ads aren\'t available right now',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                    SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Please try again later',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.textHint,
+                          ),
+                    ),
+                    SizedBox(height: AppSpacing.lg),
+                    AppButton(
+                      text: 'Go Back',
+                      onPressed: () => context.pop(),
+                      variant: AppButtonVariant.outline,
+                      isFullWidth: false,
+                    ),
+                  ],
+                ),
+              )
+            else
+              // First failure round — offer one manual retry
+              Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.cloud_off_rounded,
+                      size: 48,
+                      color: AppColors.textHint,
+                    ),
+                    SizedBox(height: AppSpacing.md),
+                    Text(
+                      'Ad failed to load',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                    SizedBox(height: AppSpacing.md),
+                    AppButton(
+                      text: 'Try Again',
+                      onPressed: () {
+                        context
+                            .read<EarnBloc>()
+                            .add(const EarnEvent.loadAdVideo());
+                      },
+                      icon: Icons.refresh,
+                      isFullWidth: false,
+                    ),
+                    SizedBox(height: AppSpacing.sm),
+                    AppButton(
+                      text: 'Go Back',
+                      onPressed: () => context.pop(),
+                      variant: AppButtonVariant.text,
+                      isFullWidth: false,
+                    ),
+                  ],
+                ),
               ),
-            ),
           ] else if (_isShowingAd) ...[
             Center(
               child: Column(
@@ -724,24 +800,6 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           ],
           SizedBox(height: AppSpacing.lg),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAdMobWatchingState(EarnState state) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(AppSpacing.lg),
-        child: AdMobVideoWidget(
-          userId: _userId ?? state.currentEngagement?.userId ?? 'unknown',
-          onAdCompleted: () {
-            // AdMob completed - transition handled by bloc
-            _questionStartTime = DateTime.now();
-          },
-          onAdFailed: () {
-            // Ad failed - error handled by bloc
-          },
-        ),
       ),
     );
   }

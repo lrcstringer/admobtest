@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../core/constants/admob_constants.dart';
 import '../../../core/error/failures.dart';
 import '../../../data/services/admob_service.dart';
 import '../../../domain/entities/earn_opportunity.dart';
@@ -40,10 +41,12 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     on<_AdVideoFailed>(_onAdVideoFailed);
     on<_AdReadyStateChanged>(_onAdReadyStateChanged);
     on<_AdLoadingStateChanged>(_onAdLoadingStateChanged);
+    on<_AdLoadAttemptChanged>(_onAdLoadAttemptChanged);
 
     // Listen to AdMob service state changes — route through events
     _adMobService.isAdReady.addListener(_onAdReadyChanged);
     _adMobService.isLoading.addListener(_onAdLoadingChanged);
+    _adMobService.currentAttempt.addListener(_onAdAttemptChanged);
   }
 
   void _onAdReadyChanged() {
@@ -60,10 +63,18 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     }
   }
 
+  void _onAdAttemptChanged() {
+    if (!isClosed) {
+      add(EarnEvent.adLoadAttemptChanged(
+          attempt: _adMobService.currentAttempt.value));
+    }
+  }
+
   @override
   Future<void> close() {
     _adMobService.isAdReady.removeListener(_onAdReadyChanged);
     _adMobService.isLoading.removeListener(_onAdLoadingChanged);
+    _adMobService.currentAttempt.removeListener(_onAdAttemptChanged);
     return super.close();
   }
 
@@ -105,6 +116,8 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _SelectThread event,
     Emitter<EarnState> emit,
   ) async {
+    if (state.threads.isEmpty) return;
+
     final thread = state.threads.firstWhere(
       (t) => t.id == event.threadId,
       orElse: () => state.threads.first,
@@ -185,9 +198,18 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
         ));
       },
       (engagement) {
+        // Use watchingAd phase for adVideo opportunities
+        final isAdVideo =
+            state.selectedOpportunity?.earningType == EarningType.adVideo ||
+                state.opportunities.any((o) =>
+                    o.id == event.opportunityId &&
+                    o.earningType == EarningType.adVideo);
+
         emit(state.copyWith(
           currentEngagement: engagement,
-          engagementPhase: EngagementPhase.watching,
+          engagementPhase: isAdVideo
+              ? EngagementPhase.watchingAd
+              : EngagementPhase.watching,
         ));
       },
     );
@@ -401,21 +423,46 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _LoadAdVideo event,
     Emitter<EarnState> emit,
   ) async {
-    emit(state.copyWith(isAdLoading: true));
+    // Guard against concurrent loads (but allow retry when ad failed)
+    if (state.isAdLoading) return;
+
+    // Check if manual retry rounds are exhausted
+    if (state.adRetryRound >= AdMobConstants.maxManualRetryRounds + 1) return;
+
+    emit(state.copyWith(isAdLoading: true, adLoadAttempt: 1));
 
     final success = await _adMobService.loadAdWithRetry();
 
-    emit(state.copyWith(
-      isAdLoading: false,
-      isAdReady: success,
-    ));
+    if (success) {
+      emit(state.copyWith(
+        isAdLoading: false,
+        isAdReady: true,
+        adLoadAttempt: 0,
+      ));
+    } else {
+      // All automatic retries exhausted — bump retry round
+      emit(state.copyWith(
+        isAdLoading: false,
+        isAdReady: false,
+        adLoadAttempt: 0,
+        adRetryRound: state.adRetryRound + 1,
+      ));
+    }
   }
 
   Future<void> _onAdVideoCompleted(
     _AdVideoCompleted event,
     Emitter<EarnState> emit,
   ) async {
+    // Update engagement with ad completion data
+    final updatedEngagement = state.currentEngagement?.copyWith(
+      adWatched: true,
+      adTransactionId: event.transactionId,
+      adCompletedAt: DateTime.now(),
+    );
+
     emit(state.copyWith(
+      currentEngagement: updatedEngagement,
       adTransactionId: event.transactionId,
       engagementPhase: EngagementPhase.surveying,
     ));
@@ -446,12 +493,20 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     emit(state.copyWith(isAdLoading: event.isLoading));
   }
 
-  /// Show the loaded ad and return result
-  /// This is called from the UI, not through events
-  Future<AdRewardResult> showAdVideo(String userId) async {
-    return _adMobService.showAd(userId: userId);
+  void _onAdLoadAttemptChanged(
+    _AdLoadAttemptChanged event,
+    Emitter<EarnState> emit,
+  ) {
+    emit(state.copyWith(adLoadAttempt: event.attempt));
   }
 
-  /// Check if ad is ready to show
-  bool get isAdReady => _adMobService.hasAdReady;
+  /// Show the loaded ad and return result
+  /// This is called from the UI, not through events
+  Future<AdRewardResult> showAdVideo(String userId,
+      {String? engagementId}) async {
+    return _adMobService.showAd(
+      userId: userId,
+      engagementId: engagementId,
+    );
+  }
 }

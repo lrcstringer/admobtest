@@ -57,6 +57,9 @@ class AdMobService {
   /// Callback for when ad is loading
   final ValueNotifier<bool> isLoading = ValueNotifier(false);
 
+  /// Current retry attempt number (1-based, 0 when not loading)
+  final ValueNotifier<int> currentAttempt = ValueNotifier(0);
+
   /// Creates AdMobService. Uses test ads in debug mode by default.
   /// Injectable ignores optional parameters with defaults, so this is DI-safe.
   @factoryMethod
@@ -134,31 +137,50 @@ class AdMobService {
     }
   }
 
-  /// Load ad with retry logic
+  /// Load ad with exponential backoff retry logic
   Future<bool> loadAdWithRetry() async {
+    _loadRetryCount = 0;
     while (_loadRetryCount < AdMobConstants.maxLoadRetries) {
+      currentAttempt.value = _loadRetryCount + 1;
       final success = await loadAd();
       if (success) {
+        currentAttempt.value = 0;
         return true;
       }
       _loadRetryCount++;
       if (_loadRetryCount < AdMobConstants.maxLoadRetries) {
+        // Exponential backoff: 2s, 4s, 8s, 16s
+        final delay = AdMobConstants.initialRetryDelay * (1 << (_loadRetryCount - 1));
         debugPrint(
-            'AdMobService: Retrying ad load ($_loadRetryCount/${AdMobConstants.maxLoadRetries})');
-        await Future.delayed(AdMobConstants.retryDelay);
+            'AdMobService: Retrying ad load ($_loadRetryCount/${AdMobConstants.maxLoadRetries}) after ${delay.inSeconds}s');
+        await Future.delayed(delay);
       }
     }
-    debugPrint('AdMobService: All retry attempts failed');
+    debugPrint('AdMobService: All ${AdMobConstants.maxLoadRetries} retry attempts failed');
+    currentAttempt.value = 0;
     _loadRetryCount = 0;
     return false;
   }
 
   /// Show the loaded rewarded ad
   /// Returns AdRewardResult with transaction ID if successful
-  Future<AdRewardResult> showAd({required String userId}) async {
+  /// [engagementId] is included in SSV custom_data for server-side verification
+  Future<AdRewardResult> showAd({
+    required String userId,
+    String? engagementId,
+  }) async {
     if (_rewardedAd == null) {
       return AdRewardResult.failure('No ad loaded');
     }
+
+    // Configure SSV custom_data so AdMob sends it to our server callback
+    // Backend parses format: "{userId}_{engagementId}"
+    final customData =
+        engagementId != null ? '${userId}_$engagementId' : userId;
+    _rewardedAd!.setServerSideOptions(
+      ServerSideVerificationOptions(customData: customData),
+    );
+    debugPrint('AdMobService: SSV custom data set: $customData');
 
     final completer = Completer<AdRewardResult>();
     String? transactionId;
@@ -216,9 +238,9 @@ class AdMobService {
           debugPrint(
               'AdMobService: User earned reward: ${reward.amount} ${reward.type}');
           adCompleted = true;
-          // Generate a transaction ID for tracking (includes userId for SSV)
+          // Generate a transaction ID matching SSV custom_data format
           transactionId =
-              'admob_${userId}_${DateTime.now().millisecondsSinceEpoch}';
+              '${userId}_${DateTime.now().millisecondsSinceEpoch}';
           debugPrint('AdMobService: Transaction ID: $transactionId');
         },
       );
@@ -247,5 +269,6 @@ class AdMobService {
     _rewardedAd = null;
     isAdReady.dispose();
     isLoading.dispose();
+    currentAttempt.dispose();
   }
 }
