@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'core/di/injection.dart';
+import 'presentation/admin/blocs/admin_auth_cubit.dart';
 import 'presentation/admin/router/admin_router.dart';
-import 'presentation/blocs/auth/auth_bloc.dart';
 import 'presentation/theme/app_theme.dart';
 
 /// Admin Portal Application Widget
@@ -21,22 +20,26 @@ class IMaliAdminApp extends StatefulWidget {
 }
 
 class _IMaliAdminAppState extends State<IMaliAdminApp> {
-  late final AuthBloc _authBloc;
+  late final AdminAuthCubit _authCubit;
   late final AdminRouter _adminRouter;
 
   @override
   void initState() {
     super.initState();
-    _authBloc = getIt<AuthBloc>();
-    _adminRouter = AdminRouter(authBloc: _authBloc);
+    _authCubit = AdminAuthCubit();
+    _adminRouter = AdminRouter(authCubit: _authCubit);
+  }
+
+  @override
+  void dispose() {
+    _authCubit.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<AuthBloc>.value(value: _authBloc),
-      ],
+    return BlocProvider<AdminAuthCubit>.value(
+      value: _authCubit,
       child: MaterialApp.router(
         title: 'iMali Admin',
         debugShowCheckedModeBanner: false,

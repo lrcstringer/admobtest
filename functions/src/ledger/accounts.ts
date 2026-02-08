@@ -647,11 +647,18 @@ export async function logAuditEvent(
 ): Promise<void> {
   const auditRef = db.collection(LedgerConfig.COLLECTION_AUDIT).doc();
 
-  const entry: AuditLogEntry = {
+  const entry: Record<string, unknown> = {
     id: auditRef.id,
     ...input,
     timestamp: admin.firestore.Timestamp.now(),
   };
+
+  // Strip undefined values — Firestore rejects them
+  for (const key of Object.keys(entry)) {
+    if (entry[key] === undefined) {
+      delete entry[key];
+    }
+  }
 
   await auditRef.set(entry);
 }

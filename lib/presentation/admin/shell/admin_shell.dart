@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../blocs/auth/auth_bloc.dart';
+import '../blocs/admin_auth_cubit.dart';
 import '../../theme/app_colors.dart';
 
 /// Admin portal shell with sidebar navigation
@@ -177,9 +177,8 @@ class _AdminSidebar extends StatelessWidget {
 
           // User info & logout
           const Divider(height: 1),
-          BlocBuilder<AuthBloc, AuthState>(
+          BlocBuilder<AdminAuthCubit, AdminAuthState>(
             builder: (context, state) {
-              final user = state.user;
               return Container(
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -188,9 +187,11 @@ class _AdminSidebar extends StatelessWidget {
                       radius: 18,
                       backgroundColor: AppColors.primary,
                       child: Text(
-                        user?.profile?.displayName.isNotEmpty == true
-                            ? user!.profile!.displayName[0].toUpperCase()
-                            : 'A',
+                        state.displayName?.isNotEmpty == true
+                            ? state.displayName![0].toUpperCase()
+                            : state.email?.isNotEmpty == true
+                                ? state.email![0].toUpperCase()
+                                : 'A',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -204,7 +205,7 @@ class _AdminSidebar extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            user?.profile?.displayName ?? 'Admin',
+                            state.displayName ?? state.email ?? 'Admin',
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -226,7 +227,7 @@ class _AdminSidebar extends StatelessWidget {
                       icon: const Icon(Icons.logout, size: 20),
                       color: AppColors.textSecondary,
                       onPressed: () {
-                        context.read<AuthBloc>().add(const AuthEvent.signOut());
+                        context.read<AdminAuthCubit>().signOut();
                       },
                       tooltip: 'Sign out',
                     ),

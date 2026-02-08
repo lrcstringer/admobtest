@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../blocs/auth/auth_bloc.dart';
+import '../blocs/admin_auth_cubit.dart';
 import '../screens/admin_dashboard_screen.dart';
 import '../screens/admin_login_screen.dart';
 import '../screens/cashout_approval_screen.dart';
@@ -16,14 +16,14 @@ import '../shell/admin_shell.dart';
 
 /// Router for the Admin Portal
 class AdminRouter {
-  final AuthBloc authBloc;
+  final AdminAuthCubit authCubit;
 
-  AdminRouter({required this.authBloc});
+  AdminRouter({required this.authCubit});
 
   late final GoRouter router = GoRouter(
     initialLocation: '/',
     debugLogDiagnostics: true,
-    refreshListenable: GoRouterRefreshStream(authBloc.stream),
+    refreshListenable: GoRouterRefreshStream(authCubit.stream),
     routes: [
       // Login screen
       GoRoute(
@@ -95,13 +95,9 @@ class AdminRouter {
       ),
     ],
     redirect: (context, state) {
-      final authState = context.read<AuthBloc>().state;
-      final isAuthenticated = authState.status == AuthStatus.authenticated;
+      final authState = context.read<AdminAuthCubit>().state;
+      final isAuthenticated = authState.isAuthenticated;
       final isOnLogin = state.matchedLocation == '/login';
-
-      // TODO: Implement proper admin role check using Firebase custom claims
-      // For now, allow any authenticated user in development
-      // In production, check: authState.user?.customClaims?['admin'] == true
 
       // Not authenticated -> login
       if (!isAuthenticated && !isOnLogin) {
