@@ -82,6 +82,10 @@ class EarnOpportunity with _$EarnOpportunity {
     // AdMob configuration
     String? adUnitId,
     @Default(3) int dailyLimitPerUser,
+    // Budget cap fields
+    @Default(false) bool budgetExhausted,
+    int? tokenBudget,
+    @Default(0) int tokenSpent,
   }) = _EarnOpportunity;
 
   const EarnOpportunity._();
@@ -94,7 +98,7 @@ class EarnOpportunity with _$EarnOpportunity {
       expiresAt != null && DateTime.now().isAfter(expiresAt!);
 
   /// Check if opportunity is available
-  bool get isAvailable => isActive && !isExpired;
+  bool get isAvailable => isActive && !isExpired && !budgetExhausted;
 
   /// Check if user has completed this opportunity
   bool get isCompletedByUser => userEngagementStatus == 'completed';

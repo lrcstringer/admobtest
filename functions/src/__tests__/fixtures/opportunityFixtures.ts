@@ -353,11 +353,11 @@ export const triviaOpportunity = {
 };
 
 /**
- * AdMob rewarded video opportunity (system)
+ * AdMob rewarded video opportunity (IMaliChat platform)
  */
 export const adMobOpportunity = {
   id: "opp_admob_001",
-  threadId: "system_admob_thread",
+  threadId: "imalichat_watch_earn",
   title: "Watch Ad",
   description: "Watch a short video ad to earn tokens",
   earningType: "adVideo",
@@ -380,8 +380,8 @@ export const adMobOpportunity = {
   dailyLimitPerUser: 3,
   expiresAt: null, // No expiry for system opportunities
   isActive: true,
-  clientId: "system_admob",
-  clientName: "iMali Rewards",
+  clientId: "imalichat",
+  clientName: "IMaliChat",
   clientAvatarColor: "#4CAF50",
   bonusReward: false,
   bonusRewardMultiplier: 1.0,

@@ -58,8 +58,8 @@ abstract class AdMobConstants {
   static const int maxManualRetryRounds = 1;
 
   // System Thread Configuration
-  static const String systemThreadClientId = 'system_admob';
-  static const String systemThreadClientName = 'iMali Rewards';
+  static const String systemThreadClientId = 'imalichat';
+  static const String systemThreadClientName = 'IMaliChat';
   static const String systemThreadTitle = 'Watch & Earn';
   static const String systemThreadDescription =
       'Watch short video ads to earn tokens instantly!';

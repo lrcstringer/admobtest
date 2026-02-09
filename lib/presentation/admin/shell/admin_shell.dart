@@ -136,6 +136,13 @@ class _AdminSidebar extends StatelessWidget {
                   ),
                 ),
                 _NavItem(
+                  icon: Icons.account_balance_wallet_outlined,
+                  selectedIcon: Icons.account_balance_wallet,
+                  label: 'Accounts Overview',
+                  path: '/accounts',
+                  isSelected: currentPath == '/accounts',
+                ),
+                _NavItem(
                   icon: Icons.business_outlined,
                   selectedIcon: Icons.business,
                   label: 'Suppliers',
@@ -170,6 +177,27 @@ class _AdminSidebar extends StatelessWidget {
                   path: '/earn',
                   isSelected: currentPath == '/earn' ||
                       currentPath.startsWith('/earn/'),
+                ),
+
+                // Platform Management section
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+                  child: Text(
+                    'PLATFORM MANAGEMENT',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                _NavItem(
+                  icon: Icons.settings_applications_outlined,
+                  selectedIcon: Icons.settings_applications,
+                  label: 'Platform Setup',
+                  path: '/platform',
+                  isSelected: currentPath == '/platform',
                 ),
               ],
             ),

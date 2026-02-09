@@ -12,9 +12,16 @@ service firebase.storage {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    // Helper function to check if user is an admin
+    function isAdmin() {
+      return isAuthenticated()
+        && (request.auth.token.admin == true
+            || request.auth.token.superAdmin == true);
+    }
+
     // Helper function to validate image file
     function isValidImage() {
-      return request.resource.contentType.matches('image/(png|jpeg|jpg|gif|webp)')
+      return request.resource.contentType.matches('image/(png|jpeg|jpg|gif|webp|bmp)')
         && request.resource.size < 5 * 1024 * 1024; // Max 5MB
     }
 
@@ -71,6 +78,19 @@ service firebase.storage {
 
       // No deletion of verification documents
       allow delete: if false;
+    }
+
+    // Client logos (admin managed)
+    match /client_logos/{fileName} {
+      // Authenticated users can read client logos (for display in app)
+      allow read: if isAuthenticated();
+
+      // Only admins can upload/update client logos
+      allow write: if isAdmin()
+        && isValidImage();
+
+      // Only admins can delete client logos
+      allow delete: if isAdmin();
     }
 
     // Deny all other paths

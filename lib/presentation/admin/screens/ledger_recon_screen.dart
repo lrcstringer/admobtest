@@ -44,6 +44,9 @@ class LedgerReconScreen extends StatelessWidget {
                   onPressed: () {},
                   icon: const Icon(Icons.refresh),
                   label: const Text('Run Reconciliation'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(0, 40),
+                  ),
                 ),
               ],
             ),

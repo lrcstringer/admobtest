@@ -41,17 +41,24 @@ class CashoutApprovalScreen extends StatelessWidget {
                   ],
                 ),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     OutlinedButton.icon(
                       onPressed: () {},
                       icon: const Icon(Icons.refresh),
                       label: const Text('Refresh'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 40),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton.icon(
                       onPressed: () {},
                       icon: const Icon(Icons.check_circle),
                       label: const Text('Approve Selected'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(0, 40),
+                      ),
                     ),
                   ],
                 ),

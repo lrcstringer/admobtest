@@ -17,6 +17,7 @@ import {
   getBalance,
 } from "./ledger/accounts";
 import { AccountId, SystemAccounts } from "./ledger/types";
+import { getUserSubAccounts } from "./ledger/subAccounts";
 import { requireAppCheck } from "./security";
 
 const db = admin.firestore();
@@ -312,7 +313,15 @@ export const adminListClients = functions.https.onCall(async (data, context) => 
       status: account.status,
       contactEmail: profile?.contactEmail,
       contactName: profile?.contactName,
+      displayName: profile?.displayName,
+      avatarImage: profile?.avatarImage,
+      avatarColor: profile?.avatarColor,
       industry: profile?.industry,
+      companyRegistration: profile?.companyRegistration || null,
+      vatNumber: profile?.vatNumber || null,
+      billingAddress: profile?.billingAddress || null,
+      budgetWarningThreshold: profile?.budgetWarningThreshold ?? 0.20,
+      brandAccountTypeId: profile?.brandAccountTypeId || null,
       totalCampaigns: profile?.totalCampaigns || 0,
       activeCampaigns: profile?.activeCampaigns || 0,
       totalSpent: profile?.totalSpent || 0,
@@ -556,26 +565,28 @@ export const adminFundClientAccount = functions.https.onCall(
 // ============================================================================
 
 /**
- * Create a client sub-account for per-campaign budget tracking
+ * Create a client sub-account for per-campaign budget tracking.
+ * Sub-accounts are created empty (balance 0) and funded separately
+ * via adminFundClientSubAccount to avoid double-counting.
  */
 export const adminCreateClientSubAccount = functions.https.onCall(
   async (
     data: {
       clientId: string;
       name: string;
-      initialBudget: number;
+      initialBudget?: number;
     },
     context
   ) => {
     requireAppCheck(context, "adminCreateClientSubAccount");
     await requireAdmin(context);
 
-    const { clientId, name, initialBudget } = data;
+    const { clientId, name } = data;
 
-    if (!clientId || !name || !initialBudget || initialBudget <= 0) {
+    if (!clientId || !name) {
       throw new functions.https.HttpsError(
         "invalid-argument",
-        "Client ID, name, and positive initial budget are required"
+        "Client ID and name are required"
       );
     }
 
@@ -595,9 +606,10 @@ export const adminCreateClientSubAccount = functions.https.onCall(
     await subAccountRef.set({
       id: subAccountRef.id,
       name,
-      balance: initialBudget,
-      initialBudget,
+      balance: 0,
+      initialBudget: 0,
       isActive: true,
+      budgetExhausted: false,
       warningNotifiedAt: null,
       depletedAt: null,
       createdAt: now,
@@ -605,44 +617,16 @@ export const adminCreateClientSubAccount = functions.https.onCall(
       createdBy: context.auth!.uid,
     });
 
-    // Post journal: Treasury → Client master account (audit trail)
-    const { postJournal: pj } = await import("./ledger/journals");
-    const { SystemAccounts: SA } = await import("./ledger/types");
-
-    const accountId = AccountId.client(clientId);
-    await pj({
-      idempotencyKey: `client_subaccount_fund:${clientId}:${subAccountRef.id}`,
-      type: "adjustment",
-      description: `Client sub-account created: ${name}`,
-      entries: [
-        {
-          accountId: SA.TREASURY,
-          entryType: "debit",
-          amount: initialBudget,
-          description: "Client sub-account initial funding",
-        },
-        {
-          accountId,
-          entryType: "credit",
-          amount: initialBudget,
-          description: `Sub-account: ${name}`,
-        },
-      ],
-      referenceType: "campaign",
-      referenceId: subAccountRef.id,
-      initiatedBy: context.auth!.uid,
-      metadata: {
-        subAccountId: subAccountRef.id,
-        subAccountName: name,
-      },
-    });
-
     return { success: true, subAccountId: subAccountRef.id };
   }
 );
 
 /**
- * Fund (top up) a client sub-account
+ * Fund (top up) a client sub-account.
+ * Allocates tokens from the client's master ledger balance into the sub-account.
+ * No journal is posted — sub-accounts are internal tracking docs, not real ledger
+ * accounts. The tokens already exist in the client master ledger (funded via
+ * adminFundClientAccount).
  */
 export const adminFundClientSubAccount = functions.https.onCall(
   async (
@@ -666,6 +650,16 @@ export const adminFundClientSubAccount = functions.https.onCall(
       );
     }
 
+    // Validate client master ledger has sufficient balance
+    const clientAccountId = AccountId.client(clientId);
+    const masterBalance = await getBalance(clientAccountId);
+    if (masterBalance < amount) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        `Insufficient client balance (${masterBalance} tokens). Fund the client account first.`
+      );
+    }
+
     const subAccountRef = db
       .collection("clients")
       .doc(clientId)
@@ -679,61 +673,31 @@ export const adminFundClientSubAccount = functions.https.onCall(
 
     const now = admin.firestore.FieldValue.serverTimestamp();
 
-    // Increment balance and initialBudget, clear depletion
+    // Increment balance and initialBudget, clear budget exhaustion
+    // NOTE: isActive is NOT touched — that's admin-controlled only
     await subAccountRef.update({
       balance: admin.firestore.FieldValue.increment(amount),
       initialBudget: admin.firestore.FieldValue.increment(amount),
-      isActive: true,
+      budgetExhausted: false,
       depletedAt: null,
       updatedAt: now,
     });
 
-    // Re-activate threads that were auto-deactivated due to depleted budget
+    // Clear budgetExhausted on threads linked to this sub-account
+    // NOTE: isActive is NOT touched — admin may have intentionally paused threads
     const threadsSnapshot = await db
       .collection("earnThreads")
       .where("tokenSourceSubAccountId", "==", subAccountId)
-      .where("isActive", "==", false)
+      .where("budgetExhausted", "==", true)
       .get();
 
     if (!threadsSnapshot.empty) {
       const batch = db.batch();
       for (const doc of threadsSnapshot.docs) {
-        batch.update(doc.ref, { isActive: true, updatedAt: now });
+        batch.update(doc.ref, { budgetExhausted: false, updatedAt: now });
       }
       await batch.commit();
     }
-
-    // Post journal for audit trail
-    const { postJournal: pj } = await import("./ledger/journals");
-    const { SystemAccounts: SA } = await import("./ledger/types");
-
-    const accountId = AccountId.client(clientId);
-    await pj({
-      idempotencyKey: `client_subaccount_topup:${clientId}:${subAccountId}:${reference}`,
-      type: "adjustment",
-      description: `Client sub-account top-up: ${reference}`,
-      entries: [
-        {
-          accountId: SA.TREASURY,
-          entryType: "debit",
-          amount,
-          description: "Client sub-account top-up",
-        },
-        {
-          accountId,
-          entryType: "credit",
-          amount,
-          description: `Sub-account top-up: ${reference}`,
-        },
-      ],
-      referenceType: "campaign",
-      referenceId: reference,
-      initiatedBy: context.auth!.uid,
-      metadata: {
-        subAccountId,
-        fundedBy: context.auth!.uid,
-      },
-    });
 
     return { success: true };
   }
@@ -869,6 +833,88 @@ export const adminGetTreasuryStatus = functions.https.onCall(
       totalMinted: Math.abs(mintBalance),
       tokensInCirculation: Math.abs(mintBalance) - treasuryBalance,
       recentNotifications,
+    };
+  }
+);
+
+// ============================================================================
+// USER ACCOUNTS
+// ============================================================================
+
+/**
+ * List all user accounts with ledger balances and profile data.
+ * Includes all statuses (active + frozen).
+ */
+export const adminListUsers = functions.https.onCall(async (_data, context) => {
+  requireAppCheck(context, "adminListUsers");
+  await requireAdmin(context);
+
+  // Query all user-type ledger accounts (including frozen)
+  const snapshot = await db
+    .collection("ledgerAccounts")
+    .where("type", "==", "user")
+    .get();
+  const accounts = snapshot.docs.map((doc) => doc.data());
+
+  // Get user profile documents
+  const userDocs = await db.collection("users").get();
+  const profiles = new Map<string, FirebaseFirestore.DocumentData>();
+  userDocs.forEach((doc) => {
+    profiles.set(doc.id, doc.data());
+  });
+
+  const users = accounts.map((account) => {
+    const userId = AccountId.parseUserId(account.id);
+    const profile = userId ? profiles.get(userId) : null;
+
+    return {
+      id: userId,
+      ledgerAccountId: account.id,
+      name: account.name,
+      displayName:
+        profile?.profile?.displayName || profile?.displayName || null,
+      phoneNumber: profile?.phoneNumber || null,
+      email: profile?.email || null,
+      balance: account.balance,
+      status: account.status,
+      createdAt: account.createdAt,
+    };
+  });
+
+  return { users };
+});
+
+/**
+ * List all sub-accounts for a specific user.
+ * Reads from ledgerAccounts/{userId}/subAccounts/ (bypasses security rules).
+ */
+export const adminListUserSubAccounts = functions.https.onCall(
+  async (data: { userId: string }, context) => {
+    requireAppCheck(context, "adminListUserSubAccounts");
+    await requireAdmin(context);
+
+    const { userId } = data;
+    if (!userId) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "User ID is required"
+      );
+    }
+
+    const subAccounts = await getUserSubAccounts(userId);
+
+    return {
+      subAccounts: subAccounts.map((sa) => ({
+        id: sa.id,
+        name: sa.name,
+        balance: sa.balance,
+        isDefault: sa.isDefault,
+        accountTypeId: sa.accountTypeId,
+        lifetimeCredits: sa.lifetimeCredits,
+        lifetimeDebits: sa.lifetimeDebits,
+        isActive: sa.isActive,
+        createdAt: sa.createdAt,
+      })),
     };
   }
 );

@@ -22,6 +22,7 @@ class EarnThread with _$EarnThread {
     required bool isPinned,
     required bool isFeatured,
     required bool isActive,
+    @Default(false) bool budgetExhausted,
     // Scheduling
     DateTime? activeFrom,
     DateTime? activeTo,
@@ -37,8 +38,6 @@ class EarnThread with _$EarnThread {
     DateTime? lastActivityAt,
     // Targeting
     TargetingCriteria? targeting,
-    // System thread flag
-    @Default(false) bool isSystemThread,
   }) = _EarnThread;
 
   const EarnThread._();
@@ -62,9 +61,10 @@ class EarnThread with _$EarnThread {
   /// Check if thread has available opportunities
   bool get hasAvailable => availableOpportunities > 0;
 
-  /// Check if thread is currently active (considering scheduling)
+  /// Check if thread is currently active (considering scheduling and budget)
   bool get isCurrentlyActive {
     if (!isActive) return false;
+    if (budgetExhausted) return false;
     final now = DateTime.now();
     if (activeFrom != null && now.isBefore(activeFrom!)) return false;
     if (activeTo != null && now.isAfter(activeTo!)) return false;

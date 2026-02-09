@@ -100,6 +100,10 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
     // AdMob configuration
     String? adUnitId,
     @Default(3) int dailyLimitPerUser,
+    // Budget cap fields
+    @Default(false) bool budgetExhausted,
+    int? tokenBudget,
+    @Default(0) int tokenSpent,
   }) = _EarnOpportunityModel;
 
   const EarnOpportunityModel._();
@@ -147,6 +151,10 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       // AdMob configuration
       adUnitId: json['adUnitId'] as String?,
       dailyLimitPerUser: json['dailyLimitPerUser'] as int? ?? 3,
+      // Budget cap fields
+      budgetExhausted: json['budgetExhausted'] as bool? ?? false,
+      tokenBudget: json['tokenBudget'] as int?,
+      tokenSpent: json['tokenSpent'] as int? ?? 0,
     );
   }
 
@@ -181,6 +189,10 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       // AdMob configuration
       adUnitId: adUnitId,
       dailyLimitPerUser: dailyLimitPerUser,
+      // Budget cap fields
+      budgetExhausted: budgetExhausted,
+      tokenBudget: tokenBudget,
+      tokenSpent: tokenSpent,
     );
   }
 
@@ -218,6 +230,10 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       // AdMob configuration
       adUnitId: entity.adUnitId,
       dailyLimitPerUser: entity.dailyLimitPerUser,
+      // Budget cap fields
+      budgetExhausted: entity.budgetExhausted,
+      tokenBudget: entity.tokenBudget,
+      tokenSpent: entity.tokenSpent,
     );
   }
 
@@ -249,6 +265,10 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       // AdMob configuration
       if (adUnitId != null) 'adUnitId': adUnitId,
       'dailyLimitPerUser': dailyLimitPerUser,
+      // Budget cap fields
+      'budgetExhausted': budgetExhausted,
+      if (tokenBudget != null) 'tokenBudget': tokenBudget,
+      'tokenSpent': tokenSpent,
     };
   }
 

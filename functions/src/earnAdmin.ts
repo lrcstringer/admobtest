@@ -92,12 +92,6 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       "title is required"
     );
   }
-  if (!tokenSourceSubAccountId) {
-    throw new functions.https.HttpsError(
-      "invalid-argument",
-      "tokenSourceSubAccountId is required"
-    );
-  }
 
   // Fetch client document for denormalization
   const clientDoc = await db.collection("clients").doc(clientId).get();
@@ -116,27 +110,82 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     );
   }
 
-  // Validate the token source sub-account exists and is active
-  const subAccountDoc = await db
+  // Resolve or auto-create the token source sub-account
+  let resolvedSubAccountId = tokenSourceSubAccountId || null;
+  const subAccountsCol = db
     .collection("clients")
     .doc(clientId)
-    .collection("subAccounts")
-    .doc(tokenSourceSubAccountId)
-    .get();
+    .collection("subAccounts");
 
-  if (!subAccountDoc.exists) {
-    throw new functions.https.HttpsError(
-      "not-found",
-      `Sub-account not found: ${tokenSourceSubAccountId}`
-    );
-  }
+  if (resolvedSubAccountId) {
+    // An explicit sub-account was selected — verify it exists and is active
+    const subAccountDoc = await subAccountsCol.doc(resolvedSubAccountId).get();
 
-  const subAccountData = subAccountDoc.data()!;
-  if (!subAccountData.isActive) {
-    throw new functions.https.HttpsError(
-      "failed-precondition",
-      "Sub-account is not active"
-    );
+    if (!subAccountDoc.exists) {
+      // Sub-account ID was provided but doesn't exist — create it using
+      // the provided ID as the name (admin's chosen identifier)
+      const tsNow = admin.firestore.FieldValue.serverTimestamp();
+      await subAccountDoc.ref.set({
+        id: resolvedSubAccountId,
+        name: resolvedSubAccountId,
+        balance: 0,
+        initialBudget: 0,
+        isActive: true,
+        warningNotifiedAt: null,
+        depletedAt: null,
+        createdAt: tsNow,
+        updatedAt: tsNow,
+        createdBy: context.auth!.uid,
+      });
+      console.log(`Auto-created sub-account "${resolvedSubAccountId}" for client ${clientId}`);
+    } else {
+      const subAccountData = subAccountDoc.data()!;
+      if (!subAccountData.isActive) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          "Sub-account is not active"
+        );
+      }
+    }
+  } else {
+    // No sub-account selected — auto-create one named after the campaign title.
+    // Check for an existing sub-account with the same name first.
+    const nameCheck = await subAccountsCol
+      .where("name", "==", title)
+      .limit(1)
+      .get();
+
+    if (!nameCheck.empty) {
+      // A sub-account with this name already exists — return a warning
+      // so the frontend can ask the admin whether to reuse it.
+      const existing = nameCheck.docs[0];
+      const existingData = existing.data();
+      return {
+        success: false,
+        duplicateSubAccount: true,
+        existingSubAccountId: existing.id,
+        existingSubAccountName: existingData.name,
+        existingSubAccountBalance: existingData.balance ?? 0,
+        message: `A sub-account named "${title}" already exists (balance: ${existingData.balance ?? 0}). Reuse it?`,
+      };
+    }
+
+    const subAccountRef = subAccountsCol.doc();
+    const tsNow = admin.firestore.FieldValue.serverTimestamp();
+    await subAccountRef.set({
+      id: subAccountRef.id,
+      name: title,
+      balance: 0,
+      initialBudget: 0,
+      isActive: true,
+      warningNotifiedAt: null,
+      depletedAt: null,
+      createdAt: tsNow,
+      updatedAt: tsNow,
+      createdBy: context.auth!.uid,
+    });
+    resolvedSubAccountId = subAccountRef.id;
+    console.log(`Auto-created sub-account "${resolvedSubAccountId}" (name: ${title}) for client ${clientId}`);
   }
 
   // Validate targeting criteria if provided
@@ -180,7 +229,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       clientAvatarColor,
       title,
       description: description || null,
-      tokenSourceSubAccountId,
+      tokenSourceSubAccountId: resolvedSubAccountId,
       tokenDestAccountTypeId: tokenDestAccountTypeId || null,
       isPinned,
       isFeatured,
@@ -200,7 +249,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       clientAvatarColor,
       title,
       description: description || null,
-      tokenSourceSubAccountId,
+      tokenSourceSubAccountId: resolvedSubAccountId,
       tokenDestAccountTypeId: tokenDestAccountTypeId || null,
       isPinned,
       isFeatured,
@@ -217,7 +266,11 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     });
   }
 
-  return { success: true, threadId: threadRef.id };
+  return {
+    success: true,
+    threadId: threadRef.id,
+    subAccountId: resolvedSubAccountId,
+  };
 });
 
 /**
@@ -253,6 +306,8 @@ export const createEarnOpportunity = functions.https.onCall(
       // AdMob / per-user limits
       dailyLimitPerUser = null,
       adUnitId = null,
+      // Budget cap (optional)
+      tokenBudget = null,
     } = data;
 
     // Validate required fields
@@ -379,6 +434,14 @@ export const createEarnOpportunity = functions.https.onCall(
       clientName: threadData.clientName,
       clientAvatarImage: threadData.clientAvatarImage ?? null,
       clientAvatarColor: threadData.clientAvatarColor,
+      // Budget cap fields
+      tokenBudget: tokenBudget ?? null,
+      tokenSpent: existingOpportunity.exists
+        ? (existingOpportunity.data()?.tokenSpent ?? 0)
+        : 0,
+      budgetExhausted: existingOpportunity.exists
+        ? (existingOpportunity.data()?.budgetExhausted ?? false)
+        : false,
       updatedAt: now,
     };
 
@@ -402,6 +465,48 @@ export const createEarnOpportunity = functions.https.onCall(
           lastActivityAt: now,
         });
     }
+
+    return { success: true, opportunityId };
+  }
+);
+
+/**
+ * Reset an opportunity's budget tracking.
+ * Resets tokenSpent to 0, optionally sets a new tokenBudget, and clears budgetExhausted.
+ * Admin-only function.
+ */
+export const adminResetOpportunityBudget = functions.https.onCall(
+  async (data: { opportunityId: string; newBudget?: number | null }, context) => {
+    await requireAdmin(context);
+
+    const { opportunityId, newBudget } = data;
+
+    if (!opportunityId) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "opportunityId is required"
+      );
+    }
+
+    const oppRef = db.collection("earnOpportunities").doc(opportunityId);
+    const oppDoc = await oppRef.get();
+
+    if (!oppDoc.exists) {
+      throw new functions.https.HttpsError("not-found", "Opportunity not found");
+    }
+
+    const updates: Record<string, unknown> = {
+      tokenSpent: 0,
+      budgetExhausted: false,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    // If newBudget is explicitly provided, update it (null = unlimited)
+    if (newBudget !== undefined) {
+      updates.tokenBudget = newBudget;
+    }
+
+    await oppRef.update(updates);
 
     return { success: true, opportunityId };
   }
@@ -622,7 +727,6 @@ function slimThread(id: string, t: admin.firestore.DocumentData) {
     isPinned: t.isPinned ?? false,
     isFeatured: t.isFeatured ?? false,
     isActive: t.isActive ?? true,
-    isSystemThread: t.isSystemThread ?? false,
     availableOpportunities: t.availableOpportunities ?? 0,
     completedOpportunities: t.completedOpportunities ?? 0,
     completedUniqueUsers: t.completedUniqueUsers ?? 0,
@@ -761,6 +865,11 @@ export const getEligibleThreads = functions.https.onCall(
       }
       if (thread.activeTo && thread.activeTo.toMillis() < now.toMillis()) {
         continue; // Expired
+      }
+
+      // Skip budget-exhausted threads
+      if (thread.budgetExhausted === true) {
+        continue;
       }
 
       // Check targeting criteria
@@ -940,8 +1049,9 @@ export const getEligibleOpportunities = functions.https.onCall(
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const [userDoc, recentEngagementsQuery, thirtyDayEngagementsQuery, opportunitiesSnapshot, existingEngagements] =
+    const [threadDoc, userDoc, recentEngagementsQuery, thirtyDayEngagementsQuery, opportunitiesSnapshot, existingEngagements] =
       await Promise.all([
+        db.collection("earnThreads").doc(threadId).get(),
         db.collection("users").doc(userId).get(),
         db.collection("engagements")
           .where("userId", "==", userId)
@@ -964,6 +1074,11 @@ export const getEligibleOpportunities = functions.https.onCall(
           .where("threadId", "==", threadId)
           .get(),
       ]);
+
+    // Early exit if parent thread is budget-exhausted
+    if (threadDoc.exists && threadDoc.data()?.budgetExhausted === true) {
+      return { opportunities: [] };
+    }
 
     if (!userDoc.exists) {
       throw new functions.https.HttpsError("not-found", "User profile not found");
@@ -1038,6 +1153,11 @@ export const getEligibleOpportunities = functions.https.onCall(
 
       // Check expiry
       if (opp.expiresAt && opp.expiresAt.toMillis() < now.toMillis()) {
+        continue;
+      }
+
+      // Skip budget-exhausted opportunities
+      if (opp.budgetExhausted === true) {
         continue;
       }
 

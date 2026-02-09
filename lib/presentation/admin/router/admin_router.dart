@@ -3,12 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../blocs/admin_auth_cubit.dart';
+import '../screens/accounts_overview_screen.dart';
 import '../screens/admin_dashboard_screen.dart';
 import '../screens/admin_login_screen.dart';
 import '../screens/cashout_approval_screen.dart';
 import '../screens/client_management_screen.dart';
 import '../screens/earn_management_screen.dart';
 import '../screens/ledger_recon_screen.dart';
+import '../screens/platform_management_screen.dart';
 import '../screens/pot_management_screen.dart';
 import '../screens/supplier_management_screen.dart';
 import '../screens/user_management_screen.dart';
@@ -71,6 +73,13 @@ class AdminRouter {
             builder: (context, state) => const CashoutApprovalScreen(),
           ),
 
+          // Accounts Overview
+          GoRoute(
+            path: '/accounts',
+            name: 'adminAccounts',
+            builder: (context, state) => const AccountsOverviewScreen(),
+          ),
+
           // Supplier Management
           GoRoute(
             path: '/suppliers',
@@ -90,6 +99,13 @@ class AdminRouter {
             path: '/earn',
             name: 'adminEarn',
             builder: (context, state) => const EarnManagementScreen(),
+          ),
+
+          // Platform Management
+          GoRoute(
+            path: '/platform',
+            name: 'adminPlatform',
+            builder: (context, state) => const PlatformManagementScreen(),
           ),
         ],
       ),

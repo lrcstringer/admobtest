@@ -730,11 +730,10 @@ describe("Engagement Cloud Functions", () => {
             userId: activeUser.id,
           });
           setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
-          setMockDoc("earnThreads", "system_admob_thread", {
+          setMockDoc("earnThreads", "imalichat_watch_earn", {
             ...activeThread,
-            id: "system_admob_thread",
-            clientId: "system_admob",
-            isSystemThread: true,
+            id: "imalichat_watch_earn",
+            clientId: "imalichat",
           });
           setMockDoc("users", activeUser.id, activeUser);
 
@@ -754,11 +753,10 @@ describe("Engagement Cloud Functions", () => {
             userId: activeUser.id,
           });
           setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
-          setMockDoc("earnThreads", "system_admob_thread", {
+          setMockDoc("earnThreads", "imalichat_watch_earn", {
             ...activeThread,
-            id: "system_admob_thread",
-            clientId: "system_admob",
-            isSystemThread: true,
+            id: "imalichat_watch_earn",
+            clientId: "imalichat",
           });
           setMockDoc("users", activeUser.id, activeUser);
 
@@ -778,11 +776,10 @@ describe("Engagement Cloud Functions", () => {
             userId: activeUser.id,
           });
           setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
-          setMockDoc("earnThreads", "system_admob_thread", {
+          setMockDoc("earnThreads", "imalichat_watch_earn", {
             ...activeThread,
-            id: "system_admob_thread",
-            clientId: "system_admob",
-            isSystemThread: true,
+            id: "imalichat_watch_earn",
+            clientId: "imalichat",
           });
           setMockDoc("users", activeUser.id, activeUser);
 
@@ -838,11 +835,10 @@ describe("Engagement Cloud Functions", () => {
             userId: activeUser.id,
           });
           setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
-          setMockDoc("earnThreads", "system_admob_thread", {
+          setMockDoc("earnThreads", "imalichat_watch_earn", {
             ...activeThread,
-            id: "system_admob_thread",
-            clientId: "system_admob",
-            isSystemThread: true,
+            id: "imalichat_watch_earn",
+            clientId: "imalichat",
           });
           setMockDoc("users", activeUser.id, activeUser);
 
@@ -880,11 +876,10 @@ describe("Engagement Cloud Functions", () => {
             userId: activeUser.id,
           });
           setMockDoc("earnOpportunities", "opp_admob_001", adMobOpportunity);
-          setMockDoc("earnThreads", "system_admob_thread", {
+          setMockDoc("earnThreads", "imalichat_watch_earn", {
             ...activeThread,
-            id: "system_admob_thread",
-            clientId: "system_admob",
-            isSystemThread: true,
+            id: "imalichat_watch_earn",
+            clientId: "imalichat",
           });
           setMockDoc("users", activeUser.id, activeUser);
 

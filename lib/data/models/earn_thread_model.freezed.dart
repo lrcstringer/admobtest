@@ -27,7 +27,8 @@ mixin _$EarnThreadModel {
   String? get description => throw _privateConstructorUsedError; // Flags
   bool get isPinned => throw _privateConstructorUsedError;
   bool get isFeatured => throw _privateConstructorUsedError;
-  bool get isActive => throw _privateConstructorUsedError; // Scheduling
+  bool get isActive => throw _privateConstructorUsedError;
+  bool get budgetExhausted => throw _privateConstructorUsedError; // Scheduling
   DateTime? get activeFrom => throw _privateConstructorUsedError;
   DateTime? get activeTo =>
       throw _privateConstructorUsedError; // Token configuration
@@ -41,9 +42,7 @@ mixin _$EarnThreadModel {
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get lastActivityAt =>
       throw _privateConstructorUsedError; // Targeting (stored as JSON map)
-  Map<String, dynamic>? get targeting =>
-      throw _privateConstructorUsedError; // System thread flag (for AdMob and other system-generated threads)
-  bool get isSystemThread => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get targeting => throw _privateConstructorUsedError;
 
   /// Create a copy of EarnThreadModel
   /// with the given fields replaced by the non-null parameter values.
@@ -70,6 +69,7 @@ abstract class $EarnThreadModelCopyWith<$Res> {
     bool isPinned,
     bool isFeatured,
     bool isActive,
+    bool budgetExhausted,
     DateTime? activeFrom,
     DateTime? activeTo,
     String? tokenSourceSubAccountId,
@@ -80,7 +80,6 @@ abstract class $EarnThreadModelCopyWith<$Res> {
     DateTime createdAt,
     DateTime? lastActivityAt,
     Map<String, dynamic>? targeting,
-    bool isSystemThread,
   });
 }
 
@@ -109,6 +108,7 @@ class _$EarnThreadModelCopyWithImpl<$Res, $Val extends EarnThreadModel>
     Object? isPinned = null,
     Object? isFeatured = null,
     Object? isActive = null,
+    Object? budgetExhausted = null,
     Object? activeFrom = freezed,
     Object? activeTo = freezed,
     Object? tokenSourceSubAccountId = freezed,
@@ -119,7 +119,6 @@ class _$EarnThreadModelCopyWithImpl<$Res, $Val extends EarnThreadModel>
     Object? createdAt = null,
     Object? lastActivityAt = freezed,
     Object? targeting = freezed,
-    Object? isSystemThread = null,
   }) {
     return _then(
       _value.copyWith(
@@ -163,6 +162,10 @@ class _$EarnThreadModelCopyWithImpl<$Res, $Val extends EarnThreadModel>
                 ? _value.isActive
                 : isActive // ignore: cast_nullable_to_non_nullable
                       as bool,
+            budgetExhausted: null == budgetExhausted
+                ? _value.budgetExhausted
+                : budgetExhausted // ignore: cast_nullable_to_non_nullable
+                      as bool,
             activeFrom: freezed == activeFrom
                 ? _value.activeFrom
                 : activeFrom // ignore: cast_nullable_to_non_nullable
@@ -203,10 +206,6 @@ class _$EarnThreadModelCopyWithImpl<$Res, $Val extends EarnThreadModel>
                 ? _value.targeting
                 : targeting // ignore: cast_nullable_to_non_nullable
                       as Map<String, dynamic>?,
-            isSystemThread: null == isSystemThread
-                ? _value.isSystemThread
-                : isSystemThread // ignore: cast_nullable_to_non_nullable
-                      as bool,
           )
           as $Val,
     );
@@ -233,6 +232,7 @@ abstract class _$$EarnThreadModelImplCopyWith<$Res>
     bool isPinned,
     bool isFeatured,
     bool isActive,
+    bool budgetExhausted,
     DateTime? activeFrom,
     DateTime? activeTo,
     String? tokenSourceSubAccountId,
@@ -243,7 +243,6 @@ abstract class _$$EarnThreadModelImplCopyWith<$Res>
     DateTime createdAt,
     DateTime? lastActivityAt,
     Map<String, dynamic>? targeting,
-    bool isSystemThread,
   });
 }
 
@@ -271,6 +270,7 @@ class __$$EarnThreadModelImplCopyWithImpl<$Res>
     Object? isPinned = null,
     Object? isFeatured = null,
     Object? isActive = null,
+    Object? budgetExhausted = null,
     Object? activeFrom = freezed,
     Object? activeTo = freezed,
     Object? tokenSourceSubAccountId = freezed,
@@ -281,7 +281,6 @@ class __$$EarnThreadModelImplCopyWithImpl<$Res>
     Object? createdAt = null,
     Object? lastActivityAt = freezed,
     Object? targeting = freezed,
-    Object? isSystemThread = null,
   }) {
     return _then(
       _$EarnThreadModelImpl(
@@ -325,6 +324,10 @@ class __$$EarnThreadModelImplCopyWithImpl<$Res>
             ? _value.isActive
             : isActive // ignore: cast_nullable_to_non_nullable
                   as bool,
+        budgetExhausted: null == budgetExhausted
+            ? _value.budgetExhausted
+            : budgetExhausted // ignore: cast_nullable_to_non_nullable
+                  as bool,
         activeFrom: freezed == activeFrom
             ? _value.activeFrom
             : activeFrom // ignore: cast_nullable_to_non_nullable
@@ -365,10 +368,6 @@ class __$$EarnThreadModelImplCopyWithImpl<$Res>
             ? _value._targeting
             : targeting // ignore: cast_nullable_to_non_nullable
                   as Map<String, dynamic>?,
-        isSystemThread: null == isSystemThread
-            ? _value.isSystemThread
-            : isSystemThread // ignore: cast_nullable_to_non_nullable
-                  as bool,
       ),
     );
   }
@@ -388,6 +387,7 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
     required this.isPinned,
     required this.isFeatured,
     required this.isActive,
+    this.budgetExhausted = false,
     this.activeFrom,
     this.activeTo,
     this.tokenSourceSubAccountId,
@@ -398,7 +398,6 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
     required this.createdAt,
     this.lastActivityAt,
     final Map<String, dynamic>? targeting,
-    this.isSystemThread = false,
   }) : _targeting = targeting,
        super._();
 
@@ -425,6 +424,9 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
   final bool isFeatured;
   @override
   final bool isActive;
+  @override
+  @JsonKey()
+  final bool budgetExhausted;
   // Scheduling
   @override
   final DateTime? activeFrom;
@@ -460,14 +462,9 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
     return EqualUnmodifiableMapView(value);
   }
 
-  // System thread flag (for AdMob and other system-generated threads)
-  @override
-  @JsonKey()
-  final bool isSystemThread;
-
   @override
   String toString() {
-    return 'EarnThreadModel(id: $id, clientId: $clientId, clientName: $clientName, clientAvatarImage: $clientAvatarImage, clientAvatarColor: $clientAvatarColor, title: $title, description: $description, isPinned: $isPinned, isFeatured: $isFeatured, isActive: $isActive, activeFrom: $activeFrom, activeTo: $activeTo, tokenSourceSubAccountId: $tokenSourceSubAccountId, tokenDestAccountTypeId: $tokenDestAccountTypeId, availableOpportunities: $availableOpportunities, completedOpportunities: $completedOpportunities, completedUniqueUsers: $completedUniqueUsers, createdAt: $createdAt, lastActivityAt: $lastActivityAt, targeting: $targeting, isSystemThread: $isSystemThread)';
+    return 'EarnThreadModel(id: $id, clientId: $clientId, clientName: $clientName, clientAvatarImage: $clientAvatarImage, clientAvatarColor: $clientAvatarColor, title: $title, description: $description, isPinned: $isPinned, isFeatured: $isFeatured, isActive: $isActive, budgetExhausted: $budgetExhausted, activeFrom: $activeFrom, activeTo: $activeTo, tokenSourceSubAccountId: $tokenSourceSubAccountId, tokenDestAccountTypeId: $tokenDestAccountTypeId, availableOpportunities: $availableOpportunities, completedOpportunities: $completedOpportunities, completedUniqueUsers: $completedUniqueUsers, createdAt: $createdAt, lastActivityAt: $lastActivityAt, targeting: $targeting)';
   }
 
   @override
@@ -493,6 +490,8 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
                 other.isFeatured == isFeatured) &&
             (identical(other.isActive, isActive) ||
                 other.isActive == isActive) &&
+            (identical(other.budgetExhausted, budgetExhausted) ||
+                other.budgetExhausted == budgetExhausted) &&
             (identical(other.activeFrom, activeFrom) ||
                 other.activeFrom == activeFrom) &&
             (identical(other.activeTo, activeTo) ||
@@ -517,9 +516,7 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
             const DeepCollectionEquality().equals(
               other._targeting,
               _targeting,
-            ) &&
-            (identical(other.isSystemThread, isSystemThread) ||
-                other.isSystemThread == isSystemThread));
+            ));
   }
 
   @override
@@ -535,6 +532,7 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
     isPinned,
     isFeatured,
     isActive,
+    budgetExhausted,
     activeFrom,
     activeTo,
     tokenSourceSubAccountId,
@@ -545,7 +543,6 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
     createdAt,
     lastActivityAt,
     const DeepCollectionEquality().hash(_targeting),
-    isSystemThread,
   ]);
 
   /// Create a copy of EarnThreadModel
@@ -572,6 +569,7 @@ abstract class _EarnThreadModel extends EarnThreadModel {
     required final bool isPinned,
     required final bool isFeatured,
     required final bool isActive,
+    final bool budgetExhausted,
     final DateTime? activeFrom,
     final DateTime? activeTo,
     final String? tokenSourceSubAccountId,
@@ -582,7 +580,6 @@ abstract class _EarnThreadModel extends EarnThreadModel {
     required final DateTime createdAt,
     final DateTime? lastActivityAt,
     final Map<String, dynamic>? targeting,
-    final bool isSystemThread,
   }) = _$EarnThreadModelImpl;
   const _EarnThreadModel._() : super._();
 
@@ -605,7 +602,9 @@ abstract class _EarnThreadModel extends EarnThreadModel {
   @override
   bool get isFeatured;
   @override
-  bool get isActive; // Scheduling
+  bool get isActive;
+  @override
+  bool get budgetExhausted; // Scheduling
   @override
   DateTime? get activeFrom;
   @override
@@ -625,9 +624,7 @@ abstract class _EarnThreadModel extends EarnThreadModel {
   @override
   DateTime? get lastActivityAt; // Targeting (stored as JSON map)
   @override
-  Map<String, dynamic>? get targeting; // System thread flag (for AdMob and other system-generated threads)
-  @override
-  bool get isSystemThread;
+  Map<String, dynamic>? get targeting;
 
   /// Create a copy of EarnThreadModel
   /// with the given fields replaced by the non-null parameter values.

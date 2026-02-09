@@ -575,7 +575,7 @@ class TestData {
   /// AdMob opportunity (rewarded video ad)
   static EarnOpportunity get adMobOpportunity => EarnOpportunity(
         id: 'opp_admob_1',
-        threadId: 'system_admob_thread',
+        threadId: 'imalichat_watch_earn',
         title: 'Watch Ad',
         description: 'Watch a short video ad to earn tokens',
         earningType: EarningType.adVideo,
@@ -594,8 +594,8 @@ class TestData {
         ],
         durationSeconds: 30,
         isActive: true,
-        clientId: 'system_admob',
-        clientName: 'iMali Rewards',
+        clientId: 'imalichat',
+        clientName: 'IMaliChat',
         dailyLimitPerUser: 3,
       );
 

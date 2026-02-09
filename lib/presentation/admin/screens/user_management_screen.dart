@@ -57,6 +57,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   onPressed: () {},
                   icon: const Icon(Icons.download),
                   label: const Text('Export Users'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(0, 40),
+                  ),
                 ),
               ],
             ),

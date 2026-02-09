@@ -336,7 +336,11 @@ mixin _$EarnOpportunity {
   String? get userEngagementId =>
       throw _privateConstructorUsedError; // AdMob configuration
   String? get adUnitId => throw _privateConstructorUsedError;
-  int get dailyLimitPerUser => throw _privateConstructorUsedError;
+  int get dailyLimitPerUser =>
+      throw _privateConstructorUsedError; // Budget cap fields
+  bool get budgetExhausted => throw _privateConstructorUsedError;
+  int? get tokenBudget => throw _privateConstructorUsedError;
+  int get tokenSpent => throw _privateConstructorUsedError;
 
   /// Serializes this EarnOpportunity to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -382,6 +386,9 @@ abstract class $EarnOpportunityCopyWith<$Res> {
     String? userEngagementId,
     String? adUnitId,
     int dailyLimitPerUser,
+    bool budgetExhausted,
+    int? tokenBudget,
+    int tokenSpent,
   });
 
   $TargetingCriteriaCopyWith<$Res>? get targeting;
@@ -428,6 +435,9 @@ class _$EarnOpportunityCopyWithImpl<$Res, $Val extends EarnOpportunity>
     Object? userEngagementId = freezed,
     Object? adUnitId = freezed,
     Object? dailyLimitPerUser = null,
+    Object? budgetExhausted = null,
+    Object? tokenBudget = freezed,
+    Object? tokenSpent = null,
   }) {
     return _then(
       _value.copyWith(
@@ -535,6 +545,18 @@ class _$EarnOpportunityCopyWithImpl<$Res, $Val extends EarnOpportunity>
                 ? _value.dailyLimitPerUser
                 : dailyLimitPerUser // ignore: cast_nullable_to_non_nullable
                       as int,
+            budgetExhausted: null == budgetExhausted
+                ? _value.budgetExhausted
+                : budgetExhausted // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            tokenBudget: freezed == tokenBudget
+                ? _value.tokenBudget
+                : tokenBudget // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            tokenSpent: null == tokenSpent
+                ? _value.tokenSpent
+                : tokenSpent // ignore: cast_nullable_to_non_nullable
+                      as int,
           )
           as $Val,
     );
@@ -591,6 +613,9 @@ abstract class _$$EarnOpportunityImplCopyWith<$Res>
     String? userEngagementId,
     String? adUnitId,
     int dailyLimitPerUser,
+    bool budgetExhausted,
+    int? tokenBudget,
+    int tokenSpent,
   });
 
   @override
@@ -637,6 +662,9 @@ class __$$EarnOpportunityImplCopyWithImpl<$Res>
     Object? userEngagementId = freezed,
     Object? adUnitId = freezed,
     Object? dailyLimitPerUser = null,
+    Object? budgetExhausted = null,
+    Object? tokenBudget = freezed,
+    Object? tokenSpent = null,
   }) {
     return _then(
       _$EarnOpportunityImpl(
@@ -744,6 +772,18 @@ class __$$EarnOpportunityImplCopyWithImpl<$Res>
             ? _value.dailyLimitPerUser
             : dailyLimitPerUser // ignore: cast_nullable_to_non_nullable
                   as int,
+        budgetExhausted: null == budgetExhausted
+            ? _value.budgetExhausted
+            : budgetExhausted // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        tokenBudget: freezed == tokenBudget
+            ? _value.tokenBudget
+            : tokenBudget // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        tokenSpent: null == tokenSpent
+            ? _value.tokenSpent
+            : tokenSpent // ignore: cast_nullable_to_non_nullable
+                  as int,
       ),
     );
   }
@@ -779,6 +819,9 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
     this.userEngagementId,
     this.adUnitId,
     this.dailyLimitPerUser = 3,
+    this.budgetExhausted = false,
+    this.tokenBudget,
+    this.tokenSpent = 0,
   }) : _questions = questions,
        super._();
 
@@ -854,10 +897,19 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
   @override
   @JsonKey()
   final int dailyLimitPerUser;
+  // Budget cap fields
+  @override
+  @JsonKey()
+  final bool budgetExhausted;
+  @override
+  final int? tokenBudget;
+  @override
+  @JsonKey()
+  final int tokenSpent;
 
   @override
   String toString() {
-    return 'EarnOpportunity(id: $id, threadId: $threadId, title: $title, description: $description, earningType: $earningType, tokenReward: $tokenReward, streakPoints: $streakPoints, mediaType: $mediaType, mediaUrl: $mediaUrl, questions: $questions, durationSeconds: $durationSeconds, expiresAt: $expiresAt, isActive: $isActive, clientId: $clientId, clientName: $clientName, clientAvatarColor: $clientAvatarColor, campaignId: $campaignId, targeting: $targeting, bonusReward: $bonusReward, bonusRewardMultiplier: $bonusRewardMultiplier, bonusIntervalType: $bonusIntervalType, bonusIntervalX: $bonusIntervalX, userEngagementStatus: $userEngagementStatus, userEngagementId: $userEngagementId, adUnitId: $adUnitId, dailyLimitPerUser: $dailyLimitPerUser)';
+    return 'EarnOpportunity(id: $id, threadId: $threadId, title: $title, description: $description, earningType: $earningType, tokenReward: $tokenReward, streakPoints: $streakPoints, mediaType: $mediaType, mediaUrl: $mediaUrl, questions: $questions, durationSeconds: $durationSeconds, expiresAt: $expiresAt, isActive: $isActive, clientId: $clientId, clientName: $clientName, clientAvatarColor: $clientAvatarColor, campaignId: $campaignId, targeting: $targeting, bonusReward: $bonusReward, bonusRewardMultiplier: $bonusRewardMultiplier, bonusIntervalType: $bonusIntervalType, bonusIntervalX: $bonusIntervalX, userEngagementStatus: $userEngagementStatus, userEngagementId: $userEngagementId, adUnitId: $adUnitId, dailyLimitPerUser: $dailyLimitPerUser, budgetExhausted: $budgetExhausted, tokenBudget: $tokenBudget, tokenSpent: $tokenSpent)';
   }
 
   @override
@@ -916,7 +968,13 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
             (identical(other.adUnitId, adUnitId) ||
                 other.adUnitId == adUnitId) &&
             (identical(other.dailyLimitPerUser, dailyLimitPerUser) ||
-                other.dailyLimitPerUser == dailyLimitPerUser));
+                other.dailyLimitPerUser == dailyLimitPerUser) &&
+            (identical(other.budgetExhausted, budgetExhausted) ||
+                other.budgetExhausted == budgetExhausted) &&
+            (identical(other.tokenBudget, tokenBudget) ||
+                other.tokenBudget == tokenBudget) &&
+            (identical(other.tokenSpent, tokenSpent) ||
+                other.tokenSpent == tokenSpent));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -949,6 +1007,9 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
     userEngagementId,
     adUnitId,
     dailyLimitPerUser,
+    budgetExhausted,
+    tokenBudget,
+    tokenSpent,
   ]);
 
   /// Create a copy of EarnOpportunity
@@ -996,6 +1057,9 @@ abstract class _EarnOpportunity extends EarnOpportunity {
     final String? userEngagementId,
     final String? adUnitId,
     final int dailyLimitPerUser,
+    final bool budgetExhausted,
+    final int? tokenBudget,
+    final int tokenSpent,
   }) = _$EarnOpportunityImpl;
   const _EarnOpportunity._() : super._();
 
@@ -1053,7 +1117,13 @@ abstract class _EarnOpportunity extends EarnOpportunity {
   @override
   String? get adUnitId;
   @override
-  int get dailyLimitPerUser;
+  int get dailyLimitPerUser; // Budget cap fields
+  @override
+  bool get budgetExhausted;
+  @override
+  int? get tokenBudget;
+  @override
+  int get tokenSpent;
 
   /// Create a copy of EarnOpportunity
   /// with the given fields replaced by the non-null parameter values.

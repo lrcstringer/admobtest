@@ -578,8 +578,6 @@ export const processEngagement = functions.https.onCall(
     // Process reward through the Trust Ledger system
     // This handles the 90/5/5 split: 90% to user, 5% daily pot, 5% weekly pot
     // Only treat as client-funded when BOTH clientId and clientSubAccountId exist.
-    // System threads (e.g. AdMob) have a clientId for tracking but no sub-account,
-    // so they should be funded from Treasury instead.
     const isClientFunded = !!(clientId && clientSubAccountId);
 
     const ledgerResult = await processEarningWithSplit(
@@ -654,25 +652,25 @@ export const processEngagement = functions.https.onCall(
 
           // Check for budget depletion
           if (balance <= 0) {
-            // Deactivate sub-account and related threads
+            // Mark sub-account as budget-exhausted (NOT isActive: false)
+            // isActive is reserved for admin manual control
             await updatedSubAccountDoc.ref.update({
-              isActive: false,
+              budgetExhausted: true,
               depletedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
 
-            // Auto-deactivate threads using this sub-account
-            const threadsToDeactivate = await db
+            // Mark threads as budget-exhausted (NOT isActive: false)
+            const threadsToExhaust = await db
               .collection("earnThreads")
               .where("tokenSourceSubAccountId", "==", clientSubAccountId)
-              .where("isActive", "==", true)
+              .where("budgetExhausted", "!=", true)
               .get();
 
-            if (!threadsToDeactivate.empty) {
+            if (!threadsToExhaust.empty) {
               const batch = db.batch();
-              for (const threadDoc of threadsToDeactivate.docs) {
+              for (const threadDoc of threadsToExhaust.docs) {
                 batch.update(threadDoc.ref, {
-                  isActive: false,
-                  deactivatedReason: "budget_depleted",
+                  budgetExhausted: true,
                   updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                 });
               }
@@ -684,8 +682,8 @@ export const processEngagement = functions.https.onCall(
               type: "budget_depleted",
               clientId: clientId,
               subAccountId: clientSubAccountId,
-              threadsDeactivated: threadsToDeactivate.size,
-              message: `Client sub-account budget depleted. ${threadsToDeactivate.size} threads auto-deactivated.`,
+              threadsExhausted: threadsToExhaust.size,
+              message: `Client sub-account budget depleted. ${threadsToExhaust.size} threads marked as budget-exhausted.`,
               createdAt: admin.firestore.FieldValue.serverTimestamp(),
               read: false,
             });
@@ -799,6 +797,48 @@ export const processEngagement = functions.https.onCall(
         }
       } catch (uniqueUsersError) {
         console.error("Failed to update completedUniqueUsers:", uniqueUsersError);
+      }
+    }
+
+    // ===========================================================================
+    // Opportunity-level budget tracking
+    // ===========================================================================
+    if (engagement.earnOpportunityId) {
+      try {
+        const oppRef = db
+          .collection("earnOpportunities")
+          .doc(engagement.earnOpportunityId);
+        const oppDoc = await oppRef.get();
+        if (oppDoc.exists) {
+          const oppData = oppDoc.data()!;
+          const tokenBudget = oppData.tokenBudget;
+          if (tokenBudget != null && tokenBudget > 0) {
+            const newSpent = (oppData.tokenSpent || 0) + rewardAmount;
+            const updates: Record<string, unknown> = {
+              tokenSpent: admin.firestore.FieldValue.increment(rewardAmount),
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            };
+            if (newSpent >= tokenBudget) {
+              updates.budgetExhausted = true;
+              // Create admin notification for opportunity budget depletion
+              await db.collection("adminNotifications").add({
+                type: "opportunity_budget_depleted",
+                opportunityId: engagement.earnOpportunityId,
+                threadId: engagement.threadId,
+                clientId: clientId,
+                tokenBudget,
+                tokenSpent: newSpent,
+                message: `Opportunity "${oppData.title}" budget exhausted (${newSpent}/${tokenBudget} tokens)`,
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                read: false,
+              });
+            }
+            await oppRef.update(updates);
+          }
+        }
+      } catch (oppBudgetError) {
+        console.error("Failed to track opportunity budget:", oppBudgetError);
+        // Don't fail the engagement for budget tracking errors
       }
     }
 

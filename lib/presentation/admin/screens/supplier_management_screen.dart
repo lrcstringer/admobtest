@@ -69,6 +69,7 @@ class _SupplierManagementScreenState extends State<SupplierManagementScreen> {
                   label: const Text('Add Supplier'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
+                    minimumSize: const Size(0, 40),
                   ),
                 ),
               ],

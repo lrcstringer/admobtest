@@ -283,6 +283,22 @@
       ]
     },
     {
+      "collectionGroup": "earnThreads",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "clientId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "earnOpportunities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "threadId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "earnOpportunities",
       "queryScope": "COLLECTION",
       "fields": [
@@ -304,14 +320,6 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "earningType", "order": "ASCENDING" },
-        { "fieldPath": "isActive", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "earnThreads",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "isSystemThread", "order": "ASCENDING" },
         { "fieldPath": "isActive", "order": "ASCENDING" }
       ]
     },

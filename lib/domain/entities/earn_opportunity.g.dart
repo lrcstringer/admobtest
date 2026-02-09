@@ -68,6 +68,9 @@ _$EarnOpportunityImpl _$$EarnOpportunityImplFromJson(
   userEngagementId: json['userEngagementId'] as String?,
   adUnitId: json['adUnitId'] as String?,
   dailyLimitPerUser: (json['dailyLimitPerUser'] as num?)?.toInt() ?? 3,
+  budgetExhausted: json['budgetExhausted'] as bool? ?? false,
+  tokenBudget: (json['tokenBudget'] as num?)?.toInt(),
+  tokenSpent: (json['tokenSpent'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$$EarnOpportunityImplToJson(
@@ -99,6 +102,9 @@ Map<String, dynamic> _$$EarnOpportunityImplToJson(
   'userEngagementId': instance.userEngagementId,
   'adUnitId': instance.adUnitId,
   'dailyLimitPerUser': instance.dailyLimitPerUser,
+  'budgetExhausted': instance.budgetExhausted,
+  'tokenBudget': instance.tokenBudget,
+  'tokenSpent': instance.tokenSpent,
 };
 
 const _$EarningTypeEnumMap = {

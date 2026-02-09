@@ -22,6 +22,7 @@ class EarnThreadModel with _$EarnThreadModel {
     required bool isPinned,
     required bool isFeatured,
     required bool isActive,
+    @Default(false) bool budgetExhausted,
     // Scheduling
     DateTime? activeFrom,
     DateTime? activeTo,
@@ -37,8 +38,6 @@ class EarnThreadModel with _$EarnThreadModel {
     DateTime? lastActivityAt,
     // Targeting (stored as JSON map)
     Map<String, dynamic>? targeting,
-    // System thread flag (for AdMob and other system-generated threads)
-    @Default(false) bool isSystemThread,
   }) = _EarnThreadModel;
 
   const EarnThreadModel._();
@@ -60,6 +59,7 @@ class EarnThreadModel with _$EarnThreadModel {
       isPinned: json['isPinned'] as bool? ?? false,
       isFeatured: json['isFeatured'] as bool? ?? false,
       isActive: json['isActive'] as bool? ?? true,
+      budgetExhausted: json['budgetExhausted'] as bool? ?? false,
       activeFrom: activeFrom == null
           ? null
           : activeFrom is Timestamp
@@ -86,7 +86,6 @@ class EarnThreadModel with _$EarnThreadModel {
               ? lastActivityAt.toDate()
               : DateTime.parse(lastActivityAt as String),
       targeting: json['targeting'] as Map<String, dynamic>?,
-      isSystemThread: json['isSystemThread'] as bool? ?? false,
     );
   }
 
@@ -102,6 +101,7 @@ class EarnThreadModel with _$EarnThreadModel {
       isPinned: isPinned,
       isFeatured: isFeatured,
       isActive: isActive,
+      budgetExhausted: budgetExhausted,
       activeFrom: activeFrom,
       activeTo: activeTo,
       tokenSourceSubAccountId: tokenSourceSubAccountId,
@@ -112,7 +112,6 @@ class EarnThreadModel with _$EarnThreadModel {
       createdAt: createdAt,
       lastActivityAt: lastActivityAt,
       targeting: targeting != null ? TargetingCriteria.fromJson(targeting!) : null,
-      isSystemThread: isSystemThread,
     );
   }
 
@@ -128,6 +127,7 @@ class EarnThreadModel with _$EarnThreadModel {
       isPinned: entity.isPinned,
       isFeatured: entity.isFeatured,
       isActive: entity.isActive,
+      budgetExhausted: entity.budgetExhausted,
       activeFrom: entity.activeFrom,
       activeTo: entity.activeTo,
       tokenSourceSubAccountId: entity.tokenSourceSubAccountId,
@@ -138,7 +138,6 @@ class EarnThreadModel with _$EarnThreadModel {
       createdAt: entity.createdAt,
       lastActivityAt: entity.lastActivityAt,
       targeting: entity.targeting?.toJson(),
-      isSystemThread: entity.isSystemThread,
     );
   }
 
@@ -154,6 +153,7 @@ class EarnThreadModel with _$EarnThreadModel {
       'isPinned': isPinned,
       'isFeatured': isFeatured,
       'isActive': isActive,
+      'budgetExhausted': budgetExhausted,
       'activeFrom': activeFrom != null ? Timestamp.fromDate(activeFrom!) : null,
       'activeTo': activeTo != null ? Timestamp.fromDate(activeTo!) : null,
       'tokenSourceSubAccountId': tokenSourceSubAccountId,
@@ -164,7 +164,6 @@ class EarnThreadModel with _$EarnThreadModel {
       'createdAt': Timestamp.fromDate(createdAt),
       'lastActivityAt': lastActivityAt != null ? Timestamp.fromDate(lastActivityAt!) : null,
       'targeting': targeting,
-      'isSystemThread': isSystemThread,
     };
   }
 }

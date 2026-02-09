@@ -19,6 +19,7 @@ _$EarnThreadImpl _$$EarnThreadImplFromJson(
   isPinned: json['isPinned'] as bool,
   isFeatured: json['isFeatured'] as bool,
   isActive: json['isActive'] as bool,
+  budgetExhausted: json['budgetExhausted'] as bool? ?? false,
   activeFrom: json['activeFrom'] == null
       ? null
       : DateTime.parse(json['activeFrom'] as String),
@@ -37,7 +38,6 @@ _$EarnThreadImpl _$$EarnThreadImplFromJson(
   targeting: json['targeting'] == null
       ? null
       : TargetingCriteria.fromJson(json['targeting'] as Map<String, dynamic>),
-  isSystemThread: json['isSystemThread'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$$EarnThreadImplToJson(_$EarnThreadImpl instance) =>
@@ -52,6 +52,7 @@ Map<String, dynamic> _$$EarnThreadImplToJson(_$EarnThreadImpl instance) =>
       'isPinned': instance.isPinned,
       'isFeatured': instance.isFeatured,
       'isActive': instance.isActive,
+      'budgetExhausted': instance.budgetExhausted,
       'activeFrom': instance.activeFrom?.toIso8601String(),
       'activeTo': instance.activeTo?.toIso8601String(),
       'tokenSourceSubAccountId': instance.tokenSourceSubAccountId,
@@ -62,5 +63,4 @@ Map<String, dynamic> _$$EarnThreadImplToJson(_$EarnThreadImpl instance) =>
       'createdAt': instance.createdAt.toIso8601String(),
       'lastActivityAt': instance.lastActivityAt?.toIso8601String(),
       'targeting': instance.targeting,
-      'isSystemThread': instance.isSystemThread,
     };
