@@ -21,7 +21,8 @@ mixin _$EarnThreadModel {
   String get clientId => throw _privateConstructorUsedError;
   String get clientName => throw _privateConstructorUsedError;
   String? get clientAvatarImage => throw _privateConstructorUsedError;
-  String? get clientAvatarColor =>
+  String? get clientAvatarColor => throw _privateConstructorUsedError;
+  String? get threadImage =>
       throw _privateConstructorUsedError; // Thread display
   String get title => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError; // Flags
@@ -64,6 +65,7 @@ abstract class $EarnThreadModelCopyWith<$Res> {
     String clientName,
     String? clientAvatarImage,
     String? clientAvatarColor,
+    String? threadImage,
     String title,
     String? description,
     bool isPinned,
@@ -103,6 +105,7 @@ class _$EarnThreadModelCopyWithImpl<$Res, $Val extends EarnThreadModel>
     Object? clientName = null,
     Object? clientAvatarImage = freezed,
     Object? clientAvatarColor = freezed,
+    Object? threadImage = freezed,
     Object? title = null,
     Object? description = freezed,
     Object? isPinned = null,
@@ -141,6 +144,10 @@ class _$EarnThreadModelCopyWithImpl<$Res, $Val extends EarnThreadModel>
             clientAvatarColor: freezed == clientAvatarColor
                 ? _value.clientAvatarColor
                 : clientAvatarColor // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            threadImage: freezed == threadImage
+                ? _value.threadImage
+                : threadImage // ignore: cast_nullable_to_non_nullable
                       as String?,
             title: null == title
                 ? _value.title
@@ -227,6 +234,7 @@ abstract class _$$EarnThreadModelImplCopyWith<$Res>
     String clientName,
     String? clientAvatarImage,
     String? clientAvatarColor,
+    String? threadImage,
     String title,
     String? description,
     bool isPinned,
@@ -265,6 +273,7 @@ class __$$EarnThreadModelImplCopyWithImpl<$Res>
     Object? clientName = null,
     Object? clientAvatarImage = freezed,
     Object? clientAvatarColor = freezed,
+    Object? threadImage = freezed,
     Object? title = null,
     Object? description = freezed,
     Object? isPinned = null,
@@ -303,6 +312,10 @@ class __$$EarnThreadModelImplCopyWithImpl<$Res>
         clientAvatarColor: freezed == clientAvatarColor
             ? _value.clientAvatarColor
             : clientAvatarColor // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        threadImage: freezed == threadImage
+            ? _value.threadImage
+            : threadImage // ignore: cast_nullable_to_non_nullable
                   as String?,
         title: null == title
             ? _value.title
@@ -382,6 +395,7 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
     required this.clientName,
     this.clientAvatarImage,
     this.clientAvatarColor,
+    this.threadImage,
     required this.title,
     this.description,
     required this.isPinned,
@@ -412,6 +426,8 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
   final String? clientAvatarImage;
   @override
   final String? clientAvatarColor;
+  @override
+  final String? threadImage;
   // Thread display
   @override
   final String title;
@@ -464,7 +480,7 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
 
   @override
   String toString() {
-    return 'EarnThreadModel(id: $id, clientId: $clientId, clientName: $clientName, clientAvatarImage: $clientAvatarImage, clientAvatarColor: $clientAvatarColor, title: $title, description: $description, isPinned: $isPinned, isFeatured: $isFeatured, isActive: $isActive, budgetExhausted: $budgetExhausted, activeFrom: $activeFrom, activeTo: $activeTo, tokenSourceSubAccountId: $tokenSourceSubAccountId, tokenDestAccountTypeId: $tokenDestAccountTypeId, availableOpportunities: $availableOpportunities, completedOpportunities: $completedOpportunities, completedUniqueUsers: $completedUniqueUsers, createdAt: $createdAt, lastActivityAt: $lastActivityAt, targeting: $targeting)';
+    return 'EarnThreadModel(id: $id, clientId: $clientId, clientName: $clientName, clientAvatarImage: $clientAvatarImage, clientAvatarColor: $clientAvatarColor, threadImage: $threadImage, title: $title, description: $description, isPinned: $isPinned, isFeatured: $isFeatured, isActive: $isActive, budgetExhausted: $budgetExhausted, activeFrom: $activeFrom, activeTo: $activeTo, tokenSourceSubAccountId: $tokenSourceSubAccountId, tokenDestAccountTypeId: $tokenDestAccountTypeId, availableOpportunities: $availableOpportunities, completedOpportunities: $completedOpportunities, completedUniqueUsers: $completedUniqueUsers, createdAt: $createdAt, lastActivityAt: $lastActivityAt, targeting: $targeting)';
   }
 
   @override
@@ -481,6 +497,8 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
                 other.clientAvatarImage == clientAvatarImage) &&
             (identical(other.clientAvatarColor, clientAvatarColor) ||
                 other.clientAvatarColor == clientAvatarColor) &&
+            (identical(other.threadImage, threadImage) ||
+                other.threadImage == threadImage) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
@@ -527,6 +545,7 @@ class _$EarnThreadModelImpl extends _EarnThreadModel {
     clientName,
     clientAvatarImage,
     clientAvatarColor,
+    threadImage,
     title,
     description,
     isPinned,
@@ -564,6 +583,7 @@ abstract class _EarnThreadModel extends EarnThreadModel {
     required final String clientName,
     final String? clientAvatarImage,
     final String? clientAvatarColor,
+    final String? threadImage,
     required final String title,
     final String? description,
     required final bool isPinned,
@@ -592,7 +612,9 @@ abstract class _EarnThreadModel extends EarnThreadModel {
   @override
   String? get clientAvatarImage;
   @override
-  String? get clientAvatarColor; // Thread display
+  String? get clientAvatarColor;
+  @override
+  String? get threadImage; // Thread display
   @override
   String get title;
   @override

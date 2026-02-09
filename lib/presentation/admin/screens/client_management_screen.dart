@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../core/utils/image_resize_utils.dart';
 import '../../theme/app_colors.dart';
 
 const _industries = [
@@ -64,11 +65,12 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
               .toList() ??
           [];
 
-      // Count threads per client (live, not stale counters)
+      // Count threads per client (live, not stale counters), skip deleted
       final totalByClient = <String, int>{};
       final activeByClient = <String, int>{};
       for (final doc in threadSnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
+        if (data['isDeleted'] == true) continue;
         final clientId = data['clientId'] as String?;
         if (clientId == null) continue;
         totalByClient[clientId] = (totalByClient[clientId] ?? 0) + 1;
@@ -77,7 +79,9 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
         }
       }
 
-      _clients = clientsList.map((c) {
+      _clients = clientsList
+          .where((c) => c['isDeleted'] != true)
+          .map((c) {
         c['totalCampaigns'] = totalByClient[c['id']] ?? 0;
         c['activeCampaigns'] = activeByClient[c['id']] ?? 0;
         return c;
@@ -100,15 +104,19 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
         final totalByClient = <String, int>{};
         final activeByClient = <String, int>{};
         for (final doc in threadSnapshot.docs) {
-          final clientId = doc.data()['clientId'] as String?;
+          final d = doc.data();
+          if (d['isDeleted'] == true) continue;
+          final clientId = d['clientId'] as String?;
           if (clientId == null) continue;
           totalByClient[clientId] = (totalByClient[clientId] ?? 0) + 1;
-          if (doc.data()['isActive'] == true) {
+          if (d['isActive'] == true) {
             activeByClient[clientId] = (activeByClient[clientId] ?? 0) + 1;
           }
         }
 
-        _clients = clientSnapshot.docs.map((doc) {
+        _clients = clientSnapshot.docs
+            .where((doc) => doc.data()['isDeleted'] != true)
+            .map((doc) {
           final data = {'id': doc.id, ...doc.data()};
           data['totalCampaigns'] = totalByClient[doc.id] ?? 0;
           data['activeCampaigns'] = activeByClient[doc.id] ?? 0;
@@ -202,6 +210,84 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
         onUpdated: _loadClients,
       ),
     );
+  }
+
+  Future<void> _confirmDeleteClient(Map<String, dynamic> client) async {
+    final companyName = client['companyName'] ?? client['displayName'] ?? 'Unknown';
+    final balance = client['balance'] ?? 0;
+    final campaigns = client['totalCampaigns'] ?? 0;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceDark,
+        title: Text('Delete Client: $companyName?',
+            style: const TextStyle(color: AppColors.textPrimaryDark)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('This will:',
+                style: TextStyle(color: AppColors.textSecondary)),
+            const SizedBox(height: 8),
+            if (balance > 0)
+              Text('  - Refund $balance tokens to Treasury',
+                  style: const TextStyle(color: AppColors.textSecondary)),
+            if (campaigns > 0)
+              Text('  - Delete all $campaigns campaigns and their opportunities',
+                  style: const TextStyle(color: AppColors.textSecondary)),
+            const Text('  - Close the ledger account',
+                style: TextStyle(color: AppColors.textSecondary)),
+            const SizedBox(height: 12),
+            const Text('This cannot be undone.',
+                style: TextStyle(
+                    color: AppColors.error, fontWeight: FontWeight.w600)),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child:
+                const Text('Delete', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    try {
+      final result = await FirebaseFunctions.instance
+          .httpsCallable('adminSoftDeleteClient')
+          .call({'clientId': client['id']});
+      final data = result.data as Map<String, dynamic>;
+      final refunded = data['refundedAmount'] ?? 0;
+      final threads = data['deletedThreads'] ?? 0;
+      final opps = data['deletedOpportunities'] ?? 0;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Client deleted (refunded: $refunded tokens, '
+                '$threads campaigns, $opps opportunities removed)'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        _loadClients();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error deleting client: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   String _formatBalance(dynamic balance) {
@@ -638,6 +724,8 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
                     _showSubAccountsDialog(client);
                   case 'toggle_status':
                     _showToggleStatusDialog(client);
+                  case 'delete':
+                    _confirmDeleteClient(client);
                 }
               },
               itemBuilder: (_) => [
@@ -684,6 +772,18 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(isActive ? 'Freeze Client' : 'Activate Client'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete_outline, size: 18,
+                          color: AppColors.error),
+                      SizedBox(width: 8),
+                      Text('Delete Client',
+                          style: TextStyle(color: AppColors.error)),
                     ],
                   ),
                 ),
@@ -922,15 +1022,20 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
   }
 
   Future<String> _uploadLogoToStorage(String clientId) async {
-    final ext = _pickedLogoName!.split('.').last.toLowerCase();
+    final resized = resizeImageForUpload(
+      _pickedLogoBytes!,
+      ImageResizeTarget.clientLogo,
+    );
+    if (resized == null) throw Exception('Failed to process image');
+
     final ref = FirebaseStorage.instance
         .ref()
         .child('client_logos')
-        .child('$clientId.$ext');
+        .child('$clientId.${resized.extension}');
 
     final uploadTask = ref.putData(
-      _pickedLogoBytes!,
-      SettableMetadata(contentType: 'image/$ext'),
+      resized.bytes,
+      SettableMetadata(contentType: resized.contentType),
     );
 
     uploadTask.snapshotEvents.listen((snapshot) {
@@ -1488,15 +1593,20 @@ class _EditClientDialogState extends State<_EditClientDialog> {
 
   Future<String> _uploadLogoToStorage() async {
     final clientId = widget.client['id'] as String;
-    final ext = _pickedLogoName!.split('.').last.toLowerCase();
+    final resized = resizeImageForUpload(
+      _pickedLogoBytes!,
+      ImageResizeTarget.clientLogo,
+    );
+    if (resized == null) throw Exception('Failed to process image');
+
     final ref = FirebaseStorage.instance
         .ref()
         .child('client_logos')
-        .child('$clientId.$ext');
+        .child('$clientId.${resized.extension}');
 
     final uploadTask = ref.putData(
-      _pickedLogoBytes!,
-      SettableMetadata(contentType: 'image/$ext'),
+      resized.bytes,
+      SettableMetadata(contentType: resized.contentType),
     );
 
     uploadTask.snapshotEvents.listen((snapshot) {

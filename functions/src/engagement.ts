@@ -122,6 +122,13 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
       );
     }
 
+    if (opportunity.isDeleted === true) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Opportunity is no longer available"
+      );
+    }
+
     // Check expiry
     if (opportunity.expiresAt && opportunity.expiresAt.toDate() < new Date()) {
       throw new functions.https.HttpsError(
@@ -492,6 +499,14 @@ export const processEngagement = functions.https.onCall(
 
       if (threadDoc.exists) {
         const threadData = threadDoc.data()!;
+
+        if (threadData.isDeleted === true) {
+          throw new functions.https.HttpsError(
+            "failed-precondition",
+            "Campaign is no longer available"
+          );
+        }
+
         clientId = threadData.clientId || null;
         clientSubAccountId = threadData.tokenSourceSubAccountId || null;
         tokenDestAccountTypeId = threadData.tokenDestAccountTypeId || null;

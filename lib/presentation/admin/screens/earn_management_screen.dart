@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/utils/image_resize_utils.dart';
 import '../../theme/app_colors.dart';
 
 /// Earn Management screen for admin portal
@@ -115,6 +116,7 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
       setState(() {
         _threads = threadsSnapshot.docs
             .map((doc) => {'id': doc.id, ...doc.data()})
+            .where((t) => t['isDeleted'] != true)
             .toList();
         _selectedThreadId = null;
         _opportunities = [];
@@ -142,6 +144,7 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
       setState(() {
         _opportunities = opportunitiesSnapshot.docs
             .map((doc) => {'id': doc.id, ...doc.data()})
+            .where((o) => o['isDeleted'] != true)
             .toList();
       });
     } catch (e) {
@@ -536,6 +539,17 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
                                           padding: EdgeInsets.zero,
                                           constraints: const BoxConstraints(),
                                         ),
+                                        const SizedBox(width: 4),
+                                        IconButton(
+                                          icon: Icon(Icons.delete_outline,
+                                              size: 16,
+                                              color: AppColors.error),
+                                          onPressed: () =>
+                                              _confirmDeleteThread(thread),
+                                          tooltip: 'Delete Campaign',
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
+                                        ),
                                       ],
                                     ),
                                     onTap: () {
@@ -643,7 +657,11 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
           return Center(child: Text('Error: ${snapshot.error}'));
         }
 
-        final threads = snapshot.data?.docs ?? [];
+        final allDocs = snapshot.data?.docs ?? [];
+        final threads = allDocs.where((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return data['isDeleted'] != true;
+        }).toList();
 
         if (threads.isEmpty) {
           return Center(
@@ -685,7 +703,11 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
           return Center(child: Text('Error: ${snapshot.error}'));
         }
 
-        final opportunities = snapshot.data?.docs ?? [];
+        final allOppDocs = snapshot.data?.docs ?? [];
+        final opportunities = allOppDocs.where((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return data['isDeleted'] != true;
+        }).toList();
 
         if (opportunities.isEmpty) {
           return Center(
@@ -752,6 +774,67 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
         },
       ),
     );
+  }
+
+  Future<void> _confirmDeleteThread(Map<String, dynamic> thread) async {
+    final oppCount = thread['availableOpportunities'] ?? 0;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceDark,
+        title: const Text('Delete Campaign?',
+            style: TextStyle(color: AppColors.textPrimaryDark)),
+        content: Text(
+          'This will also delete all $oppCount opportunities in this campaign. '
+          'Historical engagement data is preserved.',
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child:
+                const Text('Delete', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    try {
+      final result = await FirebaseFunctions.instance
+          .httpsCallable('adminSoftDeleteThread')
+          .call({'threadId': thread['id']});
+      final deleted = result.data['deletedOpportunities'] ?? 0;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text('Campaign deleted ($deleted opportunities removed)'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        if (_selectedClientId != null) {
+          _loadThreadsForClient(_selectedClientId!);
+        }
+        setState(() {
+          _selectedThreadId = null;
+          _opportunities = [];
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error deleting campaign: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   void _showCreateOpportunityDialog() {
@@ -857,23 +940,16 @@ class _CampaignCard extends StatelessWidget {
                 color: _threadAvatarColor(thread),
               ),
               clipBehavior: Clip.antiAlias,
-              child: (thread['clientAvatarImage'] as String?)?.isNotEmpty == true
-                  ? Image.network(
-                      thread['clientAvatarImage'] as String,
-                      fit: BoxFit.cover,
-                      width: 48,
-                      height: 48,
-                      errorBuilder: (_, __, ___) => Center(
-                        child: Text(
-                          _threadInitials(thread),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    )
-                  : Center(
+              child: () {
+                final imageUrl = thread['threadImage'] as String? ??
+                    thread['clientAvatarImage'] as String?;
+                if (imageUrl != null && imageUrl.isNotEmpty) {
+                  return Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    width: 48,
+                    height: 48,
+                    errorBuilder: (_, __, ___) => Center(
                       child: Text(
                         _threadInitials(thread),
                         style: const TextStyle(
@@ -882,6 +958,18 @@ class _CampaignCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  );
+                }
+                return Center(
+                  child: Text(
+                    _threadInitials(thread),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                );
+              }(),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -959,6 +1047,15 @@ class _CampaignCard extends StatelessWidget {
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      icon: Icon(Icons.delete_outline,
+                          size: 18, color: AppColors.error),
+                      onPressed: () => _confirmDelete(context),
+                      tooltip: 'Delete Campaign',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -1004,6 +1101,61 @@ class _CampaignCard extends StatelessWidget {
         onUpdated: onUpdated,
       ),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final oppCount = thread['availableOpportunities'] ?? 0;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceDark,
+        title: const Text('Delete Campaign?',
+            style: TextStyle(color: AppColors.textPrimaryDark)),
+        content: Text(
+          'This will also delete all $oppCount opportunities in this campaign. '
+          'Historical engagement data is preserved.',
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child:
+                const Text('Delete', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      final result = await FirebaseFunctions.instance
+          .httpsCallable('adminSoftDeleteThread')
+          .call({'threadId': thread['id']});
+      final deleted = result.data['deletedOpportunities'] ?? 0;
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text('Campaign deleted ($deleted opportunities removed)'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+      onUpdated?.call();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error deleting campaign: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   String _formatSchedule() {
@@ -1077,15 +1229,41 @@ class _OpportunityCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.secondary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(typeIcon, color: AppColors.secondary),
-            ),
+            () {
+              final oppImage = opportunity['opportunityImage'] as String?;
+              if (oppImage != null && oppImage.isNotEmpty) {
+                return Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.network(
+                    oppImage,
+                    fit: BoxFit.cover,
+                    width: 48,
+                    height: 48,
+                    errorBuilder: (_, __, ___) => Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(typeIcon, color: AppColors.secondary),
+                    ),
+                  ),
+                );
+              }
+              return Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.secondary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(typeIcon, color: AppColors.secondary),
+              );
+            }(),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -1205,6 +1383,8 @@ class _OpportunityCard extends StatelessWidget {
                             _showEditVideoDialog(context);
                           case 'edit_questions':
                             _showEditQuestionsDialog(context);
+                          case 'delete':
+                            _confirmDelete(context);
                         }
                       },
                       itemBuilder: (_) => [
@@ -1239,6 +1419,18 @@ class _OpportunityCard extends StatelessWidget {
                             ],
                           ),
                         ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete_outline, size: 18,
+                                  color: AppColors.error),
+                              SizedBox(width: 8),
+                              Text('Delete',
+                                  style: TextStyle(color: AppColors.error)),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -1262,6 +1454,61 @@ class _OpportunityCard extends StatelessWidget {
         onUpdated: onUpdated ?? onQuestionsEdited,
       ),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final oppId = opportunity['id'] as String?;
+    if (oppId == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceDark,
+        title: const Text('Delete Opportunity?',
+            style: TextStyle(color: AppColors.textPrimaryDark)),
+        content: const Text(
+          'This will remove the opportunity from user visibility. '
+          'Historical engagement data is preserved.',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child:
+                const Text('Delete', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      await FirebaseFunctions.instance
+          .httpsCallable('adminSoftDeleteOpportunity')
+          .call({'opportunityId': oppId});
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Opportunity deleted'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+      onUpdated?.call();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error deleting opportunity: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   void _showEditVideoDialog(BuildContext context) {
@@ -1332,6 +1579,12 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
   // Targeting
   Map<String, dynamic>? _targeting;
 
+  // Image upload
+  String? _pickedImageName;
+  Uint8List? _pickedImageBytes;
+  double _uploadProgress = 0;
+  bool _isUploading = false;
+
   @override
   void initState() {
     super.initState();
@@ -1398,6 +1651,61 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
     }
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+        withData: true,
+      );
+      if (result != null && result.files.single.bytes != null) {
+        setState(() {
+          _pickedImageName = result.files.single.name;
+          _pickedImageBytes = result.files.single.bytes;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error picking file: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<String?> _uploadThreadImage(String threadId) async {
+    if (_pickedImageBytes == null) return null;
+    final resized = resizeImageForUpload(
+      _pickedImageBytes!,
+      ImageResizeTarget.threadImage,
+    );
+    if (resized == null) throw Exception('Failed to process image');
+
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('thread_images')
+        .child('$threadId.${resized.extension}');
+
+    final uploadTask = ref.putData(
+      resized.bytes,
+      SettableMetadata(contentType: resized.contentType),
+    );
+
+    uploadTask.snapshotEvents.listen((snapshot) {
+      if (mounted) {
+        setState(() {
+          _uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes;
+        });
+      }
+    });
+
+    await uploadTask;
+    return await ref.getDownloadURL();
+  }
+
   Future<void> _handleCreate({String? overrideSubAccountId}) async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedClientId == null) {
@@ -1431,6 +1739,23 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
       });
 
       final data = Map<String, dynamic>.from(result.data as Map);
+      final createdThreadId = data['threadId'] as String?;
+
+      // Upload image if picked (after thread is created so we have the ID)
+      if (_pickedImageBytes != null && createdThreadId != null) {
+        setState(() => _isUploading = true);
+        try {
+          final imageUrl = await _uploadThreadImage(createdThreadId);
+          if (imageUrl != null) {
+            await FirebaseFirestore.instance
+                .collection('earnThreads')
+                .doc(createdThreadId)
+                .update({'threadImage': imageUrl});
+          }
+        } finally {
+          if (mounted) setState(() => _isUploading = false);
+        }
+      }
 
       // Backend found a sub-account with the same name — ask the admin
       if (data['duplicateSubAccount'] == true && mounted) {
@@ -1552,6 +1877,112 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
                   hintText: 'Brief description of the campaign',
                 ),
                 maxLines: 2,
+              ),
+              const SizedBox(height: 16),
+              // Campaign image upload
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.borderDark),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Campaign Image (optional)',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceDark,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.borderDark),
+                          ),
+                          child: _pickedImageBytes != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(7),
+                                  child: Image.memory(
+                                    _pickedImageBytes!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Icon(
+                                  Icons.campaign,
+                                  color: AppColors.textSecondary,
+                                  size: 28,
+                                ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_pickedImageName != null) ...[
+                                Text(
+                                  _pickedImageName!,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.textPrimaryDark,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                if (_isUploading)
+                                  LinearProgressIndicator(
+                                    value: _uploadProgress,
+                                    backgroundColor: AppColors.borderDark,
+                                    valueColor:
+                                        const AlwaysStoppedAnimation<Color>(
+                                            AppColors.secondary),
+                                  ),
+                              ],
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  OutlinedButton.icon(
+                                    onPressed: _isLoading ? null : _pickImage,
+                                    icon:
+                                        const Icon(Icons.upload_file, size: 18),
+                                    label: Text(_pickedImageBytes != null
+                                        ? 'Change'
+                                        : 'Upload'),
+                                    style: OutlinedButton.styleFrom(
+                                      minimumSize: const Size(0, 36),
+                                    ),
+                                  ),
+                                  if (_pickedImageBytes != null) ...[
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: const Icon(Icons.close, size: 18),
+                                      color: AppColors.textSecondary,
+                                      onPressed: _isLoading
+                                          ? null
+                                          : () => setState(() {
+                                                _pickedImageName = null;
+                                                _pickedImageBytes = null;
+                                                _uploadProgress = 0;
+                                              }),
+                                      tooltip: 'Remove',
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
               // Scheduling section
@@ -1803,6 +2234,13 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
   // Targeting
   Map<String, dynamic>? _targeting;
 
+  // Image upload
+  String? _existingImageUrl;
+  String? _pickedImageName;
+  Uint8List? _pickedImageBytes;
+  double _uploadProgress = 0;
+  bool _isUploading = false;
+
   @override
   void initState() {
     super.initState();
@@ -1813,6 +2251,9 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
     _isActive = t['isActive'] == true;
     _isFeatured = t['isFeatured'] == true;
     _isPinned = t['isPinned'] == true;
+
+    // Init image
+    _existingImageUrl = t['threadImage'] as String?;
 
     // Init token config from existing data
     final srcSub = t['tokenSourceSubAccountId']?.toString();
@@ -1895,12 +2336,76 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
     }
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+        withData: true,
+      );
+      if (result != null && result.files.single.bytes != null) {
+        setState(() {
+          _pickedImageName = result.files.single.name;
+          _pickedImageBytes = result.files.single.bytes;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error picking file: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<String?> _uploadThreadImage(String threadId) async {
+    if (_pickedImageBytes == null) return null;
+    final resized = resizeImageForUpload(
+      _pickedImageBytes!,
+      ImageResizeTarget.threadImage,
+    );
+    if (resized == null) throw Exception('Failed to process image');
+
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('thread_images')
+        .child('$threadId.${resized.extension}');
+
+    final uploadTask = ref.putData(
+      resized.bytes,
+      SettableMetadata(contentType: resized.contentType),
+    );
+
+    uploadTask.snapshotEvents.listen((snapshot) {
+      if (mounted) {
+        setState(() {
+          _uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes;
+        });
+      }
+    });
+
+    await uploadTask;
+    return await ref.getDownloadURL();
+  }
+
   Future<void> _handleSave({String? overrideSubAccountId}) async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
       final threadId = widget.thread['id'] as String;
       final clientId = widget.thread['clientId'] as String;
+
+      // Upload image if picked
+      String? imageUrl = _existingImageUrl;
+      if (_pickedImageBytes != null) {
+        setState(() => _isUploading = true);
+        imageUrl = await _uploadThreadImage(threadId);
+        if (mounted) setState(() => _isUploading = false);
+      }
+
       // Use createEarnThread CF (upsert) — auto-creates sub-account if needed
       final result = await FirebaseFunctions.instance
           .httpsCallable('createEarnThread')
@@ -1920,6 +2425,7 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
         'activeFrom': _activeFrom?.toIso8601String(),
         'activeTo': _activeTo?.toIso8601String(),
         'targeting': _targeting,
+        'threadImage': imageUrl,
       });
 
       final data = Map<String, dynamic>.from(result.data as Map);
@@ -2039,6 +2545,139 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
                     labelText: 'Description (optional)',
                   ),
                   maxLines: 2,
+                ),
+                const SizedBox(height: 16),
+                // Campaign image upload
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.borderDark),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Campaign Image (optional)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceDark,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: AppColors.borderDark),
+                            ),
+                            child: _pickedImageBytes != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(7),
+                                    child: Image.memory(
+                                      _pickedImageBytes!,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : _existingImageUrl != null
+                                    ? ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(7),
+                                        child: Image.network(
+                                          _existingImageUrl!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) => Icon(
+                                            Icons.broken_image,
+                                            color: AppColors.textSecondary,
+                                            size: 28,
+                                          ),
+                                        ),
+                                      )
+                                    : Icon(
+                                        Icons.campaign,
+                                        color: AppColors.textSecondary,
+                                        size: 28,
+                                      ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (_pickedImageName != null) ...[
+                                  Text(
+                                    _pickedImageName!,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textPrimaryDark,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  if (_isUploading)
+                                    LinearProgressIndicator(
+                                      value: _uploadProgress,
+                                      backgroundColor: AppColors.borderDark,
+                                      valueColor:
+                                          const AlwaysStoppedAnimation<Color>(
+                                              AppColors.secondary),
+                                    ),
+                                ] else if (_existingImageUrl != null)
+                                  Text(
+                                    'Current image',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    OutlinedButton.icon(
+                                      onPressed:
+                                          _isLoading ? null : _pickImage,
+                                      icon: const Icon(Icons.upload_file,
+                                          size: 18),
+                                      label: Text(
+                                          _pickedImageBytes != null ||
+                                                  _existingImageUrl != null
+                                              ? 'Change'
+                                              : 'Upload'),
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size(0, 36),
+                                      ),
+                                    ),
+                                    if (_pickedImageBytes != null ||
+                                        _existingImageUrl != null) ...[
+                                      const SizedBox(width: 8),
+                                      IconButton(
+                                        icon:
+                                            const Icon(Icons.close, size: 18),
+                                        color: AppColors.textSecondary,
+                                        onPressed: _isLoading
+                                            ? null
+                                            : () => setState(() {
+                                                  _pickedImageName = null;
+                                                  _pickedImageBytes = null;
+                                                  _existingImageUrl = null;
+                                                  _uploadProgress = 0;
+                                                }),
+                                        tooltip: 'Remove',
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
                 // Scheduling section
@@ -2312,6 +2951,12 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
   // Budget cap
   final _tokenBudgetController = TextEditingController();
 
+  // Opportunity image upload
+  String? _pickedImageName;
+  Uint8List? _pickedImageBytes;
+  double _imageUploadProgress = 0;
+  bool _isImageUploading = false;
+
   final _earningTypes = [
     ('video', 'Video'),
     ('survey', 'Survey'),
@@ -2359,6 +3004,63 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
       _pickedFileBytes = null;
       _uploadProgress = 0;
     });
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+        withData: true,
+      );
+      if (result != null && result.files.single.bytes != null) {
+        setState(() {
+          _pickedImageName = result.files.single.name;
+          _pickedImageBytes = result.files.single.bytes;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error picking file: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<String?> _uploadOpportunityImage(String opportunityId) async {
+    if (_pickedImageBytes == null) return null;
+    final resized = resizeImageForUpload(
+      _pickedImageBytes!,
+      ImageResizeTarget.opportunityImage,
+    );
+    if (resized == null) throw Exception('Failed to process image');
+
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('opportunity_images')
+        .child(widget.threadId)
+        .child('$opportunityId.${resized.extension}');
+
+    final uploadTask = ref.putData(
+      resized.bytes,
+      SettableMetadata(contentType: resized.contentType),
+    );
+
+    uploadTask.snapshotEvents.listen((snapshot) {
+      if (mounted) {
+        setState(() {
+          _imageUploadProgress =
+              snapshot.bytesTransferred / snapshot.totalBytes;
+        });
+      }
+    });
+
+    await uploadTask;
+    return await ref.getDownloadURL();
   }
 
   /// Uploads the picked video to Firebase Storage and returns the download URL.
@@ -2430,6 +3132,14 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
 
       setState(() => _isUploading = false);
 
+      // Upload opportunity image if picked
+      String? opportunityImageUrl;
+      if (_pickedImageBytes != null) {
+        setState(() => _isImageUploading = true);
+        opportunityImageUrl = await _uploadOpportunityImage(oppRef.id);
+        if (mounted) setState(() => _isImageUploading = false);
+      }
+
       // Create opportunity
       await oppRef.set({
         'id': oppRef.id,
@@ -2437,6 +3147,9 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
         'clientId': threadData['clientId'],
         'clientName': threadData['clientName'],
         'clientAvatarColor': threadData['clientAvatarColor'],
+        'clientAvatarImage': threadData['clientAvatarImage'],
+        'threadImage': threadData['threadImage'],
+        'opportunityImage': opportunityImageUrl,
         'title': _titleController.text.trim(),
         'description': _descriptionController.text.trim().isEmpty
             ? null
@@ -2561,6 +3274,114 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                     labelText: 'Description (optional)',
                   ),
                   maxLines: 2,
+                ),
+                const SizedBox(height: 16),
+                // Opportunity image upload
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.borderDark),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Opportunity Image (optional)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceDark,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: AppColors.borderDark),
+                            ),
+                            child: _pickedImageBytes != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(7),
+                                    child: Image.memory(
+                                      _pickedImageBytes!,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.image,
+                                    color: AppColors.textSecondary,
+                                    size: 28,
+                                  ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (_pickedImageName != null) ...[
+                                  Text(
+                                    _pickedImageName!,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textPrimaryDark,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  if (_isImageUploading)
+                                    LinearProgressIndicator(
+                                      value: _imageUploadProgress,
+                                      backgroundColor: AppColors.borderDark,
+                                      valueColor:
+                                          const AlwaysStoppedAnimation<Color>(
+                                              AppColors.secondary),
+                                    ),
+                                ],
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    OutlinedButton.icon(
+                                      onPressed:
+                                          _isLoading ? null : _pickImage,
+                                      icon: const Icon(Icons.upload_file,
+                                          size: 18),
+                                      label: Text(_pickedImageBytes != null
+                                          ? 'Change'
+                                          : 'Upload'),
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size(0, 36),
+                                      ),
+                                    ),
+                                    if (_pickedImageBytes != null) ...[
+                                      const SizedBox(width: 8),
+                                      IconButton(
+                                        icon:
+                                            const Icon(Icons.close, size: 18),
+                                        color: AppColors.textSecondary,
+                                        onPressed: _isLoading
+                                            ? null
+                                            : () => setState(() {
+                                                  _pickedImageName = null;
+                                                  _pickedImageBytes = null;
+                                                  _imageUploadProgress = 0;
+                                                }),
+                                        tooltip: 'Remove',
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
@@ -3075,6 +3896,13 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
   // Budget cap
   late final TextEditingController _tokenBudgetController;
 
+  // Opportunity image upload
+  String? _existingImageUrl;
+  String? _pickedImageName;
+  Uint8List? _pickedImageBytes;
+  double _imageUploadProgress = 0;
+  bool _isImageUploading = false;
+
   final _earningTypes = [
     ('video', 'Video'),
     ('survey', 'Survey'),
@@ -3088,6 +3916,7 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
   void initState() {
     super.initState();
     final o = widget.opportunity;
+    _existingImageUrl = o['opportunityImage'] as String?;
     _titleController = TextEditingController(text: o['title']?.toString() ?? '');
     _descriptionController =
         TextEditingController(text: o['description']?.toString() ?? '');
@@ -3154,6 +3983,64 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+        withData: true,
+      );
+      if (result != null && result.files.single.bytes != null) {
+        setState(() {
+          _pickedImageName = result.files.single.name;
+          _pickedImageBytes = result.files.single.bytes;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error picking file: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<String?> _uploadOpportunityImage(String opportunityId) async {
+    if (_pickedImageBytes == null) return null;
+    final resized = resizeImageForUpload(
+      _pickedImageBytes!,
+      ImageResizeTarget.opportunityImage,
+    );
+    if (resized == null) throw Exception('Failed to process image');
+
+    final threadId = widget.opportunity['threadId'] as String;
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('opportunity_images')
+        .child(threadId)
+        .child('$opportunityId.${resized.extension}');
+
+    final uploadTask = ref.putData(
+      resized.bytes,
+      SettableMetadata(contentType: resized.contentType),
+    );
+
+    uploadTask.snapshotEvents.listen((snapshot) {
+      if (mounted) {
+        setState(() {
+          _imageUploadProgress =
+              snapshot.bytesTransferred / snapshot.totalBytes;
+        });
+      }
+    });
+
+    await uploadTask;
+    return await ref.getDownloadURL();
+  }
+
   Future<void> _handleSave() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
@@ -3162,10 +4049,19 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
       final wasActive = widget.opportunity['isActive'] == true;
       final nowActive = _isActive;
 
+      // Upload opportunity image if picked
+      String? imageUrl = _existingImageUrl;
+      if (_pickedImageBytes != null) {
+        setState(() => _isImageUploading = true);
+        imageUrl = await _uploadOpportunityImage(oppId);
+        if (mounted) setState(() => _isImageUploading = false);
+      }
+
       await FirebaseFirestore.instance
           .collection('earnOpportunities')
           .doc(oppId)
           .update({
+        'opportunityImage': imageUrl,
         'title': _titleController.text.trim(),
         'description': _descriptionController.text.trim().isEmpty
             ? null
@@ -3267,6 +4163,139 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                   decoration:
                       const InputDecoration(labelText: 'Description (optional)'),
                   maxLines: 2,
+                ),
+                const SizedBox(height: 16),
+                // Opportunity image upload
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.borderDark),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Opportunity Image (optional)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceDark,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: AppColors.borderDark),
+                            ),
+                            child: _pickedImageBytes != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(7),
+                                    child: Image.memory(
+                                      _pickedImageBytes!,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : _existingImageUrl != null
+                                    ? ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(7),
+                                        child: Image.network(
+                                          _existingImageUrl!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) => Icon(
+                                            Icons.broken_image,
+                                            color: AppColors.textSecondary,
+                                            size: 28,
+                                          ),
+                                        ),
+                                      )
+                                    : Icon(
+                                        Icons.image,
+                                        color: AppColors.textSecondary,
+                                        size: 28,
+                                      ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (_pickedImageName != null) ...[
+                                  Text(
+                                    _pickedImageName!,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textPrimaryDark,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  if (_isImageUploading)
+                                    LinearProgressIndicator(
+                                      value: _imageUploadProgress,
+                                      backgroundColor: AppColors.borderDark,
+                                      valueColor:
+                                          const AlwaysStoppedAnimation<Color>(
+                                              AppColors.secondary),
+                                    ),
+                                ] else if (_existingImageUrl != null)
+                                  Text(
+                                    'Current image',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    OutlinedButton.icon(
+                                      onPressed:
+                                          _isLoading ? null : _pickImage,
+                                      icon: const Icon(Icons.upload_file,
+                                          size: 18),
+                                      label: Text(
+                                          _pickedImageBytes != null ||
+                                                  _existingImageUrl != null
+                                              ? 'Change'
+                                              : 'Upload'),
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size(0, 36),
+                                      ),
+                                    ),
+                                    if (_pickedImageBytes != null ||
+                                        _existingImageUrl != null) ...[
+                                      const SizedBox(width: 8),
+                                      IconButton(
+                                        icon:
+                                            const Icon(Icons.close, size: 18),
+                                        color: AppColors.textSecondary,
+                                        onPressed: _isLoading
+                                            ? null
+                                            : () => setState(() {
+                                                  _pickedImageName = null;
+                                                  _pickedImageBytes = null;
+                                                  _existingImageUrl = null;
+                                                  _imageUploadProgress = 0;
+                                                }),
+                                        tooltip: 'Remove',
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Row(

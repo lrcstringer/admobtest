@@ -77,6 +77,8 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     activeTo,
     // Audience targeting
     targeting,
+    // Optional thread image URL (uploaded by admin client-side)
+    threadImage,
   } = data;
 
   // Validate required fields
@@ -227,6 +229,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       clientName,
       clientAvatarImage,
       clientAvatarColor,
+      threadImage: threadImage || null,
       title,
       description: description || null,
       tokenSourceSubAccountId: resolvedSubAccountId,
@@ -247,6 +250,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       clientName,
       clientAvatarImage,
       clientAvatarColor,
+      threadImage: threadImage || null,
       title,
       description: description || null,
       tokenSourceSubAccountId: resolvedSubAccountId,
@@ -308,6 +312,8 @@ export const createEarnOpportunity = functions.https.onCall(
       adUnitId = null,
       // Budget cap (optional)
       tokenBudget = null,
+      // Optional opportunity image URL (uploaded by admin client-side)
+      opportunityImage = null,
     } = data;
 
     // Validate required fields
@@ -434,6 +440,8 @@ export const createEarnOpportunity = functions.https.onCall(
       clientName: threadData.clientName,
       clientAvatarImage: threadData.clientAvatarImage ?? null,
       clientAvatarColor: threadData.clientAvatarColor,
+      threadImage: threadData.threadImage ?? null,
+      opportunityImage: opportunityImage ?? null,
       // Budget cap fields
       tokenBudget: tokenBudget ?? null,
       tokenSpent: existingOpportunity.exists
@@ -722,6 +730,7 @@ function slimThread(id: string, t: admin.firestore.DocumentData) {
     clientName: t.clientName,
     clientAvatarColor: t.clientAvatarColor ?? null,
     clientAvatarImage: t.clientAvatarImage ?? null,
+    threadImage: t.threadImage ?? null,
     title: t.title,
     description: t.description ?? null,
     isPinned: t.isPinned ?? false,
@@ -869,6 +878,11 @@ export const getEligibleThreads = functions.https.onCall(
 
       // Skip budget-exhausted threads
       if (thread.budgetExhausted === true) {
+        continue;
+      }
+
+      // Skip soft-deleted threads
+      if (thread.isDeleted === true) {
         continue;
       }
 
@@ -1158,6 +1172,11 @@ export const getEligibleOpportunities = functions.https.onCall(
 
       // Skip budget-exhausted opportunities
       if (opp.budgetExhausted === true) {
+        continue;
+      }
+
+      // Skip soft-deleted opportunities
+      if (opp.isDeleted === true) {
         continue;
       }
 
@@ -1783,5 +1802,129 @@ export const getEarnStatistics = functions.https.onCall(
       completedToday: completedToday.data().count,
       activeClients: clientsCount.data().count,
     };
+  }
+);
+
+// ============================================================================
+// SOFT-DELETE FUNCTIONS
+// ============================================================================
+
+/**
+ * Soft-delete a single earn opportunity.
+ * Sets isDeleted: true and decrements parent thread's availableOpportunities if active.
+ */
+export const adminSoftDeleteOpportunity = functions.https.onCall(
+  async (data: { opportunityId: string }, context) => {
+    requireAppCheck(context, "adminSoftDeleteOpportunity");
+    await requireAdmin(context);
+
+    const { opportunityId } = data;
+    if (!opportunityId) {
+      throw new functions.https.HttpsError("invalid-argument", "opportunityId is required");
+    }
+
+    const oppRef = db.collection("earnOpportunities").doc(opportunityId);
+    const oppDoc = await oppRef.get();
+
+    if (!oppDoc.exists) {
+      throw new functions.https.HttpsError("not-found", "Opportunity not found");
+    }
+
+    const opp = oppDoc.data()!;
+    if (opp.isDeleted === true) {
+      throw new functions.https.HttpsError("failed-precondition", "Opportunity is already deleted");
+    }
+
+    const now = admin.firestore.FieldValue.serverTimestamp();
+
+    // Mark opportunity as deleted
+    await oppRef.update({
+      isDeleted: true,
+      deletedAt: now,
+      deletedBy: context.auth!.uid,
+      updatedAt: now,
+    });
+
+    // Decrement parent thread's availableOpportunities if opportunity was active
+    if (opp.isActive && opp.threadId) {
+      await db.collection("earnThreads").doc(opp.threadId).update({
+        availableOpportunities: admin.firestore.FieldValue.increment(-1),
+        updatedAt: now,
+      });
+    }
+
+    return { success: true };
+  }
+);
+
+/**
+ * Soft-delete an earn thread and all its opportunities.
+ * Cascades deletion to all child opportunities.
+ */
+export const adminSoftDeleteThread = functions.https.onCall(
+  async (data: { threadId: string }, context) => {
+    requireAppCheck(context, "adminSoftDeleteThread");
+    await requireAdmin(context);
+
+    const { threadId } = data;
+    if (!threadId) {
+      throw new functions.https.HttpsError("invalid-argument", "threadId is required");
+    }
+
+    const threadRef = db.collection("earnThreads").doc(threadId);
+    const threadDoc = await threadRef.get();
+
+    if (!threadDoc.exists) {
+      throw new functions.https.HttpsError("not-found", "Thread not found");
+    }
+
+    const thread = threadDoc.data()!;
+    if (thread.isDeleted === true) {
+      throw new functions.https.HttpsError("failed-precondition", "Thread is already deleted");
+    }
+
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const uid = context.auth!.uid;
+
+    // Cascade: soft-delete all opportunities in this thread
+    const oppsSnapshot = await db
+      .collection("earnOpportunities")
+      .where("threadId", "==", threadId)
+      .get();
+
+    let deletedOpportunities = 0;
+    if (!oppsSnapshot.empty) {
+      const batch = db.batch();
+      for (const oppDoc of oppsSnapshot.docs) {
+        if (oppDoc.data().isDeleted !== true) {
+          batch.update(oppDoc.ref, {
+            isDeleted: true,
+            deletedAt: now,
+            deletedBy: uid,
+            updatedAt: now,
+          });
+          deletedOpportunities++;
+        }
+      }
+      await batch.commit();
+    }
+
+    // Mark thread as deleted
+    await threadRef.update({
+      isDeleted: true,
+      deletedAt: now,
+      deletedBy: uid,
+      updatedAt: now,
+    });
+
+    // Decrement client's activeCampaigns if thread was active
+    if (thread.isActive && thread.clientId) {
+      await db.collection("clients").doc(thread.clientId).update({
+        activeCampaigns: admin.firestore.FieldValue.increment(-1),
+        updatedAt: now,
+      });
+    }
+
+    return { success: true, deletedOpportunities };
   }
 );

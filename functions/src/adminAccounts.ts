@@ -15,6 +15,7 @@ import {
   unfreezeAccount,
   getAccount,
   getBalance,
+  closeAccount,
 } from "./ledger/accounts";
 import { AccountId, SystemAccounts } from "./ledger/types";
 import { getUserSubAccounts } from "./ledger/subAccounts";
@@ -232,6 +233,18 @@ export const adminCreateClient = functions.https.onCall(
       );
     }
 
+    // Guard: reject if a client doc with this ID already exists (including soft-deleted)
+    const existingClient = await db.collection("clients").doc(clientId).get();
+    if (existingClient.exists) {
+      const wasDeleted = existingClient.data()?.isDeleted === true;
+      throw new functions.https.HttpsError(
+        "already-exists",
+        wasDeleted
+          ? "A client with this ID was previously deleted. Use a different ID."
+          : "A client with this ID already exists"
+      );
+    }
+
     // Create ledger account
     const account = await createClientAccount(clientId, companyName, {
       contactEmail,
@@ -300,34 +313,40 @@ export const adminListClients = functions.https.onCall(async (data, context) => 
     profiles.set(doc.id, doc.data());
   });
 
-  // Merge data
-  const clients = accounts.map((account) => {
-    const clientId = AccountId.parseClientId(account.id);
-    const profile = clientId ? profiles.get(clientId) : null;
+  // Merge data, skip deleted clients
+  const clients = accounts
+    .map((account) => {
+      const clientId = AccountId.parseClientId(account.id);
+      const profile = clientId ? profiles.get(clientId) : null;
 
-    return {
-      id: clientId,
-      ledgerAccountId: account.id,
-      companyName: account.name,
-      balance: account.balance,
-      status: account.status,
-      contactEmail: profile?.contactEmail,
-      contactName: profile?.contactName,
-      displayName: profile?.displayName,
-      avatarImage: profile?.avatarImage,
-      avatarColor: profile?.avatarColor,
-      industry: profile?.industry,
-      companyRegistration: profile?.companyRegistration || null,
-      vatNumber: profile?.vatNumber || null,
-      billingAddress: profile?.billingAddress || null,
-      budgetWarningThreshold: profile?.budgetWarningThreshold ?? 0.20,
-      brandAccountTypeId: profile?.brandAccountTypeId || null,
-      totalCampaigns: profile?.totalCampaigns || 0,
-      activeCampaigns: profile?.activeCampaigns || 0,
-      totalSpent: profile?.totalSpent || 0,
-      createdAt: account.createdAt,
-    };
-  });
+      // Skip deleted clients
+      if (profile?.isDeleted === true) return null;
+
+      return {
+        id: clientId,
+        ledgerAccountId: account.id,
+        companyName: account.name,
+        balance: account.balance,
+        status: account.status,
+        isDeleted: profile?.isDeleted || false,
+        contactEmail: profile?.contactEmail,
+        contactName: profile?.contactName,
+        displayName: profile?.displayName,
+        avatarImage: profile?.avatarImage,
+        avatarColor: profile?.avatarColor,
+        industry: profile?.industry,
+        companyRegistration: profile?.companyRegistration || null,
+        vatNumber: profile?.vatNumber || null,
+        billingAddress: profile?.billingAddress || null,
+        budgetWarningThreshold: profile?.budgetWarningThreshold ?? 0.20,
+        brandAccountTypeId: profile?.brandAccountTypeId || null,
+        totalCampaigns: profile?.totalCampaigns || 0,
+        activeCampaigns: profile?.activeCampaigns || 0,
+        totalSpent: profile?.totalSpent || 0,
+        createdAt: account.createdAt,
+      };
+    })
+    .filter((c) => c !== null);
 
   return { clients };
 });
@@ -509,6 +528,15 @@ export const adminFundClientAccount = functions.https.onCall(
       );
     }
 
+    // Guard: cannot fund a deleted client
+    const clientDoc = await db.collection("clients").doc(clientId).get();
+    if (clientDoc.data()?.isDeleted === true) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Cannot fund a deleted client"
+      );
+    }
+
     // Import journal posting
     const { postJournal } = await import("./ledger/journals");
     const { SystemAccounts } = await import("./ledger/types");
@@ -590,10 +618,16 @@ export const adminCreateClientSubAccount = functions.https.onCall(
       );
     }
 
-    // Validate client exists
+    // Validate client exists and is not deleted
     const clientDoc = await db.collection("clients").doc(clientId).get();
     if (!clientDoc.exists) {
       throw new functions.https.HttpsError("not-found", "Client not found");
+    }
+    if (clientDoc.data()?.isDeleted === true) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Cannot create sub-account for a deleted client"
+      );
     }
 
     const now = admin.firestore.FieldValue.serverTimestamp();
@@ -647,6 +681,15 @@ export const adminFundClientSubAccount = functions.https.onCall(
       throw new functions.https.HttpsError(
         "invalid-argument",
         "Client ID, sub-account ID, positive amount, and reference are required"
+      );
+    }
+
+    // Guard: cannot fund a deleted client's sub-account
+    const clientDoc = await db.collection("clients").doc(clientId).get();
+    if (clientDoc.data()?.isDeleted === true) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Cannot fund a deleted client's sub-account"
       );
     }
 
@@ -915,6 +958,176 @@ export const adminListUserSubAccounts = functions.https.onCall(
         isActive: sa.isActive,
         createdAt: sa.createdAt,
       })),
+    };
+  }
+);
+
+// ============================================================================
+// SOFT-DELETE CLIENT
+// ============================================================================
+
+/**
+ * Soft-delete a client: refund remaining balance to Treasury, close ledger account,
+ * cascade soft-delete to all threads, opportunities, and sub-accounts.
+ */
+export const adminSoftDeleteClient = functions.https.onCall(
+  async (
+    data: {
+      clientId: string;
+      reason?: string;
+    },
+    context
+  ) => {
+    requireAppCheck(context, "adminSoftDeleteClient");
+    await requireAdmin(context);
+
+    const { clientId, reason } = data;
+    if (!clientId) {
+      throw new functions.https.HttpsError("invalid-argument", "clientId is required");
+    }
+
+    const clientRef = db.collection("clients").doc(clientId);
+    const clientDoc = await clientRef.get();
+
+    if (!clientDoc.exists) {
+      throw new functions.https.HttpsError("not-found", "Client not found");
+    }
+
+    const client = clientDoc.data()!;
+    if (client.isDeleted === true) {
+      throw new functions.https.HttpsError("failed-precondition", "Client is already deleted");
+    }
+
+    const uid = context.auth!.uid;
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const accountId = AccountId.client(clientId);
+
+    // 1. Refund remaining ledger balance to Treasury
+    let refundedAmount = 0;
+    const balance = await getBalance(accountId);
+
+    if (balance > 0) {
+      const { postJournal } = await import("./ledger/journals");
+
+      const result = await postJournal({
+        idempotencyKey: `client_delete_refund:${clientId}:${Date.now()}`,
+        type: "adjustment",
+        description: `Client deleted: balance refund to Treasury. Reason: ${reason || "No reason provided"}`,
+        entries: [
+          {
+            accountId,
+            entryType: "debit",
+            amount: balance,
+            description: "Balance refund on client deletion",
+          },
+          {
+            accountId: SystemAccounts.TREASURY,
+            entryType: "credit",
+            amount: balance,
+            description: "Client deletion refund",
+          },
+        ],
+        referenceType: "system",
+        referenceId: clientId,
+        initiatedBy: uid,
+        metadata: { deletionReason: reason || null },
+      });
+
+      if (!result.success) {
+        throw new functions.https.HttpsError(
+          "internal",
+          `Failed to refund balance: ${result.error}`
+        );
+      }
+      refundedAmount = balance;
+    }
+
+    // 2. Close ledger account (requires balance == 0, which step 1 ensures)
+    const closeResult = await closeAccount(
+      accountId,
+      reason || "Client deleted by admin",
+      uid
+    );
+    if (!closeResult.success) {
+      // Non-fatal: account may already be closed or frozen
+      console.warn(`Could not close ledger account ${accountId}: ${closeResult.error}`);
+    }
+
+    // 3. Cascade soft-delete to all threads and their opportunities
+    let deletedThreads = 0;
+    let deletedOpportunities = 0;
+
+    const threadsSnapshot = await db
+      .collection("earnThreads")
+      .where("clientId", "==", clientId)
+      .get();
+
+    for (const threadDoc of threadsSnapshot.docs) {
+      if (threadDoc.data().isDeleted === true) continue;
+
+      // Soft-delete opportunities in this thread
+      const oppsSnapshot = await db
+        .collection("earnOpportunities")
+        .where("threadId", "==", threadDoc.id)
+        .get();
+
+      if (!oppsSnapshot.empty) {
+        const oppBatch = db.batch();
+        for (const oppDoc of oppsSnapshot.docs) {
+          if (oppDoc.data().isDeleted !== true) {
+            oppBatch.update(oppDoc.ref, {
+              isDeleted: true,
+              deletedAt: now,
+              deletedBy: uid,
+              updatedAt: now,
+            });
+            deletedOpportunities++;
+          }
+        }
+        await oppBatch.commit();
+      }
+
+      // Soft-delete the thread
+      await threadDoc.ref.update({
+        isDeleted: true,
+        deletedAt: now,
+        deletedBy: uid,
+        updatedAt: now,
+      });
+      deletedThreads++;
+    }
+
+    // 4. Soft-delete all sub-accounts
+    const subAccountsSnapshot = await clientRef.collection("subAccounts").get();
+    if (!subAccountsSnapshot.empty) {
+      const subBatch = db.batch();
+      for (const saDoc of subAccountsSnapshot.docs) {
+        subBatch.update(saDoc.ref, {
+          isDeleted: true,
+          isActive: false,
+          balance: 0,
+          deletedAt: now,
+          updatedAt: now,
+        });
+      }
+      await subBatch.commit();
+    }
+
+    // 5. Mark client as deleted
+    await clientRef.update({
+      isDeleted: true,
+      deletedAt: now,
+      deletedBy: uid,
+      deletionReason: reason || null,
+      status: "closed",
+      updatedAt: now,
+    });
+
+    return {
+      success: true,
+      refundedAmount,
+      deletedThreads,
+      deletedOpportunities,
     };
   }
 );

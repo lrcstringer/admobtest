@@ -52,6 +52,9 @@ _$EarnOpportunityImpl _$$EarnOpportunityImplFromJson(
   clientId: json['clientId'] as String?,
   clientName: json['clientName'] as String?,
   clientAvatarColor: json['clientAvatarColor'] as String?,
+  clientAvatarImage: json['clientAvatarImage'] as String?,
+  threadImage: json['threadImage'] as String?,
+  opportunityImage: json['opportunityImage'] as String?,
   campaignId: json['campaignId'] as String?,
   targeting: json['targeting'] == null
       ? null
@@ -92,6 +95,9 @@ Map<String, dynamic> _$$EarnOpportunityImplToJson(
   'clientId': instance.clientId,
   'clientName': instance.clientName,
   'clientAvatarColor': instance.clientAvatarColor,
+  'clientAvatarImage': instance.clientAvatarImage,
+  'threadImage': instance.threadImage,
+  'opportunityImage': instance.opportunityImage,
   'campaignId': instance.campaignId,
   'targeting': instance.targeting,
   'bonusReward': instance.bonusReward,

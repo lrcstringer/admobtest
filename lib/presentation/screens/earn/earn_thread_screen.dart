@@ -123,7 +123,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
           Row(
             children: [
               _buildClientAvatar(context, thread.clientName,
-                  thread.clientAvatarImage, thread.clientAvatarColor),
+                  thread.threadImage ?? thread.clientAvatarImage, thread.clientAvatarColor),
               AppSpacing.horizontalMd,
               Expanded(
                 child: Column(

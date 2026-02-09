@@ -67,6 +67,9 @@ class EarnOpportunity with _$EarnOpportunity {
     String? clientId,
     String? clientName,
     String? clientAvatarColor,
+    String? clientAvatarImage,
+    String? threadImage,
+    String? opportunityImage,
     // Legacy campaign reference
     String? campaignId,
     // Targeting

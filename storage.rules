@@ -93,6 +93,20 @@ service firebase.storage {
       allow delete: if isAdmin();
     }
 
+    // Campaign/thread images (admin managed)
+    match /thread_images/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidImage();
+      allow delete: if isAdmin();
+    }
+
+    // Opportunity images (admin managed)
+    match /opportunity_images/{threadId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidImage();
+      allow delete: if isAdmin();
+    }
+
     // Deny all other paths
     match /{allPaths=**} {
       allow read, write: if false;

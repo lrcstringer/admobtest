@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -493,11 +494,45 @@ class EarnDetailScreen extends StatelessWidget {
 
   Widget _buildClientAvatar(EarnOpportunity opportunity) {
     final color = AppColors.parseHex(opportunity.clientAvatarColor);
+    final imageUrl = opportunity.opportunityImage ??
+        opportunity.threadImage ??
+        opportunity.clientAvatarImage;
 
     final initials = opportunity.clientName != null &&
             opportunity.clientName!.isNotEmpty
         ? opportunity.clientName!.split(' ').map((w) => w[0]).take(2).join()
         : '??';
+
+    if (imageUrl != null) {
+      return CachedNetworkImage(
+        imageUrl: imageUrl,
+        imageBuilder: (context, imageProvider) => CircleAvatar(
+          radius: 28,
+          backgroundImage: imageProvider,
+        ),
+        placeholder: (context, url) => CircleAvatar(
+          radius: 28,
+          backgroundColor: color,
+          child: const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+        errorWidget: (context, url, error) => CircleAvatar(
+          radius: 28,
+          backgroundColor: color,
+          child: Text(
+            initials.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+        ),
+      );
+    }
 
     return CircleAvatar(
       radius: 28,

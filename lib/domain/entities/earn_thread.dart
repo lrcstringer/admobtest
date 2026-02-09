@@ -15,6 +15,7 @@ class EarnThread with _$EarnThread {
     required String clientName,
     String? clientAvatarImage,
     String? clientAvatarColor,
+    String? threadImage,
     // Thread display
     required String title,
     String? description,

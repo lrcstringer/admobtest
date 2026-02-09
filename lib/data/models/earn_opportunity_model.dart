@@ -85,6 +85,9 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
     String? clientId,
     String? clientName,
     String? clientAvatarColor,
+    String? clientAvatarImage,
+    String? threadImage,
+    String? opportunityImage,
     // Legacy campaign reference
     String? campaignId,
     // Targeting (stored as JSON map)
@@ -138,6 +141,9 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       clientName: json['clientName'] as String? ?? json['brandName'] as String?,
       clientAvatarColor: json['clientAvatarColor'] as String? ??
           json['brandAvatarColor'] as String?,
+      clientAvatarImage: json['clientAvatarImage'] as String?,
+      threadImage: json['threadImage'] as String?,
+      opportunityImage: json['opportunityImage'] as String?,
       campaignId: json['campaignId'] as String?,
       targeting: json['targeting'] as Map<String, dynamic>?,
       // Bonus reward configuration
@@ -176,6 +182,9 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       clientId: clientId,
       clientName: clientName,
       clientAvatarColor: clientAvatarColor,
+      clientAvatarImage: clientAvatarImage,
+      threadImage: threadImage,
+      opportunityImage: opportunityImage,
       campaignId: campaignId,
       targeting:
           targeting != null ? TargetingCriteria.fromJson(targeting!) : null,
@@ -216,6 +225,9 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       clientId: entity.clientId,
       clientName: entity.clientName,
       clientAvatarColor: entity.clientAvatarColor,
+      clientAvatarImage: entity.clientAvatarImage,
+      threadImage: entity.threadImage,
+      opportunityImage: entity.opportunityImage,
       campaignId: entity.campaignId,
       targeting: entity.targeting?.toJson(),
       // Bonus reward configuration
@@ -255,6 +267,9 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       'clientId': clientId,
       'clientName': clientName,
       'clientAvatarColor': clientAvatarColor,
+      'clientAvatarImage': clientAvatarImage,
+      'threadImage': threadImage,
+      'opportunityImage': opportunityImage,
       'campaignId': campaignId,
       'targeting': targeting,
       // Bonus reward configuration

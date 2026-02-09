@@ -321,7 +321,10 @@ mixin _$EarnOpportunity {
       throw _privateConstructorUsedError; // Denormalized client info
   String? get clientId => throw _privateConstructorUsedError;
   String? get clientName => throw _privateConstructorUsedError;
-  String? get clientAvatarColor =>
+  String? get clientAvatarColor => throw _privateConstructorUsedError;
+  String? get clientAvatarImage => throw _privateConstructorUsedError;
+  String? get threadImage => throw _privateConstructorUsedError;
+  String? get opportunityImage =>
       throw _privateConstructorUsedError; // Legacy campaign reference
   String? get campaignId => throw _privateConstructorUsedError; // Targeting
   TargetingCriteria? get targeting =>
@@ -376,6 +379,9 @@ abstract class $EarnOpportunityCopyWith<$Res> {
     String? clientId,
     String? clientName,
     String? clientAvatarColor,
+    String? clientAvatarImage,
+    String? threadImage,
+    String? opportunityImage,
     String? campaignId,
     TargetingCriteria? targeting,
     bool bonusReward,
@@ -425,6 +431,9 @@ class _$EarnOpportunityCopyWithImpl<$Res, $Val extends EarnOpportunity>
     Object? clientId = freezed,
     Object? clientName = freezed,
     Object? clientAvatarColor = freezed,
+    Object? clientAvatarImage = freezed,
+    Object? threadImage = freezed,
+    Object? opportunityImage = freezed,
     Object? campaignId = freezed,
     Object? targeting = freezed,
     Object? bonusReward = null,
@@ -504,6 +513,18 @@ class _$EarnOpportunityCopyWithImpl<$Res, $Val extends EarnOpportunity>
             clientAvatarColor: freezed == clientAvatarColor
                 ? _value.clientAvatarColor
                 : clientAvatarColor // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            clientAvatarImage: freezed == clientAvatarImage
+                ? _value.clientAvatarImage
+                : clientAvatarImage // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            threadImage: freezed == threadImage
+                ? _value.threadImage
+                : threadImage // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            opportunityImage: freezed == opportunityImage
+                ? _value.opportunityImage
+                : opportunityImage // ignore: cast_nullable_to_non_nullable
                       as String?,
             campaignId: freezed == campaignId
                 ? _value.campaignId
@@ -603,6 +624,9 @@ abstract class _$$EarnOpportunityImplCopyWith<$Res>
     String? clientId,
     String? clientName,
     String? clientAvatarColor,
+    String? clientAvatarImage,
+    String? threadImage,
+    String? opportunityImage,
     String? campaignId,
     TargetingCriteria? targeting,
     bool bonusReward,
@@ -652,6 +676,9 @@ class __$$EarnOpportunityImplCopyWithImpl<$Res>
     Object? clientId = freezed,
     Object? clientName = freezed,
     Object? clientAvatarColor = freezed,
+    Object? clientAvatarImage = freezed,
+    Object? threadImage = freezed,
+    Object? opportunityImage = freezed,
     Object? campaignId = freezed,
     Object? targeting = freezed,
     Object? bonusReward = null,
@@ -732,6 +759,18 @@ class __$$EarnOpportunityImplCopyWithImpl<$Res>
             ? _value.clientAvatarColor
             : clientAvatarColor // ignore: cast_nullable_to_non_nullable
                   as String?,
+        clientAvatarImage: freezed == clientAvatarImage
+            ? _value.clientAvatarImage
+            : clientAvatarImage // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        threadImage: freezed == threadImage
+            ? _value.threadImage
+            : threadImage // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        opportunityImage: freezed == opportunityImage
+            ? _value.opportunityImage
+            : opportunityImage // ignore: cast_nullable_to_non_nullable
+                  as String?,
         campaignId: freezed == campaignId
             ? _value.campaignId
             : campaignId // ignore: cast_nullable_to_non_nullable
@@ -809,6 +848,9 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
     this.clientId,
     this.clientName,
     this.clientAvatarColor,
+    this.clientAvatarImage,
+    this.threadImage,
+    this.opportunityImage,
     this.campaignId,
     this.targeting,
     this.bonusReward = false,
@@ -869,6 +911,12 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
   final String? clientName;
   @override
   final String? clientAvatarColor;
+  @override
+  final String? clientAvatarImage;
+  @override
+  final String? threadImage;
+  @override
+  final String? opportunityImage;
   // Legacy campaign reference
   @override
   final String? campaignId;
@@ -909,7 +957,7 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
 
   @override
   String toString() {
-    return 'EarnOpportunity(id: $id, threadId: $threadId, title: $title, description: $description, earningType: $earningType, tokenReward: $tokenReward, streakPoints: $streakPoints, mediaType: $mediaType, mediaUrl: $mediaUrl, questions: $questions, durationSeconds: $durationSeconds, expiresAt: $expiresAt, isActive: $isActive, clientId: $clientId, clientName: $clientName, clientAvatarColor: $clientAvatarColor, campaignId: $campaignId, targeting: $targeting, bonusReward: $bonusReward, bonusRewardMultiplier: $bonusRewardMultiplier, bonusIntervalType: $bonusIntervalType, bonusIntervalX: $bonusIntervalX, userEngagementStatus: $userEngagementStatus, userEngagementId: $userEngagementId, adUnitId: $adUnitId, dailyLimitPerUser: $dailyLimitPerUser, budgetExhausted: $budgetExhausted, tokenBudget: $tokenBudget, tokenSpent: $tokenSpent)';
+    return 'EarnOpportunity(id: $id, threadId: $threadId, title: $title, description: $description, earningType: $earningType, tokenReward: $tokenReward, streakPoints: $streakPoints, mediaType: $mediaType, mediaUrl: $mediaUrl, questions: $questions, durationSeconds: $durationSeconds, expiresAt: $expiresAt, isActive: $isActive, clientId: $clientId, clientName: $clientName, clientAvatarColor: $clientAvatarColor, clientAvatarImage: $clientAvatarImage, threadImage: $threadImage, opportunityImage: $opportunityImage, campaignId: $campaignId, targeting: $targeting, bonusReward: $bonusReward, bonusRewardMultiplier: $bonusRewardMultiplier, bonusIntervalType: $bonusIntervalType, bonusIntervalX: $bonusIntervalX, userEngagementStatus: $userEngagementStatus, userEngagementId: $userEngagementId, adUnitId: $adUnitId, dailyLimitPerUser: $dailyLimitPerUser, budgetExhausted: $budgetExhausted, tokenBudget: $tokenBudget, tokenSpent: $tokenSpent)';
   }
 
   @override
@@ -949,6 +997,12 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
                 other.clientName == clientName) &&
             (identical(other.clientAvatarColor, clientAvatarColor) ||
                 other.clientAvatarColor == clientAvatarColor) &&
+            (identical(other.clientAvatarImage, clientAvatarImage) ||
+                other.clientAvatarImage == clientAvatarImage) &&
+            (identical(other.threadImage, threadImage) ||
+                other.threadImage == threadImage) &&
+            (identical(other.opportunityImage, opportunityImage) ||
+                other.opportunityImage == opportunityImage) &&
             (identical(other.campaignId, campaignId) ||
                 other.campaignId == campaignId) &&
             (identical(other.targeting, targeting) ||
@@ -997,6 +1051,9 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
     clientId,
     clientName,
     clientAvatarColor,
+    clientAvatarImage,
+    threadImage,
+    opportunityImage,
     campaignId,
     targeting,
     bonusReward,
@@ -1047,6 +1104,9 @@ abstract class _EarnOpportunity extends EarnOpportunity {
     final String? clientId,
     final String? clientName,
     final String? clientAvatarColor,
+    final String? clientAvatarImage,
+    final String? threadImage,
+    final String? opportunityImage,
     final String? campaignId,
     final TargetingCriteria? targeting,
     final bool bonusReward,
@@ -1097,7 +1157,13 @@ abstract class _EarnOpportunity extends EarnOpportunity {
   @override
   String? get clientName;
   @override
-  String? get clientAvatarColor; // Legacy campaign reference
+  String? get clientAvatarColor;
+  @override
+  String? get clientAvatarImage;
+  @override
+  String? get threadImage;
+  @override
+  String? get opportunityImage; // Legacy campaign reference
   @override
   String? get campaignId; // Targeting
   @override
