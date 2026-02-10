@@ -50,7 +50,7 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     try {
-      // Load clients
+      // Load clients (active and not soft-deleted)
       final clientsSnapshot = await FirebaseFirestore.instance
           .collection('clients')
           .where('isActive', isEqualTo: true)
@@ -58,25 +58,30 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
 
       _clients = clientsSnapshot.docs
           .map((doc) => {'id': doc.id, ...doc.data()})
+          .where((c) => c['isDeleted'] != true)
           .toList();
 
-      // Load statistics
-      final threadsCount = await FirebaseFirestore.instance
+      // Load statistics (exclude soft-deleted)
+      final threadsSnapshot = await FirebaseFirestore.instance
           .collection('earnThreads')
           .where('isActive', isEqualTo: true)
-          .count()
           .get();
+      final activeThreads = threadsSnapshot.docs
+          .where((d) => (d.data())['isDeleted'] != true)
+          .length;
 
-      final opportunitiesCount = await FirebaseFirestore.instance
+      final opportunitiesSnapshot = await FirebaseFirestore.instance
           .collection('earnOpportunities')
           .where('isActive', isEqualTo: true)
-          .count()
           .get();
+      final activeOpportunities = opportunitiesSnapshot.docs
+          .where((d) => (d.data())['isDeleted'] != true)
+          .length;
 
       _statistics = {
         'activeClients': _clients.length,
-        'activeThreads': threadsCount.count,
-        'activeOpportunities': opportunitiesCount.count,
+        'activeThreads': activeThreads,
+        'activeOpportunities': activeOpportunities,
       };
 
       if (mounted) {
@@ -1719,9 +1724,7 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
 
     try {
       // Use createEarnThread CF — auto-creates sub-account if needed
-      final result = await FirebaseFunctions.instance
-          .httpsCallable('createEarnThread')
-          .call({
+      final callData = {
         'clientId': _selectedClientId,
         'title': _titleController.text.trim(),
         'description': _descriptionController.text.trim().isEmpty
@@ -1736,7 +1739,13 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
         'activeFrom': _activeFrom?.toIso8601String(),
         'activeTo': _activeTo?.toIso8601String(),
         'targeting': _targeting,
-      });
+      };
+      debugPrint('=== CALLING createEarnThread ===');
+      debugPrint('Data: $callData');
+      final result = await FirebaseFunctions.instance
+          .httpsCallable('createEarnThread')
+          .call(callData);
+      debugPrint('=== createEarnThread SUCCEEDED ===');
 
       final data = Map<String, dynamic>.from(result.data as Map);
       final createdThreadId = data['threadId'] as String?;
@@ -1808,13 +1817,27 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('=== CREATE CAMPAIGN ERROR ===');
+      debugPrint('Error type: ${e.runtimeType}');
+      debugPrint('Error: $e');
+      if (e is FirebaseFunctionsException) {
+        debugPrint('Code: ${e.code}');
+        debugPrint('Message: ${e.message}');
+        debugPrint('Details: ${e.details}');
+      }
+      debugPrint('Stack: $stackTrace');
+      debugPrint('=== END ERROR ===');
       if (mounted) {
         setState(() => _isLoading = false);
+        final msg = e is FirebaseFunctionsException
+            ? 'Error: [${e.code}] ${e.message ?? e.details ?? 'Unknown'}'
+            : 'Error creating campaign: $e';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error creating campaign: $e'),
+            content: Text(msg),
             backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 8),
           ),
         );
       }

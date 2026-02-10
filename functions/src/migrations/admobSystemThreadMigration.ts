@@ -13,7 +13,8 @@
 
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
-import { createClientAccount } from "../ledger/accounts";
+import { createClientAccount, getClientAccount, unfreezeAccount } from "../ledger/accounts";
+import { AccountId } from "../ledger/types";
 
 // Note: Firebase Admin is initialized in index.ts before this module is loaded
 // For standalone execution (npx ts-node), initialize conditionally
@@ -71,17 +72,27 @@ async function createClient(): Promise<void> {
   const clientRef = db.collection("clients").doc(ADMOB_CONFIG.CLIENT_ID);
   const clientDoc = await clientRef.get();
 
-  if (clientDoc.exists) {
+  if (clientDoc.exists && clientDoc.data()?.isDeleted !== true) {
     console.log("Client already exists:", ADMOB_CONFIG.CLIENT_ID);
     return;
   }
 
-  // Create proper ledger account (makes it appear on the Clients page)
-  await createClientAccount(ADMOB_CONFIG.CLIENT_ID, ADMOB_CONFIG.CLIENT_NAME, {
-    contactEmail: "platform@imalichat.com",
-    contactName: "Platform",
-    industry: "platform",
-  });
+  // Create or reactivate ledger account
+  const existingLedger = await getClientAccount(ADMOB_CONFIG.CLIENT_ID);
+  if (existingLedger && existingLedger.status !== "active") {
+    console.log("Reactivating closed ledger account...");
+    await unfreezeAccount(
+      AccountId.client(ADMOB_CONFIG.CLIENT_ID),
+      "Platform setup: recreating client",
+      "platform_setup"
+    );
+  } else if (!existingLedger) {
+    await createClientAccount(ADMOB_CONFIG.CLIENT_ID, ADMOB_CONFIG.CLIENT_NAME, {
+      contactEmail: "platform@imalichat.com",
+      contactName: "Platform",
+      industry: "platform",
+    });
+  }
 
   // Create client profile document (same shape as adminCreateClient)
   await clientRef.set({
@@ -123,7 +134,7 @@ async function createDefaultSubAccount(): Promise<void> {
 
   const subAccountDoc = await subAccountRef.get();
 
-  if (subAccountDoc.exists) {
+  if (subAccountDoc.exists && subAccountDoc.data()?.isDeleted !== true) {
     console.log("Default sub-account already exists");
     return;
   }
@@ -148,7 +159,7 @@ async function createThread(): Promise<void> {
   const threadRef = db.collection("earnThreads").doc(ADMOB_CONFIG.THREAD_ID);
   const threadDoc = await threadRef.get();
 
-  if (threadDoc.exists) {
+  if (threadDoc.exists && threadDoc.data()?.isDeleted !== true) {
     console.log("Thread already exists:", ADMOB_CONFIG.THREAD_ID);
     return;
   }
@@ -183,7 +194,7 @@ async function createAdMobOpportunity(): Promise<void> {
     .doc(ADMOB_CONFIG.OPPORTUNITY_ID);
   const opportunityDoc = await opportunityRef.get();
 
-  if (opportunityDoc.exists) {
+  if (opportunityDoc.exists && opportunityDoc.data()?.isDeleted !== true) {
     console.log("AdMob opportunity already exists:", ADMOB_CONFIG.OPPORTUNITY_ID);
     return;
   }

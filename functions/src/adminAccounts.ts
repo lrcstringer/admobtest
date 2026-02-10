@@ -1077,6 +1077,7 @@ export const adminSoftDeleteClient = functions.https.onCall(
           if (oppDoc.data().isDeleted !== true) {
             oppBatch.update(oppDoc.ref, {
               isDeleted: true,
+              isActive: false,
               deletedAt: now,
               deletedBy: uid,
               updatedAt: now,
@@ -1090,6 +1091,7 @@ export const adminSoftDeleteClient = functions.https.onCall(
       // Soft-delete the thread
       await threadDoc.ref.update({
         isDeleted: true,
+        isActive: false,
         deletedAt: now,
         deletedBy: uid,
         updatedAt: now,
@@ -1116,6 +1118,7 @@ export const adminSoftDeleteClient = functions.https.onCall(
     // 5. Mark client as deleted
     await clientRef.update({
       isDeleted: true,
+      isActive: false,
       deletedAt: now,
       deletedBy: uid,
       deletionReason: reason || null,

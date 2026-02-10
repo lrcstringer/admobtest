@@ -36,10 +36,10 @@ async function requireAdmin(
   }
 
   const token = context.auth.token;
-  if (!token.admin) {
+  if (!token.admin && !token.superAdmin) {
     throw new functions.https.HttpsError(
       "permission-denied",
-      "Must be an admin"
+      "Admin access required"
     );
   }
 }
@@ -55,6 +55,7 @@ async function requireAdmin(
  * Updated signature: uses clientId instead of brandId, supports targeting
  */
 export const createEarnThread = functions.https.onCall(async (data, context) => {
+  try {
   await requireAdmin(context);
 
   const {
@@ -275,6 +276,17 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     threadId: threadRef.id,
     subAccountId: resolvedSubAccountId,
   };
+  } catch (error: unknown) {
+    // Log the actual error for debugging
+    console.error("createEarnThread FAILED:", error);
+    if (error instanceof functions.https.HttpsError) {
+      throw error; // re-throw known errors as-is
+    }
+    throw new functions.https.HttpsError(
+      "internal",
+      `createEarnThread failed: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
 });
 
 /**
@@ -1840,6 +1852,7 @@ export const adminSoftDeleteOpportunity = functions.https.onCall(
     // Mark opportunity as deleted
     await oppRef.update({
       isDeleted: true,
+      isActive: false,
       deletedAt: now,
       deletedBy: context.auth!.uid,
       updatedAt: now,
@@ -1899,6 +1912,7 @@ export const adminSoftDeleteThread = functions.https.onCall(
         if (oppDoc.data().isDeleted !== true) {
           batch.update(oppDoc.ref, {
             isDeleted: true,
+            isActive: false,
             deletedAt: now,
             deletedBy: uid,
             updatedAt: now,
@@ -1912,6 +1926,7 @@ export const adminSoftDeleteThread = functions.https.onCall(
     // Mark thread as deleted
     await threadRef.update({
       isDeleted: true,
+      isActive: false,
       deletedAt: now,
       deletedBy: uid,
       updatedAt: now,
@@ -1926,5 +1941,80 @@ export const adminSoftDeleteThread = functions.https.onCall(
     }
 
     return { success: true, deletedOpportunities };
+  }
+);
+
+// ============================================================================
+// CLEANUP ORPHANED THREADS/OPPORTUNITIES
+// ============================================================================
+
+/**
+ * One-off admin cleanup: find threads whose parent client is deleted/missing
+ * and cascade soft-delete to them and their opportunities.
+ */
+export const adminCleanupOrphanedThreads = functions.https.onCall(
+  async (_data: unknown, context) => {
+    requireAppCheck(context, "adminCleanupOrphanedThreads");
+    await requireAdmin(context);
+
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const uid = context.auth!.uid;
+
+    // Get all non-deleted threads
+    const threadsSnapshot = await db
+      .collection("earnThreads")
+      .where("isDeleted", "!=", true)
+      .get();
+
+    let orphanedThreads = 0;
+    let orphanedOpportunities = 0;
+
+    for (const threadDoc of threadsSnapshot.docs) {
+      const thread = threadDoc.data();
+      if (!thread.clientId) continue;
+
+      // Check if parent client exists and is not deleted
+      const clientDoc = await db.collection("clients").doc(thread.clientId).get();
+      const clientDeleted = !clientDoc.exists || clientDoc.data()?.isDeleted === true;
+
+      if (!clientDeleted) continue;
+
+      // Cascade soft-delete opportunities
+      const oppsSnapshot = await db
+        .collection("earnOpportunities")
+        .where("threadId", "==", threadDoc.id)
+        .get();
+
+      if (!oppsSnapshot.empty) {
+        const batch = db.batch();
+        for (const oppDoc of oppsSnapshot.docs) {
+          if (oppDoc.data().isDeleted !== true) {
+            batch.update(oppDoc.ref, {
+              isDeleted: true,
+              isActive: false,
+              deletedAt: now,
+              deletedBy: uid,
+              deletionReason: "orphaned: parent client deleted",
+              updatedAt: now,
+            });
+            orphanedOpportunities++;
+          }
+        }
+        await batch.commit();
+      }
+
+      // Soft-delete the thread
+      await threadDoc.ref.update({
+        isDeleted: true,
+        isActive: false,
+        deletedAt: now,
+        deletedBy: uid,
+        deletionReason: "orphaned: parent client deleted",
+        updatedAt: now,
+      });
+      orphanedThreads++;
+    }
+
+    return { success: true, orphanedThreads, orphanedOpportunities };
   }
 );

@@ -58,14 +58,18 @@ class _PlatformManagementScreenState extends State<PlatformManagementScreen> {
 
       if (!mounted) return;
 
+      // Treat soft-deleted docs as non-existent
+      bool isAlive(DocumentSnapshot doc) =>
+          doc.exists && (doc.data() as Map<String, dynamic>?)?['isDeleted'] != true;
+
       setState(() {
-        _clientExists = results[0].exists;
+        _clientExists = isAlive(results[0]);
         _clientData = results[0].data();
-        _subAccountExists = results[1].exists;
+        _subAccountExists = isAlive(results[1]);
         _subAccountData = results[1].data();
-        _threadExists = results[2].exists;
+        _threadExists = isAlive(results[2]);
         _threadData = results[2].data();
-        _opportunityExists = results[3].exists;
+        _opportunityExists = isAlive(results[3]);
         _opportunityData = results[3].data();
         _isLoading = false;
       });
