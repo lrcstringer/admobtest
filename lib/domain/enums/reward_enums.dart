@@ -3,10 +3,7 @@ enum RewardType {
   qrCode,
   voucherCode,
   discountCode,
-  freebie,
-  eventTicket,
   digitalContent,
-  custom,
 }
 
 extension RewardTypeX on RewardType {
@@ -18,31 +15,13 @@ extension RewardTypeX on RewardType {
         return 'Voucher Code';
       case RewardType.discountCode:
         return 'Discount Code';
-      case RewardType.freebie:
-        return 'Freebie';
-      case RewardType.eventTicket:
-        return 'Event Ticket';
       case RewardType.digitalContent:
         return 'Digital Content';
-      case RewardType.custom:
-        return 'Custom';
     }
   }
 
   /// Whether this reward type has a scannable/copyable code
-  bool get hasCode {
-    switch (this) {
-      case RewardType.qrCode:
-      case RewardType.voucherCode:
-      case RewardType.discountCode:
-        return true;
-      case RewardType.freebie:
-      case RewardType.eventTicket:
-      case RewardType.digitalContent:
-      case RewardType.custom:
-        return false;
-    }
-  }
+  bool get hasCode => true;
 
   /// Whether this reward type should display a QR code
   bool get isQrType => this == RewardType.qrCode;
@@ -59,18 +38,11 @@ extension RewardTypeX on RewardType {
       case 'discount_code':
       case 'discountCode':
         return RewardType.discountCode;
-      case 'freebie':
-        return RewardType.freebie;
-      case 'event_ticket':
-      case 'eventTicket':
-        return RewardType.eventTicket;
       case 'digital_content':
       case 'digitalContent':
         return RewardType.digitalContent;
-      case 'custom':
-        return RewardType.custom;
       default:
-        return RewardType.custom;
+        return RewardType.voucherCode;
     }
   }
 
@@ -83,14 +55,8 @@ extension RewardTypeX on RewardType {
         return 'voucher_code';
       case RewardType.discountCode:
         return 'discount_code';
-      case RewardType.freebie:
-        return 'freebie';
-      case RewardType.eventTicket:
-        return 'event_ticket';
       case RewardType.digitalContent:
         return 'digital_content';
-      case RewardType.custom:
-        return 'custom';
     }
   }
 }

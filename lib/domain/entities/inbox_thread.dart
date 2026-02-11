@@ -52,10 +52,6 @@ class InboxThread with _$InboxThread {
         return 'Voucher';
       case 'discountCode':
         return 'Discount';
-      case 'freebie':
-        return 'Freebie';
-      case 'eventTicket':
-        return 'Event Ticket';
       case 'digitalContent':
         return 'Digital Content';
       default:

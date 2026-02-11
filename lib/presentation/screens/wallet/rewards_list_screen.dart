@@ -219,16 +219,9 @@ class _RewardsListScreenState extends State<RewardsListScreen>
       case RewardType.discountCode:
         icon = Icons.percent;
         color = AppColors.success;
-      case RewardType.freebie:
-        icon = Icons.card_giftcard;
-        color = AppColors.accent;
-      case RewardType.eventTicket:
-        icon = Icons.event;
-        color = AppColors.warning;
       case RewardType.digitalContent:
         icon = Icons.download;
         color = AppColors.info;
-      case RewardType.custom:
       case null:
         icon = Icons.card_giftcard;
         color = AppColors.accent;

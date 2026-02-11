@@ -69,10 +69,7 @@ const _$RewardTypeEnumMap = {
   RewardType.qrCode: 'qrCode',
   RewardType.voucherCode: 'voucherCode',
   RewardType.discountCode: 'discountCode',
-  RewardType.freebie: 'freebie',
-  RewardType.eventTicket: 'eventTicket',
   RewardType.digitalContent: 'digitalContent',
-  RewardType.custom: 'custom',
 };
 
 const _$CampaignStatusEnumMap = {

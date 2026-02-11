@@ -263,7 +263,9 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
               const DropdownMenuItem(value: null, child: Text('All Clients')),
               ..._clients.map((c) => DropdownMenuItem(
                     value: c['id'] as String,
-                    child: Text(c['name'] as String? ?? 'Unknown'),
+                    child: Text(c['displayName'] as String? ??
+                        c['companyName'] as String? ??
+                        'Unknown'),
                   )),
             ],
             onChanged: (val) => setState(() => _filterClientId = val),
@@ -471,7 +473,7 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '$allocated / $total allocated',
+                          '$allocated / $total allocated  ·  $redeemed redeemed',
                           style: TextStyle(
                               fontSize: 12, color: AppColors.textSecondary),
                         ),
@@ -625,14 +627,10 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
         return 'Voucher Code';
       case 'discount_code':
         return 'Discount Code';
-      case 'freebie':
-        return 'Freebie';
-      case 'event_ticket':
-        return 'Event Ticket';
       case 'digital_content':
         return 'Digital Content';
       default:
-        return 'Custom';
+        return type;
     }
   }
 
@@ -661,7 +659,10 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
       final fn = FirebaseFunctions.instance.httpsCallable(
         'updateRewardCampaign',
       );
-      await fn.call({'campaignId': campaignId, 'status': newStatus});
+      await fn.call({
+        'campaignId': campaignId,
+        'updates': {'status': newStatus},
+      });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1002,16 +1003,18 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
         );
         await fn.call({
           'campaignId': widget.campaign!['id'],
-          'name': _nameController.text,
-          'description': _descriptionController.text,
-          'rewardType': _rewardType,
-          'startsAt': _startsAt!.toIso8601String(),
-          'endsAt': _endsAt!.toIso8601String(),
-          if (_itemExpiresAt != null)
-            'itemExpiresAt': _itemExpiresAt!.toIso8601String(),
-          'maxPerUser': _maxPerUser,
-          'metadata': metadata,
-          'abTest': abTestData,
+          'updates': {
+            'name': _nameController.text,
+            'description': _descriptionController.text,
+            'rewardType': _rewardType,
+            'startsAt': _startsAt!.toIso8601String(),
+            'endsAt': _endsAt!.toIso8601String(),
+            if (_itemExpiresAt != null)
+              'itemExpiresAt': _itemExpiresAt!.toIso8601String(),
+            'maxPerUser': _maxPerUser,
+            'metadata': metadata,
+            'abTest': abTestData,
+          },
         });
       } else {
         final fn = FirebaseFunctions.instance.httpsCallable(
@@ -1109,7 +1112,9 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
                     items: widget.clients
                         .map((c) => DropdownMenuItem(
                               value: c['id'] as String,
-                              child: Text(c['name'] as String? ?? 'Unknown'),
+                              child: Text(c['displayName'] as String? ??
+                                  c['companyName'] as String? ??
+                                  'Unknown'),
                             ))
                         .toList(),
                     onChanged: (v) => setState(() => _clientId = v),
@@ -1155,15 +1160,8 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
                         value: 'discount_code',
                         child: Text('Discount Code')),
                     DropdownMenuItem(
-                        value: 'freebie', child: Text('Freebie')),
-                    DropdownMenuItem(
-                        value: 'event_ticket',
-                        child: Text('Event Ticket')),
-                    DropdownMenuItem(
                         value: 'digital_content',
                         child: Text('Digital Content')),
-                    DropdownMenuItem(
-                        value: 'custom', child: Text('Custom')),
                   ],
                   onChanged: (v) =>
                       setState(() => _rewardType = v ?? 'qr_code'),

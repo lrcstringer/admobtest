@@ -16,10 +16,7 @@ const VALID_REWARD_TYPES = [
   "qr_code",
   "voucher_code",
   "discount_code",
-  "freebie",
-  "event_ticket",
   "digital_content",
-  "custom",
 ] as const;
 
 // Valid campaign statuses
