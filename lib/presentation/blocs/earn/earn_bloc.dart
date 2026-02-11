@@ -42,6 +42,8 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     on<_AdReadyStateChanged>(_onAdReadyStateChanged);
     on<_AdLoadingStateChanged>(_onAdLoadingStateChanged);
     on<_AdLoadAttemptChanged>(_onAdLoadAttemptChanged);
+    on<_SubmitUpload>(_onSubmitUpload);
+    on<_UploadProgressChanged>(_onUploadProgressChanged);
 
     // Listen to AdMob service state changes — route through events
     _adMobService.isAdReady.addListener(_onAdReadyChanged);
@@ -202,18 +204,27 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
         ));
       },
       (engagement) {
-        // Use watchingAd phase for adVideo opportunities
+        // Determine phase based on earning type
         final isAdVideo =
             state.selectedOpportunity?.earningType == EarningType.adVideo ||
                 state.opportunities.any((o) =>
                     o.id == event.opportunityId &&
                     o.earningType == EarningType.adVideo);
+        final isUpload =
+            state.selectedOpportunity?.earningType == EarningType.upload ||
+                state.opportunities.any((o) =>
+                    o.id == event.opportunityId &&
+                    o.earningType == EarningType.upload);
+
+        final phase = isAdVideo
+            ? EngagementPhase.watchingAd
+            : isUpload
+                ? EngagementPhase.uploading
+                : EngagementPhase.watching;
 
         emit(state.copyWith(
           currentEngagement: engagement,
-          engagementPhase: isAdVideo
-              ? EngagementPhase.watchingAd
-              : EngagementPhase.watching,
+          engagementPhase: phase,
         ));
       },
     );
@@ -265,9 +276,16 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
         ));
       },
       (engagement) {
+        // Check if the opportunity has a linked reward campaign
+        final opp = state.selectedOpportunity;
+        final hasReward = opp?.hasRewardCampaign ?? false;
+
         emit(state.copyWith(
           currentEngagement: engagement,
           engagementPhase: EngagementPhase.completed,
+          rewardPending: hasReward,
+          rewardCampaignName: hasReward ? opp?.rewardCampaignName : null,
+          rewardType: hasReward ? opp?.rewardType : null,
         ));
       },
     );
@@ -419,6 +437,9 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
       engagementPhase: EngagementPhase.idle,
       adTransactionId: null,
       adResponseId: null,
+      rewardPending: false,
+      rewardCampaignName: null,
+      rewardType: null,
     ));
   }
 
@@ -504,6 +525,64 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     Emitter<EarnState> emit,
   ) {
     emit(state.copyWith(adLoadAttempt: event.attempt));
+  }
+
+  // =========================================================================
+  // Upload handlers
+  // =========================================================================
+
+  Future<void> _onSubmitUpload(
+    _SubmitUpload event,
+    Emitter<EarnState> emit,
+  ) async {
+    emit(state.copyWith(engagementPhase: EngagementPhase.submitting));
+
+    final result = await _earnRepository.submitSurvey(
+      engagementId: event.engagementId,
+      answers: const [], // No survey answers for upload
+      evidence: event.evidence,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(
+          engagementPhase: EngagementPhase.failed,
+          errorMessage: failure.displayMessage,
+        ));
+      },
+      (engagement) {
+        // Check if engagement is pending review
+        final isPending =
+            engagement.status == EngagementStatus.pendingReview;
+
+        // Check if the opportunity has a linked reward campaign
+        final opp = state.selectedOpportunity;
+        final hasReward = opp?.hasRewardCampaign ?? false;
+
+        emit(state.copyWith(
+          currentEngagement: engagement,
+          engagementPhase: EngagementPhase.completed,
+          isPendingReview: isPending,
+          uploadProgress: null,
+          uploadBytesTransferred: null,
+          uploadTotalBytes: null,
+          rewardPending: hasReward,
+          rewardCampaignName: hasReward ? opp?.rewardCampaignName : null,
+          rewardType: hasReward ? opp?.rewardType : null,
+        ));
+      },
+    );
+  }
+
+  void _onUploadProgressChanged(
+    _UploadProgressChanged event,
+    Emitter<EarnState> emit,
+  ) {
+    emit(state.copyWith(
+      uploadProgress: event.progress,
+      uploadBytesTransferred: event.bytesTransferred,
+      uploadTotalBytes: event.totalBytes,
+    ));
   }
 
   /// Show the loaded ad and return result

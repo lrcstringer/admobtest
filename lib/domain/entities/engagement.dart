@@ -18,7 +18,7 @@ class Engagement with _$Engagement {
     DateTime? completedAt,
     required int watchDurationSeconds,
     required int requiredDurationSeconds,
-    required List<EngagementAnswer> answers,
+    required List<SurveyResponse> answers,
     EngagementEvidence? evidence,
     int? tokensEarned,
     String? failureReason,
@@ -75,16 +75,40 @@ class Engagement with _$Engagement {
   bool get hasWatchedAd => adWatched == true;
 }
 
-/// Answer to a survey question
+/// Type-discriminated survey response — supports all 6 question types
 @freezed
-class EngagementAnswer with _$EngagementAnswer {
-  const factory EngagementAnswer({
+class SurveyResponse with _$SurveyResponse {
+  const factory SurveyResponse({
     required String questionId,
-    required String selectedOption,
+    required String questionType,
     required DateTime answeredAt,
-    bool? isCorrect,
-  }) = _EngagementAnswer;
 
-  factory EngagementAnswer.fromJson(Map<String, dynamic> json) =>
-      _$EngagementAnswerFromJson(json);
+    // single_select
+    String? selectedOption,
+
+    // multi_select
+    List<String>? selectedOptions,
+
+    // text_input
+    List<String>? textResponses,
+
+    // likert
+    int? likertValue,
+
+    // star_tags
+    int? starRating,
+    List<String>? selectedTags,
+
+    // slider
+    double? sliderValue,
+
+    // attention check result
+    bool? isCorrect,
+  }) = _SurveyResponse;
+
+  factory SurveyResponse.fromJson(Map<String, dynamic> json) =>
+      _$SurveyResponseFromJson(json);
 }
+
+/// Legacy alias for code that still references EngagementAnswer
+typedef EngagementAnswer = SurveyResponse;

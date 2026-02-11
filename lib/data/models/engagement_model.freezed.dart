@@ -16,55 +16,79 @@ final _privateConstructorUsedError = UnsupportedError(
 );
 
 /// @nodoc
-mixin _$EngagementAnswerModel {
+mixin _$SurveyResponseModel {
   String get questionId => throw _privateConstructorUsedError;
-  String get selectedOption => throw _privateConstructorUsedError;
-  DateTime get answeredAt => throw _privateConstructorUsedError;
+  String get questionType => throw _privateConstructorUsedError;
+  DateTime get answeredAt =>
+      throw _privateConstructorUsedError; // single_select
+  String? get selectedOption =>
+      throw _privateConstructorUsedError; // multi_select
+  List<String>? get selectedOptions =>
+      throw _privateConstructorUsedError; // text_input
+  List<String>? get textResponses =>
+      throw _privateConstructorUsedError; // likert
+  int? get likertValue => throw _privateConstructorUsedError; // star_tags
+  int? get starRating => throw _privateConstructorUsedError;
+  List<String>? get selectedTags =>
+      throw _privateConstructorUsedError; // slider
+  double? get sliderValue =>
+      throw _privateConstructorUsedError; // attention check result
   bool? get isCorrect => throw _privateConstructorUsedError;
 
-  /// Create a copy of EngagementAnswerModel
+  /// Create a copy of SurveyResponseModel
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $EngagementAnswerModelCopyWith<EngagementAnswerModel> get copyWith =>
+  $SurveyResponseModelCopyWith<SurveyResponseModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $EngagementAnswerModelCopyWith<$Res> {
-  factory $EngagementAnswerModelCopyWith(
-    EngagementAnswerModel value,
-    $Res Function(EngagementAnswerModel) then,
-  ) = _$EngagementAnswerModelCopyWithImpl<$Res, EngagementAnswerModel>;
+abstract class $SurveyResponseModelCopyWith<$Res> {
+  factory $SurveyResponseModelCopyWith(
+    SurveyResponseModel value,
+    $Res Function(SurveyResponseModel) then,
+  ) = _$SurveyResponseModelCopyWithImpl<$Res, SurveyResponseModel>;
   @useResult
   $Res call({
     String questionId,
-    String selectedOption,
+    String questionType,
     DateTime answeredAt,
+    String? selectedOption,
+    List<String>? selectedOptions,
+    List<String>? textResponses,
+    int? likertValue,
+    int? starRating,
+    List<String>? selectedTags,
+    double? sliderValue,
     bool? isCorrect,
   });
 }
 
 /// @nodoc
-class _$EngagementAnswerModelCopyWithImpl<
-  $Res,
-  $Val extends EngagementAnswerModel
->
-    implements $EngagementAnswerModelCopyWith<$Res> {
-  _$EngagementAnswerModelCopyWithImpl(this._value, this._then);
+class _$SurveyResponseModelCopyWithImpl<$Res, $Val extends SurveyResponseModel>
+    implements $SurveyResponseModelCopyWith<$Res> {
+  _$SurveyResponseModelCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of EngagementAnswerModel
+  /// Create a copy of SurveyResponseModel
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? questionId = null,
-    Object? selectedOption = null,
+    Object? questionType = null,
     Object? answeredAt = null,
+    Object? selectedOption = freezed,
+    Object? selectedOptions = freezed,
+    Object? textResponses = freezed,
+    Object? likertValue = freezed,
+    Object? starRating = freezed,
+    Object? selectedTags = freezed,
+    Object? sliderValue = freezed,
     Object? isCorrect = freezed,
   }) {
     return _then(
@@ -73,14 +97,42 @@ class _$EngagementAnswerModelCopyWithImpl<
                 ? _value.questionId
                 : questionId // ignore: cast_nullable_to_non_nullable
                       as String,
-            selectedOption: null == selectedOption
-                ? _value.selectedOption
-                : selectedOption // ignore: cast_nullable_to_non_nullable
+            questionType: null == questionType
+                ? _value.questionType
+                : questionType // ignore: cast_nullable_to_non_nullable
                       as String,
             answeredAt: null == answeredAt
                 ? _value.answeredAt
                 : answeredAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            selectedOption: freezed == selectedOption
+                ? _value.selectedOption
+                : selectedOption // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            selectedOptions: freezed == selectedOptions
+                ? _value.selectedOptions
+                : selectedOptions // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
+            textResponses: freezed == textResponses
+                ? _value.textResponses
+                : textResponses // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
+            likertValue: freezed == likertValue
+                ? _value.likertValue
+                : likertValue // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            starRating: freezed == starRating
+                ? _value.starRating
+                : starRating // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            selectedTags: freezed == selectedTags
+                ? _value.selectedTags
+                : selectedTags // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
+            sliderValue: freezed == sliderValue
+                ? _value.sliderValue
+                : sliderValue // ignore: cast_nullable_to_non_nullable
+                      as double?,
             isCorrect: freezed == isCorrect
                 ? _value.isCorrect
                 : isCorrect // ignore: cast_nullable_to_non_nullable
@@ -92,56 +144,97 @@ class _$EngagementAnswerModelCopyWithImpl<
 }
 
 /// @nodoc
-abstract class _$$EngagementAnswerModelImplCopyWith<$Res>
-    implements $EngagementAnswerModelCopyWith<$Res> {
-  factory _$$EngagementAnswerModelImplCopyWith(
-    _$EngagementAnswerModelImpl value,
-    $Res Function(_$EngagementAnswerModelImpl) then,
-  ) = __$$EngagementAnswerModelImplCopyWithImpl<$Res>;
+abstract class _$$SurveyResponseModelImplCopyWith<$Res>
+    implements $SurveyResponseModelCopyWith<$Res> {
+  factory _$$SurveyResponseModelImplCopyWith(
+    _$SurveyResponseModelImpl value,
+    $Res Function(_$SurveyResponseModelImpl) then,
+  ) = __$$SurveyResponseModelImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({
     String questionId,
-    String selectedOption,
+    String questionType,
     DateTime answeredAt,
+    String? selectedOption,
+    List<String>? selectedOptions,
+    List<String>? textResponses,
+    int? likertValue,
+    int? starRating,
+    List<String>? selectedTags,
+    double? sliderValue,
     bool? isCorrect,
   });
 }
 
 /// @nodoc
-class __$$EngagementAnswerModelImplCopyWithImpl<$Res>
-    extends
-        _$EngagementAnswerModelCopyWithImpl<$Res, _$EngagementAnswerModelImpl>
-    implements _$$EngagementAnswerModelImplCopyWith<$Res> {
-  __$$EngagementAnswerModelImplCopyWithImpl(
-    _$EngagementAnswerModelImpl _value,
-    $Res Function(_$EngagementAnswerModelImpl) _then,
+class __$$SurveyResponseModelImplCopyWithImpl<$Res>
+    extends _$SurveyResponseModelCopyWithImpl<$Res, _$SurveyResponseModelImpl>
+    implements _$$SurveyResponseModelImplCopyWith<$Res> {
+  __$$SurveyResponseModelImplCopyWithImpl(
+    _$SurveyResponseModelImpl _value,
+    $Res Function(_$SurveyResponseModelImpl) _then,
   ) : super(_value, _then);
 
-  /// Create a copy of EngagementAnswerModel
+  /// Create a copy of SurveyResponseModel
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? questionId = null,
-    Object? selectedOption = null,
+    Object? questionType = null,
     Object? answeredAt = null,
+    Object? selectedOption = freezed,
+    Object? selectedOptions = freezed,
+    Object? textResponses = freezed,
+    Object? likertValue = freezed,
+    Object? starRating = freezed,
+    Object? selectedTags = freezed,
+    Object? sliderValue = freezed,
     Object? isCorrect = freezed,
   }) {
     return _then(
-      _$EngagementAnswerModelImpl(
+      _$SurveyResponseModelImpl(
         questionId: null == questionId
             ? _value.questionId
             : questionId // ignore: cast_nullable_to_non_nullable
                   as String,
-        selectedOption: null == selectedOption
-            ? _value.selectedOption
-            : selectedOption // ignore: cast_nullable_to_non_nullable
+        questionType: null == questionType
+            ? _value.questionType
+            : questionType // ignore: cast_nullable_to_non_nullable
                   as String,
         answeredAt: null == answeredAt
             ? _value.answeredAt
             : answeredAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        selectedOption: freezed == selectedOption
+            ? _value.selectedOption
+            : selectedOption // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        selectedOptions: freezed == selectedOptions
+            ? _value._selectedOptions
+            : selectedOptions // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
+        textResponses: freezed == textResponses
+            ? _value._textResponses
+            : textResponses // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
+        likertValue: freezed == likertValue
+            ? _value.likertValue
+            : likertValue // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        starRating: freezed == starRating
+            ? _value.starRating
+            : starRating // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        selectedTags: freezed == selectedTags
+            ? _value._selectedTags
+            : selectedTags // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
+        sliderValue: freezed == sliderValue
+            ? _value.sliderValue
+            : sliderValue // ignore: cast_nullable_to_non_nullable
+                  as double?,
         isCorrect: freezed == isCorrect
             ? _value.isCorrect
             : isCorrect // ignore: cast_nullable_to_non_nullable
@@ -153,39 +246,116 @@ class __$$EngagementAnswerModelImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$EngagementAnswerModelImpl extends _EngagementAnswerModel {
-  const _$EngagementAnswerModelImpl({
+class _$SurveyResponseModelImpl extends _SurveyResponseModel {
+  const _$SurveyResponseModelImpl({
     required this.questionId,
-    required this.selectedOption,
+    required this.questionType,
     required this.answeredAt,
+    this.selectedOption,
+    final List<String>? selectedOptions,
+    final List<String>? textResponses,
+    this.likertValue,
+    this.starRating,
+    final List<String>? selectedTags,
+    this.sliderValue,
     this.isCorrect,
-  }) : super._();
+  }) : _selectedOptions = selectedOptions,
+       _textResponses = textResponses,
+       _selectedTags = selectedTags,
+       super._();
 
   @override
   final String questionId;
   @override
-  final String selectedOption;
+  final String questionType;
   @override
   final DateTime answeredAt;
+  // single_select
+  @override
+  final String? selectedOption;
+  // multi_select
+  final List<String>? _selectedOptions;
+  // multi_select
+  @override
+  List<String>? get selectedOptions {
+    final value = _selectedOptions;
+    if (value == null) return null;
+    if (_selectedOptions is EqualUnmodifiableListView) return _selectedOptions;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  // text_input
+  final List<String>? _textResponses;
+  // text_input
+  @override
+  List<String>? get textResponses {
+    final value = _textResponses;
+    if (value == null) return null;
+    if (_textResponses is EqualUnmodifiableListView) return _textResponses;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  // likert
+  @override
+  final int? likertValue;
+  // star_tags
+  @override
+  final int? starRating;
+  final List<String>? _selectedTags;
+  @override
+  List<String>? get selectedTags {
+    final value = _selectedTags;
+    if (value == null) return null;
+    if (_selectedTags is EqualUnmodifiableListView) return _selectedTags;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  // slider
+  @override
+  final double? sliderValue;
+  // attention check result
   @override
   final bool? isCorrect;
 
   @override
   String toString() {
-    return 'EngagementAnswerModel(questionId: $questionId, selectedOption: $selectedOption, answeredAt: $answeredAt, isCorrect: $isCorrect)';
+    return 'SurveyResponseModel(questionId: $questionId, questionType: $questionType, answeredAt: $answeredAt, selectedOption: $selectedOption, selectedOptions: $selectedOptions, textResponses: $textResponses, likertValue: $likertValue, starRating: $starRating, selectedTags: $selectedTags, sliderValue: $sliderValue, isCorrect: $isCorrect)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$EngagementAnswerModelImpl &&
+            other is _$SurveyResponseModelImpl &&
             (identical(other.questionId, questionId) ||
                 other.questionId == questionId) &&
-            (identical(other.selectedOption, selectedOption) ||
-                other.selectedOption == selectedOption) &&
+            (identical(other.questionType, questionType) ||
+                other.questionType == questionType) &&
             (identical(other.answeredAt, answeredAt) ||
                 other.answeredAt == answeredAt) &&
+            (identical(other.selectedOption, selectedOption) ||
+                other.selectedOption == selectedOption) &&
+            const DeepCollectionEquality().equals(
+              other._selectedOptions,
+              _selectedOptions,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._textResponses,
+              _textResponses,
+            ) &&
+            (identical(other.likertValue, likertValue) ||
+                other.likertValue == likertValue) &&
+            (identical(other.starRating, starRating) ||
+                other.starRating == starRating) &&
+            const DeepCollectionEquality().equals(
+              other._selectedTags,
+              _selectedTags,
+            ) &&
+            (identical(other.sliderValue, sliderValue) ||
+                other.sliderValue == sliderValue) &&
             (identical(other.isCorrect, isCorrect) ||
                 other.isCorrect == isCorrect));
   }
@@ -194,48 +364,75 @@ class _$EngagementAnswerModelImpl extends _EngagementAnswerModel {
   int get hashCode => Object.hash(
     runtimeType,
     questionId,
-    selectedOption,
+    questionType,
     answeredAt,
+    selectedOption,
+    const DeepCollectionEquality().hash(_selectedOptions),
+    const DeepCollectionEquality().hash(_textResponses),
+    likertValue,
+    starRating,
+    const DeepCollectionEquality().hash(_selectedTags),
+    sliderValue,
     isCorrect,
   );
 
-  /// Create a copy of EngagementAnswerModel
+  /// Create a copy of SurveyResponseModel
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$EngagementAnswerModelImplCopyWith<_$EngagementAnswerModelImpl>
-  get copyWith =>
-      __$$EngagementAnswerModelImplCopyWithImpl<_$EngagementAnswerModelImpl>(
+  _$$SurveyResponseModelImplCopyWith<_$SurveyResponseModelImpl> get copyWith =>
+      __$$SurveyResponseModelImplCopyWithImpl<_$SurveyResponseModelImpl>(
         this,
         _$identity,
       );
 }
 
-abstract class _EngagementAnswerModel extends EngagementAnswerModel {
-  const factory _EngagementAnswerModel({
+abstract class _SurveyResponseModel extends SurveyResponseModel {
+  const factory _SurveyResponseModel({
     required final String questionId,
-    required final String selectedOption,
+    required final String questionType,
     required final DateTime answeredAt,
+    final String? selectedOption,
+    final List<String>? selectedOptions,
+    final List<String>? textResponses,
+    final int? likertValue,
+    final int? starRating,
+    final List<String>? selectedTags,
+    final double? sliderValue,
     final bool? isCorrect,
-  }) = _$EngagementAnswerModelImpl;
-  const _EngagementAnswerModel._() : super._();
+  }) = _$SurveyResponseModelImpl;
+  const _SurveyResponseModel._() : super._();
 
   @override
   String get questionId;
   @override
-  String get selectedOption;
+  String get questionType;
   @override
-  DateTime get answeredAt;
+  DateTime get answeredAt; // single_select
+  @override
+  String? get selectedOption; // multi_select
+  @override
+  List<String>? get selectedOptions; // text_input
+  @override
+  List<String>? get textResponses; // likert
+  @override
+  int? get likertValue; // star_tags
+  @override
+  int? get starRating;
+  @override
+  List<String>? get selectedTags; // slider
+  @override
+  double? get sliderValue; // attention check result
   @override
   bool? get isCorrect;
 
-  /// Create a copy of EngagementAnswerModel
+  /// Create a copy of SurveyResponseModel
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$EngagementAnswerModelImplCopyWith<_$EngagementAnswerModelImpl>
-  get copyWith => throw _privateConstructorUsedError;
+  _$$SurveyResponseModelImplCopyWith<_$SurveyResponseModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -253,7 +450,13 @@ mixin _$EngagementEvidenceModel {
       throw _privateConstructorUsedError; // AdMob verification fields
   String? get adTransactionId => throw _privateConstructorUsedError;
   bool? get adFullyWatched => throw _privateConstructorUsedError;
-  String? get adResponseId => throw _privateConstructorUsedError;
+  String? get adResponseId =>
+      throw _privateConstructorUsedError; // Upload evidence fields
+  List<Map<String, dynamic>>? get uploadedFiles =>
+      throw _privateConstructorUsedError;
+  String? get uploadTextResponse => throw _privateConstructorUsedError;
+  DateTime? get uploadStartedAt => throw _privateConstructorUsedError;
+  DateTime? get uploadCompletedAt => throw _privateConstructorUsedError;
 
   /// Create a copy of EngagementEvidenceModel
   /// with the given fields replaced by the non-null parameter values.
@@ -283,6 +486,10 @@ abstract class $EngagementEvidenceModelCopyWith<$Res> {
     String? adTransactionId,
     bool? adFullyWatched,
     String? adResponseId,
+    List<Map<String, dynamic>>? uploadedFiles,
+    String? uploadTextResponse,
+    DateTime? uploadStartedAt,
+    DateTime? uploadCompletedAt,
   });
 }
 
@@ -317,6 +524,10 @@ class _$EngagementEvidenceModelCopyWithImpl<
     Object? adTransactionId = freezed,
     Object? adFullyWatched = freezed,
     Object? adResponseId = freezed,
+    Object? uploadedFiles = freezed,
+    Object? uploadTextResponse = freezed,
+    Object? uploadStartedAt = freezed,
+    Object? uploadCompletedAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -372,6 +583,22 @@ class _$EngagementEvidenceModelCopyWithImpl<
                 ? _value.adResponseId
                 : adResponseId // ignore: cast_nullable_to_non_nullable
                       as String?,
+            uploadedFiles: freezed == uploadedFiles
+                ? _value.uploadedFiles
+                : uploadedFiles // ignore: cast_nullable_to_non_nullable
+                      as List<Map<String, dynamic>>?,
+            uploadTextResponse: freezed == uploadTextResponse
+                ? _value.uploadTextResponse
+                : uploadTextResponse // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            uploadStartedAt: freezed == uploadStartedAt
+                ? _value.uploadStartedAt
+                : uploadStartedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            uploadCompletedAt: freezed == uploadCompletedAt
+                ? _value.uploadCompletedAt
+                : uploadCompletedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -401,6 +628,10 @@ abstract class _$$EngagementEvidenceModelImplCopyWith<$Res>
     String? adTransactionId,
     bool? adFullyWatched,
     String? adResponseId,
+    List<Map<String, dynamic>>? uploadedFiles,
+    String? uploadTextResponse,
+    DateTime? uploadStartedAt,
+    DateTime? uploadCompletedAt,
   });
 }
 
@@ -435,6 +666,10 @@ class __$$EngagementEvidenceModelImplCopyWithImpl<$Res>
     Object? adTransactionId = freezed,
     Object? adFullyWatched = freezed,
     Object? adResponseId = freezed,
+    Object? uploadedFiles = freezed,
+    Object? uploadTextResponse = freezed,
+    Object? uploadStartedAt = freezed,
+    Object? uploadCompletedAt = freezed,
   }) {
     return _then(
       _$EngagementEvidenceModelImpl(
@@ -490,6 +725,22 @@ class __$$EngagementEvidenceModelImplCopyWithImpl<$Res>
             ? _value.adResponseId
             : adResponseId // ignore: cast_nullable_to_non_nullable
                   as String?,
+        uploadedFiles: freezed == uploadedFiles
+            ? _value._uploadedFiles
+            : uploadedFiles // ignore: cast_nullable_to_non_nullable
+                  as List<Map<String, dynamic>>?,
+        uploadTextResponse: freezed == uploadTextResponse
+            ? _value.uploadTextResponse
+            : uploadTextResponse // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        uploadStartedAt: freezed == uploadStartedAt
+            ? _value.uploadStartedAt
+            : uploadStartedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        uploadCompletedAt: freezed == uploadCompletedAt
+            ? _value.uploadCompletedAt
+            : uploadCompletedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -512,7 +763,12 @@ class _$EngagementEvidenceModelImpl extends _EngagementEvidenceModel {
     this.adTransactionId,
     this.adFullyWatched,
     this.adResponseId,
+    final List<Map<String, dynamic>>? uploadedFiles,
+    this.uploadTextResponse,
+    this.uploadStartedAt,
+    this.uploadCompletedAt,
   }) : _surveyResponseTimesMs = surveyResponseTimesMs,
+       _uploadedFiles = uploadedFiles,
        super._();
 
   @override
@@ -549,10 +805,28 @@ class _$EngagementEvidenceModelImpl extends _EngagementEvidenceModel {
   final bool? adFullyWatched;
   @override
   final String? adResponseId;
+  // Upload evidence fields
+  final List<Map<String, dynamic>>? _uploadedFiles;
+  // Upload evidence fields
+  @override
+  List<Map<String, dynamic>>? get uploadedFiles {
+    final value = _uploadedFiles;
+    if (value == null) return null;
+    if (_uploadedFiles is EqualUnmodifiableListView) return _uploadedFiles;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
+  final String? uploadTextResponse;
+  @override
+  final DateTime? uploadStartedAt;
+  @override
+  final DateTime? uploadCompletedAt;
 
   @override
   String toString() {
-    return 'EngagementEvidenceModel(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched, adResponseId: $adResponseId)';
+    return 'EngagementEvidenceModel(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched, adResponseId: $adResponseId, uploadedFiles: $uploadedFiles, uploadTextResponse: $uploadTextResponse, uploadStartedAt: $uploadStartedAt, uploadCompletedAt: $uploadCompletedAt)';
   }
 
   @override
@@ -587,7 +861,17 @@ class _$EngagementEvidenceModelImpl extends _EngagementEvidenceModel {
             (identical(other.adFullyWatched, adFullyWatched) ||
                 other.adFullyWatched == adFullyWatched) &&
             (identical(other.adResponseId, adResponseId) ||
-                other.adResponseId == adResponseId));
+                other.adResponseId == adResponseId) &&
+            const DeepCollectionEquality().equals(
+              other._uploadedFiles,
+              _uploadedFiles,
+            ) &&
+            (identical(other.uploadTextResponse, uploadTextResponse) ||
+                other.uploadTextResponse == uploadTextResponse) &&
+            (identical(other.uploadStartedAt, uploadStartedAt) ||
+                other.uploadStartedAt == uploadStartedAt) &&
+            (identical(other.uploadCompletedAt, uploadCompletedAt) ||
+                other.uploadCompletedAt == uploadCompletedAt));
   }
 
   @override
@@ -606,6 +890,10 @@ class _$EngagementEvidenceModelImpl extends _EngagementEvidenceModel {
     adTransactionId,
     adFullyWatched,
     adResponseId,
+    const DeepCollectionEquality().hash(_uploadedFiles),
+    uploadTextResponse,
+    uploadStartedAt,
+    uploadCompletedAt,
   );
 
   /// Create a copy of EngagementEvidenceModel
@@ -635,6 +923,10 @@ abstract class _EngagementEvidenceModel extends EngagementEvidenceModel {
     final String? adTransactionId,
     final bool? adFullyWatched,
     final String? adResponseId,
+    final List<Map<String, dynamic>>? uploadedFiles,
+    final String? uploadTextResponse,
+    final DateTime? uploadStartedAt,
+    final DateTime? uploadCompletedAt,
   }) = _$EngagementEvidenceModelImpl;
   const _EngagementEvidenceModel._() : super._();
 
@@ -663,7 +955,15 @@ abstract class _EngagementEvidenceModel extends EngagementEvidenceModel {
   @override
   bool? get adFullyWatched;
   @override
-  String? get adResponseId;
+  String? get adResponseId; // Upload evidence fields
+  @override
+  List<Map<String, dynamic>>? get uploadedFiles;
+  @override
+  String? get uploadTextResponse;
+  @override
+  DateTime? get uploadStartedAt;
+  @override
+  DateTime? get uploadCompletedAt;
 
   /// Create a copy of EngagementEvidenceModel
   /// with the given fields replaced by the non-null parameter values.
@@ -684,7 +984,7 @@ mixin _$EngagementModel {
   DateTime? get completedAt => throw _privateConstructorUsedError;
   int get watchDurationSeconds => throw _privateConstructorUsedError;
   int get requiredDurationSeconds => throw _privateConstructorUsedError;
-  List<EngagementAnswerModel> get answers => throw _privateConstructorUsedError;
+  List<SurveyResponseModel> get answers => throw _privateConstructorUsedError;
   EngagementEvidenceModel? get evidence => throw _privateConstructorUsedError;
   int? get tokensEarned => throw _privateConstructorUsedError;
   String? get failureReason => throw _privateConstructorUsedError;
@@ -726,7 +1026,7 @@ abstract class $EngagementModelCopyWith<$Res> {
     DateTime? completedAt,
     int watchDurationSeconds,
     int requiredDurationSeconds,
-    List<EngagementAnswerModel> answers,
+    List<SurveyResponseModel> answers,
     EngagementEvidenceModel? evidence,
     int? tokensEarned,
     String? failureReason,
@@ -825,7 +1125,7 @@ class _$EngagementModelCopyWithImpl<$Res, $Val extends EngagementModel>
             answers: null == answers
                 ? _value.answers
                 : answers // ignore: cast_nullable_to_non_nullable
-                      as List<EngagementAnswerModel>,
+                      as List<SurveyResponseModel>,
             evidence: freezed == evidence
                 ? _value.evidence
                 : evidence // ignore: cast_nullable_to_non_nullable
@@ -917,7 +1217,7 @@ abstract class _$$EngagementModelImplCopyWith<$Res>
     DateTime? completedAt,
     int watchDurationSeconds,
     int requiredDurationSeconds,
-    List<EngagementAnswerModel> answers,
+    List<SurveyResponseModel> answers,
     EngagementEvidenceModel? evidence,
     int? tokensEarned,
     String? failureReason,
@@ -1016,7 +1316,7 @@ class __$$EngagementModelImplCopyWithImpl<$Res>
         answers: null == answers
             ? _value._answers
             : answers // ignore: cast_nullable_to_non_nullable
-                  as List<EngagementAnswerModel>,
+                  as List<SurveyResponseModel>,
         evidence: freezed == evidence
             ? _value.evidence
             : evidence // ignore: cast_nullable_to_non_nullable
@@ -1087,7 +1387,7 @@ class _$EngagementModelImpl extends _EngagementModel {
     this.completedAt,
     required this.watchDurationSeconds,
     required this.requiredDurationSeconds,
-    required final List<EngagementAnswerModel> answers,
+    required final List<SurveyResponseModel> answers,
     this.evidence,
     this.tokensEarned,
     this.failureReason,
@@ -1122,9 +1422,9 @@ class _$EngagementModelImpl extends _EngagementModel {
   final int watchDurationSeconds;
   @override
   final int requiredDurationSeconds;
-  final List<EngagementAnswerModel> _answers;
+  final List<SurveyResponseModel> _answers;
   @override
-  List<EngagementAnswerModel> get answers {
+  List<SurveyResponseModel> get answers {
     if (_answers is EqualUnmodifiableListView) return _answers;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_answers);
@@ -1269,7 +1569,7 @@ abstract class _EngagementModel extends EngagementModel {
     final DateTime? completedAt,
     required final int watchDurationSeconds,
     required final int requiredDurationSeconds,
-    required final List<EngagementAnswerModel> answers,
+    required final List<SurveyResponseModel> answers,
     final EngagementEvidenceModel? evidence,
     final int? tokensEarned,
     final String? failureReason,
@@ -1305,7 +1605,7 @@ abstract class _EngagementModel extends EngagementModel {
   @override
   int get requiredDurationSeconds;
   @override
-  List<EngagementAnswerModel> get answers;
+  List<SurveyResponseModel> get answers;
   @override
   EngagementEvidenceModel? get evidence;
   @override

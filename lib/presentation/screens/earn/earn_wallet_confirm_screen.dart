@@ -62,14 +62,20 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
 
     // Start animations
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _confettiController.play();
+      final earnState = context.read<EarnBloc>().state;
+      // Only play confetti for instant completions, not pending review
+      if (!earnState.isPendingReview) {
+        _confettiController.play();
+      }
       _scaleController.forward();
       Future.delayed(const Duration(milliseconds: 300), () {
         _fadeController.forward();
       });
 
-      // Refresh wallet to show updated balance
-      context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+      // Refresh wallet to show updated balance (only if not pending)
+      if (!earnState.isPendingReview) {
+        context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+      }
     });
   }
 
@@ -88,6 +94,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
         final engagement = earnState.currentEngagement;
         final tokensEarned = engagement?.tokensEarned ?? 0;
         final opportunity = earnState.selectedOpportunity;
+        final isPendingReview = earnState.isPendingReview;
 
         // Calculate 90/5/5 breakdown
         final userTokens = (tokensEarned * 0.90).round();
@@ -120,13 +127,19 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                               width: 120,
                               height: 120,
                               decoration: BoxDecoration(
-                                color: AppColors.success.withValues(alpha: 0.2),
+                                color: isPendingReview
+                                    ? AppColors.warning.withValues(alpha: 0.2)
+                                    : AppColors.success.withValues(alpha: 0.2),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
-                                Icons.check_circle,
+                                isPendingReview
+                                    ? Icons.hourglass_top
+                                    : Icons.check_circle,
                                 size: 80,
-                                color: AppColors.success,
+                                color: isPendingReview
+                                    ? AppColors.warning
+                                    : AppColors.success,
                               ),
                             ),
                           ),
@@ -139,7 +152,9 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                               children: [
                                 // Success message
                                 Text(
-                                  'Congratulations!',
+                                  isPendingReview
+                                      ? 'Submission Received!'
+                                      : 'Congratulations!',
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineMedium
@@ -149,7 +164,9 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                 ),
                                 SizedBox(height: AppSpacing.xs),
                                 Text(
-                                  'You earned tokens successfully',
+                                  isPendingReview
+                                      ? 'Your upload is under review'
+                                      : 'You earned tokens successfully',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyLarge
@@ -159,113 +176,189 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                 ),
                                 SizedBox(height: AppSpacing.xl),
 
-                                // Total tokens earned
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.xl,
-                                    vertical: AppSpacing.md,
+                                if (isPendingReview) ...[
+                                  // Pending review info card
+                                  Card(
+                                    color: AppColors.warning
+                                        .withValues(alpha: 0.1),
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.all(AppSpacing.md),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.info_outline,
+                                                  color: AppColors.warning),
+                                              SizedBox(
+                                                  width: AppSpacing.sm),
+                                              Expanded(
+                                                child: Text(
+                                                  'Your submission will be reviewed by an admin. Tokens will be awarded once approved.',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium
+                                                      ?.copyWith(
+                                                        color: AppColors
+                                                            .textSecondary,
+                                                      ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                              height: AppSpacing.md),
+                                          Container(
+                                            padding:
+                                                EdgeInsets.symmetric(
+                                              horizontal: AppSpacing.lg,
+                                              vertical: AppSpacing.sm,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.warning
+                                                  .withValues(alpha: 0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      16),
+                                            ),
+                                            child: Text(
+                                              '+$tokensEarned tokens pending',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleMedium
+                                                  ?.copyWith(
+                                                    color:
+                                                        AppColors.warning,
+                                                    fontWeight:
+                                                        FontWeight.bold,
+                                                  ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppColors.gold,
-                                        AppColors.gold.withValues(alpha: 0.8),
+                                  SizedBox(height: AppSpacing.md),
+                                ] else ...[
+                                  // Total tokens earned
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.xl,
+                                      vertical: AppSpacing.md,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          AppColors.gold,
+                                          AppColors.gold
+                                              .withValues(alpha: 0.8),
+                                        ],
+                                      ),
+                                      borderRadius:
+                                          BorderRadius.circular(24),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.gold
+                                              .withValues(alpha: 0.4),
+                                          blurRadius: 16,
+                                          offset: const Offset(0, 4),
+                                        ),
                                       ],
                                     ),
-                                    borderRadius: BorderRadius.circular(24),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color:
-                                            AppColors.gold.withValues(alpha: 0.4),
-                                        blurRadius: 16,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.monetization_on,
-                                        color: Colors.white,
-                                        size: 32,
-                                      ),
-                                      SizedBox(width: AppSpacing.sm),
-                                      Text(
-                                        '+$tokensEarned',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineMedium
-                                            ?.copyWith(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
-                                      SizedBox(width: AppSpacing.xs),
-                                      Text(
-                                        'tokens',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium
-                                            ?.copyWith(
-                                              color: Colors.white
-                                                  .withValues(alpha: 0.9),
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: AppSpacing.xl),
-
-                                // Token breakdown card
-                                Card(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(AppSpacing.md),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
+                                        Icon(
+                                          Icons.monetization_on,
+                                          color: Colors.white,
+                                          size: 32,
+                                        ),
+                                        SizedBox(width: AppSpacing.sm),
                                         Text(
-                                          'Token Distribution',
+                                          '+$tokensEarned',
                                           style: Theme.of(context)
                                               .textTheme
-                                              .titleSmall
+                                              .headlineMedium
                                               ?.copyWith(
-                                                color: AppColors.textSecondary,
+                                                color: Colors.white,
+                                                fontWeight:
+                                                    FontWeight.bold,
                                               ),
                                         ),
-                                        SizedBox(height: AppSpacing.md),
-                                        _buildBreakdownRow(
-                                          context,
-                                          icon: Icons.account_balance_wallet,
-                                          iconColor: AppColors.primary,
-                                          label: 'Your Wallet',
-                                          tokens: userTokens,
-                                          percentage: '90%',
-                                        ),
-                                        Divider(height: AppSpacing.md),
-                                        _buildBreakdownRow(
-                                          context,
-                                          icon: Icons.today,
-                                          iconColor: AppColors.secondary,
-                                          label: 'Daily Pot',
-                                          tokens: dailyPotTokens,
-                                          percentage: '5%',
-                                        ),
-                                        Divider(height: AppSpacing.md),
-                                        _buildBreakdownRow(
-                                          context,
-                                          icon: Icons.emoji_events,
-                                          iconColor: AppColors.gold,
-                                          label: 'Weekly Pot',
-                                          tokens: weeklyPotTokens,
-                                          percentage: '5%',
+                                        SizedBox(width: AppSpacing.xs),
+                                        Text(
+                                          'tokens',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                color: Colors.white
+                                                    .withValues(
+                                                        alpha: 0.9),
+                                              ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ),
-                                SizedBox(height: AppSpacing.md),
+                                  SizedBox(height: AppSpacing.xl),
+
+                                  // Token breakdown card
+                                  Card(
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.all(AppSpacing.md),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Token Distribution',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleSmall
+                                                ?.copyWith(
+                                                  color: AppColors
+                                                      .textSecondary,
+                                                ),
+                                          ),
+                                          SizedBox(
+                                              height: AppSpacing.md),
+                                          _buildBreakdownRow(
+                                            context,
+                                            icon: Icons
+                                                .account_balance_wallet,
+                                            iconColor: AppColors.primary,
+                                            label: 'Your Wallet',
+                                            tokens: userTokens,
+                                            percentage: '90%',
+                                          ),
+                                          Divider(
+                                              height: AppSpacing.md),
+                                          _buildBreakdownRow(
+                                            context,
+                                            icon: Icons.today,
+                                            iconColor:
+                                                AppColors.secondary,
+                                            label: 'Daily Pot',
+                                            tokens: dailyPotTokens,
+                                            percentage: '5%',
+                                          ),
+                                          Divider(
+                                              height: AppSpacing.md),
+                                          _buildBreakdownRow(
+                                            context,
+                                            icon: Icons.emoji_events,
+                                            iconColor: AppColors.gold,
+                                            label: 'Weekly Pot',
+                                            tokens: weeklyPotTokens,
+                                            percentage: '5%',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: AppSpacing.md),
+                                ],
 
                                 // Opportunity info
                                 if (opportunity != null)
@@ -368,6 +461,61 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                                 ),
                                               ),
                                             ],
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                // Reward pending card
+                                if (earnState.rewardPending)
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(top: AppSpacing.md),
+                                    child: Card(
+                                      color: AppColors.accent
+                                          .withValues(alpha: 0.15),
+                                      child: Padding(
+                                        padding:
+                                            EdgeInsets.all(AppSpacing.md),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.card_giftcard,
+                                              color: AppColors.accent,
+                                              size: 28,
+                                            ),
+                                            SizedBox(width: AppSpacing.sm),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'A reward is on its way!',
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleSmall
+                                                        ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                  ),
+                                                  SizedBox(height: 2),
+                                                  Text(
+                                                    earnState.rewardCampaignName ??
+                                                        'Check your rewards shortly',
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodySmall
+                                                        ?.copyWith(
+                                                          color: AppColors
+                                                              .textSecondary,
+                                                        ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),

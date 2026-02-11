@@ -253,11 +253,13 @@ void main() {
           answers: [
             EngagementAnswer(
               questionId: 'q1',
+              questionType: 'single_select',
               selectedOption: 'Very likely',
               answeredAt: now,
             ),
             EngagementAnswer(
               questionId: 'q2',
+              questionType: 'single_select',
               selectedOption: 'Great quality',
               answeredAt: now,
             ),

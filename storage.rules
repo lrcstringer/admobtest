@@ -107,6 +107,28 @@ service firebase.storage {
       allow delete: if isAdmin();
     }
 
+    // Earn videos (admin managed)
+    match /earn_videos/{threadId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin()
+        && request.resource.contentType.matches('video/.*')
+        && request.resource.size < 50 * 1024 * 1024; // Max 50MB
+      allow delete: if isAdmin();
+    }
+
+    // User engagement uploads (video/image from upload earning type)
+    match /engagement_uploads/{engagementId}/{uploadType}/{fileName} {
+      // Authenticated users can read uploads (admins review them)
+      allow read: if isAuthenticated();
+
+      // Authenticated users can upload files (max 50MB for video, 10MB for image)
+      allow write: if isAuthenticated()
+        && request.resource.size < 50 * 1024 * 1024;
+
+      // No deletion of engagement uploads
+      allow delete: if false;
+    }
+
     // Deny all other paths
     match /{allPaths=**} {
       allow read, write: if false;

@@ -36,7 +36,10 @@ mixin _$UserProfile {
   List<String>? get languages => throw _privateConstructorUsedError;
 
   /// Interest categories (e.g. ['sports', 'tech'])
-  List<String>? get interests => throw _privateConstructorUsedError;
+  List<String>? get interests =>
+      throw _privateConstructorUsedError; // POPIA consent
+  /// Whether user has consented to receiving reward items
+  bool get rewardConsent => throw _privateConstructorUsedError;
 
   /// Serializes this UserProfile to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -68,6 +71,7 @@ abstract class $UserProfileCopyWith<$Res> {
     String? lastName,
     List<String>? languages,
     List<String>? interests,
+    bool rewardConsent,
   });
 }
 
@@ -98,6 +102,7 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? lastName = freezed,
     Object? languages = freezed,
     Object? interests = freezed,
+    Object? rewardConsent = null,
   }) {
     return _then(
       _value.copyWith(
@@ -149,6 +154,10 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
                 ? _value.interests
                 : interests // ignore: cast_nullable_to_non_nullable
                       as List<String>?,
+            rewardConsent: null == rewardConsent
+                ? _value.rewardConsent
+                : rewardConsent // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -177,6 +186,7 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     String? lastName,
     List<String>? languages,
     List<String>? interests,
+    bool rewardConsent,
   });
 }
 
@@ -206,6 +216,7 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? lastName = freezed,
     Object? languages = freezed,
     Object? interests = freezed,
+    Object? rewardConsent = null,
   }) {
     return _then(
       _$UserProfileImpl(
@@ -257,6 +268,10 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value._interests
             : interests // ignore: cast_nullable_to_non_nullable
                   as List<String>?,
+        rewardConsent: null == rewardConsent
+            ? _value.rewardConsent
+            : rewardConsent // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -278,6 +293,7 @@ class _$UserProfileImpl extends _UserProfile {
     this.lastName,
     final List<String>? languages,
     final List<String>? interests,
+    this.rewardConsent = false,
   }) : _languages = languages,
        _interests = interests,
        super._();
@@ -332,9 +348,15 @@ class _$UserProfileImpl extends _UserProfile {
     return EqualUnmodifiableListView(value);
   }
 
+  // POPIA consent
+  /// Whether user has consented to receiving reward items
+  @override
+  @JsonKey()
+  final bool rewardConsent;
+
   @override
   String toString() {
-    return 'UserProfile(displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests)';
+    return 'UserProfile(displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests, rewardConsent: $rewardConsent)';
   }
 
   @override
@@ -367,7 +389,9 @@ class _$UserProfileImpl extends _UserProfile {
             const DeepCollectionEquality().equals(
               other._interests,
               _interests,
-            ));
+            ) &&
+            (identical(other.rewardConsent, rewardConsent) ||
+                other.rewardConsent == rewardConsent));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -386,6 +410,7 @@ class _$UserProfileImpl extends _UserProfile {
     lastName,
     const DeepCollectionEquality().hash(_languages),
     const DeepCollectionEquality().hash(_interests),
+    rewardConsent,
   );
 
   /// Create a copy of UserProfile
@@ -416,6 +441,7 @@ abstract class _UserProfile extends UserProfile {
     final String? lastName,
     final List<String>? languages,
     final List<String>? interests,
+    final bool rewardConsent,
   }) = _$UserProfileImpl;
   const _UserProfile._() : super._();
 
@@ -448,7 +474,10 @@ abstract class _UserProfile extends UserProfile {
 
   /// Interest categories (e.g. ['sports', 'tech'])
   @override
-  List<String>? get interests;
+  List<String>? get interests; // POPIA consent
+  /// Whether user has consented to receiving reward items
+  @override
+  bool get rewardConsent;
 
   /// Create a copy of UserProfile
   /// with the given fields replaced by the non-null parameter values.

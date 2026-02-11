@@ -98,6 +98,8 @@ import '../screens/wallet/wallet_send_screen.dart';
 import '../screens/wallet/wallet_send_success_screen.dart';
 import '../screens/wallet/wallet_withdraw_failure_screen.dart';
 import '../screens/wallet/wallet_withdraw_success_screen.dart';
+import '../screens/wallet/reward_item_detail_screen.dart';
+import '../screens/wallet/rewards_list_screen.dart';
 
 // Groups screens
 import '../screens/groups/groups_list_screen.dart';
@@ -696,6 +698,26 @@ class AppRouter {
                     name: 'cashout',
                     builder: (context, state) =>
                         const CashoutScreen(),
+                  ),
+                  // 9.6) Rewards list
+                  GoRoute(
+                    path: 'rewards',
+                    name: 'walletRewards',
+                    builder: (context, state) =>
+                        const RewardsListScreen(),
+                    routes: [
+                      // 9.6.1) Reward item detail
+                      GoRoute(
+                        path: ':rewardId',
+                        name: 'rewardDetail',
+                        builder: (context, state) {
+                          final rewardId =
+                              state.pathParameters['rewardId'] ?? '';
+                          return RewardItemDetailScreen(
+                              rewardId: rewardId);
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),

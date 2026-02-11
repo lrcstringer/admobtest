@@ -230,16 +230,6 @@ void main() {
         expect(opp.earningTypeLabel, equals('Video'));
       });
 
-      test('returns Trivia for trivia type', () {
-        final opp = createOpportunity(earningType: EarningType.trivia);
-        expect(opp.earningTypeLabel, equals('Trivia'));
-      });
-
-      test('returns Rating for rating type', () {
-        final opp = createOpportunity(earningType: EarningType.rating);
-        expect(opp.earningTypeLabel, equals('Rating'));
-      });
-
       test('returns Poll for poll type', () {
         final opp = createOpportunity(earningType: EarningType.poll);
         expect(opp.earningTypeLabel, equals('Poll'));
@@ -299,6 +289,7 @@ void main() {
       const question = SurveyQuestion(
         id: 'q1',
         text: 'What is 2+2?',
+        questionType: QuestionType.singleSelect,
         options: ['3', '4', '5'],
         orderIndex: 0,
         isAttentionCheck: true,
@@ -313,15 +304,16 @@ void main() {
       expect(question.correctAnswer, equals('4'));
     });
 
-    test('creates correctly with optional fields null', () {
+    test('creates correctly with optional fields at defaults', () {
       const question = SurveyQuestion(
         id: 'q1',
         text: 'What color?',
+        questionType: QuestionType.singleSelect,
         options: ['Red', 'Blue'],
         orderIndex: 1,
       );
 
-      expect(question.isAttentionCheck, isNull);
+      expect(question.isAttentionCheck, isFalse);
       expect(question.correctAnswer, isNull);
     });
   });

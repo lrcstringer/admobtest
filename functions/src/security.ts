@@ -165,6 +165,8 @@ const RATE_LIMITS: Record<string, { maxAttempts: number; windowMinutes: number }
   "device_register": { maxAttempts: 5, windowMinutes: 1440 },
   "login_request": { maxAttempts: 10, windowMinutes: 60 },
   "challenge_approve": { maxAttempts: 10, windowMinutes: 10 },
+  "reward_claim": { maxAttempts: 10, windowMinutes: 60 },
+  "reward_redeem": { maxAttempts: 20, windowMinutes: 60 },
 };
 
 // Fraud detection thresholds
@@ -427,6 +429,62 @@ export async function checkCashoutFraud(
 
   if (alerts.length > 0) {
     await recordFraudAlert(userId, "cashout", alerts);
+  }
+
+  return {
+    allowed: alerts.length < 2,
+    alerts,
+  };
+}
+
+/**
+ * Check for fraud patterns in reward claim activity
+ */
+export async function checkRewardFraud(
+  userId: string
+): Promise<{ allowed: boolean; alerts: string[] }> {
+  const alerts: string[] = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Check if user is blocked
+  if (await isUserBlocked(userId)) {
+    return { allowed: false, alerts: ["User is blocked"] };
+  }
+
+  // Check daily reward allocations count (max 20 per day)
+  const dailyAllocations = await db
+    .collection("rewardItems")
+    .where("allocatedToUserId", "==", userId)
+    .where("allocatedAt", ">=", admin.firestore.Timestamp.fromDate(today))
+    .get();
+
+  if (dailyAllocations.size > 20) {
+    alerts.push("Excessive daily reward allocations");
+  }
+
+  // Check for same-campaign rapid claims (flag if >3 same campaign in 1 hour)
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const recentAllocations = await db
+    .collection("rewardItems")
+    .where("allocatedToUserId", "==", userId)
+    .where("allocatedAt", ">=", admin.firestore.Timestamp.fromDate(oneHourAgo))
+    .get();
+
+  const campaignCounts = new Map<string, number>();
+  for (const doc of recentAllocations.docs) {
+    const cId = doc.data().campaignId;
+    campaignCounts.set(cId, (campaignCounts.get(cId) || 0) + 1);
+  }
+  for (const [, count] of campaignCounts) {
+    if (count > 3) {
+      alerts.push("Rapid claims on same campaign");
+      break;
+    }
+  }
+
+  if (alerts.length > 0) {
+    await recordFraudAlert(userId, "reward", alerts);
   }
 
   return {

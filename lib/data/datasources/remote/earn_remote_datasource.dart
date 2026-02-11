@@ -6,7 +6,9 @@ import 'package:injectable/injectable.dart';
 import '../../../core/error/exceptions.dart';
 import '../../../core/security/play_integrity_service.dart';
 import '../../../core/utils/firestore_helpers.dart';
+import '../../../domain/entities/earn_notification.dart';
 import '../../../domain/entities/engagement.dart';
+import '../../../domain/entities/inbox_client.dart';
 import '../../../domain/value_objects/engagement_evidence.dart';
 import '../../models/earn_thread_model.dart';
 import '../../models/earn_opportunity_model.dart';
@@ -24,6 +26,32 @@ class EligibleThreadsResponse {
     required this.dailyCompletions,
     required this.dailyEarnCap,
     required this.dailyLimitReached,
+  });
+}
+
+/// Response from getEligibleInbox with client-grouped threads
+class EligibleInboxResponse {
+  final List<InboxClient> clients;
+  final int dailyCompletions;
+  final int dailyEarnCap;
+  final bool dailyLimitReached;
+
+  EligibleInboxResponse({
+    required this.clients,
+    required this.dailyCompletions,
+    required this.dailyEarnCap,
+    required this.dailyLimitReached,
+  });
+}
+
+/// Response from getEarnNotifications
+class EarnNotificationsResponse {
+  final List<EarnNotification> notifications;
+  final int unreadCount;
+
+  EarnNotificationsResponse({
+    required this.notifications,
+    required this.unreadCount,
   });
 }
 
@@ -78,6 +106,18 @@ abstract class EarnRemoteDataSource {
 
   /// Get available opportunities count for user
   Future<int> getAvailableOpportunitiesCount();
+
+  /// Get eligible inbox grouped by client (server-side targeting)
+  Future<EligibleInboxResponse> getEligibleInbox();
+
+  /// Get user's earn notifications
+  Future<EarnNotificationsResponse> getEarnNotifications();
+
+  /// Mark a single notification as read
+  Future<void> markNotificationRead(String notificationId);
+
+  /// Mark all notifications as read
+  Future<void> markAllNotificationsRead();
 }
 
 @LazySingleton(as: EarnRemoteDataSource)
@@ -355,7 +395,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       });
 
       final callable = _functions.httpsCallable('processEngagement');
-      await callable.call<Map<String, dynamic>>({
+      final result = await callable.call<Map<String, dynamic>>({
         'engagementId': engagementId,
         'evidence': evidenceData,
         if (integrityToken != null) 'integrityToken': integrityToken,
@@ -363,13 +403,17 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       });
 
       final now = DateTime.now();
+      // Use status from CF response (may be 'pending_review' for uploads)
+      final resultData = result.data;
+      final returnedStatus =
+          resultData['status'] as String? ?? 'completed';
 
       return EngagementModel.fromJson({
         ...sanitizeFirestoreData(data),
         'id': doc.id,
         'answers': evidenceData['responses'] as List,
         'evidence': evidenceData,
-        'status': 'completed',
+        'status': returnedStatus,
         'completedAt': now.toIso8601String(),
         'updatedAt': now.toIso8601String(),
       });
@@ -503,6 +547,117 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       return response.threads.fold<int>(
           0, (total, thread) => total + thread.availableOpportunities);
     } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<EligibleInboxResponse> getEligibleInbox() async {
+    final userId = currentUserId;
+    if (userId == null) {
+      throw const AuthException(message: 'User not authenticated');
+    }
+
+    try {
+      final callable = _functions.httpsCallable('getEligibleInbox');
+      final result = await callable.call<Map<String, dynamic>>({});
+
+      final data = result.data;
+      final clientsList = (data['clients'] as List?) ?? [];
+
+      final dailyLimit = data['dailyLimit'] != null
+          ? Map<String, dynamic>.from(data['dailyLimit'] as Map)
+          : null;
+
+      final clients = clientsList.map((clientData) {
+        final clientMap = deepConvertMap(clientData as Map);
+        return InboxClient.fromJson(clientMap);
+      }).toList();
+
+      return EligibleInboxResponse(
+        clients: clients,
+        dailyCompletions: dailyLimit?['completions'] as int? ?? 0,
+        dailyEarnCap: dailyLimit?['cap'] as int? ?? 30,
+        dailyLimitReached: dailyLimit?['limitReached'] as bool? ?? false,
+      );
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Failed to fetch inbox');
+    } catch (e) {
+      if (e is AuthException) rethrow;
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<EarnNotificationsResponse> getEarnNotifications() async {
+    final userId = currentUserId;
+    if (userId == null) {
+      throw const AuthException(message: 'User not authenticated');
+    }
+
+    try {
+      final callable = _functions.httpsCallable('getEarnNotifications');
+      final result = await callable.call<Map<String, dynamic>>({});
+
+      final data = result.data;
+      final notifList = (data['notifications'] as List?) ?? [];
+
+      final notifications = notifList.map((n) {
+        final notifMap = deepConvertMap(n as Map);
+        return EarnNotification.fromJson(notifMap);
+      }).toList();
+
+      return EarnNotificationsResponse(
+        notifications: notifications,
+        unreadCount: data['unreadCount'] as int? ?? 0,
+      );
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(
+          message: e.message ?? 'Failed to fetch notifications');
+    } catch (e) {
+      if (e is AuthException) rethrow;
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> markNotificationRead(String notificationId) async {
+    final userId = currentUserId;
+    if (userId == null) {
+      throw const AuthException(message: 'User not authenticated');
+    }
+
+    try {
+      final callable = _functions.httpsCallable('markEarnNotificationRead');
+      await callable.call<Map<String, dynamic>>({
+        'notificationId': notificationId,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(
+          message: e.message ?? 'Failed to mark notification read');
+    } catch (e) {
+      if (e is AuthException) rethrow;
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> markAllNotificationsRead() async {
+    final userId = currentUserId;
+    if (userId == null) {
+      throw const AuthException(message: 'User not authenticated');
+    }
+
+    try {
+      final callable = _functions.httpsCallable('markEarnNotificationRead');
+      await callable.call<Map<String, dynamic>>({
+        'markAllRead': true,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(
+          message: e.message ?? 'Failed to mark all notifications read');
+    } catch (e) {
+      if (e is AuthException) rethrow;
       throw ServerException(message: e.toString());
     }
   }

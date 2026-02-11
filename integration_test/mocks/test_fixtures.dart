@@ -112,12 +112,14 @@ class TestFixtures {
             SurveyQuestion(
               id: 'q1',
               text: 'How likely are you to recommend this product?',
+              questionType: QuestionType.singleSelect,
               options: ['Very likely', 'Likely', 'Neutral', 'Unlikely'],
               orderIndex: 0,
             ),
             SurveyQuestion(
               id: 'q2',
               text: 'What did you like most?',
+              questionType: QuestionType.singleSelect,
               options: ['Quality', 'Price', 'Design', 'Other'],
               orderIndex: 1,
             ),
@@ -207,11 +209,13 @@ class TestFixtures {
           answers: [
             EngagementAnswer(
               questionId: 'q1',
+              questionType: 'single_select',
               selectedOption: 'Very likely',
               answeredAt: DateTime.now().subtract(const Duration(hours: 2)),
             ),
             EngagementAnswer(
               questionId: 'q2',
+              questionType: 'single_select',
               selectedOption: 'Quality',
               answeredAt: DateTime.now().subtract(const Duration(hours: 2)),
             ),

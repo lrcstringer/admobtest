@@ -19,6 +19,15 @@ import {
   calculateEngagementLevel,
   calculateAge,
 } from "./constants/targeting";
+import {
+  isUserEligibleForTargeting,
+  checkBrandInteraction,
+  buildUserTargetingContext,
+} from "./targetingUtils";
+import {
+  notifyNewThread,
+  notifyNewOpportunity,
+} from "./earnNotifications";
 
 const db = admin.firestore();
 
@@ -271,6 +280,13 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     });
   }
 
+  // Send notifications if thread is active (fire-and-forget)
+  if (isActive) {
+    const clientName = clientData.displayName || clientData.companyName || "Unknown";
+    notifyNewThread(threadRef.id, title, clientId, clientName, targeting || null)
+      .catch((err) => console.warn("notifyNewThread failed (non-fatal):", err));
+  }
+
   return {
     success: true,
     threadId: threadRef.id,
@@ -326,6 +342,24 @@ export const createEarnOpportunity = functions.https.onCall(
       tokenBudget = null,
       // Optional opportunity image URL (uploaded by admin client-side)
       opportunityImage = null,
+      // Reward campaign linkage (for dual rewards)
+      rewardCampaignId = null,
+      // Poll reference (for poll-type opportunities)
+      pollId = null,
+      // Upload configuration (for upload-type opportunities)
+      uploadPrompt = null,
+      uploadContextMediaUrl = null,
+      uploadContextMediaType = null,
+      uploadVideoEnabled = false,
+      uploadImageEnabled = false,
+      uploadTextEnabled = false,
+      uploadVideoRequired = false,
+      uploadImageRequired = false,
+      uploadTextRequired = false,
+      uploadVideoMaxSeconds = 60,
+      uploadTextMinChars = 10,
+      uploadTextMaxChars = 1500,
+      requiresAdminReview = false,
     } = data;
 
     // Validate required fields
@@ -410,6 +444,59 @@ export const createEarnOpportunity = functions.https.onCall(
       }
     }
 
+    // Validate reward campaign linkage if provided
+    let resolvedRewardCampaignName: string | null = null;
+    let resolvedRewardType: string | null = null;
+    if (rewardCampaignId) {
+      const rewardCampaignDoc = await db
+        .collection("rewardCampaigns")
+        .doc(rewardCampaignId)
+        .get();
+
+      if (!rewardCampaignDoc.exists) {
+        throw new functions.https.HttpsError(
+          "not-found",
+          `Reward campaign not found: ${rewardCampaignId}`
+        );
+      }
+
+      const rewardCampaign = rewardCampaignDoc.data()!;
+
+      if (rewardCampaign.isDeleted === true) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          "Reward campaign has been deleted"
+        );
+      }
+
+      // Verify campaign belongs to the same client as the thread
+      if (rewardCampaign.clientId !== threadData.clientId) {
+        throw new functions.https.HttpsError(
+          "invalid-argument",
+          "Reward campaign must belong to the same client as the thread"
+        );
+      }
+
+      resolvedRewardCampaignName = rewardCampaign.name || null;
+      resolvedRewardType = rewardCampaign.rewardType || null;
+    }
+
+    // Validate upload configuration
+    if (earningType === "upload") {
+      if (!uploadVideoEnabled && !uploadImageEnabled && !uploadTextEnabled) {
+        throw new functions.https.HttpsError(
+          "invalid-argument",
+          "At least one upload type (video, image, or text) must be enabled"
+        );
+      }
+      if (!uploadPrompt) {
+        throw new functions.https.HttpsError(
+          "invalid-argument",
+          "uploadPrompt is required for upload opportunities"
+        );
+      }
+    }
+
     const opportunityRef = id
       ? db.collection("earnOpportunities").doc(id)
       : db.collection("earnOpportunities").doc();
@@ -454,6 +541,26 @@ export const createEarnOpportunity = functions.https.onCall(
       clientAvatarColor: threadData.clientAvatarColor,
       threadImage: threadData.threadImage ?? null,
       opportunityImage: opportunityImage ?? null,
+      // Reward campaign linkage
+      rewardCampaignId: rewardCampaignId ?? null,
+      rewardCampaignName: resolvedRewardCampaignName,
+      rewardType: resolvedRewardType,
+      // Poll reference
+      pollId: pollId ?? null,
+      // Upload configuration
+      uploadPrompt: uploadPrompt ?? null,
+      uploadContextMediaUrl: uploadContextMediaUrl ?? null,
+      uploadContextMediaType: uploadContextMediaType ?? null,
+      uploadVideoEnabled: uploadVideoEnabled ?? false,
+      uploadImageEnabled: uploadImageEnabled ?? false,
+      uploadTextEnabled: uploadTextEnabled ?? false,
+      uploadVideoRequired: uploadVideoRequired ?? false,
+      uploadImageRequired: uploadImageRequired ?? false,
+      uploadTextRequired: uploadTextRequired ?? false,
+      uploadVideoMaxSeconds: uploadVideoMaxSeconds ?? 60,
+      uploadTextMinChars: uploadTextMinChars ?? 10,
+      uploadTextMaxChars: uploadTextMaxChars ?? 1500,
+      requiresAdminReview: requiresAdminReview ?? false,
       // Budget cap fields
       tokenBudget: tokenBudget ?? null,
       tokenSpent: existingOpportunity.exists
@@ -484,6 +591,22 @@ export const createEarnOpportunity = functions.https.onCall(
           availableOpportunities: admin.firestore.FieldValue.increment(increment),
           lastActivityAt: now,
         });
+    }
+
+    // Send notifications if opportunity is active (fire-and-forget)
+    if (isActive) {
+      notifyNewOpportunity(
+        opportunityId,
+        threadId,
+        threadData.title || title,
+        threadData.clientId,
+        threadData.clientName || "Unknown",
+        tokenReward,
+        earningType,
+        targeting || null
+      ).catch((err) =>
+        console.warn("notifyNewOpportunity failed (non-fatal):", err)
+      );
     }
 
     return { success: true, opportunityId };
@@ -764,109 +887,13 @@ function slimThread(id: string, t: admin.firestore.DocumentData) {
  */
 export const getEligibleThreads = functions.https.onCall(
   async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
-        "unauthenticated",
-        "User must be authenticated"
-      );
-    }
     requireAppCheck(context, "getEligibleThreads");
 
-    const userId = context.auth.uid;
+    const userCtx = await buildUserTargetingContext(context);
+    const { profile: userProfile } = userCtx;
 
     // ========================================================================
-    // 1. Get user profile
-    // ========================================================================
-    const userDoc = await db.collection("users").doc(userId).get();
-    if (!userDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "User profile not found");
-    }
-
-    const userData = userDoc.data()!;
-    const userProfile = userData.profile || {};
-
-    // Extract user attributes for targeting
-    const userGender = userProfile.gender || userData.gender || null;
-    const userDateOfBirth = userProfile.dateOfBirth?.toDate?.() ||
-      userData.dateOfBirth?.toDate?.() ||
-      null;
-    const userAge = userDateOfBirth ? calculateAge(userDateOfBirth) : null;
-    const userProvince = userProfile.province || userData.province || null;
-    const userCity = userProfile.city || userData.city || null;
-    const userLanguages: string[] = userProfile.languages || userData.languages || [];
-    const userInterests: string[] = userProfile.interests || userData.interests || [];
-    const userInteractedClientIds: string[] = userData.interactedClientIds || [];
-
-    // Calculate account age
-    const userCreatedAt = userData.createdAt?.toDate?.() || new Date();
-    const accountAgeDays = Math.floor(
-      (Date.now() - userCreatedAt.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    // Get device platform from context (if available)
-    // Note: rawIpAddress could be used for geo-targeting in the future
-    // const rawIpAddress = context.rawRequest?.ip || "";
-    const userAgent = context.rawRequest?.headers?.["user-agent"] || "";
-    let devicePlatform: string | null = null;
-    if (userAgent.toLowerCase().includes("android")) {
-      devicePlatform = "android";
-    } else if (
-      userAgent.toLowerCase().includes("iphone") ||
-      userAgent.toLowerCase().includes("ipad")
-    ) {
-      devicePlatform = "ios";
-    }
-
-    // ========================================================================
-    // 2. Calculate engagement level & daily limit
-    // ========================================================================
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    // Today at midnight for daily limit
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Run all three engagement count queries in parallel
-    const [recentEngagementsQuery, thirtyDayEngagementsQuery, todayCompletionsQuery] =
-      await Promise.all([
-        db.collection("engagements")
-          .where("userId", "==", userId)
-          .where("status", "==", "completed")
-          .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(sevenDaysAgo))
-          .count()
-          .get(),
-        db.collection("engagements")
-          .where("userId", "==", userId)
-          .where("status", "==", "completed")
-          .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(thirtyDaysAgo))
-          .count()
-          .get(),
-        db.collection("engagements")
-          .where("userId", "==", userId)
-          .where("status", "==", "completed")
-          .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(today))
-          .count()
-          .get(),
-      ]);
-
-    const dailyCompletions = todayCompletionsQuery.data().count;
-    const DAILY_EARN_CAP = 30;
-    const dailyLimitReached = dailyCompletions >= DAILY_EARN_CAP;
-
-    const recentCompletedEngagements = recentEngagementsQuery.data().count;
-    const hasEngagementIn30Days = thirtyDayEngagementsQuery.data().count > 0;
-
-    const userEngagementLevel = calculateEngagementLevel(
-      userCreatedAt,
-      recentCompletedEngagements,
-      hasEngagementIn30Days
-    );
-
-    // ========================================================================
-    // 3. Get all active threads
+    // Get all active threads and filter by targeting
     // ========================================================================
     const now = admin.firestore.Timestamp.now();
 
@@ -882,133 +909,23 @@ export const getEligibleThreads = functions.https.onCall(
 
       // Check scheduling constraints
       if (thread.activeFrom && thread.activeFrom.toMillis() > now.toMillis()) {
-        continue; // Not yet active
+        continue;
       }
       if (thread.activeTo && thread.activeTo.toMillis() < now.toMillis()) {
-        continue; // Expired
-      }
-
-      // Skip budget-exhausted threads
-      if (thread.budgetExhausted === true) {
         continue;
       }
 
-      // Skip soft-deleted threads
-      if (thread.isDeleted === true) {
-        continue;
-      }
+      // Skip budget-exhausted or soft-deleted threads
+      if (thread.budgetExhausted === true) continue;
+      if (thread.isDeleted === true) continue;
 
-      // Check targeting criteria
-      if (!thread.targeting) {
-        // No targeting = eligible for everyone
-        eligibleThreads.push(slimThread(threadDoc.id, thread));
-        continue;
-      }
+      const targeting: TargetingCriteria | null = thread.targeting || null;
+      const completedUniqueUsers = thread.completedUniqueUsers || 0;
 
-      const targeting: TargetingCriteria = thread.targeting;
-
-      // Apply all targeting filters (AND logic)
-      let isEligible = true;
-
-      // Gender filter
-      if (targeting.genders && targeting.genders.length > 0) {
-        if (!userGender || !targeting.genders.includes(userGender)) {
-          isEligible = false;
-        }
-      }
-
-      // Age filter
-      if (isEligible && targeting.ageMin !== undefined && targeting.ageMin !== null) {
-        if (userAge === null || userAge < targeting.ageMin) {
-          isEligible = false;
-        }
-      }
-      if (isEligible && targeting.ageMax !== undefined && targeting.ageMax !== null) {
-        if (userAge === null || userAge > targeting.ageMax) {
-          isEligible = false;
-        }
-      }
-
-      // Province filter
-      if (isEligible && targeting.provinces && targeting.provinces.length > 0) {
-        if (!userProvince || !targeting.provinces.includes(userProvince.toLowerCase())) {
-          isEligible = false;
-        }
-      }
-
-      // City filter
-      if (isEligible && targeting.cities && targeting.cities.length > 0) {
-        if (!userCity || !targeting.cities.map((c) => c.toLowerCase()).includes(userCity.toLowerCase())) {
-          isEligible = false;
-        }
-      }
-
-      // Language filter (ANY match)
-      if (isEligible && targeting.languages && targeting.languages.length > 0) {
-        const hasMatchingLanguage = userLanguages.some((l) =>
-          targeting.languages!.includes(l as never)
-        );
-        if (!hasMatchingLanguage) {
-          isEligible = false;
-        }
-      }
-
-      // Interest filter (ANY match)
-      if (isEligible && targeting.interests && targeting.interests.length > 0) {
-        const hasMatchingInterest = userInterests.some((i) =>
-          targeting.interests!.includes(i as never)
-        );
-        if (!hasMatchingInterest) {
-          isEligible = false;
-        }
-      }
-
-      // Device platform filter
-      if (isEligible && targeting.devicePlatforms && targeting.devicePlatforms.length > 0) {
-        if (!devicePlatform || !targeting.devicePlatforms.includes(devicePlatform as never)) {
-          isEligible = false;
-        }
-      }
-
-      // Account age filter
-      if (isEligible && targeting.accountAgeMinDays !== undefined && targeting.accountAgeMinDays !== null) {
-        if (accountAgeDays < targeting.accountAgeMinDays) {
-          isEligible = false;
-        }
-      }
-      if (isEligible && targeting.accountAgeMaxDays !== undefined && targeting.accountAgeMaxDays !== null) {
-        if (accountAgeDays > targeting.accountAgeMaxDays) {
-          isEligible = false;
-        }
-      }
-
-      // Engagement level filter
-      if (isEligible && targeting.engagementLevel && targeting.engagementLevel.length > 0) {
-        if (!targeting.engagementLevel.includes(userEngagementLevel as never)) {
-          isEligible = false;
-        }
-      }
-
-      // Previous brand interaction filter
-      if (isEligible && targeting.previousBrandInteraction) {
-        const hasInteracted = userInteractedClientIds.includes(thread.clientId);
-        if (targeting.previousBrandInteraction === "include" && !hasInteracted) {
-          isEligible = false;
-        }
-        if (targeting.previousBrandInteraction === "exclude" && hasInteracted) {
-          isEligible = false;
-        }
-      }
-
-      // Max audience filter
-      if (isEligible && targeting.maxAudience !== undefined && targeting.maxAudience !== null) {
-        const completedUniqueUsers = thread.completedUniqueUsers || 0;
-        if (completedUniqueUsers >= targeting.maxAudience) {
-          isEligible = false;
-        }
-      }
-
-      if (isEligible) {
+      if (
+        isUserEligibleForTargeting(userProfile, targeting, completedUniqueUsers) &&
+        checkBrandInteraction(targeting, userProfile.interactedClientIds, thread.clientId)
+      ) {
         eligibleThreads.push(slimThread(threadDoc.id, thread));
       }
     }
@@ -1028,14 +945,14 @@ export const getEligibleThreads = functions.https.onCall(
       success: true,
       threads: eligibleThreads,
       userAttributes: {
-        engagementLevel: userEngagementLevel,
-        accountAgeDays,
-        devicePlatform,
+        engagementLevel: userProfile.engagementLevel,
+        accountAgeDays: userProfile.accountAgeDays,
+        devicePlatform: userProfile.devicePlatform,
       },
       dailyLimit: {
-        completions: dailyCompletions,
-        cap: DAILY_EARN_CAP,
-        limitReached: dailyLimitReached,
+        completions: userCtx.dailyCompletions,
+        cap: userCtx.dailyEarnCap,
+        limitReached: userCtx.dailyLimitReached,
       },
     };
   }
@@ -2016,5 +1933,239 @@ export const adminCleanupOrphanedThreads = functions.https.onCall(
     }
 
     return { success: true, orphanedThreads, orphanedOpportunities };
+  }
+);
+
+// ============================================================================
+// EARN INBOX — Client-grouped thread listing
+// ============================================================================
+
+/**
+ * Get eligible inbox for the current user, grouped by client.
+ *
+ * Returns clients sorted by pinned → featured → alphabetical, each containing
+ * their eligible threads with aggregated opportunity data.
+ */
+export const getEligibleInbox = functions.https.onCall(
+  async (data, context) => {
+    requireAppCheck(context, "getEligibleInbox");
+
+    const userCtx = await buildUserTargetingContext(context);
+    const { profile: userProfile } = userCtx;
+
+    // ========================================================================
+    // 1. Get all active threads, apply targeting
+    // ========================================================================
+    const now = admin.firestore.Timestamp.now();
+
+    const threadsSnapshot = await db
+      .collection("earnThreads")
+      .where("isActive", "==", true)
+      .get();
+
+    // Eligible threads grouped by clientId
+    const threadsByClient = new Map<
+      string,
+      { thread: admin.firestore.DocumentData; id: string }[]
+    >();
+
+    for (const threadDoc of threadsSnapshot.docs) {
+      const thread = threadDoc.data();
+
+      // Scheduling constraints
+      if (thread.activeFrom && thread.activeFrom.toMillis() > now.toMillis()) continue;
+      if (thread.activeTo && thread.activeTo.toMillis() < now.toMillis()) continue;
+      if (thread.budgetExhausted === true) continue;
+      if (thread.isDeleted === true) continue;
+
+      const targeting: TargetingCriteria | null = thread.targeting || null;
+      const completedUniqueUsers = thread.completedUniqueUsers || 0;
+
+      if (
+        !isUserEligibleForTargeting(userProfile, targeting, completedUniqueUsers) ||
+        !checkBrandInteraction(targeting, userProfile.interactedClientIds, thread.clientId)
+      ) {
+        continue;
+      }
+
+      const clientId = thread.clientId as string;
+      if (!threadsByClient.has(clientId)) {
+        threadsByClient.set(clientId, []);
+      }
+      threadsByClient.get(clientId)!.push({ thread, id: threadDoc.id });
+    }
+
+    if (threadsByClient.size === 0) {
+      return {
+        success: true,
+        clients: [],
+        dailyLimit: {
+          completions: userCtx.dailyCompletions,
+          cap: userCtx.dailyEarnCap,
+          limitReached: userCtx.dailyLimitReached,
+        },
+      };
+    }
+
+    // ========================================================================
+    // 2. Batch-read client docs for isPinned/isFeatured
+    // ========================================================================
+    const clientIds = Array.from(threadsByClient.keys());
+    const clientRefs = clientIds.map((id) => db.collection("clients").doc(id));
+    const clientDocs = await db.getAll(...clientRefs);
+
+    const clientDataMap = new Map<string, admin.firestore.DocumentData>();
+    for (const doc of clientDocs) {
+      if (doc.exists) {
+        clientDataMap.set(doc.id, doc.data()!);
+      }
+    }
+
+    // ========================================================================
+    // 3. For each client's threads, fetch active opportunities (batch)
+    // ========================================================================
+    const allThreadIds = Array.from(threadsByClient.values())
+      .flat()
+      .map((t) => t.id);
+
+    // Firestore `in` queries support max 30 items; batch if needed
+    const oppsByThread = new Map<string, admin.firestore.DocumentData[]>();
+    for (let i = 0; i < allThreadIds.length; i += 30) {
+      const batch = allThreadIds.slice(i, i + 30);
+      const oppsSnapshot = await db
+        .collection("earnOpportunities")
+        .where("threadId", "in", batch)
+        .where("isActive", "==", true)
+        .get();
+
+      for (const oppDoc of oppsSnapshot.docs) {
+        const opp = oppDoc.data();
+        if (opp.isDeleted === true) continue;
+        // Check opp-level expiry
+        if (opp.expiresAt && opp.expiresAt.toMillis() < now.toMillis()) continue;
+        if (opp.budgetExhausted === true) continue;
+
+        const tid = opp.threadId as string;
+        if (!oppsByThread.has(tid)) {
+          oppsByThread.set(tid, []);
+        }
+        oppsByThread.get(tid)!.push(opp);
+      }
+    }
+
+    // ========================================================================
+    // 4. Build client response objects
+    // ========================================================================
+    const clientResults: Record<string, unknown>[] = [];
+
+    for (const [clientId, threadEntries] of threadsByClient.entries()) {
+      const clientDoc = clientDataMap.get(clientId);
+      // Use first thread for fallback client display info
+      const firstThread = threadEntries[0].thread;
+
+      const clientName = clientDoc?.displayName || clientDoc?.companyName ||
+        firstThread.clientName || "Unknown";
+      const clientAvatarImage = clientDoc?.avatarImage || firstThread.clientAvatarImage || null;
+      const clientAvatarColor = clientDoc?.avatarColor || firstThread.clientAvatarColor || null;
+      const clientIsPinned = clientDoc?.isPinned === true;
+      const clientIsFeatured = clientDoc?.isFeatured === true;
+
+      // Build thread objects with aggregated opp data
+      const threads: Record<string, unknown>[] = [];
+
+      for (const { thread, id: threadId } of threadEntries) {
+        const opps = oppsByThread.get(threadId) || [];
+
+        // Aggregate opportunity data
+        const totalTokenReward = opps.reduce(
+          (sum, o) => sum + (o.tokenReward || 0), 0
+        );
+        const rewardTypesSet = new Set<string>();
+        let hasRewardCampaign = false;
+        let soonestExpiry: admin.firestore.Timestamp | null = null;
+
+        for (const opp of opps) {
+          if (opp.rewardType) rewardTypesSet.add(opp.rewardType);
+          if (opp.rewardCampaignId) hasRewardCampaign = true;
+          if (opp.expiresAt) {
+            if (!soonestExpiry || opp.expiresAt.toMillis() < soonestExpiry.toMillis()) {
+              soonestExpiry = opp.expiresAt;
+            }
+          }
+        }
+
+        // Also consider thread-level activeTo as an expiry
+        if (thread.activeTo) {
+          if (!soonestExpiry || thread.activeTo.toMillis() < soonestExpiry.toMillis()) {
+            soonestExpiry = thread.activeTo;
+          }
+        }
+
+        threads.push({
+          id: threadId,
+          title: thread.title,
+          description: thread.description || null,
+          threadImage: thread.threadImage || null,
+          isPinned: thread.isPinned ?? false,
+          isFeatured: thread.isFeatured ?? false,
+          activeTo: thread.activeTo || null,
+          availableOpportunities: thread.availableOpportunities ?? 0,
+          totalTokenReward,
+          rewardTypes: Array.from(rewardTypesSet),
+          hasRewardCampaign,
+          soonestExpiry,
+        });
+      }
+
+      // Sort threads: pinned first (alpha) → featured (alpha) →
+      // has-expiry by soonest → no-expiry (alpha)
+      threads.sort((a, b) => {
+        // Pinned first
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+        // Featured second
+        if (a.isFeatured && !b.isFeatured) return -1;
+        if (!a.isFeatured && b.isFeatured) return 1;
+        // Among remaining: expiry-based, then alphabetical
+        const aExpiry = a.soonestExpiry as admin.firestore.Timestamp | null;
+        const bExpiry = b.soonestExpiry as admin.firestore.Timestamp | null;
+        if (aExpiry && !bExpiry) return -1;
+        if (!aExpiry && bExpiry) return 1;
+        if (aExpiry && bExpiry) {
+          return aExpiry.toMillis() - bExpiry.toMillis();
+        }
+        return (a.title as string).localeCompare(b.title as string);
+      });
+
+      clientResults.push({
+        clientId,
+        clientName,
+        clientAvatarImage,
+        clientAvatarColor,
+        isPinned: clientIsPinned,
+        isFeatured: clientIsFeatured,
+        activeThreadCount: threads.length,
+        threads,
+      });
+    }
+
+    // Sort clients: pinned first (alpha) → featured (alpha) → rest (alpha)
+    clientResults.sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      if (a.isFeatured && !b.isFeatured) return -1;
+      if (!a.isFeatured && b.isFeatured) return 1;
+      return (a.clientName as string).localeCompare(b.clientName as string);
+    });
+
+    return {
+      success: true,
+      clients: clientResults,
+      dailyLimit: {
+        completions: userCtx.dailyCompletions,
+        cap: userCtx.dailyEarnCap,
+        limitReached: userCtx.dailyLimitReached,
+      },
+    };
   }
 );

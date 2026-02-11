@@ -2,12 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../../../domain/entities/ledger_journal.dart';
+import '../../../domain/entities/reward_item.dart';
 import '../../../domain/entities/sub_account.dart';
+import '../../../domain/enums/reward_enums.dart';
+import '../../blocs/reward/reward_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
+import '../../widgets/reward/reward_consent_dialog.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -17,10 +25,27 @@ class WalletScreen extends StatefulWidget {
 }
 
 class _WalletScreenState extends State<WalletScreen> {
+  bool _rewardsUiEnabled = true;
+
   @override
   void initState() {
     super.initState();
     context.read<WalletBloc>().add(const WalletEvent.loadLedger());
+    context.read<RewardBloc>().add(const RewardEvent.loadItems());
+    _loadRewardFlag();
+  }
+
+  Future<void> _loadRewardFlag() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('platformSettings')
+          .doc('rewards')
+          .get();
+      if (!mounted) return;
+      if (doc.exists && doc.data()?['rewardsWalletUiEnabled'] == false) {
+        setState(() => _rewardsUiEnabled = false);
+      }
+    } catch (_) {}
   }
 
   @override
@@ -73,6 +98,9 @@ class _WalletScreenState extends State<WalletScreen> {
                     ),
                     AppSpacing.verticalXl,
 
+                    // My Rewards card (hidden when no items)
+                    _buildRewardsCard(context),
+
                     // Wallets section header
                     Text(
                       'My Wallets',
@@ -89,6 +117,11 @@ class _WalletScreenState extends State<WalletScreen> {
                       ...state.subAccounts.map(
                         (sa) => _buildWalletCard(context, sa),
                       ),
+
+                    AppSpacing.verticalXl,
+
+                    // Recent Activity section
+                    _buildRecentActivity(context, state),
                   ],
                 ),
               ),
@@ -224,6 +257,118 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
+  Widget _buildRewardsCard(BuildContext context) {
+    // Hide entire card if feature flag is off
+    if (!_rewardsUiEnabled) return const SizedBox.shrink();
+
+    return BlocBuilder<RewardBloc, RewardState>(
+      builder: (context, rewardState) {
+        // Hide when no active items
+        if (!rewardState.hasActiveItems &&
+            rewardState.status == RewardLoadStatus.loaded) {
+          return const SizedBox.shrink();
+        }
+
+        // Hide during initial load
+        if (rewardState.status == RewardLoadStatus.initial) {
+          return const SizedBox.shrink();
+        }
+
+        final activeCount = rewardState.activeCount;
+
+        return Column(
+          children: [
+            InkWell(
+              onTap: () async {
+                // Check consent before navigating
+                final uid = FirebaseAuth.instance.currentUser?.uid;
+                if (uid == null) return;
+
+                final userDoc = await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(uid)
+                    .get();
+                final hasConsent = userDoc.data()?['rewardConsent'] == true;
+
+                if (!context.mounted) return;
+
+                if (!hasConsent) {
+                  final consented =
+                      await RewardConsentDialog.show(context);
+                  if (!consented || !context.mounted) return;
+                }
+                context.go('/wallet/rewards');
+              },
+              borderRadius: AppSpacing.borderRadiusMd,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: AppSpacing.borderRadiusMd,
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.accent.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.card_giftcard,
+                        color: AppColors.accent,
+                        size: 22,
+                      ),
+                    ),
+                    AppSpacing.horizontalMd,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'My Rewards',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          AppSpacing.verticalXxs,
+                          Text(
+                            '$activeCount active reward${activeCount == 1 ? '' : 's'}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      'View All',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.chevron_right,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            AppSpacing.verticalXl,
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildWalletCard(BuildContext context, SubAccount subAccount) {
     final accentColor = subAccount.isDefault
         ? AppColors.walletPrimary
@@ -342,6 +487,182 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
+  Widget _buildRecentActivity(BuildContext context, WalletState walletState) {
+    return BlocBuilder<RewardBloc, RewardState>(
+      builder: (context, rewardState) {
+        // Build unified activity list from journals + reward items
+        final activities = <_ActivityEntry>[];
+
+        // Add latest 5 token journals
+        for (final journal in walletState.ledgerJournals.take(5)) {
+          activities.add(_ActivityEntry(
+            timestamp: journal.postedAt ?? journal.createdAt,
+            type: _ActivityType.token,
+            journal: journal,
+          ));
+        }
+
+        // Add latest 5 reward items (allocated or redeemed)
+        final rewardItems = [
+          ...rewardState.activeItems,
+          ...rewardState.redeemedItems,
+        ];
+        rewardItems.sort((a, b) {
+          final aDate = a.redeemedAt ?? a.allocatedAt ?? DateTime(2000);
+          final bDate = b.redeemedAt ?? b.allocatedAt ?? DateTime(2000);
+          return bDate.compareTo(aDate);
+        });
+        for (final item in rewardItems.take(5)) {
+          activities.add(_ActivityEntry(
+            timestamp: item.redeemedAt ?? item.allocatedAt ?? DateTime(2000),
+            type: _ActivityType.reward,
+            rewardItem: item,
+          ));
+        }
+
+        // Sort by timestamp descending, take top 5
+        activities.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+        final topActivities = activities.take(5).toList();
+
+        if (topActivities.isEmpty) return const SizedBox.shrink();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Recent Activity',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                GestureDetector(
+                  onTap: () => context.go('/wallet/transactions'),
+                  child: Text(
+                    'See All',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+            AppSpacing.verticalMd,
+            ...topActivities.map((a) => _buildActivityItem(context, a)),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildActivityItem(BuildContext context, _ActivityEntry entry) {
+    final IconData icon;
+    final Color color;
+    final String title;
+    final String subtitle;
+    final String trailing;
+
+    if (entry.type == _ActivityType.token && entry.journal != null) {
+      final j = entry.journal!;
+      switch (j.type) {
+        case LedgerJournalType.earn:
+          icon = Icons.monetization_on_outlined;
+          color = AppColors.success;
+          title = 'Tokens Earned';
+        case LedgerJournalType.potWin:
+          icon = Icons.emoji_events_outlined;
+          color = AppColors.accent;
+          title = 'Pot Win';
+        case LedgerJournalType.p2pTransfer:
+          icon = Icons.swap_horiz;
+          color = AppColors.primary;
+          title = 'Transfer';
+        case LedgerJournalType.cashoutInitiate:
+        case LedgerJournalType.cashoutComplete:
+          icon = Icons.arrow_upward;
+          color = AppColors.secondary;
+          title = 'Cash Out';
+        case LedgerJournalType.referralReward:
+          icon = Icons.people_outline;
+          color = AppColors.info;
+          title = 'Referral Reward';
+        default:
+          icon = Icons.receipt_long_outlined;
+          color = AppColors.textSecondary;
+          title = j.description;
+      }
+      subtitle = j.description;
+      trailing = '${j.totalCredits > 0 ? '+' : ''}${j.totalCredits} tokens';
+    } else if (entry.rewardItem != null) {
+      final r = entry.rewardItem!;
+      icon = Icons.card_giftcard;
+      color = AppColors.accent;
+      title = r.campaignName ?? 'Reward';
+      subtitle = r.clientName ?? '';
+      trailing = r.status.displayName;
+    } else {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppSpacing.borderRadiusMd,
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            AppSpacing.horizontalMd,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: AppColors.textSecondary),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              trailing,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildLoadingWallets() {
     return Column(
       children: List.generate(
@@ -397,4 +718,20 @@ class _WalletScreenState extends State<WalletScreen> {
       ),
     );
   }
+}
+
+enum _ActivityType { token, reward }
+
+class _ActivityEntry {
+  final DateTime timestamp;
+  final _ActivityType type;
+  final LedgerJournal? journal;
+  final RewardItem? rewardItem;
+
+  _ActivityEntry({
+    required this.timestamp,
+    required this.type,
+    this.journal,
+    this.rewardItem,
+  });
 }

@@ -82,12 +82,12 @@ export type DevicePlatform = (typeof DEVICE_PLATFORMS)[number];
 
 // Earning Types
 export const EARNING_TYPES = [
-  "survey",
   "video",
-  "trivia",
-  "rating",
+  "image",
+  "survey",
   "poll",
   "adVideo", // AdMob rewarded video ads
+  "upload", // User-generated content uploads
 ] as const;
 
 export type EarningType = (typeof EARNING_TYPES)[number];

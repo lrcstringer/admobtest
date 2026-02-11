@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../domain/entities/pot_pool.dart';
 import '../../../domain/enums/pot_type.dart';
 import '../../blocs/auth/auth_bloc.dart';
+import '../../blocs/earn_inbox/earn_inbox_bloc.dart';
 import '../../blocs/pot/pot_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -85,6 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     _buildHeader(context, user, walletState),
                                     const SizedBox(height: 12),
                                     _buildTokenBalanceCard(context, walletState),
+                                    const SizedBox(height: 16),
+                                    _buildDailyProgressCard(context),
                                     const SizedBox(height: 24),
                                     _buildPotCardsRow(context, potState),
                                     const SizedBox(height: 24),
@@ -250,6 +253,78 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDailyProgressCard(BuildContext context) {
+    return BlocBuilder<EarnInboxBloc, EarnInboxState>(
+      buildWhen: (prev, curr) =>
+          prev.dailyCompletions != curr.dailyCompletions ||
+          prev.dailyEarnCap != curr.dailyEarnCap ||
+          prev.dailyLimitReached != curr.dailyLimitReached,
+      builder: (context, state) {
+        final completions = state.dailyCompletions;
+        final cap = state.dailyEarnCap;
+        final progress = cap > 0 ? (completions / cap).clamp(0.0, 1.0) : 0.0;
+
+        return GestureDetector(
+          onTap: () => context.go('/earn'),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: AppColors.goldGradient,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: AppSpacing.borderRadiusMd,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Today's Progress",
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: AppColors.textOnSecondary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    Text(
+                      '$completions / $cap',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: AppColors.textOnSecondary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                LinearProgressIndicator(
+                  value: progress,
+                  backgroundColor:
+                      AppColors.textOnSecondary.withValues(alpha: 0.3),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.textOnSecondary),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  state.dailyLimitReached
+                      ? 'Daily limit reached! Come back tomorrow'
+                      : '${(progress * 100).toStringAsFixed(0)}% of daily earn limit',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color:
+                            AppColors.textOnSecondary.withValues(alpha: 0.8),
+                      ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

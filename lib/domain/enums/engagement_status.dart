@@ -23,12 +23,16 @@ enum EngagementStatus {
 
   /// Engagement was rejected
   rejected,
+
+  /// Upload submitted, awaiting admin review
+  pendingReview,
 }
 
 extension EngagementStatusX on EngagementStatus {
   bool get isComplete =>
       this == EngagementStatus.completed ||
-      this == EngagementStatus.rewarded;
+      this == EngagementStatus.rewarded ||
+      this == EngagementStatus.pendingReview;
 
   bool get isInProgress =>
       this == EngagementStatus.started ||
@@ -62,6 +66,8 @@ extension EngagementStatusX on EngagementStatus {
         return 'Rewarded';
       case EngagementStatus.rejected:
         return 'Rejected';
+      case EngagementStatus.pendingReview:
+        return 'Under Review';
     }
   }
 }

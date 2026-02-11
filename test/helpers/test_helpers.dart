@@ -501,6 +501,7 @@ class TestData {
           SurveyQuestion(
             id: 'q1',
             text: 'What did you think of the video?',
+            questionType: QuestionType.singleSelect,
             options: ['Great', 'Good', 'OK', 'Bad'],
             orderIndex: 0,
           ),
@@ -526,12 +527,14 @@ class TestData {
           SurveyQuestion(
             id: 'q1',
             text: 'Question 1',
+            questionType: QuestionType.singleSelect,
             options: ['A', 'B', 'C'],
             orderIndex: 0,
           ),
           SurveyQuestion(
             id: 'q2',
             text: 'Question 2',
+            questionType: QuestionType.singleSelect,
             options: ['X', 'Y', 'Z'],
             orderIndex: 1,
           ),
@@ -586,6 +589,7 @@ class TestData {
           SurveyQuestion(
             id: 'admob_q1',
             text: 'Did you watch the full video ad?',
+            questionType: QuestionType.singleSelect,
             options: ['Yes, I watched it completely', 'Most of it', 'Not really'],
             orderIndex: 0,
             isAttentionCheck: true,
@@ -666,6 +670,7 @@ class TestData {
         answers: [
           EngagementAnswer(
             questionId: 'q1',
+            questionType: 'single_select',
             selectedOption: 'A',
             answeredAt: DateTime(2024, 1, 1),
             isCorrect: true,

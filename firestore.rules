@@ -495,6 +495,25 @@ service cloud.firestore {
     // Server-Side Verification records from AdMob
     // =========================================================================
 
+    // Polls collection
+    match /polls/{pollId} {
+      // Any authenticated user can read poll metadata (for voting)
+      allow read: if isAuthenticated();
+
+      // Only admin can create/update polls
+      allow create, update: if isAdmin();
+      allow delete: if false;
+
+      // Poll responses subcollection (one doc per user)
+      match /responses/{userId} {
+        // Users can read their own response
+        allow read: if isOwner(userId);
+
+        // All writes through Cloud Functions only (ensures atomic counter updates)
+        allow create, update, delete: if false;
+      }
+    }
+
     // AdMob SSV callbacks collection
     // Stores verification records from AdMob server-side callbacks
     // All writes are from Cloud Functions only (the SSV endpoint)
@@ -503,6 +522,40 @@ service cloud.firestore {
       allow read: if false;
 
       // All writes are from Cloud Functions only (admobSSVCallback endpoint)
+      allow create, update, delete: if false;
+    }
+
+    // =========================================================================
+    // REWARD INVENTORY COLLECTIONS
+    // Non-fungible reward items (QR codes, vouchers, etc.)
+    // =========================================================================
+
+    // Reward campaigns collection
+    match /rewardCampaigns/{campaignId} {
+      // Authenticated users can read active campaigns
+      allow read: if isAuthenticated();
+
+      // All writes through Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Reward items collection
+    match /rewardItems/{itemId} {
+      // Users can read their own allocated items; admins can read all
+      allow read: if isAuthenticated()
+        && (resource.data.allocatedToUserId == request.auth.uid
+            || isAdmin());
+
+      // All writes through Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Reward activity log (append-only audit trail)
+    match /rewardActivityLog/{logId} {
+      // Admin-only reads
+      allow read: if isAdmin();
+
+      // All writes through Cloud Functions only
       allow create, update, delete: if false;
     }
   }

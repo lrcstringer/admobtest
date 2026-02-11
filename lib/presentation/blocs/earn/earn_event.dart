@@ -80,4 +80,21 @@ class EarnEvent with _$EarnEvent {
   /// Internal: AdMob load attempt number changed (1-based during loading, 0 when idle)
   const factory EarnEvent.adLoadAttemptChanged({required int attempt}) =
       _AdLoadAttemptChanged;
+
+  // Upload Events
+
+  /// Submit upload engagement (files already uploaded to Storage)
+  const factory EarnEvent.submitUpload({
+    required String engagementId,
+    required List<UploadedFileEvidence> uploadedFiles,
+    String? textResponse,
+    required EngagementEvidence evidence,
+  }) = _SubmitUpload;
+
+  /// Update upload progress (for progress indicator)
+  const factory EarnEvent.uploadProgressChanged({
+    required double progress,
+    required int bytesTransferred,
+    required int totalBytes,
+  }) = _UploadProgressChanged;
 }

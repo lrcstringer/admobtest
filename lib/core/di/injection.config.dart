@@ -33,8 +33,10 @@ import '../../data/datasources/remote/earn_remote_datasource.dart' as _i520;
 import '../../data/datasources/remote/gamification_remote_datasource.dart'
     as _i749;
 import '../../data/datasources/remote/group_remote_datasource.dart' as _i42;
+import '../../data/datasources/remote/poll_remote_datasource.dart' as _i909;
 import '../../data/datasources/remote/purchase_remote_datasource.dart' as _i267;
 import '../../data/datasources/remote/referral_remote_datasource.dart' as _i9;
+import '../../data/datasources/remote/reward_remote_datasource.dart' as _i366;
 import '../../data/datasources/remote/user_remote_datasource.dart' as _i50;
 import '../../data/datasources/remote/wallet_remote_datasource.dart' as _i389;
 import '../../data/repositories/auth_repository_impl.dart' as _i895;
@@ -43,19 +45,24 @@ import '../../data/repositories/device_repository_impl.dart' as _i34;
 import '../../data/repositories/earn_repository_impl.dart' as _i965;
 import '../../data/repositories/gamification_repository_impl.dart' as _i500;
 import '../../data/repositories/group_repository_impl.dart' as _i654;
+import '../../data/repositories/poll_repository_impl.dart' as _i570;
 import '../../data/repositories/purchase_repository_impl.dart' as _i1044;
 import '../../data/repositories/referral_repository_impl.dart' as _i904;
+import '../../data/repositories/reward_repository_impl.dart' as _i905;
 import '../../data/repositories/user_repository_impl.dart' as _i790;
 import '../../data/repositories/wallet_repository_impl.dart' as _i520;
 import '../../data/services/admob_service.dart' as _i284;
+import '../../data/services/upload_service.dart' as _i434;
 import '../../domain/repositories/auth_repository.dart' as _i1073;
 import '../../domain/repositories/chat_repository.dart' as _i1072;
 import '../../domain/repositories/device_repository.dart' as _i454;
 import '../../domain/repositories/earn_repository.dart' as _i805;
 import '../../domain/repositories/gamification_repository.dart' as _i1010;
 import '../../domain/repositories/group_repository.dart' as _i708;
+import '../../domain/repositories/poll_repository.dart' as _i731;
 import '../../domain/repositories/purchase_repository.dart' as _i742;
 import '../../domain/repositories/referral_repository.dart' as _i633;
+import '../../domain/repositories/reward_repository.dart' as _i191;
 import '../../domain/repositories/user_repository.dart' as _i271;
 import '../../domain/repositories/wallet_repository.dart' as _i851;
 import '../../presentation/admin/blocs/admin_earn/admin_earn_bloc.dart'
@@ -64,12 +71,14 @@ import '../../presentation/blocs/auth/auth_bloc.dart' as _i141;
 import '../../presentation/blocs/cashout/cashout_bloc.dart' as _i772;
 import '../../presentation/blocs/chat/chat_bloc.dart' as _i142;
 import '../../presentation/blocs/earn/earn_bloc.dart' as _i775;
+import '../../presentation/blocs/earn_inbox/earn_inbox_bloc.dart' as _i480;
 import '../../presentation/blocs/group/group_bloc.dart' as _i275;
 import '../../presentation/blocs/home/home_bloc.dart' as _i973;
 import '../../presentation/blocs/pot/pot_bloc.dart' as _i58;
 import '../../presentation/blocs/profile/profile_bloc.dart' as _i344;
 import '../../presentation/blocs/purchase/purchase_bloc.dart' as _i936;
 import '../../presentation/blocs/referral/referral_bloc.dart' as _i595;
+import '../../presentation/blocs/reward/reward_bloc.dart' as _i206;
 import '../../presentation/blocs/wallet/wallet_bloc.dart' as _i1019;
 import '../network/network_info.dart' as _i932;
 import '../security/audit_logger.dart' as _i988;
@@ -131,6 +140,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i383.SecurityService>(() => _i383.SecurityService());
     gh.lazySingleton<_i383.ErrorHandler>(() => _i383.ErrorHandler());
     gh.lazySingleton<_i483.AppDatabase>(() => _i483.AppDatabase());
+    gh.lazySingleton<_i434.UploadService>(
+      () => _i434.UploadService(gh<_i457.FirebaseStorage>()),
+    );
     gh.lazySingleton<_i1057.AuthRemoteDataSource>(
       () => _i1057.AuthRemoteDataSourceImpl(
         gh<_i59.FirebaseAuth>(),
@@ -139,6 +151,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i932.NetworkInfo>(
       () => _i932.NetworkInfoImpl(gh<_i161.InternetConnection>()),
+    );
+    gh.lazySingleton<_i366.RewardRemoteDataSource>(
+      () => _i366.RewardRemoteDataSourceImpl(
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+      ),
     );
     gh.lazySingleton<_i752.PinManager>(
       () => _i752.PinManager(gh<_i558.FlutterSecureStorage>()),
@@ -155,6 +173,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i809.FirebaseFunctions>(),
         gh<_i59.FirebaseAuth>(),
       ),
+    );
+    gh.lazySingleton<_i191.RewardRepository>(
+      () => _i905.RewardRepositoryImpl(gh<_i366.RewardRemoteDataSource>()),
     );
     gh.lazySingleton<_i749.GamificationRemoteDataSource>(
       () => _i749.GamificationRemoteDataSourceImpl(
@@ -192,11 +213,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i351.PlayIntegrityService>(
       () => _i351.PlayIntegrityService(gh<_i809.FirebaseFunctions>()),
     );
+    gh.lazySingleton<_i909.PollRemoteDataSource>(
+      () => _i909.PollRemoteDataSource(gh<_i809.FirebaseFunctions>()),
+    );
     gh.lazySingleton<_i454.DeviceRepository>(
       () => _i34.DeviceRepositoryImpl(
         gh<_i433.DeviceRemoteDataSource>(),
         gh<_i932.NetworkInfo>(),
       ),
+    );
+    gh.factory<_i206.RewardBloc>(
+      () => _i206.RewardBloc(gh<_i191.RewardRepository>()),
     );
     gh.lazySingleton<_i9.ReferralRemoteDataSource>(
       () => _i9.ReferralRemoteDataSourceImpl(
@@ -295,6 +322,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.PlayIntegrityService>(),
       ),
     );
+    gh.lazySingleton<_i731.PollRepository>(
+      () => _i570.PollRepositoryImpl(
+        gh<_i909.PollRemoteDataSource>(),
+        gh<_i974.FirebaseFirestore>(),
+      ),
+    );
     gh.lazySingleton<_i720.StepUpAuthService>(
       () => _i720.StepUpAuthService(
         gh<_i309.DeviceCapabilityService>(),
@@ -374,6 +407,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i1019.WalletBloc>(
       () => _i1019.WalletBloc(gh<_i851.WalletRepository>()),
+    );
+    gh.factory<_i480.EarnInboxBloc>(
+      () => _i480.EarnInboxBloc(gh<_i805.EarnRepository>()),
     );
     gh.factory<_i973.HomeBloc>(
       () => _i973.HomeBloc(

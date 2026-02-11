@@ -6,16 +6,53 @@ part of 'earn_opportunity.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+_$BranchRuleImpl _$$BranchRuleImplFromJson(Map<String, dynamic> json) =>
+    _$BranchRuleImpl(
+      optionValue: json['optionValue'] as String,
+      goToQuestionId: json['goToQuestionId'] as String,
+    );
+
+Map<String, dynamic> _$$BranchRuleImplToJson(_$BranchRuleImpl instance) =>
+    <String, dynamic>{
+      'optionValue': instance.optionValue,
+      'goToQuestionId': instance.goToQuestionId,
+    };
+
 _$SurveyQuestionImpl _$$SurveyQuestionImplFromJson(Map<String, dynamic> json) =>
     _$SurveyQuestionImpl(
       id: json['id'] as String,
       text: json['text'] as String,
-      options: (json['options'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
       orderIndex: (json['orderIndex'] as num).toInt(),
-      isAttentionCheck: json['isAttentionCheck'] as bool?,
+      questionType: $enumDecode(_$QuestionTypeEnumMap, json['questionType']),
+      isRequired: json['isRequired'] as bool? ?? true,
+      options:
+          (json['options'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      maxSelections: (json['maxSelections'] as num?)?.toInt(),
+      textInputCount: (json['textInputCount'] as num?)?.toInt() ?? 1,
+      textMaxLength: (json['textMaxLength'] as num?)?.toInt() ?? 50,
+      likertScale: (json['likertScale'] as num?)?.toInt() ?? 5,
+      likertLowLabel: json['likertLowLabel'] as String?,
+      likertHighLabel: json['likertHighLabel'] as String?,
+      maxStars: (json['maxStars'] as num?)?.toInt() ?? 5,
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+          const [],
+      maxTags: (json['maxTags'] as num?)?.toInt(),
+      sliderMin: (json['sliderMin'] as num?)?.toInt() ?? 0,
+      sliderMax: (json['sliderMax'] as num?)?.toInt() ?? 100,
+      sliderStep: (json['sliderStep'] as num?)?.toInt() ?? 1,
+      sliderMinLabel: json['sliderMinLabel'] as String?,
+      sliderMaxLabel: json['sliderMaxLabel'] as String?,
+      isAttentionCheck: json['isAttentionCheck'] as bool? ?? false,
       correctAnswer: json['correctAnswer'] as String?,
+      branchRules:
+          (json['branchRules'] as List<dynamic>?)
+              ?.map((e) => BranchRule.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$$SurveyQuestionImplToJson(
@@ -23,10 +60,36 @@ Map<String, dynamic> _$$SurveyQuestionImplToJson(
 ) => <String, dynamic>{
   'id': instance.id,
   'text': instance.text,
-  'options': instance.options,
   'orderIndex': instance.orderIndex,
+  'questionType': _$QuestionTypeEnumMap[instance.questionType]!,
+  'isRequired': instance.isRequired,
+  'options': instance.options,
+  'maxSelections': instance.maxSelections,
+  'textInputCount': instance.textInputCount,
+  'textMaxLength': instance.textMaxLength,
+  'likertScale': instance.likertScale,
+  'likertLowLabel': instance.likertLowLabel,
+  'likertHighLabel': instance.likertHighLabel,
+  'maxStars': instance.maxStars,
+  'tags': instance.tags,
+  'maxTags': instance.maxTags,
+  'sliderMin': instance.sliderMin,
+  'sliderMax': instance.sliderMax,
+  'sliderStep': instance.sliderStep,
+  'sliderMinLabel': instance.sliderMinLabel,
+  'sliderMaxLabel': instance.sliderMaxLabel,
   'isAttentionCheck': instance.isAttentionCheck,
   'correctAnswer': instance.correctAnswer,
+  'branchRules': instance.branchRules,
+};
+
+const _$QuestionTypeEnumMap = {
+  QuestionType.singleSelect: 'singleSelect',
+  QuestionType.multiSelect: 'multiSelect',
+  QuestionType.textInput: 'textInput',
+  QuestionType.likert: 'likert',
+  QuestionType.starTags: 'starTags',
+  QuestionType.slider: 'slider',
 };
 
 _$EarnOpportunityImpl _$$EarnOpportunityImplFromJson(
@@ -74,6 +137,23 @@ _$EarnOpportunityImpl _$$EarnOpportunityImplFromJson(
   budgetExhausted: json['budgetExhausted'] as bool? ?? false,
   tokenBudget: (json['tokenBudget'] as num?)?.toInt(),
   tokenSpent: (json['tokenSpent'] as num?)?.toInt() ?? 0,
+  pollId: json['pollId'] as String?,
+  uploadPrompt: json['uploadPrompt'] as String?,
+  uploadContextMediaUrl: json['uploadContextMediaUrl'] as String?,
+  uploadContextMediaType: json['uploadContextMediaType'] as String?,
+  uploadVideoEnabled: json['uploadVideoEnabled'] as bool? ?? false,
+  uploadImageEnabled: json['uploadImageEnabled'] as bool? ?? false,
+  uploadTextEnabled: json['uploadTextEnabled'] as bool? ?? false,
+  uploadVideoRequired: json['uploadVideoRequired'] as bool? ?? false,
+  uploadImageRequired: json['uploadImageRequired'] as bool? ?? false,
+  uploadTextRequired: json['uploadTextRequired'] as bool? ?? false,
+  uploadVideoMaxSeconds: (json['uploadVideoMaxSeconds'] as num?)?.toInt() ?? 60,
+  uploadTextMinChars: (json['uploadTextMinChars'] as num?)?.toInt() ?? 10,
+  uploadTextMaxChars: (json['uploadTextMaxChars'] as num?)?.toInt() ?? 1500,
+  requiresAdminReview: json['requiresAdminReview'] as bool? ?? false,
+  rewardCampaignId: json['rewardCampaignId'] as String?,
+  rewardCampaignName: json['rewardCampaignName'] as String?,
+  rewardType: json['rewardType'] as String?,
 );
 
 Map<String, dynamic> _$$EarnOpportunityImplToJson(
@@ -111,15 +191,32 @@ Map<String, dynamic> _$$EarnOpportunityImplToJson(
   'budgetExhausted': instance.budgetExhausted,
   'tokenBudget': instance.tokenBudget,
   'tokenSpent': instance.tokenSpent,
+  'pollId': instance.pollId,
+  'uploadPrompt': instance.uploadPrompt,
+  'uploadContextMediaUrl': instance.uploadContextMediaUrl,
+  'uploadContextMediaType': instance.uploadContextMediaType,
+  'uploadVideoEnabled': instance.uploadVideoEnabled,
+  'uploadImageEnabled': instance.uploadImageEnabled,
+  'uploadTextEnabled': instance.uploadTextEnabled,
+  'uploadVideoRequired': instance.uploadVideoRequired,
+  'uploadImageRequired': instance.uploadImageRequired,
+  'uploadTextRequired': instance.uploadTextRequired,
+  'uploadVideoMaxSeconds': instance.uploadVideoMaxSeconds,
+  'uploadTextMinChars': instance.uploadTextMinChars,
+  'uploadTextMaxChars': instance.uploadTextMaxChars,
+  'requiresAdminReview': instance.requiresAdminReview,
+  'rewardCampaignId': instance.rewardCampaignId,
+  'rewardCampaignName': instance.rewardCampaignName,
+  'rewardType': instance.rewardType,
 };
 
 const _$EarningTypeEnumMap = {
   EarningType.survey: 'survey',
   EarningType.video: 'video',
-  EarningType.trivia: 'trivia',
-  EarningType.rating: 'rating',
+  EarningType.image: 'image',
   EarningType.poll: 'poll',
   EarningType.adVideo: 'adVideo',
+  EarningType.upload: 'upload',
 };
 
 const _$MediaTypeEnumMap = {

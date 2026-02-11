@@ -29,10 +29,19 @@ class _PlatformManagementScreenState extends State<PlatformManagementScreen> {
   Map<String, dynamic>? _threadData;
   Map<String, dynamic>? _opportunityData;
 
+  // Reward feature flags
+  bool _rewardsEnabled = true;
+  bool _rewardsWalletUiEnabled = true;
+  bool _rewardsEarnIntegrationEnabled = true;
+  bool _rewardsAdminEnabled = true;
+  bool _isLoadingFlags = true;
+  bool _isSavingFlags = false;
+
   @override
   void initState() {
     super.initState();
     _checkSetupStatus();
+    _loadRewardFlags();
   }
 
   Future<void> _checkSetupStatus() async {
@@ -125,6 +134,63 @@ class _PlatformManagementScreenState extends State<PlatformManagementScreen> {
     }
   }
 
+  Future<void> _loadRewardFlags() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('platformSettings')
+          .doc('rewards')
+          .get();
+
+      if (!mounted) return;
+
+      if (doc.exists) {
+        final data = doc.data() ?? {};
+        setState(() {
+          _rewardsEnabled = data['rewardsEnabled'] ?? true;
+          _rewardsWalletUiEnabled = data['rewardsWalletUiEnabled'] ?? true;
+          _rewardsEarnIntegrationEnabled =
+              data['rewardsEarnIntegrationEnabled'] ?? true;
+          _rewardsAdminEnabled = data['rewardsAdminEnabled'] ?? true;
+          _isLoadingFlags = false;
+        });
+      } else {
+        setState(() => _isLoadingFlags = false);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoadingFlags = false);
+    }
+  }
+
+  Future<void> _saveRewardFlag(String key, bool value) async {
+    setState(() => _isSavingFlags = true);
+    try {
+      await FirebaseFirestore.instance
+          .collection('platformSettings')
+          .doc('rewards')
+          .set({key: value}, SetOptions(merge: true));
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$key updated'),
+          backgroundColor: AppColors.success,
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update flag: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isSavingFlags = false);
+    }
+  }
+
   bool get _allSetUp =>
       _clientExists &&
       _subAccountExists &&
@@ -194,6 +260,10 @@ class _PlatformManagementScreenState extends State<PlatformManagementScreen> {
 
               // Configuration details
               if (_allSetUp) _buildConfigDetails(),
+              const SizedBox(height: 24),
+
+              // Reward system feature flags
+              _buildRewardFlagsCard(),
             ],
           ],
         ),
@@ -425,6 +495,148 @@ class _PlatformManagementScreenState extends State<PlatformManagementScreen> {
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRewardFlagsCard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.cardDark,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.card_giftcard, color: AppColors.accent, size: 24),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Reward System Settings',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimaryDark,
+                  ),
+                ),
+              ),
+              if (_isSavingFlags)
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Control which parts of the reward system are active.',
+            style: TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondaryDark,
+            ),
+          ),
+          const SizedBox(height: 20),
+          if (_isLoadingFlags)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else ...[
+            _buildFlagToggle(
+              'Master Kill Switch',
+              'rewardsEnabled',
+              _rewardsEnabled,
+              'Disables all reward functionality globally',
+              (val) {
+                setState(() => _rewardsEnabled = val);
+                _saveRewardFlag('rewardsEnabled', val);
+              },
+            ),
+            const Divider(height: 1, color: AppColors.borderDark),
+            _buildFlagToggle(
+              'Wallet UI',
+              'rewardsWalletUiEnabled',
+              _rewardsWalletUiEnabled,
+              'Show/hide My Rewards card in consumer wallet',
+              (val) {
+                setState(() => _rewardsWalletUiEnabled = val);
+                _saveRewardFlag('rewardsWalletUiEnabled', val);
+              },
+            ),
+            const Divider(height: 1, color: AppColors.borderDark),
+            _buildFlagToggle(
+              'Earn Integration',
+              'rewardsEarnIntegrationEnabled',
+              _rewardsEarnIntegrationEnabled,
+              'Allocate rewards when engagements complete',
+              (val) {
+                setState(() => _rewardsEarnIntegrationEnabled = val);
+                _saveRewardFlag('rewardsEarnIntegrationEnabled', val);
+              },
+            ),
+            const Divider(height: 1, color: AppColors.borderDark),
+            _buildFlagToggle(
+              'Admin Screens',
+              'rewardsAdminEnabled',
+              _rewardsAdminEnabled,
+              'Enable reward management in admin panel',
+              (val) {
+                setState(() => _rewardsAdminEnabled = val);
+                _saveRewardFlag('rewardsAdminEnabled', val);
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFlagToggle(
+    String label,
+    String key,
+    bool value,
+    String description,
+    ValueChanged<bool> onChanged,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimaryDark,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondaryDark,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: _isSavingFlags ? null : onChanged,
+            activeThumbColor: AppColors.success,
+          ),
         ],
       ),
     );

@@ -390,17 +390,17 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
       case EarningType.video:
         icon = Icons.smart_display_outlined;
         break;
-      case EarningType.trivia:
-        icon = Icons.lightbulb_outline;
-        break;
-      case EarningType.rating:
-        icon = Icons.star_outline;
+      case EarningType.image:
+        icon = Icons.image_outlined;
         break;
       case EarningType.poll:
         icon = Icons.poll_outlined;
         break;
       case EarningType.adVideo:
         icon = Icons.play_circle_outline;
+        break;
+      case EarningType.upload:
+        icon = Icons.upload_outlined;
         break;
     }
 

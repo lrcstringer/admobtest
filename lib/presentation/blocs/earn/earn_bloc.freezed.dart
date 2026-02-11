@@ -28,7 +28,7 @@ mixin _$EarnEvent {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -49,6 +49,19 @@ mixin _$EarnEvent {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
@@ -61,7 +74,7 @@ mixin _$EarnEvent {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -82,6 +95,15 @@ mixin _$EarnEvent {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
@@ -94,7 +116,7 @@ mixin _$EarnEvent {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -115,6 +137,15 @@ mixin _$EarnEvent {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -139,6 +170,9 @@ mixin _$EarnEvent {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
@@ -161,6 +195,8 @@ mixin _$EarnEvent {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
@@ -183,6 +219,8 @@ mixin _$EarnEvent {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
 }
@@ -259,7 +297,7 @@ class _$LoadThreadsImpl implements _LoadThreads {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -280,6 +318,19 @@ class _$LoadThreadsImpl implements _LoadThreads {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return loadThreads();
   }
@@ -296,7 +347,7 @@ class _$LoadThreadsImpl implements _LoadThreads {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -317,6 +368,15 @@ class _$LoadThreadsImpl implements _LoadThreads {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return loadThreads?.call();
   }
@@ -333,7 +393,7 @@ class _$LoadThreadsImpl implements _LoadThreads {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -354,6 +414,15 @@ class _$LoadThreadsImpl implements _LoadThreads {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (loadThreads != null) {
@@ -385,6 +454,9 @@ class _$LoadThreadsImpl implements _LoadThreads {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return loadThreads(this);
   }
@@ -411,6 +483,8 @@ class _$LoadThreadsImpl implements _LoadThreads {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return loadThreads?.call(this);
   }
@@ -437,6 +511,8 @@ class _$LoadThreadsImpl implements _LoadThreads {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (loadThreads != null) {
@@ -530,7 +606,7 @@ class _$SelectThreadImpl implements _SelectThread {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -551,6 +627,19 @@ class _$SelectThreadImpl implements _SelectThread {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return selectThread(threadId);
   }
@@ -567,7 +656,7 @@ class _$SelectThreadImpl implements _SelectThread {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -588,6 +677,15 @@ class _$SelectThreadImpl implements _SelectThread {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return selectThread?.call(threadId);
   }
@@ -604,7 +702,7 @@ class _$SelectThreadImpl implements _SelectThread {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -625,6 +723,15 @@ class _$SelectThreadImpl implements _SelectThread {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (selectThread != null) {
@@ -656,6 +763,9 @@ class _$SelectThreadImpl implements _SelectThread {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return selectThread(this);
   }
@@ -682,6 +792,8 @@ class _$SelectThreadImpl implements _SelectThread {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return selectThread?.call(this);
   }
@@ -708,6 +820,8 @@ class _$SelectThreadImpl implements _SelectThread {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (selectThread != null) {
@@ -812,7 +926,7 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -833,6 +947,19 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return loadOpportunities(threadId);
   }
@@ -849,7 +976,7 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -870,6 +997,15 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return loadOpportunities?.call(threadId);
   }
@@ -886,7 +1022,7 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -907,6 +1043,15 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (loadOpportunities != null) {
@@ -938,6 +1083,9 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return loadOpportunities(this);
   }
@@ -964,6 +1112,8 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return loadOpportunities?.call(this);
   }
@@ -990,6 +1140,8 @@ class _$LoadOpportunitiesImpl implements _LoadOpportunities {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (loadOpportunities != null) {
@@ -1095,7 +1247,7 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -1116,6 +1268,19 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return selectOpportunity(opportunityId);
   }
@@ -1132,7 +1297,7 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -1153,6 +1318,15 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return selectOpportunity?.call(opportunityId);
   }
@@ -1169,7 +1343,7 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -1190,6 +1364,15 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (selectOpportunity != null) {
@@ -1221,6 +1404,9 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return selectOpportunity(this);
   }
@@ -1247,6 +1433,8 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return selectOpportunity?.call(this);
   }
@@ -1273,6 +1461,8 @@ class _$SelectOpportunityImpl implements _SelectOpportunity {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (selectOpportunity != null) {
@@ -1378,7 +1568,7 @@ class _$StartEngagementImpl implements _StartEngagement {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -1399,6 +1589,19 @@ class _$StartEngagementImpl implements _StartEngagement {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return startEngagement(opportunityId);
   }
@@ -1415,7 +1618,7 @@ class _$StartEngagementImpl implements _StartEngagement {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -1436,6 +1639,15 @@ class _$StartEngagementImpl implements _StartEngagement {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return startEngagement?.call(opportunityId);
   }
@@ -1452,7 +1664,7 @@ class _$StartEngagementImpl implements _StartEngagement {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -1473,6 +1685,15 @@ class _$StartEngagementImpl implements _StartEngagement {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (startEngagement != null) {
@@ -1504,6 +1725,9 @@ class _$StartEngagementImpl implements _StartEngagement {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return startEngagement(this);
   }
@@ -1530,6 +1754,8 @@ class _$StartEngagementImpl implements _StartEngagement {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return startEngagement?.call(this);
   }
@@ -1556,6 +1782,8 @@ class _$StartEngagementImpl implements _StartEngagement {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (startEngagement != null) {
@@ -1676,7 +1904,7 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -1697,6 +1925,19 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return updateWatchProgress(engagementId, watchDurationSeconds);
   }
@@ -1713,7 +1954,7 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -1734,6 +1975,15 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return updateWatchProgress?.call(engagementId, watchDurationSeconds);
   }
@@ -1750,7 +2000,7 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -1771,6 +2021,15 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (updateWatchProgress != null) {
@@ -1802,6 +2061,9 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return updateWatchProgress(this);
   }
@@ -1828,6 +2090,8 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return updateWatchProgress?.call(this);
   }
@@ -1854,6 +2118,8 @@ class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (updateWatchProgress != null) {
@@ -1888,7 +2154,7 @@ abstract class _$$SubmitSurveyImplCopyWith<$Res> {
   @useResult
   $Res call({
     String engagementId,
-    List<EngagementAnswer> answers,
+    List<SurveyResponse> answers,
     EngagementEvidence evidence,
   });
 
@@ -1922,7 +2188,7 @@ class __$$SubmitSurveyImplCopyWithImpl<$Res>
         answers: null == answers
             ? _value._answers
             : answers // ignore: cast_nullable_to_non_nullable
-                  as List<EngagementAnswer>,
+                  as List<SurveyResponse>,
         evidence: null == evidence
             ? _value.evidence
             : evidence // ignore: cast_nullable_to_non_nullable
@@ -1947,15 +2213,15 @@ class __$$SubmitSurveyImplCopyWithImpl<$Res>
 class _$SubmitSurveyImpl implements _SubmitSurvey {
   const _$SubmitSurveyImpl({
     required this.engagementId,
-    required final List<EngagementAnswer> answers,
+    required final List<SurveyResponse> answers,
     required this.evidence,
   }) : _answers = answers;
 
   @override
   final String engagementId;
-  final List<EngagementAnswer> _answers;
+  final List<SurveyResponse> _answers;
   @override
-  List<EngagementAnswer> get answers {
+  List<SurveyResponse> get answers {
     if (_answers is EqualUnmodifiableListView) return _answers;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_answers);
@@ -2009,7 +2275,7 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -2030,6 +2296,19 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return submitSurvey(engagementId, answers, evidence);
   }
@@ -2046,7 +2325,7 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -2067,6 +2346,15 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return submitSurvey?.call(engagementId, answers, evidence);
   }
@@ -2083,7 +2371,7 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -2104,6 +2392,15 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (submitSurvey != null) {
@@ -2135,6 +2432,9 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return submitSurvey(this);
   }
@@ -2161,6 +2461,8 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return submitSurvey?.call(this);
   }
@@ -2187,6 +2489,8 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (submitSurvey != null) {
@@ -2199,12 +2503,12 @@ class _$SubmitSurveyImpl implements _SubmitSurvey {
 abstract class _SubmitSurvey implements EarnEvent {
   const factory _SubmitSurvey({
     required final String engagementId,
-    required final List<EngagementAnswer> answers,
+    required final List<SurveyResponse> answers,
     required final EngagementEvidence evidence,
   }) = _$SubmitSurveyImpl;
 
   String get engagementId;
-  List<EngagementAnswer> get answers;
+  List<SurveyResponse> get answers;
   EngagementEvidence get evidence;
 
   /// Create a copy of EarnEvent
@@ -2297,7 +2601,7 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -2318,6 +2622,19 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return abandonEngagement(engagementId);
   }
@@ -2334,7 +2651,7 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -2355,6 +2672,15 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return abandonEngagement?.call(engagementId);
   }
@@ -2371,7 +2697,7 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -2392,6 +2718,15 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (abandonEngagement != null) {
@@ -2423,6 +2758,9 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return abandonEngagement(this);
   }
@@ -2449,6 +2787,8 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return abandonEngagement?.call(this);
   }
@@ -2475,6 +2815,8 @@ class _$AbandonEngagementImpl implements _AbandonEngagement {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (abandonEngagement != null) {
@@ -2576,7 +2918,7 @@ class _$LoadHistoryImpl implements _LoadHistory {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -2597,6 +2939,19 @@ class _$LoadHistoryImpl implements _LoadHistory {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return loadHistory(limit);
   }
@@ -2613,7 +2968,7 @@ class _$LoadHistoryImpl implements _LoadHistory {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -2634,6 +2989,15 @@ class _$LoadHistoryImpl implements _LoadHistory {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return loadHistory?.call(limit);
   }
@@ -2650,7 +3014,7 @@ class _$LoadHistoryImpl implements _LoadHistory {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -2671,6 +3035,15 @@ class _$LoadHistoryImpl implements _LoadHistory {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (loadHistory != null) {
@@ -2702,6 +3075,9 @@ class _$LoadHistoryImpl implements _LoadHistory {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return loadHistory(this);
   }
@@ -2728,6 +3104,8 @@ class _$LoadHistoryImpl implements _LoadHistory {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return loadHistory?.call(this);
   }
@@ -2754,6 +3132,8 @@ class _$LoadHistoryImpl implements _LoadHistory {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (loadHistory != null) {
@@ -2827,7 +3207,7 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -2848,6 +3228,19 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return loadMoreHistory();
   }
@@ -2864,7 +3257,7 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -2885,6 +3278,15 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return loadMoreHistory?.call();
   }
@@ -2901,7 +3303,7 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -2922,6 +3324,15 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (loadMoreHistory != null) {
@@ -2953,6 +3364,9 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return loadMoreHistory(this);
   }
@@ -2979,6 +3393,8 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return loadMoreHistory?.call(this);
   }
@@ -3005,6 +3421,8 @@ class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (loadMoreHistory != null) {
@@ -3070,7 +3488,7 @@ class _$RefreshImpl implements _Refresh {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -3091,6 +3509,19 @@ class _$RefreshImpl implements _Refresh {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return refresh();
   }
@@ -3107,7 +3538,7 @@ class _$RefreshImpl implements _Refresh {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -3128,6 +3559,15 @@ class _$RefreshImpl implements _Refresh {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return refresh?.call();
   }
@@ -3144,7 +3584,7 @@ class _$RefreshImpl implements _Refresh {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -3165,6 +3605,15 @@ class _$RefreshImpl implements _Refresh {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (refresh != null) {
@@ -3196,6 +3645,9 @@ class _$RefreshImpl implements _Refresh {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return refresh(this);
   }
@@ -3222,6 +3674,8 @@ class _$RefreshImpl implements _Refresh {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return refresh?.call(this);
   }
@@ -3248,6 +3702,8 @@ class _$RefreshImpl implements _Refresh {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (refresh != null) {
@@ -3313,7 +3769,7 @@ class _$ClearErrorImpl implements _ClearError {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -3334,6 +3790,19 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return clearError();
   }
@@ -3350,7 +3819,7 @@ class _$ClearErrorImpl implements _ClearError {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -3371,6 +3840,15 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return clearError?.call();
   }
@@ -3387,7 +3865,7 @@ class _$ClearErrorImpl implements _ClearError {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -3408,6 +3886,15 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (clearError != null) {
@@ -3439,6 +3926,9 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return clearError(this);
   }
@@ -3465,6 +3955,8 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return clearError?.call(this);
   }
@@ -3491,6 +3983,8 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (clearError != null) {
@@ -3556,7 +4050,7 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -3577,6 +4071,19 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return resetEngagement();
   }
@@ -3593,7 +4100,7 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -3614,6 +4121,15 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return resetEngagement?.call();
   }
@@ -3630,7 +4146,7 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -3651,6 +4167,15 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (resetEngagement != null) {
@@ -3682,6 +4207,9 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return resetEngagement(this);
   }
@@ -3708,6 +4236,8 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return resetEngagement?.call(this);
   }
@@ -3734,6 +4264,8 @@ class _$ResetEngagementImpl implements _ResetEngagement {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (resetEngagement != null) {
@@ -3799,7 +4331,7 @@ class _$LoadAdVideoImpl implements _LoadAdVideo {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -3820,6 +4352,19 @@ class _$LoadAdVideoImpl implements _LoadAdVideo {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return loadAdVideo();
   }
@@ -3836,7 +4381,7 @@ class _$LoadAdVideoImpl implements _LoadAdVideo {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -3857,6 +4402,15 @@ class _$LoadAdVideoImpl implements _LoadAdVideo {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return loadAdVideo?.call();
   }
@@ -3873,7 +4427,7 @@ class _$LoadAdVideoImpl implements _LoadAdVideo {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -3894,6 +4448,15 @@ class _$LoadAdVideoImpl implements _LoadAdVideo {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (loadAdVideo != null) {
@@ -3925,6 +4488,9 @@ class _$LoadAdVideoImpl implements _LoadAdVideo {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return loadAdVideo(this);
   }
@@ -3951,6 +4517,8 @@ class _$LoadAdVideoImpl implements _LoadAdVideo {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return loadAdVideo?.call(this);
   }
@@ -3977,6 +4545,8 @@ class _$LoadAdVideoImpl implements _LoadAdVideo {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (loadAdVideo != null) {
@@ -4098,7 +4668,7 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -4119,6 +4689,19 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return adVideoCompleted(transactionId, rewardAmount, responseId);
   }
@@ -4135,7 +4718,7 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -4156,6 +4739,15 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return adVideoCompleted?.call(transactionId, rewardAmount, responseId);
   }
@@ -4172,7 +4764,7 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -4193,6 +4785,15 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (adVideoCompleted != null) {
@@ -4224,6 +4825,9 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return adVideoCompleted(this);
   }
@@ -4250,6 +4854,8 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return adVideoCompleted?.call(this);
   }
@@ -4276,6 +4882,8 @@ class _$AdVideoCompletedImpl implements _AdVideoCompleted {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (adVideoCompleted != null) {
@@ -4382,7 +4990,7 @@ class _$AdVideoFailedImpl implements _AdVideoFailed {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -4403,6 +5011,19 @@ class _$AdVideoFailedImpl implements _AdVideoFailed {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return adVideoFailed(reason);
   }
@@ -4419,7 +5040,7 @@ class _$AdVideoFailedImpl implements _AdVideoFailed {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -4440,6 +5061,15 @@ class _$AdVideoFailedImpl implements _AdVideoFailed {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return adVideoFailed?.call(reason);
   }
@@ -4456,7 +5086,7 @@ class _$AdVideoFailedImpl implements _AdVideoFailed {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -4477,6 +5107,15 @@ class _$AdVideoFailedImpl implements _AdVideoFailed {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (adVideoFailed != null) {
@@ -4508,6 +5147,9 @@ class _$AdVideoFailedImpl implements _AdVideoFailed {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return adVideoFailed(this);
   }
@@ -4534,6 +5176,8 @@ class _$AdVideoFailedImpl implements _AdVideoFailed {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return adVideoFailed?.call(this);
   }
@@ -4560,6 +5204,8 @@ class _$AdVideoFailedImpl implements _AdVideoFailed {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (adVideoFailed != null) {
@@ -4664,7 +5310,7 @@ class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -4685,6 +5331,19 @@ class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return adReadyStateChanged(isReady);
   }
@@ -4701,7 +5360,7 @@ class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -4722,6 +5381,15 @@ class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return adReadyStateChanged?.call(isReady);
   }
@@ -4738,7 +5406,7 @@ class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -4759,6 +5427,15 @@ class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (adReadyStateChanged != null) {
@@ -4790,6 +5467,9 @@ class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return adReadyStateChanged(this);
   }
@@ -4816,6 +5496,8 @@ class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return adReadyStateChanged?.call(this);
   }
@@ -4842,6 +5524,8 @@ class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (adReadyStateChanged != null) {
@@ -4948,7 +5632,7 @@ class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -4969,6 +5653,19 @@ class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return adLoadingStateChanged(isLoading);
   }
@@ -4985,7 +5682,7 @@ class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -5006,6 +5703,15 @@ class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return adLoadingStateChanged?.call(isLoading);
   }
@@ -5022,7 +5728,7 @@ class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -5043,6 +5749,15 @@ class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (adLoadingStateChanged != null) {
@@ -5074,6 +5789,9 @@ class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return adLoadingStateChanged(this);
   }
@@ -5100,6 +5818,8 @@ class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return adLoadingStateChanged?.call(this);
   }
@@ -5126,6 +5846,8 @@ class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (adLoadingStateChanged != null) {
@@ -5231,7 +5953,7 @@ class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
     updateWatchProgress,
     required TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )
     submitSurvey,
@@ -5252,6 +5974,19 @@ class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
     required TResult Function(bool isReady) adReadyStateChanged,
     required TResult Function(bool isLoading) adLoadingStateChanged,
     required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
   }) {
     return adLoadAttemptChanged(attempt);
   }
@@ -5268,7 +6003,7 @@ class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
     updateWatchProgress,
     TResult? Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -5289,6 +6024,15 @@ class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
     TResult? Function(bool isReady)? adReadyStateChanged,
     TResult? Function(bool isLoading)? adLoadingStateChanged,
     TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
   }) {
     return adLoadAttemptChanged?.call(attempt);
   }
@@ -5305,7 +6049,7 @@ class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
     updateWatchProgress,
     TResult Function(
       String engagementId,
-      List<EngagementAnswer> answers,
+      List<SurveyResponse> answers,
       EngagementEvidence evidence,
     )?
     submitSurvey,
@@ -5326,6 +6070,15 @@ class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
     TResult Function(bool isReady)? adReadyStateChanged,
     TResult Function(bool isLoading)? adLoadingStateChanged,
     TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (adLoadAttemptChanged != null) {
@@ -5357,6 +6110,9 @@ class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
     required TResult Function(_AdLoadingStateChanged value)
     adLoadingStateChanged,
     required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
   }) {
     return adLoadAttemptChanged(this);
   }
@@ -5383,6 +6139,8 @@ class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
     TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
   }) {
     return adLoadAttemptChanged?.call(this);
   }
@@ -5409,6 +6167,8 @@ class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
     TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
     TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
     TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
     required TResult orElse(),
   }) {
     if (adLoadAttemptChanged != null) {
@@ -5428,6 +6188,753 @@ abstract class _AdLoadAttemptChanged implements EarnEvent {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$AdLoadAttemptChangedImplCopyWith<_$AdLoadAttemptChangedImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$SubmitUploadImplCopyWith<$Res> {
+  factory _$$SubmitUploadImplCopyWith(
+    _$SubmitUploadImpl value,
+    $Res Function(_$SubmitUploadImpl) then,
+  ) = __$$SubmitUploadImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({
+    String engagementId,
+    List<UploadedFileEvidence> uploadedFiles,
+    String? textResponse,
+    EngagementEvidence evidence,
+  });
+
+  $EngagementEvidenceCopyWith<$Res> get evidence;
+}
+
+/// @nodoc
+class __$$SubmitUploadImplCopyWithImpl<$Res>
+    extends _$EarnEventCopyWithImpl<$Res, _$SubmitUploadImpl>
+    implements _$$SubmitUploadImplCopyWith<$Res> {
+  __$$SubmitUploadImplCopyWithImpl(
+    _$SubmitUploadImpl _value,
+    $Res Function(_$SubmitUploadImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of EarnEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? engagementId = null,
+    Object? uploadedFiles = null,
+    Object? textResponse = freezed,
+    Object? evidence = null,
+  }) {
+    return _then(
+      _$SubmitUploadImpl(
+        engagementId: null == engagementId
+            ? _value.engagementId
+            : engagementId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        uploadedFiles: null == uploadedFiles
+            ? _value._uploadedFiles
+            : uploadedFiles // ignore: cast_nullable_to_non_nullable
+                  as List<UploadedFileEvidence>,
+        textResponse: freezed == textResponse
+            ? _value.textResponse
+            : textResponse // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        evidence: null == evidence
+            ? _value.evidence
+            : evidence // ignore: cast_nullable_to_non_nullable
+                  as EngagementEvidence,
+      ),
+    );
+  }
+
+  /// Create a copy of EarnEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $EngagementEvidenceCopyWith<$Res> get evidence {
+    return $EngagementEvidenceCopyWith<$Res>(_value.evidence, (value) {
+      return _then(_value.copyWith(evidence: value));
+    });
+  }
+}
+
+/// @nodoc
+
+class _$SubmitUploadImpl implements _SubmitUpload {
+  const _$SubmitUploadImpl({
+    required this.engagementId,
+    required final List<UploadedFileEvidence> uploadedFiles,
+    this.textResponse,
+    required this.evidence,
+  }) : _uploadedFiles = uploadedFiles;
+
+  @override
+  final String engagementId;
+  final List<UploadedFileEvidence> _uploadedFiles;
+  @override
+  List<UploadedFileEvidence> get uploadedFiles {
+    if (_uploadedFiles is EqualUnmodifiableListView) return _uploadedFiles;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_uploadedFiles);
+  }
+
+  @override
+  final String? textResponse;
+  @override
+  final EngagementEvidence evidence;
+
+  @override
+  String toString() {
+    return 'EarnEvent.submitUpload(engagementId: $engagementId, uploadedFiles: $uploadedFiles, textResponse: $textResponse, evidence: $evidence)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SubmitUploadImpl &&
+            (identical(other.engagementId, engagementId) ||
+                other.engagementId == engagementId) &&
+            const DeepCollectionEquality().equals(
+              other._uploadedFiles,
+              _uploadedFiles,
+            ) &&
+            (identical(other.textResponse, textResponse) ||
+                other.textResponse == textResponse) &&
+            (identical(other.evidence, evidence) ||
+                other.evidence == evidence));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    engagementId,
+    const DeepCollectionEquality().hash(_uploadedFiles),
+    textResponse,
+    evidence,
+  );
+
+  /// Create a copy of EarnEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SubmitUploadImplCopyWith<_$SubmitUploadImpl> get copyWith =>
+      __$$SubmitUploadImplCopyWithImpl<_$SubmitUploadImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadThreads,
+    required TResult Function(String threadId) selectThread,
+    required TResult Function(String threadId) loadOpportunities,
+    required TResult Function(String opportunityId) selectOpportunity,
+    required TResult Function(String opportunityId) startEngagement,
+    required TResult Function(String engagementId, int watchDurationSeconds)
+    updateWatchProgress,
+    required TResult Function(
+      String engagementId,
+      List<SurveyResponse> answers,
+      EngagementEvidence evidence,
+    )
+    submitSurvey,
+    required TResult Function(String engagementId) abandonEngagement,
+    required TResult Function(int? limit) loadHistory,
+    required TResult Function() loadMoreHistory,
+    required TResult Function() refresh,
+    required TResult Function() clearError,
+    required TResult Function() resetEngagement,
+    required TResult Function() loadAdVideo,
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
+    adVideoCompleted,
+    required TResult Function(String reason) adVideoFailed,
+    required TResult Function(bool isReady) adReadyStateChanged,
+    required TResult Function(bool isLoading) adLoadingStateChanged,
+    required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
+  }) {
+    return submitUpload(engagementId, uploadedFiles, textResponse, evidence);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadThreads,
+    TResult? Function(String threadId)? selectThread,
+    TResult? Function(String threadId)? loadOpportunities,
+    TResult? Function(String opportunityId)? selectOpportunity,
+    TResult? Function(String opportunityId)? startEngagement,
+    TResult? Function(String engagementId, int watchDurationSeconds)?
+    updateWatchProgress,
+    TResult? Function(
+      String engagementId,
+      List<SurveyResponse> answers,
+      EngagementEvidence evidence,
+    )?
+    submitSurvey,
+    TResult? Function(String engagementId)? abandonEngagement,
+    TResult? Function(int? limit)? loadHistory,
+    TResult? Function()? loadMoreHistory,
+    TResult? Function()? refresh,
+    TResult? Function()? clearError,
+    TResult? Function()? resetEngagement,
+    TResult? Function()? loadAdVideo,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
+    TResult? Function(String reason)? adVideoFailed,
+    TResult? Function(bool isReady)? adReadyStateChanged,
+    TResult? Function(bool isLoading)? adLoadingStateChanged,
+    TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
+  }) {
+    return submitUpload?.call(
+      engagementId,
+      uploadedFiles,
+      textResponse,
+      evidence,
+    );
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadThreads,
+    TResult Function(String threadId)? selectThread,
+    TResult Function(String threadId)? loadOpportunities,
+    TResult Function(String opportunityId)? selectOpportunity,
+    TResult Function(String opportunityId)? startEngagement,
+    TResult Function(String engagementId, int watchDurationSeconds)?
+    updateWatchProgress,
+    TResult Function(
+      String engagementId,
+      List<SurveyResponse> answers,
+      EngagementEvidence evidence,
+    )?
+    submitSurvey,
+    TResult Function(String engagementId)? abandonEngagement,
+    TResult Function(int? limit)? loadHistory,
+    TResult Function()? loadMoreHistory,
+    TResult Function()? refresh,
+    TResult Function()? clearError,
+    TResult Function()? resetEngagement,
+    TResult Function()? loadAdVideo,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
+    TResult Function(String reason)? adVideoFailed,
+    TResult Function(bool isReady)? adReadyStateChanged,
+    TResult Function(bool isLoading)? adLoadingStateChanged,
+    TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
+    required TResult orElse(),
+  }) {
+    if (submitUpload != null) {
+      return submitUpload(engagementId, uploadedFiles, textResponse, evidence);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadThreads value) loadThreads,
+    required TResult Function(_SelectThread value) selectThread,
+    required TResult Function(_LoadOpportunities value) loadOpportunities,
+    required TResult Function(_SelectOpportunity value) selectOpportunity,
+    required TResult Function(_StartEngagement value) startEngagement,
+    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
+    required TResult Function(_SubmitSurvey value) submitSurvey,
+    required TResult Function(_AbandonEngagement value) abandonEngagement,
+    required TResult Function(_LoadHistory value) loadHistory,
+    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
+    required TResult Function(_Refresh value) refresh,
+    required TResult Function(_ClearError value) clearError,
+    required TResult Function(_ResetEngagement value) resetEngagement,
+    required TResult Function(_LoadAdVideo value) loadAdVideo,
+    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
+    required TResult Function(_AdVideoFailed value) adVideoFailed,
+    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
+    required TResult Function(_AdLoadingStateChanged value)
+    adLoadingStateChanged,
+    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
+  }) {
+    return submitUpload(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadThreads value)? loadThreads,
+    TResult? Function(_SelectThread value)? selectThread,
+    TResult? Function(_LoadOpportunities value)? loadOpportunities,
+    TResult? Function(_SelectOpportunity value)? selectOpportunity,
+    TResult? Function(_StartEngagement value)? startEngagement,
+    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
+    TResult? Function(_SubmitSurvey value)? submitSurvey,
+    TResult? Function(_AbandonEngagement value)? abandonEngagement,
+    TResult? Function(_LoadHistory value)? loadHistory,
+    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
+    TResult? Function(_Refresh value)? refresh,
+    TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_ResetEngagement value)? resetEngagement,
+    TResult? Function(_LoadAdVideo value)? loadAdVideo,
+    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
+    TResult? Function(_AdVideoFailed value)? adVideoFailed,
+    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
+    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
+    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
+  }) {
+    return submitUpload?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadThreads value)? loadThreads,
+    TResult Function(_SelectThread value)? selectThread,
+    TResult Function(_LoadOpportunities value)? loadOpportunities,
+    TResult Function(_SelectOpportunity value)? selectOpportunity,
+    TResult Function(_StartEngagement value)? startEngagement,
+    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
+    TResult Function(_SubmitSurvey value)? submitSurvey,
+    TResult Function(_AbandonEngagement value)? abandonEngagement,
+    TResult Function(_LoadHistory value)? loadHistory,
+    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
+    TResult Function(_Refresh value)? refresh,
+    TResult Function(_ClearError value)? clearError,
+    TResult Function(_ResetEngagement value)? resetEngagement,
+    TResult Function(_LoadAdVideo value)? loadAdVideo,
+    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
+    TResult Function(_AdVideoFailed value)? adVideoFailed,
+    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
+    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
+    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
+    required TResult orElse(),
+  }) {
+    if (submitUpload != null) {
+      return submitUpload(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _SubmitUpload implements EarnEvent {
+  const factory _SubmitUpload({
+    required final String engagementId,
+    required final List<UploadedFileEvidence> uploadedFiles,
+    final String? textResponse,
+    required final EngagementEvidence evidence,
+  }) = _$SubmitUploadImpl;
+
+  String get engagementId;
+  List<UploadedFileEvidence> get uploadedFiles;
+  String? get textResponse;
+  EngagementEvidence get evidence;
+
+  /// Create a copy of EarnEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SubmitUploadImplCopyWith<_$SubmitUploadImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$UploadProgressChangedImplCopyWith<$Res> {
+  factory _$$UploadProgressChangedImplCopyWith(
+    _$UploadProgressChangedImpl value,
+    $Res Function(_$UploadProgressChangedImpl) then,
+  ) = __$$UploadProgressChangedImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({double progress, int bytesTransferred, int totalBytes});
+}
+
+/// @nodoc
+class __$$UploadProgressChangedImplCopyWithImpl<$Res>
+    extends _$EarnEventCopyWithImpl<$Res, _$UploadProgressChangedImpl>
+    implements _$$UploadProgressChangedImplCopyWith<$Res> {
+  __$$UploadProgressChangedImplCopyWithImpl(
+    _$UploadProgressChangedImpl _value,
+    $Res Function(_$UploadProgressChangedImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of EarnEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? progress = null,
+    Object? bytesTransferred = null,
+    Object? totalBytes = null,
+  }) {
+    return _then(
+      _$UploadProgressChangedImpl(
+        progress: null == progress
+            ? _value.progress
+            : progress // ignore: cast_nullable_to_non_nullable
+                  as double,
+        bytesTransferred: null == bytesTransferred
+            ? _value.bytesTransferred
+            : bytesTransferred // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalBytes: null == totalBytes
+            ? _value.totalBytes
+            : totalBytes // ignore: cast_nullable_to_non_nullable
+                  as int,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$UploadProgressChangedImpl implements _UploadProgressChanged {
+  const _$UploadProgressChangedImpl({
+    required this.progress,
+    required this.bytesTransferred,
+    required this.totalBytes,
+  });
+
+  @override
+  final double progress;
+  @override
+  final int bytesTransferred;
+  @override
+  final int totalBytes;
+
+  @override
+  String toString() {
+    return 'EarnEvent.uploadProgressChanged(progress: $progress, bytesTransferred: $bytesTransferred, totalBytes: $totalBytes)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$UploadProgressChangedImpl &&
+            (identical(other.progress, progress) ||
+                other.progress == progress) &&
+            (identical(other.bytesTransferred, bytesTransferred) ||
+                other.bytesTransferred == bytesTransferred) &&
+            (identical(other.totalBytes, totalBytes) ||
+                other.totalBytes == totalBytes));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, progress, bytesTransferred, totalBytes);
+
+  /// Create a copy of EarnEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$UploadProgressChangedImplCopyWith<_$UploadProgressChangedImpl>
+  get copyWith =>
+      __$$UploadProgressChangedImplCopyWithImpl<_$UploadProgressChangedImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadThreads,
+    required TResult Function(String threadId) selectThread,
+    required TResult Function(String threadId) loadOpportunities,
+    required TResult Function(String opportunityId) selectOpportunity,
+    required TResult Function(String opportunityId) startEngagement,
+    required TResult Function(String engagementId, int watchDurationSeconds)
+    updateWatchProgress,
+    required TResult Function(
+      String engagementId,
+      List<SurveyResponse> answers,
+      EngagementEvidence evidence,
+    )
+    submitSurvey,
+    required TResult Function(String engagementId) abandonEngagement,
+    required TResult Function(int? limit) loadHistory,
+    required TResult Function() loadMoreHistory,
+    required TResult Function() refresh,
+    required TResult Function() clearError,
+    required TResult Function() resetEngagement,
+    required TResult Function() loadAdVideo,
+    required TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )
+    adVideoCompleted,
+    required TResult Function(String reason) adVideoFailed,
+    required TResult Function(bool isReady) adReadyStateChanged,
+    required TResult Function(bool isLoading) adLoadingStateChanged,
+    required TResult Function(int attempt) adLoadAttemptChanged,
+    required TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )
+    submitUpload,
+    required TResult Function(
+      double progress,
+      int bytesTransferred,
+      int totalBytes,
+    )
+    uploadProgressChanged,
+  }) {
+    return uploadProgressChanged(progress, bytesTransferred, totalBytes);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadThreads,
+    TResult? Function(String threadId)? selectThread,
+    TResult? Function(String threadId)? loadOpportunities,
+    TResult? Function(String opportunityId)? selectOpportunity,
+    TResult? Function(String opportunityId)? startEngagement,
+    TResult? Function(String engagementId, int watchDurationSeconds)?
+    updateWatchProgress,
+    TResult? Function(
+      String engagementId,
+      List<SurveyResponse> answers,
+      EngagementEvidence evidence,
+    )?
+    submitSurvey,
+    TResult? Function(String engagementId)? abandonEngagement,
+    TResult? Function(int? limit)? loadHistory,
+    TResult? Function()? loadMoreHistory,
+    TResult? Function()? refresh,
+    TResult? Function()? clearError,
+    TResult? Function()? resetEngagement,
+    TResult? Function()? loadAdVideo,
+    TResult? Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
+    TResult? Function(String reason)? adVideoFailed,
+    TResult? Function(bool isReady)? adReadyStateChanged,
+    TResult? Function(bool isLoading)? adLoadingStateChanged,
+    TResult? Function(int attempt)? adLoadAttemptChanged,
+    TResult? Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
+  }) {
+    return uploadProgressChanged?.call(progress, bytesTransferred, totalBytes);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadThreads,
+    TResult Function(String threadId)? selectThread,
+    TResult Function(String threadId)? loadOpportunities,
+    TResult Function(String opportunityId)? selectOpportunity,
+    TResult Function(String opportunityId)? startEngagement,
+    TResult Function(String engagementId, int watchDurationSeconds)?
+    updateWatchProgress,
+    TResult Function(
+      String engagementId,
+      List<SurveyResponse> answers,
+      EngagementEvidence evidence,
+    )?
+    submitSurvey,
+    TResult Function(String engagementId)? abandonEngagement,
+    TResult Function(int? limit)? loadHistory,
+    TResult Function()? loadMoreHistory,
+    TResult Function()? refresh,
+    TResult Function()? clearError,
+    TResult Function()? resetEngagement,
+    TResult Function()? loadAdVideo,
+    TResult Function(
+      String transactionId,
+      int rewardAmount,
+      String? responseId,
+    )?
+    adVideoCompleted,
+    TResult Function(String reason)? adVideoFailed,
+    TResult Function(bool isReady)? adReadyStateChanged,
+    TResult Function(bool isLoading)? adLoadingStateChanged,
+    TResult Function(int attempt)? adLoadAttemptChanged,
+    TResult Function(
+      String engagementId,
+      List<UploadedFileEvidence> uploadedFiles,
+      String? textResponse,
+      EngagementEvidence evidence,
+    )?
+    submitUpload,
+    TResult Function(double progress, int bytesTransferred, int totalBytes)?
+    uploadProgressChanged,
+    required TResult orElse(),
+  }) {
+    if (uploadProgressChanged != null) {
+      return uploadProgressChanged(progress, bytesTransferred, totalBytes);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadThreads value) loadThreads,
+    required TResult Function(_SelectThread value) selectThread,
+    required TResult Function(_LoadOpportunities value) loadOpportunities,
+    required TResult Function(_SelectOpportunity value) selectOpportunity,
+    required TResult Function(_StartEngagement value) startEngagement,
+    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
+    required TResult Function(_SubmitSurvey value) submitSurvey,
+    required TResult Function(_AbandonEngagement value) abandonEngagement,
+    required TResult Function(_LoadHistory value) loadHistory,
+    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
+    required TResult Function(_Refresh value) refresh,
+    required TResult Function(_ClearError value) clearError,
+    required TResult Function(_ResetEngagement value) resetEngagement,
+    required TResult Function(_LoadAdVideo value) loadAdVideo,
+    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
+    required TResult Function(_AdVideoFailed value) adVideoFailed,
+    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
+    required TResult Function(_AdLoadingStateChanged value)
+    adLoadingStateChanged,
+    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
+    required TResult Function(_SubmitUpload value) submitUpload,
+    required TResult Function(_UploadProgressChanged value)
+    uploadProgressChanged,
+  }) {
+    return uploadProgressChanged(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadThreads value)? loadThreads,
+    TResult? Function(_SelectThread value)? selectThread,
+    TResult? Function(_LoadOpportunities value)? loadOpportunities,
+    TResult? Function(_SelectOpportunity value)? selectOpportunity,
+    TResult? Function(_StartEngagement value)? startEngagement,
+    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
+    TResult? Function(_SubmitSurvey value)? submitSurvey,
+    TResult? Function(_AbandonEngagement value)? abandonEngagement,
+    TResult? Function(_LoadHistory value)? loadHistory,
+    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
+    TResult? Function(_Refresh value)? refresh,
+    TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_ResetEngagement value)? resetEngagement,
+    TResult? Function(_LoadAdVideo value)? loadAdVideo,
+    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
+    TResult? Function(_AdVideoFailed value)? adVideoFailed,
+    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
+    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
+    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult? Function(_SubmitUpload value)? submitUpload,
+    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
+  }) {
+    return uploadProgressChanged?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadThreads value)? loadThreads,
+    TResult Function(_SelectThread value)? selectThread,
+    TResult Function(_LoadOpportunities value)? loadOpportunities,
+    TResult Function(_SelectOpportunity value)? selectOpportunity,
+    TResult Function(_StartEngagement value)? startEngagement,
+    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
+    TResult Function(_SubmitSurvey value)? submitSurvey,
+    TResult Function(_AbandonEngagement value)? abandonEngagement,
+    TResult Function(_LoadHistory value)? loadHistory,
+    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
+    TResult Function(_Refresh value)? refresh,
+    TResult Function(_ClearError value)? clearError,
+    TResult Function(_ResetEngagement value)? resetEngagement,
+    TResult Function(_LoadAdVideo value)? loadAdVideo,
+    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
+    TResult Function(_AdVideoFailed value)? adVideoFailed,
+    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
+    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
+    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
+    TResult Function(_SubmitUpload value)? submitUpload,
+    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
+    required TResult orElse(),
+  }) {
+    if (uploadProgressChanged != null) {
+      return uploadProgressChanged(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _UploadProgressChanged implements EarnEvent {
+  const factory _UploadProgressChanged({
+    required final double progress,
+    required final int bytesTransferred,
+    required final int totalBytes,
+  }) = _$UploadProgressChangedImpl;
+
+  double get progress;
+  int get bytesTransferred;
+  int get totalBytes;
+
+  /// Create a copy of EarnEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$UploadProgressChangedImplCopyWith<_$UploadProgressChangedImpl>
   get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -5464,7 +6971,17 @@ mixin _$EarnState {
   int get adLoadAttempt => throw _privateConstructorUsedError;
 
   /// How many full retry rounds have been exhausted (0 = first attempt, 1 = user retried once)
-  int get adRetryRound => throw _privateConstructorUsedError;
+  int get adRetryRound => throw _privateConstructorUsedError; // Upload progress
+  double? get uploadProgress => throw _privateConstructorUsedError;
+  int? get uploadBytesTransferred => throw _privateConstructorUsedError;
+  int? get uploadTotalBytes => throw _privateConstructorUsedError;
+
+  /// Whether the completed engagement is pending admin review
+  bool get isPendingReview =>
+      throw _privateConstructorUsedError; // Reward allocation state (set after engagement completion)
+  bool get rewardPending => throw _privateConstructorUsedError;
+  String? get rewardCampaignName => throw _privateConstructorUsedError;
+  String? get rewardType => throw _privateConstructorUsedError;
 
   /// Create a copy of EarnState
   /// with the given fields replaced by the non-null parameter values.
@@ -5502,6 +7019,13 @@ abstract class $EarnStateCopyWith<$Res> {
     String? adResponseId,
     int adLoadAttempt,
     int adRetryRound,
+    double? uploadProgress,
+    int? uploadBytesTransferred,
+    int? uploadTotalBytes,
+    bool isPendingReview,
+    bool rewardPending,
+    String? rewardCampaignName,
+    String? rewardType,
   });
 
   $EarnThreadCopyWith<$Res>? get selectedThread;
@@ -5547,6 +7071,13 @@ class _$EarnStateCopyWithImpl<$Res, $Val extends EarnState>
     Object? adResponseId = freezed,
     Object? adLoadAttempt = null,
     Object? adRetryRound = null,
+    Object? uploadProgress = freezed,
+    Object? uploadBytesTransferred = freezed,
+    Object? uploadTotalBytes = freezed,
+    Object? isPendingReview = null,
+    Object? rewardPending = null,
+    Object? rewardCampaignName = freezed,
+    Object? rewardType = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -5642,6 +7173,34 @@ class _$EarnStateCopyWithImpl<$Res, $Val extends EarnState>
                 ? _value.adRetryRound
                 : adRetryRound // ignore: cast_nullable_to_non_nullable
                       as int,
+            uploadProgress: freezed == uploadProgress
+                ? _value.uploadProgress
+                : uploadProgress // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            uploadBytesTransferred: freezed == uploadBytesTransferred
+                ? _value.uploadBytesTransferred
+                : uploadBytesTransferred // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            uploadTotalBytes: freezed == uploadTotalBytes
+                ? _value.uploadTotalBytes
+                : uploadTotalBytes // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            isPendingReview: null == isPendingReview
+                ? _value.isPendingReview
+                : isPendingReview // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            rewardPending: null == rewardPending
+                ? _value.rewardPending
+                : rewardPending // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            rewardCampaignName: freezed == rewardCampaignName
+                ? _value.rewardCampaignName
+                : rewardCampaignName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            rewardType: freezed == rewardType
+                ? _value.rewardType
+                : rewardType // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -5723,6 +7282,13 @@ abstract class _$$EarnStateImplCopyWith<$Res>
     String? adResponseId,
     int adLoadAttempt,
     int adRetryRound,
+    double? uploadProgress,
+    int? uploadBytesTransferred,
+    int? uploadTotalBytes,
+    bool isPendingReview,
+    bool rewardPending,
+    String? rewardCampaignName,
+    String? rewardType,
   });
 
   @override
@@ -5770,6 +7336,13 @@ class __$$EarnStateImplCopyWithImpl<$Res>
     Object? adResponseId = freezed,
     Object? adLoadAttempt = null,
     Object? adRetryRound = null,
+    Object? uploadProgress = freezed,
+    Object? uploadBytesTransferred = freezed,
+    Object? uploadTotalBytes = freezed,
+    Object? isPendingReview = null,
+    Object? rewardPending = null,
+    Object? rewardCampaignName = freezed,
+    Object? rewardType = freezed,
   }) {
     return _then(
       _$EarnStateImpl(
@@ -5865,6 +7438,34 @@ class __$$EarnStateImplCopyWithImpl<$Res>
             ? _value.adRetryRound
             : adRetryRound // ignore: cast_nullable_to_non_nullable
                   as int,
+        uploadProgress: freezed == uploadProgress
+            ? _value.uploadProgress
+            : uploadProgress // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        uploadBytesTransferred: freezed == uploadBytesTransferred
+            ? _value.uploadBytesTransferred
+            : uploadBytesTransferred // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        uploadTotalBytes: freezed == uploadTotalBytes
+            ? _value.uploadTotalBytes
+            : uploadTotalBytes // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        isPendingReview: null == isPendingReview
+            ? _value.isPendingReview
+            : isPendingReview // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        rewardPending: null == rewardPending
+            ? _value.rewardPending
+            : rewardPending // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        rewardCampaignName: freezed == rewardCampaignName
+            ? _value.rewardCampaignName
+            : rewardCampaignName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        rewardType: freezed == rewardType
+            ? _value.rewardType
+            : rewardType // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -5897,6 +7498,13 @@ class _$EarnStateImpl extends _EarnState {
     this.adResponseId,
     this.adLoadAttempt = 0,
     this.adRetryRound = 0,
+    this.uploadProgress,
+    this.uploadBytesTransferred,
+    this.uploadTotalBytes,
+    this.isPendingReview = false,
+    this.rewardPending = false,
+    this.rewardCampaignName,
+    this.rewardType,
   }) : _threads = threads,
        _opportunities = opportunities,
        _history = history,
@@ -5990,10 +7598,30 @@ class _$EarnStateImpl extends _EarnState {
   @override
   @JsonKey()
   final int adRetryRound;
+  // Upload progress
+  @override
+  final double? uploadProgress;
+  @override
+  final int? uploadBytesTransferred;
+  @override
+  final int? uploadTotalBytes;
+
+  /// Whether the completed engagement is pending admin review
+  @override
+  @JsonKey()
+  final bool isPendingReview;
+  // Reward allocation state (set after engagement completion)
+  @override
+  @JsonKey()
+  final bool rewardPending;
+  @override
+  final String? rewardCampaignName;
+  @override
+  final String? rewardType;
 
   @override
   String toString() {
-    return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adResponseId: $adResponseId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound)';
+    return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adResponseId: $adResponseId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound, uploadProgress: $uploadProgress, uploadBytesTransferred: $uploadBytesTransferred, uploadTotalBytes: $uploadTotalBytes, isPendingReview: $isPendingReview, rewardPending: $rewardPending, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
   }
 
   @override
@@ -6049,7 +7677,21 @@ class _$EarnStateImpl extends _EarnState {
             (identical(other.adLoadAttempt, adLoadAttempt) ||
                 other.adLoadAttempt == adLoadAttempt) &&
             (identical(other.adRetryRound, adRetryRound) ||
-                other.adRetryRound == adRetryRound));
+                other.adRetryRound == adRetryRound) &&
+            (identical(other.uploadProgress, uploadProgress) ||
+                other.uploadProgress == uploadProgress) &&
+            (identical(other.uploadBytesTransferred, uploadBytesTransferred) ||
+                other.uploadBytesTransferred == uploadBytesTransferred) &&
+            (identical(other.uploadTotalBytes, uploadTotalBytes) ||
+                other.uploadTotalBytes == uploadTotalBytes) &&
+            (identical(other.isPendingReview, isPendingReview) ||
+                other.isPendingReview == isPendingReview) &&
+            (identical(other.rewardPending, rewardPending) ||
+                other.rewardPending == rewardPending) &&
+            (identical(other.rewardCampaignName, rewardCampaignName) ||
+                other.rewardCampaignName == rewardCampaignName) &&
+            (identical(other.rewardType, rewardType) ||
+                other.rewardType == rewardType));
   }
 
   @override
@@ -6078,6 +7720,13 @@ class _$EarnStateImpl extends _EarnState {
     adResponseId,
     adLoadAttempt,
     adRetryRound,
+    uploadProgress,
+    uploadBytesTransferred,
+    uploadTotalBytes,
+    isPendingReview,
+    rewardPending,
+    rewardCampaignName,
+    rewardType,
   ]);
 
   /// Create a copy of EarnState
@@ -6114,6 +7763,13 @@ abstract class _EarnState extends EarnState {
     final String? adResponseId,
     final int adLoadAttempt,
     final int adRetryRound,
+    final double? uploadProgress,
+    final int? uploadBytesTransferred,
+    final int? uploadTotalBytes,
+    final bool isPendingReview,
+    final bool rewardPending,
+    final String? rewardCampaignName,
+    final String? rewardType,
   }) = _$EarnStateImpl;
   const _EarnState._() : super._();
 
@@ -6168,7 +7824,23 @@ abstract class _EarnState extends EarnState {
 
   /// How many full retry rounds have been exhausted (0 = first attempt, 1 = user retried once)
   @override
-  int get adRetryRound;
+  int get adRetryRound; // Upload progress
+  @override
+  double? get uploadProgress;
+  @override
+  int? get uploadBytesTransferred;
+  @override
+  int? get uploadTotalBytes;
+
+  /// Whether the completed engagement is pending admin review
+  @override
+  bool get isPendingReview; // Reward allocation state (set after engagement completion)
+  @override
+  bool get rewardPending;
+  @override
+  String? get rewardCampaignName;
+  @override
+  String? get rewardType;
 
   /// Create a copy of EarnState
   /// with the given fields replaced by the non-null parameter values.

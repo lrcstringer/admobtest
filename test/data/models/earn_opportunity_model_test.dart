@@ -34,7 +34,7 @@ void main() {
         expect(model.text, equals('What is your favorite color?'));
         expect(model.options, equals(['Red', 'Blue', 'Green']));
         expect(model.orderIndex, equals(0));
-        expect(model.isAttentionCheck, isNull);
+        expect(model.isAttentionCheck, isFalse);
         expect(model.correctAnswer, isNull);
       });
 
@@ -60,6 +60,7 @@ void main() {
         final model = SurveyQuestionModel(
           id: 'q1',
           text: 'Test question',
+          questionType: 'single_select',
           options: ['A', 'B', 'C'],
           orderIndex: 0,
           isAttentionCheck: true,
@@ -82,6 +83,7 @@ void main() {
         final entity = SurveyQuestion(
           id: 'q1',
           text: 'Test question',
+          questionType: QuestionType.singleSelect,
           options: ['A', 'B'],
           orderIndex: 0,
         );
@@ -99,6 +101,7 @@ void main() {
         final model = SurveyQuestionModel(
           id: 'q1',
           text: 'Test',
+          questionType: 'single_select',
           options: ['A', 'B'],
           orderIndex: 0,
           isAttentionCheck: true,
@@ -119,6 +122,7 @@ void main() {
         final model = SurveyQuestionModel(
           id: 'q1',
           text: 'Test',
+          questionType: 'single_select',
           options: ['A', 'B'],
           orderIndex: 0,
         );
@@ -378,7 +382,7 @@ void main() {
           id: 'opp_001',
           threadId: 'thread_001',
           title: 'Test',
-          earningType: EarningType.trivia,
+          earningType: EarningType.survey,
           tokenReward: 150,
           streakPoints: 3,
           mediaType: MediaType.text,
@@ -394,7 +398,7 @@ void main() {
         final model = EarnOpportunityModel.fromEntity(entity);
 
         expect(model.id, equals('opp_001'));
-        expect(model.earningType, equals('trivia'));
+        expect(model.earningType, equals('survey'));
         expect(model.mediaType, equals('text'));
         expect(model.tokenReward, equals(150));
         expect(model.bonusIntervalType, equals('every_x'));
@@ -427,12 +431,22 @@ void main() {
 
     group('enum parsing', () {
       test('parses all earning types', () {
-        for (final type in ['survey', 'video', 'trivia', 'rating', 'poll']) {
+        for (final type in ['survey', 'video', 'poll', 'adVideo']) {
           final json = createValidJson(earningType: type);
           final model = EarnOpportunityModel.fromJson(json);
           final entity = model.toEntity();
 
           expect(entity.earningType.name, equals(type));
+        }
+      });
+
+      test('maps legacy trivia and rating types to survey', () {
+        for (final type in ['trivia', 'rating']) {
+          final json = createValidJson(earningType: type);
+          final model = EarnOpportunityModel.fromJson(json);
+          final entity = model.toEntity();
+
+          expect(entity.earningType, equals(EarningType.survey));
         }
       });
 
@@ -532,6 +546,7 @@ void main() {
             SurveyQuestionModel(
               id: 'q1',
               text: 'Test Q',
+              questionType: 'single_select',
               options: ['A', 'B'],
               orderIndex: 0,
             ),

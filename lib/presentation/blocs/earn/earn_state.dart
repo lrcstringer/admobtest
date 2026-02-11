@@ -12,6 +12,7 @@ enum EngagementPhase {
   starting,
   watching,
   watchingAd, // Watching AdMob video
+  uploading, // Upload engagement — recording/capturing/typing
   surveying,
   submitting,
   completed,
@@ -50,6 +51,16 @@ class EarnState with _$EarnState {
     @Default(0) int adLoadAttempt,
     /// How many full retry rounds have been exhausted (0 = first attempt, 1 = user retried once)
     @Default(0) int adRetryRound,
+    // Upload progress
+    double? uploadProgress,
+    int? uploadBytesTransferred,
+    int? uploadTotalBytes,
+    /// Whether the completed engagement is pending admin review
+    @Default(false) bool isPendingReview,
+    // Reward allocation state (set after engagement completion)
+    @Default(false) bool rewardPending,
+    String? rewardCampaignName,
+    String? rewardType,
   }) = _EarnState;
 
   const EarnState._();
@@ -59,6 +70,7 @@ class EarnState with _$EarnState {
       currentEngagement != null &&
       (engagementPhase == EngagementPhase.watching ||
           engagementPhase == EngagementPhase.watchingAd ||
+          engagementPhase == EngagementPhase.uploading ||
           engagementPhase == EngagementPhase.surveying);
 
   /// Check if the selected opportunity is an AdMob video

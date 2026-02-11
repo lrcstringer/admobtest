@@ -7,14 +7,83 @@ import '../../domain/entities/targeting_criteria.dart';
 part 'earn_opportunity_model.freezed.dart';
 
 @freezed
+class BranchRuleModel with _$BranchRuleModel {
+  const factory BranchRuleModel({
+    required String optionValue,
+    required String goToQuestionId,
+  }) = _BranchRuleModel;
+
+  const BranchRuleModel._();
+
+  factory BranchRuleModel.fromJson(Map<String, dynamic> json) {
+    return BranchRuleModel(
+      optionValue: json['optionValue'] as String,
+      goToQuestionId: json['goToQuestionId'] as String,
+    );
+  }
+
+  BranchRule toEntity() {
+    return BranchRule(
+      optionValue: optionValue,
+      goToQuestionId: goToQuestionId,
+    );
+  }
+
+  factory BranchRuleModel.fromEntity(BranchRule entity) {
+    return BranchRuleModel(
+      optionValue: entity.optionValue,
+      goToQuestionId: entity.goToQuestionId,
+    );
+  }
+
+  Map<String, dynamic> toFirestoreJson() {
+    return {
+      'optionValue': optionValue,
+      'goToQuestionId': goToQuestionId,
+    };
+  }
+}
+
+@freezed
 class SurveyQuestionModel with _$SurveyQuestionModel {
   const factory SurveyQuestionModel({
     required String id,
     required String text,
-    required List<String> options,
     required int orderIndex,
-    bool? isAttentionCheck,
+    required String questionType,
+    @Default(true) bool isRequired,
+
+    // single_select + multi_select
+    @Default([]) List<String> options,
+    int? maxSelections,
+
+    // text_input
+    @Default(1) int textInputCount,
+    @Default(50) int textMaxLength,
+
+    // likert
+    @Default(5) int likertScale,
+    String? likertLowLabel,
+    String? likertHighLabel,
+
+    // star_tags
+    @Default(5) int maxStars,
+    @Default([]) List<String> tags,
+    int? maxTags,
+
+    // slider
+    @Default(0) int sliderMin,
+    @Default(100) int sliderMax,
+    @Default(1) int sliderStep,
+    String? sliderMinLabel,
+    String? sliderMaxLabel,
+
+    // attention check
+    @Default(false) bool isAttentionCheck,
     String? correctAnswer,
+
+    // branching
+    @Default([]) List<BranchRuleModel> branchRules,
   }) = _SurveyQuestionModel;
 
   const SurveyQuestionModel._();
@@ -23,10 +92,30 @@ class SurveyQuestionModel with _$SurveyQuestionModel {
     return SurveyQuestionModel(
       id: json['id'] as String,
       text: json['text'] as String,
-      options: (json['options'] as List).map((e) => e as String).toList(),
-      orderIndex: json['orderIndex'] as int,
-      isAttentionCheck: json['isAttentionCheck'] as bool?,
+      orderIndex: json['orderIndex'] as int? ?? 0,
+      questionType: json['questionType'] as String? ?? 'single_select',
+      isRequired: json['required'] as bool? ?? true,
+      options: (json['options'] as List?)?.map((e) => e as String).toList() ?? [],
+      maxSelections: json['maxSelections'] as int?,
+      textInputCount: json['textInputCount'] as int? ?? 1,
+      textMaxLength: json['textMaxLength'] as int? ?? 50,
+      likertScale: json['likertScale'] as int? ?? 5,
+      likertLowLabel: json['likertLowLabel'] as String?,
+      likertHighLabel: json['likertHighLabel'] as String?,
+      maxStars: json['maxStars'] as int? ?? 5,
+      tags: (json['tags'] as List?)?.map((e) => e as String).toList() ?? [],
+      maxTags: json['maxTags'] as int?,
+      sliderMin: json['sliderMin'] as int? ?? 0,
+      sliderMax: json['sliderMax'] as int? ?? 100,
+      sliderStep: json['sliderStep'] as int? ?? 1,
+      sliderMinLabel: json['sliderMinLabel'] as String?,
+      sliderMaxLabel: json['sliderMaxLabel'] as String?,
+      isAttentionCheck: json['isAttentionCheck'] as bool? ?? false,
       correctAnswer: json['correctAnswer'] as String?,
+      branchRules: (json['branchRules'] as List?)
+              ?.map((e) => BranchRuleModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
@@ -34,10 +123,27 @@ class SurveyQuestionModel with _$SurveyQuestionModel {
     return SurveyQuestion(
       id: id,
       text: text,
-      options: options,
       orderIndex: orderIndex,
+      questionType: _parseQuestionType(questionType),
+      isRequired: isRequired,
+      options: options,
+      maxSelections: maxSelections,
+      textInputCount: textInputCount,
+      textMaxLength: textMaxLength,
+      likertScale: likertScale,
+      likertLowLabel: likertLowLabel,
+      likertHighLabel: likertHighLabel,
+      maxStars: maxStars,
+      tags: tags,
+      maxTags: maxTags,
+      sliderMin: sliderMin,
+      sliderMax: sliderMax,
+      sliderStep: sliderStep,
+      sliderMinLabel: sliderMinLabel,
+      sliderMaxLabel: sliderMaxLabel,
       isAttentionCheck: isAttentionCheck,
       correctAnswer: correctAnswer,
+      branchRules: branchRules.map((r) => r.toEntity()).toList(),
     );
   }
 
@@ -45,10 +151,29 @@ class SurveyQuestionModel with _$SurveyQuestionModel {
     return SurveyQuestionModel(
       id: entity.id,
       text: entity.text,
-      options: entity.options,
       orderIndex: entity.orderIndex,
+      questionType: entity.questionType.name,
+      isRequired: entity.isRequired,
+      options: entity.options,
+      maxSelections: entity.maxSelections,
+      textInputCount: entity.textInputCount,
+      textMaxLength: entity.textMaxLength,
+      likertScale: entity.likertScale,
+      likertLowLabel: entity.likertLowLabel,
+      likertHighLabel: entity.likertHighLabel,
+      maxStars: entity.maxStars,
+      tags: entity.tags,
+      maxTags: entity.maxTags,
+      sliderMin: entity.sliderMin,
+      sliderMax: entity.sliderMax,
+      sliderStep: entity.sliderStep,
+      sliderMinLabel: entity.sliderMinLabel,
+      sliderMaxLabel: entity.sliderMaxLabel,
       isAttentionCheck: entity.isAttentionCheck,
       correctAnswer: entity.correctAnswer,
+      branchRules: entity.branchRules
+          .map((r) => BranchRuleModel.fromEntity(r))
+          .toList(),
     );
   }
 
@@ -56,11 +181,52 @@ class SurveyQuestionModel with _$SurveyQuestionModel {
     return {
       'id': id,
       'text': text,
-      'options': options,
       'orderIndex': orderIndex,
-      if (isAttentionCheck != null) 'isAttentionCheck': isAttentionCheck,
+      'questionType': questionType,
+      'required': isRequired,
+      if (options.isNotEmpty) 'options': options,
+      if (maxSelections != null) 'maxSelections': maxSelections,
+      'textInputCount': textInputCount,
+      'textMaxLength': textMaxLength,
+      'likertScale': likertScale,
+      if (likertLowLabel != null) 'likertLowLabel': likertLowLabel,
+      if (likertHighLabel != null) 'likertHighLabel': likertHighLabel,
+      'maxStars': maxStars,
+      if (tags.isNotEmpty) 'tags': tags,
+      if (maxTags != null) 'maxTags': maxTags,
+      'sliderMin': sliderMin,
+      'sliderMax': sliderMax,
+      'sliderStep': sliderStep,
+      if (sliderMinLabel != null) 'sliderMinLabel': sliderMinLabel,
+      if (sliderMaxLabel != null) 'sliderMaxLabel': sliderMaxLabel,
+      if (isAttentionCheck) 'isAttentionCheck': isAttentionCheck,
       if (correctAnswer != null) 'correctAnswer': correctAnswer,
+      if (branchRules.isNotEmpty)
+        'branchRules': branchRules.map((r) => r.toFirestoreJson()).toList(),
     };
+  }
+
+  static QuestionType _parseQuestionType(String type) {
+    switch (type) {
+      case 'single_select':
+      case 'singleSelect':
+        return QuestionType.singleSelect;
+      case 'multi_select':
+      case 'multiSelect':
+        return QuestionType.multiSelect;
+      case 'text_input':
+      case 'textInput':
+        return QuestionType.textInput;
+      case 'likert':
+        return QuestionType.likert;
+      case 'star_tags':
+      case 'starTags':
+        return QuestionType.starTags;
+      case 'slider':
+        return QuestionType.slider;
+      default:
+        return QuestionType.singleSelect;
+    }
   }
 }
 
@@ -107,6 +273,26 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
     @Default(false) bool budgetExhausted,
     int? tokenBudget,
     @Default(0) int tokenSpent,
+    // Poll link
+    String? pollId,
+    // Upload configuration
+    String? uploadPrompt,
+    String? uploadContextMediaUrl,
+    String? uploadContextMediaType,
+    @Default(false) bool uploadVideoEnabled,
+    @Default(false) bool uploadImageEnabled,
+    @Default(false) bool uploadTextEnabled,
+    @Default(false) bool uploadVideoRequired,
+    @Default(false) bool uploadImageRequired,
+    @Default(false) bool uploadTextRequired,
+    @Default(60) int uploadVideoMaxSeconds,
+    @Default(10) int uploadTextMinChars,
+    @Default(1500) int uploadTextMaxChars,
+    @Default(false) bool requiresAdminReview,
+    // Reward campaign linkage
+    String? rewardCampaignId,
+    String? rewardCampaignName,
+    String? rewardType,
   }) = _EarnOpportunityModel;
 
   const EarnOpportunityModel._();
@@ -161,6 +347,26 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       budgetExhausted: json['budgetExhausted'] as bool? ?? false,
       tokenBudget: json['tokenBudget'] as int?,
       tokenSpent: json['tokenSpent'] as int? ?? 0,
+      // Poll link
+      pollId: json['pollId'] as String?,
+      // Upload configuration
+      uploadPrompt: json['uploadPrompt'] as String?,
+      uploadContextMediaUrl: json['uploadContextMediaUrl'] as String?,
+      uploadContextMediaType: json['uploadContextMediaType'] as String?,
+      uploadVideoEnabled: json['uploadVideoEnabled'] as bool? ?? false,
+      uploadImageEnabled: json['uploadImageEnabled'] as bool? ?? false,
+      uploadTextEnabled: json['uploadTextEnabled'] as bool? ?? false,
+      uploadVideoRequired: json['uploadVideoRequired'] as bool? ?? false,
+      uploadImageRequired: json['uploadImageRequired'] as bool? ?? false,
+      uploadTextRequired: json['uploadTextRequired'] as bool? ?? false,
+      uploadVideoMaxSeconds: json['uploadVideoMaxSeconds'] as int? ?? 60,
+      uploadTextMinChars: json['uploadTextMinChars'] as int? ?? 10,
+      uploadTextMaxChars: json['uploadTextMaxChars'] as int? ?? 1500,
+      requiresAdminReview: json['requiresAdminReview'] as bool? ?? false,
+      // Reward campaign linkage
+      rewardCampaignId: json['rewardCampaignId'] as String?,
+      rewardCampaignName: json['rewardCampaignName'] as String?,
+      rewardType: json['rewardType'] as String?,
     );
   }
 
@@ -202,6 +408,26 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       budgetExhausted: budgetExhausted,
       tokenBudget: tokenBudget,
       tokenSpent: tokenSpent,
+      // Poll link
+      pollId: pollId,
+      // Upload configuration
+      uploadPrompt: uploadPrompt,
+      uploadContextMediaUrl: uploadContextMediaUrl,
+      uploadContextMediaType: uploadContextMediaType,
+      uploadVideoEnabled: uploadVideoEnabled,
+      uploadImageEnabled: uploadImageEnabled,
+      uploadTextEnabled: uploadTextEnabled,
+      uploadVideoRequired: uploadVideoRequired,
+      uploadImageRequired: uploadImageRequired,
+      uploadTextRequired: uploadTextRequired,
+      uploadVideoMaxSeconds: uploadVideoMaxSeconds,
+      uploadTextMinChars: uploadTextMinChars,
+      uploadTextMaxChars: uploadTextMaxChars,
+      requiresAdminReview: requiresAdminReview,
+      // Reward campaign linkage
+      rewardCampaignId: rewardCampaignId,
+      rewardCampaignName: rewardCampaignName,
+      rewardType: rewardType,
     );
   }
 
@@ -246,6 +472,26 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       budgetExhausted: entity.budgetExhausted,
       tokenBudget: entity.tokenBudget,
       tokenSpent: entity.tokenSpent,
+      // Poll link
+      pollId: entity.pollId,
+      // Upload configuration
+      uploadPrompt: entity.uploadPrompt,
+      uploadContextMediaUrl: entity.uploadContextMediaUrl,
+      uploadContextMediaType: entity.uploadContextMediaType,
+      uploadVideoEnabled: entity.uploadVideoEnabled,
+      uploadImageEnabled: entity.uploadImageEnabled,
+      uploadTextEnabled: entity.uploadTextEnabled,
+      uploadVideoRequired: entity.uploadVideoRequired,
+      uploadImageRequired: entity.uploadImageRequired,
+      uploadTextRequired: entity.uploadTextRequired,
+      uploadVideoMaxSeconds: entity.uploadVideoMaxSeconds,
+      uploadTextMinChars: entity.uploadTextMinChars,
+      uploadTextMaxChars: entity.uploadTextMaxChars,
+      requiresAdminReview: entity.requiresAdminReview,
+      // Reward campaign linkage
+      rewardCampaignId: entity.rewardCampaignId,
+      rewardCampaignName: entity.rewardCampaignName,
+      rewardType: entity.rewardType,
     );
   }
 
@@ -284,6 +530,28 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       'budgetExhausted': budgetExhausted,
       if (tokenBudget != null) 'tokenBudget': tokenBudget,
       'tokenSpent': tokenSpent,
+      // Poll link
+      if (pollId != null) 'pollId': pollId,
+      // Upload configuration
+      if (uploadPrompt != null) 'uploadPrompt': uploadPrompt,
+      if (uploadContextMediaUrl != null)
+        'uploadContextMediaUrl': uploadContextMediaUrl,
+      if (uploadContextMediaType != null)
+        'uploadContextMediaType': uploadContextMediaType,
+      'uploadVideoEnabled': uploadVideoEnabled,
+      'uploadImageEnabled': uploadImageEnabled,
+      'uploadTextEnabled': uploadTextEnabled,
+      'uploadVideoRequired': uploadVideoRequired,
+      'uploadImageRequired': uploadImageRequired,
+      'uploadTextRequired': uploadTextRequired,
+      'uploadVideoMaxSeconds': uploadVideoMaxSeconds,
+      'uploadTextMinChars': uploadTextMinChars,
+      'uploadTextMaxChars': uploadTextMaxChars,
+      'requiresAdminReview': requiresAdminReview,
+      // Reward campaign linkage
+      if (rewardCampaignId != null) 'rewardCampaignId': rewardCampaignId,
+      if (rewardCampaignName != null) 'rewardCampaignName': rewardCampaignName,
+      if (rewardType != null) 'rewardType': rewardType,
     };
   }
 
@@ -308,14 +576,18 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
         return EarningType.survey;
       case 'video':
         return EarningType.video;
-      case 'trivia':
-        return EarningType.trivia;
-      case 'rating':
-        return EarningType.rating;
+      case 'image':
+        return EarningType.image;
       case 'poll':
         return EarningType.poll;
       case 'adVideo':
         return EarningType.adVideo;
+      case 'upload':
+        return EarningType.upload;
+      // Map legacy types to survey
+      case 'trivia':
+      case 'rating':
+        return EarningType.survey;
       default:
         return EarningType.video;
     }

@@ -1,8 +1,10 @@
 import 'package:dartz/dartz.dart';
 import '../../core/error/failures.dart';
+import '../entities/earn_notification.dart';
 import '../entities/earn_thread.dart';
 import '../entities/earn_opportunity.dart';
 import '../entities/engagement.dart';
+import '../entities/inbox_client.dart';
 import '../value_objects/engagement_evidence.dart';
 
 /// Result from getEligibleThreads including daily limit info
@@ -14,6 +16,21 @@ class EligibleThreadsResult {
 
   const EligibleThreadsResult({
     required this.threads,
+    required this.dailyCompletions,
+    required this.dailyEarnCap,
+    required this.dailyLimitReached,
+  });
+}
+
+/// Result from getEligibleInbox — clients grouped with threads
+class EligibleInboxResult {
+  final List<InboxClient> clients;
+  final int dailyCompletions;
+  final int dailyEarnCap;
+  final bool dailyLimitReached;
+
+  const EligibleInboxResult({
+    required this.clients,
     required this.dailyCompletions,
     required this.dailyEarnCap,
     required this.dailyLimitReached,
@@ -76,4 +93,20 @@ abstract class EarnRepository {
 
   /// Get total available opportunities count for the user
   Future<Either<Failure, int>> getAvailableOpportunitiesCount();
+
+  // =========================================================================
+  // Inbox & Notifications
+  // =========================================================================
+
+  /// Get eligible inbox grouped by client (server-side targeting)
+  Future<Either<Failure, EligibleInboxResult>> getEligibleInbox();
+
+  /// Get user's earn notifications
+  Future<Either<Failure, List<EarnNotification>>> getEarnNotifications();
+
+  /// Mark a single notification as read
+  Future<Either<Failure, void>> markNotificationRead(String notificationId);
+
+  /// Mark all notifications as read
+  Future<Either<Failure, void>> markAllNotificationsRead();
 }

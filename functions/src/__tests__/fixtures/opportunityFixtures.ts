@@ -307,14 +307,14 @@ export const inactiveOpportunity = {
 };
 
 /**
- * High-value trivia opportunity
+ * High-value survey opportunity (formerly trivia — now survey with attention checks)
  */
 export const triviaOpportunity = {
   id: "opp_trivia_001",
   threadId: "thread_002",
   title: "Brain Teaser Challenge",
   description: "Test your knowledge and earn big",
-  earningType: "trivia",
+  earningType: "survey",
   tokenReward: 300,
   streakPoints: 3,
   mediaType: "text",
@@ -393,14 +393,14 @@ export const adMobOpportunity = {
 };
 
 /**
- * Image opportunity
+ * Image-based survey opportunity (formerly rating — now survey with likert/star question types)
  */
 export const imageOpportunity = {
   id: "opp_image_001",
   threadId: "thread_001",
   title: "View New Product Image",
   description: "Check out our new product and give feedback",
-  earningType: "rating",
+  earningType: "survey",
   tokenReward: 75,
   streakPoints: 1,
   mediaType: "image",

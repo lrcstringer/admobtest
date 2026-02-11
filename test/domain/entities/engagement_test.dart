@@ -36,6 +36,7 @@ void main() {
         answers: [
           EngagementAnswer(
             questionId: 'q1',
+            questionType: 'single_select',
             selectedOption: 'A',
             answeredAt: DateTime(2024, 1, 1),
             isCorrect: true,
@@ -146,6 +147,7 @@ void main() {
     test('stores all values correctly', () {
       final answer = EngagementAnswer(
         questionId: 'q1',
+        questionType: 'single_select',
         selectedOption: 'B',
         answeredAt: DateTime(2024, 1, 1),
         isCorrect: true,

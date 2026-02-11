@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../domain/entities/earn_thread.dart';
+import '../../../domain/entities/earn_notification.dart';
+import '../../../domain/entities/inbox_client.dart';
+import '../../../domain/entities/inbox_thread.dart';
 import '../../blocs/earn/earn_bloc.dart';
+import '../../blocs/earn_inbox/earn_inbox_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -23,8 +26,7 @@ class _EarnScreenState extends State<EarnScreen> {
   @override
   void initState() {
     super.initState();
-    // Load threads when screen opens (history is lazy-loaded when sheet opens)
-    context.read<EarnBloc>().add(const EarnEvent.loadThreads());
+    context.read<EarnInboxBloc>().add(const EarnInboxEvent.loadInbox());
   }
 
   @override
@@ -33,277 +35,364 @@ class _EarnScreenState extends State<EarnScreen> {
       appBar: IMaliAppBar(
         title: 'Earn',
         extraActions: [
+          // Notification bell with unread badge
+          BlocBuilder<EarnInboxBloc, EarnInboxState>(
+            buildWhen: (prev, curr) =>
+                prev.unreadNotificationCount != curr.unreadNotificationCount,
+            builder: (context, state) {
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined,
+                        color: AppColors.textPrimary),
+                    onPressed: () => _showNotificationsSheet(context),
+                  ),
+                  if (state.unreadNotificationCount > 0)
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '${state.unreadNotificationCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.history, color: AppColors.textPrimary),
-            onPressed: () => _showHistory(context),
+            onPressed: () => EngagementHistorySheet.show(context),
           ),
         ],
       ),
-      body: BlocConsumer<EarnBloc, EarnState>(
+      body: BlocListener<EarnBloc, EarnState>(
         listenWhen: (prev, curr) =>
-            prev.errorMessage != curr.errorMessage ||
             prev.engagementPhase != curr.engagementPhase,
         listener: (context, state) {
-          // Only show errors from thread/opportunity loading on this screen.
-          // Engagement-phase errors (failed submissions, etc.) are handled by
-          // the interaction screen — clearing them here would wipe the message
-          // before the interaction screen can display it.
-          final inEngagementFlow =
-              state.engagementPhase != EngagementPhase.idle &&
-              state.engagementPhase != EngagementPhase.completed &&
-              state.engagementPhase != EngagementPhase.abandoned;
-
-          if (state.errorMessage != null && !inEngagementFlow) {
+          // Refresh wallet + inbox when engagement completes
+          if (state.engagementPhase == EngagementPhase.completed) {
+            context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+            context
+                .read<EarnInboxBloc>()
+                .add(const EarnInboxEvent.refreshInbox());
+          }
+        },
+        child: BlocConsumer<EarnInboxBloc, EarnInboxState>(
+          listenWhen: (prev, curr) =>
+              prev.errorMessage != curr.errorMessage &&
+              curr.errorMessage != null,
+          listener: (context, state) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage!),
                 backgroundColor: AppColors.error,
               ),
             );
-            context.read<EarnBloc>().add(const EarnEvent.clearError());
-          }
+            context
+                .read<EarnInboxBloc>()
+                .add(const EarnInboxEvent.clearError());
+          },
+          buildWhen: (prev, curr) =>
+              prev.status != curr.status ||
+              prev.clients != curr.clients ||
+              prev.expandedClientId != curr.expandedClientId ||
+              prev.notifications != curr.notifications ||
+              prev.dailyLimitReached != curr.dailyLimitReached,
+          builder: (context, state) {
+            if (state.status == EarnInboxStatus.loading &&
+                state.clients.isEmpty) {
+              return const WaveBackground(
+                  child: Center(child: CircularProgressIndicator()));
+            }
 
-          // Refresh wallet ledger when engagement completes to show updated balance
-          if (state.engagementPhase == EngagementPhase.completed) {
-            context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
-          }
-        },
-        buildWhen: (prev, curr) =>
-            prev.status != curr.status ||
-            prev.threads != curr.threads ||
-            prev.dailyCompletions != curr.dailyCompletions ||
-            prev.dailyEarnCap != curr.dailyEarnCap ||
-            prev.dailyLimitReached != curr.dailyLimitReached ||
-            prev.totalAvailableOpportunities !=
-                curr.totalAvailableOpportunities,
-        builder: (context, state) {
-          if (state.status == EarnStatus.loading && state.threads.isEmpty) {
-            return const WaveBackground(
-                child: Center(child: CircularProgressIndicator()));
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<EarnBloc>().add(const EarnEvent.refresh());
-            },
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: WaveBackground(
-                child: Padding(
-                  padding: AppSpacing.pagePadding,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDailyProgressCard(context, state),
-                      AppSpacing.verticalSm,
-                      _buildThreadsSection(context, state),
-                    ],
+            return RefreshIndicator(
+              onRefresh: () async {
+                context
+                    .read<EarnInboxBloc>()
+                    .add(const EarnInboxEvent.refreshInbox());
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: WaveBackground(
+                  child: Padding(
+                    padding: AppSpacing.pagePadding,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Notification section (top 2)
+                        if (state.hasNotifications)
+                          _buildNotificationSection(context, state),
+                        // Daily limit banner
+                        if (state.dailyLimitReached) ...[
+                          _buildDailyLimitBanner(context),
+                          AppSpacing.verticalMd,
+                        ],
+                        // Client list
+                        _buildClientList(context, state),
+                      ],
+                    ),
                   ),
                 ),
               ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // =========================================================================
+  // Notification Section
+  // =========================================================================
+
+  Widget _buildNotificationSection(
+      BuildContext context, EarnInboxState state) {
+    final topNotifs = state.notifications.take(2).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Notifications',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
+            if (state.notifications.length > 2)
+              GestureDetector(
+                onTap: () => _showNotificationsSheet(context),
+                child: Text(
+                  'See all',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              ),
+          ],
+        ),
+        AppSpacing.verticalSm,
+        ...topNotifs.map((n) => _buildNotificationTile(context, n)),
+        AppSpacing.verticalMd,
+      ],
+    );
+  }
+
+  Widget _buildNotificationTile(BuildContext context, EarnNotification notif) {
+    final icon = _notificationIcon(notif.type);
+    final iconColor = _notificationColor(notif.type);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: () => _onNotificationTap(context, notif),
+        borderRadius: AppSpacing.borderRadiusSm,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: notif.isUnread
+                ? AppColors.primary.withValues(alpha: 0.08)
+                : AppColors.surface,
+            borderRadius: AppSpacing.borderRadiusSm,
+            border: Border.all(
+              color: notif.isUnread
+                  ? AppColors.primary.withValues(alpha: 0.3)
+                  : AppColors.border,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: iconColor),
+              AppSpacing.horizontalSm,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      notif.title,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontWeight:
+                                notif.isUnread ? FontWeight.w600 : null,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      notif.body,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              AppSpacing.horizontalSm,
+              Text(
+                notif.timeAgo,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppColors.textHint,
+                    ),
+              ),
+              if (notif.isUnread) ...[
+                AppSpacing.horizontalXs,
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  IconData _notificationIcon(String type) {
+    switch (type) {
+      case 'new_client':
+        return Icons.storefront;
+      case 'new_thread':
+        return Icons.campaign;
+      case 'new_opportunity':
+        return Icons.add_circle_outline;
+      case 'expiry_warning':
+        return Icons.timer;
+      default:
+        return Icons.notifications;
+    }
+  }
+
+  Color _notificationColor(String type) {
+    switch (type) {
+      case 'new_client':
+        return AppColors.secondary;
+      case 'new_thread':
+        return AppColors.primary;
+      case 'new_opportunity':
+        return AppColors.success;
+      case 'expiry_warning':
+        return AppColors.warning;
+      default:
+        return AppColors.textSecondary;
+    }
+  }
+
+  void _onNotificationTap(BuildContext context, EarnNotification notif) {
+    // Mark as read
+    if (notif.isUnread) {
+      context
+          .read<EarnInboxBloc>()
+          .add(EarnInboxEvent.markNotificationRead(notificationId: notif.id));
+    }
+
+    // Navigate based on notification data
+    final threadId = notif.data['threadId'] as String?;
+    if (threadId != null) {
+      context.read<EarnBloc>().add(EarnEvent.selectThread(threadId));
+      context.push('/earn/thread/$threadId');
+    }
+  }
+
+  void _showNotificationsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.3,
+        maxChildSize: 0.85,
+        expand: false,
+        builder: (_, scrollController) {
+          return BlocBuilder<EarnInboxBloc, EarnInboxState>(
+            builder: (context, state) {
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Notifications',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        if (state.hasUnreadNotifications)
+                          TextButton(
+                            onPressed: () {
+                              context.read<EarnInboxBloc>().add(
+                                  const EarnInboxEvent
+                                      .markAllNotificationsRead());
+                            },
+                            child: const Text('Mark all read'),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  Expanded(
+                    child: state.notifications.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No notifications',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(color: AppColors.textSecondary),
+                            ),
+                          )
+                        : ListView.builder(
+                            controller: scrollController,
+                            padding: const EdgeInsets.all(12),
+                            itemCount: state.notifications.length,
+                            itemBuilder: (_, i) => _buildNotificationTile(
+                                context, state.notifications[i]),
+                          ),
+                  ),
+                ],
+              );
+            },
           );
         },
       ),
     );
   }
 
-  Widget _buildDailyProgressCard(BuildContext context, EarnState state) {
-    final completions = state.dailyCompletions;
-    final cap = state.dailyEarnCap;
-    final progress = (completions / cap).clamp(0.0, 1.0);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: AppColors.goldGradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: AppSpacing.borderRadiusMd,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '$completions / $cap Opportunities',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textOnSecondary,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              GestureDetector(
-                onTap: () => _showDistributionSheet(context),
-                child: Text(
-                  'How earnings work',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppColors.textOnSecondary,
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColors.textOnSecondary,
-                      ),
-                ),
-              ),
-            ],
-          ),
-          AppSpacing.verticalSm,
-          LinearProgressIndicator(
-            value: progress,
-            backgroundColor: AppColors.textOnSecondary.withValues(alpha: 0.3),
-            valueColor:
-                AlwaysStoppedAnimation<Color>(AppColors.textOnSecondary),
-          ),
-          AppSpacing.verticalXs,
-          Text(
-            state.dailyLimitReached
-                ? 'Daily limit reached!'
-                : '${(progress * 100).toStringAsFixed(0)}% of daily limit',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: AppColors.textOnSecondary.withValues(alpha: 0.8),
-                ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDistributionSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'How Your Earnings Are Distributed',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            AppSpacing.verticalLg,
-            _buildDistributionRow(context, '90%', 'Your Wallet', AppColors.success),
-            AppSpacing.verticalSm,
-            _buildDistributionRow(context, '5%', 'Daily Pot', AppColors.primary),
-            AppSpacing.verticalSm,
-            _buildDistributionRow(context, '5%', 'Weekly Pot', AppColors.secondary),
-            AppSpacing.verticalLg,
-            Text(
-              'Pot contributions give you chances to win bonus tokens in daily and weekly draws!',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-            ),
-            AppSpacing.verticalMd,
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDistributionRow(
-    BuildContext context,
-    String percentage,
-    String label,
-    Color color,
-  ) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        AppSpacing.horizontalSm,
-        Text(
-          percentage,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-        ),
-        AppSpacing.horizontalSm,
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildThreadsSection(BuildContext context, EarnState state) {
-    if (state.threads.isEmpty && state.status != EarnStatus.loading) {
-      return _buildEmptyState(context);
-    }
-
-    // Separate featured and regular threads
-    final featuredThreads =
-        state.threads.where((t) => t.isFeatured).toList();
-    final regularThreads =
-        state.threads.where((t) => !t.isFeatured).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Daily limit reached banner
-        if (state.dailyLimitReached) ...[
-          _buildDailyLimitBanner(context),
-          AppSpacing.verticalMd,
-        ],
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Earning Opportunities',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            Text(
-              '${state.totalAvailableOpportunities} available',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-            ),
-          ],
-        ),
-        AppSpacing.verticalMd,
-        // Featured threads first
-        if (featuredThreads.isNotEmpty) ...[
-          ...featuredThreads.map((thread) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildThreadCard(
-                  context,
-                  thread,
-                  isFeatured: true,
-                  isDisabled: state.dailyLimitReached,
-                ),
-              )),
-        ],
-        // Then regular threads
-        ...regularThreads.map((thread) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _buildThreadCard(
-                context,
-                thread,
-                isDisabled: state.dailyLimitReached,
-              ),
-            )),
-      ],
-    );
-  }
+  // =========================================================================
+  // Daily Limit Banner
+  // =========================================================================
 
   Widget _buildDailyLimitBanner(BuildContext context) {
     return Container(
@@ -319,11 +408,7 @@ class _EarnScreenState extends State<EarnScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.celebration,
-            color: AppColors.success,
-            size: 24,
-          ),
+          Icon(Icons.celebration, color: AppColors.success, size: 24),
           AppSpacing.horizontalMd,
           Expanded(
             child: Column(
@@ -338,7 +423,8 @@ class _EarnScreenState extends State<EarnScreen> {
                 ),
                 AppSpacing.verticalXs,
                 Text(
-                  'You have reached the 30 completions per day limit. This will reset at midnight tonight so that you can keep earning.',
+                  'You have reached the 30 completions per day limit. '
+                  'This will reset at midnight tonight.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -351,178 +437,460 @@ class _EarnScreenState extends State<EarnScreen> {
     );
   }
 
-  Widget _buildThreadCard(
+  // =========================================================================
+  // Client List (Accordion)
+  // =========================================================================
+
+  Widget _buildClientList(BuildContext context, EarnInboxState state) {
+    if (!state.hasClients && state.status != EarnInboxStatus.loading) {
+      return _buildEmptyState(context);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Brands',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            Text(
+              '${state.totalAvailableOpportunities} opportunities',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+            ),
+          ],
+        ),
+        AppSpacing.verticalMd,
+        ...state.clients.map((client) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: _buildClientCard(
+                context,
+                client,
+                isExpanded: state.expandedClientId == client.clientId,
+                isDisabled: state.dailyLimitReached,
+              ),
+            )),
+      ],
+    );
+  }
+
+  Widget _buildClientCard(
     BuildContext context,
-    EarnThread thread, {
-    bool isFeatured = false,
+    InboxClient client, {
+    required bool isExpanded,
     bool isDisabled = false,
   }) {
-    return Opacity(
-      opacity: isDisabled ? 0.5 : 1.0,
-      child: InkWell(
-        onTap: isDisabled ? null : () => _navigateToThread(context, thread),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
         borderRadius: AppSpacing.borderRadiusMd,
-        child: Container(
-          padding: AppSpacing.cardPadding,
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: AppSpacing.borderRadiusMd,
-            border: Border.all(
-              color: isFeatured
-                  ? AppColors.accent
-                  : thread.isPinned
-                      ? AppColors.primary
-                      : AppColors.border,
-              width: isFeatured || thread.isPinned ? 2 : 1,
-            ),
-          ),
-        child: Row(
-          children: [
-            _buildClientAvatar(context, thread),
-            AppSpacing.horizontalMd,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        border: Border.all(
+          color: client.isPinned
+              ? AppColors.primary.withValues(alpha: 0.5)
+              : client.isFeatured
+                  ? AppColors.accent.withValues(alpha: 0.5)
+                  : AppColors.border,
+          width: client.isPinned || client.isFeatured ? 1.5 : 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          // Client header (always visible)
+          InkWell(
+            onTap: () => context
+                .read<EarnInboxBloc>()
+                .add(EarnInboxEvent.toggleClient(clientId: client.clientId)),
+            borderRadius: isExpanded
+                ? const BorderRadius.vertical(
+                    top: Radius.circular(AppSpacing.radiusMd))
+                : AppSpacing.borderRadiusMd,
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          thread.title,
-                          style:
-                              Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                        ),
-                      ),
-                      if (isFeatured)
-                        Container(
-                          margin: const EdgeInsets.only(left: 8),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.accent.withValues(alpha: 0.2),
-                            borderRadius: AppSpacing.borderRadiusSm,
-                          ),
-                          child: Text(
-                            'Featured',
-                            style:
-                                Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: AppColors.accent,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                          ),
-                        ),
-                      if (thread.isPinned && !isFeatured)
-                        const Padding(
-                          padding: EdgeInsets.only(left: 8),
-                          child: Icon(
-                            Icons.push_pin,
-                            size: 16,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                    ],
-                  ),
-                  AppSpacing.verticalXs,
-                  Text(
-                    thread.clientName,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-                  AppSpacing.verticalXs,
-                  Row(
-                    children: [
-                      Text(
-                        '${thread.availableOpportunities} opportunities',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w500,
+                  _buildClientAvatar(context, client),
+                  AppSpacing.horizontalMd,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                client.clientName,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                      ),
-                      if (thread.completedOpportunities > 0) ...[
-                        Text(
-                          ' · ',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.textHint,
-                                  ),
+                            if (client.isPinned) ...[
+                              AppSpacing.horizontalXs,
+                              const Icon(Icons.push_pin,
+                                  size: 14, color: AppColors.primary),
+                            ],
+                            if (client.isFeatured) ...[
+                              AppSpacing.horizontalXs,
+                              const Icon(Icons.star,
+                                  size: 14, color: AppColors.accent),
+                            ],
+                          ],
                         ),
+                        AppSpacing.verticalXxs,
                         Text(
-                          '${thread.completedOpportunities} completed',
+                          '${client.activeThreadCount} active campaign${client.activeThreadCount != 1 ? 's' : ''}',
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.success,
+                                    color: AppColors.textSecondary,
                                   ),
                         ),
                       ],
-                    ],
+                    ),
+                  ),
+                  AnimatedRotation(
+                    turns: isExpanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: const Icon(
+                      Icons.expand_more,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: AppColors.textSecondary,
-            ),
-          ],
-        ),
-        ),
+          ),
+          // Expanded threads section
+          AnimatedCrossFade(
+            firstChild: const SizedBox(width: double.infinity, height: 0),
+            secondChild: _buildThreadList(context, client, isDisabled),
+            crossFadeState: isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 200),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildClientAvatar(BuildContext context, EarnThread thread) {
-    final color = AppColors.parseHex(thread.clientAvatarColor);
-    final imageUrl = thread.threadImage ?? thread.clientAvatarImage;
+  Widget _buildClientAvatar(BuildContext context, InboxClient client) {
+    final color = AppColors.parseHex(client.clientAvatarColor);
+    final imageUrl = client.clientAvatarImage;
 
     if (imageUrl != null) {
       return CachedNetworkImage(
         imageUrl: imageUrl,
         imageBuilder: (context, imageProvider) => CircleAvatar(
-          radius: 24,
+          radius: 22,
           backgroundImage: imageProvider,
         ),
         placeholder: (context, url) => CircleAvatar(
-          radius: 24,
+          radius: 22,
           backgroundColor: color.withValues(alpha: 0.2),
           child: const SizedBox(
-            width: 16,
-            height: 16,
+            width: 14,
+            height: 14,
             child: CircularProgressIndicator(strokeWidth: 2),
           ),
         ),
-        errorWidget: (context, url, error) => CircleAvatar(
-          radius: 24,
-          backgroundColor: color.withValues(alpha: 0.2),
-          child: Text(
-            thread.clientName.isNotEmpty
-                ? thread.clientName[0].toUpperCase()
-                : 'C',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-        ),
+        errorWidget: (context, url, error) => _buildInitialsAvatar(
+            context, client.clientInitials, color),
       );
     }
 
+    return _buildInitialsAvatar(context, client.clientInitials, color);
+  }
+
+  Widget _buildInitialsAvatar(
+      BuildContext context, String initials, Color color) {
     return CircleAvatar(
-      radius: 24,
+      radius: 22,
       backgroundColor: color.withValues(alpha: 0.2),
       child: Text(
-        thread.clientName.isNotEmpty ? thread.clientName[0].toUpperCase() : 'C',
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+        initials,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
               color: color,
               fontWeight: FontWeight.bold,
             ),
       ),
     );
   }
+
+  // =========================================================================
+  // Thread List (inside expanded client)
+  // =========================================================================
+
+  Widget _buildThreadList(
+      BuildContext context, InboxClient client, bool isDisabled) {
+    if (client.threads.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+        child: Text(
+          'No current uncompleted earn opportunities',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.textHint,
+              ),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        const Divider(height: 1, indent: 14, endIndent: 14),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
+          child: Column(
+            children: client.threads
+                .map((thread) => _buildThreadCard(context, thread,
+                    clientId: client.clientId, isDisabled: isDisabled))
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildThreadCard(
+    BuildContext context,
+    InboxThread thread, {
+    required String clientId,
+    bool isDisabled = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Opacity(
+        opacity: isDisabled ? 0.5 : 1.0,
+        child: InkWell(
+          onTap: isDisabled
+              ? null
+              : () {
+                  context
+                      .read<EarnBloc>()
+                      .add(EarnEvent.selectThread(thread.id));
+                  context.push('/earn/thread/${thread.id}');
+                },
+          borderRadius: AppSpacing.borderRadiusSm,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceElevated,
+              borderRadius: AppSpacing.borderRadiusSm,
+              border: Border.all(
+                color: thread.isPinned
+                    ? AppColors.primary.withValues(alpha: 0.4)
+                    : thread.isFeatured
+                        ? AppColors.accent.withValues(alpha: 0.4)
+                        : AppColors.border.withValues(alpha: 0.5),
+              ),
+            ),
+            child: Row(
+              children: [
+                // Thread image or icon
+                _buildThreadImage(context, thread),
+                AppSpacing.horizontalSm,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title row with badges
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              thread.title,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (thread.isPinned)
+                            const Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: Icon(Icons.push_pin,
+                                  size: 12, color: AppColors.primary),
+                            ),
+                          if (thread.isFeatured)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 4),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 5, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color:
+                                      AppColors.accent.withValues(alpha: 0.2),
+                                  borderRadius: AppSpacing.borderRadiusXs,
+                                ),
+                                child: Text(
+                                  'Featured',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(
+                                        color: AppColors.accent,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      if (thread.description != null) ...[
+                        AppSpacing.verticalXxs,
+                        Text(
+                          thread.description!,
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                      AppSpacing.verticalXs,
+                      // Reward info row
+                      Row(
+                        children: [
+                          Icon(Icons.toll,
+                              size: 14, color: AppColors.gold),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Earn ${thread.totalTokenReward} tokens',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: AppColors.gold,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                          if (thread.rewardTypeLabel != null) ...[
+                            Text(' + ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(color: AppColors.textHint)),
+                            Icon(Icons.card_giftcard,
+                                size: 12, color: AppColors.secondary),
+                            const SizedBox(width: 2),
+                            Text(
+                              thread.rewardTypeLabel!,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(
+                                    color: AppColors.secondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ],
+                          const Spacer(),
+                          Text(
+                            '${thread.availableOpportunities} opp${thread.availableOpportunities != 1 ? 's' : ''}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                      // Expiry warning
+                      if (thread.isExpiringSoon) ...[
+                        AppSpacing.verticalXs,
+                        Row(
+                          children: [
+                            Icon(Icons.timer,
+                                size: 12, color: AppColors.error),
+                            const SizedBox(width: 4),
+                            Text(
+                              thread.daysUntilExpiry == 0
+                                  ? 'Expires today!'
+                                  : 'Expires in ${thread.daysUntilExpiry} day${thread.daysUntilExpiry != 1 ? 's' : ''}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(
+                                    color: AppColors.error,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                AppSpacing.horizontalXs,
+                const Icon(Icons.chevron_right,
+                    size: 18, color: AppColors.textSecondary),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThreadImage(BuildContext context, InboxThread thread) {
+    if (thread.threadImage != null) {
+      return CachedNetworkImage(
+        imageUrl: thread.threadImage!,
+        imageBuilder: (context, imageProvider) => Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            borderRadius: AppSpacing.borderRadiusSm,
+            image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+          ),
+        ),
+        placeholder: (context, url) => Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.surfaceElevated,
+            borderRadius: AppSpacing.borderRadiusSm,
+          ),
+          child: const Center(
+              child: SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2))),
+        ),
+        errorWidget: (context, url, error) => _buildThreadIconFallback(),
+      );
+    }
+
+    return _buildThreadIconFallback();
+  }
+
+  Widget _buildThreadIconFallback() {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.1),
+        borderRadius: AppSpacing.borderRadiusSm,
+      ),
+      child: const Icon(Icons.campaign, size: 20, color: AppColors.primary),
+    );
+  }
+
+  // =========================================================================
+  // Empty State
+  // =========================================================================
 
   Widget _buildEmptyState(BuildContext context) {
     return Center(
@@ -555,14 +923,5 @@ class _EarnScreenState extends State<EarnScreen> {
         ),
       ),
     );
-  }
-
-  void _navigateToThread(BuildContext context, EarnThread thread) {
-    context.read<EarnBloc>().add(EarnEvent.selectThread(thread.id));
-    context.push('/earn/thread/${thread.id}');
-  }
-
-  void _showHistory(BuildContext context) {
-    EngagementHistorySheet.show(context);
   }
 }

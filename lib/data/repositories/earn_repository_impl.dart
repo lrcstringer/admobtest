@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../core/error/exceptions.dart';
 import '../../core/error/failures.dart';
+import '../../domain/entities/earn_notification.dart';
 import '../../domain/entities/earn_opportunity.dart';
 import '../../domain/entities/earn_thread.dart';
 import '../../domain/entities/engagement.dart';
@@ -242,6 +243,89 @@ class EarnRepositoryImpl implements EarnRepository {
     try {
       final count = await _remoteDataSource.getAvailableOpportunitiesCount();
       return Right(count);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  // ===========================================================================
+  // Inbox & Notifications
+  // ===========================================================================
+
+  /// In-memory cache for eligible inbox to avoid redundant calls.
+  EligibleInboxResult? _cachedInboxResult;
+  DateTime? _cachedInboxAt;
+
+  @override
+  Future<Either<Failure, EligibleInboxResult>> getEligibleInbox() async {
+    // Return cache if fresh (< 30s old)
+    if (_cachedInboxResult != null &&
+        _cachedInboxAt != null &&
+        DateTime.now().difference(_cachedInboxAt!) < _cacheTtl) {
+      return Right(_cachedInboxResult!);
+    }
+
+    try {
+      final response = await _remoteDataSource.getEligibleInbox();
+      final result = EligibleInboxResult(
+        clients: response.clients,
+        dailyCompletions: response.dailyCompletions,
+        dailyEarnCap: response.dailyEarnCap,
+        dailyLimitReached: response.dailyLimitReached,
+      );
+
+      _cachedInboxResult = result;
+      _cachedInboxAt = DateTime.now();
+
+      return Right(result);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<EarnNotification>>> getEarnNotifications() async {
+    try {
+      final response = await _remoteDataSource.getEarnNotifications();
+      return Right(response.notifications);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> markNotificationRead(
+    String notificationId,
+  ) async {
+    try {
+      await _remoteDataSource.markNotificationRead(notificationId);
+      return const Right(null);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> markAllNotificationsRead() async {
+    try {
+      await _remoteDataSource.markAllNotificationsRead();
+      return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
     } on ServerException catch (e) {

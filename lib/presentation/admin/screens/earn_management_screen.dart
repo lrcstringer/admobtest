@@ -1214,14 +1214,14 @@ class _OpportunityCard extends StatelessWidget {
       case 'survey':
         typeIcon = Icons.quiz_outlined;
         break;
-      case 'trivia':
-        typeIcon = Icons.lightbulb_outline;
-        break;
-      case 'rating':
-        typeIcon = Icons.star_outline;
+      case 'image':
+        typeIcon = Icons.image_outlined;
         break;
       case 'poll':
         typeIcon = Icons.poll_outlined;
+        break;
+      case 'adVideo':
+        typeIcon = Icons.play_circle_outline;
         break;
       default:
         typeIcon = Icons.smart_display_outlined;
@@ -1388,6 +1388,12 @@ class _OpportunityCard extends StatelessWidget {
                             _showEditVideoDialog(context);
                           case 'edit_questions':
                             _showEditQuestionsDialog(context);
+                          case 'open_poll':
+                            _handlePollAction(context, 'openPoll', 'Poll opened');
+                          case 'close_poll':
+                            _handlePollAction(context, 'closePoll', 'Poll closed');
+                          case 'poll_results':
+                            _showPollResultsDialog(context);
                           case 'delete':
                             _confirmDelete(context);
                         }
@@ -1414,16 +1420,53 @@ class _OpportunityCard extends StatelessWidget {
                               ],
                             ),
                           ),
-                        const PopupMenuItem(
-                          value: 'edit_questions',
-                          child: Row(
-                            children: [
-                              Icon(Icons.quiz_outlined, size: 18),
-                              SizedBox(width: 8),
-                              Text('Edit Questions'),
-                            ],
+                        if (earningType != 'poll')
+                          const PopupMenuItem(
+                            value: 'edit_questions',
+                            child: Row(
+                              children: [
+                                Icon(Icons.quiz_outlined, size: 18),
+                                SizedBox(width: 8),
+                                Text('Edit Questions'),
+                              ],
+                            ),
                           ),
-                        ),
+                        if (earningType == 'poll') ...[
+                          if (!(opportunity['isActive'] == true))
+                            const PopupMenuItem(
+                              value: 'open_poll',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.play_arrow, size: 18,
+                                      color: AppColors.success),
+                                  SizedBox(width: 8),
+                                  Text('Open Poll'),
+                                ],
+                              ),
+                            ),
+                          if (opportunity['isActive'] == true)
+                            const PopupMenuItem(
+                              value: 'close_poll',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.stop, size: 18,
+                                      color: AppColors.warning),
+                                  SizedBox(width: 8),
+                                  Text('Close Poll'),
+                                ],
+                              ),
+                            ),
+                          const PopupMenuItem(
+                            value: 'poll_results',
+                            child: Row(
+                              children: [
+                                Icon(Icons.bar_chart, size: 18),
+                                SizedBox(width: 8),
+                                Text('Poll Results'),
+                              ],
+                            ),
+                          ),
+                        ],
                         const PopupMenuItem(
                           value: 'delete',
                           child: Row(
@@ -1546,7 +1589,303 @@ class _OpportunityCard extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _handlePollAction(
+      BuildContext context, String functionName, String successMsg) async {
+    final pollId = opportunity['pollId'] as String?;
+    if (pollId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No linked poll found'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final callable =
+          FirebaseFunctions.instance.httpsCallable(functionName);
+      await callable.call(<String, dynamic>{'pollId': pollId});
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(successMsg),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        onUpdated?.call();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showPollResultsDialog(BuildContext context) {
+    final pollId = opportunity['pollId'] as String?;
+    if (pollId == null) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => _PollResultsDialog(pollId: pollId),
+    );
+  }
 }
+
+// ---------------------------------------------------------------------------
+// Poll Results Dialog
+// ---------------------------------------------------------------------------
+
+class _PollResultsDialog extends StatefulWidget {
+  final String pollId;
+  const _PollResultsDialog({required this.pollId});
+
+  @override
+  State<_PollResultsDialog> createState() => _PollResultsDialogState();
+}
+
+class _PollResultsDialogState extends State<_PollResultsDialog> {
+  bool _isLoading = true;
+  Map<String, dynamic>? _data;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadResults();
+  }
+
+  Future<void> _loadResults() async {
+    try {
+      final callable =
+          FirebaseFunctions.instance.httpsCallable('getPollAdminDetails');
+      final result = await callable.call(<String, dynamic>{
+        'pollId': widget.pollId,
+      });
+      if (mounted) {
+        setState(() {
+          _data = Map<String, dynamic>.from(result.data as Map);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.cardDark,
+      title: const Text(
+        'Poll Results',
+        style: TextStyle(color: AppColors.textPrimaryDark),
+      ),
+      content: SizedBox(
+        width: 500,
+        child: _isLoading
+            ? const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : _error != null
+                ? Text('Error: $_error',
+                    style: const TextStyle(color: AppColors.error))
+                : _buildResults(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResults() {
+    final poll =
+        Map<String, dynamic>.from(_data!['poll'] as Map? ?? {});
+    final results =
+        Map<String, dynamic>.from(_data!['results'] as Map? ?? {});
+    final responses = (_data!['responses'] as List?) ?? [];
+
+    final question = poll['question'] as String? ?? '';
+    final status = poll['status'] as String? ?? 'draft';
+    final options = (poll['options'] as List?) ?? [];
+    final totalRespondents = results['totalRespondents'] as int? ?? 0;
+    final optionCounts = Map<String, dynamic>.from(
+        results['optionCounts'] as Map? ?? {});
+    final percentages = Map<String, dynamic>.from(
+        results['percentages'] as Map? ?? {});
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Status badge
+          Row(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: status == 'open'
+                      ? AppColors.success.withValues(alpha: 0.2)
+                      : status == 'draft'
+                          ? AppColors.warning.withValues(alpha: 0.2)
+                          : AppColors.textSecondary.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  status.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: status == 'open'
+                        ? AppColors.success
+                        : status == 'draft'
+                            ? AppColors.warning
+                            : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '$totalRespondents respondent${totalRespondents == 1 ? '' : 's'}',
+                style: TextStyle(
+                    fontSize: 13, color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Question
+          Text(
+            question,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimaryDark,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Bar chart per option
+          ...options.map((opt) {
+            final optMap = Map<String, dynamic>.from(opt as Map);
+            final optId = optMap['id'] as String;
+            final optText = optMap['text'] as String;
+            final count =
+                (optionCounts[optId] as num?)?.toInt() ?? 0;
+            final pct =
+                (percentages[optId] as num?)?.toDouble() ?? 0.0;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          optText,
+                          style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textPrimaryDark),
+                        ),
+                      ),
+                      Text(
+                        '$count (${pct.toStringAsFixed(0)}%)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: pct / 100,
+                      minHeight: 12,
+                      backgroundColor:
+                          AppColors.surfaceDark,
+                      valueColor:
+                          const AlwaysStoppedAnimation<Color>(
+                              AppColors.secondary),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          if (responses.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Text(
+              'Recent Responses (${responses.length})',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimaryDark,
+              ),
+            ),
+            const SizedBox(height: 8),
+            ...responses.take(20).map((r) {
+              final resp = Map<String, dynamic>.from(r as Map);
+              final userId = resp['userId'] as String? ?? '';
+              final selectedOpt =
+                  resp['selectedOption'] as String? ?? '';
+              final rStatus =
+                  resp['status'] as String? ?? 'valid';
+              // Find option text
+              final optionObj = options.cast<Map>().firstWhere(
+                (o) => o['id'] == selectedOpt,
+                orElse: () => {'text': selectedOpt},
+              );
+              return ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  'User: ${userId.substring(0, userId.length > 8 ? 8 : userId.length)}...',
+                  style: const TextStyle(fontSize: 12),
+                ),
+                subtitle: Text(
+                  optionObj['text'] as String? ?? selectedOpt,
+                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                ),
+                trailing: rStatus == 'invalidated'
+                    ? const Text('INVALIDATED',
+                        style: TextStyle(
+                            fontSize: 10, color: AppColors.error))
+                    : null,
+              );
+            }),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
 
 class _CreateThreadDialog extends StatefulWidget {
   final List<Map<String, dynamic>> clients;
@@ -1625,7 +1964,15 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
               ?.map((s) => Map<String, dynamic>.from(s as Map))
               .toList() ??
           [];
-      if (mounted) setState(() => _subAccounts = list);
+      if (mounted) {
+        setState(() {
+          _subAccounts = list;
+          // Auto-select first sub-account if none selected
+          if (_selectedSubAccountId == null && list.isNotEmpty) {
+            _selectedSubAccountId = list.first['id'] as String?;
+          }
+        });
+      }
     } catch (_) {}
   }
 
@@ -2116,19 +2463,12 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
                         initialValue: _selectedSubAccountId,
                         decoration: const InputDecoration(
                           labelText: 'Token Source Sub-Account',
-                          hintText: 'default',
                           isDense: true,
                         ),
-                        items: [
-                          const DropdownMenuItem<String>(
-                            value: null,
-                            child: Text('default'),
-                          ),
-                          ..._subAccounts.map((sa) => DropdownMenuItem<String>(
-                                value: sa['id'] as String,
-                                child: Text(sa['name']?.toString() ?? sa['id'].toString()),
-                              )),
-                        ],
+                        items: _subAccounts.map((sa) => DropdownMenuItem<String>(
+                              value: sa['id'] as String,
+                              child: Text(sa['name']?.toString() ?? sa['id'].toString()),
+                            )).toList(),
                         onChanged: (v) =>
                             setState(() => _selectedSubAccountId = v),
                       ),
@@ -2280,7 +2620,7 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
 
     // Init token config from existing data
     final srcSub = t['tokenSourceSubAccountId']?.toString();
-    _selectedSubAccountId = (srcSub != null && srcSub != 'default') ? srcSub : null;
+    _selectedSubAccountId = srcSub;
     _selectedAccountTypeId = t['tokenDestAccountTypeId']?.toString();
 
     // Parse existing dates
@@ -2328,7 +2668,16 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
               ?.map((s) => Map<String, dynamic>.from(s as Map))
               .toList() ??
           [];
-      if (mounted) setState(() => _subAccounts = list);
+      if (mounted) {
+        setState(() {
+          _subAccounts = list;
+          // If existing selection isn't in the list, select the first one
+          if (_selectedSubAccountId != null &&
+              !list.any((sa) => sa['id'] == _selectedSubAccountId)) {
+            _selectedSubAccountId = list.isNotEmpty ? list.first['id'] as String? : null;
+          }
+        });
+      }
     } catch (_) {}
   }
 
@@ -2817,19 +3166,12 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
                           initialValue: _selectedSubAccountId,
                           decoration: const InputDecoration(
                             labelText: 'Token Source Sub-Account',
-                            hintText: 'default',
                             isDense: true,
                           ),
-                          items: [
-                            const DropdownMenuItem<String>(
-                              value: null,
-                              child: Text('default'),
-                            ),
-                            ..._subAccounts.map((sa) => DropdownMenuItem<String>(
-                                  value: sa['id'] as String,
-                                  child: Text(sa['name']?.toString() ?? sa['id'].toString()),
-                                )),
-                          ],
+                          items: _subAccounts.map((sa) => DropdownMenuItem<String>(
+                                value: sa['id'] as String,
+                                child: Text(sa['name']?.toString() ?? sa['id'].toString()),
+                              )).toList(),
                           onChanged: (v) =>
                               setState(() => _selectedSubAccountId = v),
                         ),
@@ -2980,13 +3322,87 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
   double _imageUploadProgress = 0;
   bool _isImageUploading = false;
 
+  // Poll-specific fields (used when earningType == 'poll')
+  final List<TextEditingController> _pollOptionControllers = [
+    TextEditingController(),
+    TextEditingController(),
+  ];
+  bool _pollIsAnonymous = false;
+  bool _pollShowResults = true;
+  bool _pollAllowChange = true;
+
+  // Reward campaign linkage
+  String? _rewardCampaignId;
+  List<Map<String, dynamic>> _rewardCampaigns = [];
+  bool _loadingRewardCampaigns = false;
+
+  // Upload-specific fields (used when earningType == 'upload')
+  final _uploadPromptController = TextEditingController();
+  bool _uploadVideoEnabled = false;
+  bool _uploadImageEnabled = false;
+  bool _uploadTextEnabled = false;
+  bool _uploadVideoRequired = false;
+  bool _uploadImageRequired = false;
+  bool _uploadTextRequired = false;
+  int _uploadVideoMaxSeconds = 60;
+  final _uploadTextMinCharsController = TextEditingController(text: '10');
+  final _uploadTextMaxCharsController = TextEditingController(text: '1500');
+  bool _requiresAdminReview = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRewardCampaigns();
+  }
+
+  Future<void> _loadRewardCampaigns() async {
+    setState(() => _loadingRewardCampaigns = true);
+    try {
+      // Get thread to find clientId
+      final threadDoc = await FirebaseFirestore.instance
+          .collection('earnThreads')
+          .doc(widget.threadId)
+          .get();
+      if (!threadDoc.exists) return;
+      final clientId = threadDoc.data()?['clientId'] as String?;
+      if (clientId == null) return;
+
+      // Query reward campaigns for this client
+      final snapshot = await FirebaseFirestore.instance
+          .collection('rewardCampaigns')
+          .where('clientId', isEqualTo: clientId)
+          .where('isDeleted', isEqualTo: false)
+          .get();
+
+      if (mounted) {
+        setState(() {
+          _rewardCampaigns = snapshot.docs
+              .map((d) => {'id': d.id, ...d.data()})
+              .where((c) =>
+                  c['status'] == 'draft' ||
+                  c['status'] == 'active')
+              .toList();
+        });
+      }
+    } catch (e) {
+      // Silently fail — reward campaigns are optional
+    } finally {
+      if (mounted) setState(() => _loadingRewardCampaigns = false);
+    }
+  }
+
+  int get _uploadEnabledCount =>
+      [_uploadVideoEnabled, _uploadImageEnabled, _uploadTextEnabled]
+          .where((e) => e)
+          .length;
+
   final _earningTypes = [
     ('video', 'Video'),
+    ('image', 'Image'),
     ('survey', 'Survey'),
-    ('trivia', 'Trivia'),
-    ('rating', 'Rating'),
     ('poll', 'Poll'),
     ('adVideo', 'Ad Video (AdMob)'),
+    ('upload', 'Upload'),
   ];
 
   @override
@@ -3003,6 +3419,12 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
     _bonusMultiplierController.dispose();
     _bonusIntervalXController.dispose();
     _tokenBudgetController.dispose();
+    _uploadPromptController.dispose();
+    _uploadTextMinCharsController.dispose();
+    _uploadTextMaxCharsController.dispose();
+    for (final c in _pollOptionControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -3128,105 +3550,39 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
       return;
     }
 
+    // Validate upload: at least one upload type must be enabled
+    if (_earningType == 'upload' && _uploadEnabledCount == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Enable at least one upload type (Video, Image, or Text)'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    // Validate upload prompt
+    if (_earningType == 'upload' &&
+        _uploadPromptController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a prompt/question for the upload'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _isUploading = _pickedFileBytes != null;
     });
 
     try {
-      // Get thread data for denormalization
-      final threadDoc = await FirebaseFirestore.instance
-          .collection('earnThreads')
-          .doc(widget.threadId)
-          .get();
-      final threadData = threadDoc.data()!;
-
-      // Generate opportunity ID upfront (needed for storage path)
-      final oppRef =
-          FirebaseFirestore.instance.collection('earnOpportunities').doc();
-
-      // Upload video file if picked, otherwise use manual URL
-      String? mediaUrl = _mediaUrlController.text.trim().isEmpty
-          ? null
-          : _mediaUrlController.text.trim();
-      if (_pickedFileBytes != null) {
-        mediaUrl = await _uploadVideoToStorage(oppRef.id);
-      }
-
-      setState(() => _isUploading = false);
-
-      // Upload opportunity image if picked
-      String? opportunityImageUrl;
-      if (_pickedImageBytes != null) {
-        setState(() => _isImageUploading = true);
-        opportunityImageUrl = await _uploadOpportunityImage(oppRef.id);
-        if (mounted) setState(() => _isImageUploading = false);
-      }
-
-      // Create opportunity
-      await oppRef.set({
-        'id': oppRef.id,
-        'threadId': widget.threadId,
-        'clientId': threadData['clientId'],
-        'clientName': threadData['clientName'],
-        'clientAvatarColor': threadData['clientAvatarColor'],
-        'clientAvatarImage': threadData['clientAvatarImage'],
-        'threadImage': threadData['threadImage'],
-        'opportunityImage': opportunityImageUrl,
-        'title': _titleController.text.trim(),
-        'description': _descriptionController.text.trim().isEmpty
-            ? null
-            : _descriptionController.text.trim(),
-        'earningType': _earningType,
-        'mediaType': _earningType == 'video' ? 'video' : 'text',
-        'mediaUrl': mediaUrl,
-        'tokenReward': int.tryParse(_tokenRewardController.text) ?? 10,
-        'streakPoints': int.tryParse(_streakPointsController.text) ?? 0,
-        'durationSeconds': int.tryParse(_durationController.text) ?? 30,
-        'questions': _questions,
-        'isActive': _isActive,
-        'expiresAt': _expiresAt != null ? Timestamp.fromDate(_expiresAt!) : null,
-        'dailyLimitPerUser': _dailyLimitController.text.trim().isNotEmpty
-            ? int.tryParse(_dailyLimitController.text.trim())
-            : null,
-        'adUnitId': _adUnitIdController.text.trim().isNotEmpty
-            ? _adUnitIdController.text.trim()
-            : null,
-        'bonusReward': _hasBonusReward,
-        if (_hasBonusReward) ...{
-          'bonusRewardMultiplier':
-              double.tryParse(_bonusMultiplierController.text) ?? 1.0,
-          'bonusIntervalType': _bonusIntervalType,
-          'bonusIntervalX':
-              int.tryParse(_bonusIntervalXController.text) ?? 1,
-        },
-        'targeting': _targeting,
-        'tokenBudget': _tokenBudgetController.text.trim().isNotEmpty
-            ? int.tryParse(_tokenBudgetController.text.trim())
-            : null,
-        'tokenSpent': 0,
-        'budgetExhausted': false,
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
-      // Update thread opportunity count
-      if (_isActive) {
-        await threadDoc.reference.update({
-          'availableOpportunities': FieldValue.increment(1),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      }
-
-      if (mounted) {
-        Navigator.of(context).pop();
-        widget.onCreated();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Opportunity created successfully'),
-            backgroundColor: AppColors.success,
-          ),
-        );
+      if (_earningType == 'poll') {
+        await _handleCreatePoll();
+      } else {
+        await _handleCreateOpportunity();
       }
     } catch (e) {
       if (mounted) {
@@ -3244,10 +3600,194 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
     }
   }
 
+  Future<void> _handleCreatePoll() async {
+    // Validate poll options
+    final pollOptions = _pollOptionControllers
+        .map((c) => c.text.trim())
+        .where((t) => t.isNotEmpty)
+        .toList();
+    if (pollOptions.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('At least 2 poll options are required'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      setState(() => _isLoading = false);
+      return;
+    }
+
+    // Upload opportunity image if picked
+    String? opportunityImageUrl;
+    if (_pickedImageBytes != null) {
+      setState(() => _isImageUploading = true);
+      // Use a temp ID for image upload path
+      final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+      opportunityImageUrl = await _uploadOpportunityImage(tempId);
+      if (mounted) setState(() => _isImageUploading = false);
+    }
+
+    // Call createPoll Cloud Function (creates both poll + opportunity atomically)
+    final callable = FirebaseFunctions.instance.httpsCallable('createPoll');
+    await callable.call(<String, dynamic>{
+      'threadId': widget.threadId,
+      'question': _titleController.text.trim(),
+      'options': pollOptions.map((text) => {'text': text}).toList(),
+      'isAnonymous': _pollIsAnonymous,
+      'showResultsAfterVote': _pollShowResults,
+      'allowChangeVote': _pollAllowChange,
+      'tokenReward': int.tryParse(_tokenRewardController.text) ?? 10,
+      'durationSeconds': int.tryParse(_durationController.text) ?? 15,
+      if (_targeting != null) 'targeting': _targeting,
+      if (_tokenBudgetController.text.trim().isNotEmpty)
+        'tokenBudget': int.tryParse(_tokenBudgetController.text.trim()),
+      if (_dailyLimitController.text.trim().isNotEmpty)
+        'dailyLimitPerUser': int.tryParse(_dailyLimitController.text.trim()),
+      if (opportunityImageUrl != null) 'opportunityImage': opportunityImageUrl,
+    });
+
+    if (mounted) {
+      Navigator.of(context).pop();
+      widget.onCreated();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Poll created in draft status. Open it to activate.'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleCreateOpportunity() async {
+    // Get thread data for denormalization
+    final threadDoc = await FirebaseFirestore.instance
+        .collection('earnThreads')
+        .doc(widget.threadId)
+        .get();
+    final threadData = threadDoc.data()!;
+
+    // Generate opportunity ID upfront (needed for storage path)
+    final oppRef =
+        FirebaseFirestore.instance.collection('earnOpportunities').doc();
+
+    // Upload video file if picked, otherwise use manual URL
+    String? mediaUrl = _mediaUrlController.text.trim().isEmpty
+        ? null
+        : _mediaUrlController.text.trim();
+    if (_pickedFileBytes != null) {
+      mediaUrl = await _uploadVideoToStorage(oppRef.id);
+    }
+
+    setState(() => _isUploading = false);
+
+    // Upload opportunity image if picked
+    String? opportunityImageUrl;
+    if (_pickedImageBytes != null) {
+      setState(() => _isImageUploading = true);
+      opportunityImageUrl = await _uploadOpportunityImage(oppRef.id);
+      if (mounted) setState(() => _isImageUploading = false);
+    }
+
+    // Create opportunity
+    await oppRef.set({
+      'id': oppRef.id,
+      'threadId': widget.threadId,
+      'clientId': threadData['clientId'],
+      'clientName': threadData['clientName'],
+      'clientAvatarColor': threadData['clientAvatarColor'],
+      'clientAvatarImage': threadData['clientAvatarImage'],
+      'threadImage': threadData['threadImage'],
+      'opportunityImage': opportunityImageUrl,
+      'title': _titleController.text.trim(),
+      'description': _descriptionController.text.trim().isEmpty
+          ? null
+          : _descriptionController.text.trim(),
+      'earningType': _earningType,
+      'mediaType': _earningType == 'video' ? 'video' : 'text',
+      'mediaUrl': mediaUrl,
+      'tokenReward': int.tryParse(_tokenRewardController.text) ?? 10,
+      'streakPoints': int.tryParse(_streakPointsController.text) ?? 0,
+      'durationSeconds': int.tryParse(_durationController.text) ?? 30,
+      'questions': _questions,
+      'isActive': _isActive,
+      'expiresAt': _expiresAt != null ? Timestamp.fromDate(_expiresAt!) : null,
+      'dailyLimitPerUser': _dailyLimitController.text.trim().isNotEmpty
+          ? int.tryParse(_dailyLimitController.text.trim())
+          : null,
+      'adUnitId': _adUnitIdController.text.trim().isNotEmpty
+          ? _adUnitIdController.text.trim()
+          : null,
+      'bonusReward': _hasBonusReward,
+      if (_hasBonusReward) ...{
+        'bonusRewardMultiplier':
+            double.tryParse(_bonusMultiplierController.text) ?? 1.0,
+        'bonusIntervalType': _bonusIntervalType,
+        'bonusIntervalX':
+            int.tryParse(_bonusIntervalXController.text) ?? 1,
+      },
+      'targeting': _targeting,
+      'tokenBudget': _tokenBudgetController.text.trim().isNotEmpty
+          ? int.tryParse(_tokenBudgetController.text.trim())
+          : null,
+      'tokenSpent': 0,
+      'budgetExhausted': false,
+      // Reward campaign linkage
+      'rewardCampaignId': _rewardCampaignId,
+      if (_rewardCampaignId != null) ...{
+        'rewardCampaignName': _rewardCampaigns
+            .firstWhere((c) => c['id'] == _rewardCampaignId,
+                orElse: () => {})['name'],
+        'rewardType': _rewardCampaigns
+            .firstWhere((c) => c['id'] == _rewardCampaignId,
+                orElse: () => {})['rewardType'],
+      },
+      // Upload-specific fields
+      if (_earningType == 'upload') ...{
+        'uploadPrompt': _uploadPromptController.text.trim(),
+        'uploadVideoEnabled': _uploadVideoEnabled,
+        'uploadImageEnabled': _uploadImageEnabled,
+        'uploadTextEnabled': _uploadTextEnabled,
+        'uploadVideoRequired': _uploadVideoRequired ||
+            (_uploadEnabledCount == 1 && _uploadVideoEnabled),
+        'uploadImageRequired': _uploadImageRequired ||
+            (_uploadEnabledCount == 1 && _uploadImageEnabled),
+        'uploadTextRequired': _uploadTextRequired ||
+            (_uploadEnabledCount == 1 && _uploadTextEnabled),
+        'uploadVideoMaxSeconds': _uploadVideoMaxSeconds,
+        'uploadTextMinChars':
+            int.tryParse(_uploadTextMinCharsController.text) ?? 10,
+        'uploadTextMaxChars':
+            int.tryParse(_uploadTextMaxCharsController.text) ?? 1500,
+        'requiresAdminReview': _requiresAdminReview,
+      },
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    // Update thread opportunity count
+    if (_isActive) {
+      await threadDoc.reference.update({
+        'availableOpportunities': FieldValue.increment(1),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    }
+
+    if (mounted) {
+      Navigator.of(context).pop();
+      widget.onCreated();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Opportunity created successfully'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
+  }
+
   Future<void> _showQuestionEditor({int? index, Map<String, dynamic>? existing}) async {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (ctx) => _QuestionEditorDialog(existing: existing),
+      builder: (ctx) => _QuestionEditorDialog(existing: existing, allQuestions: _questions),
     );
     if (result != null) {
       setState(() {
@@ -3594,6 +4134,36 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                   },
                 ),
                 const SizedBox(height: 16),
+                // Reward Campaign Linkage (optional)
+                if (_loadingRewardCampaigns)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: LinearProgressIndicator(),
+                  )
+                else if (_rewardCampaigns.isNotEmpty) ...[
+                  DropdownButtonFormField<String?>(
+                    value: _rewardCampaignId,
+                    decoration: const InputDecoration(
+                      labelText: 'Reward Campaign (optional)',
+                      hintText: 'Link an inventory reward',
+                    ),
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text('None'),
+                      ),
+                      ..._rewardCampaigns.map((c) => DropdownMenuItem<String?>(
+                            value: c['id'] as String,
+                            child: Text(
+                              '${c['name']} (${c['remainingQuantity']}/${c['totalQuantity']} left)',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )),
+                    ],
+                    onChanged: (v) => setState(() => _rewardCampaignId = v),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 // AdMob fields (shown for adVideo type)
                 if (_earningType == 'adVideo') ...[
                   TextFormField(
@@ -3606,6 +4176,167 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                             (v == null || v.trim().isEmpty)
                         ? 'Required for Ad Video type'
                         : null,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                // Upload config fields (shown for upload type)
+                if (_earningType == 'upload') ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Upload Configuration',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _uploadPromptController,
+                          decoration: const InputDecoration(
+                            labelText: 'Prompt / Question *',
+                            hintText:
+                                'What question should the user respond to?',
+                          ),
+                          maxLines: 3,
+                          validator: (v) => _earningType == 'upload' &&
+                                  (v == null || v.trim().isEmpty)
+                              ? 'Prompt is required for upload type'
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('Allowed response types:',
+                            style: TextStyle(fontSize: 13)),
+                        const SizedBox(height: 8),
+                        CheckboxListTile(
+                          title: const Text('Video Recording'),
+                          value: _uploadVideoEnabled,
+                          dense: true,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged: (v) =>
+                              setState(() => _uploadVideoEnabled = v ?? false),
+                        ),
+                        if (_uploadVideoEnabled) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(left: 40),
+                            child: DropdownButtonFormField<int>(
+                              value: _uploadVideoMaxSeconds,
+                              decoration: const InputDecoration(
+                                labelText: 'Max Video Duration',
+                                isDense: true,
+                              ),
+                              items: const [
+                                DropdownMenuItem(
+                                    value: 30, child: Text('30 seconds')),
+                                DropdownMenuItem(
+                                    value: 60, child: Text('60 seconds')),
+                                DropdownMenuItem(
+                                    value: 120, child: Text('120 seconds')),
+                              ],
+                              onChanged: (v) {
+                                if (v != null) {
+                                  setState(() => _uploadVideoMaxSeconds = v);
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                        CheckboxListTile(
+                          title: const Text('Image Capture'),
+                          value: _uploadImageEnabled,
+                          dense: true,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged: (v) =>
+                              setState(() => _uploadImageEnabled = v ?? false),
+                        ),
+                        CheckboxListTile(
+                          title: const Text('Text Response'),
+                          value: _uploadTextEnabled,
+                          dense: true,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged: (v) =>
+                              setState(() => _uploadTextEnabled = v ?? false),
+                        ),
+                        if (_uploadTextEnabled) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(left: 40),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _uploadTextMinCharsController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Min chars',
+                                      isDense: true,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _uploadTextMaxCharsController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Max chars',
+                                      isDense: true,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                        // Required toggles (shown when 2+ types enabled)
+                        if (_uploadEnabledCount >= 2) ...[
+                          const Divider(),
+                          const Text('Required fields:',
+                              style: TextStyle(fontSize: 13)),
+                          if (_uploadVideoEnabled)
+                            CheckboxListTile(
+                              title: const Text('Video required'),
+                              value: _uploadVideoRequired,
+                              dense: true,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              onChanged: (v) => setState(
+                                  () => _uploadVideoRequired = v ?? false),
+                            ),
+                          if (_uploadImageEnabled)
+                            CheckboxListTile(
+                              title: const Text('Image required'),
+                              value: _uploadImageRequired,
+                              dense: true,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              onChanged: (v) => setState(
+                                  () => _uploadImageRequired = v ?? false),
+                            ),
+                          if (_uploadTextEnabled)
+                            CheckboxListTile(
+                              title: const Text('Text required'),
+                              value: _uploadTextRequired,
+                              dense: true,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              onChanged: (v) => setState(
+                                  () => _uploadTextRequired = v ?? false),
+                            ),
+                        ],
+                        const Divider(),
+                        CheckboxListTile(
+                          title: const Text('Require Admin Review'),
+                          subtitle:
+                              const Text('Tokens held until admin approves'),
+                          value: _requiresAdminReview,
+                          dense: true,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged: (v) => setState(
+                              () => _requiresAdminReview = v ?? false),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -3713,81 +4444,161 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                   onChanged: (v) => _targeting = v,
                 ),
                 const SizedBox(height: 24),
-                // Questions section
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Questions',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimaryDark,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline,
-                          color: AppColors.secondary),
-                      tooltip: 'Add question',
-                      onPressed: () => _showQuestionEditor(),
-                    ),
-                  ],
-                ),
-                if (_questions.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      'No questions added yet',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                      ),
+                // Poll-specific section or Questions section
+                if (_earningType == 'poll') ...[
+                  const Text(
+                    'Poll Options',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimaryDark,
                     ),
                   ),
-                ..._questions.asMap().entries.map((entry) {
-                  final idx = entry.key;
-                  final q = entry.value;
-                  final options = (q['options'] as List?)?.cast<String>() ?? [];
-                  return Card(
-                    color: AppColors.surfaceDark,
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      dense: true,
-                      title: Text(
-                        q['text'] ?? '',
-                        style: const TextStyle(
-                          fontSize: 13,
+                  const SizedBox(height: 4),
+                  Text(
+                    'The Title field above is the poll question. Add 2-6 answer options below.',
+                    style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(height: 8),
+                  ...List.generate(_pollOptionControllers.length, (i) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _pollOptionControllers[i],
+                              decoration: InputDecoration(
+                                labelText: 'Option ${i + 1}',
+                                isDense: true,
+                              ),
+                            ),
+                          ),
+                          if (_pollOptionControllers.length > 2)
+                            IconButton(
+                              icon: const Icon(Icons.close, size: 16),
+                              color: AppColors.error,
+                              onPressed: () {
+                                if (_pollOptionControllers.length <= 2) return;
+                                setState(() {
+                                  _pollOptionControllers.removeAt(i).dispose();
+                                });
+                              },
+                            ),
+                        ],
+                      ),
+                    );
+                  }),
+                  if (_pollOptionControllers.length < 6)
+                    TextButton.icon(
+                      icon: const Icon(Icons.add, size: 16),
+                      label: const Text('Add option'),
+                      onPressed: () => setState(() =>
+                          _pollOptionControllers.add(TextEditingController())),
+                    ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    value: _pollIsAnonymous,
+                    onChanged: (v) => setState(() => _pollIsAnonymous = v),
+                    title: const Text('Anonymous voting',
+                        style: TextStyle(fontSize: 13)),
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                  SwitchListTile(
+                    value: _pollShowResults,
+                    onChanged: (v) => setState(() => _pollShowResults = v),
+                    title: const Text('Show results after vote',
+                        style: TextStyle(fontSize: 13)),
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                  SwitchListTile(
+                    value: _pollAllowChange,
+                    onChanged: (v) => setState(() => _pollAllowChange = v),
+                    title: const Text('Allow vote change',
+                        style: TextStyle(fontSize: 13)),
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                ] else ...[
+                  // Survey questions section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Questions',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                           color: AppColors.textPrimaryDark,
                         ),
                       ),
-                      subtitle: Text(
-                        '${options.length} options',
+                      IconButton(
+                        icon: const Icon(Icons.add_circle_outline,
+                            color: AppColors.secondary),
+                        tooltip: 'Add question',
+                        onPressed: () => _showQuestionEditor(),
+                      ),
+                    ],
+                  ),
+                  if (_questions.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        'No questions added yet',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 12,
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, size: 18),
-                            color: AppColors.textSecondary,
-                            onPressed: () =>
-                                _showQuestionEditor(index: idx, existing: q),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, size: 18),
-                            color: AppColors.error,
-                            onPressed: () {
-                              setState(() => _questions.removeAt(idx));
-                            },
-                          ),
-                        ],
-                      ),
                     ),
-                  );
-                }),
+                  ..._questions.asMap().entries.map((entry) {
+                    final idx = entry.key;
+                    final q = entry.value;
+                    final qType = q['questionType'] ?? 'single_select';
+                    final options = (q['options'] as List?)?.cast<String>() ?? [];
+                    return Card(
+                      color: AppColors.surfaceDark,
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListTile(
+                        dense: true,
+                        title: Text(
+                          q['text'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textPrimaryDark,
+                          ),
+                        ),
+                        subtitle: Text(
+                          _questionSubtitle(qType, options, q),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, size: 18),
+                              color: AppColors.textSecondary,
+                              onPressed: () =>
+                                  _showQuestionEditor(index: idx, existing: q),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, size: 18),
+                              color: AppColors.error,
+                              onPressed: () {
+                                setState(() => _questions.removeAt(idx));
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
                 const SizedBox(height: 8),
                 SwitchListTile(
                   value: _isActive,
@@ -3926,19 +4737,44 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
   double _imageUploadProgress = 0;
   bool _isImageUploading = false;
 
+  // Reward campaign linkage
+  String? _rewardCampaignId;
+  List<Map<String, dynamic>> _rewardCampaigns = [];
+  bool _loadingRewardCampaigns = false;
+
+  // Upload-specific fields (used when earningType == 'upload')
+  late final TextEditingController _uploadPromptController;
+  bool _uploadVideoEnabled = false;
+  bool _uploadImageEnabled = false;
+  bool _uploadTextEnabled = false;
+  bool _uploadVideoRequired = false;
+  bool _uploadImageRequired = false;
+  bool _uploadTextRequired = false;
+  int _uploadVideoMaxSeconds = 60;
+  late final TextEditingController _uploadTextMinCharsController;
+  late final TextEditingController _uploadTextMaxCharsController;
+  bool _requiresAdminReview = false;
+
+  int get _uploadEnabledCount =>
+      [_uploadVideoEnabled, _uploadImageEnabled, _uploadTextEnabled]
+          .where((e) => e)
+          .length;
+
   final _earningTypes = [
     ('video', 'Video'),
+    ('image', 'Image'),
     ('survey', 'Survey'),
-    ('trivia', 'Trivia'),
-    ('rating', 'Rating'),
     ('poll', 'Poll'),
     ('adVideo', 'Ad Video (AdMob)'),
+    ('upload', 'Upload'),
   ];
 
   @override
   void initState() {
     super.initState();
     final o = widget.opportunity;
+    _rewardCampaignId = o['rewardCampaignId'] as String?;
+    _loadRewardCampaigns();
     _existingImageUrl = o['opportunityImage'] as String?;
     _titleController = TextEditingController(text: o['title']?.toString() ?? '');
     _descriptionController =
@@ -3987,6 +4823,22 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
     if (exp is Timestamp) {
       _expiresAt = exp.toDate();
     }
+
+    // Init upload-specific fields from existing data
+    _uploadPromptController =
+        TextEditingController(text: o['uploadPrompt']?.toString() ?? '');
+    _uploadVideoEnabled = o['uploadVideoEnabled'] == true;
+    _uploadImageEnabled = o['uploadImageEnabled'] == true;
+    _uploadTextEnabled = o['uploadTextEnabled'] == true;
+    _uploadVideoRequired = o['uploadVideoRequired'] == true;
+    _uploadImageRequired = o['uploadImageRequired'] == true;
+    _uploadTextRequired = o['uploadTextRequired'] == true;
+    _uploadVideoMaxSeconds = (o['uploadVideoMaxSeconds'] as num?)?.toInt() ?? 60;
+    _uploadTextMinCharsController = TextEditingController(
+        text: (o['uploadTextMinChars'] ?? 10).toString());
+    _uploadTextMaxCharsController = TextEditingController(
+        text: (o['uploadTextMaxChars'] ?? 1500).toString());
+    _requiresAdminReview = o['requiresAdminReview'] == true;
   }
 
   @override
@@ -4003,7 +4855,39 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
     _bonusMultiplierController.dispose();
     _bonusIntervalXController.dispose();
     _tokenBudgetController.dispose();
+    _uploadPromptController.dispose();
+    _uploadTextMinCharsController.dispose();
+    _uploadTextMaxCharsController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadRewardCampaigns() async {
+    setState(() => _loadingRewardCampaigns = true);
+    try {
+      final clientId = widget.opportunity['clientId'] as String?;
+      if (clientId == null) return;
+
+      final snapshot = await FirebaseFirestore.instance
+          .collection('rewardCampaigns')
+          .where('clientId', isEqualTo: clientId)
+          .where('isDeleted', isEqualTo: false)
+          .get();
+
+      if (mounted) {
+        setState(() {
+          _rewardCampaigns = snapshot.docs
+              .map((d) => {'id': d.id, ...d.data()})
+              .where((c) =>
+                  c['status'] == 'draft' ||
+                  c['status'] == 'active')
+              .toList();
+        });
+      }
+    } catch (e) {
+      // Silently fail — reward campaigns are optional
+    } finally {
+      if (mounted) setState(() => _loadingRewardCampaigns = false);
+    }
   }
 
   Future<void> _pickImage() async {
@@ -4119,6 +5003,39 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
         'tokenBudget': _tokenBudgetController.text.trim().isNotEmpty
             ? int.tryParse(_tokenBudgetController.text.trim())
             : null,
+        // Reward campaign linkage
+        'rewardCampaignId': _rewardCampaignId,
+        if (_rewardCampaignId != null) ...{
+          'rewardCampaignName': _rewardCampaigns
+              .firstWhere((c) => c['id'] == _rewardCampaignId,
+                  orElse: () => {})['name'],
+          'rewardType': _rewardCampaigns
+              .firstWhere((c) => c['id'] == _rewardCampaignId,
+                  orElse: () => {})['rewardType'],
+        },
+        if (_rewardCampaignId == null) ...{
+          'rewardCampaignName': null,
+          'rewardType': null,
+        },
+        // Upload-specific fields
+        if (_earningType == 'upload') ...{
+          'uploadPrompt': _uploadPromptController.text.trim(),
+          'uploadVideoEnabled': _uploadVideoEnabled,
+          'uploadImageEnabled': _uploadImageEnabled,
+          'uploadTextEnabled': _uploadTextEnabled,
+          'uploadVideoRequired': _uploadVideoRequired ||
+              (_uploadEnabledCount == 1 && _uploadVideoEnabled),
+          'uploadImageRequired': _uploadImageRequired ||
+              (_uploadEnabledCount == 1 && _uploadImageEnabled),
+          'uploadTextRequired': _uploadTextRequired ||
+              (_uploadEnabledCount == 1 && _uploadTextEnabled),
+          'uploadVideoMaxSeconds': _uploadVideoMaxSeconds,
+          'uploadTextMinChars':
+              int.tryParse(_uploadTextMinCharsController.text) ?? 10,
+          'uploadTextMaxChars':
+              int.tryParse(_uploadTextMaxCharsController.text) ?? 1500,
+          'requiresAdminReview': _requiresAdminReview,
+        },
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
@@ -4425,6 +5342,36 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                   ],
                 ),
                 const SizedBox(height: 16),
+                // Reward Campaign Linkage (optional)
+                if (_loadingRewardCampaigns)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: LinearProgressIndicator(),
+                  )
+                else if (_rewardCampaigns.isNotEmpty) ...[
+                  DropdownButtonFormField<String?>(
+                    value: _rewardCampaignId,
+                    decoration: const InputDecoration(
+                      labelText: 'Reward Campaign (optional)',
+                      hintText: 'Link an inventory reward',
+                    ),
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text('None'),
+                      ),
+                      ..._rewardCampaigns.map((c) => DropdownMenuItem<String?>(
+                            value: c['id'] as String,
+                            child: Text(
+                              '${c['name']} (${c['remainingQuantity']}/${c['totalQuantity']} left)',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )),
+                    ],
+                    onChanged: (v) => setState(() => _rewardCampaignId = v),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 // AdMob fields
                 if (_earningType == 'adVideo') ...[
                   TextFormField(
@@ -4437,6 +5384,167 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                             (v == null || v.trim().isEmpty)
                         ? 'Required for Ad Video type'
                         : null,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                // Upload config fields (shown for upload type)
+                if (_earningType == 'upload') ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Upload Configuration',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _uploadPromptController,
+                          decoration: const InputDecoration(
+                            labelText: 'Prompt / Question *',
+                            hintText:
+                                'What question should the user respond to?',
+                          ),
+                          maxLines: 3,
+                          validator: (v) => _earningType == 'upload' &&
+                                  (v == null || v.trim().isEmpty)
+                              ? 'Prompt is required for upload type'
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('Allowed response types:',
+                            style: TextStyle(fontSize: 13)),
+                        const SizedBox(height: 8),
+                        CheckboxListTile(
+                          title: const Text('Video Recording'),
+                          value: _uploadVideoEnabled,
+                          dense: true,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged: (v) =>
+                              setState(() => _uploadVideoEnabled = v ?? false),
+                        ),
+                        if (_uploadVideoEnabled) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(left: 40),
+                            child: DropdownButtonFormField<int>(
+                              value: _uploadVideoMaxSeconds,
+                              decoration: const InputDecoration(
+                                labelText: 'Max Video Duration',
+                                isDense: true,
+                              ),
+                              items: const [
+                                DropdownMenuItem(
+                                    value: 30, child: Text('30 seconds')),
+                                DropdownMenuItem(
+                                    value: 60, child: Text('60 seconds')),
+                                DropdownMenuItem(
+                                    value: 120, child: Text('120 seconds')),
+                              ],
+                              onChanged: (v) {
+                                if (v != null) {
+                                  setState(() => _uploadVideoMaxSeconds = v);
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                        CheckboxListTile(
+                          title: const Text('Image Capture'),
+                          value: _uploadImageEnabled,
+                          dense: true,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged: (v) =>
+                              setState(() => _uploadImageEnabled = v ?? false),
+                        ),
+                        CheckboxListTile(
+                          title: const Text('Text Response'),
+                          value: _uploadTextEnabled,
+                          dense: true,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged: (v) =>
+                              setState(() => _uploadTextEnabled = v ?? false),
+                        ),
+                        if (_uploadTextEnabled) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(left: 40),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _uploadTextMinCharsController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Min chars',
+                                      isDense: true,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _uploadTextMaxCharsController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Max chars',
+                                      isDense: true,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                        // Required toggles (shown when 2+ types enabled)
+                        if (_uploadEnabledCount >= 2) ...[
+                          const Divider(),
+                          const Text('Required fields:',
+                              style: TextStyle(fontSize: 13)),
+                          if (_uploadVideoEnabled)
+                            CheckboxListTile(
+                              title: const Text('Video required'),
+                              value: _uploadVideoRequired,
+                              dense: true,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              onChanged: (v) => setState(
+                                  () => _uploadVideoRequired = v ?? false),
+                            ),
+                          if (_uploadImageEnabled)
+                            CheckboxListTile(
+                              title: const Text('Image required'),
+                              value: _uploadImageRequired,
+                              dense: true,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              onChanged: (v) => setState(
+                                  () => _uploadImageRequired = v ?? false),
+                            ),
+                          if (_uploadTextEnabled)
+                            CheckboxListTile(
+                              title: const Text('Text required'),
+                              value: _uploadTextRequired,
+                              dense: true,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              onChanged: (v) => setState(
+                                  () => _uploadTextRequired = v ?? false),
+                            ),
+                        ],
+                        const Divider(),
+                        CheckboxListTile(
+                          title: const Text('Require Admin Review'),
+                          subtitle:
+                              const Text('Tokens held until admin approves'),
+                          value: _requiresAdminReview,
+                          dense: true,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          onChanged: (v) => setState(
+                              () => _requiresAdminReview = v ?? false),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -4953,13 +6061,38 @@ class _EditVideoDialogState extends State<_EditVideoDialog> {
 }
 
 // ---------------------------------------------------------------------------
+// Question subtitle helper (used by both Create and Edit question lists)
+// ---------------------------------------------------------------------------
+
+String _questionSubtitle(
+    String qType, List<String> options, Map<String, dynamic> q) {
+  const labels = {
+    'single_select': 'Single Select',
+    'multi_select': 'Multi Select',
+    'text_input': 'Text Input',
+    'likert': 'Likert',
+    'star_tags': 'Star + Tags',
+    'slider': 'Slider',
+  };
+  final label = labels[qType] ?? qType;
+  final parts = <String>[label];
+  if (options.isNotEmpty) parts.add('${options.length} options');
+  if (q['isAttentionCheck'] == true) parts.add('attention check');
+  final rules = (q['branchRules'] as List?) ?? [];
+  if (rules.isNotEmpty) parts.add('branching');
+  return parts.join(' · ');
+}
+
+// ---------------------------------------------------------------------------
 // Question Editor Dialog (used by both Create and Edit flows)
 // ---------------------------------------------------------------------------
 
 class _QuestionEditorDialog extends StatefulWidget {
   final Map<String, dynamic>? existing;
+  /// All questions in the survey (for branch rule target selection)
+  final List<Map<String, dynamic>> allQuestions;
 
-  const _QuestionEditorDialog({this.existing});
+  const _QuestionEditorDialog({this.existing, this.allQuestions = const []});
 
   @override
   State<_QuestionEditorDialog> createState() => _QuestionEditorDialogState();
@@ -4971,22 +6104,108 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
   bool _isAttentionCheck = false;
   String? _correctAnswer;
 
+  // Question type
+  String _questionType = 'single_select';
+  bool _isRequired = true;
+
+  // multi_select
+  final _maxSelectionsController = TextEditingController();
+
+  // text_input
+  final _textInputCountController = TextEditingController(text: '1');
+  final _textMaxLengthController = TextEditingController(text: '50');
+
+  // likert
+  final _likertLowController = TextEditingController();
+  final _likertHighController = TextEditingController();
+
+  // star_tags
+  final List<TextEditingController> _tagControllers = [];
+  final _maxTagsController = TextEditingController();
+
+  // slider
+  final _sliderMinController = TextEditingController(text: '0');
+  final _sliderMaxController = TextEditingController(text: '100');
+  final _sliderStepController = TextEditingController(text: '1');
+  final _sliderMinLabelController = TextEditingController();
+  final _sliderMaxLabelController = TextEditingController();
+
+  // branch rules: optionIndex -> target questionId (null = next)
+  final Map<int, String?> _branchRules = {};
+
+  static const _typeLabels = {
+    'single_select': 'Single Select',
+    'multi_select': 'Multi Select',
+    'text_input': 'Text Input',
+    'likert': 'Likert Scale',
+    'star_tags': 'Star + Tags',
+    'slider': 'Slider',
+  };
+
   @override
   void initState() {
     super.initState();
     if (widget.existing != null) {
-      _textController.text = widget.existing!['text'] ?? '';
-      _isAttentionCheck = widget.existing!['isAttentionCheck'] == true;
-      _correctAnswer = widget.existing!['correctAnswer'] as String?;
-      final options =
-          (widget.existing!['options'] as List?)?.cast<String>() ?? [];
+      final e = widget.existing!;
+      _textController.text = e['text'] ?? '';
+      _questionType = e['questionType'] ?? 'single_select';
+      _isRequired = e['isRequired'] ?? e['required'] ?? true;
+      _isAttentionCheck = e['isAttentionCheck'] == true;
+      _correctAnswer = e['correctAnswer'] as String?;
+
+      final options = (e['options'] as List?)?.cast<String>() ?? [];
       for (final opt in options) {
         _optionControllers.add(TextEditingController(text: opt));
       }
+
+      // multi_select
+      if (e['maxSelections'] != null) {
+        _maxSelectionsController.text = e['maxSelections'].toString();
+      }
+
+      // text_input
+      _textInputCountController.text =
+          (e['textInputCount'] ?? 1).toString();
+      _textMaxLengthController.text =
+          (e['textMaxLength'] ?? 50).toString();
+
+      // likert
+      _likertLowController.text = e['likertLowLabel'] ?? '';
+      _likertHighController.text = e['likertHighLabel'] ?? '';
+
+      // star_tags
+      final tags = (e['tags'] as List?)?.cast<String>() ?? [];
+      for (final t in tags) {
+        _tagControllers.add(TextEditingController(text: t));
+      }
+      if (e['maxTags'] != null) {
+        _maxTagsController.text = e['maxTags'].toString();
+      }
+
+      // slider
+      _sliderMinController.text = (e['sliderMin'] ?? 0).toString();
+      _sliderMaxController.text = (e['sliderMax'] ?? 100).toString();
+      _sliderStepController.text = (e['sliderStep'] ?? 1).toString();
+      _sliderMinLabelController.text = e['sliderMinLabel'] ?? '';
+      _sliderMaxLabelController.text = e['sliderMaxLabel'] ?? '';
+
+      // branch rules
+      final rules = (e['branchRules'] as List?) ?? [];
+      for (final r in rules) {
+        final optVal = r['optionValue'] as String?;
+        final target = r['goToQuestionId'] as String?;
+        if (optVal != null) {
+          final idx = options.indexOf(optVal);
+          if (idx >= 0) _branchRules[idx] = target;
+        }
+      }
     }
-    // Ensure at least 2 option fields
-    while (_optionControllers.length < 2) {
-      _optionControllers.add(TextEditingController());
+
+    // Ensure at least 2 option fields for select types
+    if (_questionType == 'single_select' || _questionType == 'multi_select') {
+      while (_optionControllers.length < 2) {
+        _optionControllers.add(TextEditingController());
+      }
     }
   }
 
@@ -4996,6 +6215,20 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
     for (final c in _optionControllers) {
       c.dispose();
     }
+    _maxSelectionsController.dispose();
+    _textInputCountController.dispose();
+    _textMaxLengthController.dispose();
+    _likertLowController.dispose();
+    _likertHighController.dispose();
+    for (final c in _tagControllers) {
+      c.dispose();
+    }
+    _maxTagsController.dispose();
+    _sliderMinController.dispose();
+    _sliderMaxController.dispose();
+    _sliderStepController.dispose();
+    _sliderMinLabelController.dispose();
+    _sliderMaxLabelController.dispose();
     super.dispose();
   }
 
@@ -5011,31 +6244,138 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
       if (_correctAnswer == removed.text) {
         _correctAnswer = null;
       }
+      _branchRules.remove(index);
+      // Shift branch rules for indices above removed
+      final shifted = <int, String?>{};
+      for (final entry in _branchRules.entries) {
+        if (entry.key > index) {
+          shifted[entry.key - 1] = entry.value;
+        } else {
+          shifted[entry.key] = entry.value;
+        }
+      }
+      _branchRules
+        ..clear()
+        ..addAll(shifted);
       removed.dispose();
     });
   }
+
+  void _addTag() {
+    setState(() => _tagControllers.add(TextEditingController()));
+  }
+
+  void _removeTag(int index) {
+    setState(() {
+      final removed = _tagControllers.removeAt(index);
+      removed.dispose();
+    });
+  }
+
+  bool get _needsOptions =>
+      _questionType == 'single_select' || _questionType == 'multi_select';
 
   void _handleSave() {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
 
-    final options = _optionControllers
-        .map((c) => c.text.trim())
-        .where((t) => t.isNotEmpty)
-        .toList();
-    if (options.length < 2) return;
+    if (_needsOptions) {
+      final optCount = _optionControllers
+          .where((c) => c.text.trim().isNotEmpty)
+          .length;
+      if (optCount < 2) return;
+    }
 
     final id = widget.existing?['id'] ??
         'q_${DateTime.now().millisecondsSinceEpoch}';
 
-    Navigator.of(context).pop(<String, dynamic>{
+    final options = _optionControllers
+        .map((c) => c.text.trim())
+        .where((t) => t.isNotEmpty)
+        .toList();
+
+    final result = <String, dynamic>{
       'id': id,
       'text': text,
-      'options': options,
       'orderIndex': widget.existing?['orderIndex'] ?? 0,
-      'isAttentionCheck': _isAttentionCheck,
-      'correctAnswer': _isAttentionCheck ? _correctAnswer : null,
-    });
+      'questionType': _questionType,
+      'isRequired': _isRequired,
+    };
+
+    // Type-specific fields
+    switch (_questionType) {
+      case 'single_select':
+        result['options'] = options;
+        result['isAttentionCheck'] = _isAttentionCheck;
+        result['correctAnswer'] =
+            _isAttentionCheck ? _correctAnswer : null;
+        // Branch rules
+        final rules = <Map<String, dynamic>>[];
+        for (final entry in _branchRules.entries) {
+          if (entry.value != null && entry.key < options.length) {
+            rules.add({
+              'optionValue': options[entry.key],
+              'goToQuestionId': entry.value,
+            });
+          }
+        }
+        if (rules.isNotEmpty) result['branchRules'] = rules;
+        break;
+      case 'multi_select':
+        result['options'] = options;
+        final maxSel = int.tryParse(_maxSelectionsController.text.trim());
+        if (maxSel != null && maxSel > 0) {
+          result['maxSelections'] = maxSel;
+        }
+        break;
+      case 'text_input':
+        result['textInputCount'] =
+            int.tryParse(_textInputCountController.text.trim()) ?? 1;
+        result['textMaxLength'] =
+            int.tryParse(_textMaxLengthController.text.trim()) ?? 50;
+        break;
+      case 'likert':
+        result['likertScale'] = 5;
+        final low = _likertLowController.text.trim();
+        final high = _likertHighController.text.trim();
+        if (low.isNotEmpty) result['likertLowLabel'] = low;
+        if (high.isNotEmpty) result['likertHighLabel'] = high;
+        break;
+      case 'star_tags':
+        result['maxStars'] = 5;
+        final tags = _tagControllers
+            .map((c) => c.text.trim())
+            .where((t) => t.isNotEmpty)
+            .toList();
+        if (tags.isNotEmpty) result['tags'] = tags;
+        final maxTags = int.tryParse(_maxTagsController.text.trim());
+        if (maxTags != null && maxTags > 0) {
+          result['maxTags'] = maxTags;
+        }
+        break;
+      case 'slider':
+        result['sliderMin'] =
+            int.tryParse(_sliderMinController.text.trim()) ?? 0;
+        result['sliderMax'] =
+            int.tryParse(_sliderMaxController.text.trim()) ?? 100;
+        result['sliderStep'] =
+            int.tryParse(_sliderStepController.text.trim()) ?? 1;
+        final minLabel = _sliderMinLabelController.text.trim();
+        final maxLabel = _sliderMaxLabelController.text.trim();
+        if (minLabel.isNotEmpty) result['sliderMinLabel'] = minLabel;
+        if (maxLabel.isNotEmpty) result['sliderMaxLabel'] = maxLabel;
+        break;
+    }
+
+    Navigator.of(context).pop(result);
+  }
+
+  /// Other questions available as branch targets
+  List<Map<String, dynamic>> get _branchTargets {
+    final currentId = widget.existing?['id'];
+    return widget.allQuestions
+        .where((q) => q['id'] != currentId)
+        .toList();
   }
 
   @override
@@ -5047,12 +6387,46 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
         style: const TextStyle(color: AppColors.textPrimaryDark),
       ),
       content: SizedBox(
-        width: 400,
+        width: 450,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Question type selector
+              DropdownButtonFormField<String>(
+                value: _questionType,
+                decoration:
+                    const InputDecoration(labelText: 'Question type'),
+                items: _typeLabels.entries
+                    .map((e) => DropdownMenuItem(
+                          value: e.key,
+                          child: Text(e.value),
+                        ))
+                    .toList(),
+                onChanged: (v) {
+                  if (v == null) return;
+                  setState(() {
+                    _questionType = v;
+                    // Ensure min options for select types
+                    if (_needsOptions &&
+                        _optionControllers.length < 2) {
+                      while (_optionControllers.length < 2) {
+                        _optionControllers
+                            .add(TextEditingController());
+                      }
+                    }
+                    // Reset attention check for non-single_select
+                    if (v != 'single_select') {
+                      _isAttentionCheck = false;
+                      _correctAnswer = null;
+                      _branchRules.clear();
+                    }
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              // Question text
               TextField(
                 controller: _textController,
                 decoration: const InputDecoration(
@@ -5061,81 +6435,30 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
                 ),
                 maxLines: 2,
               ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Options (${_optionControllers.length})',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimaryDark,
-                    ),
-                  ),
-                  if (_optionControllers.length < 6)
-                    TextButton.icon(
-                      icon: const Icon(Icons.add, size: 16),
-                      label: const Text('Add'),
-                      onPressed: _addOption,
-                    ),
-                ],
-              ),
               const SizedBox(height: 8),
-              ...List.generate(_optionControllers.length, (i) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _optionControllers[i],
-                          decoration: InputDecoration(
-                            labelText: 'Option ${i + 1}',
-                            isDense: true,
-                          ),
-                        ),
-                      ),
-                      if (_optionControllers.length > 2)
-                        IconButton(
-                          icon: const Icon(Icons.close, size: 16),
-                          color: AppColors.error,
-                          onPressed: () => _removeOption(i),
-                        ),
-                    ],
-                  ),
-                );
-              }),
-              const SizedBox(height: 12),
+              // Required toggle
               SwitchListTile(
-                value: _isAttentionCheck,
-                onChanged: (v) => setState(() {
-                  _isAttentionCheck = v;
-                  if (!v) _correctAnswer = null;
-                }),
-                title: const Text('Attention check',
+                value: _isRequired,
+                onChanged: (v) => setState(() => _isRequired = v),
+                title: const Text('Required',
                     style: TextStyle(fontSize: 13)),
-                subtitle: const Text('Require a specific correct answer',
-                    style: TextStyle(fontSize: 11)),
                 contentPadding: EdgeInsets.zero,
                 dense: true,
               ),
-              if (_isAttentionCheck) ...[
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  initialValue: _correctAnswer,
-                  decoration:
-                      const InputDecoration(labelText: 'Correct answer'),
-                  items: _optionControllers
-                      .where((c) => c.text.trim().isNotEmpty)
-                      .map((c) => DropdownMenuItem(
-                            value: c.text.trim(),
-                            child: Text(c.text.trim()),
-                          ))
-                      .toList(),
-                  onChanged: (v) => setState(() => _correctAnswer = v),
-                ),
-              ],
+              const SizedBox(height: 8),
+
+              // === TYPE-SPECIFIC CONFIG ===
+              if (_needsOptions) ..._buildOptionsSection(),
+              if (_questionType == 'single_select')
+                ..._buildSingleSelectExtras(),
+              if (_questionType == 'multi_select')
+                ..._buildMultiSelectExtras(),
+              if (_questionType == 'text_input')
+                ..._buildTextInputConfig(),
+              if (_questionType == 'likert') ..._buildLikertConfig(),
+              if (_questionType == 'star_tags')
+                ..._buildStarTagsConfig(),
+              if (_questionType == 'slider') ..._buildSliderConfig(),
             ],
           ),
         ),
@@ -5154,6 +6477,356 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
         ),
       ],
     );
+  }
+
+  // --- Options section (shared by single_select + multi_select) ---
+  List<Widget> _buildOptionsSection() {
+    return [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Options (${_optionControllers.length})',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimaryDark,
+            ),
+          ),
+          if (_optionControllers.length < 6)
+            TextButton.icon(
+              icon: const Icon(Icons.add, size: 16),
+              label: const Text('Add'),
+              onPressed: _addOption,
+            ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      ...List.generate(_optionControllers.length, (i) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _optionControllers[i],
+                  decoration: InputDecoration(
+                    labelText: 'Option ${i + 1}',
+                    isDense: true,
+                  ),
+                ),
+              ),
+              if (_optionControllers.length > 2)
+                IconButton(
+                  icon: const Icon(Icons.close, size: 16),
+                  color: AppColors.error,
+                  onPressed: () => _removeOption(i),
+                ),
+            ],
+          ),
+        );
+      }),
+      const SizedBox(height: 8),
+    ];
+  }
+
+  // --- Single select extras: attention check + branching ---
+  List<Widget> _buildSingleSelectExtras() {
+    return [
+      SwitchListTile(
+        value: _isAttentionCheck,
+        onChanged: (v) => setState(() {
+          _isAttentionCheck = v;
+          if (!v) _correctAnswer = null;
+        }),
+        title: const Text('Attention check',
+            style: TextStyle(fontSize: 13)),
+        subtitle: const Text('Require a specific correct answer',
+            style: TextStyle(fontSize: 11)),
+        contentPadding: EdgeInsets.zero,
+        dense: true,
+      ),
+      if (_isAttentionCheck) ...[
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: _correctAnswer,
+          decoration:
+              const InputDecoration(labelText: 'Correct answer'),
+          items: _optionControllers
+              .where((c) => c.text.trim().isNotEmpty)
+              .map((c) => DropdownMenuItem(
+                    value: c.text.trim(),
+                    child: Text(c.text.trim()),
+                  ))
+              .toList(),
+          onChanged: (v) => setState(() => _correctAnswer = v),
+        ),
+      ],
+      // Branch rules
+      if (_branchTargets.isNotEmpty) ...[
+        const SizedBox(height: 16),
+        const Text(
+          'Branch Rules',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimaryDark,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Optionally skip to a specific question based on selection',
+          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 8),
+        ...List.generate(_optionControllers.length, (i) {
+          final optText = _optionControllers[i].text.trim();
+          if (optText.isEmpty) return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 120,
+                  child: Text(
+                    optText,
+                    style: const TextStyle(fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Icon(Icons.arrow_forward, size: 14),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    value: _branchRules[i],
+                    decoration: const InputDecoration(
+                      hintText: 'Next (default)',
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 8),
+                    ),
+                    isExpanded: true,
+                    items: [
+                      const DropdownMenuItem<String>(
+                        value: null,
+                        child: Text('Next (default)',
+                            style: TextStyle(fontSize: 12)),
+                      ),
+                      ..._branchTargets.map((q) => DropdownMenuItem(
+                            value: q['id'] as String,
+                            child: Text(
+                              q['text'] as String? ?? q['id'] as String,
+                              style: const TextStyle(fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )),
+                    ],
+                    onChanged: (v) =>
+                        setState(() => _branchRules[i] = v),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    ];
+  }
+
+  // --- Multi select extras ---
+  List<Widget> _buildMultiSelectExtras() {
+    return [
+      TextField(
+        controller: _maxSelectionsController,
+        decoration: const InputDecoration(
+          labelText: 'Max selections (optional)',
+          hintText: 'e.g., 3 = "select up to 3"',
+          isDense: true,
+        ),
+        keyboardType: TextInputType.number,
+      ),
+      const SizedBox(height: 8),
+    ];
+  }
+
+  // --- Text input config ---
+  List<Widget> _buildTextInputConfig() {
+    return [
+      TextField(
+        controller: _textInputCountController,
+        decoration: const InputDecoration(
+          labelText: 'Number of text fields',
+          hintText: '1-5',
+          isDense: true,
+        ),
+        keyboardType: TextInputType.number,
+      ),
+      const SizedBox(height: 8),
+      TextField(
+        controller: _textMaxLengthController,
+        decoration: const InputDecoration(
+          labelText: 'Max characters per field',
+          hintText: 'Default: 50',
+          isDense: true,
+        ),
+        keyboardType: TextInputType.number,
+      ),
+      const SizedBox(height: 8),
+    ];
+  }
+
+  // --- Likert config ---
+  List<Widget> _buildLikertConfig() {
+    return [
+      Text(
+        '5-point scale',
+        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+      ),
+      const SizedBox(height: 8),
+      TextField(
+        controller: _likertLowController,
+        decoration: const InputDecoration(
+          labelText: 'Low label (1)',
+          hintText: 'e.g., Strongly Disagree',
+          isDense: true,
+        ),
+      ),
+      const SizedBox(height: 8),
+      TextField(
+        controller: _likertHighController,
+        decoration: const InputDecoration(
+          labelText: 'High label (5)',
+          hintText: 'e.g., Strongly Agree',
+          isDense: true,
+        ),
+      ),
+      const SizedBox(height: 8),
+    ];
+  }
+
+  // --- Star + Tags config ---
+  List<Widget> _buildStarTagsConfig() {
+    return [
+      Text(
+        '5-star rating + selectable tags',
+        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+      ),
+      const SizedBox(height: 8),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Tags (${_tagControllers.length})',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimaryDark,
+            ),
+          ),
+          TextButton.icon(
+            icon: const Icon(Icons.add, size: 16),
+            label: const Text('Add tag'),
+            onPressed: _addTag,
+          ),
+        ],
+      ),
+      ...List.generate(_tagControllers.length, (i) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _tagControllers[i],
+                  decoration: InputDecoration(
+                    labelText: 'Tag ${i + 1}',
+                    hintText: 'e.g., Fast delivery',
+                    isDense: true,
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, size: 16),
+                color: AppColors.error,
+                onPressed: () => _removeTag(i),
+              ),
+            ],
+          ),
+        );
+      }),
+      const SizedBox(height: 8),
+      TextField(
+        controller: _maxTagsController,
+        decoration: const InputDecoration(
+          labelText: 'Max tags (optional)',
+          hintText: 'Leave empty for unlimited',
+          isDense: true,
+        ),
+        keyboardType: TextInputType.number,
+      ),
+      const SizedBox(height: 8),
+    ];
+  }
+
+  // --- Slider config ---
+  List<Widget> _buildSliderConfig() {
+    return [
+      Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _sliderMinController,
+              decoration: const InputDecoration(
+                labelText: 'Min value',
+                isDense: true,
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextField(
+              controller: _sliderMaxController,
+              decoration: const InputDecoration(
+                labelText: 'Max value',
+                isDense: true,
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextField(
+              controller: _sliderStepController,
+              decoration: const InputDecoration(
+                labelText: 'Step',
+                isDense: true,
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      TextField(
+        controller: _sliderMinLabelController,
+        decoration: const InputDecoration(
+          labelText: 'Min label (optional)',
+          hintText: 'e.g., Not at all',
+          isDense: true,
+        ),
+      ),
+      const SizedBox(height: 8),
+      TextField(
+        controller: _sliderMaxLabelController,
+        decoration: const InputDecoration(
+          labelText: 'Max label (optional)',
+          hintText: 'e.g., Extremely',
+          isDense: true,
+        ),
+      ),
+      const SizedBox(height: 8),
+    ];
   }
 }
 
@@ -5192,7 +6865,7 @@ class _EditQuestionsDialogState extends State<_EditQuestionsDialog> {
       {int? index, Map<String, dynamic>? existing}) async {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (ctx) => _QuestionEditorDialog(existing: existing),
+      builder: (ctx) => _QuestionEditorDialog(existing: existing, allQuestions: _questions),
     );
     if (result != null) {
       setState(() {
@@ -5288,6 +6961,7 @@ class _EditQuestionsDialogState extends State<_EditQuestionsDialog> {
               ..._questions.asMap().entries.map((entry) {
                 final idx = entry.key;
                 final q = entry.value;
+                final qType = q['questionType'] ?? 'single_select';
                 final options =
                     (q['options'] as List?)?.cast<String>() ?? [];
                 return Card(
@@ -5303,7 +6977,7 @@ class _EditQuestionsDialogState extends State<_EditQuestionsDialog> {
                       ),
                     ),
                     subtitle: Text(
-                      '${options.length} options${q['isAttentionCheck'] == true ? ' · attention check' : ''}',
+                      _questionSubtitle(qType, options, q),
                       style: TextStyle(
                         fontSize: 11,
                         color: AppColors.textSecondary,

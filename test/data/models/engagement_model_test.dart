@@ -42,6 +42,7 @@ void main() {
         final now = DateTime.now();
         final model = EngagementAnswerModel(
           questionId: 'q1',
+          questionType: 'single_select',
           selectedOption: 'Answer',
           answeredAt: now,
           isCorrect: false,
@@ -61,6 +62,7 @@ void main() {
         final now = DateTime.now();
         final entity = EngagementAnswer(
           questionId: 'q2',
+          questionType: 'single_select',
           selectedOption: 'Selected',
           answeredAt: now,
           isCorrect: true,
@@ -79,6 +81,7 @@ void main() {
         final now = DateTime.now();
         final model = EngagementAnswerModel(
           questionId: 'q1',
+          questionType: 'single_select',
           selectedOption: 'Answer',
           answeredAt: now,
           isCorrect: true,
@@ -95,6 +98,7 @@ void main() {
       test('omits null isCorrect', () {
         final model = EngagementAnswerModel(
           questionId: 'q1',
+          questionType: 'single_select',
           selectedOption: 'Answer',
           answeredAt: DateTime.now(),
         );
@@ -510,12 +514,14 @@ void main() {
           answers: [
             EngagementAnswer(
               questionId: 'q1',
+              questionType: 'single_select',
               selectedOption: 'Option A',
               answeredAt: now,
               isCorrect: true,
             ),
             EngagementAnswer(
               questionId: 'q2',
+              questionType: 'single_select',
               selectedOption: 'Option B',
               answeredAt: now,
             ),
@@ -647,6 +653,7 @@ void main() {
           answers: [
             EngagementAnswerModel(
               questionId: 'q1',
+              questionType: 'single_select',
               selectedOption: 'A',
               answeredAt: now,
             ),
@@ -774,6 +781,7 @@ void main() {
           answers: [
             EngagementAnswer(
               questionId: 'q1',
+              questionType: 'single_select',
               selectedOption: 'A',
               answeredAt: now.add(const Duration(seconds: 45)),
               isCorrect: true,

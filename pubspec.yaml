@@ -92,6 +92,12 @@ dependencies:
   # File Picker (web-compatible, used for admin video uploads)
   file_picker: ^8.0.0
 
+  # Camera (for upload video recording)
+  camera: ^0.11.0+2
+
+  # Video compression (min variant = smallest binary size)
+  ffmpeg_kit_flutter_min: ^6.0.3
+
   # Device Info (for fraud prevention)
   device_info_plus: ^10.1.2
 
@@ -112,6 +118,7 @@ dependencies:
 
   # Google AdMob for rewarded video ads
   google_mobile_ads: ^7.0.0
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:

@@ -22,6 +22,9 @@ class UserProfile with _$UserProfile {
     List<String>? languages,
     /// Interest categories (e.g. ['sports', 'tech'])
     List<String>? interests,
+    // POPIA consent
+    /// Whether user has consented to receiving reward items
+    @Default(false) bool rewardConsent,
   }) = _UserProfile;
 
   const UserProfile._();

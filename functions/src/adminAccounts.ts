@@ -204,6 +204,11 @@ export const adminCreateClient = functions.https.onCall(
       avatarColor?: string;
       brandAccountTypeId?: string;
       budgetWarningThreshold?: number;
+      isRewardSponsor?: boolean;
+      rewardWebhookSecret?: string;
+      rewardMetadata?: Record<string, unknown>;
+      isPinned?: boolean;
+      isFeatured?: boolean;
     },
     context
   ) => {
@@ -224,6 +229,11 @@ export const adminCreateClient = functions.https.onCall(
       avatarColor,
       brandAccountTypeId,
       budgetWarningThreshold,
+      isRewardSponsor,
+      rewardWebhookSecret,
+      rewardMetadata,
+      isPinned,
+      isFeatured,
     } = data;
 
     if (!clientId || !companyName || !contactEmail || !contactName) {
@@ -272,6 +282,13 @@ export const adminCreateClient = functions.https.onCall(
       avatarColor: avatarColor || null,
       brandAccountTypeId: brandAccountTypeId || null,
       budgetWarningThreshold: budgetWarningThreshold ?? 0.20,
+      // Reward sponsor fields
+      isRewardSponsor: isRewardSponsor ?? false,
+      rewardWebhookSecret: rewardWebhookSecret || null,
+      rewardMetadata: rewardMetadata || {},
+      // Inbox display flags
+      isPinned: isPinned ?? false,
+      isFeatured: isFeatured ?? false,
       // Campaign stats
       totalCampaigns: 0,
       activeCampaigns: 0,
@@ -343,6 +360,7 @@ export const adminListClients = functions.https.onCall(async (data, context) => 
         totalCampaigns: profile?.totalCampaigns || 0,
         activeCampaigns: profile?.activeCampaigns || 0,
         totalSpent: profile?.totalSpent || 0,
+        isRewardSponsor: profile?.isRewardSponsor || false,
         createdAt: account.createdAt,
       };
     })
@@ -439,6 +457,12 @@ export const adminUpdateClient = functions.https.onCall(
         avatarColor?: string;
         brandAccountTypeId?: string;
         budgetWarningThreshold?: number;
+        isRewardSponsor?: boolean;
+        rewardWebhookSecret?: string;
+        rewardMetadata?: Record<string, unknown>;
+        sponsorUserId?: string;
+        isPinned?: boolean;
+        isFeatured?: boolean;
       };
     },
     context
@@ -455,9 +479,34 @@ export const adminUpdateClient = functions.https.onCall(
       throw new functions.https.HttpsError("not-found", "Client not found");
     }
 
+    // If sponsorUserId is provided, set custom claim so the user can access
+    // their own campaign reports via getSponsorCampaignReport
+    if (updates.sponsorUserId) {
+      try {
+        await admin.auth().setCustomUserClaims(updates.sponsorUserId, {
+          ...(
+            await admin.auth().getUser(updates.sponsorUserId)
+          ).customClaims,
+          sponsorClientId: clientId,
+        });
+      } catch (claimErr) {
+        functions.logger.warn("Failed to set sponsor claim", {
+          userId: updates.sponsorUserId,
+          error: claimErr,
+        });
+        throw new functions.https.HttpsError(
+          "not-found",
+          "Sponsor user not found in Firebase Auth"
+        );
+      }
+    }
+
+    // Remove sponsorUserId from Firestore updates (it's an Auth claim, not a profile field)
+    const { sponsorUserId: _unused, ...profileUpdates } = updates;
+
     // Update profile
     await db.collection("clients").doc(clientId).update({
-      ...updates,
+      ...profileUpdates,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -495,6 +544,34 @@ export const adminUpdateClient = functions.https.onCall(
           batch.update(doc.ref, threadUpdates);
         }
         await batch.commit();
+      }
+
+      // Also cascade to rewardCampaigns linked to this client
+      const campaignsSnapshot = await db
+        .collection("rewardCampaigns")
+        .where("clientId", "==", clientId)
+        .where("isDeleted", "==", false)
+        .get();
+
+      if (!campaignsSnapshot.empty) {
+        const campaignBatch = db.batch();
+        const campaignUpdates: Record<string, unknown> = {
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+        if (updates.displayName !== undefined) {
+          campaignUpdates.clientName = updates.displayName;
+        }
+        if (updates.avatarImage !== undefined) {
+          campaignUpdates.clientAvatarImage = updates.avatarImage;
+        }
+        if (updates.avatarColor !== undefined) {
+          campaignUpdates.clientAvatarColor = updates.avatarColor;
+        }
+
+        for (const doc of campaignsSnapshot.docs) {
+          campaignBatch.update(doc.ref, campaignUpdates);
+        }
+        await campaignBatch.commit();
       }
     }
 

@@ -69,12 +69,13 @@ describe("Targeting Validation", () => {
     });
 
     it("should have earning types", () => {
-      expect(EARNING_TYPES).toContain("survey");
       expect(EARNING_TYPES).toContain("video");
-      expect(EARNING_TYPES).toContain("trivia");
-      expect(EARNING_TYPES).toContain("rating");
+      expect(EARNING_TYPES).toContain("image");
+      expect(EARNING_TYPES).toContain("survey");
       expect(EARNING_TYPES).toContain("poll");
-      expect(EARNING_TYPES).toContain("adVideo"); // AdMob rewarded video
+      expect(EARNING_TYPES).toContain("adVideo");
+      expect(EARNING_TYPES).toContain("upload");
+      expect(EARNING_TYPES).toHaveLength(6);
     });
 
     it("should have brand interaction options", () => {
@@ -475,12 +476,16 @@ describe("Targeting Validation", () => {
       expect(validateEarningType("video")).toBe(true);
     });
 
-    it("should return true for trivia", () => {
-      expect(validateEarningType("trivia")).toBe(true);
+    it("should return true for image", () => {
+      expect(validateEarningType("image")).toBe(true);
     });
 
-    it("should return true for rating", () => {
-      expect(validateEarningType("rating")).toBe(true);
+    it("should return false for removed type trivia", () => {
+      expect(validateEarningType("trivia")).toBe(false);
+    });
+
+    it("should return false for removed type rating", () => {
+      expect(validateEarningType("rating")).toBe(false);
     });
 
     it("should return true for poll", () => {
@@ -489,6 +494,10 @@ describe("Targeting Validation", () => {
 
     it("should return true for adVideo (AdMob rewarded video)", () => {
       expect(validateEarningType("adVideo")).toBe(true);
+    });
+
+    it("should return true for upload (user-generated content)", () => {
+      expect(validateEarningType("upload")).toBe(true);
     });
 
     it("should return false for invalid type", () => {

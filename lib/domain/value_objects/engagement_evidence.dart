@@ -3,6 +3,23 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'engagement_evidence.freezed.dart';
 part 'engagement_evidence.g.dart';
 
+/// Metadata for a file uploaded during an upload engagement
+@freezed
+class UploadedFileEvidence with _$UploadedFileEvidence {
+  const factory UploadedFileEvidence({
+    required String url,
+    required String type, // 'video' or 'image'
+    required int sizeBytes,
+    String? mimeType,
+    int? durationSeconds, // video only
+    int? width,
+    int? height,
+  }) = _UploadedFileEvidence;
+
+  factory UploadedFileEvidence.fromJson(Map<String, dynamic> json) =>
+      _$UploadedFileEvidenceFromJson(json);
+}
+
 /// Evidence collected during engagement for fraud prevention
 @freezed
 class EngagementEvidence with _$EngagementEvidence {
@@ -45,6 +62,12 @@ class EngagementEvidence with _$EngagementEvidence {
 
     /// AdMob response ID — uniquely identifies the ad impression for debugging
     String? adResponseId,
+
+    /// Upload evidence fields
+    List<UploadedFileEvidence>? uploadedFiles,
+    String? uploadTextResponse,
+    DateTime? uploadStartedAt,
+    DateTime? uploadCompletedAt,
   }) = _EngagementEvidence;
 
   const EngagementEvidence._();

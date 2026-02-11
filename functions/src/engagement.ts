@@ -32,6 +32,7 @@ import {
   stateToFirestore,
   DEFAULT_BONUS_CONFIG,
 } from "./bonus";
+import { enqueueRewardAllocation } from "./rewardAllocation";
 
 const db = admin.firestore();
 
@@ -45,6 +46,7 @@ const EngagementStatus = {
   ABANDONED: "abandoned",
   REWARDED: "rewarded",
   REJECTED: "rejected",
+  PENDING_REVIEW: "pending_review",
   // Legacy status for backward compatibility
   IN_PROGRESS: "in_progress",
 } as const;
@@ -386,6 +388,29 @@ export const processEngagement = functions.https.onCall(
         "invalid-argument",
         "Invalid engagement evidence"
       );
+    }
+
+    // =========================================================================
+    // Admin Review Check (Upload opportunities with requiresAdminReview)
+    // =========================================================================
+    if (engagement.type === "upload" && engagement.earnOpportunityId) {
+      const reviewCheckDoc = await db
+        .collection("earnOpportunities")
+        .doc(engagement.earnOpportunityId)
+        .get();
+      if (reviewCheckDoc.exists && reviewCheckDoc.data()!.requiresAdminReview) {
+        await engagementDoc.ref.update({
+          status: EngagementStatus.PENDING_REVIEW,
+          evidence: evidence,
+          submittedAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        return {
+          success: true,
+          status: "pending_review",
+          message: "Your submission is under review",
+        };
+      }
     }
 
     let rewardAmount = engagement.rewardAmount;
@@ -924,6 +949,40 @@ export const processEngagement = functions.https.onCall(
       console.error("Failed to store streak audit fields:", auditError);
     }
 
+    // ===========================================================================
+    // Reward allocation: enqueue inventory reward if opportunity has a linked campaign
+    // ===========================================================================
+    let rewardPending = false;
+    let rewardCampaignName: string | null = null;
+    let rewardType: string | null = null;
+
+    if (engagement.earnOpportunityId) {
+      try {
+        // Read opportunity to check for reward campaign linkage
+        const oppDocForReward = await db
+          .collection("earnOpportunities")
+          .doc(engagement.earnOpportunityId)
+          .get();
+
+        if (oppDocForReward.exists) {
+          const oppData = oppDocForReward.data()!;
+          if (oppData.rewardCampaignId) {
+            await enqueueRewardAllocation(
+              userId,
+              oppData.rewardCampaignId,
+              engagementId
+            );
+            rewardPending = true;
+            rewardCampaignName = oppData.rewardCampaignName || null;
+            rewardType = oppData.rewardType || null;
+          }
+        }
+      } catch (rewardError) {
+        // Log but don't fail — token reward already credited
+        console.error("Failed to enqueue reward allocation:", rewardError);
+      }
+    }
+
     return {
       success: true,
       tokensEarned: userShare, // User's 90% share
@@ -938,6 +997,10 @@ export const processEngagement = functions.https.onCall(
       // Bonus reward info
       bonusApplied: bonusApplied,
       bonusMultiplier: bonusApplied ? bonusMultiplier : null,
+      // Reward allocation info
+      rewardPending,
+      rewardCampaignName,
+      rewardType,
     };
   }
 );
@@ -1098,21 +1161,57 @@ function validateEngagementEvidence(
       }
       return true;
 
+    case "image":
+      // Validate image view evidence — same structure as video
+      if (evidence.watchDurationMs !== undefined) {
+        return (evidence.watchDurationMs as number) > 0;
+      }
+      if (evidence.watchPercentage !== undefined) {
+        return (evidence.watchPercentage as number) >= 80;
+      }
+      return true;
+
     case "survey":
-      // Validate survey responses
+      // Validate survey responses — per-question-type validation
       if (!evidence.responses || !Array.isArray(evidence.responses)) {
         return false;
       }
-      // Check that all required questions are answered
-      return (evidence.responses as unknown[]).length > 0;
+      if ((evidence.responses as unknown[]).length === 0) return false;
+      for (const r of evidence.responses as Record<string, unknown>[]) {
+        switch (r.questionType) {
+          case "single_select":
+            if (!r.selectedOption) return false;
+            break;
+          case "multi_select":
+            if (!Array.isArray(r.selectedOptions) || (r.selectedOptions as unknown[]).length === 0) return false;
+            break;
+          case "text_input":
+            if (!Array.isArray(r.textResponses) || (r.textResponses as unknown[]).length === 0) return false;
+            if ((r.textResponses as string[]).some((t: string) => typeof t !== "string" || t.trim().length === 0)) return false;
+            break;
+          case "likert":
+            if (typeof r.likertValue !== "number" || (r.likertValue as number) < 1 || (r.likertValue as number) > 5) return false;
+            break;
+          case "star_tags":
+            if (typeof r.starRating !== "number" || (r.starRating as number) < 1 || (r.starRating as number) > 5) return false;
+            break;
+          case "slider":
+            if (typeof r.sliderValue !== "number") return false;
+            break;
+          default:
+            // Accept responses without questionType (e.g. legacy selectedOption format)
+            if (!r.selectedOption && !r.questionType) return false;
+            break;
+        }
+      }
+      return true;
 
     case "poll":
-      // Validate poll response
+      // Validate poll response — verify a real poll vote was cast
+      if (evidence.pollId && evidence.selectedOption) {
+        return true; // Full validation done in processEngagement
+      }
       return evidence.selectedOption !== undefined;
-
-    case "image":
-      // Image view validation
-      return evidence.viewDurationMs !== undefined || evidence.viewed === true;
 
     case "adVideo":
       // AdMob rewarded video validation
@@ -1128,6 +1227,28 @@ function validateEngagementEvidence(
         return (evidence.watchDurationMs as number) >= 25000; // Min 25 seconds
       }
       return false;
+
+    case "upload": {
+      // Upload engagement: validate uploaded files and/or text response
+      const files = evidence.uploadedFiles as Array<Record<string, unknown>> | undefined;
+      const textResponse = evidence.uploadTextResponse as string | undefined;
+
+      // Must have at least one upload (file or text)
+      const hasFile = Array.isArray(files) && files.length > 0;
+      const hasText = typeof textResponse === "string" && textResponse.trim().length >= 10;
+
+      if (!hasFile && !hasText) return false;
+
+      // Validate each uploaded file has required fields
+      if (hasFile) {
+        for (const f of files!) {
+          if (!f.url || !f.type) return false;
+          if (typeof f.sizeBytes !== "number" || (f.sizeBytes as number) <= 0) return false;
+        }
+      }
+
+      return true;
+    }
 
     default:
       return true;

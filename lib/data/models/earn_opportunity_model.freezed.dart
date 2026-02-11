@@ -16,13 +16,191 @@ final _privateConstructorUsedError = UnsupportedError(
 );
 
 /// @nodoc
+mixin _$BranchRuleModel {
+  String get optionValue => throw _privateConstructorUsedError;
+  String get goToQuestionId => throw _privateConstructorUsedError;
+
+  /// Create a copy of BranchRuleModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $BranchRuleModelCopyWith<BranchRuleModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $BranchRuleModelCopyWith<$Res> {
+  factory $BranchRuleModelCopyWith(
+    BranchRuleModel value,
+    $Res Function(BranchRuleModel) then,
+  ) = _$BranchRuleModelCopyWithImpl<$Res, BranchRuleModel>;
+  @useResult
+  $Res call({String optionValue, String goToQuestionId});
+}
+
+/// @nodoc
+class _$BranchRuleModelCopyWithImpl<$Res, $Val extends BranchRuleModel>
+    implements $BranchRuleModelCopyWith<$Res> {
+  _$BranchRuleModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of BranchRuleModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? optionValue = null, Object? goToQuestionId = null}) {
+    return _then(
+      _value.copyWith(
+            optionValue: null == optionValue
+                ? _value.optionValue
+                : optionValue // ignore: cast_nullable_to_non_nullable
+                      as String,
+            goToQuestionId: null == goToQuestionId
+                ? _value.goToQuestionId
+                : goToQuestionId // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$BranchRuleModelImplCopyWith<$Res>
+    implements $BranchRuleModelCopyWith<$Res> {
+  factory _$$BranchRuleModelImplCopyWith(
+    _$BranchRuleModelImpl value,
+    $Res Function(_$BranchRuleModelImpl) then,
+  ) = __$$BranchRuleModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String optionValue, String goToQuestionId});
+}
+
+/// @nodoc
+class __$$BranchRuleModelImplCopyWithImpl<$Res>
+    extends _$BranchRuleModelCopyWithImpl<$Res, _$BranchRuleModelImpl>
+    implements _$$BranchRuleModelImplCopyWith<$Res> {
+  __$$BranchRuleModelImplCopyWithImpl(
+    _$BranchRuleModelImpl _value,
+    $Res Function(_$BranchRuleModelImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of BranchRuleModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? optionValue = null, Object? goToQuestionId = null}) {
+    return _then(
+      _$BranchRuleModelImpl(
+        optionValue: null == optionValue
+            ? _value.optionValue
+            : optionValue // ignore: cast_nullable_to_non_nullable
+                  as String,
+        goToQuestionId: null == goToQuestionId
+            ? _value.goToQuestionId
+            : goToQuestionId // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$BranchRuleModelImpl extends _BranchRuleModel {
+  const _$BranchRuleModelImpl({
+    required this.optionValue,
+    required this.goToQuestionId,
+  }) : super._();
+
+  @override
+  final String optionValue;
+  @override
+  final String goToQuestionId;
+
+  @override
+  String toString() {
+    return 'BranchRuleModel(optionValue: $optionValue, goToQuestionId: $goToQuestionId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$BranchRuleModelImpl &&
+            (identical(other.optionValue, optionValue) ||
+                other.optionValue == optionValue) &&
+            (identical(other.goToQuestionId, goToQuestionId) ||
+                other.goToQuestionId == goToQuestionId));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, optionValue, goToQuestionId);
+
+  /// Create a copy of BranchRuleModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$BranchRuleModelImplCopyWith<_$BranchRuleModelImpl> get copyWith =>
+      __$$BranchRuleModelImplCopyWithImpl<_$BranchRuleModelImpl>(
+        this,
+        _$identity,
+      );
+}
+
+abstract class _BranchRuleModel extends BranchRuleModel {
+  const factory _BranchRuleModel({
+    required final String optionValue,
+    required final String goToQuestionId,
+  }) = _$BranchRuleModelImpl;
+  const _BranchRuleModel._() : super._();
+
+  @override
+  String get optionValue;
+  @override
+  String get goToQuestionId;
+
+  /// Create a copy of BranchRuleModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$BranchRuleModelImplCopyWith<_$BranchRuleModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
 mixin _$SurveyQuestionModel {
   String get id => throw _privateConstructorUsedError;
   String get text => throw _privateConstructorUsedError;
-  List<String> get options => throw _privateConstructorUsedError;
   int get orderIndex => throw _privateConstructorUsedError;
-  bool? get isAttentionCheck => throw _privateConstructorUsedError;
-  String? get correctAnswer => throw _privateConstructorUsedError;
+  String get questionType => throw _privateConstructorUsedError;
+  bool get isRequired =>
+      throw _privateConstructorUsedError; // single_select + multi_select
+  List<String> get options => throw _privateConstructorUsedError;
+  int? get maxSelections => throw _privateConstructorUsedError; // text_input
+  int get textInputCount => throw _privateConstructorUsedError;
+  int get textMaxLength => throw _privateConstructorUsedError; // likert
+  int get likertScale => throw _privateConstructorUsedError;
+  String? get likertLowLabel => throw _privateConstructorUsedError;
+  String? get likertHighLabel =>
+      throw _privateConstructorUsedError; // star_tags
+  int get maxStars => throw _privateConstructorUsedError;
+  List<String> get tags => throw _privateConstructorUsedError;
+  int? get maxTags => throw _privateConstructorUsedError; // slider
+  int get sliderMin => throw _privateConstructorUsedError;
+  int get sliderMax => throw _privateConstructorUsedError;
+  int get sliderStep => throw _privateConstructorUsedError;
+  String? get sliderMinLabel => throw _privateConstructorUsedError;
+  String? get sliderMaxLabel =>
+      throw _privateConstructorUsedError; // attention check
+  bool get isAttentionCheck => throw _privateConstructorUsedError;
+  String? get correctAnswer => throw _privateConstructorUsedError; // branching
+  List<BranchRuleModel> get branchRules => throw _privateConstructorUsedError;
 
   /// Create a copy of SurveyQuestionModel
   /// with the given fields replaced by the non-null parameter values.
@@ -41,10 +219,27 @@ abstract class $SurveyQuestionModelCopyWith<$Res> {
   $Res call({
     String id,
     String text,
-    List<String> options,
     int orderIndex,
-    bool? isAttentionCheck,
+    String questionType,
+    bool isRequired,
+    List<String> options,
+    int? maxSelections,
+    int textInputCount,
+    int textMaxLength,
+    int likertScale,
+    String? likertLowLabel,
+    String? likertHighLabel,
+    int maxStars,
+    List<String> tags,
+    int? maxTags,
+    int sliderMin,
+    int sliderMax,
+    int sliderStep,
+    String? sliderMinLabel,
+    String? sliderMaxLabel,
+    bool isAttentionCheck,
     String? correctAnswer,
+    List<BranchRuleModel> branchRules,
   });
 }
 
@@ -65,10 +260,27 @@ class _$SurveyQuestionModelCopyWithImpl<$Res, $Val extends SurveyQuestionModel>
   $Res call({
     Object? id = null,
     Object? text = null,
-    Object? options = null,
     Object? orderIndex = null,
-    Object? isAttentionCheck = freezed,
+    Object? questionType = null,
+    Object? isRequired = null,
+    Object? options = null,
+    Object? maxSelections = freezed,
+    Object? textInputCount = null,
+    Object? textMaxLength = null,
+    Object? likertScale = null,
+    Object? likertLowLabel = freezed,
+    Object? likertHighLabel = freezed,
+    Object? maxStars = null,
+    Object? tags = null,
+    Object? maxTags = freezed,
+    Object? sliderMin = null,
+    Object? sliderMax = null,
+    Object? sliderStep = null,
+    Object? sliderMinLabel = freezed,
+    Object? sliderMaxLabel = freezed,
+    Object? isAttentionCheck = null,
     Object? correctAnswer = freezed,
+    Object? branchRules = null,
   }) {
     return _then(
       _value.copyWith(
@@ -80,22 +292,90 @@ class _$SurveyQuestionModelCopyWithImpl<$Res, $Val extends SurveyQuestionModel>
                 ? _value.text
                 : text // ignore: cast_nullable_to_non_nullable
                       as String,
-            options: null == options
-                ? _value.options
-                : options // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
             orderIndex: null == orderIndex
                 ? _value.orderIndex
                 : orderIndex // ignore: cast_nullable_to_non_nullable
                       as int,
-            isAttentionCheck: freezed == isAttentionCheck
+            questionType: null == questionType
+                ? _value.questionType
+                : questionType // ignore: cast_nullable_to_non_nullable
+                      as String,
+            isRequired: null == isRequired
+                ? _value.isRequired
+                : isRequired // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            options: null == options
+                ? _value.options
+                : options // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            maxSelections: freezed == maxSelections
+                ? _value.maxSelections
+                : maxSelections // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            textInputCount: null == textInputCount
+                ? _value.textInputCount
+                : textInputCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            textMaxLength: null == textMaxLength
+                ? _value.textMaxLength
+                : textMaxLength // ignore: cast_nullable_to_non_nullable
+                      as int,
+            likertScale: null == likertScale
+                ? _value.likertScale
+                : likertScale // ignore: cast_nullable_to_non_nullable
+                      as int,
+            likertLowLabel: freezed == likertLowLabel
+                ? _value.likertLowLabel
+                : likertLowLabel // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            likertHighLabel: freezed == likertHighLabel
+                ? _value.likertHighLabel
+                : likertHighLabel // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            maxStars: null == maxStars
+                ? _value.maxStars
+                : maxStars // ignore: cast_nullable_to_non_nullable
+                      as int,
+            tags: null == tags
+                ? _value.tags
+                : tags // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            maxTags: freezed == maxTags
+                ? _value.maxTags
+                : maxTags // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            sliderMin: null == sliderMin
+                ? _value.sliderMin
+                : sliderMin // ignore: cast_nullable_to_non_nullable
+                      as int,
+            sliderMax: null == sliderMax
+                ? _value.sliderMax
+                : sliderMax // ignore: cast_nullable_to_non_nullable
+                      as int,
+            sliderStep: null == sliderStep
+                ? _value.sliderStep
+                : sliderStep // ignore: cast_nullable_to_non_nullable
+                      as int,
+            sliderMinLabel: freezed == sliderMinLabel
+                ? _value.sliderMinLabel
+                : sliderMinLabel // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            sliderMaxLabel: freezed == sliderMaxLabel
+                ? _value.sliderMaxLabel
+                : sliderMaxLabel // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            isAttentionCheck: null == isAttentionCheck
                 ? _value.isAttentionCheck
                 : isAttentionCheck // ignore: cast_nullable_to_non_nullable
-                      as bool?,
+                      as bool,
             correctAnswer: freezed == correctAnswer
                 ? _value.correctAnswer
                 : correctAnswer // ignore: cast_nullable_to_non_nullable
                       as String?,
+            branchRules: null == branchRules
+                ? _value.branchRules
+                : branchRules // ignore: cast_nullable_to_non_nullable
+                      as List<BranchRuleModel>,
           )
           as $Val,
     );
@@ -114,10 +394,27 @@ abstract class _$$SurveyQuestionModelImplCopyWith<$Res>
   $Res call({
     String id,
     String text,
-    List<String> options,
     int orderIndex,
-    bool? isAttentionCheck,
+    String questionType,
+    bool isRequired,
+    List<String> options,
+    int? maxSelections,
+    int textInputCount,
+    int textMaxLength,
+    int likertScale,
+    String? likertLowLabel,
+    String? likertHighLabel,
+    int maxStars,
+    List<String> tags,
+    int? maxTags,
+    int sliderMin,
+    int sliderMax,
+    int sliderStep,
+    String? sliderMinLabel,
+    String? sliderMaxLabel,
+    bool isAttentionCheck,
     String? correctAnswer,
+    List<BranchRuleModel> branchRules,
   });
 }
 
@@ -137,10 +434,27 @@ class __$$SurveyQuestionModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? text = null,
-    Object? options = null,
     Object? orderIndex = null,
-    Object? isAttentionCheck = freezed,
+    Object? questionType = null,
+    Object? isRequired = null,
+    Object? options = null,
+    Object? maxSelections = freezed,
+    Object? textInputCount = null,
+    Object? textMaxLength = null,
+    Object? likertScale = null,
+    Object? likertLowLabel = freezed,
+    Object? likertHighLabel = freezed,
+    Object? maxStars = null,
+    Object? tags = null,
+    Object? maxTags = freezed,
+    Object? sliderMin = null,
+    Object? sliderMax = null,
+    Object? sliderStep = null,
+    Object? sliderMinLabel = freezed,
+    Object? sliderMaxLabel = freezed,
+    Object? isAttentionCheck = null,
     Object? correctAnswer = freezed,
+    Object? branchRules = null,
   }) {
     return _then(
       _$SurveyQuestionModelImpl(
@@ -152,22 +466,90 @@ class __$$SurveyQuestionModelImplCopyWithImpl<$Res>
             ? _value.text
             : text // ignore: cast_nullable_to_non_nullable
                   as String,
-        options: null == options
-            ? _value._options
-            : options // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
         orderIndex: null == orderIndex
             ? _value.orderIndex
             : orderIndex // ignore: cast_nullable_to_non_nullable
                   as int,
-        isAttentionCheck: freezed == isAttentionCheck
+        questionType: null == questionType
+            ? _value.questionType
+            : questionType // ignore: cast_nullable_to_non_nullable
+                  as String,
+        isRequired: null == isRequired
+            ? _value.isRequired
+            : isRequired // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        options: null == options
+            ? _value._options
+            : options // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        maxSelections: freezed == maxSelections
+            ? _value.maxSelections
+            : maxSelections // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        textInputCount: null == textInputCount
+            ? _value.textInputCount
+            : textInputCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        textMaxLength: null == textMaxLength
+            ? _value.textMaxLength
+            : textMaxLength // ignore: cast_nullable_to_non_nullable
+                  as int,
+        likertScale: null == likertScale
+            ? _value.likertScale
+            : likertScale // ignore: cast_nullable_to_non_nullable
+                  as int,
+        likertLowLabel: freezed == likertLowLabel
+            ? _value.likertLowLabel
+            : likertLowLabel // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        likertHighLabel: freezed == likertHighLabel
+            ? _value.likertHighLabel
+            : likertHighLabel // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        maxStars: null == maxStars
+            ? _value.maxStars
+            : maxStars // ignore: cast_nullable_to_non_nullable
+                  as int,
+        tags: null == tags
+            ? _value._tags
+            : tags // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        maxTags: freezed == maxTags
+            ? _value.maxTags
+            : maxTags // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        sliderMin: null == sliderMin
+            ? _value.sliderMin
+            : sliderMin // ignore: cast_nullable_to_non_nullable
+                  as int,
+        sliderMax: null == sliderMax
+            ? _value.sliderMax
+            : sliderMax // ignore: cast_nullable_to_non_nullable
+                  as int,
+        sliderStep: null == sliderStep
+            ? _value.sliderStep
+            : sliderStep // ignore: cast_nullable_to_non_nullable
+                  as int,
+        sliderMinLabel: freezed == sliderMinLabel
+            ? _value.sliderMinLabel
+            : sliderMinLabel // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        sliderMaxLabel: freezed == sliderMaxLabel
+            ? _value.sliderMaxLabel
+            : sliderMaxLabel // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        isAttentionCheck: null == isAttentionCheck
             ? _value.isAttentionCheck
             : isAttentionCheck // ignore: cast_nullable_to_non_nullable
-                  as bool?,
+                  as bool,
         correctAnswer: freezed == correctAnswer
             ? _value.correctAnswer
             : correctAnswer // ignore: cast_nullable_to_non_nullable
                   as String?,
+        branchRules: null == branchRules
+            ? _value._branchRules
+            : branchRules // ignore: cast_nullable_to_non_nullable
+                  as List<BranchRuleModel>,
       ),
     );
   }
@@ -179,19 +561,48 @@ class _$SurveyQuestionModelImpl extends _SurveyQuestionModel {
   const _$SurveyQuestionModelImpl({
     required this.id,
     required this.text,
-    required final List<String> options,
     required this.orderIndex,
-    this.isAttentionCheck,
+    required this.questionType,
+    this.isRequired = true,
+    final List<String> options = const [],
+    this.maxSelections,
+    this.textInputCount = 1,
+    this.textMaxLength = 50,
+    this.likertScale = 5,
+    this.likertLowLabel,
+    this.likertHighLabel,
+    this.maxStars = 5,
+    final List<String> tags = const [],
+    this.maxTags,
+    this.sliderMin = 0,
+    this.sliderMax = 100,
+    this.sliderStep = 1,
+    this.sliderMinLabel,
+    this.sliderMaxLabel,
+    this.isAttentionCheck = false,
     this.correctAnswer,
+    final List<BranchRuleModel> branchRules = const [],
   }) : _options = options,
+       _tags = tags,
+       _branchRules = branchRules,
        super._();
 
   @override
   final String id;
   @override
   final String text;
-  final List<String> _options;
   @override
+  final int orderIndex;
+  @override
+  final String questionType;
+  @override
+  @JsonKey()
+  final bool isRequired;
+  // single_select + multi_select
+  final List<String> _options;
+  // single_select + multi_select
+  @override
+  @JsonKey()
   List<String> get options {
     if (_options is EqualUnmodifiableListView) return _options;
     // ignore: implicit_dynamic_type
@@ -199,15 +610,71 @@ class _$SurveyQuestionModelImpl extends _SurveyQuestionModel {
   }
 
   @override
-  final int orderIndex;
+  final int? maxSelections;
+  // text_input
   @override
-  final bool? isAttentionCheck;
+  @JsonKey()
+  final int textInputCount;
+  @override
+  @JsonKey()
+  final int textMaxLength;
+  // likert
+  @override
+  @JsonKey()
+  final int likertScale;
+  @override
+  final String? likertLowLabel;
+  @override
+  final String? likertHighLabel;
+  // star_tags
+  @override
+  @JsonKey()
+  final int maxStars;
+  final List<String> _tags;
+  @override
+  @JsonKey()
+  List<String> get tags {
+    if (_tags is EqualUnmodifiableListView) return _tags;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_tags);
+  }
+
+  @override
+  final int? maxTags;
+  // slider
+  @override
+  @JsonKey()
+  final int sliderMin;
+  @override
+  @JsonKey()
+  final int sliderMax;
+  @override
+  @JsonKey()
+  final int sliderStep;
+  @override
+  final String? sliderMinLabel;
+  @override
+  final String? sliderMaxLabel;
+  // attention check
+  @override
+  @JsonKey()
+  final bool isAttentionCheck;
   @override
   final String? correctAnswer;
+  // branching
+  final List<BranchRuleModel> _branchRules;
+  // branching
+  @override
+  @JsonKey()
+  List<BranchRuleModel> get branchRules {
+    if (_branchRules is EqualUnmodifiableListView) return _branchRules;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_branchRules);
+  }
 
   @override
   String toString() {
-    return 'SurveyQuestionModel(id: $id, text: $text, options: $options, orderIndex: $orderIndex, isAttentionCheck: $isAttentionCheck, correctAnswer: $correctAnswer)';
+    return 'SurveyQuestionModel(id: $id, text: $text, orderIndex: $orderIndex, questionType: $questionType, isRequired: $isRequired, options: $options, maxSelections: $maxSelections, textInputCount: $textInputCount, textMaxLength: $textMaxLength, likertScale: $likertScale, likertLowLabel: $likertLowLabel, likertHighLabel: $likertHighLabel, maxStars: $maxStars, tags: $tags, maxTags: $maxTags, sliderMin: $sliderMin, sliderMax: $sliderMax, sliderStep: $sliderStep, sliderMinLabel: $sliderMinLabel, sliderMaxLabel: $sliderMaxLabel, isAttentionCheck: $isAttentionCheck, correctAnswer: $correctAnswer, branchRules: $branchRules)';
   }
 
   @override
@@ -217,25 +684,76 @@ class _$SurveyQuestionModelImpl extends _SurveyQuestionModel {
             other is _$SurveyQuestionModelImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.text, text) || other.text == text) &&
-            const DeepCollectionEquality().equals(other._options, _options) &&
             (identical(other.orderIndex, orderIndex) ||
                 other.orderIndex == orderIndex) &&
+            (identical(other.questionType, questionType) ||
+                other.questionType == questionType) &&
+            (identical(other.isRequired, isRequired) ||
+                other.isRequired == isRequired) &&
+            const DeepCollectionEquality().equals(other._options, _options) &&
+            (identical(other.maxSelections, maxSelections) ||
+                other.maxSelections == maxSelections) &&
+            (identical(other.textInputCount, textInputCount) ||
+                other.textInputCount == textInputCount) &&
+            (identical(other.textMaxLength, textMaxLength) ||
+                other.textMaxLength == textMaxLength) &&
+            (identical(other.likertScale, likertScale) ||
+                other.likertScale == likertScale) &&
+            (identical(other.likertLowLabel, likertLowLabel) ||
+                other.likertLowLabel == likertLowLabel) &&
+            (identical(other.likertHighLabel, likertHighLabel) ||
+                other.likertHighLabel == likertHighLabel) &&
+            (identical(other.maxStars, maxStars) ||
+                other.maxStars == maxStars) &&
+            const DeepCollectionEquality().equals(other._tags, _tags) &&
+            (identical(other.maxTags, maxTags) || other.maxTags == maxTags) &&
+            (identical(other.sliderMin, sliderMin) ||
+                other.sliderMin == sliderMin) &&
+            (identical(other.sliderMax, sliderMax) ||
+                other.sliderMax == sliderMax) &&
+            (identical(other.sliderStep, sliderStep) ||
+                other.sliderStep == sliderStep) &&
+            (identical(other.sliderMinLabel, sliderMinLabel) ||
+                other.sliderMinLabel == sliderMinLabel) &&
+            (identical(other.sliderMaxLabel, sliderMaxLabel) ||
+                other.sliderMaxLabel == sliderMaxLabel) &&
             (identical(other.isAttentionCheck, isAttentionCheck) ||
                 other.isAttentionCheck == isAttentionCheck) &&
             (identical(other.correctAnswer, correctAnswer) ||
-                other.correctAnswer == correctAnswer));
+                other.correctAnswer == correctAnswer) &&
+            const DeepCollectionEquality().equals(
+              other._branchRules,
+              _branchRules,
+            ));
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     text,
-    const DeepCollectionEquality().hash(_options),
     orderIndex,
+    questionType,
+    isRequired,
+    const DeepCollectionEquality().hash(_options),
+    maxSelections,
+    textInputCount,
+    textMaxLength,
+    likertScale,
+    likertLowLabel,
+    likertHighLabel,
+    maxStars,
+    const DeepCollectionEquality().hash(_tags),
+    maxTags,
+    sliderMin,
+    sliderMax,
+    sliderStep,
+    sliderMinLabel,
+    sliderMaxLabel,
     isAttentionCheck,
     correctAnswer,
-  );
+    const DeepCollectionEquality().hash(_branchRules),
+  ]);
 
   /// Create a copy of SurveyQuestionModel
   /// with the given fields replaced by the non-null parameter values.
@@ -253,10 +771,27 @@ abstract class _SurveyQuestionModel extends SurveyQuestionModel {
   const factory _SurveyQuestionModel({
     required final String id,
     required final String text,
-    required final List<String> options,
     required final int orderIndex,
-    final bool? isAttentionCheck,
+    required final String questionType,
+    final bool isRequired,
+    final List<String> options,
+    final int? maxSelections,
+    final int textInputCount,
+    final int textMaxLength,
+    final int likertScale,
+    final String? likertLowLabel,
+    final String? likertHighLabel,
+    final int maxStars,
+    final List<String> tags,
+    final int? maxTags,
+    final int sliderMin,
+    final int sliderMax,
+    final int sliderStep,
+    final String? sliderMinLabel,
+    final String? sliderMaxLabel,
+    final bool isAttentionCheck,
     final String? correctAnswer,
+    final List<BranchRuleModel> branchRules,
   }) = _$SurveyQuestionModelImpl;
   const _SurveyQuestionModel._() : super._();
 
@@ -265,13 +800,47 @@ abstract class _SurveyQuestionModel extends SurveyQuestionModel {
   @override
   String get text;
   @override
-  List<String> get options;
-  @override
   int get orderIndex;
   @override
-  bool? get isAttentionCheck;
+  String get questionType;
   @override
-  String? get correctAnswer;
+  bool get isRequired; // single_select + multi_select
+  @override
+  List<String> get options;
+  @override
+  int? get maxSelections; // text_input
+  @override
+  int get textInputCount;
+  @override
+  int get textMaxLength; // likert
+  @override
+  int get likertScale;
+  @override
+  String? get likertLowLabel;
+  @override
+  String? get likertHighLabel; // star_tags
+  @override
+  int get maxStars;
+  @override
+  List<String> get tags;
+  @override
+  int? get maxTags; // slider
+  @override
+  int get sliderMin;
+  @override
+  int get sliderMax;
+  @override
+  int get sliderStep;
+  @override
+  String? get sliderMinLabel;
+  @override
+  String? get sliderMaxLabel; // attention check
+  @override
+  bool get isAttentionCheck;
+  @override
+  String? get correctAnswer; // branching
+  @override
+  List<BranchRuleModel> get branchRules;
 
   /// Create a copy of SurveyQuestionModel
   /// with the given fields replaced by the non-null parameter values.
@@ -322,7 +891,26 @@ mixin _$EarnOpportunityModel {
       throw _privateConstructorUsedError; // Budget cap fields
   bool get budgetExhausted => throw _privateConstructorUsedError;
   int? get tokenBudget => throw _privateConstructorUsedError;
-  int get tokenSpent => throw _privateConstructorUsedError;
+  int get tokenSpent => throw _privateConstructorUsedError; // Poll link
+  String? get pollId =>
+      throw _privateConstructorUsedError; // Upload configuration
+  String? get uploadPrompt => throw _privateConstructorUsedError;
+  String? get uploadContextMediaUrl => throw _privateConstructorUsedError;
+  String? get uploadContextMediaType => throw _privateConstructorUsedError;
+  bool get uploadVideoEnabled => throw _privateConstructorUsedError;
+  bool get uploadImageEnabled => throw _privateConstructorUsedError;
+  bool get uploadTextEnabled => throw _privateConstructorUsedError;
+  bool get uploadVideoRequired => throw _privateConstructorUsedError;
+  bool get uploadImageRequired => throw _privateConstructorUsedError;
+  bool get uploadTextRequired => throw _privateConstructorUsedError;
+  int get uploadVideoMaxSeconds => throw _privateConstructorUsedError;
+  int get uploadTextMinChars => throw _privateConstructorUsedError;
+  int get uploadTextMaxChars => throw _privateConstructorUsedError;
+  bool get requiresAdminReview =>
+      throw _privateConstructorUsedError; // Reward campaign linkage
+  String? get rewardCampaignId => throw _privateConstructorUsedError;
+  String? get rewardCampaignName => throw _privateConstructorUsedError;
+  String? get rewardType => throw _privateConstructorUsedError;
 
   /// Create a copy of EarnOpportunityModel
   /// with the given fields replaced by the non-null parameter values.
@@ -371,6 +959,23 @@ abstract class $EarnOpportunityModelCopyWith<$Res> {
     bool budgetExhausted,
     int? tokenBudget,
     int tokenSpent,
+    String? pollId,
+    String? uploadPrompt,
+    String? uploadContextMediaUrl,
+    String? uploadContextMediaType,
+    bool uploadVideoEnabled,
+    bool uploadImageEnabled,
+    bool uploadTextEnabled,
+    bool uploadVideoRequired,
+    bool uploadImageRequired,
+    bool uploadTextRequired,
+    int uploadVideoMaxSeconds,
+    int uploadTextMinChars,
+    int uploadTextMaxChars,
+    bool requiresAdminReview,
+    String? rewardCampaignId,
+    String? rewardCampaignName,
+    String? rewardType,
   });
 }
 
@@ -424,6 +1029,23 @@ class _$EarnOpportunityModelCopyWithImpl<
     Object? budgetExhausted = null,
     Object? tokenBudget = freezed,
     Object? tokenSpent = null,
+    Object? pollId = freezed,
+    Object? uploadPrompt = freezed,
+    Object? uploadContextMediaUrl = freezed,
+    Object? uploadContextMediaType = freezed,
+    Object? uploadVideoEnabled = null,
+    Object? uploadImageEnabled = null,
+    Object? uploadTextEnabled = null,
+    Object? uploadVideoRequired = null,
+    Object? uploadImageRequired = null,
+    Object? uploadTextRequired = null,
+    Object? uploadVideoMaxSeconds = null,
+    Object? uploadTextMinChars = null,
+    Object? uploadTextMaxChars = null,
+    Object? requiresAdminReview = null,
+    Object? rewardCampaignId = freezed,
+    Object? rewardCampaignName = freezed,
+    Object? rewardType = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -555,6 +1177,74 @@ class _$EarnOpportunityModelCopyWithImpl<
                 ? _value.tokenSpent
                 : tokenSpent // ignore: cast_nullable_to_non_nullable
                       as int,
+            pollId: freezed == pollId
+                ? _value.pollId
+                : pollId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            uploadPrompt: freezed == uploadPrompt
+                ? _value.uploadPrompt
+                : uploadPrompt // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            uploadContextMediaUrl: freezed == uploadContextMediaUrl
+                ? _value.uploadContextMediaUrl
+                : uploadContextMediaUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            uploadContextMediaType: freezed == uploadContextMediaType
+                ? _value.uploadContextMediaType
+                : uploadContextMediaType // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            uploadVideoEnabled: null == uploadVideoEnabled
+                ? _value.uploadVideoEnabled
+                : uploadVideoEnabled // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            uploadImageEnabled: null == uploadImageEnabled
+                ? _value.uploadImageEnabled
+                : uploadImageEnabled // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            uploadTextEnabled: null == uploadTextEnabled
+                ? _value.uploadTextEnabled
+                : uploadTextEnabled // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            uploadVideoRequired: null == uploadVideoRequired
+                ? _value.uploadVideoRequired
+                : uploadVideoRequired // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            uploadImageRequired: null == uploadImageRequired
+                ? _value.uploadImageRequired
+                : uploadImageRequired // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            uploadTextRequired: null == uploadTextRequired
+                ? _value.uploadTextRequired
+                : uploadTextRequired // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            uploadVideoMaxSeconds: null == uploadVideoMaxSeconds
+                ? _value.uploadVideoMaxSeconds
+                : uploadVideoMaxSeconds // ignore: cast_nullable_to_non_nullable
+                      as int,
+            uploadTextMinChars: null == uploadTextMinChars
+                ? _value.uploadTextMinChars
+                : uploadTextMinChars // ignore: cast_nullable_to_non_nullable
+                      as int,
+            uploadTextMaxChars: null == uploadTextMaxChars
+                ? _value.uploadTextMaxChars
+                : uploadTextMaxChars // ignore: cast_nullable_to_non_nullable
+                      as int,
+            requiresAdminReview: null == requiresAdminReview
+                ? _value.requiresAdminReview
+                : requiresAdminReview // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            rewardCampaignId: freezed == rewardCampaignId
+                ? _value.rewardCampaignId
+                : rewardCampaignId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            rewardCampaignName: freezed == rewardCampaignName
+                ? _value.rewardCampaignName
+                : rewardCampaignName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            rewardType: freezed == rewardType
+                ? _value.rewardType
+                : rewardType // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -603,6 +1293,23 @@ abstract class _$$EarnOpportunityModelImplCopyWith<$Res>
     bool budgetExhausted,
     int? tokenBudget,
     int tokenSpent,
+    String? pollId,
+    String? uploadPrompt,
+    String? uploadContextMediaUrl,
+    String? uploadContextMediaType,
+    bool uploadVideoEnabled,
+    bool uploadImageEnabled,
+    bool uploadTextEnabled,
+    bool uploadVideoRequired,
+    bool uploadImageRequired,
+    bool uploadTextRequired,
+    int uploadVideoMaxSeconds,
+    int uploadTextMinChars,
+    int uploadTextMaxChars,
+    bool requiresAdminReview,
+    String? rewardCampaignId,
+    String? rewardCampaignName,
+    String? rewardType,
   });
 }
 
@@ -652,6 +1359,23 @@ class __$$EarnOpportunityModelImplCopyWithImpl<$Res>
     Object? budgetExhausted = null,
     Object? tokenBudget = freezed,
     Object? tokenSpent = null,
+    Object? pollId = freezed,
+    Object? uploadPrompt = freezed,
+    Object? uploadContextMediaUrl = freezed,
+    Object? uploadContextMediaType = freezed,
+    Object? uploadVideoEnabled = null,
+    Object? uploadImageEnabled = null,
+    Object? uploadTextEnabled = null,
+    Object? uploadVideoRequired = null,
+    Object? uploadImageRequired = null,
+    Object? uploadTextRequired = null,
+    Object? uploadVideoMaxSeconds = null,
+    Object? uploadTextMinChars = null,
+    Object? uploadTextMaxChars = null,
+    Object? requiresAdminReview = null,
+    Object? rewardCampaignId = freezed,
+    Object? rewardCampaignName = freezed,
+    Object? rewardType = freezed,
   }) {
     return _then(
       _$EarnOpportunityModelImpl(
@@ -783,6 +1507,74 @@ class __$$EarnOpportunityModelImplCopyWithImpl<$Res>
             ? _value.tokenSpent
             : tokenSpent // ignore: cast_nullable_to_non_nullable
                   as int,
+        pollId: freezed == pollId
+            ? _value.pollId
+            : pollId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        uploadPrompt: freezed == uploadPrompt
+            ? _value.uploadPrompt
+            : uploadPrompt // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        uploadContextMediaUrl: freezed == uploadContextMediaUrl
+            ? _value.uploadContextMediaUrl
+            : uploadContextMediaUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        uploadContextMediaType: freezed == uploadContextMediaType
+            ? _value.uploadContextMediaType
+            : uploadContextMediaType // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        uploadVideoEnabled: null == uploadVideoEnabled
+            ? _value.uploadVideoEnabled
+            : uploadVideoEnabled // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        uploadImageEnabled: null == uploadImageEnabled
+            ? _value.uploadImageEnabled
+            : uploadImageEnabled // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        uploadTextEnabled: null == uploadTextEnabled
+            ? _value.uploadTextEnabled
+            : uploadTextEnabled // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        uploadVideoRequired: null == uploadVideoRequired
+            ? _value.uploadVideoRequired
+            : uploadVideoRequired // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        uploadImageRequired: null == uploadImageRequired
+            ? _value.uploadImageRequired
+            : uploadImageRequired // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        uploadTextRequired: null == uploadTextRequired
+            ? _value.uploadTextRequired
+            : uploadTextRequired // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        uploadVideoMaxSeconds: null == uploadVideoMaxSeconds
+            ? _value.uploadVideoMaxSeconds
+            : uploadVideoMaxSeconds // ignore: cast_nullable_to_non_nullable
+                  as int,
+        uploadTextMinChars: null == uploadTextMinChars
+            ? _value.uploadTextMinChars
+            : uploadTextMinChars // ignore: cast_nullable_to_non_nullable
+                  as int,
+        uploadTextMaxChars: null == uploadTextMaxChars
+            ? _value.uploadTextMaxChars
+            : uploadTextMaxChars // ignore: cast_nullable_to_non_nullable
+                  as int,
+        requiresAdminReview: null == requiresAdminReview
+            ? _value.requiresAdminReview
+            : requiresAdminReview // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        rewardCampaignId: freezed == rewardCampaignId
+            ? _value.rewardCampaignId
+            : rewardCampaignId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        rewardCampaignName: freezed == rewardCampaignName
+            ? _value.rewardCampaignName
+            : rewardCampaignName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        rewardType: freezed == rewardType
+            ? _value.rewardType
+            : rewardType // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -824,6 +1616,23 @@ class _$EarnOpportunityModelImpl extends _EarnOpportunityModel {
     this.budgetExhausted = false,
     this.tokenBudget,
     this.tokenSpent = 0,
+    this.pollId,
+    this.uploadPrompt,
+    this.uploadContextMediaUrl,
+    this.uploadContextMediaType,
+    this.uploadVideoEnabled = false,
+    this.uploadImageEnabled = false,
+    this.uploadTextEnabled = false,
+    this.uploadVideoRequired = false,
+    this.uploadImageRequired = false,
+    this.uploadTextRequired = false,
+    this.uploadVideoMaxSeconds = 60,
+    this.uploadTextMinChars = 10,
+    this.uploadTextMaxChars = 1500,
+    this.requiresAdminReview = false,
+    this.rewardCampaignId,
+    this.rewardCampaignName,
+    this.rewardType,
   }) : _questions = questions,
        _targeting = targeting,
        super._();
@@ -921,10 +1730,57 @@ class _$EarnOpportunityModelImpl extends _EarnOpportunityModel {
   @override
   @JsonKey()
   final int tokenSpent;
+  // Poll link
+  @override
+  final String? pollId;
+  // Upload configuration
+  @override
+  final String? uploadPrompt;
+  @override
+  final String? uploadContextMediaUrl;
+  @override
+  final String? uploadContextMediaType;
+  @override
+  @JsonKey()
+  final bool uploadVideoEnabled;
+  @override
+  @JsonKey()
+  final bool uploadImageEnabled;
+  @override
+  @JsonKey()
+  final bool uploadTextEnabled;
+  @override
+  @JsonKey()
+  final bool uploadVideoRequired;
+  @override
+  @JsonKey()
+  final bool uploadImageRequired;
+  @override
+  @JsonKey()
+  final bool uploadTextRequired;
+  @override
+  @JsonKey()
+  final int uploadVideoMaxSeconds;
+  @override
+  @JsonKey()
+  final int uploadTextMinChars;
+  @override
+  @JsonKey()
+  final int uploadTextMaxChars;
+  @override
+  @JsonKey()
+  final bool requiresAdminReview;
+  // Reward campaign linkage
+  @override
+  final String? rewardCampaignId;
+  @override
+  final String? rewardCampaignName;
+  @override
+  final String? rewardType;
 
   @override
   String toString() {
-    return 'EarnOpportunityModel(id: $id, threadId: $threadId, title: $title, description: $description, earningType: $earningType, tokenReward: $tokenReward, streakPoints: $streakPoints, mediaType: $mediaType, mediaUrl: $mediaUrl, questions: $questions, durationSeconds: $durationSeconds, expiresAt: $expiresAt, isActive: $isActive, clientId: $clientId, clientName: $clientName, clientAvatarColor: $clientAvatarColor, clientAvatarImage: $clientAvatarImage, threadImage: $threadImage, opportunityImage: $opportunityImage, campaignId: $campaignId, targeting: $targeting, bonusReward: $bonusReward, bonusRewardMultiplier: $bonusRewardMultiplier, bonusIntervalType: $bonusIntervalType, bonusIntervalX: $bonusIntervalX, userEngagementStatus: $userEngagementStatus, userEngagementId: $userEngagementId, adUnitId: $adUnitId, dailyLimitPerUser: $dailyLimitPerUser, budgetExhausted: $budgetExhausted, tokenBudget: $tokenBudget, tokenSpent: $tokenSpent)';
+    return 'EarnOpportunityModel(id: $id, threadId: $threadId, title: $title, description: $description, earningType: $earningType, tokenReward: $tokenReward, streakPoints: $streakPoints, mediaType: $mediaType, mediaUrl: $mediaUrl, questions: $questions, durationSeconds: $durationSeconds, expiresAt: $expiresAt, isActive: $isActive, clientId: $clientId, clientName: $clientName, clientAvatarColor: $clientAvatarColor, clientAvatarImage: $clientAvatarImage, threadImage: $threadImage, opportunityImage: $opportunityImage, campaignId: $campaignId, targeting: $targeting, bonusReward: $bonusReward, bonusRewardMultiplier: $bonusRewardMultiplier, bonusIntervalType: $bonusIntervalType, bonusIntervalX: $bonusIntervalX, userEngagementStatus: $userEngagementStatus, userEngagementId: $userEngagementId, adUnitId: $adUnitId, dailyLimitPerUser: $dailyLimitPerUser, budgetExhausted: $budgetExhausted, tokenBudget: $tokenBudget, tokenSpent: $tokenSpent, pollId: $pollId, uploadPrompt: $uploadPrompt, uploadContextMediaUrl: $uploadContextMediaUrl, uploadContextMediaType: $uploadContextMediaType, uploadVideoEnabled: $uploadVideoEnabled, uploadImageEnabled: $uploadImageEnabled, uploadTextEnabled: $uploadTextEnabled, uploadVideoRequired: $uploadVideoRequired, uploadImageRequired: $uploadImageRequired, uploadTextRequired: $uploadTextRequired, uploadVideoMaxSeconds: $uploadVideoMaxSeconds, uploadTextMinChars: $uploadTextMinChars, uploadTextMaxChars: $uploadTextMaxChars, requiresAdminReview: $requiresAdminReview, rewardCampaignId: $rewardCampaignId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
   }
 
   @override
@@ -997,7 +1853,40 @@ class _$EarnOpportunityModelImpl extends _EarnOpportunityModel {
             (identical(other.tokenBudget, tokenBudget) ||
                 other.tokenBudget == tokenBudget) &&
             (identical(other.tokenSpent, tokenSpent) ||
-                other.tokenSpent == tokenSpent));
+                other.tokenSpent == tokenSpent) &&
+            (identical(other.pollId, pollId) || other.pollId == pollId) &&
+            (identical(other.uploadPrompt, uploadPrompt) ||
+                other.uploadPrompt == uploadPrompt) &&
+            (identical(other.uploadContextMediaUrl, uploadContextMediaUrl) ||
+                other.uploadContextMediaUrl == uploadContextMediaUrl) &&
+            (identical(other.uploadContextMediaType, uploadContextMediaType) ||
+                other.uploadContextMediaType == uploadContextMediaType) &&
+            (identical(other.uploadVideoEnabled, uploadVideoEnabled) ||
+                other.uploadVideoEnabled == uploadVideoEnabled) &&
+            (identical(other.uploadImageEnabled, uploadImageEnabled) ||
+                other.uploadImageEnabled == uploadImageEnabled) &&
+            (identical(other.uploadTextEnabled, uploadTextEnabled) ||
+                other.uploadTextEnabled == uploadTextEnabled) &&
+            (identical(other.uploadVideoRequired, uploadVideoRequired) ||
+                other.uploadVideoRequired == uploadVideoRequired) &&
+            (identical(other.uploadImageRequired, uploadImageRequired) ||
+                other.uploadImageRequired == uploadImageRequired) &&
+            (identical(other.uploadTextRequired, uploadTextRequired) ||
+                other.uploadTextRequired == uploadTextRequired) &&
+            (identical(other.uploadVideoMaxSeconds, uploadVideoMaxSeconds) ||
+                other.uploadVideoMaxSeconds == uploadVideoMaxSeconds) &&
+            (identical(other.uploadTextMinChars, uploadTextMinChars) ||
+                other.uploadTextMinChars == uploadTextMinChars) &&
+            (identical(other.uploadTextMaxChars, uploadTextMaxChars) ||
+                other.uploadTextMaxChars == uploadTextMaxChars) &&
+            (identical(other.requiresAdminReview, requiresAdminReview) ||
+                other.requiresAdminReview == requiresAdminReview) &&
+            (identical(other.rewardCampaignId, rewardCampaignId) ||
+                other.rewardCampaignId == rewardCampaignId) &&
+            (identical(other.rewardCampaignName, rewardCampaignName) ||
+                other.rewardCampaignName == rewardCampaignName) &&
+            (identical(other.rewardType, rewardType) ||
+                other.rewardType == rewardType));
   }
 
   @override
@@ -1035,6 +1924,23 @@ class _$EarnOpportunityModelImpl extends _EarnOpportunityModel {
     budgetExhausted,
     tokenBudget,
     tokenSpent,
+    pollId,
+    uploadPrompt,
+    uploadContextMediaUrl,
+    uploadContextMediaType,
+    uploadVideoEnabled,
+    uploadImageEnabled,
+    uploadTextEnabled,
+    uploadVideoRequired,
+    uploadImageRequired,
+    uploadTextRequired,
+    uploadVideoMaxSeconds,
+    uploadTextMinChars,
+    uploadTextMaxChars,
+    requiresAdminReview,
+    rewardCampaignId,
+    rewardCampaignName,
+    rewardType,
   ]);
 
   /// Create a copy of EarnOpportunityModel
@@ -1084,6 +1990,23 @@ abstract class _EarnOpportunityModel extends EarnOpportunityModel {
     final bool budgetExhausted,
     final int? tokenBudget,
     final int tokenSpent,
+    final String? pollId,
+    final String? uploadPrompt,
+    final String? uploadContextMediaUrl,
+    final String? uploadContextMediaType,
+    final bool uploadVideoEnabled,
+    final bool uploadImageEnabled,
+    final bool uploadTextEnabled,
+    final bool uploadVideoRequired,
+    final bool uploadImageRequired,
+    final bool uploadTextRequired,
+    final int uploadVideoMaxSeconds,
+    final int uploadTextMinChars,
+    final int uploadTextMaxChars,
+    final bool requiresAdminReview,
+    final String? rewardCampaignId,
+    final String? rewardCampaignName,
+    final String? rewardType,
   }) = _$EarnOpportunityModelImpl;
   const _EarnOpportunityModel._() : super._();
 
@@ -1150,7 +2073,41 @@ abstract class _EarnOpportunityModel extends EarnOpportunityModel {
   @override
   int? get tokenBudget;
   @override
-  int get tokenSpent;
+  int get tokenSpent; // Poll link
+  @override
+  String? get pollId; // Upload configuration
+  @override
+  String? get uploadPrompt;
+  @override
+  String? get uploadContextMediaUrl;
+  @override
+  String? get uploadContextMediaType;
+  @override
+  bool get uploadVideoEnabled;
+  @override
+  bool get uploadImageEnabled;
+  @override
+  bool get uploadTextEnabled;
+  @override
+  bool get uploadVideoRequired;
+  @override
+  bool get uploadImageRequired;
+  @override
+  bool get uploadTextRequired;
+  @override
+  int get uploadVideoMaxSeconds;
+  @override
+  int get uploadTextMinChars;
+  @override
+  int get uploadTextMaxChars;
+  @override
+  bool get requiresAdminReview; // Reward campaign linkage
+  @override
+  String? get rewardCampaignId;
+  @override
+  String? get rewardCampaignName;
+  @override
+  String? get rewardType;
 
   /// Create a copy of EarnOpportunityModel
   /// with the given fields replaced by the non-null parameter values.

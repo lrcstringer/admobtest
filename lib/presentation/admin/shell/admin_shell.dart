@@ -178,6 +178,20 @@ class _AdminSidebar extends StatelessWidget {
                   isSelected: currentPath == '/earn' ||
                       currentPath.startsWith('/earn/'),
                 ),
+                _NavItem(
+                  icon: Icons.rate_review_outlined,
+                  selectedIcon: Icons.rate_review,
+                  label: 'Upload Reviews',
+                  path: '/upload-reviews',
+                  isSelected: currentPath == '/upload-reviews',
+                ),
+                _NavItem(
+                  icon: Icons.card_giftcard_outlined,
+                  selectedIcon: Icons.card_giftcard,
+                  label: 'Reward Campaigns',
+                  path: '/rewards',
+                  isSelected: currentPath == '/rewards',
+                ),
 
                 // Platform Management section
                 const Padding(

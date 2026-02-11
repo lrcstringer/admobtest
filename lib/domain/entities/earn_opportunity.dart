@@ -17,22 +17,75 @@ enum MediaType {
 enum EarningType {
   survey,
   video,
-  trivia,
-  rating,
+  image,
   poll,
   adVideo,
+  upload,
 }
 
-/// Survey question for earn opportunity
+/// Question type for survey engine
+enum QuestionType {
+  singleSelect,
+  multiSelect,
+  textInput,
+  likert,
+  starTags,
+  slider,
+}
+
+/// Branch rule: if user selects [optionValue], skip to [goToQuestionId]
+@freezed
+class BranchRule with _$BranchRule {
+  const factory BranchRule({
+    required String optionValue,
+    required String goToQuestionId,
+  }) = _BranchRule;
+
+  factory BranchRule.fromJson(Map<String, dynamic> json) =>
+      _$BranchRuleFromJson(json);
+}
+
+/// Survey question for earn opportunity — supports 6 question types + branching
 @freezed
 class SurveyQuestion with _$SurveyQuestion {
   const factory SurveyQuestion({
     required String id,
     required String text,
-    required List<String> options,
     required int orderIndex,
-    bool? isAttentionCheck,
+    required QuestionType questionType,
+    @Default(true) bool isRequired,
+
+    // --- single_select + multi_select ---
+    @Default([]) List<String> options,
+    int? maxSelections, // multi_select only
+
+    // --- text_input ---
+    @Default(1) int textInputCount,
+    @Default(50) int textMaxLength,
+
+    // --- likert ---
+    @Default(5) int likertScale,
+    String? likertLowLabel,
+    String? likertHighLabel,
+
+    // --- star_tags ---
+    @Default(5) int maxStars,
+    @Default([]) List<String> tags,
+    int? maxTags,
+
+    // --- slider ---
+    @Default(0) int sliderMin,
+    @Default(100) int sliderMax,
+    @Default(1) int sliderStep,
+    String? sliderMinLabel,
+    String? sliderMaxLabel,
+
+    // --- Attention check (single_select only) ---
+    @Default(false) bool isAttentionCheck,
     String? correctAnswer,
+
+    // --- Branching (single_select only) ---
+    @Default([]) List<BranchRule> branchRules,
   }) = _SurveyQuestion;
 
   factory SurveyQuestion.fromJson(Map<String, dynamic> json) =>
@@ -89,6 +142,26 @@ class EarnOpportunity with _$EarnOpportunity {
     @Default(false) bool budgetExhausted,
     int? tokenBudget,
     @Default(0) int tokenSpent,
+    // Poll link
+    String? pollId,
+    // Upload configuration (earningType == upload)
+    String? uploadPrompt,
+    String? uploadContextMediaUrl,
+    String? uploadContextMediaType,
+    @Default(false) bool uploadVideoEnabled,
+    @Default(false) bool uploadImageEnabled,
+    @Default(false) bool uploadTextEnabled,
+    @Default(false) bool uploadVideoRequired,
+    @Default(false) bool uploadImageRequired,
+    @Default(false) bool uploadTextRequired,
+    @Default(60) int uploadVideoMaxSeconds,
+    @Default(10) int uploadTextMinChars,
+    @Default(1500) int uploadTextMaxChars,
+    @Default(false) bool requiresAdminReview,
+    // Reward campaign linkage
+    String? rewardCampaignId,
+    String? rewardCampaignName,
+    String? rewardType,
   }) = _EarnOpportunity;
 
   const EarnOpportunity._();
@@ -138,14 +211,14 @@ class EarnOpportunity with _$EarnOpportunity {
         return 'Survey';
       case EarningType.video:
         return 'Video';
-      case EarningType.trivia:
-        return 'Trivia';
-      case EarningType.rating:
-        return 'Rating';
+      case EarningType.image:
+        return 'Image';
       case EarningType.poll:
         return 'Poll';
       case EarningType.adVideo:
         return 'Watch & Earn';
+      case EarningType.upload:
+        return 'Upload';
     }
   }
 
@@ -154,4 +227,12 @@ class EarnOpportunity with _$EarnOpportunity {
 
   /// Check if ad unit ID is configured
   bool get hasAdUnitId => adUnitId != null && adUnitId!.isNotEmpty;
+
+  /// Check if this is a poll opportunity
+  bool get isPollOpportunity =>
+      earningType == EarningType.poll && pollId != null;
+
+  /// Check if this opportunity has a linked reward campaign
+  bool get hasRewardCampaign =>
+      rewardCampaignId != null && rewardCampaignId!.isNotEmpty;
 }

@@ -7,44 +7,93 @@ import '../../domain/value_objects/engagement_evidence.dart';
 
 part 'engagement_model.freezed.dart';
 
+/// Type-discriminated survey response model
 @freezed
-class EngagementAnswerModel with _$EngagementAnswerModel {
-  const factory EngagementAnswerModel({
+class SurveyResponseModel with _$SurveyResponseModel {
+  const factory SurveyResponseModel({
     required String questionId,
-    required String selectedOption,
+    required String questionType,
     required DateTime answeredAt,
+
+    // single_select
+    String? selectedOption,
+
+    // multi_select
+    List<String>? selectedOptions,
+
+    // text_input
+    List<String>? textResponses,
+
+    // likert
+    int? likertValue,
+
+    // star_tags
+    int? starRating,
+    List<String>? selectedTags,
+
+    // slider
+    double? sliderValue,
+
+    // attention check result
     bool? isCorrect,
-  }) = _EngagementAnswerModel;
+  }) = _SurveyResponseModel;
 
-  const EngagementAnswerModel._();
+  const SurveyResponseModel._();
 
-  factory EngagementAnswerModel.fromJson(Map<String, dynamic> json) {
+  factory SurveyResponseModel.fromJson(Map<String, dynamic> json) {
     final answeredAt = json['answeredAt'];
 
-    return EngagementAnswerModel(
+    return SurveyResponseModel(
       questionId: json['questionId'] as String,
-      selectedOption: json['selectedOption'] as String,
+      questionType: json['questionType'] as String? ?? 'single_select',
       answeredAt: answeredAt is Timestamp
           ? answeredAt.toDate()
           : DateTime.parse(answeredAt as String),
+      selectedOption: json['selectedOption'] as String?,
+      selectedOptions: (json['selectedOptions'] as List?)
+          ?.map((e) => e as String)
+          .toList(),
+      textResponses: (json['textResponses'] as List?)
+          ?.map((e) => e as String)
+          .toList(),
+      likertValue: json['likertValue'] as int?,
+      starRating: json['starRating'] as int?,
+      selectedTags: (json['selectedTags'] as List?)
+          ?.map((e) => e as String)
+          .toList(),
+      sliderValue: (json['sliderValue'] as num?)?.toDouble(),
       isCorrect: json['isCorrect'] as bool?,
     );
   }
 
-  EngagementAnswer toEntity() {
-    return EngagementAnswer(
+  SurveyResponse toEntity() {
+    return SurveyResponse(
       questionId: questionId,
-      selectedOption: selectedOption,
+      questionType: questionType,
       answeredAt: answeredAt,
+      selectedOption: selectedOption,
+      selectedOptions: selectedOptions,
+      textResponses: textResponses,
+      likertValue: likertValue,
+      starRating: starRating,
+      selectedTags: selectedTags,
+      sliderValue: sliderValue,
       isCorrect: isCorrect,
     );
   }
 
-  factory EngagementAnswerModel.fromEntity(EngagementAnswer entity) {
-    return EngagementAnswerModel(
+  factory SurveyResponseModel.fromEntity(SurveyResponse entity) {
+    return SurveyResponseModel(
       questionId: entity.questionId,
-      selectedOption: entity.selectedOption,
+      questionType: entity.questionType,
       answeredAt: entity.answeredAt,
+      selectedOption: entity.selectedOption,
+      selectedOptions: entity.selectedOptions,
+      textResponses: entity.textResponses,
+      likertValue: entity.likertValue,
+      starRating: entity.starRating,
+      selectedTags: entity.selectedTags,
+      sliderValue: entity.sliderValue,
       isCorrect: entity.isCorrect,
     );
   }
@@ -52,12 +101,22 @@ class EngagementAnswerModel with _$EngagementAnswerModel {
   Map<String, dynamic> toFirestoreJson() {
     return {
       'questionId': questionId,
-      'selectedOption': selectedOption,
+      'questionType': questionType,
       'answeredAt': Timestamp.fromDate(answeredAt),
+      if (selectedOption != null) 'selectedOption': selectedOption,
+      if (selectedOptions != null) 'selectedOptions': selectedOptions,
+      if (textResponses != null) 'textResponses': textResponses,
+      if (likertValue != null) 'likertValue': likertValue,
+      if (starRating != null) 'starRating': starRating,
+      if (selectedTags != null) 'selectedTags': selectedTags,
+      if (sliderValue != null) 'sliderValue': sliderValue,
       if (isCorrect != null) 'isCorrect': isCorrect,
     };
   }
 }
+
+/// Legacy alias for backward compatibility
+typedef EngagementAnswerModel = SurveyResponseModel;
 
 @freezed
 class EngagementEvidenceModel with _$EngagementEvidenceModel {
@@ -76,6 +135,11 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
     String? adTransactionId,
     bool? adFullyWatched,
     String? adResponseId,
+    // Upload evidence fields
+    List<Map<String, dynamic>>? uploadedFiles,
+    String? uploadTextResponse,
+    DateTime? uploadStartedAt,
+    DateTime? uploadCompletedAt,
   }) = _EngagementEvidenceModel;
 
   const EngagementEvidenceModel._();
@@ -104,6 +168,21 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
       adTransactionId: json['adTransactionId'] as String?,
       adFullyWatched: json['adFullyWatched'] as bool?,
       adResponseId: json['adResponseId'] as String?,
+      // Upload evidence fields
+      uploadedFiles: (json['uploadedFiles'] as List?)
+          ?.map((e) => Map<String, dynamic>.from(e as Map))
+          .toList(),
+      uploadTextResponse: json['uploadTextResponse'] as String?,
+      uploadStartedAt: json['uploadStartedAt'] != null
+          ? (json['uploadStartedAt'] is Timestamp
+              ? (json['uploadStartedAt'] as Timestamp).toDate()
+              : DateTime.parse(json['uploadStartedAt'] as String))
+          : null,
+      uploadCompletedAt: json['uploadCompletedAt'] != null
+          ? (json['uploadCompletedAt'] is Timestamp
+              ? (json['uploadCompletedAt'] as Timestamp).toDate()
+              : DateTime.parse(json['uploadCompletedAt'] as String))
+          : null,
     );
   }
 
@@ -122,6 +201,20 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
       adTransactionId: adTransactionId,
       adFullyWatched: adFullyWatched,
       adResponseId: adResponseId,
+      uploadedFiles: uploadedFiles
+          ?.map((f) => UploadedFileEvidence(
+                url: f['url'] as String,
+                type: f['type'] as String,
+                sizeBytes: f['sizeBytes'] as int,
+                mimeType: f['mimeType'] as String?,
+                durationSeconds: f['durationSeconds'] as int?,
+                width: f['width'] as int?,
+                height: f['height'] as int?,
+              ))
+          .toList(),
+      uploadTextResponse: uploadTextResponse,
+      uploadStartedAt: uploadStartedAt,
+      uploadCompletedAt: uploadCompletedAt,
     );
   }
 
@@ -140,6 +233,20 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
       adTransactionId: entity.adTransactionId,
       adFullyWatched: entity.adFullyWatched,
       adResponseId: entity.adResponseId,
+      uploadedFiles: entity.uploadedFiles
+          ?.map((f) => {
+                'url': f.url,
+                'type': f.type,
+                'sizeBytes': f.sizeBytes,
+                if (f.mimeType != null) 'mimeType': f.mimeType,
+                if (f.durationSeconds != null) 'durationSeconds': f.durationSeconds,
+                if (f.width != null) 'width': f.width,
+                if (f.height != null) 'height': f.height,
+              })
+          .toList(),
+      uploadTextResponse: entity.uploadTextResponse,
+      uploadStartedAt: entity.uploadStartedAt,
+      uploadCompletedAt: entity.uploadCompletedAt,
     );
   }
 
@@ -160,6 +267,13 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
       if (adTransactionId != null) 'adTransactionId': adTransactionId,
       if (adFullyWatched != null) 'adFullyWatched': adFullyWatched,
       if (adResponseId != null) 'adResponseId': adResponseId,
+      // Upload evidence fields
+      if (uploadedFiles != null) 'uploadedFiles': uploadedFiles,
+      if (uploadTextResponse != null) 'uploadTextResponse': uploadTextResponse,
+      if (uploadStartedAt != null)
+        'uploadStartedAt': Timestamp.fromDate(uploadStartedAt!),
+      if (uploadCompletedAt != null)
+        'uploadCompletedAt': Timestamp.fromDate(uploadCompletedAt!),
     };
   }
 }
@@ -176,7 +290,7 @@ class EngagementModel with _$EngagementModel {
     DateTime? completedAt,
     required int watchDurationSeconds,
     required int requiredDurationSeconds,
-    required List<EngagementAnswerModel> answers,
+    required List<SurveyResponseModel> answers,
     EngagementEvidenceModel? evidence,
     int? tokensEarned,
     String? failureReason,
@@ -222,7 +336,7 @@ class EngagementModel with _$EngagementModel {
       requiredDurationSeconds: json['requiredDurationSeconds'] as int,
       answers: (json['answers'] as List?)
               ?.map((e) =>
-                  EngagementAnswerModel.fromJson(e as Map<String, dynamic>))
+                  SurveyResponseModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
       evidence: evidence is Map<String, dynamic>
@@ -301,7 +415,7 @@ class EngagementModel with _$EngagementModel {
       watchDurationSeconds: entity.watchDurationSeconds,
       requiredDurationSeconds: entity.requiredDurationSeconds,
       answers:
-          entity.answers.map((a) => EngagementAnswerModel.fromEntity(a)).toList(),
+          entity.answers.map((a) => SurveyResponseModel.fromEntity(a)).toList(),
       evidence: entity.evidence != null
           ? EngagementEvidenceModel.fromEntity(entity.evidence!)
           : null,
@@ -372,6 +486,8 @@ class EngagementModel with _$EngagementModel {
         return EngagementStatus.rewarded;
       case 'rejected':
         return EngagementStatus.rejected;
+      case 'pending_review':
+        return EngagementStatus.pendingReview;
       default:
         return EngagementStatus.started;
     }

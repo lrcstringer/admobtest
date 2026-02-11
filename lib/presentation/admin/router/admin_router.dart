@@ -9,6 +9,8 @@ import '../screens/admin_login_screen.dart';
 import '../screens/cashout_approval_screen.dart';
 import '../screens/client_management_screen.dart';
 import '../screens/earn_management_screen.dart';
+import '../screens/reward_campaign_screen.dart';
+import '../screens/upload_review_screen.dart';
 import '../screens/ledger_recon_screen.dart';
 import '../screens/platform_management_screen.dart';
 import '../screens/pot_management_screen.dart';
@@ -99,6 +101,20 @@ class AdminRouter {
             path: '/earn',
             name: 'adminEarn',
             builder: (context, state) => const EarnManagementScreen(),
+          ),
+
+          // Upload Review Queue
+          GoRoute(
+            path: '/upload-reviews',
+            name: 'adminUploadReviews',
+            builder: (context, state) => const UploadReviewScreen(),
+          ),
+
+          // Reward Campaign Management
+          GoRoute(
+            path: '/rewards',
+            name: 'adminRewards',
+            builder: (context, state) => const RewardCampaignScreen(),
           ),
 
           // Platform Management

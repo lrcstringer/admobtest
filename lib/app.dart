@@ -13,9 +13,11 @@ import 'presentation/blocs/auth/auth_bloc.dart';
 import 'presentation/blocs/cashout/cashout_bloc.dart';
 import 'presentation/blocs/chat/chat_bloc.dart';
 import 'presentation/blocs/earn/earn_bloc.dart';
+import 'presentation/blocs/earn_inbox/earn_inbox_bloc.dart';
 import 'presentation/blocs/pot/pot_bloc.dart';
 import 'presentation/blocs/purchase/purchase_bloc.dart';
 import 'presentation/blocs/referral/referral_bloc.dart';
+import 'presentation/blocs/reward/reward_bloc.dart';
 import 'presentation/blocs/wallet/wallet_bloc.dart';
 import 'presentation/router/app_router.dart';
 import 'presentation/theme/app_colors.dart';
@@ -39,6 +41,8 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   late final PotBloc _potBloc;
   late final PurchaseBloc _purchaseBloc;
   late final ReferralBloc _referralBloc;
+  late final RewardBloc _rewardBloc;
+  late final EarnInboxBloc _earnInboxBloc;
   late final AppRouter _appRouter;
   late final SessionLockService _sessionLockService;
   late final SimChangeDetector _simChangeDetector;
@@ -59,6 +63,8 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _potBloc = getIt<PotBloc>();
     _purchaseBloc = getIt<PurchaseBloc>();
     _referralBloc = getIt<ReferralBloc>();
+    _rewardBloc = getIt<RewardBloc>();
+    _earnInboxBloc = getIt<EarnInboxBloc>();
     _sessionLockService = GetIt.instance<SessionLockService>();
     _simChangeDetector = GetIt.instance<SimChangeDetector>();
     _challengeHandler = GetIt.instance<FcmChallengeHandler>();
@@ -134,6 +140,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
       // Earn tab renders instantly instead of showing a loading spinner.
       if (state.status == AuthStatus.authenticated) {
         _earnBloc.add(const EarnEvent.loadThreads());
+        _earnInboxBloc.add(const EarnInboxEvent.loadInbox());
       }
     });
   }
@@ -188,6 +195,8 @@ class _IMaliChatAppState extends State<IMaliChatApp>
         BlocProvider<PotBloc>.value(value: _potBloc),
         BlocProvider<PurchaseBloc>.value(value: _purchaseBloc),
         BlocProvider<ReferralBloc>.value(value: _referralBloc),
+        BlocProvider<RewardBloc>.value(value: _rewardBloc),
+        BlocProvider<EarnInboxBloc>.value(value: _earnInboxBloc),
       ],
       child: MaterialApp.router(
         title: 'iMali',

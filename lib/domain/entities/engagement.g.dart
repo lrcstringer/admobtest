@@ -20,7 +20,7 @@ _$EngagementImpl _$$EngagementImplFromJson(Map<String, dynamic> json) =>
       watchDurationSeconds: (json['watchDurationSeconds'] as num).toInt(),
       requiredDurationSeconds: (json['requiredDurationSeconds'] as num).toInt(),
       answers: (json['answers'] as List<dynamic>)
-          .map((e) => EngagementAnswer.fromJson(e as Map<String, dynamic>))
+          .map((e) => SurveyResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
       evidence: json['evidence'] == null
           ? null
@@ -81,22 +81,42 @@ const _$EngagementStatusEnumMap = {
   EngagementStatus.abandoned: 'abandoned',
   EngagementStatus.rewarded: 'rewarded',
   EngagementStatus.rejected: 'rejected',
+  EngagementStatus.pendingReview: 'pendingReview',
 };
 
-_$EngagementAnswerImpl _$$EngagementAnswerImplFromJson(
-  Map<String, dynamic> json,
-) => _$EngagementAnswerImpl(
-  questionId: json['questionId'] as String,
-  selectedOption: json['selectedOption'] as String,
-  answeredAt: DateTime.parse(json['answeredAt'] as String),
-  isCorrect: json['isCorrect'] as bool?,
-);
+_$SurveyResponseImpl _$$SurveyResponseImplFromJson(Map<String, dynamic> json) =>
+    _$SurveyResponseImpl(
+      questionId: json['questionId'] as String,
+      questionType: json['questionType'] as String,
+      answeredAt: DateTime.parse(json['answeredAt'] as String),
+      selectedOption: json['selectedOption'] as String?,
+      selectedOptions: (json['selectedOptions'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      textResponses: (json['textResponses'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      likertValue: (json['likertValue'] as num?)?.toInt(),
+      starRating: (json['starRating'] as num?)?.toInt(),
+      selectedTags: (json['selectedTags'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      sliderValue: (json['sliderValue'] as num?)?.toDouble(),
+      isCorrect: json['isCorrect'] as bool?,
+    );
 
-Map<String, dynamic> _$$EngagementAnswerImplToJson(
-  _$EngagementAnswerImpl instance,
+Map<String, dynamic> _$$SurveyResponseImplToJson(
+  _$SurveyResponseImpl instance,
 ) => <String, dynamic>{
   'questionId': instance.questionId,
-  'selectedOption': instance.selectedOption,
+  'questionType': instance.questionType,
   'answeredAt': instance.answeredAt.toIso8601String(),
+  'selectedOption': instance.selectedOption,
+  'selectedOptions': instance.selectedOptions,
+  'textResponses': instance.textResponses,
+  'likertValue': instance.likertValue,
+  'starRating': instance.starRating,
+  'selectedTags': instance.selectedTags,
+  'sliderValue': instance.sliderValue,
   'isCorrect': instance.isCorrect,
 };

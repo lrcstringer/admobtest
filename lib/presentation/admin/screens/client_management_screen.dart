@@ -613,13 +613,31 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        client['companyName'] ?? 'Unknown',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimaryDark,
-                        ),
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              client['companyName'] ?? 'Unknown',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimaryDark,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (client['isPinned'] == true)
+                            const Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: Icon(Icons.push_pin,
+                                  size: 14, color: AppColors.warning),
+                            ),
+                          if (client['isFeatured'] == true)
+                            const Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: Icon(Icons.star,
+                                  size: 14, color: AppColors.gold),
+                            ),
+                        ],
                       ),
                       Text(
                         client['id'] ?? '',
@@ -950,6 +968,7 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
   String? _selectedAccountTypeId;
   List<Map<String, dynamic>> _accountTypes = [];
   bool _isLoading = false;
+  bool _isRewardSponsor = false;
 
   // Logo upload state
   String? _pickedLogoName;
@@ -1088,6 +1107,7 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
         if (_selectedAccountTypeId != null)
           'brandAccountTypeId': _selectedAccountTypeId,
         if (avatarImage != null) 'avatarImage': avatarImage,
+        'isRewardSponsor': _isRewardSponsor,
       });
       if (mounted) {
         Navigator.of(context).pop();
@@ -1431,6 +1451,16 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
                         setState(() => _selectedAccountTypeId = v),
                   ),
                 ],
+                const SizedBox(height: 16),
+                SwitchListTile(
+                  title: const Text('Reward Sponsor'),
+                  subtitle: const Text(
+                    'Enable to allow linking reward campaigns to this client',
+                  ),
+                  value: _isRewardSponsor,
+                  onChanged: (v) => setState(() => _isRewardSponsor = v),
+                  contentPadding: EdgeInsets.zero,
+                ),
               ],
             ),
           ),
@@ -1495,6 +1525,9 @@ class _EditClientDialogState extends State<_EditClientDialog> {
   String? _selectedAccountTypeId;
   List<Map<String, dynamic>> _accountTypes = [];
   bool _isLoading = false;
+  late bool _isRewardSponsor;
+  late bool _isPinned;
+  late bool _isFeatured;
 
   // Logo upload state
   String? _existingLogoUrl;
@@ -1531,6 +1564,9 @@ class _EditClientDialogState extends State<_EditClientDialog> {
         ? rawIndustry
         : 'other';
     _selectedAccountTypeId = c['brandAccountTypeId']?.toString();
+    _isRewardSponsor = c['isRewardSponsor'] == true;
+    _isPinned = c['isPinned'] == true;
+    _isFeatured = c['isFeatured'] == true;
     _existingLogoUrl = c['avatarImage']?.toString();
   }
 
@@ -1659,6 +1695,9 @@ class _EditClientDialogState extends State<_EditClientDialog> {
           if (_selectedAccountTypeId != null)
             'brandAccountTypeId': _selectedAccountTypeId,
           if (avatarImage != null) 'avatarImage': avatarImage,
+          'isRewardSponsor': _isRewardSponsor,
+          'isPinned': _isPinned,
+          'isFeatured': _isFeatured,
         },
       });
       if (mounted) {
@@ -1999,6 +2038,41 @@ class _EditClientDialogState extends State<_EditClientDialog> {
                         setState(() => _selectedAccountTypeId = v),
                   ),
                 ],
+                const SizedBox(height: 16),
+                SwitchListTile(
+                  title: const Text('Reward Sponsor'),
+                  subtitle: const Text(
+                    'Enable to allow linking reward campaigns to this client',
+                  ),
+                  value: _isRewardSponsor,
+                  onChanged: (v) => setState(() => _isRewardSponsor = v),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const Divider(),
+                const Text('Inbox Display',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary,
+                    )),
+                const SizedBox(height: 4),
+                SwitchListTile(
+                  title: const Text('Pinned'),
+                  subtitle: const Text(
+                    'Pin this client to the top of the earn inbox',
+                  ),
+                  value: _isPinned,
+                  onChanged: (v) => setState(() => _isPinned = v),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                SwitchListTile(
+                  title: const Text('Featured'),
+                  subtitle: const Text(
+                    'Highlight this client as featured in the earn inbox',
+                  ),
+                  value: _isFeatured,
+                  onChanged: (v) => setState(() => _isFeatured = v),
+                  contentPadding: EdgeInsets.zero,
+                ),
               ],
             ),
           ),

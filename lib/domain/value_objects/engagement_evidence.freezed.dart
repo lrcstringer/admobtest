@@ -15,6 +15,310 @@ final _privateConstructorUsedError = UnsupportedError(
   'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
 );
 
+UploadedFileEvidence _$UploadedFileEvidenceFromJson(Map<String, dynamic> json) {
+  return _UploadedFileEvidence.fromJson(json);
+}
+
+/// @nodoc
+mixin _$UploadedFileEvidence {
+  String get url => throw _privateConstructorUsedError;
+  String get type => throw _privateConstructorUsedError; // 'video' or 'image'
+  int get sizeBytes => throw _privateConstructorUsedError;
+  String? get mimeType => throw _privateConstructorUsedError;
+  int? get durationSeconds => throw _privateConstructorUsedError; // video only
+  int? get width => throw _privateConstructorUsedError;
+  int? get height => throw _privateConstructorUsedError;
+
+  /// Serializes this UploadedFileEvidence to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of UploadedFileEvidence
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $UploadedFileEvidenceCopyWith<UploadedFileEvidence> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $UploadedFileEvidenceCopyWith<$Res> {
+  factory $UploadedFileEvidenceCopyWith(
+    UploadedFileEvidence value,
+    $Res Function(UploadedFileEvidence) then,
+  ) = _$UploadedFileEvidenceCopyWithImpl<$Res, UploadedFileEvidence>;
+  @useResult
+  $Res call({
+    String url,
+    String type,
+    int sizeBytes,
+    String? mimeType,
+    int? durationSeconds,
+    int? width,
+    int? height,
+  });
+}
+
+/// @nodoc
+class _$UploadedFileEvidenceCopyWithImpl<
+  $Res,
+  $Val extends UploadedFileEvidence
+>
+    implements $UploadedFileEvidenceCopyWith<$Res> {
+  _$UploadedFileEvidenceCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of UploadedFileEvidence
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? url = null,
+    Object? type = null,
+    Object? sizeBytes = null,
+    Object? mimeType = freezed,
+    Object? durationSeconds = freezed,
+    Object? width = freezed,
+    Object? height = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            url: null == url
+                ? _value.url
+                : url // ignore: cast_nullable_to_non_nullable
+                      as String,
+            type: null == type
+                ? _value.type
+                : type // ignore: cast_nullable_to_non_nullable
+                      as String,
+            sizeBytes: null == sizeBytes
+                ? _value.sizeBytes
+                : sizeBytes // ignore: cast_nullable_to_non_nullable
+                      as int,
+            mimeType: freezed == mimeType
+                ? _value.mimeType
+                : mimeType // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            durationSeconds: freezed == durationSeconds
+                ? _value.durationSeconds
+                : durationSeconds // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            width: freezed == width
+                ? _value.width
+                : width // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            height: freezed == height
+                ? _value.height
+                : height // ignore: cast_nullable_to_non_nullable
+                      as int?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$UploadedFileEvidenceImplCopyWith<$Res>
+    implements $UploadedFileEvidenceCopyWith<$Res> {
+  factory _$$UploadedFileEvidenceImplCopyWith(
+    _$UploadedFileEvidenceImpl value,
+    $Res Function(_$UploadedFileEvidenceImpl) then,
+  ) = __$$UploadedFileEvidenceImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    String url,
+    String type,
+    int sizeBytes,
+    String? mimeType,
+    int? durationSeconds,
+    int? width,
+    int? height,
+  });
+}
+
+/// @nodoc
+class __$$UploadedFileEvidenceImplCopyWithImpl<$Res>
+    extends _$UploadedFileEvidenceCopyWithImpl<$Res, _$UploadedFileEvidenceImpl>
+    implements _$$UploadedFileEvidenceImplCopyWith<$Res> {
+  __$$UploadedFileEvidenceImplCopyWithImpl(
+    _$UploadedFileEvidenceImpl _value,
+    $Res Function(_$UploadedFileEvidenceImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of UploadedFileEvidence
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? url = null,
+    Object? type = null,
+    Object? sizeBytes = null,
+    Object? mimeType = freezed,
+    Object? durationSeconds = freezed,
+    Object? width = freezed,
+    Object? height = freezed,
+  }) {
+    return _then(
+      _$UploadedFileEvidenceImpl(
+        url: null == url
+            ? _value.url
+            : url // ignore: cast_nullable_to_non_nullable
+                  as String,
+        type: null == type
+            ? _value.type
+            : type // ignore: cast_nullable_to_non_nullable
+                  as String,
+        sizeBytes: null == sizeBytes
+            ? _value.sizeBytes
+            : sizeBytes // ignore: cast_nullable_to_non_nullable
+                  as int,
+        mimeType: freezed == mimeType
+            ? _value.mimeType
+            : mimeType // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        durationSeconds: freezed == durationSeconds
+            ? _value.durationSeconds
+            : durationSeconds // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        width: freezed == width
+            ? _value.width
+            : width // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        height: freezed == height
+            ? _value.height
+            : height // ignore: cast_nullable_to_non_nullable
+                  as int?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$UploadedFileEvidenceImpl implements _UploadedFileEvidence {
+  const _$UploadedFileEvidenceImpl({
+    required this.url,
+    required this.type,
+    required this.sizeBytes,
+    this.mimeType,
+    this.durationSeconds,
+    this.width,
+    this.height,
+  });
+
+  factory _$UploadedFileEvidenceImpl.fromJson(Map<String, dynamic> json) =>
+      _$$UploadedFileEvidenceImplFromJson(json);
+
+  @override
+  final String url;
+  @override
+  final String type;
+  // 'video' or 'image'
+  @override
+  final int sizeBytes;
+  @override
+  final String? mimeType;
+  @override
+  final int? durationSeconds;
+  // video only
+  @override
+  final int? width;
+  @override
+  final int? height;
+
+  @override
+  String toString() {
+    return 'UploadedFileEvidence(url: $url, type: $type, sizeBytes: $sizeBytes, mimeType: $mimeType, durationSeconds: $durationSeconds, width: $width, height: $height)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$UploadedFileEvidenceImpl &&
+            (identical(other.url, url) || other.url == url) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.sizeBytes, sizeBytes) ||
+                other.sizeBytes == sizeBytes) &&
+            (identical(other.mimeType, mimeType) ||
+                other.mimeType == mimeType) &&
+            (identical(other.durationSeconds, durationSeconds) ||
+                other.durationSeconds == durationSeconds) &&
+            (identical(other.width, width) || other.width == width) &&
+            (identical(other.height, height) || other.height == height));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    url,
+    type,
+    sizeBytes,
+    mimeType,
+    durationSeconds,
+    width,
+    height,
+  );
+
+  /// Create a copy of UploadedFileEvidence
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$UploadedFileEvidenceImplCopyWith<_$UploadedFileEvidenceImpl>
+  get copyWith =>
+      __$$UploadedFileEvidenceImplCopyWithImpl<_$UploadedFileEvidenceImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$UploadedFileEvidenceImplToJson(this);
+  }
+}
+
+abstract class _UploadedFileEvidence implements UploadedFileEvidence {
+  const factory _UploadedFileEvidence({
+    required final String url,
+    required final String type,
+    required final int sizeBytes,
+    final String? mimeType,
+    final int? durationSeconds,
+    final int? width,
+    final int? height,
+  }) = _$UploadedFileEvidenceImpl;
+
+  factory _UploadedFileEvidence.fromJson(Map<String, dynamic> json) =
+      _$UploadedFileEvidenceImpl.fromJson;
+
+  @override
+  String get url;
+  @override
+  String get type; // 'video' or 'image'
+  @override
+  int get sizeBytes;
+  @override
+  String? get mimeType;
+  @override
+  int? get durationSeconds; // video only
+  @override
+  int? get width;
+  @override
+  int? get height;
+
+  /// Create a copy of UploadedFileEvidence
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$UploadedFileEvidenceImplCopyWith<_$UploadedFileEvidenceImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
 EngagementEvidence _$EngagementEvidenceFromJson(Map<String, dynamic> json) {
   return _EngagementEvidence.fromJson(json);
 }
@@ -60,6 +364,13 @@ mixin _$EngagementEvidence {
   /// AdMob response ID — uniquely identifies the ad impression for debugging
   String? get adResponseId => throw _privateConstructorUsedError;
 
+  /// Upload evidence fields
+  List<UploadedFileEvidence>? get uploadedFiles =>
+      throw _privateConstructorUsedError;
+  String? get uploadTextResponse => throw _privateConstructorUsedError;
+  DateTime? get uploadStartedAt => throw _privateConstructorUsedError;
+  DateTime? get uploadCompletedAt => throw _privateConstructorUsedError;
+
   /// Serializes this EngagementEvidence to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
@@ -91,6 +402,10 @@ abstract class $EngagementEvidenceCopyWith<$Res> {
     String? adTransactionId,
     bool? adFullyWatched,
     String? adResponseId,
+    List<UploadedFileEvidence>? uploadedFiles,
+    String? uploadTextResponse,
+    DateTime? uploadStartedAt,
+    DateTime? uploadCompletedAt,
   });
 }
 
@@ -122,6 +437,10 @@ class _$EngagementEvidenceCopyWithImpl<$Res, $Val extends EngagementEvidence>
     Object? adTransactionId = freezed,
     Object? adFullyWatched = freezed,
     Object? adResponseId = freezed,
+    Object? uploadedFiles = freezed,
+    Object? uploadTextResponse = freezed,
+    Object? uploadStartedAt = freezed,
+    Object? uploadCompletedAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -177,6 +496,22 @@ class _$EngagementEvidenceCopyWithImpl<$Res, $Val extends EngagementEvidence>
                 ? _value.adResponseId
                 : adResponseId // ignore: cast_nullable_to_non_nullable
                       as String?,
+            uploadedFiles: freezed == uploadedFiles
+                ? _value.uploadedFiles
+                : uploadedFiles // ignore: cast_nullable_to_non_nullable
+                      as List<UploadedFileEvidence>?,
+            uploadTextResponse: freezed == uploadTextResponse
+                ? _value.uploadTextResponse
+                : uploadTextResponse // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            uploadStartedAt: freezed == uploadStartedAt
+                ? _value.uploadStartedAt
+                : uploadStartedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            uploadCompletedAt: freezed == uploadCompletedAt
+                ? _value.uploadCompletedAt
+                : uploadCompletedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -206,6 +541,10 @@ abstract class _$$EngagementEvidenceImplCopyWith<$Res>
     String? adTransactionId,
     bool? adFullyWatched,
     String? adResponseId,
+    List<UploadedFileEvidence>? uploadedFiles,
+    String? uploadTextResponse,
+    DateTime? uploadStartedAt,
+    DateTime? uploadCompletedAt,
   });
 }
 
@@ -236,6 +575,10 @@ class __$$EngagementEvidenceImplCopyWithImpl<$Res>
     Object? adTransactionId = freezed,
     Object? adFullyWatched = freezed,
     Object? adResponseId = freezed,
+    Object? uploadedFiles = freezed,
+    Object? uploadTextResponse = freezed,
+    Object? uploadStartedAt = freezed,
+    Object? uploadCompletedAt = freezed,
   }) {
     return _then(
       _$EngagementEvidenceImpl(
@@ -291,6 +634,22 @@ class __$$EngagementEvidenceImplCopyWithImpl<$Res>
             ? _value.adResponseId
             : adResponseId // ignore: cast_nullable_to_non_nullable
                   as String?,
+        uploadedFiles: freezed == uploadedFiles
+            ? _value._uploadedFiles
+            : uploadedFiles // ignore: cast_nullable_to_non_nullable
+                  as List<UploadedFileEvidence>?,
+        uploadTextResponse: freezed == uploadTextResponse
+            ? _value.uploadTextResponse
+            : uploadTextResponse // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        uploadStartedAt: freezed == uploadStartedAt
+            ? _value.uploadStartedAt
+            : uploadStartedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        uploadCompletedAt: freezed == uploadCompletedAt
+            ? _value.uploadCompletedAt
+            : uploadCompletedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -313,7 +672,12 @@ class _$EngagementEvidenceImpl extends _EngagementEvidence {
     this.adTransactionId,
     this.adFullyWatched,
     this.adResponseId,
+    final List<UploadedFileEvidence>? uploadedFiles,
+    this.uploadTextResponse,
+    this.uploadStartedAt,
+    this.uploadCompletedAt,
   }) : _surveyResponseTimesMs = surveyResponseTimesMs,
+       _uploadedFiles = uploadedFiles,
        super._();
 
   factory _$EngagementEvidenceImpl.fromJson(Map<String, dynamic> json) =>
@@ -379,9 +743,29 @@ class _$EngagementEvidenceImpl extends _EngagementEvidence {
   @override
   final String? adResponseId;
 
+  /// Upload evidence fields
+  final List<UploadedFileEvidence>? _uploadedFiles;
+
+  /// Upload evidence fields
+  @override
+  List<UploadedFileEvidence>? get uploadedFiles {
+    final value = _uploadedFiles;
+    if (value == null) return null;
+    if (_uploadedFiles is EqualUnmodifiableListView) return _uploadedFiles;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
+  final String? uploadTextResponse;
+  @override
+  final DateTime? uploadStartedAt;
+  @override
+  final DateTime? uploadCompletedAt;
+
   @override
   String toString() {
-    return 'EngagementEvidence(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched, adResponseId: $adResponseId)';
+    return 'EngagementEvidence(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched, adResponseId: $adResponseId, uploadedFiles: $uploadedFiles, uploadTextResponse: $uploadTextResponse, uploadStartedAt: $uploadStartedAt, uploadCompletedAt: $uploadCompletedAt)';
   }
 
   @override
@@ -416,7 +800,17 @@ class _$EngagementEvidenceImpl extends _EngagementEvidence {
             (identical(other.adFullyWatched, adFullyWatched) ||
                 other.adFullyWatched == adFullyWatched) &&
             (identical(other.adResponseId, adResponseId) ||
-                other.adResponseId == adResponseId));
+                other.adResponseId == adResponseId) &&
+            const DeepCollectionEquality().equals(
+              other._uploadedFiles,
+              _uploadedFiles,
+            ) &&
+            (identical(other.uploadTextResponse, uploadTextResponse) ||
+                other.uploadTextResponse == uploadTextResponse) &&
+            (identical(other.uploadStartedAt, uploadStartedAt) ||
+                other.uploadStartedAt == uploadStartedAt) &&
+            (identical(other.uploadCompletedAt, uploadCompletedAt) ||
+                other.uploadCompletedAt == uploadCompletedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -436,6 +830,10 @@ class _$EngagementEvidenceImpl extends _EngagementEvidence {
     adTransactionId,
     adFullyWatched,
     adResponseId,
+    const DeepCollectionEquality().hash(_uploadedFiles),
+    uploadTextResponse,
+    uploadStartedAt,
+    uploadCompletedAt,
   );
 
   /// Create a copy of EngagementEvidence
@@ -470,6 +868,10 @@ abstract class _EngagementEvidence extends EngagementEvidence {
     final String? adTransactionId,
     final bool? adFullyWatched,
     final String? adResponseId,
+    final List<UploadedFileEvidence>? uploadedFiles,
+    final String? uploadTextResponse,
+    final DateTime? uploadStartedAt,
+    final DateTime? uploadCompletedAt,
   }) = _$EngagementEvidenceImpl;
   const _EngagementEvidence._() : super._();
 
@@ -527,6 +929,16 @@ abstract class _EngagementEvidence extends EngagementEvidence {
   /// AdMob response ID — uniquely identifies the ad impression for debugging
   @override
   String? get adResponseId;
+
+  /// Upload evidence fields
+  @override
+  List<UploadedFileEvidence>? get uploadedFiles;
+  @override
+  String? get uploadTextResponse;
+  @override
+  DateTime? get uploadStartedAt;
+  @override
+  DateTime? get uploadCompletedAt;
 
   /// Create a copy of EngagementEvidence
   /// with the given fields replaced by the non-null parameter values.

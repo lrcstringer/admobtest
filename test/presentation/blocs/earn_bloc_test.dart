@@ -470,6 +470,7 @@ void main() {
       final testAnswers = [
         EngagementAnswer(
           questionId: 'q1',
+          questionType: 'single_select',
           selectedOption: 'A',
           answeredAt: DateTime.now(),
         ),
