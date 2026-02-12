@@ -1920,6 +1920,19 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
   String? _selectedAccountTypeId;
   List<Map<String, dynamic>> _accountTypes = [];
 
+  // Inline sub-account creation
+  bool _createNewSubAccount = false;
+  final _subAccountNameController = TextEditingController();
+  bool _subAccountNameManuallyEdited = false;
+
+  // Inline account type restrictions
+  bool _configureRestrictions = false;
+  bool _allowP2pSend = true;
+  bool _allowP2pReceive = true;
+  bool _allowCashout = true;
+  final _expiryDaysController = TextEditingController();
+  List<String> _allowedOfframps = ['*'];
+
   // Targeting
   Map<String, dynamic>? _targeting;
 
@@ -1936,6 +1949,14 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
     _loadAccountTypes();
     if (_selectedClientId != null) {
       _loadTokenSourceAccounts(_selectedClientId!);
+    }
+    // Auto-sync sub-account name with title when creating new
+    _titleController.addListener(_syncSubAccountName);
+  }
+
+  void _syncSubAccountName() {
+    if (_createNewSubAccount && !_subAccountNameManuallyEdited) {
+      _subAccountNameController.text = _titleController.text;
     }
   }
 
@@ -1996,8 +2017,11 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
 
   @override
   void dispose() {
+    _titleController.removeListener(_syncSubAccountName);
     _titleController.dispose();
     _descriptionController.dispose();
+    _subAccountNameController.dispose();
+    _expiryDaysController.dispose();
     super.dispose();
   }
 
@@ -2089,15 +2113,12 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
 
     try {
       // Use createEarnThread CF — auto-creates sub-account if needed
-      final callData = {
+      final callData = <String, dynamic>{
         'clientId': _selectedClientId,
         'title': _titleController.text.trim(),
         'description': _descriptionController.text.trim().isEmpty
             ? null
             : _descriptionController.text.trim(),
-        'tokenSourceAccountId':
-            overrideSubAccountId ?? _selectedSubAccountId,
-        'tokenDestAccountTypeId': _selectedAccountTypeId,
         'isPinned': _isPinned,
         'isFeatured': _isFeatured,
         'isActive': _isActive,
@@ -2105,6 +2126,33 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
         'activeTo': _activeTo?.toIso8601String(),
         'targeting': _targeting,
       };
+
+      if (_createNewSubAccount) {
+        // Omit tokenSourceAccountId → backend auto-creates sub-account
+        callData['subAccountName'] =
+            _subAccountNameController.text.trim();
+        if (_configureRestrictions) {
+          callData['inlineAccountType'] = {
+            'name': _subAccountNameController.text.trim(),
+            'description':
+                'Account type for ${_subAccountNameController.text.trim()}',
+            'rules': {
+              'allowedOfframps': _allowedOfframps,
+              'allowP2pSend': _allowP2pSend,
+              'allowP2pReceive': _allowP2pReceive,
+              'allowCashout': _allowCashout,
+              if (_expiryDaysController.text.trim().isNotEmpty)
+                'expiryDays':
+                    int.tryParse(_expiryDaysController.text.trim()),
+            },
+          };
+        }
+      } else {
+        // Existing flow — use selected sub-account and account type
+        callData['tokenSourceAccountId'] =
+            overrideSubAccountId ?? _selectedSubAccountId;
+        callData['tokenDestAccountTypeId'] = _selectedAccountTypeId;
+      }
       debugPrint('=== CALLING createEarnThread ===');
       debugPrint('Data: $callData');
       final result = await FirebaseFunctions.instance
@@ -2476,44 +2524,185 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    if (_subAccounts.isNotEmpty) ...[
-                      DropdownButtonFormField<String>(
-                        initialValue: _selectedSubAccountId,
+                    // Toggle: existing sub-account vs create new
+                    SwitchListTile(
+                      value: _createNewSubAccount,
+                      onChanged: _selectedClientId == null
+                          ? null
+                          : (v) {
+                              setState(() {
+                                _createNewSubAccount = v;
+                                if (v) {
+                                  _subAccountNameManuallyEdited = false;
+                                  _subAccountNameController.text =
+                                      _titleController.text;
+                                }
+                              });
+                            },
+                      title: const Text(
+                        'Create new sub-account',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textPrimaryDark,
+                        ),
+                      ),
+                      subtitle: Text(
+                        _createNewSubAccount
+                            ? 'A new sub-account will be created with 0 balance (fund separately)'
+                            : 'Select an existing token source account',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                    ),
+                    const SizedBox(height: 12),
+                    if (!_createNewSubAccount) ...[
+                      // === Existing sub-account dropdown ===
+                      if (_subAccounts.isNotEmpty) ...[
+                        DropdownButtonFormField<String>(
+                          initialValue: _selectedSubAccountId,
+                          decoration: const InputDecoration(
+                            labelText: 'Token Source Account',
+                            isDense: true,
+                          ),
+                          items: _subAccounts
+                              .map((sa) => DropdownMenuItem<String>(
+                                    value: (sa['ledgerAccountId'] ?? sa['id'])
+                                        as String,
+                                    child: Text(sa['name']?.toString() ??
+                                        sa['id'].toString()),
+                                  ))
+                              .toList(),
+                          onChanged: (v) =>
+                              setState(() => _selectedSubAccountId = v),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      // Existing account type dropdown
+                      if (_accountTypes.isNotEmpty) ...[
+                        DropdownButtonFormField<String>(
+                          initialValue: _selectedAccountTypeId,
+                          decoration: const InputDecoration(
+                            labelText: 'Token Dest Account Type (optional)',
+                            hintText: 'None',
+                            isDense: true,
+                          ),
+                          items: [
+                            const DropdownMenuItem<String>(
+                              value: null,
+                              child: Text('None (default)'),
+                            ),
+                            ..._accountTypes.map(
+                                (at) => DropdownMenuItem<String>(
+                                      value: at['id'] as String,
+                                      child: Text(
+                                          '${at['name']}${at['isRestricted'] == true ? ' (restricted)' : ''}'),
+                                    )),
+                          ],
+                          onChanged: (v) =>
+                              setState(() => _selectedAccountTypeId = v),
+                        ),
+                      ],
+                    ] else ...[
+                      // === Inline sub-account creation ===
+                      TextFormField(
+                        controller: _subAccountNameController,
                         decoration: const InputDecoration(
-                          labelText: 'Token Source Account',
+                          labelText: 'Sub-Account Name',
+                          hintText: 'Auto-filled from campaign title',
                           isDense: true,
                         ),
-                        items: _subAccounts.map((sa) => DropdownMenuItem<String>(
-                              value: (sa['ledgerAccountId'] ?? sa['id']) as String,
-                              child: Text(sa['name']?.toString() ?? sa['id'].toString()),
-                            )).toList(),
-                        onChanged: (v) =>
-                            setState(() => _selectedSubAccountId = v),
+                        onChanged: (_) {
+                          _subAccountNameManuallyEdited = true;
+                        },
+                        validator: (v) => (v == null || v.trim().isEmpty)
+                            ? 'Sub-account name is required'
+                            : null,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Balance: 0 tokens — fund via Client Management after creation',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
                       const SizedBox(height: 12),
-                    ],
-                    if (_accountTypes.isNotEmpty) ...[
-                      DropdownButtonFormField<String>(
-                        initialValue: _selectedAccountTypeId,
-                        decoration: const InputDecoration(
-                          labelText: 'Token Dest Account Type (optional)',
-                          hintText: 'None',
-                          isDense: true,
-                        ),
-                        items: [
-                          const DropdownMenuItem<String>(
-                            value: null,
-                            child: Text('None (default)'),
-                          ),
-                          ..._accountTypes.map((at) => DropdownMenuItem<String>(
-                                value: at['id'] as String,
-                                child: Text(
-                                    '${at['name']}${at['isRestricted'] == true ? ' (restricted)' : ''}'),
-                              )),
-                        ],
+                      // Restrictions toggle
+                      SwitchListTile(
+                        value: _configureRestrictions,
                         onChanged: (v) =>
-                            setState(() => _selectedAccountTypeId = v),
+                            setState(() => _configureRestrictions = v),
+                        title: const Text(
+                          'Configure account restrictions',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textPrimaryDark,
+                          ),
+                        ),
+                        subtitle: Text(
+                          _configureRestrictions
+                              ? 'Set spending and transfer rules for user wallets'
+                              : 'Default: unrestricted — users can spend, transfer, cashout freely',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
                       ),
+                      if (_configureRestrictions) ...[
+                        const Divider(height: 24),
+                        // Allowed offramps
+                        _OfframpChipEditor(
+                          offramps: _allowedOfframps,
+                          onChanged: (list) =>
+                              setState(() => _allowedOfframps = list),
+                        ),
+                        const SizedBox(height: 8),
+                        SwitchListTile(
+                          value: _allowP2pSend,
+                          onChanged: (v) =>
+                              setState(() => _allowP2pSend = v),
+                          title: const Text('Allow P2P Send',
+                              style: TextStyle(fontSize: 13)),
+                          contentPadding: EdgeInsets.zero,
+                          dense: true,
+                        ),
+                        SwitchListTile(
+                          value: _allowP2pReceive,
+                          onChanged: (v) =>
+                              setState(() => _allowP2pReceive = v),
+                          title: const Text('Allow P2P Receive',
+                              style: TextStyle(fontSize: 13)),
+                          contentPadding: EdgeInsets.zero,
+                          dense: true,
+                        ),
+                        SwitchListTile(
+                          value: _allowCashout,
+                          onChanged: (v) =>
+                              setState(() => _allowCashout = v),
+                          title: const Text('Allow Cashout',
+                              style: TextStyle(fontSize: 13)),
+                          contentPadding: EdgeInsets.zero,
+                          dense: true,
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _expiryDaysController,
+                          decoration: const InputDecoration(
+                            labelText: 'Expiry Days (optional)',
+                            hintText: 'Leave empty for no expiry',
+                            isDense: true,
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ],
                     ],
                   ],
                 ),
@@ -7248,6 +7437,142 @@ class _EditQuestionsDialogState extends State<_EditQuestionsDialog> {
 }
 
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Offramp Chip Editor (for inline account type restrictions)
+// ---------------------------------------------------------------------------
+
+class _OfframpChipEditor extends StatefulWidget {
+  final List<String> offramps;
+  final ValueChanged<List<String>> onChanged;
+
+  const _OfframpChipEditor({
+    required this.offramps,
+    required this.onChanged,
+  });
+
+  @override
+  State<_OfframpChipEditor> createState() => _OfframpChipEditorState();
+}
+
+class _OfframpChipEditorState extends State<_OfframpChipEditor> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  bool get _isUnrestricted =>
+      widget.offramps.length == 1 && widget.offramps.first == '*';
+
+  void _addOfframp() {
+    final value = _controller.text.trim();
+    if (value.isEmpty) return;
+    final updated = List<String>.from(widget.offramps);
+    // Adding a specific offramp removes the wildcard
+    updated.remove('*');
+    if (!updated.contains(value)) {
+      updated.add(value);
+    }
+    _controller.clear();
+    widget.onChanged(updated);
+  }
+
+  void _removeOfframp(String value) {
+    final updated = List<String>.from(widget.offramps)..remove(value);
+    // If all removed, revert to unrestricted
+    if (updated.isEmpty) {
+      updated.add('*');
+    }
+    widget.onChanged(updated);
+  }
+
+  void _setUnrestricted() {
+    widget.onChanged(['*']);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Allowed Offramps',
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            ),
+            const Spacer(),
+            if (!_isUnrestricted)
+              TextButton.icon(
+                onPressed: _setUnrestricted,
+                icon: const Icon(Icons.lock_open, size: 14),
+                label: const Text('Set Unrestricted', style: TextStyle(fontSize: 11)),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        if (_isUnrestricted)
+          Chip(
+            label: const Text('All offramps (unrestricted)'),
+            deleteIcon: const Icon(Icons.edit, size: 14),
+            onDeleted: () => widget.onChanged([]),
+            backgroundColor: AppColors.success.withValues(alpha: 0.15),
+            labelStyle: TextStyle(
+              fontSize: 12,
+              color: AppColors.success,
+              fontWeight: FontWeight.w600,
+            ),
+          )
+        else ...[
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: widget.offramps
+                .map((o) => InputChip(
+                      label: Text(o, style: const TextStyle(fontSize: 12)),
+                      onDeleted: () => _removeOfframp(o),
+                      deleteIconColor: AppColors.error,
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  decoration: const InputDecoration(
+                    hintText: 'Add supplier ID...',
+                    isDense: true,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  onSubmitted: (_) => _addOfframp(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: _addOfframp,
+                icon: const Icon(Icons.add_circle_outline, size: 20),
+                tooltip: 'Add offramp',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 // Targeting Criteria Widget (shared across all 4 dialogs)
 // ---------------------------------------------------------------------------
 

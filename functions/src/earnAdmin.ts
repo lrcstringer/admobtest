@@ -29,8 +29,9 @@ import {
   notifyNewThread,
   notifyNewOpportunity,
 } from "./earnNotifications";
-import { AccountId } from "./ledger/types";
+import { AccountId, AccountTypeRules } from "./ledger/types";
 import { createAccount, getBalance } from "./ledger/accounts";
+import { createAccountType } from "./ledger/subAccounts";
 
 const db = admin.firestore();
 
@@ -60,6 +61,11 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     // Token source configuration — full ledger account ID (e.g. "client:abc" or "client_subacc:xyz")
     tokenSourceAccountId,
     tokenDestAccountTypeId,
+    // Optional override for auto-created sub-account name (defaults to title)
+    subAccountName,
+    // Inline account type creation (optional) — creates a SubAccountTypeDefinition
+    // { name?: string, description?: string, rules: AccountTypeRules }
+    inlineAccountType,
     // Display & behavior flags
     isPinned = false,
     isFeatured = false,
@@ -125,10 +131,13 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       );
     }
   } else {
-    // No token source selected — auto-create one named after the campaign title.
+    // No token source selected — auto-create one named after the campaign title
+    // (or the explicit subAccountName override if provided).
+    const resolvedSubAccountName = subAccountName || title;
+
     // Check for an existing sub-account with the same name first.
     const nameCheck = await subAccountsCol
-      .where("name", "==", title)
+      .where("name", "==", resolvedSubAccountName)
       .limit(1)
       .get();
 
@@ -142,7 +151,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
         existingSubAccountId: existing.id,
         existingTokenSourceAccountId: existingLedgerAccountId,
         existingSubAccountName: existingData.name,
-        message: `A sub-account named "${title}" already exists. Reuse it?`,
+        message: `A sub-account named "${resolvedSubAccountName}" already exists. Reuse it?`,
       };
     }
 
@@ -154,7 +163,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     // Create ledger account
     await createAccount({
       type: "client_subacc",
-      name: `${title} — ${clientId}`,
+      name: `${resolvedSubAccountName} — ${clientId}`,
       ownerId: subAccountRef.id,
       metadata: { clientId, subAccountFirestoreId: subAccountRef.id },
     });
@@ -162,7 +171,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     // Create Firestore metadata doc
     await subAccountRef.set({
       id: subAccountRef.id,
-      name: title,
+      name: resolvedSubAccountName,
       ledgerAccountId,
       isActive: true,
       budgetExhausted: false,
@@ -175,6 +184,53 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
 
     resolvedTokenSourceAccountId = ledgerAccountId;
     console.log(`Auto-created sub-account "${subAccountRef.id}" (ledger: ${ledgerAccountId}) for client ${clientId}`);
+  }
+
+  // Resolve token dest account type — use existing or create inline
+  let resolvedTokenDestAccountTypeId = tokenDestAccountTypeId || null;
+
+  if (inlineAccountType && !resolvedTokenDestAccountTypeId) {
+    // Validate inline account type data
+    const rules = inlineAccountType.rules;
+    if (!rules || typeof rules !== "object") {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "inlineAccountType.rules is required and must be an object"
+      );
+    }
+    if (!Array.isArray(rules.allowedOfframps)) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "inlineAccountType.rules.allowedOfframps must be an array"
+      );
+    }
+
+    // Create the account type via existing ledger helper
+    const accountTypeRef = db.collection("accountTypes").doc();
+    const accountTypeName = inlineAccountType.name || title;
+    const accountTypeDescription =
+      inlineAccountType.description || `Account type for campaign: ${title}`;
+
+    const validatedRules: AccountTypeRules = {
+      allowedOfframps: rules.allowedOfframps,
+      allowP2pSend: rules.allowP2pSend !== false,
+      allowP2pReceive: rules.allowP2pReceive !== false,
+      allowCashout: rules.allowCashout !== false,
+      expiryDays: typeof rules.expiryDays === "number" ? rules.expiryDays : null,
+    };
+
+    await createAccountType(
+      accountTypeRef.id,
+      accountTypeName,
+      accountTypeDescription,
+      validatedRules,
+      { advertiserId: clientId },
+    );
+
+    resolvedTokenDestAccountTypeId = accountTypeRef.id;
+    console.log(
+      `Auto-created account type "${accountTypeRef.id}" for campaign "${title}"`
+    );
   }
 
   // Validate targeting criteria if provided
@@ -220,7 +276,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       title,
       description: description || null,
       tokenSourceAccountId: resolvedTokenSourceAccountId,
-      tokenDestAccountTypeId: tokenDestAccountTypeId || null,
+      tokenDestAccountTypeId: resolvedTokenDestAccountTypeId,
       isPinned,
       isFeatured,
       isActive,
@@ -241,7 +297,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       title,
       description: description || null,
       tokenSourceAccountId: resolvedTokenSourceAccountId,
-      tokenDestAccountTypeId: tokenDestAccountTypeId || null,
+      tokenDestAccountTypeId: resolvedTokenDestAccountTypeId,
       isPinned,
       isFeatured,
       isActive,
@@ -270,6 +326,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     success: true,
     threadId: threadRef.id,
     tokenSourceAccountId: resolvedTokenSourceAccountId,
+    tokenDestAccountTypeId: resolvedTokenDestAccountTypeId,
   };
   } catch (error: unknown) {
     // Log the actual error for debugging

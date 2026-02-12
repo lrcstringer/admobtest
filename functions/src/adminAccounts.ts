@@ -1076,41 +1076,45 @@ export const adminRunLedgerRecon = functions
 
 /**
  * List all user accounts with ledger balances and profile data.
- * Includes all statuses (active + frozen).
+ * Primary source is the `users` collection so every registered user appears,
+ * even those who haven't triggered ledger account creation yet.
  */
 export const adminListUsers = functions.https.onCall(async (_data, context) => {
   requireAppCheck(context, "adminListUsers");
   await requireAdminPermission(context, "accounts:listUsers", "adminListUsers");
 
-  // Query all user-type ledger accounts (including frozen)
-  const snapshot = await db
+  // Primary source: all user profile documents
+  const userDocs = await db.collection("users").get();
+
+  // Secondary source: ledger accounts for balance/status
+  const ledgerSnapshot = await db
     .collection("ledgerAccounts")
     .where("type", "==", "user")
     .get();
-  const accounts = snapshot.docs.map((doc) => doc.data());
-
-  // Get user profile documents
-  const userDocs = await db.collection("users").get();
-  const profiles = new Map<string, FirebaseFirestore.DocumentData>();
-  userDocs.forEach((doc) => {
-    profiles.set(doc.id, doc.data());
+  const ledgerMap = new Map<string, FirebaseFirestore.DocumentData>();
+  ledgerSnapshot.docs.forEach((doc) => {
+    const userId = AccountId.parseUserId(doc.id);
+    if (userId) {
+      ledgerMap.set(userId, doc.data());
+    }
   });
 
-  const users = accounts.map((account) => {
-    const userId = AccountId.parseUserId(account.id);
-    const profile = userId ? profiles.get(userId) : null;
+  const users = userDocs.docs.map((doc) => {
+    const userId = doc.id;
+    const profile = doc.data();
+    const ledger = ledgerMap.get(userId);
 
     return {
       id: userId,
-      ledgerAccountId: account.id,
-      name: account.name,
+      ledgerAccountId: ledger?.id || `user:${userId}`,
+      name: ledger?.name || profile?.profile?.displayName || profile?.displayName || null,
       displayName:
         profile?.profile?.displayName || profile?.displayName || null,
       phoneNumber: profile?.phoneNumber || null,
       email: profile?.email || null,
-      balance: account.balance,
-      status: account.status,
-      createdAt: account.createdAt,
+      balance: ledger?.balance ?? 0,
+      status: ledger?.status || "active",
+      createdAt: ledger?.createdAt || profile?.createdAt || null,
     };
   });
 
