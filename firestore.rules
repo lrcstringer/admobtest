@@ -309,7 +309,8 @@ service cloud.firestore {
       // Account IDs follow format: "user:{userId}", "supplier:{id}", etc.
       allow read: if isAuthenticated()
         && (accountId == 'user:' + request.auth.uid
-            || resource.data.ownerId == request.auth.uid);
+            || resource.data.ownerId == request.auth.uid
+            || isAdmin());
 
       // All writes handled by Cloud Functions only
       // This ensures balance integrity through atomic transactions
@@ -318,7 +319,8 @@ service cloud.firestore {
       // Sub-accounts (wallets) subcollection
       match /subAccounts/{subAccountId} {
         allow read: if isAuthenticated()
-          && accountId == request.auth.uid;
+          && (accountId == request.auth.uid
+              || isAdmin());
         allow create, update, delete: if false;
       }
     }

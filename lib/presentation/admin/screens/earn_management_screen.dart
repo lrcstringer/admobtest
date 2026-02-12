@@ -499,14 +499,73 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
                                     ),
                                   ),
                                   child: ListTile(
-                                    leading: Container(
-                                      width: 8,
-                                      height: 8,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: thread['isActive'] == true
-                                            ? AppColors.success
-                                            : AppColors.textSecondary,
+                                    leading: SizedBox(
+                                      width: 36,
+                                      height: 36,
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            width: 36,
+                                            height: 36,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: _threadAvatarColor(thread),
+                                            ),
+                                            clipBehavior: Clip.antiAlias,
+                                            child: () {
+                                              final imageUrl = thread['threadImage'] as String? ??
+                                                  thread['clientAvatarImage'] as String?;
+                                              if (imageUrl != null && imageUrl.isNotEmpty) {
+                                                return Image.network(
+                                                  imageUrl,
+                                                  fit: BoxFit.cover,
+                                                  width: 36,
+                                                  height: 36,
+                                                  errorBuilder: (_, __, ___) => Center(
+                                                    child: Text(
+                                                      _threadInitials(thread),
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                              return Center(
+                                                child: Text(
+                                                  _threadInitials(thread),
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              );
+                                            }(),
+                                          ),
+                                          Positioned(
+                                            right: 0,
+                                            bottom: 0,
+                                            child: Container(
+                                              width: 10,
+                                              height: 10,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: thread['isActive'] == true
+                                                    ? AppColors.success
+                                                    : AppColors.textSecondary,
+                                                border: Border.all(
+                                                  color: isSelected
+                                                      ? AppColors.primary.withValues(alpha: 0.15)
+                                                      : AppColors.surfaceDark,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                     title: Text(
@@ -1174,25 +1233,27 @@ class _CampaignCard extends StatelessWidget {
     return 'Until $toDate';
   }
 
-  Color _threadAvatarColor(Map<String, dynamic> thread) {
-    final colorStr = thread['clientAvatarColor'] as String?;
-    if (colorStr != null && colorStr.startsWith('#')) {
-      try {
-        return Color(int.parse(colorStr.replaceFirst('#', '0xFF')));
-      } catch (_) {}
-    }
-    return AppColors.secondary;
-  }
+}
 
-  String _threadInitials(Map<String, dynamic> thread) {
-    final name = thread['clientName'] as String? ?? '';
-    if (name.isEmpty) return '??';
-    final words = name.split(' ');
-    if (words.length >= 2) {
-      return '${words[0][0]}${words[1][0]}'.toUpperCase();
-    }
-    return name.substring(0, name.length.clamp(0, 2)).toUpperCase();
+// Top-level helpers shared by _EarnManagementScreenState and _CampaignCard
+Color _threadAvatarColor(Map<String, dynamic> thread) {
+  final colorStr = thread['clientAvatarColor'] as String?;
+  if (colorStr != null && colorStr.startsWith('#')) {
+    try {
+      return Color(int.parse(colorStr.replaceFirst('#', '0xFF')));
+    } catch (_) {}
   }
+  return AppColors.secondary;
+}
+
+String _threadInitials(Map<String, dynamic> thread) {
+  final name = thread['clientName'] as String? ?? '';
+  if (name.isEmpty) return '??';
+  final words = name.split(' ');
+  if (words.length >= 2) {
+    return '${words[0][0]}${words[1][0]}'.toUpperCase();
+  }
+  return name.substring(0, name.length.clamp(0, 2)).toUpperCase();
 }
 
 class _OpportunityCard extends StatelessWidget {
@@ -1234,41 +1295,67 @@ class _OpportunityCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            () {
-              final oppImage = opportunity['opportunityImage'] as String?;
-              if (oppImage != null && oppImage.isNotEmpty) {
-                return Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Image.network(
-                    oppImage,
-                    fit: BoxFit.cover,
-                    width: 48,
-                    height: 48,
-                    errorBuilder: (_, __, ___) => Container(
+            SizedBox(
+              width: 48,
+              height: 48,
+              child: Stack(
+                children: [
+                  () {
+                    final oppImage = opportunity['opportunityImage'] as String?;
+                    if (oppImage != null && oppImage.isNotEmpty) {
+                      return Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Image.network(
+                          oppImage,
+                          fit: BoxFit.cover,
+                          width: 48,
+                          height: 48,
+                          errorBuilder: (_, __, ___) => Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(typeIcon, color: AppColors.secondary),
+                          ),
+                        ),
+                      );
+                    }
+                    return Container(
+                      width: 48,
+                      height: 48,
                       decoration: BoxDecoration(
                         color: AppColors.secondary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(typeIcon, color: AppColors.secondary),
+                    );
+                  }(),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: opportunity['isActive'] == true
+                            ? AppColors.success
+                            : AppColors.textSecondary,
+                        border: Border.all(
+                          color: AppColors.surfaceDark,
+                          width: 2,
+                        ),
+                      ),
                     ),
                   ),
-                );
-              }
-              return Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.secondary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(typeIcon, color: AppColors.secondary),
-              );
-            }(),
+                ],
+              ),
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
