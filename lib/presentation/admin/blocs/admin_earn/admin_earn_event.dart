@@ -57,7 +57,7 @@ class AdminEarnEvent with _$AdminEarnEvent {
     required String clientId,
     required String title,
     String? description,
-    required String tokenSourceSubAccountId,
+    required String tokenSourceAccountId,
     String? tokenDestAccountTypeId,
     @Default(false) bool isPinned,
     @Default(false) bool isFeatured,

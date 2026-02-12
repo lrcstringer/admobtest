@@ -208,8 +208,12 @@ class LedgerJournalModel {
         return LedgerJournalType.reversal;
       case 'adjustment':
         return LedgerJournalType.adjustment;
-      case 'systemSeed':
-        return LedgerJournalType.systemSeed;
+      case 'clientFund':
+        return LedgerJournalType.clientFund;
+      case 'clientRefund':
+        return LedgerJournalType.clientRefund;
+      case 'subaccFund':
+        return LedgerJournalType.subaccFund;
       default:
         return LedgerJournalType.earn;
     }
@@ -246,6 +250,8 @@ class LedgerJournalModel {
         return LedgerReferenceType.potDraw;
       case 'potEntry':
         return LedgerReferenceType.potEntry;
+      case 'client_fund':
+        return LedgerReferenceType.clientFund;
       default:
         return null;
     }

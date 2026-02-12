@@ -32,7 +32,7 @@ void main() {
         'isActive': true,
         'activeFrom': activeFromValue,
         'activeTo': activeToValue,
-        'tokenSourceSubAccountId': 'sub_001',
+        'tokenSourceAccountId': 'sub_001',
         'tokenDestAccountTypeId': 'dest_001',
         'availableOpportunities': 10,
         'completedOpportunities': 50,
@@ -58,7 +58,7 @@ void main() {
         expect(model.isPinned, isTrue);
         expect(model.isFeatured, isTrue);
         expect(model.isActive, isTrue);
-        expect(model.tokenSourceSubAccountId, equals('sub_001'));
+        expect(model.tokenSourceAccountId, equals('sub_001'));
         expect(model.tokenDestAccountTypeId, equals('dest_001'));
         expect(model.availableOpportunities, equals(10));
         expect(model.completedOpportunities, equals(50));
@@ -312,7 +312,7 @@ void main() {
           isActive: true,
           activeFrom: now.subtract(const Duration(days: 5)),
           activeTo: now.add(const Duration(days: 25)),
-          tokenSourceSubAccountId: 'sub_123',
+          tokenSourceAccountId: 'sub_123',
           tokenDestAccountTypeId: 'dest_456',
           availableOpportunities: 15,
           completedOpportunities: 75,
@@ -396,7 +396,7 @@ void main() {
           isActive: true,
           activeFrom: now.subtract(const Duration(days: 1)),
           activeTo: now.add(const Duration(days: 30)),
-          tokenSourceSubAccountId: 'sub_001',
+          tokenSourceAccountId: 'sub_001',
           tokenDestAccountTypeId: 'dest_001',
           availableOpportunities: 10,
           completedOpportunities: 50,

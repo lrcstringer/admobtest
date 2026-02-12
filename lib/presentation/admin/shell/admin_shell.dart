@@ -5,7 +5,70 @@ import 'package:go_router/go_router.dart';
 import '../blocs/admin_auth_cubit.dart';
 import '../../theme/app_colors.dart';
 
-/// Admin portal shell with sidebar navigation
+/// Route → allowed roles map. `'*'` means all roles.
+const routeRoles = <String, List<String>>{
+  '/': ['*'],
+  '/pots': ['superAdmin', 'financeAdmin', 'platformAdmin'],
+  '/users': ['superAdmin', 'financeAdmin', 'auditor'],
+  '/cashouts': ['superAdmin', 'financeAdmin'],
+  '/accounts': ['superAdmin', 'financeAdmin', 'auditor'],
+  '/ledger': ['superAdmin', 'financeAdmin', 'platformAdmin', 'auditor'],
+  '/accounts-actions': ['superAdmin', 'financeAdmin', 'platformAdmin'],
+  '/suppliers': ['superAdmin', 'financeAdmin'],
+  '/clients': ['superAdmin', 'financeAdmin', 'campaignAdmin', 'auditor'],
+  '/earn': ['superAdmin', 'campaignAdmin'],
+  '/upload-reviews': ['superAdmin', 'campaignAdmin'],
+  '/rewards': ['superAdmin', 'campaignAdmin', 'auditor'],
+  '/platform': ['superAdmin', 'platformAdmin'],
+  '/admin-users': ['superAdmin'],
+  '/audit-logs': [
+    'superAdmin',
+    'financeAdmin',
+    'campaignAdmin',
+    'platformAdmin',
+    'auditor',
+  ],
+  '/pending-actions': ['superAdmin', 'financeAdmin'],
+};
+
+/// Whether a route is visible for the given roles.
+bool isRouteAllowed(String path, List<String> roles) {
+  if (roles.isEmpty) return false;
+  if (roles.contains('superAdmin')) return true;
+  final allowed = routeRoles[path];
+  if (allowed == null) return true;
+  if (allowed.contains('*')) return true;
+  return roles.any((role) => allowed.contains(role));
+}
+
+/// Human-readable display name for a single role.
+String _singleRoleDisplayName(String role) {
+  switch (role) {
+    case 'platformAdmin':
+      return 'Platform Admin';
+    case 'superAdmin':
+      return 'Super Admin';
+    case 'financeAdmin':
+      return 'Finance Admin';
+    case 'campaignAdmin':
+      return 'Campaign Admin';
+    case 'auditor':
+      return 'Auditor';
+    default:
+      return 'Administrator';
+  }
+}
+
+/// Human-readable display name for multiple roles.
+String rolesDisplayName(List<String> roles) {
+  if (roles.isEmpty) return 'Administrator';
+  return roles.map(_singleRoleDisplayName).join(', ');
+}
+
+/// Admin portal shell with sidebar navigation.
+///
+/// Wraps content with a [Listener] to reset the inactivity timer
+/// on any pointer-down event.
 class AdminShell extends StatelessWidget {
   final Widget child;
 
@@ -15,20 +78,17 @@ class AdminShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentPath = GoRouterState.of(context).matchedLocation;
 
-    return Scaffold(
-      body: Row(
-        children: [
-          // Sidebar
-          _AdminSidebar(currentPath: currentPath),
-
-          // Divider
-          const VerticalDivider(width: 1, thickness: 1),
-
-          // Main content
-          Expanded(
-            child: child,
-          ),
-        ],
+    return Listener(
+      onPointerDown: (_) =>
+          context.read<AdminAuthCubit>().resetInactivityTimer(),
+      child: Scaffold(
+        body: Row(
+          children: [
+            _AdminSidebar(currentPath: currentPath),
+            const VerticalDivider(width: 1, thickness: 1),
+            Expanded(child: child),
+          ],
+        ),
       ),
     );
   }
@@ -41,187 +101,206 @@ class _AdminSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 260,
-      color: AppColors.cardDark,
-      child: Column(
-        children: [
-          // Logo/Header
-          Container(
-            padding: const EdgeInsets.all(24),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primary, AppColors.secondary],
+    return BlocBuilder<AdminAuthCubit, AdminAuthState>(
+      builder: (context, authState) {
+        final roles = authState.roles;
+
+        return Container(
+          width: 260,
+          color: AppColors.cardDark,
+          child: Column(
+            children: [
+              // Logo/Header
+              Container(
+                padding: const EdgeInsets.all(24),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'assets/icons/iMaliCrown4.png',
+                      width: 40,
+                      height: 40,
                     ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.admin_panel_settings,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'iMali Admin',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimaryDark,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const Divider(height: 1),
-
-          // Navigation items
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [
-                _NavItem(
-                  icon: Icons.dashboard_outlined,
-                  selectedIcon: Icons.dashboard,
-                  label: 'Dashboard',
-                  path: '/',
-                  isSelected: currentPath == '/',
-                ),
-                _NavItem(
-                  icon: Icons.account_balance_outlined,
-                  selectedIcon: Icons.account_balance,
-                  label: 'Ledger Recon',
-                  path: '/ledger',
-                  isSelected: currentPath == '/ledger',
-                ),
-                _NavItem(
-                  icon: Icons.emoji_events_outlined,
-                  selectedIcon: Icons.emoji_events,
-                  label: 'Pot Management',
-                  path: '/pots',
-                  isSelected: currentPath == '/pots',
-                ),
-                _NavItem(
-                  icon: Icons.people_outline,
-                  selectedIcon: Icons.people,
-                  label: 'User Management',
-                  path: '/users',
-                  isSelected: currentPath == '/users',
-                ),
-                _NavItem(
-                  icon: Icons.payments_outlined,
-                  selectedIcon: Icons.payments,
-                  label: 'Cashout Approvals',
-                  path: '/cashouts',
-                  isSelected: currentPath == '/cashouts',
-                ),
-
-                // Account Management section
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
-                  child: Text(
-                    'ACCOUNT MANAGEMENT',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
-                      letterSpacing: 0.5,
+                    const SizedBox(width: 12),
+                    const Text(
+                      'iMaliChat Admin',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimaryDark,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                _NavItem(
-                  icon: Icons.account_balance_wallet_outlined,
-                  selectedIcon: Icons.account_balance_wallet,
-                  label: 'Accounts Overview',
-                  path: '/accounts',
-                  isSelected: currentPath == '/accounts',
-                ),
-                _NavItem(
-                  icon: Icons.business_outlined,
-                  selectedIcon: Icons.business,
-                  label: 'Suppliers',
-                  path: '/suppliers',
-                  isSelected: currentPath == '/suppliers',
-                ),
-                _NavItem(
-                  icon: Icons.business_center_outlined,
-                  selectedIcon: Icons.business_center,
-                  label: 'Clients (Brands)',
-                  path: '/clients',
-                  isSelected: currentPath == '/clients',
-                ),
+              ),
 
-                // Earn Management section
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
-                  child: Text(
-                    'EARN MANAGEMENT',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ),
-                _NavItem(
-                  icon: Icons.campaign_outlined,
-                  selectedIcon: Icons.campaign,
-                  label: 'Campaigns',
-                  path: '/earn',
-                  isSelected: currentPath == '/earn' ||
-                      currentPath.startsWith('/earn/'),
-                ),
-                _NavItem(
-                  icon: Icons.rate_review_outlined,
-                  selectedIcon: Icons.rate_review,
-                  label: 'Upload Reviews',
-                  path: '/upload-reviews',
-                  isSelected: currentPath == '/upload-reviews',
-                ),
-                _NavItem(
-                  icon: Icons.card_giftcard_outlined,
-                  selectedIcon: Icons.card_giftcard,
-                  label: 'Reward Campaigns',
-                  path: '/rewards',
-                  isSelected: currentPath == '/rewards',
-                ),
+              const Divider(height: 1),
 
-                // Platform Management section
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
-                  child: Text(
-                    'PLATFORM MANAGEMENT',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ),
-                _NavItem(
-                  icon: Icons.settings_applications_outlined,
-                  selectedIcon: Icons.settings_applications,
-                  label: 'Platform Setup',
-                  path: '/platform',
-                  isSelected: currentPath == '/platform',
-                ),
-              ],
-            ),
-          ),
+              // Navigation items
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  children: [
+                    // ── Top section ──
+                    if (isRouteAllowed('/', roles))
+                      _NavItem(
+                        icon: Icons.dashboard_outlined,
+                        selectedIcon: Icons.dashboard,
+                        label: 'Dashboard',
+                        path: '/',
+                        isSelected: currentPath == '/',
+                      ),
+                    if (isRouteAllowed('/pots', roles))
+                      _NavItem(
+                        icon: Icons.emoji_events_outlined,
+                        selectedIcon: Icons.emoji_events,
+                        label: 'Pot Management',
+                        path: '/pots',
+                        isSelected: currentPath == '/pots',
+                      ),
+                    if (isRouteAllowed('/users', roles))
+                      _NavItem(
+                        icon: Icons.people_outline,
+                        selectedIcon: Icons.people,
+                        label: 'User Management',
+                        path: '/users',
+                        isSelected: currentPath == '/users',
+                      ),
+                    if (isRouteAllowed('/cashouts', roles))
+                      _NavItem(
+                        icon: Icons.payments_outlined,
+                        selectedIcon: Icons.payments,
+                        label: 'Cashout Approvals',
+                        path: '/cashouts',
+                        isSelected: currentPath == '/cashouts',
+                      ),
 
-          // User info & logout
-          const Divider(height: 1),
-          BlocBuilder<AdminAuthCubit, AdminAuthState>(
-            builder: (context, state) {
-              return Container(
+                    // ── ACCOUNT MANAGEMENT ──
+                    if (_anySectionVisible(roles, [
+                      '/accounts',
+                      '/ledger',
+                      '/accounts-actions',
+                      '/suppliers',
+                      '/clients',
+                    ]))
+                      const _SectionHeader('ACCOUNT MANAGEMENT'),
+                    if (isRouteAllowed('/accounts', roles))
+                      _NavItem(
+                        icon: Icons.account_balance_wallet_outlined,
+                        selectedIcon: Icons.account_balance_wallet,
+                        label: 'Accounts Overview',
+                        path: '/accounts',
+                        isSelected: currentPath == '/accounts',
+                      ),
+                    if (isRouteAllowed('/ledger', roles))
+                      _NavItem(
+                        icon: Icons.account_balance_outlined,
+                        selectedIcon: Icons.account_balance,
+                        label: 'Ledger Recon',
+                        path: '/ledger',
+                        isSelected: currentPath == '/ledger',
+                      ),
+                    if (isRouteAllowed('/accounts-actions', roles))
+                      _NavItem(
+                        icon: Icons.settings_suggest_outlined,
+                        selectedIcon: Icons.settings_suggest,
+                        label: 'Accounts Actions',
+                        path: '/accounts-actions',
+                        isSelected: currentPath == '/accounts-actions',
+                      ),
+                    if (isRouteAllowed('/suppliers', roles))
+                      _NavItem(
+                        icon: Icons.business_outlined,
+                        selectedIcon: Icons.business,
+                        label: 'Suppliers',
+                        path: '/suppliers',
+                        isSelected: currentPath == '/suppliers',
+                      ),
+                    if (isRouteAllowed('/clients', roles))
+                      _NavItem(
+                        icon: Icons.business_center_outlined,
+                        selectedIcon: Icons.business_center,
+                        label: 'Clients (Brands)',
+                        path: '/clients',
+                        isSelected: currentPath == '/clients',
+                      ),
+
+                    // ── EARN MANAGEMENT ──
+                    if (_anySectionVisible(
+                        roles, ['/earn', '/upload-reviews', '/rewards']))
+                      const _SectionHeader('EARN MANAGEMENT'),
+                    if (isRouteAllowed('/earn', roles))
+                      _NavItem(
+                        icon: Icons.campaign_outlined,
+                        selectedIcon: Icons.campaign,
+                        label: 'Campaigns',
+                        path: '/earn',
+                        isSelected: currentPath == '/earn' ||
+                            currentPath.startsWith('/earn/'),
+                      ),
+                    if (isRouteAllowed('/upload-reviews', roles))
+                      _NavItem(
+                        icon: Icons.rate_review_outlined,
+                        selectedIcon: Icons.rate_review,
+                        label: 'Upload Reviews',
+                        path: '/upload-reviews',
+                        isSelected: currentPath == '/upload-reviews',
+                      ),
+                    if (isRouteAllowed('/rewards', roles))
+                      _NavItem(
+                        icon: Icons.card_giftcard_outlined,
+                        selectedIcon: Icons.card_giftcard,
+                        label: 'Reward Campaigns',
+                        path: '/rewards',
+                        isSelected: currentPath == '/rewards',
+                      ),
+
+                    // ── PLATFORM MANAGEMENT ──
+                    if (_anySectionVisible(roles, [
+                      '/platform',
+                      '/admin-users',
+                      '/audit-logs',
+                      '/pending-actions',
+                    ]))
+                      const _SectionHeader('PLATFORM MANAGEMENT'),
+                    if (isRouteAllowed('/platform', roles))
+                      _NavItem(
+                        icon: Icons.settings_applications_outlined,
+                        selectedIcon: Icons.settings_applications,
+                        label: 'Platform Setup',
+                        path: '/platform',
+                        isSelected: currentPath == '/platform',
+                      ),
+                    if (isRouteAllowed('/admin-users', roles))
+                      _NavItem(
+                        icon: Icons.admin_panel_settings_outlined,
+                        selectedIcon: Icons.admin_panel_settings,
+                        label: 'Admin Users',
+                        path: '/admin-users',
+                        isSelected: currentPath == '/admin-users',
+                      ),
+                    if (isRouteAllowed('/audit-logs', roles))
+                      _NavItem(
+                        icon: Icons.history_outlined,
+                        selectedIcon: Icons.history,
+                        label: 'Audit Logs',
+                        path: '/audit-logs',
+                        isSelected: currentPath == '/audit-logs',
+                      ),
+                    if (isRouteAllowed('/pending-actions', roles))
+                      _NavItem(
+                        icon: Icons.pending_actions_outlined,
+                        selectedIcon: Icons.pending_actions,
+                        label: 'Pending Actions',
+                        path: '/pending-actions',
+                        isSelected: currentPath == '/pending-actions',
+                      ),
+                  ],
+                ),
+              ),
+
+              // User info & logout
+              const Divider(height: 1),
+              Container(
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
@@ -229,10 +308,10 @@ class _AdminSidebar extends StatelessWidget {
                       radius: 18,
                       backgroundColor: AppColors.primary,
                       child: Text(
-                        state.displayName?.isNotEmpty == true
-                            ? state.displayName![0].toUpperCase()
-                            : state.email?.isNotEmpty == true
-                                ? state.email![0].toUpperCase()
+                        authState.displayName?.isNotEmpty == true
+                            ? authState.displayName![0].toUpperCase()
+                            : authState.email?.isNotEmpty == true
+                                ? authState.email![0].toUpperCase()
                                 : 'A',
                         style: const TextStyle(
                           color: Colors.white,
@@ -247,7 +326,9 @@ class _AdminSidebar extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            state.displayName ?? state.email ?? 'Admin',
+                            authState.displayName ??
+                                authState.email ??
+                                'Admin',
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -256,7 +337,7 @@ class _AdminSidebar extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            'Administrator',
+                            rolesDisplayName(authState.roles),
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -275,10 +356,36 @@ class _AdminSidebar extends StatelessWidget {
                     ),
                   ],
                 ),
-              );
-            },
+              ),
+            ],
           ),
-        ],
+        );
+      },
+    );
+  }
+
+  static bool _anySectionVisible(List<String> roles, List<String> paths) {
+    return paths.any((path) => isRouteAllowed(path, roles));
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+
+  const _SectionHeader(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textSecondary,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }

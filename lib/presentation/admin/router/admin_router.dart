@@ -3,12 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../blocs/admin_auth_cubit.dart';
+import '../screens/accounts_action_screen.dart';
 import '../screens/accounts_overview_screen.dart';
 import '../screens/admin_dashboard_screen.dart';
 import '../screens/admin_login_screen.dart';
+import '../screens/admin_user_management_screen.dart';
+import '../screens/audit_log_screen.dart';
 import '../screens/cashout_approval_screen.dart';
 import '../screens/client_management_screen.dart';
 import '../screens/earn_management_screen.dart';
+import '../screens/pending_actions_screen.dart';
 import '../screens/reward_campaign_screen.dart';
 import '../screens/upload_review_screen.dart';
 import '../screens/ledger_recon_screen.dart';
@@ -82,6 +86,13 @@ class AdminRouter {
             builder: (context, state) => const AccountsOverviewScreen(),
           ),
 
+          // Accounts Actions
+          GoRoute(
+            path: '/accounts-actions',
+            name: 'adminAccountsActions',
+            builder: (context, state) => const AccountsActionScreen(),
+          ),
+
           // Supplier Management
           GoRoute(
             path: '/suppliers',
@@ -123,6 +134,28 @@ class AdminRouter {
             name: 'adminPlatform',
             builder: (context, state) => const PlatformManagementScreen(),
           ),
+
+          // Admin User Management (SuperAdmin only)
+          GoRoute(
+            path: '/admin-users',
+            name: 'adminUserManagement',
+            builder: (context, state) =>
+                const AdminUserManagementScreen(),
+          ),
+
+          // Audit Logs
+          GoRoute(
+            path: '/audit-logs',
+            name: 'adminAuditLogs',
+            builder: (context, state) => const AuditLogScreen(),
+          ),
+
+          // Pending Actions (Maker-Checker approval queue)
+          GoRoute(
+            path: '/pending-actions',
+            name: 'adminPendingActions',
+            builder: (context, state) => const PendingActionsScreen(),
+          ),
         ],
       ),
     ],
@@ -139,6 +172,13 @@ class AdminRouter {
       // Authenticated on login page -> dashboard
       if (isAuthenticated && isOnLogin) {
         return '/';
+      }
+
+      // Role-based route guard
+      if (isAuthenticated && authState.roles.isNotEmpty) {
+        if (!isRouteAllowed(state.matchedLocation, authState.roles)) {
+          return '/';
+        }
       }
 
       return null;

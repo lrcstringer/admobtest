@@ -6,6 +6,7 @@
  */
 
 import * as functions from "firebase-functions";
+import { requireAdminPermission, logAdminAction } from "./adminAuth";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
 
@@ -32,26 +33,6 @@ const VALID_STATUSES = [
 type RewardType = (typeof VALID_REWARD_TYPES)[number];
 type CampaignStatus = (typeof VALID_STATUSES)[number];
 
-/**
- * Verify the caller has admin role
- */
-async function requireAdmin(
-  context: functions.https.CallableContext
-): Promise<void> {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      "unauthenticated",
-      "Must be authenticated"
-    );
-  }
-  const token = context.auth.token;
-  if (!token.admin && !token.superAdmin) {
-    throw new functions.https.HttpsError(
-      "permission-denied",
-      "Admin access required"
-    );
-  }
-}
 
 // ============================================================================
 // CREATE REWARD CAMPAIGN
@@ -83,7 +64,7 @@ export const createRewardCampaign = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "createRewardCampaign");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "rewards:createCampaign", "createRewardCampaign");
 
     const {
       clientId,
@@ -203,6 +184,8 @@ export const createRewardCampaign = functions.https.onCall(
 
     await campaignRef.set(campaignData);
 
+    logAdminAction(adminCtx.uid, "createRewardCampaign", "success", { campaignId: campaignRef.id, clientId, name, rewardType }).catch(() => {});
+
     return {
       success: true,
       campaignId: campaignRef.id,
@@ -242,7 +225,7 @@ export const updateRewardCampaign = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "updateRewardCampaign");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "rewards:updateCampaign", "updateRewardCampaign");
 
     const { campaignId, updates } = data;
 
@@ -367,6 +350,8 @@ export const updateRewardCampaign = functions.https.onCall(
       }
     }
 
+    logAdminAction(adminCtx.uid, "updateRewardCampaign", "success", { campaignId, updatedFields: Object.keys(updates) }).catch(() => {});
+
     return { success: true };
   }
 );
@@ -439,7 +424,7 @@ export const getAdminRewardCampaigns = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "getAdminRewardCampaigns");
-    await requireAdmin(context);
+    await requireAdminPermission(context, "rewards:getCampaigns", "getAdminRewardCampaigns");
 
     let query: FirebaseFirestore.Query = db
       .collection("rewardCampaigns")
@@ -561,7 +546,7 @@ export const getActiveRewardCampaigns = functions.https.onCall(
 export const deleteRewardCampaign = functions.https.onCall(
   async (data: { campaignId: string; reason?: string }, context) => {
     requireAppCheck(context, "deleteRewardCampaign");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "rewards:deleteCampaign", "deleteRewardCampaign");
 
     const { campaignId, reason } = data;
     if (!campaignId) {
@@ -593,6 +578,8 @@ export const deleteRewardCampaign = functions.https.onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    logAdminAction(adminCtx.uid, "deleteRewardCampaign", "success", { campaignId, reason: reason || null }).catch(() => {});
+
     return { success: true };
   }
 );
@@ -608,7 +595,7 @@ export const deleteRewardCampaign = functions.https.onCall(
 export const getRewardCampaignAbResults = functions.https.onCall(
   async (data: { campaignId: string }, context) => {
     requireAppCheck(context, "getRewardCampaignAbResults");
-    await requireAdmin(context);
+    await requireAdminPermission(context, "rewards:getAbResults", "getRewardCampaignAbResults");
 
     const { campaignId } = data;
     if (!campaignId) {

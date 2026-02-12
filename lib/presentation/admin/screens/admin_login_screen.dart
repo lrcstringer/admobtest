@@ -58,27 +58,17 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     children: [
                       // Logo
                       Center(
-                        child: Container(
+                        child: Image.asset(
+                          'assets/icons/iMaliCrown4.png',
                           width: 80,
                           height: 80,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [AppColors.primary, AppColors.secondary],
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(
-                            Icons.admin_panel_settings,
-                            color: Colors.white,
-                            size: 48,
-                          ),
                         ),
                       ),
                       const SizedBox(height: 24),
 
                       // Title
                       const Text(
-                        'iMali Admin Portal',
+                        'IMaliChat Admin Portal',
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,

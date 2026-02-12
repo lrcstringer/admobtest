@@ -28,7 +28,7 @@ class EarnThreadModel with _$EarnThreadModel {
     DateTime? activeFrom,
     DateTime? activeTo,
     // Token configuration
-    String? tokenSourceSubAccountId,
+    String? tokenSourceAccountId,
     String? tokenDestAccountTypeId,
     // Counts
     required int availableOpportunities,
@@ -72,7 +72,7 @@ class EarnThreadModel with _$EarnThreadModel {
           : activeTo is Timestamp
               ? activeTo.toDate()
               : DateTime.parse(activeTo as String),
-      tokenSourceSubAccountId: json['tokenSourceSubAccountId'] as String?,
+      tokenSourceAccountId: json['tokenSourceAccountId'] as String? ?? json['tokenSourceSubAccountId'] as String?,
       tokenDestAccountTypeId: json['tokenDestAccountTypeId'] as String?,
       availableOpportunities: json['availableOpportunities'] as int? ?? 0,
       completedOpportunities: json['completedOpportunities'] as int? ?? 0,
@@ -107,7 +107,7 @@ class EarnThreadModel with _$EarnThreadModel {
       budgetExhausted: budgetExhausted,
       activeFrom: activeFrom,
       activeTo: activeTo,
-      tokenSourceSubAccountId: tokenSourceSubAccountId,
+      tokenSourceAccountId: tokenSourceAccountId,
       tokenDestAccountTypeId: tokenDestAccountTypeId,
       availableOpportunities: availableOpportunities,
       completedOpportunities: completedOpportunities,
@@ -134,7 +134,7 @@ class EarnThreadModel with _$EarnThreadModel {
       budgetExhausted: entity.budgetExhausted,
       activeFrom: entity.activeFrom,
       activeTo: entity.activeTo,
-      tokenSourceSubAccountId: entity.tokenSourceSubAccountId,
+      tokenSourceAccountId: entity.tokenSourceAccountId,
       tokenDestAccountTypeId: entity.tokenDestAccountTypeId,
       availableOpportunities: entity.availableOpportunities,
       completedOpportunities: entity.completedOpportunities,
@@ -161,7 +161,7 @@ class EarnThreadModel with _$EarnThreadModel {
       'budgetExhausted': budgetExhausted,
       'activeFrom': activeFrom != null ? Timestamp.fromDate(activeFrom!) : null,
       'activeTo': activeTo != null ? Timestamp.fromDate(activeTo!) : null,
-      'tokenSourceSubAccountId': tokenSourceSubAccountId,
+      'tokenSourceAccountId': tokenSourceAccountId,
       'tokenDestAccountTypeId': tokenDestAccountTypeId,
       'availableOpportunities': availableOpportunities,
       'completedOpportunities': completedOpportunities,

@@ -8,39 +8,18 @@
  */
 
 import * as functions from "firebase-functions";
+import { requireAdminPermission, logAdminAction } from "./adminAuth";
 import * as admin from "firebase-admin";
-import { requireAppCheck } from "./security";
 import {
   processEarningWithSplit,
   getOrCreateDefaultSubAccount,
+  AccountId,
 } from "./ledger";
 import { updateEngagementStats } from "./engagementStats";
 import { updateDailyScore, updateReferrerAssistScore, updateLeaderboardScores } from "./dailyScores";
 
 const db = admin.firestore();
 
-/**
- * Verify the caller has admin role
- */
-async function requireAdmin(
-  context: functions.https.CallableContext
-): Promise<void> {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      "unauthenticated",
-      "Must be authenticated"
-    );
-  }
-  requireAppCheck(context, "uploadReview");
-
-  const token = context.auth.token;
-  if (!token.admin && !token.superAdmin) {
-    throw new functions.https.HttpsError(
-      "permission-denied",
-      "Admin access required"
-    );
-  }
-}
 
 /**
  * Admin reviews an upload engagement — approve or reject.
@@ -50,7 +29,7 @@ async function requireAdmin(
  */
 export const adminReviewUpload = functions.https.onCall(
   async (data, context) => {
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "review:reviewUpload", "adminReviewUpload");
 
     const { engagementId, action, reason } = data;
 
@@ -98,6 +77,8 @@ export const adminReviewUpload = functions.https.onCall(
         updatedAt: now,
       });
 
+      logAdminAction(adminCtx.uid, "adminReviewUpload", "success", { engagementId, action: "rejected", reason: reason || "No reason provided" }).catch(() => {});
+
       return {
         success: true,
         action: "rejected",
@@ -123,7 +104,7 @@ export const adminReviewUpload = functions.https.onCall(
       if (threadDoc.exists) {
         const threadData = threadDoc.data()!;
         clientId = threadData.clientId || null;
-        clientSubAccountId = threadData.tokenSourceSubAccountId || null;
+        clientSubAccountId = threadData.tokenSourceAccountId || null;
         tokenDestAccountTypeId = threadData.tokenDestAccountTypeId || null;
       }
     }
@@ -153,13 +134,16 @@ export const adminReviewUpload = functions.https.onCall(
     }
 
     // Process reward through Trust Ledger (90/5/5 split)
-    const isClientFunded = !!(clientId && clientSubAccountId);
+    // tokenSourceAccountId is the ledger account to debit (client main or sub-account)
+    const tokenSourceAccountId = clientSubAccountId
+      || (clientId ? AccountId.client(clientId) : AccountId.client("imalichat"));
 
     const ledgerResult = await processEarningWithSplit(
       userId,
       rewardAmount,
       engagementId,
       `Earned from upload (admin approved)`,
+      tokenSourceAccountId,
       subAccountId,
       tokenDestAccountTypeId,
       {
@@ -169,8 +153,6 @@ export const adminReviewUpload = functions.https.onCall(
         clientId: clientId,
         reviewedBy: adminUid,
       },
-      isClientFunded ? clientId! : undefined,
-      isClientFunded ? clientSubAccountId! : undefined
     );
 
     if (!ledgerResult.success) {
@@ -230,6 +212,8 @@ export const adminReviewUpload = functions.https.onCall(
       console.warn("Non-critical: stats update failed after upload approval", statsError);
     }
 
+    logAdminAction(adminCtx.uid, "adminReviewUpload", "success", { engagementId, action: "approved", userId, tokensAwarded: rewardAmount }).catch(() => {});
+
     return {
       success: true,
       action: "approved",
@@ -244,7 +228,7 @@ export const adminReviewUpload = functions.https.onCall(
  */
 export const getUploadReviewQueue = functions.https.onCall(
   async (data, context) => {
-    await requireAdmin(context);
+    await requireAdminPermission(context, "review:getQueue", "getUploadReviewQueue");
 
     const { threadId, limit: queryLimit = 50 } = data || {};
 

@@ -221,9 +221,15 @@ function buildAccountId(type: AccountType, ownerId?: string): string {
     case "client":
       if (!ownerId) throw new Error("Client accounts require ownerId");
       return AccountId.client(ownerId);
+    case "client_subacc":
+      if (!ownerId) throw new Error("Client sub-accounts require ownerId (subAccountId)");
+      return AccountId.clientSubAccount(ownerId);
+    case "group":
+      if (!ownerId) throw new Error("Group accounts require ownerId (groupId)");
+      return AccountId.group(ownerId);
     case "system":
     case "pot":
-    case "cashout":
+    case "cbook":
       // These use predefined IDs from SystemAccounts
       throw new Error(`${type} accounts should use predefined SystemAccount IDs`);
     default:
@@ -245,29 +251,14 @@ export async function initializeSystemAccounts(): Promise<void> {
     name: string;
   }> = [
     {
-      id: SystemAccounts.MINT,
-      type: "system",
-      name: "Token Mint (Source of Truth)",
+      id: SystemAccounts.CBOOK_BUS,
+      type: "cbook",
+      name: "iMaliChat Business Cash Book",
     },
     {
-      id: SystemAccounts.TREASURY,
-      type: "system",
-      name: "iMali Treasury",
-    },
-    {
-      id: SystemAccounts.REFERRALS,
-      type: "system",
-      name: "Referral Rewards Pool",
-    },
-    {
-      id: SystemAccounts.OPERATIONS,
-      type: "system",
-      name: "Operations Account",
-    },
-    {
-      id: SystemAccounts.FEES,
-      type: "system",
-      name: "Accumulated Fees",
+      id: SystemAccounts.CBOOK_TRUST,
+      type: "cbook",
+      name: "Client Trust Cash Book",
     },
     {
       id: SystemAccounts.DAILY_POT,
@@ -281,8 +272,18 @@ export async function initializeSystemAccounts(): Promise<void> {
     },
     {
       id: SystemAccounts.CASHOUT_PENDING,
-      type: "cashout",
+      type: "system",
       name: "Pending Cashouts",
+    },
+    {
+      id: SystemAccounts.ENGAGEMENT_ESCROW,
+      type: "system",
+      name: "Engagement Escrow Holding",
+    },
+    {
+      id: SystemAccounts.IMALICHAT_CLIENT,
+      type: "client",
+      name: "iMaliChat",
     },
   ];
 

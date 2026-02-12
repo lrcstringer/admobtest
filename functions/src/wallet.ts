@@ -11,9 +11,9 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
+import { requireAdminPermission, createPendingAction } from "./adminAuth";
 import {
   initiateCashout,
-  completeCashout,
   failCashout,
   LedgerConfig,
   getDefaultSubAccount,
@@ -98,7 +98,7 @@ export const processCashout = functions.https.onCall(async (data, context) => {
   });
 
   // Process cashout through the Trust Ledger system
-  // This moves tokens from user's sub-account to cashout:pending
+  // This moves tokens from user's sub-account to system:cashout_pending
   const ledgerResult = await initiateCashout(
     userId,
     amount,
@@ -137,14 +137,12 @@ export const processCashout = functions.https.onCall(async (data, context) => {
 });
 
 /**
- * Complete a pending cashout (called after bank transfer is confirmed)
+ * Complete a pending cashout (called after bank transfer is confirmed).
+ * Maker-checker: creates a pending action that must be approved by a second admin.
  */
 export const completeCashoutRequest = functions.https.onCall(async (data, context) => {
-  // This should be called by an admin or automated system
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
-  }
   requireAppCheck(context, "completeCashoutRequest");
+  const adminCtx = await requireAdminPermission(context, "cashout:complete", "completeCashoutRequest");
 
   const { cashoutId, adminNotes } = data;
 
@@ -152,14 +150,13 @@ export const completeCashoutRequest = functions.https.onCall(async (data, contex
     throw new functions.https.HttpsError("invalid-argument", "Cashout ID is required");
   }
 
-  // Get cashout record
+  // Validate cashout exists and is pending before creating pending action
   const cashoutDoc = await db.collection("cashouts").doc(cashoutId).get();
   if (!cashoutDoc.exists) {
     throw new functions.https.HttpsError("not-found", "Cashout not found");
   }
 
   const cashoutData = cashoutDoc.data()!;
-
   if (cashoutData.status !== "pending") {
     throw new functions.https.HttpsError(
       "failed-precondition",
@@ -167,35 +164,26 @@ export const completeCashoutRequest = functions.https.onCall(async (data, contex
     );
   }
 
-  // Complete cashout through ledger (moves from pending to treasury - burns tokens)
-  const ledgerResult = await completeCashout(
-    cashoutId,
-    cashoutData.tokenAmount,
+  // Create pending action for maker-checker approval
+  const { pendingActionId } = await createPendingAction(
+    adminCtx,
+    "cashout:complete",
+    "completeCashoutRequest",
     {
-      completedBy: context.auth.uid,
+      cashoutId,
       adminNotes,
-    }
+      makerUid: adminCtx.uid,
+      tokenAmount: cashoutData.tokenAmount,
+      userId: cashoutData.userId,
+    },
+    `Complete cashout ${cashoutId} for ${cashoutData.tokenAmount} tokens`,
   );
-
-  if (!ledgerResult.success) {
-    throw new functions.https.HttpsError(
-      "internal",
-      `Failed to complete cashout: ${ledgerResult.error}`
-    );
-  }
-
-  // Update cashout record
-  await cashoutDoc.ref.update({
-    status: "completed",
-    completedAt: admin.firestore.FieldValue.serverTimestamp(),
-    completedBy: context.auth.uid,
-    completionLedgerJournalId: ledgerResult.journalId,
-    adminNotes: adminNotes || null,
-  });
 
   return {
     success: true,
-    ledgerJournalId: ledgerResult.journalId,
+    pendingActionId,
+    requiresApproval: true,
+    message: "Cashout completion requires approval from a second admin",
   };
 });
 

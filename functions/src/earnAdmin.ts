@@ -11,6 +11,7 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
+import { requireAdminPermission, logAdminAction } from "./adminAuth";
 import {
   TargetingCriteria,
   validateTargetingCriteria,
@@ -28,30 +29,11 @@ import {
   notifyNewThread,
   notifyNewOpportunity,
 } from "./earnNotifications";
+import { AccountId } from "./ledger/types";
+import { createAccount, getBalance } from "./ledger/accounts";
 
 const db = admin.firestore();
 
-/**
- * Verify the caller has admin role
- */
-async function requireAdmin(
-  context: functions.https.CallableContext
-): Promise<void> {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      "unauthenticated",
-      "Must be authenticated"
-    );
-  }
-
-  const token = context.auth.token;
-  if (!token.admin && !token.superAdmin) {
-    throw new functions.https.HttpsError(
-      "permission-denied",
-      "Admin access required"
-    );
-  }
-}
 
 // ============================================================================
 // EARN THREAD MANAGEMENT
@@ -65,7 +47,7 @@ async function requireAdmin(
  */
 export const createEarnThread = functions.https.onCall(async (data, context) => {
   try {
-  await requireAdmin(context);
+  const adminCtx = await requireAdminPermission(context, "earn:createThread", "createEarnThread");
 
   const {
     // Thread ID (optional - auto-generates if not provided)
@@ -75,8 +57,8 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     // Thread display
     title,
     description,
-    // Token source configuration (required)
-    tokenSourceSubAccountId,
+    // Token source configuration — full ledger account ID (e.g. "client:abc" or "client_subacc:xyz")
+    tokenSourceAccountId,
     tokenDestAccountTypeId,
     // Display & behavior flags
     isPinned = false,
@@ -122,45 +104,28 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     );
   }
 
-  // Resolve or auto-create the token source sub-account
-  let resolvedSubAccountId = tokenSourceSubAccountId || null;
+  // Resolve token source account ID.
+  // If provided, it should be a full ledger account ID (e.g. "client:abc" or "client_subacc:xyz").
+  // If not provided, auto-create a client sub-account.
+  let resolvedTokenSourceAccountId = tokenSourceAccountId || null;
   const subAccountsCol = db
     .collection("clients")
     .doc(clientId)
     .collection("subAccounts");
 
-  if (resolvedSubAccountId) {
-    // An explicit sub-account was selected — verify it exists and is active
-    const subAccountDoc = await subAccountsCol.doc(resolvedSubAccountId).get();
-
-    if (!subAccountDoc.exists) {
-      // Sub-account ID was provided but doesn't exist — create it using
-      // the provided ID as the name (admin's chosen identifier)
-      const tsNow = admin.firestore.FieldValue.serverTimestamp();
-      await subAccountDoc.ref.set({
-        id: resolvedSubAccountId,
-        name: resolvedSubAccountId,
-        balance: 0,
-        initialBudget: 0,
-        isActive: true,
-        warningNotifiedAt: null,
-        depletedAt: null,
-        createdAt: tsNow,
-        updatedAt: tsNow,
-        createdBy: context.auth!.uid,
-      });
-      console.log(`Auto-created sub-account "${resolvedSubAccountId}" for client ${clientId}`);
-    } else {
-      const subAccountData = subAccountDoc.data()!;
-      if (!subAccountData.isActive) {
-        throw new functions.https.HttpsError(
-          "failed-precondition",
-          "Sub-account is not active"
-        );
-      }
+  if (resolvedTokenSourceAccountId) {
+    // An explicit token source was selected — validate it's a known format
+    if (
+      !AccountId.isClientAccount(resolvedTokenSourceAccountId) &&
+      !AccountId.isClientSubAccount(resolvedTokenSourceAccountId)
+    ) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "tokenSourceAccountId must be a client or client_subacc ledger account ID"
+      );
     }
   } else {
-    // No sub-account selected — auto-create one named after the campaign title.
+    // No token source selected — auto-create one named after the campaign title.
     // Check for an existing sub-account with the same name first.
     const nameCheck = await subAccountsCol
       .where("name", "==", title)
@@ -168,36 +133,48 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       .get();
 
     if (!nameCheck.empty) {
-      // A sub-account with this name already exists — return a warning
-      // so the frontend can ask the admin whether to reuse it.
       const existing = nameCheck.docs[0];
       const existingData = existing.data();
+      const existingLedgerAccountId = existingData.ledgerAccountId || AccountId.clientSubAccount(existing.id);
       return {
         success: false,
         duplicateSubAccount: true,
         existingSubAccountId: existing.id,
+        existingTokenSourceAccountId: existingLedgerAccountId,
         existingSubAccountName: existingData.name,
-        existingSubAccountBalance: existingData.balance ?? 0,
-        message: `A sub-account named "${title}" already exists (balance: ${existingData.balance ?? 0}). Reuse it?`,
+        message: `A sub-account named "${title}" already exists. Reuse it?`,
       };
     }
 
+    // Create new Firestore metadata doc + ledger account
     const subAccountRef = subAccountsCol.doc();
     const tsNow = admin.firestore.FieldValue.serverTimestamp();
+    const ledgerAccountId = AccountId.clientSubAccount(subAccountRef.id);
+
+    // Create ledger account
+    await createAccount({
+      type: "client_subacc",
+      name: `${title} — ${clientId}`,
+      ownerId: subAccountRef.id,
+      metadata: { clientId, subAccountFirestoreId: subAccountRef.id },
+    });
+
+    // Create Firestore metadata doc
     await subAccountRef.set({
       id: subAccountRef.id,
       name: title,
-      balance: 0,
-      initialBudget: 0,
+      ledgerAccountId,
       isActive: true,
+      budgetExhausted: false,
       warningNotifiedAt: null,
       depletedAt: null,
       createdAt: tsNow,
       updatedAt: tsNow,
       createdBy: context.auth!.uid,
     });
-    resolvedSubAccountId = subAccountRef.id;
-    console.log(`Auto-created sub-account "${resolvedSubAccountId}" (name: ${title}) for client ${clientId}`);
+
+    resolvedTokenSourceAccountId = ledgerAccountId;
+    console.log(`Auto-created sub-account "${subAccountRef.id}" (ledger: ${ledgerAccountId}) for client ${clientId}`);
   }
 
   // Validate targeting criteria if provided
@@ -242,7 +219,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       threadImage: threadImage || null,
       title,
       description: description || null,
-      tokenSourceSubAccountId: resolvedSubAccountId,
+      tokenSourceAccountId: resolvedTokenSourceAccountId,
       tokenDestAccountTypeId: tokenDestAccountTypeId || null,
       isPinned,
       isFeatured,
@@ -263,7 +240,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       threadImage: threadImage || null,
       title,
       description: description || null,
-      tokenSourceSubAccountId: resolvedSubAccountId,
+      tokenSourceAccountId: resolvedTokenSourceAccountId,
       tokenDestAccountTypeId: tokenDestAccountTypeId || null,
       isPinned,
       isFeatured,
@@ -287,10 +264,12 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       .catch((err) => console.warn("notifyNewThread failed (non-fatal):", err));
   }
 
+  logAdminAction(adminCtx.uid, "createEarnThread", "success", { threadId: threadRef.id, clientId, title, tokenSourceAccountId: resolvedTokenSourceAccountId }).catch(() => {});
+
   return {
     success: true,
     threadId: threadRef.id,
-    subAccountId: resolvedSubAccountId,
+    tokenSourceAccountId: resolvedTokenSourceAccountId,
   };
   } catch (error: unknown) {
     // Log the actual error for debugging
@@ -313,7 +292,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
  */
 export const createEarnOpportunity = functions.https.onCall(
   async (data, context) => {
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "earn:createOpportunity", "createEarnOpportunity");
 
     const {
       id,
@@ -394,6 +373,19 @@ export const createEarnOpportunity = functions.https.onCall(
     }
 
     const threadData = threadDoc.data()!;
+
+    // Balance check: prevent activation when token source has zero balance
+    if (isActive) {
+      const tokenSource = threadData.tokenSourceAccountId
+        || AccountId.client(threadData.clientId);
+      const sourceBalance = await getBalance(tokenSource);
+      if (sourceBalance <= 0) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          "Cannot activate opportunity: token source account has zero balance"
+        );
+      }
+    }
 
     // Validate targeting criteria if provided
     if (targeting) {
@@ -609,6 +601,8 @@ export const createEarnOpportunity = functions.https.onCall(
       );
     }
 
+    logAdminAction(adminCtx.uid, "createEarnOpportunity", "success", { opportunityId, threadId, earningType, tokenReward }).catch(() => {});
+
     return { success: true, opportunityId };
   }
 );
@@ -620,7 +614,7 @@ export const createEarnOpportunity = functions.https.onCall(
  */
 export const adminResetOpportunityBudget = functions.https.onCall(
   async (data: { opportunityId: string; newBudget?: number | null }, context) => {
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "earn:resetBudget", "adminResetOpportunityBudget");
 
     const { opportunityId, newBudget } = data;
 
@@ -651,6 +645,8 @@ export const adminResetOpportunityBudget = functions.https.onCall(
 
     await oppRef.update(updates);
 
+    logAdminAction(adminCtx.uid, "adminResetOpportunityBudget", "success", { opportunityId, newBudget: newBudget ?? null }).catch(() => {});
+
     return { success: true, opportunityId };
   }
 );
@@ -662,7 +658,7 @@ export const adminResetOpportunityBudget = functions.https.onCall(
  */
 export const syncCampaignsToOpportunities = functions.https.onCall(
   async (data, context) => {
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "earn:syncCampaigns", "syncCampaignsToOpportunities");
 
     const { defaultThreadId } = data;
 
@@ -737,6 +733,8 @@ export const syncCampaignsToOpportunities = functions.https.onCall(
           lastActivityAt: now,
         });
     }
+
+    logAdminAction(adminCtx.uid, "syncCampaignsToOpportunities", "success", { defaultThreadId, syncedCount }).catch(() => {});
 
     return { success: true, synced: syncedCount };
   }
@@ -1244,7 +1242,7 @@ export const getEligibleOpportunities = functions.https.onCall(
  */
 export const getTargetingOptions = functions.https.onCall(
   async (data, context) => {
-    await requireAdmin(context);
+    await requireAdminPermission(context, "earn:getTargeting", "getTargetingOptions");
 
     // South African provinces
     const provinces = [
@@ -1343,7 +1341,7 @@ export const getTargetingOptions = functions.https.onCall(
  */
 export const getClientStats = functions.https.onCall(
   async (data, context) => {
-    await requireAdmin(context);
+    await requireAdminPermission(context, "earn:getClientStats", "getClientStats");
 
     const { clientId } = data;
 
@@ -1495,7 +1493,7 @@ export const getClientStats = functions.https.onCall(
  */
 export const getThreadAnalytics = functions.https.onCall(
   async (data, context) => {
-    await requireAdmin(context);
+    await requireAdminPermission(context, "earn:getThreadAnalytics", "getThreadAnalytics");
 
     const { threadId, startDate, endDate } = data;
 
@@ -1745,7 +1743,7 @@ export const getEarnStatistics = functions.https.onCall(
 export const adminSoftDeleteOpportunity = functions.https.onCall(
   async (data: { opportunityId: string }, context) => {
     requireAppCheck(context, "adminSoftDeleteOpportunity");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "earn:deleteOpportunity", "adminSoftDeleteOpportunity");
 
     const { opportunityId } = data;
     if (!opportunityId) {
@@ -1783,6 +1781,8 @@ export const adminSoftDeleteOpportunity = functions.https.onCall(
       });
     }
 
+    logAdminAction(adminCtx.uid, "adminSoftDeleteOpportunity", "success", { opportunityId, threadId: opp.threadId }).catch(() => {});
+
     return { success: true };
   }
 );
@@ -1794,7 +1794,7 @@ export const adminSoftDeleteOpportunity = functions.https.onCall(
 export const adminSoftDeleteThread = functions.https.onCall(
   async (data: { threadId: string }, context) => {
     requireAppCheck(context, "adminSoftDeleteThread");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "earn:deleteThread", "adminSoftDeleteThread");
 
     const { threadId } = data;
     if (!threadId) {
@@ -1857,6 +1857,8 @@ export const adminSoftDeleteThread = functions.https.onCall(
       });
     }
 
+    logAdminAction(adminCtx.uid, "adminSoftDeleteThread", "success", { threadId, clientId: thread.clientId, deletedOpportunities }).catch(() => {});
+
     return { success: true, deletedOpportunities };
   }
 );
@@ -1872,7 +1874,7 @@ export const adminSoftDeleteThread = functions.https.onCall(
 export const adminCleanupOrphanedThreads = functions.https.onCall(
   async (_data: unknown, context) => {
     requireAppCheck(context, "adminCleanupOrphanedThreads");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "earn:cleanupOrphaned", "adminCleanupOrphanedThreads");
 
     const now = admin.firestore.FieldValue.serverTimestamp();
     const uid = context.auth!.uid;
@@ -1931,6 +1933,8 @@ export const adminCleanupOrphanedThreads = functions.https.onCall(
       });
       orphanedThreads++;
     }
+
+    logAdminAction(adminCtx.uid, "adminCleanupOrphanedThreads", "success", { orphanedThreads, orphanedOpportunities }).catch(() => {});
 
     return { success: true, orphanedThreads, orphanedOpportunities };
   }

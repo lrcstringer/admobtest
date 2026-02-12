@@ -42,6 +42,7 @@ export * from "./rewardScheduled";
 export * from "./rewardWebhook";
 export * from "./rewardSponsorReport";
 export * from "./earnNotifications";
+export * from "./adminAuth";
 export * from "./groups";
 export * from "./groupTriggers";
 export * from "./migrations/earnOverhaulMigration";
@@ -50,23 +51,17 @@ export { runAdMobSystemMigration, runUpdateAdMobQuestion, adminRunPlatformSetup 
 // Ledger initialization and reconciliation
 import * as functions from "firebase-functions";
 import { cleanupRateLimits, requireAppCheck } from "./security";
+import { requireAdminPermission, cleanupExpiredPendingActions } from "./adminAuth";
 import { initializeLedger, reconcileAllAccounts, verifySystemBalance } from "./ledger";
 
 /**
  * Initialize the Trust Ledger system
- * Call this once during initial deployment to create all system accounts.
- * Must be called by an admin before seeding the treasury.
+ * Call this once during initial deployment to create all system accounts
+ * (cbook:bus, cbook:trust, pot:daily, pot:weekly, system:cashout_pending, client:imalichat).
  */
 export const initializeTrustLedger = functions.https.onCall(async (data, context) => {
   requireAppCheck(context, "initializeTrustLedger");
-
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "Must be authenticated");
-  }
-  const token = context.auth.token;
-  if (!token.admin && !token.superAdmin) {
-    throw new functions.https.HttpsError("permission-denied", "Admin access required");
-  }
+  await requireAdminPermission(context, "accounts:initializeLedger", "initializeTrustLedger");
 
   await initializeLedger();
   return { success: true, message: "Trust Ledger initialized — system accounts created" };
@@ -90,7 +85,7 @@ export const runLedgerReconciliation = functions.pubsub
       console.error(`Reconciliation failed for ${failedAccounts.length} accounts:`, failedAccounts);
     }
 
-    // Verify system balance (total user tokens = treasury outflow + pot balances)
+    // Verify system balance (asset/liability invariant: cbook = all others)
     const systemBalance = await verifySystemBalance();
     if (!systemBalance.isValid) {
       console.error("CRITICAL: System balance verification failed!", systemBalance);
@@ -106,5 +101,6 @@ export const cleanupSecurityData = functions.pubsub
   .timeZone("Africa/Johannesburg")
   .onRun(async () => {
     await cleanupRateLimits();
+    await cleanupExpiredPendingActions();
     return null;
   });

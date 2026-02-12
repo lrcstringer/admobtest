@@ -12,11 +12,13 @@ enum LedgerJournalType {
   referralReward,   // Referral bonus paid
   p2pTransfer,      // User-to-user transfer
   cashoutInitiate,  // Cashout started (user -> pending)
-  cashoutComplete,  // Cashout completed (pending -> treasury)
+  cashoutComplete,  // Cashout completed (pending -> supplier)
   cashoutFailed,    // Cashout failed (pending -> user refund)
   reversal,         // Reversal of a previous journal
   adjustment,       // Manual admin adjustment
-  systemSeed,       // Initial system account seeding
+  clientFund,       // CBook -> Client funding (also seeds cbook as asset debit)
+  clientRefund,     // Client -> CBook refund
+  subaccFund,       // Client -> Sub-Account funding
 }
 
 /// Journal status
@@ -58,6 +60,7 @@ enum LedgerReferenceType {
   cashout,
   potDraw,
   potEntry,
+  clientFund,
 }
 
 /// Ledger journal entity

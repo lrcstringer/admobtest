@@ -98,7 +98,9 @@ const _$LedgerJournalTypeEnumMap = {
   LedgerJournalType.cashoutFailed: 'cashoutFailed',
   LedgerJournalType.reversal: 'reversal',
   LedgerJournalType.adjustment: 'adjustment',
-  LedgerJournalType.systemSeed: 'systemSeed',
+  LedgerJournalType.clientFund: 'clientFund',
+  LedgerJournalType.clientRefund: 'clientRefund',
+  LedgerJournalType.subaccFund: 'subaccFund',
 };
 
 const _$LedgerJournalStatusEnumMap = {
@@ -116,4 +118,5 @@ const _$LedgerReferenceTypeEnumMap = {
   LedgerReferenceType.cashout: 'cashout',
   LedgerReferenceType.potDraw: 'potDraw',
   LedgerReferenceType.potEntry: 'potEntry',
+  LedgerReferenceType.clientFund: 'clientFund',
 };

@@ -13,14 +13,18 @@ import { Timestamp } from "firebase-admin/firestore";
 
 /**
  * Account type categories in the ledger system
+ *
+ * Asset accounts (debit-normal): cbook — debit increases balance, credit decreases.
+ * All other accounts are credit-normal: credit increases balance, debit decreases.
  */
 export type AccountType =
-  | "system" // iMali system accounts (treasury, referrals, operations)
+  | "system" // iMali system accounts (cashout_pending)
   | "pot" // Daily and weekly pot accounts
   | "user" // Individual user wallet accounts
   | "supplier" // Service providers (Vodacom, MTN, Eskom, etc.)
   | "client" // Brand partners (advertisers, campaign sponsors)
-  | "cashout" // Pending cashout holding account
+  | "client_subacc" // Client sub-accounts (on-ledger budgets)
+  | "cbook" // Cash Book accounts (business, trust) — asset/debit-normal
   | "group"; // Group accounts (stokvels, family, organizations, clubs)
 
 /**
@@ -32,14 +36,13 @@ export type AccountStatus = "active" | "frozen" | "closed";
  * System account identifiers (well-known account IDs)
  */
 export const SystemAccounts = {
-  MINT: "system:mint", // Token mint — only account allowed to go negative
-  TREASURY: "system:treasury", // Source/sink of all tokens
-  REFERRALS: "system:referrals", // Referral reward pool
-  OPERATIONS: "system:operations", // Operational float
-  FEES: "system:fees", // Accumulated fees
+  CBOOK_BUS: "cbook:bus", // iMaliChat business cash book (asset account)
+  CBOOK_TRUST: "cbook:trust", // External client trust cash book (asset account)
   DAILY_POT: "pot:daily", // Daily pot accumulator
   WEEKLY_POT: "pot:weekly", // Weekly pot accumulator
-  CASHOUT_PENDING: "cashout:pending", // Pending cashout holding
+  CASHOUT_PENDING: "system:cashout_pending", // Pending cashout holding
+  ENGAGEMENT_ESCROW: "system:escrow", // Engagement token reservation holding
+  IMALICHAT_CLIENT: "client:imalichat", // iMaliChat's own client account
 } as const;
 
 /**
@@ -85,13 +88,15 @@ export type JournalType =
   | "referral_reward" // Referral bonus paid
   | "p2p_transfer" // User-to-user transfer
   | "cashout_initiate" // Cashout started (user -> pending)
-  | "cashout_complete" // Cashout completed (pending -> treasury)
+  | "cashout_complete" // Cashout completed (pending -> supplier)
   | "cashout_failed" // Cashout failed (pending -> user refund)
-  | "campaign_fund" // Client funds a campaign (client -> treasury)
-  | "campaign_reward" // Campaign reward to user (treasury -> user)
+  | "client_fund" // CBook -> Client funding (also seeds cbook as asset debit)
+  | "client_refund" // Client -> CBook refund
+  | "subacc_fund" // Client -> Sub-Account funding
+  | "escrow_reserve" // Tokens source → escrow at engagement start
+  | "escrow_release" // Tokens escrow → user/pots/source at engagement completion
   | "reversal" // Reversal of a previous journal
   | "adjustment" // Manual admin adjustment
-  | "system_seed" // Initial system account seeding
   // Group transactions
   | "group_contribution" // Member contributes to group
   | "group_withdrawal" // Member withdraws from group
@@ -105,8 +110,9 @@ export type JournalType =
 export type JournalStatus = "pending" | "posted" | "failed" | "reversed";
 
 /**
- * Entry type (debit decreases, credit increases for asset accounts)
- * Using accounting convention: Debit = outflow, Credit = inflow
+ * Entry type
+ * Asset accounts (cbook): debit increases balance, credit decreases.
+ * All other accounts: credit increases balance, debit decreases.
  */
 export type EntryType = "debit" | "credit";
 
@@ -144,9 +150,8 @@ export interface LedgerJournal {
     | "cashout"
     | "pot_draw"
     | "pot_entry"
-    | "campaign"
-    | "group" // Group transactions
-    | "system"; // System operations (e.g. treasury seed)
+    | "client_fund" // Client funding/refund operations
+    | "group"; // Group transactions
   referenceId?: string;
 
   // Sub-account tracking
@@ -339,6 +344,18 @@ export const LedgerConfig = {
   TOKENS_PER_ZAR: 100, // 100 tokens = R1
 } as const;
 
+/**
+ * Escrow configuration constants
+ */
+export const EscrowConfig = {
+  /** Maximum time (ms) an escrow reservation can remain active before auto-cleanup */
+  ESCROW_TTL_MS: 2 * 60 * 60 * 1000, // 2 hours
+  /** Cron expression for cleanup function schedule */
+  CLEANUP_INTERVAL_CRON: "*/15 * * * *", // Every 15 minutes
+  /** Maximum engagements to process per cleanup run per status */
+  CLEANUP_BATCH_SIZE: 200,
+} as const;
+
 // ============================================================================
 // ERROR CODES
 // ============================================================================
@@ -390,6 +407,7 @@ export const AccountId = {
   user: (userId: string) => `user:${userId}`,
   supplier: (providerId: string) => `supplier:${providerId}`,
   client: (clientId: string) => `client:${clientId}`,
+  clientSubAccount: (subAccountId: string) => `client_subacc:${subAccountId}`,
   group: (groupId: string) => `group:${groupId}`,
   parseUserId: (accountId: string): string | null => {
     if (accountId.startsWith("user:")) {
@@ -409,6 +427,12 @@ export const AccountId = {
     }
     return null;
   },
+  parseClientSubAccountId: (accountId: string): string | null => {
+    if (accountId.startsWith("client_subacc:")) {
+      return accountId.substring(14);
+    }
+    return null;
+  },
   parseGroupId: (accountId: string): string | null => {
     if (accountId.startsWith("group:")) {
       return accountId.substring(6);
@@ -422,11 +446,19 @@ export const AccountId = {
   isSupplierAccount: (accountId: string): boolean =>
     accountId.startsWith("supplier:"),
   isClientAccount: (accountId: string): boolean =>
-    accountId.startsWith("client:"),
+    accountId.startsWith("client:") && !accountId.startsWith("client_subacc:"),
+  isClientSubAccount: (accountId: string): boolean =>
+    accountId.startsWith("client_subacc:"),
+  isCbookAccount: (accountId: string): boolean =>
+    accountId.startsWith("cbook:"),
   isGroupAccount: (accountId: string): boolean =>
     accountId.startsWith("group:"),
-  isMintAccount: (accountId: string): boolean =>
-    accountId === "system:mint",
+  /**
+   * Asset accounts (cbook) are debit-normal: debit increases balance, credit decreases.
+   * All other accounts are credit-normal: credit increases balance, debit decreases.
+   */
+  isDebitNormal: (accountId: string): boolean =>
+    accountId.startsWith("cbook:"),
 };
 
 /**
@@ -442,11 +474,13 @@ export const IdempotencyKey = {
   cashoutInitiate: (cashoutId: string) => `cashout_init:${cashoutId}`,
   cashoutComplete: (cashoutId: string) => `cashout_complete:${cashoutId}`,
   cashoutFailed: (cashoutId: string) => `cashout_failed:${cashoutId}`,
-  campaignFund: (campaignId: string) => `campaign_fund:${campaignId}`,
-  campaignReward: (campaignId: string, usrId: string) => `campaign_reward:${campaignId}:${usrId}`,
+  clientFund: (clientId: string, reference: string) => `client_fund:${clientId}:${reference}`,
+  clientRefund: (clientId: string, reference: string) => `client_refund:${clientId}:${reference}`,
+  subAccountFund: (subAccountId: string, reference: string) => `subacc_fund:${subAccountId}:${reference}`,
+  escrowReserve: (engagementId: string) => `escrow_reserve:${engagementId}`,
+  escrowRelease: (engagementId: string) => `escrow_release:${engagementId}`,
   reversal: (originalJournalId: string) => `reversal:${originalJournalId}`,
   adjustment: (adjustmentId: string) => `adjustment:${adjustmentId}`,
-  systemSeed: (accountId: string) => `seed:${accountId}`,
   // Group transaction keys
   groupContribution: (groupId: string, transactionId: string) => `group_contrib:${groupId}:${transactionId}`,
   groupWithdrawal: (groupId: string, transactionId: string) => `group_withdraw:${groupId}:${transactionId}`,

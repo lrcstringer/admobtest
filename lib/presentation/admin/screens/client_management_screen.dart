@@ -182,16 +182,6 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
     );
   }
 
-  void _showFundClientDialog(Map<String, dynamic> client) {
-    showDialog(
-      context: context,
-      builder: (context) => _FundClientDialog(
-        client: client,
-        onFunded: _loadClients,
-      ),
-    );
-  }
-
   void _showSubAccountsDialog(Map<String, dynamic> client) {
     showDialog(
       context: context,
@@ -736,8 +726,6 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
                 switch (value) {
                   case 'edit':
                     _showEditClientDialog(client);
-                  case 'fund':
-                    _showFundClientDialog(client);
                   case 'sub_accounts':
                     _showSubAccountsDialog(client);
                   case 'toggle_status':
@@ -754,16 +742,6 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
                       Icon(Icons.edit_outlined, size: 18),
                       SizedBox(width: 8),
                       Text('Edit Client'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'fund',
-                  child: Row(
-                    children: [
-                      Icon(Icons.account_balance_wallet_outlined, size: 18),
-                      SizedBox(width: 8),
-                      Text('Fund Account'),
                     ],
                   ),
                 ),
@@ -2110,190 +2088,6 @@ class _EditClientDialogState extends State<_EditClientDialog> {
 }
 
 // ---------------------------------------------------------------------------
-// Fund Client Dialog → adminFundClientAccount
-// ---------------------------------------------------------------------------
-
-class _FundClientDialog extends StatefulWidget {
-  final Map<String, dynamic> client;
-  final VoidCallback onFunded;
-  const _FundClientDialog({required this.client, required this.onFunded});
-
-  @override
-  State<_FundClientDialog> createState() => _FundClientDialogState();
-}
-
-class _FundClientDialogState extends State<_FundClientDialog> {
-  final _formKey = GlobalKey<FormState>();
-  final _amountController = TextEditingController();
-  final _referenceController = TextEditingController();
-  String _paymentMethod = 'bank_transfer';
-  bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _referenceController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _handleFund() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() => _isLoading = true);
-    try {
-      final result = await FirebaseFunctions.instance
-          .httpsCallable('adminFundClientAccount')
-          .call({
-        'clientId': widget.client['id'],
-        'amount': int.parse(_amountController.text.trim()),
-        'reference': _referenceController.text.trim(),
-        'paymentMethod': _paymentMethod,
-      });
-      if (mounted) {
-        final newBalance = result.data['newBalance'];
-        Navigator.of(context).pop();
-        widget.onFunded();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Account funded successfully. New balance: ${newBalance ?? "refreshing..."}',
-            ),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error funding account: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final rawBal = widget.client['balance'];
-    final currentBalance = rawBal is int ? rawBal : (rawBal is double ? rawBal.toInt() : 0);
-    return AlertDialog(
-      backgroundColor: AppColors.cardDark,
-      title: const Text(
-        'Fund Client Account',
-        style: TextStyle(color: AppColors.textPrimaryDark),
-      ),
-      content: SizedBox(
-        width: 450,
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.tokenGold.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.business, color: AppColors.tokenGold),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.client['companyName'] ?? 'Client',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimaryDark,
-                            ),
-                          ),
-                          Text(
-                            'Current balance: $currentBalance tokens',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _amountController,
-                decoration: const InputDecoration(
-                  labelText: 'Amount (tokens)',
-                  hintText: 'e.g., 10000',
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'Amount is required';
-                  final n = int.tryParse(v);
-                  if (n == null || n <= 0) return 'Must be greater than 0';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _referenceController,
-                decoration: const InputDecoration(
-                  labelText: 'Reference',
-                  hintText: 'e.g., INV-2026-001',
-                ),
-                validator: (v) =>
-                    (v == null || v.isEmpty) ? 'Reference is required' : null,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                initialValue: _paymentMethod,
-                decoration:
-                    const InputDecoration(labelText: 'Payment Method'),
-                items: const [
-                  DropdownMenuItem(
-                      value: 'bank_transfer', child: Text('Bank Transfer')),
-                  DropdownMenuItem(value: 'invoice', child: Text('Invoice')),
-                  DropdownMenuItem(
-                      value: 'promo_credit', child: Text('Promo Credit')),
-                ],
-                onChanged: (v) {
-                  if (v != null) setState(() => _paymentMethod = v);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _isLoading ? null : _handleFund,
-          style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
-          child: _isLoading
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Fund Account'),
-        ),
-      ],
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Toggle Status Dialog → adminUpdateClientStatus
 // ---------------------------------------------------------------------------
 
@@ -2572,121 +2366,6 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
     );
   }
 
-  void _showFundSubAccountDialog(Map<String, dynamic> subAccount) {
-    final amountCtrl = TextEditingController();
-    final refCtrl = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
-    var saving = false;
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setInnerState) {
-          return AlertDialog(
-            backgroundColor: AppColors.cardDark,
-            title: const Text('Top Up Sub-Account',
-                style: TextStyle(color: AppColors.textPrimaryDark)),
-            content: SizedBox(
-              width: 400,
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${subAccount['name']}  —  Balance: ${(subAccount['balance'] as num?)?.toInt() ?? 0} tokens',
-                      style: TextStyle(color: AppColors.textSecondary),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: amountCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Amount (tokens)',
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return 'Required';
-                        final n = int.tryParse(v);
-                        if (n == null || n <= 0) return 'Must be > 0';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: refCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Reference',
-                        hintText: 'e.g., TOPUP-001',
-                      ),
-                      validator: (v) =>
-                          (v == null || v.isEmpty) ? 'Required' : null,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: saving ? null : () => Navigator.of(ctx).pop(),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: saving
-                    ? null
-                    : () async {
-                        if (!formKey.currentState!.validate()) return;
-                        setInnerState(() => saving = true);
-                        try {
-                          await FirebaseFunctions.instance
-                              .httpsCallable('adminFundClientSubAccount')
-                              .call({
-                            'clientId': widget.clientId,
-                            'subAccountId': subAccount['id'],
-                            'amount':
-                                int.parse(amountCtrl.text.trim()),
-                            'reference': refCtrl.text.trim(),
-                          });
-                          if (ctx.mounted) {
-                            Navigator.of(ctx).pop();
-                            _loadSubAccounts();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Sub-account funded'),
-                                backgroundColor: AppColors.success,
-                              ),
-                            );
-                          }
-                        } catch (e) {
-                          if (ctx.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Error: $e'),
-                                backgroundColor: AppColors.error,
-                              ),
-                            );
-                            setInnerState(() => saving = false);
-                          }
-                        }
-                      },
-                style:
-                    ElevatedButton.styleFrom(backgroundColor: AppColors.success),
-                child: saving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Top Up'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -2846,13 +2525,6 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
                 ),
               ),
             ),
-          ),
-          // Top Up
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline, size: 20),
-            color: AppColors.secondary,
-            tooltip: 'Top Up',
-            onPressed: () => _showFundSubAccountDialog(sa),
           ),
         ],
       ),

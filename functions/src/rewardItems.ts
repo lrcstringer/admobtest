@@ -6,32 +6,13 @@
  */
 
 import * as functions from "firebase-functions";
+import { requireAdminPermission, logAdminAction } from "./adminAuth";
 import * as admin from "firebase-admin";
 import { requireAppCheck, checkRateLimit } from "./security";
 import { encryptCode, decryptCode, hashCode } from "./encryption";
 
 const db = admin.firestore();
 
-/**
- * Verify the caller has admin role
- */
-async function requireAdmin(
-  context: functions.https.CallableContext
-): Promise<void> {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      "unauthenticated",
-      "Must be authenticated"
-    );
-  }
-  const token = context.auth.token;
-  if (!token.admin && !token.superAdmin) {
-    throw new functions.https.HttpsError(
-      "permission-denied",
-      "Admin access required"
-    );
-  }
-}
 
 // ============================================================================
 // BULK IMPORT REWARD ITEMS
@@ -54,7 +35,7 @@ export const importRewardItems = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "importRewardItems");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "rewards:importItems", "importRewardItems");
 
     const { campaignId, codes } = data;
 
@@ -190,6 +171,8 @@ export const importRewardItems = functions.https.onCall(
       remainingQuantity: admin.firestore.FieldValue.increment(newCodes.length),
       updatedAt: now,
     });
+
+    logAdminAction(adminCtx.uid, "importRewardItems", "success", { campaignId, imported: newCodes.length, skipped: skippedCount }).catch(() => {});
 
     return {
       success: true,
@@ -526,7 +509,7 @@ export const revokeRewardItem = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "revokeRewardItem");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "rewards:revokeItem", "revokeRewardItem");
 
     const { itemId, reason } = data;
     if (!itemId || !reason) {
@@ -593,6 +576,8 @@ export const revokeRewardItem = functions.https.onCall(
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    logAdminAction(adminCtx.uid, "revokeRewardItem", "success", { itemId, reason, campaignId: result.campaignId, userId: result.userId }).catch(() => {});
+
     return { success: true };
   }
 );
@@ -614,7 +599,7 @@ export const getAdminRewardItems = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "getAdminRewardItems");
-    await requireAdmin(context);
+    await requireAdminPermission(context, "rewards:getItems", "getAdminRewardItems");
 
     const { campaignId, status, limit: queryLimit } = data;
 

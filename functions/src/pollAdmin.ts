@@ -7,29 +7,10 @@
 
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
+import { requireAdminPermission, logAdminAction } from "./adminAuth";
 
 const db = admin.firestore();
 
-/**
- * Verify the caller has admin role
- */
-async function requireAdmin(
-  context: functions.https.CallableContext
-): Promise<void> {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      "unauthenticated",
-      "Must be authenticated"
-    );
-  }
-  const token = context.auth.token;
-  if (!token.admin && !token.superAdmin) {
-    throw new functions.https.HttpsError(
-      "permission-denied",
-      "Admin access required"
-    );
-  }
-}
 
 /**
  * Create a new poll with a linked EarnOpportunity.
@@ -39,7 +20,7 @@ async function requireAdmin(
  */
 export const createPoll = functions.https.onCall(
   async (data, context) => {
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "poll:create", "createPoll");
 
     const {
       threadId,
@@ -162,6 +143,8 @@ export const createPoll = functions.https.onCall(
 
     await batch.commit();
 
+    logAdminAction(adminCtx.uid, "createPoll", "success", { pollId: pollRef.id, opportunityId: oppRef.id, threadId, question }).catch(() => {});
+
     return {
       success: true,
       pollId: pollRef.id,
@@ -179,7 +162,7 @@ export const createPoll = functions.https.onCall(
  */
 export const updatePoll = functions.https.onCall(
   async (data, context) => {
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "poll:update", "updatePoll");
 
     const { pollId, ...updates } = data;
     if (!pollId) {
@@ -260,6 +243,8 @@ export const updatePoll = functions.https.onCall(
       });
     }
 
+    logAdminAction(adminCtx.uid, "updatePoll", "success", { pollId, updatedFields: Object.keys(updates) }).catch(() => {});
+
     return { success: true };
   }
 );
@@ -270,7 +255,7 @@ export const updatePoll = functions.https.onCall(
  */
 export const openPoll = functions.https.onCall(
   async (data, context) => {
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "poll:open", "openPoll");
 
     const { pollId } = data;
     if (!pollId) {
@@ -322,6 +307,8 @@ export const openPoll = functions.https.onCall(
 
     await batch.commit();
 
+    logAdminAction(adminCtx.uid, "openPoll", "success", { pollId, opportunityId: poll.opportunityId }).catch(() => {});
+
     return { success: true };
   }
 );
@@ -332,7 +319,7 @@ export const openPoll = functions.https.onCall(
  */
 export const closePoll = functions.https.onCall(
   async (data, context) => {
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "poll:close", "closePoll");
 
     const { pollId } = data;
     if (!pollId) {
@@ -384,6 +371,8 @@ export const closePoll = functions.https.onCall(
 
     await batch.commit();
 
+    logAdminAction(adminCtx.uid, "closePoll", "success", { pollId, opportunityId: poll.opportunityId, totalRespondents: poll.totalRespondents }).catch(() => {});
+
     return { success: true };
   }
 );
@@ -393,7 +382,7 @@ export const closePoll = functions.https.onCall(
  */
 export const getPollAdminDetails = functions.https.onCall(
   async (data, context) => {
-    await requireAdmin(context);
+    await requireAdminPermission(context, "poll:getDetails", "getPollAdminDetails");
 
     const { pollId } = data;
     if (!pollId) {

@@ -13,19 +13,24 @@
  * - Reconciliation and integrity verification
  *
  * Account Types:
- * - system: iMali system accounts (treasury, referrals, operations, fees)
+ * - cbook: Cash Book accounts (asset/debit-normal — business, trust)
+ * - client: Brand partners (advertisers, campaign sponsors)
+ * - client_subacc: Client sub-accounts (on-ledger budgets)
+ * - system: iMali system accounts (cashout_pending)
  * - pot: Daily and weekly pot accounts
  * - user: Individual user wallet accounts
  * - supplier: Service provider accounts (Vodacom, MTN, Eskom, etc.)
- * - cashout: Pending cashout holding account
+ * - group: Group accounts (stokvels, family, organizations, clubs)
  *
  * Token Flows:
- * - Earning: treasury → user (90%) + daily pot (5%) + weekly pot (5%)
+ * - Funding: cbook → client (also seeds cbook as asset debit)
+ * - Sub-account: client → client_subacc
+ * - Earning: client/client_subacc → user (90%) + daily pot (5%) + weekly pot (5%)
  * - Pot Win: pot → user (winner)
  * - Purchase: user → supplier
- * - Referral: referrals → referrer + referee
+ * - Referral: client:imalichat → referrer + referee
  * - P2P: user → user
- * - Cashout: user → pending → treasury (burn)
+ * - Cashout: user → pending → supplier
  */
 
 // Re-export all types
@@ -66,6 +71,8 @@ export {
   createAccount,
   initializeSystemAccounts,
   createSupplierAccount,
+  createClientAccount,
+  getClientAccount,
   freezeAccount,
   unfreezeAccount,
   closeAccount,
@@ -122,7 +129,6 @@ export {
 // HIGH-LEVEL TRANSACTION HELPERS
 // ============================================================================
 
-import * as admin from "firebase-admin";
 import {
   SystemAccounts,
   LedgerConfig,
@@ -131,7 +137,7 @@ import {
   PostJournalResult,
   JournalEntryInput,
 } from "./types";
-import { getOrCreateUserAccount, createSupplierAccount, initializeSystemAccounts, getBalance } from "./accounts";
+import { getOrCreateUserAccount, createSupplierAccount, initializeSystemAccounts } from "./accounts";
 import { postJournal, createEarningEntries, createReferralEntries, createTransferEntries } from "./journals";
 import {
   getOrCreateDefaultSubAccount,
@@ -165,40 +171,37 @@ async function ensureSystemAccounts(): Promise<void> {
  *
  * Distributes tokens: 90% to user's sub-account, 5% to daily pot, 5% to weekly pot
  *
- * For client-funded threads:
- * - If clientId and clientSubAccountId are provided, debits the client's sub-account
- *   instead of the treasury
- * - Uses `client:{clientId}` as the source account in the journal entry
+ * The tokenSourceAccountId is the ledger account to debit (either client:{clientId}
+ * or client_subacc:{subAccountId}). The journal handles the balance change on-ledger —
+ * no off-ledger sub-account decrement is needed.
  *
  * @param userId - The user's ID
  * @param totalAmount - Total tokens earned
  * @param engagementId - Reference to the engagement
  * @param description - Description for the journal entry
- * @param subAccountId - The sub-account to credit (optional, uses default if not provided)
+ * @param tokenSourceAccountId - Ledger account to debit (e.g. "client:abc" or "client_subacc:xyz")
+ * @param userSubAccountId - The user's sub-account to credit (optional, uses default if not provided)
  * @param accountTypeId - The account type for audit (optional)
  * @param metadata - Additional metadata
- * @param clientId - Client ID for client-funded threads (optional)
- * @param clientSubAccountId - Client sub-account to debit (optional, required if clientId provided)
  */
 export async function processEarningWithSplit(
   userId: string,
   totalAmount: number,
   engagementId: string,
   description: string,
-  subAccountId?: string,
+  tokenSourceAccountId: string,
+  userSubAccountId?: string,
   accountTypeId?: string | null,
   metadata?: Record<string, unknown>,
-  clientId?: string,
-  clientSubAccountId?: string
 ): Promise<PostJournalResult> {
-  // Ensure system accounts exist (treasury, pots, etc.) — runs once per cold start
+  // Ensure system accounts exist (pots, etc.) — runs once per cold start
   await ensureSystemAccounts();
 
   // Ensure user account exists (legacy ledgerAccounts)
   await getOrCreateUserAccount(userId);
 
   // Get or create sub-account if not provided
-  let finalSubAccountId = subAccountId;
+  let finalSubAccountId = userSubAccountId;
   if (!finalSubAccountId) {
     const result = await getOrCreateDefaultSubAccount(userId);
     finalSubAccountId = result.subAccountId;
@@ -209,13 +212,8 @@ export async function processEarningWithSplit(
   const dailyPotShare = Math.floor(totalAmount * LedgerConfig.EARNING_DAILY_POT_SHARE);
   const weeklyPotShare = totalAmount - userShare - dailyPotShare;
 
-  // Determine source account: client or treasury
-  const sourceAccountId = clientId
-    ? AccountId.client(clientId)
-    : SystemAccounts.TREASURY;
-
-  // Create earning entries with split
-  const entries = createEarningEntries(userId, totalAmount, sourceAccountId);
+  // Create earning entries with split — source is the token source account
+  const entries = createEarningEntries(userId, totalAmount, tokenSourceAccountId);
 
   // Post journal entry
   const journalResult = await postJournal({
@@ -235,8 +233,7 @@ export async function processEarningWithSplit(
       userShare,
       dailyPotShare,
       weeklyPotShare,
-      clientId: clientId || null,
-      clientSubAccountId: clientSubAccountId || null,
+      tokenSourceAccountId,
     },
   });
 
@@ -244,30 +241,9 @@ export async function processEarningWithSplit(
     return journalResult;
   }
 
-  // Non-blocking treasury balance check after successful earning
-  if (!clientId) {
-    checkTreasuryBalance().catch((err) =>
-      console.error("Treasury balance check failed:", err)
-    );
-  }
-
   // Credit the user's sub-account with their share (90%)
   if (userShare > 0 && !journalResult.isDuplicate) {
     await creditSubAccount(userId, finalSubAccountId, userShare);
-  }
-
-  // If client-funded, debit the client's sub-account
-  if (clientId && clientSubAccountId && !journalResult.isDuplicate) {
-    const db = admin.firestore();
-    await db
-      .collection("clients")
-      .doc(clientId)
-      .collection("subAccounts")
-      .doc(clientSubAccountId)
-      .update({
-        balance: admin.firestore.FieldValue.increment(-totalAmount),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
   }
 
   return journalResult;
@@ -467,7 +443,7 @@ export async function processReferralRewards(
     finalRefereeSubAccountId = result.subAccountId;
   }
 
-  const entries = createReferralEntries(referrerId, refereeId, SystemAccounts.REFERRALS);
+  const entries = createReferralEntries(referrerId, refereeId, SystemAccounts.IMALICHAT_CLIENT);
 
   const journalResult = await postJournal({
     idempotencyKey: IdempotencyKey.referral(referralId),
@@ -673,14 +649,23 @@ export async function initiateCashout(
 }
 
 /**
- * Complete cashout - burn tokens (return to treasury)
+ * Complete cashout - move tokens from pending to supplier
+ *
+ * @param cashoutId - Reference to the cashout
+ * @param amount - Token amount
+ * @param supplierId - Supplier account identifier (e.g. "cashout_eft", "cashout_ewallet")
+ * @param metadata - Additional metadata
  */
 export async function completeCashout(
   cashoutId: string,
   amount: number,
+  supplierId: string,
   metadata?: Record<string, unknown>
 ): Promise<PostJournalResult> {
   await ensureSystemAccounts();
+
+  // Ensure supplier account exists
+  await createSupplierAccount(supplierId, `Cashout: ${supplierId}`);
 
   const entries: JournalEntryInput[] = [
     {
@@ -690,17 +675,17 @@ export async function completeCashout(
       description: "Cashout completed",
     },
     {
-      accountId: SystemAccounts.TREASURY,
+      accountId: AccountId.supplier(supplierId),
       entryType: "credit",
       amount,
-      description: "Tokens returned to treasury",
+      description: `Cashout to supplier: ${supplierId}`,
     },
   ];
 
   return postJournal({
     idempotencyKey: IdempotencyKey.cashoutComplete(cashoutId),
     type: "cashout_complete",
-    description: `Cashout completed: ${amount} tokens burned`,
+    description: `Cashout completed: ${amount} tokens to ${supplierId}`,
     entries,
     referenceType: "cashout",
     referenceId: cashoutId,
@@ -708,6 +693,7 @@ export async function completeCashout(
     metadata: {
       ...metadata,
       amount,
+      supplierId,
     },
   });
 }
@@ -778,136 +764,62 @@ export async function failCashout(
 }
 
 /**
- * Seed treasury with tokens (admin function)
+ * Process client sub-account funding — transfer tokens from client master to sub-account
  *
- * Mints new tokens by debiting system:mint and crediting system:treasury.
- * system:mint is the ONLY account allowed to go negative — it tracks total
- * tokens ever created. Treasury must have a positive balance to fund earnings.
+ * Posts a journal: DR client:{clientId} CR client_subacc:{subAccountId}
+ * Validates client account has sufficient ledger balance.
  *
- * @param amount - Number of tokens to mint (must be > 0)
- * @param reason - Why the seed is happening (audit trail)
- * @param adminUserId - The admin performing the seed
+ * @param clientId - The client's ID
+ * @param subAccountId - The sub-account Firestore ID
+ * @param amount - Token amount to transfer
+ * @param reference - Unique reference for idempotency
+ * @param adminUserId - The admin performing the transfer
  */
-export async function seedTreasury(
+export async function processClientSubAccountFunding(
+  clientId: string,
+  subAccountId: string,
   amount: number,
-  reason: string,
-  adminUserId: string
+  reference: string,
+  adminUserId: string,
 ): Promise<PostJournalResult> {
   if (amount <= 0) {
     return {
       success: false,
-      error: "Seed amount must be positive",
+      error: "Funding amount must be positive",
       errorCode: "INVALID_AMOUNT",
     };
   }
 
-  // Ensure system accounts (including mint) exist
-  await ensureSystemAccounts();
-
   const entries: JournalEntryInput[] = [
     {
-      accountId: SystemAccounts.MINT,
+      accountId: AccountId.client(clientId),
       entryType: "debit",
       amount,
-      description: `Mint ${amount} tokens`,
+      description: `Fund sub-account ${subAccountId}`,
     },
     {
-      accountId: SystemAccounts.TREASURY,
+      accountId: AccountId.clientSubAccount(subAccountId),
       entryType: "credit",
       amount,
-      description: `Treasury seed: ${reason}`,
+      description: `Funded from client ${clientId}`,
     },
   ];
 
-  // Use timestamp + adminId so the same admin can seed multiple times
-  const idempotencyKey = `${IdempotencyKey.systemSeed(SystemAccounts.TREASURY)}:${Date.now()}:${adminUserId}`;
-
   return postJournal({
-    idempotencyKey,
-    type: "system_seed",
-    description: `Treasury seed: ${amount} tokens — ${reason}`,
+    idempotencyKey: IdempotencyKey.subAccountFund(subAccountId, reference),
+    type: "subacc_fund",
+    description: `Sub-account funding: ${amount} tokens from ${clientId} to ${subAccountId}`,
     entries,
-    referenceType: "system",
-    referenceId: "treasury_seed",
+    referenceType: "client_fund",
+    referenceId: reference,
     initiatedBy: adminUserId,
     metadata: {
+      clientId,
+      subAccountId,
       amount,
-      reason,
       adminUserId,
     },
   });
-}
-
-// ============================================================================
-// TREASURY MONITORING
-// ============================================================================
-
-/** Default threshold: warn when treasury has fewer than 100,000 tokens */
-const TREASURY_LOW_BALANCE_THRESHOLD = 100_000;
-
-/**
- * Check treasury balance and create admin notifications if running low.
- *
- * - Below threshold → "treasury_low_balance" notification (max 1 per 24h)
- * - At or below zero → "treasury_depleted" notification (max 1 per 1h)
- */
-export async function checkTreasuryBalance(): Promise<void> {
-  const db = admin.firestore();
-  const balance = await getBalance(SystemAccounts.TREASURY);
-
-  if (balance > TREASURY_LOW_BALANCE_THRESHOLD) {
-    return; // Healthy
-  }
-
-  const now = Date.now();
-
-  if (balance <= 0) {
-    // CRITICAL — treasury depleted
-    const oneHourAgo = new Date(now - 60 * 60 * 1000);
-    const existing = await db
-      .collection("adminNotifications")
-      .where("type", "==", "treasury_depleted")
-      .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(oneHourAgo))
-      .limit(1)
-      .get();
-
-    if (existing.empty) {
-      await db.collection("adminNotifications").add({
-        type: "treasury_depleted",
-        severity: "critical",
-        title: "Treasury Depleted",
-        message: `Treasury balance is ${balance} tokens. All earnings will fail until treasury is seeded.`,
-        balance,
-        createdAt: admin.firestore.Timestamp.now(),
-        read: false,
-      });
-      console.error(`CRITICAL: Treasury depleted — balance=${balance}`);
-    }
-    return;
-  }
-
-  // WARNING — low balance
-  const twentyFourHoursAgo = new Date(now - 24 * 60 * 60 * 1000);
-  const existing = await db
-    .collection("adminNotifications")
-    .where("type", "==", "treasury_low_balance")
-    .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(twentyFourHoursAgo))
-    .limit(1)
-    .get();
-
-  if (existing.empty) {
-    await db.collection("adminNotifications").add({
-      type: "treasury_low_balance",
-      severity: "warning",
-      title: "Treasury Balance Low",
-      message: `Treasury balance is ${balance} tokens (threshold: ${TREASURY_LOW_BALANCE_THRESHOLD}). Consider seeding more tokens.`,
-      balance,
-      threshold: TREASURY_LOW_BALANCE_THRESHOLD,
-      createdAt: admin.firestore.Timestamp.now(),
-      read: false,
-    });
-    console.warn(`WARNING: Treasury low — balance=${balance}, threshold=${TREASURY_LOW_BALANCE_THRESHOLD}`);
-  }
 }
 
 // ============================================================================
@@ -929,4 +841,223 @@ export async function initializeLedger(): Promise<void> {
   await initializeSystemAccounts();
 
   console.log("Trust Ledger System initialized successfully");
+}
+
+// ============================================================================
+// ESCROW RESERVATION HELPERS
+// ============================================================================
+
+/**
+ * Reserve tokens in escrow for an engagement.
+ *
+ * Moves tokens from the campaign's token source account into the system
+ * escrow account via an atomic journal entry. This guarantees the tokens
+ * are available when the user completes the engagement.
+ *
+ * The escrowAmount should be the MAXIMUM possible payout:
+ *   base reward × bonus multiplier (if bonus is configured on the opportunity)
+ *
+ * @param engagementId - The engagement ID (used for idempotency)
+ * @param escrowAmount - Maximum possible payout to reserve
+ * @param tokenSourceAccountId - The campaign's token source (client or client_subacc)
+ * @param metadata - Additional metadata for audit trail
+ */
+export async function createEscrowReservation(
+  engagementId: string,
+  escrowAmount: number,
+  tokenSourceAccountId: string,
+  metadata?: Record<string, unknown>,
+): Promise<PostJournalResult> {
+  await ensureSystemAccounts();
+
+  if (escrowAmount <= 0) {
+    return {
+      success: false,
+      error: "Escrow amount must be positive",
+      errorCode: "INVALID_AMOUNT",
+    };
+  }
+
+  const entries: JournalEntryInput[] = [
+    {
+      accountId: tokenSourceAccountId,
+      entryType: "debit",
+      amount: escrowAmount,
+      description: "Escrow reservation for engagement",
+    },
+    {
+      accountId: SystemAccounts.ENGAGEMENT_ESCROW,
+      entryType: "credit",
+      amount: escrowAmount,
+      description: "Tokens held in escrow",
+    },
+  ];
+
+  return postJournal({
+    idempotencyKey: IdempotencyKey.escrowReserve(engagementId),
+    type: "escrow_reserve",
+    description: `Escrow reservation: ${escrowAmount} tokens for engagement ${engagementId}`,
+    entries,
+    referenceType: "engagement",
+    referenceId: engagementId,
+    initiatedBy: "system",
+    metadata: {
+      ...metadata,
+      escrowAmount,
+      tokenSourceAccountId,
+      engagementId,
+    },
+  });
+}
+
+/**
+ * Create journal entries for escrow release at engagement completion.
+ *
+ * Produces a SINGLE balanced journal:
+ *   DR system:escrow           escrowAmount    (full reserved amount leaves escrow)
+ *   CR user:{userId}           userShare       (90% of actualReward)
+ *   CR pot:daily               dailyPotShare   (5% of actualReward)
+ *   CR pot:weekly              weeklyPotShare  (5% of actualReward)
+ *   CR tokenSourceAccountId    excess          (escrowAmount - actualReward, returned to source)
+ *
+ * When bonus triggers: actualReward == escrowAmount, excess == 0, no source credit.
+ * When no bonus: actualReward == baseReward < escrowAmount, excess returned to source.
+ */
+export function createEscrowCompletionEntries(
+  userId: string,
+  actualReward: number,
+  escrowAmount: number,
+  tokenSourceAccountId: string,
+): JournalEntryInput[] {
+  const userAmount = Math.floor(actualReward * LedgerConfig.EARNING_USER_SHARE);
+  const dailyPotAmount = Math.floor(actualReward * LedgerConfig.EARNING_DAILY_POT_SHARE);
+  const weeklyPotAmount = actualReward - userAmount - dailyPotAmount;
+  const excess = escrowAmount - actualReward;
+
+  const entries: JournalEntryInput[] = [
+    {
+      accountId: SystemAccounts.ENGAGEMENT_ESCROW,
+      entryType: "debit",
+      amount: escrowAmount,
+      description: "Escrow release — full reserved amount",
+    },
+  ];
+
+  if (userAmount > 0) {
+    entries.push({
+      accountId: AccountId.user(userId),
+      entryType: "credit",
+      amount: userAmount,
+      description: "User earning (90%)",
+    });
+  }
+
+  if (dailyPotAmount > 0) {
+    entries.push({
+      accountId: SystemAccounts.DAILY_POT,
+      entryType: "credit",
+      amount: dailyPotAmount,
+      description: "Daily pot contribution (5%)",
+    });
+  }
+
+  if (weeklyPotAmount > 0) {
+    entries.push({
+      accountId: SystemAccounts.WEEKLY_POT,
+      entryType: "credit",
+      amount: weeklyPotAmount,
+      description: "Weekly pot contribution (5%)",
+    });
+  }
+
+  if (excess > 0) {
+    entries.push({
+      accountId: tokenSourceAccountId,
+      entryType: "credit",
+      amount: excess,
+      description: "Excess escrow returned to source (bonus not triggered)",
+    });
+  }
+
+  return entries;
+}
+
+/**
+ * Process engagement completion from escrow.
+ *
+ * Creates a single balanced journal that debits escrow for the full reserved
+ * amount, credits user/pots for the actual reward, and returns any excess
+ * to the original token source account.
+ *
+ * Also credits the user's sub-account with their 90% share.
+ *
+ * @param userId - The user's ID
+ * @param actualReward - The actual reward after bonus determination
+ * @param escrowAmount - The original reserved amount (max possible payout)
+ * @param engagementId - The engagement ID
+ * @param tokenSourceAccountId - Where to return excess tokens
+ * @param userSubAccountId - The user's sub-account to credit
+ * @param accountTypeId - Account type for audit trail
+ * @param metadata - Additional metadata
+ */
+export async function processEscrowCompletion(
+  userId: string,
+  actualReward: number,
+  escrowAmount: number,
+  engagementId: string,
+  tokenSourceAccountId: string,
+  userSubAccountId?: string,
+  accountTypeId?: string | null,
+  metadata?: Record<string, unknown>,
+): Promise<PostJournalResult> {
+  await ensureSystemAccounts();
+  await getOrCreateUserAccount(userId);
+
+  let finalSubAccountId = userSubAccountId;
+  if (!finalSubAccountId) {
+    const result = await getOrCreateDefaultSubAccount(userId);
+    finalSubAccountId = result.subAccountId;
+  }
+
+  const userShare = Math.floor(actualReward * LedgerConfig.EARNING_USER_SHARE);
+  const excess = escrowAmount - actualReward;
+
+  const entries = createEscrowCompletionEntries(
+    userId,
+    actualReward,
+    escrowAmount,
+    tokenSourceAccountId,
+  );
+
+  const journalResult = await postJournal({
+    idempotencyKey: IdempotencyKey.escrowRelease(engagementId),
+    type: "escrow_release",
+    description: `Escrow release: ${actualReward} tokens earned, ${excess} returned`,
+    entries,
+    referenceType: "engagement",
+    referenceId: engagementId,
+    initiatedBy: "system",
+    subAccountId: finalSubAccountId,
+    accountTypeId: accountTypeId || null,
+    metadata: {
+      ...metadata,
+      userId,
+      actualReward,
+      escrowAmount,
+      excess,
+      userShare,
+      tokenSourceAccountId,
+    },
+  });
+
+  if (!journalResult.success) {
+    return journalResult;
+  }
+
+  // Credit the user's sub-account with their share (90%)
+  if (userShare > 0 && !journalResult.isDuplicate) {
+    await creditSubAccount(userId, finalSubAccountId, userShare);
+  }
+
+  return journalResult;
 }

@@ -37,7 +37,7 @@ class _UploadReviewScreenState extends State<UploadReviewScreen> {
           FirebaseFunctions.instance.httpsCallable('getUploadReviewQueue');
       final result = await callable.call<dynamic>({'limit': 50});
 
-      final list = (result.data['engagements'] as List<dynamic>?) ?? [];
+      final list = (result.data['items'] as List<dynamic>?) ?? [];
       setState(() {
         _queue = list
             .map((e) => Map<String, dynamic>.from(e as Map))

@@ -114,22 +114,23 @@ export async function postJournal(
     }
   }
 
-  // Calculate balance changes per account
+  // Calculate balance changes per account.
+  // Asset accounts (cbook) are debit-normal: debit increases, credit decreases.
+  // All other accounts are credit-normal: credit increases, debit decreases.
   const balanceChanges = new Map<string, number>();
   for (const entry of input.entries) {
-    const change = entry.entryType === "credit" ? entry.amount : -entry.amount;
+    const isAsset = AccountId.isDebitNormal(entry.accountId);
+    const change = isAsset
+      ? (entry.entryType === "debit" ? entry.amount : -entry.amount)
+      : (entry.entryType === "credit" ? entry.amount : -entry.amount);
     balanceChanges.set(
       entry.accountId,
       (balanceChanges.get(entry.accountId) || 0) + change
     );
   }
 
-  // Validate no account goes negative.
-  // Only system:mint is exempt — it represents total tokens ever created.
+  // Validate no account goes negative — all accounts validated equally.
   for (const [accountId, change] of balanceChanges) {
-    if (AccountId.isMintAccount(accountId)) {
-      continue; // Mint is the only account allowed to go negative
-    }
     const account = accounts.get(accountId)!;
     const newBalance = account.balance + change;
     if (newBalance < 0) {
@@ -159,11 +160,8 @@ export async function postJournal(
         freshAccounts.set(accountIds[i], accountDocs[i].data() as LedgerAccount);
       }
 
-      // Re-validate balances inside transaction (mint is the only exception)
+      // Re-validate balances inside transaction — all accounts validated equally
       for (const [accountId, change] of balanceChanges) {
-        if (AccountId.isMintAccount(accountId)) {
-          continue; // Mint is the only account allowed to go negative
-        }
         const account = freshAccounts.get(accountId)!;
         const newBalance = account.balance + change;
         if (newBalance < 0) {
@@ -189,10 +187,10 @@ export async function postJournal(
       // Process entries in order, updating running balances
       for (let i = 0; i < input.entries.length; i++) {
         const inputEntry = input.entries[i];
-        const change =
-          inputEntry.entryType === "credit"
-            ? inputEntry.amount
-            : -inputEntry.amount;
+        const isAsset = AccountId.isDebitNormal(inputEntry.accountId);
+        const change = isAsset
+          ? (inputEntry.entryType === "debit" ? inputEntry.amount : -inputEntry.amount)
+          : (inputEntry.entryType === "credit" ? inputEntry.amount : -inputEntry.amount);
 
         const currentBalance = newBalances.get(inputEntry.accountId)!;
         const balanceAfter = currentBalance + change;
@@ -586,15 +584,19 @@ function validateJournalInput(
 // ============================================================================
 
 /**
- * Calculate net change for an account from a set of entries
+ * Calculate net change for an account from a set of entries.
+ * Asset accounts (cbook) are debit-normal; all others are credit-normal.
  */
 export function calculateNetChange(
   entries: JournalEntryInput[],
   accountId: string
 ): number {
+  const isAsset = AccountId.isDebitNormal(accountId);
   return entries.reduce((sum, entry) => {
     if (entry.accountId !== accountId) return sum;
-    return sum + (entry.entryType === "credit" ? entry.amount : -entry.amount);
+    return sum + (isAsset
+      ? (entry.entryType === "debit" ? entry.amount : -entry.amount)
+      : (entry.entryType === "credit" ? entry.amount : -entry.amount));
   }, 0);
 }
 

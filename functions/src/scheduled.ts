@@ -5,6 +5,8 @@
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { reverseJournal } from "./ledger";
+import { EscrowConfig } from "./ledger/types";
 
 const db = admin.firestore();
 
@@ -257,5 +259,96 @@ export const generateWeeklyStats = functions.pubsub
     });
 
     console.log(`Weekly stats generated: ${transactionsSnapshot.size} transactions`);
+    return null;
+  });
+
+/**
+ * Cleanup abandoned escrows — auto-abandon stale engagements and reverse
+ * their escrow reservations so tokens return to the campaign source account.
+ *
+ * Runs every 15 minutes. Processes engagements that have been in an active
+ * status for longer than the escrow TTL (2 hours).
+ */
+export const cleanupAbandonedEscrows = functions.pubsub
+  .schedule(EscrowConfig.CLEANUP_INTERVAL_CRON)
+  .timeZone("Africa/Johannesburg")
+  .onRun(async () => {
+    const cutoff = admin.firestore.Timestamp.fromMillis(
+      Date.now() - EscrowConfig.ESCROW_TTL_MS
+    );
+
+    const activeStatuses = ["started", "watching", "surveying", "in_progress"];
+    let totalProcessed = 0;
+    let totalReversed = 0;
+    let totalFailed = 0;
+
+    for (const status of activeStatuses) {
+      const staleEngagements = await db
+        .collection("engagements")
+        .where("status", "==", status)
+        .where("createdAt", "<", cutoff)
+        .limit(EscrowConfig.CLEANUP_BATCH_SIZE)
+        .get();
+
+      for (const doc of staleEngagements.docs) {
+        const engagement = doc.data();
+        totalProcessed++;
+
+        // Only reverse escrow if one was reserved and not yet reversed
+        if (engagement.escrowJournalId && !engagement.escrowReversedAt) {
+          try {
+            const reversalResult = await reverseJournal(
+              engagement.escrowJournalId,
+              "Escrow auto-expired after TTL",
+              "system"
+            );
+
+            await doc.ref.update({
+              status: "abandoned",
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+              escrowReversedAt: admin.firestore.FieldValue.serverTimestamp(),
+              escrowReversalJournalId: reversalResult.journalId || null,
+              escrowReversalFailed: !reversalResult.success,
+              escrowReversalReason: "ttl_expired",
+            });
+
+            if (reversalResult.success) {
+              totalReversed++;
+            } else {
+              totalFailed++;
+              console.warn(
+                `Escrow reversal returned failure for engagement ${doc.id}: ${reversalResult.error}`
+              );
+            }
+          } catch (error) {
+            totalFailed++;
+            console.error(
+              `Failed to reverse escrow for engagement ${doc.id}:`,
+              error
+            );
+            // Still mark as abandoned so it doesn't keep retrying forever
+            await doc.ref.update({
+              status: "abandoned",
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+              escrowReversalFailed: true,
+              escrowReversalReason: "ttl_expired_error",
+            });
+          }
+        } else {
+          // No escrow or already reversed — just abandon
+          await doc.ref.update({
+            status: "abandoned",
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            escrowReversalReason: engagement.escrowJournalId
+              ? "ttl_expired_already_reversed"
+              : "ttl_expired_no_escrow",
+          });
+        }
+      }
+    }
+
+    console.log(
+      `Escrow cleanup: processed=${totalProcessed}, reversed=${totalReversed}, failed=${totalFailed}`
+    );
     return null;
   });

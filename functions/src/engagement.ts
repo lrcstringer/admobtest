@@ -21,7 +21,12 @@ import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
   processEarningWithSplit,
   LedgerConfig,
+  AccountId,
   getOrCreateDefaultSubAccount,
+  getBalance,
+  createEscrowReservation,
+  processEscrowCompletion,
+  reverseJournal,
 } from "./ledger";
 import { updateEngagementStats } from "./engagementStats";
 import { updateDailyScore, updateReferrerAssistScore, updateLeaderboardScores } from "./dailyScores";
@@ -103,6 +108,10 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
   let resolvedOpportunityId: string | null = earnOpportunityId || null;
   let resolvedThreadId: string | null = threadId || null;
   let resolvedClientId: string | null = null;
+  let resolvedTokenSourceAccountId: string | null = null;
+  let bonusRewardMultiplier = 1;
+  let escrowAmount = 0;
+  let escrowJournalId: string | null = null;
 
   if (earnOpportunityId) {
     // New flow: Get opportunity from earnOpportunities collection
@@ -144,6 +153,10 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     engagementType = opportunity.earningType || opportunity.mediaType || "video";
     resolvedCampaignId = opportunity.campaignId || null;
     resolvedThreadId = opportunity.threadId || threadId || null;
+    // Capture bonus multiplier for escrow reservation (max possible payout)
+    if (opportunity.bonusReward && opportunity.bonusRewardMultiplier) {
+      bonusRewardMultiplier = opportunity.bonusRewardMultiplier;
+    }
 
     // Check per-opportunity daily limit (e.g., adVideo opportunities may have dailyLimitPerUser: 3)
     const dailyLimitPerUser = opportunity.dailyLimitPerUser ?? null;
@@ -166,7 +179,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
       }
     }
 
-    // Get thread to denormalize clientId and perform budget pre-check
+    // Get thread to denormalize clientId and resolve token source
     if (resolvedThreadId) {
       const threadDoc = await db
         .collection("earnThreads")
@@ -176,29 +189,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
       if (threadDoc.exists) {
         const threadData = threadDoc.data()!;
         resolvedClientId = threadData.clientId || null;
-
-        // Budget pre-check: verify client sub-account has sufficient balance
-        if (
-          resolvedClientId &&
-          threadData.tokenSourceSubAccountId
-        ) {
-          const subAccountDoc = await db
-            .collection("clients")
-            .doc(resolvedClientId)
-            .collection("subAccounts")
-            .doc(threadData.tokenSourceSubAccountId)
-            .get();
-
-          if (subAccountDoc.exists) {
-            const subAccount = subAccountDoc.data()!;
-            if (!subAccount.isActive || subAccount.balance < rewardAmount) {
-              throw new functions.https.HttpsError(
-                "failed-precondition",
-                "This offer is currently unavailable"
-              );
-            }
-          }
-        }
+        resolvedTokenSourceAccountId = threadData.tokenSourceAccountId || null;
       }
     }
 
@@ -267,12 +258,45 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     );
   }
 
-  // Create engagement record with Flutter-compatible fields
+  // Create engagement reference early so we have the ID for escrow idempotency
   const engagementRef = db.collection("engagements").doc();
+  const engagementId = engagementRef.id;
   const now = admin.firestore.FieldValue.serverTimestamp();
 
+  // =========================================================================
+  // Escrow Reservation: Atomically lock tokens before creating engagement
+  // =========================================================================
+  if (resolvedTokenSourceAccountId) {
+    // Reserve maximum possible payout (base × bonus multiplier)
+    escrowAmount = Math.floor(rewardAmount * bonusRewardMultiplier);
+
+    const escrowResult = await createEscrowReservation(
+      engagementId,
+      escrowAmount,
+      resolvedTokenSourceAccountId,
+      {
+        userId,
+        earnOpportunityId: resolvedOpportunityId,
+        threadId: resolvedThreadId,
+        clientId: resolvedClientId,
+        baseReward: rewardAmount,
+        bonusRewardMultiplier,
+      },
+    );
+
+    if (!escrowResult.success) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "This offer is currently unavailable"
+      );
+    }
+
+    escrowJournalId = escrowResult.journalId || null;
+  }
+
+  // Create engagement record with Flutter-compatible fields
   await engagementRef.set({
-    id: engagementRef.id,
+    id: engagementId,
     userId: userId,
     // Support both field names for Flutter compatibility
     earnOpportunityId: resolvedOpportunityId,
@@ -292,6 +316,11 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     startedAt: now,
     createdAt: now,
     evidence: [],
+    // Escrow reservation fields
+    escrowAmount: escrowAmount || null,
+    escrowJournalId: escrowJournalId,
+    escrowReservedAt: escrowJournalId ? now : null,
+    tokenSourceAccountId: resolvedTokenSourceAccountId,
   });
 
   // Update earn thread if provided
@@ -309,8 +338,9 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
 
   return {
     success: true,
-    engagementId: engagementRef.id,
+    engagementId: engagementId,
     rewardAmount: rewardAmount,
+    escrowReserved: !!escrowJournalId,
   };
 });
 
@@ -342,6 +372,11 @@ export const processEngagement = functions.https.onCall(
     }
 
     const engagement = engagementDoc.data()!;
+
+    // Extract escrow metadata (null for legacy engagements without escrow)
+    const hasEscrow = !!engagement.escrowJournalId;
+    const engagementEscrowAmount: number | null = engagement.escrowAmount || null;
+    const engagementTokenSourceAccountId: string | null = engagement.tokenSourceAccountId || null;
 
     // Validate ownership
     if (engagement.userId !== userId) {
@@ -512,7 +547,7 @@ export const processEngagement = functions.https.onCall(
     // Client-funded token flow: fetch thread and validate budget
     // ===========================================================================
     let clientId: string | null = engagement.clientId || null;
-    let clientSubAccountId: string | null = null;
+    let tokenSourceAccountId: string | null = null;
     let tokenDestAccountTypeId: string | null = null;
     let clientName: string | null = null;
 
@@ -533,34 +568,15 @@ export const processEngagement = functions.https.onCall(
         }
 
         clientId = threadData.clientId || null;
-        clientSubAccountId = threadData.tokenSourceSubAccountId || null;
+        tokenSourceAccountId = threadData.tokenSourceAccountId || null;
         tokenDestAccountTypeId = threadData.tokenDestAccountTypeId || null;
         clientName = threadData.clientName || null;
 
-        // Validate client sub-account balance
-        if (clientId && clientSubAccountId) {
-          const subAccountDoc = await db
-            .collection("clients")
-            .doc(clientId)
-            .collection("subAccounts")
-            .doc(clientSubAccountId)
-            .get();
-
-          if (!subAccountDoc.exists) {
-            throw new functions.https.HttpsError(
-              "failed-precondition",
-              "Client budget not found"
-            );
-          }
-
-          const subAccount = subAccountDoc.data()!;
-          if (!subAccount.isActive) {
-            throw new functions.https.HttpsError(
-              "failed-precondition",
-              "This offer is currently unavailable"
-            );
-          }
-          if (subAccount.balance < rewardAmount) {
+        // Budget pre-check: only needed for legacy engagements without escrow.
+        // Escrow engagements already have tokens reserved and guaranteed.
+        if (tokenSourceAccountId && !hasEscrow) {
+          const sourceBalance = await getBalance(tokenSourceAccountId);
+          if (sourceBalance < rewardAmount) {
             throw new functions.https.HttpsError(
               "failed-precondition",
               "Insufficient budget for this offer"
@@ -617,26 +633,59 @@ export const processEngagement = functions.https.onCall(
 
     // Process reward through the Trust Ledger system
     // This handles the 90/5/5 split: 90% to user, 5% daily pot, 5% weekly pot
-    // Only treat as client-funded when BOTH clientId and clientSubAccountId exist.
-    const isClientFunded = !!(clientId && clientSubAccountId);
+    let ledgerResult;
 
-    const ledgerResult = await processEarningWithSplit(
-      userId,
-      rewardAmount,
-      engagementId,
-      `Earned from ${engagement.type}`,
-      subAccountId, // Credit to user's sub-account
-      tokenDestAccountTypeId, // Account type for audit
-      {
-        engagementType: engagement.type,
-        earnOpportunityId: engagement.earnOpportunityId,
-        campaignId: campaignId,
-        threadId: engagement.threadId,
-        clientId: clientId,
-      },
-      isClientFunded ? clientId! : undefined,
-      isClientFunded ? clientSubAccountId! : undefined
-    );
+    if (hasEscrow && engagementEscrowAmount && engagementTokenSourceAccountId) {
+      // ESCROW PATH: Release tokens from escrow.
+      // rewardAmount here is the ACTUAL reward after bonus determination.
+      // engagementEscrowAmount is the MAXIMUM that was reserved at start.
+      ledgerResult = await processEscrowCompletion(
+        userId,
+        rewardAmount,
+        engagementEscrowAmount,
+        engagementId,
+        engagementTokenSourceAccountId,
+        subAccountId,
+        tokenDestAccountTypeId,
+        {
+          engagementType: engagement.type,
+          earnOpportunityId: engagement.earnOpportunityId,
+          campaignId: campaignId,
+          threadId: engagement.threadId,
+          clientId: clientId,
+          bonusApplied: bonusApplied,
+          bonusMultiplier: bonusApplied ? bonusMultiplier : null,
+        },
+      );
+    } else {
+      // LEGACY PATH: Direct debit from source (no escrow)
+      const resolvedTokenSource = tokenSourceAccountId
+        || (clientId ? AccountId.client(clientId) : null);
+
+      if (!resolvedTokenSource) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          "No token source configured for this engagement"
+        );
+      }
+
+      ledgerResult = await processEarningWithSplit(
+        userId,
+        rewardAmount,
+        engagementId,
+        `Earned from ${engagement.type}`,
+        resolvedTokenSource,
+        subAccountId,
+        tokenDestAccountTypeId,
+        {
+          engagementType: engagement.type,
+          earnOpportunityId: engagement.earnOpportunityId,
+          campaignId: campaignId,
+          threadId: engagement.threadId,
+          clientId: clientId,
+        },
+      );
+    }
 
     if (!ledgerResult.success) {
       throw new functions.https.HttpsError(
@@ -648,86 +697,58 @@ export const processEngagement = functions.https.onCall(
     // ===========================================================================
     // Budget monitoring: check for low balance warnings and depletion
     // ===========================================================================
-    if (clientId && clientSubAccountId) {
+    const monitorSourceAccountId = tokenSourceAccountId || engagementTokenSourceAccountId;
+    if (monitorSourceAccountId) {
       try {
-        const updatedSubAccountDoc = await db
-          .collection("clients")
-          .doc(clientId)
-          .collection("subAccounts")
-          .doc(clientSubAccountId)
-          .get();
+        // Read balance from ledger (authoritative source)
+        const currentBalance = await getBalance(monitorSourceAccountId);
 
-        if (updatedSubAccountDoc.exists) {
-          const subAccount = updatedSubAccountDoc.data()!;
-          const balance = subAccount.balance || 0;
-          const initialBudget = subAccount.initialBudget || 1;
-          const remainingPercent = balance / initialBudget;
-          const warningThreshold = subAccount.warningThreshold ?? 0.20;
+        // Check for budget depletion
+        if (currentBalance <= 0) {
+          // Parse the sub-account Firestore ID from the ledger account ID
+          const subAccFirestoreId = AccountId.parseClientSubAccountId(monitorSourceAccountId);
 
-          // Check for low balance warning
-          const warningNotifiedAt = subAccount.warningNotifiedAt?.toDate?.();
-          const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-
-          if (
-            remainingPercent <= warningThreshold &&
-            (!warningNotifiedAt || warningNotifiedAt < dayAgo)
-          ) {
-            // Set warning notification timestamp
-            await updatedSubAccountDoc.ref.update({
-              warningNotifiedAt: admin.firestore.FieldValue.serverTimestamp(),
-            });
-
-            // Create admin notification
-            await db.collection("adminNotifications").add({
-              type: "budget_warning",
-              clientId: clientId,
-              subAccountId: clientSubAccountId,
-              balance: balance,
-              remainingPercent: remainingPercent,
-              message: `Client sub-account is at ${Math.round(remainingPercent * 100)}% budget`,
-              createdAt: admin.firestore.FieldValue.serverTimestamp(),
-              read: false,
-            });
+          if (subAccFirestoreId && clientId) {
+            // Mark Firestore metadata doc as budget-exhausted
+            await db
+              .collection("clients")
+              .doc(clientId)
+              .collection("subAccounts")
+              .doc(subAccFirestoreId)
+              .update({
+                budgetExhausted: true,
+                depletedAt: admin.firestore.FieldValue.serverTimestamp(),
+              });
           }
 
-          // Check for budget depletion
-          if (balance <= 0) {
-            // Mark sub-account as budget-exhausted (NOT isActive: false)
-            // isActive is reserved for admin manual control
-            await updatedSubAccountDoc.ref.update({
-              budgetExhausted: true,
-              depletedAt: admin.firestore.FieldValue.serverTimestamp(),
-            });
+          // Mark threads linked to this token source as budget-exhausted
+          const threadsToExhaust = await db
+            .collection("earnThreads")
+            .where("tokenSourceAccountId", "==", monitorSourceAccountId)
+            .where("budgetExhausted", "!=", true)
+            .get();
 
-            // Mark threads as budget-exhausted (NOT isActive: false)
-            const threadsToExhaust = await db
-              .collection("earnThreads")
-              .where("tokenSourceSubAccountId", "==", clientSubAccountId)
-              .where("budgetExhausted", "!=", true)
-              .get();
-
-            if (!threadsToExhaust.empty) {
-              const batch = db.batch();
-              for (const threadDoc of threadsToExhaust.docs) {
-                batch.update(threadDoc.ref, {
-                  budgetExhausted: true,
-                  updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                });
-              }
-              await batch.commit();
+          if (!threadsToExhaust.empty) {
+            const batch = db.batch();
+            for (const threadDoc of threadsToExhaust.docs) {
+              batch.update(threadDoc.ref, {
+                budgetExhausted: true,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+              });
             }
-
-            // Create admin notification for depletion
-            await db.collection("adminNotifications").add({
-              type: "budget_depleted",
-              clientId: clientId,
-              subAccountId: clientSubAccountId,
-              threadsExhausted: threadsToExhaust.size,
-              message: `Client sub-account budget depleted. ${threadsToExhaust.size} threads marked as budget-exhausted.`,
-              createdAt: admin.firestore.FieldValue.serverTimestamp(),
-              read: false,
-            });
+            await batch.commit();
           }
+
+          // Create admin notification for depletion
+          await db.collection("adminNotifications").add({
+            type: "budget_depleted",
+            clientId: clientId,
+            tokenSourceAccountId: monitorSourceAccountId,
+            threadsExhausted: threadsToExhaust.size,
+            message: `Token source ${monitorSourceAccountId} budget depleted. ${threadsToExhaust.size} threads marked as budget-exhausted.`,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            read: false,
+          });
         }
       } catch (budgetError) {
         console.error("Failed to process budget monitoring:", budgetError);
@@ -749,6 +770,12 @@ export const processEngagement = functions.https.onCall(
         // Bonus reward tracking
         bonusApplied: bonusApplied,
         bonusMultiplier: bonusApplied ? bonusMultiplier : null,
+        // Escrow completion tracking
+        ...(hasEscrow ? {
+          escrowReleasedAt: admin.firestore.FieldValue.serverTimestamp(),
+          escrowReleaseJournalId: ledgerResult.journalId,
+          escrowExcessReturned: engagementEscrowAmount! - rewardAmount,
+        } : {}),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
@@ -1129,9 +1156,44 @@ export const abandonEngagement = functions.https.onCall(
       );
     }
 
+    // Reverse escrow reservation if one exists
+    let escrowReversalJournalId: string | null = null;
+    let escrowReversalFailed = false;
+
+    if (engagement.escrowJournalId) {
+      try {
+        const reversalResult = await reverseJournal(
+          engagement.escrowJournalId,
+          "Engagement abandoned by user",
+          "system"
+        );
+        escrowReversalJournalId = reversalResult.journalId || null;
+        console.log(
+          `Escrow reversed for engagement ${engagementId}: ` +
+          `journalId=${escrowReversalJournalId}`
+        );
+      } catch (error) {
+        // Still abandon the engagement even if reversal fails;
+        // the cleanup function will retry later
+        console.error(
+          `Failed to reverse escrow for engagement ${engagementId}:`,
+          error
+        );
+        escrowReversalFailed = true;
+      }
+    }
+
     await engagementDoc.ref.update({
       status: EngagementStatus.ABANDONED,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      ...(engagement.escrowJournalId && {
+        escrowReversedAt: escrowReversalFailed
+          ? null
+          : admin.firestore.FieldValue.serverTimestamp(),
+        escrowReversalJournalId,
+        escrowReversalFailed,
+        escrowReversalReason: "user_abandoned",
+      }),
     });
 
     return { success: true };

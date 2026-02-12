@@ -422,8 +422,11 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
                 itemBuilder: (_) => [
                   const PopupMenuItem(
                       value: 'edit', child: Text('Edit Campaign')),
-                  const PopupMenuItem(
-                      value: 'import', child: Text('Import Codes')),
+                  PopupMenuItem(
+                      value: 'import',
+                      child: Text(rewardType == 'digital_content'
+                          ? 'Import URLs / Codes'
+                          : 'Import Codes')),
                   if (status == 'draft' || status == 'paused')
                     const PopupMenuItem(
                         value: 'activate', child: Text('Activate')),
@@ -1347,6 +1350,9 @@ class _ImportCodesDialogState extends State<_ImportCodesDialog> {
   int _totalBatches = 0;
   int _completedBatches = 0;
 
+  bool get _isDigitalContent =>
+      widget.campaign['rewardType'] == 'digital_content';
+
   Future<void> _pickFile() async {
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -1368,20 +1374,33 @@ class _ImportCodesDialogState extends State<_ImportCodesDialog> {
           .toList();
 
       // Skip header row if it looks like a header
-      final startIndex =
-          lines.isNotEmpty && lines[0].toLowerCase().contains('code')
-              ? 1
-              : 0;
+      final startIndex = lines.isNotEmpty &&
+              (lines[0].toLowerCase().contains('code') ||
+                  lines[0].toLowerCase().contains('url'))
+          ? 1
+          : 0;
 
-      // Extract first column (code) from each CSV line
       final codes = <String>{};
       final dupes = <String>{};
+
       for (var i = startIndex; i < lines.length; i++) {
-        final code = lines[i].split(',').first.trim();
-        if (code.isNotEmpty) {
-          if (!codes.add(code)) {
-            dupes.add(code);
-          }
+        final columns = lines[i].split(',').map((c) => c.trim()).toList();
+        final col1 = columns.isNotEmpty ? columns[0] : '';
+        if (col1.isEmpty) continue;
+
+        String code;
+        if (_isDigitalContent) {
+          // Digital Content: col1 = URL, col2 = access code (optional)
+          final col2 = columns.length > 1 ? columns[1] : '';
+          final payload = <String, String>{'url': col1};
+          if (col2.isNotEmpty) payload['accessCode'] = col2;
+          code = jsonEncode(payload);
+        } else {
+          code = col1;
+        }
+
+        if (!codes.add(code)) {
+          dupes.add(col1.length > 6 ? '${col1.substring(0, 6)}...' : col1);
         }
       }
 
@@ -1440,7 +1459,7 @@ class _ImportCodesDialogState extends State<_ImportCodesDialog> {
         widget.onImported();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Imported $_importedCount codes successfully'),
+            content: Text('Imported $_importedCount items successfully'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -1457,8 +1476,21 @@ class _ImportCodesDialogState extends State<_ImportCodesDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final title = _isDigitalContent
+        ? 'Import Digital Content — ${widget.campaign['name']}'
+        : 'Import Codes — ${widget.campaign['name']}';
+
+    final description = _isDigitalContent
+        ? 'Upload a CSV with URL in column 1 and access code in column 2 (optional).\n'
+            'Example: https://example.com/download/abc,ACCESS-CODE-123'
+        : 'Upload a CSV or TXT file with one code per line (or first column).';
+
+    final previewLabel = _isDigitalContent
+        ? '${_codes.length} valid items found'
+        : '${_codes.length} valid codes found';
+
     return AlertDialog(
-      title: Text('Import Codes — ${widget.campaign['name']}'),
+      title: Text(title),
       content: SizedBox(
         width: 460,
         child: Column(
@@ -1466,7 +1498,7 @@ class _ImportCodesDialogState extends State<_ImportCodesDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Upload a CSV or TXT file with one code per line (or first column).',
+              description,
               style: TextStyle(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
@@ -1482,12 +1514,12 @@ class _ImportCodesDialogState extends State<_ImportCodesDialog> {
             // Preview
             if (_isParsed) ...[
               Text(
-                '${_codes.length} valid codes found',
+                previewLabel,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               if (_duplicates > 0)
                 Text(
-                  '$_duplicates duplicate codes removed',
+                  '$_duplicates duplicates removed',
                   style: TextStyle(color: AppColors.warning),
                 ),
             ],
@@ -1507,7 +1539,7 @@ class _ImportCodesDialogState extends State<_ImportCodesDialog> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Importing batch $_completedBatches of $_totalBatches ($_importedCount codes)',
+                'Importing batch $_completedBatches of $_totalBatches ($_importedCount items)',
                 style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),
             ],

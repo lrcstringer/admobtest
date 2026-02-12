@@ -104,8 +104,14 @@ class LedgerAccountModel {
         return LedgerAccountType.user;
       case 'supplier':
         return LedgerAccountType.supplier;
-      case 'cashout':
-        return LedgerAccountType.cashout;
+      case 'cbook':
+        return LedgerAccountType.cbook;
+      case 'client_subacc':
+        return LedgerAccountType.clientSubacc;
+      case 'client':
+        return LedgerAccountType.client;
+      case 'group':
+        return LedgerAccountType.group;
       default:
         return LedgerAccountType.user;
     }

@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../domain/entities/reward_item.dart';
 import '../../../domain/enums/reward_enums.dart';
@@ -226,7 +229,34 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
     );
   }
 
+  /// Try to parse Digital Content JSON: {"url":"...","accessCode":"..."}
+  /// Returns null if not valid Digital Content JSON.
+  Map<String, String>? _parseDigitalContent(String codeValue) {
+    try {
+      final parsed = jsonDecode(codeValue);
+      if (parsed is Map && parsed.containsKey('url')) {
+        return {
+          'url': parsed['url'] as String? ?? '',
+          if (parsed['accessCode'] != null)
+            'accessCode': parsed['accessCode'] as String,
+        };
+      }
+    } catch (_) {
+      // Not JSON — treat as plain code
+    }
+    return null;
+  }
+
   Widget _buildCodeDisplay(BuildContext context, RewardItem item) {
+    // Check if this is a Digital Content item with structured JSON
+    final digitalContent = item.rewardType == RewardType.digitalContent
+        ? _parseDigitalContent(item.codeValue!)
+        : null;
+
+    if (digitalContent != null) {
+      return _buildDigitalContentDisplay(context, digitalContent);
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -297,6 +327,139 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Code copied to clipboard'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.copy, size: 18),
+              label: const Text('Copy Code'),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDigitalContentDisplay(
+      BuildContext context, Map<String, String> content) {
+    final url = content['url'] ?? '';
+    final accessCode = content['accessCode'];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppSpacing.borderRadiusLg,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        children: [
+          // URL section
+          if (url.isNotEmpty) ...[
+            Text(
+              'Download / Access URL',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+            ),
+            AppSpacing.verticalSm,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: AppSpacing.borderRadiusMd,
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: SelectableText(
+                url,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.primary,
+                    ),
+              ),
+            ),
+            AppSpacing.verticalSm,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton.icon(
+                  onPressed: () async {
+                    final uri = Uri.tryParse(url);
+                    if (uri != null && await canLaunchUrl(uri)) {
+                      await launchUrl(uri,
+                          mode: LaunchMode.externalApplication);
+                    }
+                  },
+                  icon: const Icon(Icons.open_in_new, size: 18),
+                  label: const Text('Open Link'),
+                ),
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: url));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('URL copied to clipboard'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.copy, size: 18),
+                  label: const Text('Copy URL'),
+                ),
+              ],
+            ),
+          ],
+
+          // Access code section
+          if (accessCode != null && accessCode.isNotEmpty) ...[
+            if (url.isNotEmpty) ...[
+              AppSpacing.verticalMd,
+              Divider(color: AppColors.border),
+              AppSpacing.verticalMd,
+            ],
+            Text(
+              'Access Code',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+            ),
+            AppSpacing.verticalSm,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 16,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: AppSpacing.borderRadiusMd,
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: SelectableText(
+                accessCode,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            AppSpacing.verticalMd,
+            TextButton.icon(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: accessCode));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Access code copied to clipboard'),
                     duration: Duration(seconds: 2),
                   ),
                 );

@@ -289,8 +289,10 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         return Icons.undo;
       case LedgerJournalType.adjustment:
         return Icons.tune;
-      case LedgerJournalType.systemSeed:
-        return Icons.settings;
+      case LedgerJournalType.clientFund:
+      case LedgerJournalType.clientRefund:
+      case LedgerJournalType.subaccFund:
+        return Icons.account_balance;
     }
   }
 
@@ -431,8 +433,12 @@ class JournalDetailSheet extends StatelessWidget {
         return 'Reversal';
       case LedgerJournalType.adjustment:
         return 'Adjustment';
-      case LedgerJournalType.systemSeed:
-        return 'System';
+      case LedgerJournalType.clientFund:
+        return 'Client Funding';
+      case LedgerJournalType.clientRefund:
+        return 'Client Refund';
+      case LedgerJournalType.subaccFund:
+        return 'Sub-Account Funding';
     }
   }
 

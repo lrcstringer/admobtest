@@ -80,7 +80,7 @@ class AdminEarnRemoteDataSource {
     required String clientId,
     required String title,
     String? description,
-    required String tokenSourceSubAccountId,
+    required String tokenSourceAccountId,
     String? tokenDestAccountTypeId,
     bool isPinned = false,
     bool isFeatured = false,
@@ -95,7 +95,7 @@ class AdminEarnRemoteDataSource {
       'clientId': clientId,
       'title': title,
       if (description != null) 'description': description,
-      'tokenSourceSubAccountId': tokenSourceSubAccountId,
+      'tokenSourceAccountId': tokenSourceAccountId,
       if (tokenDestAccountTypeId != null)
         'tokenDestAccountTypeId': tokenDestAccountTypeId,
       'isPinned': isPinned,

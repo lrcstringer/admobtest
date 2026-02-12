@@ -192,9 +192,10 @@ service cloud.firestore {
 
     // Cashouts collection
     match /cashouts/{cashoutId} {
-      // Users can read their own cashouts
+      // Users can read their own cashouts; admins can read all (for approval screen)
       allow read: if isAuthenticated()
-        && resource.data.oddienceUserId == request.auth.uid;
+        && (resource.data.oddienceUserId == request.auth.uid
+            || isAdmin());
 
       // Cashouts are processed by Cloud Functions only
       allow create, update, delete: if false;
@@ -556,6 +557,29 @@ service cloud.firestore {
       allow read: if isAdmin();
 
       // All writes through Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // =========================================================================
+    // ADMIN RBAC COLLECTIONS
+    // Admin user registry, maker-checker queue, and immutable audit trail
+    // =========================================================================
+
+    // Admin users registry (role assignments)
+    match /adminUsers/{userId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    // Maker-checker pending actions queue
+    match /adminPendingActions/{actionId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    // Immutable admin audit log
+    match /adminAuditLog/{logId} {
+      allow read: if isAdmin();
       allow create, update, delete: if false;
     }
   }

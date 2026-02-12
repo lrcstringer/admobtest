@@ -301,111 +301,117 @@ export async function verifyAllJournalsBalanced(): Promise<{
 }
 
 /**
- * Verify total system balance equals zero (true double-entry invariant)
+ * Verify system-wide balance (double-entry invariant).
  *
- * In a proper double-entry system, the sum of ALL account balances
- * must always equal zero. With the seeded treasury model:
+ * CBook accounts are asset-type (debit-normal): their balance increases on debit.
+ * All other accounts are liability-like (credit-normal): balance increases on credit.
  *
- *   mint (negative) + treasury + users + pots + suppliers + cashout + other system = 0
- *
- * The mint account is the only account allowed to go negative. Its absolute
- * value represents the total tokens ever created.
+ * Invariant: total asset balances (cbook) = total liability-like balances.
+ * Drift = cbook - liabilities; must be 0.
  */
 export async function verifySystemBalance(): Promise<{
   isValid: boolean;
-  sumAllBalances: number;
-  mintBalance: number;
-  totalMinted: number;
-  treasuryBalance: number;
+  drift: number;
+  cbookBalances: number;
   userBalances: number;
   potBalances: number;
   supplierBalances: number;
   clientBalances: number;
-  pendingCashout: number;
-  otherSystemBalances: number;
+  clientSubaccBalances: number;
+  systemBalances: number;
+  groupBalances: number;
 }> {
   const snapshot = await db.collection(LedgerConfig.COLLECTION_ACCOUNTS).get();
 
-  let mintBalance = 0;
-  let treasuryBalance = 0;
-  let otherSystemBalances = 0;
+  let cbookBalances = 0;
+  let systemBalances = 0;
   let userBalances = 0;
   let potBalances = 0;
   let supplierBalances = 0;
   let clientBalances = 0;
-  let pendingCashout = 0;
+  let clientSubaccBalances = 0;
+  let groupBalances = 0;
 
   for (const doc of snapshot.docs) {
     const account = doc.data() as LedgerAccount;
 
-    if (account.id === "system:mint") {
-      mintBalance = account.balance;
-    } else if (account.id === "system:treasury") {
-      treasuryBalance = account.balance;
-    } else if (account.type === "system") {
-      otherSystemBalances += account.balance;
-    } else if (account.type === "user") {
-      userBalances += account.balance;
-    } else if (account.type === "pot") {
-      potBalances += account.balance;
-    } else if (account.type === "supplier") {
-      supplierBalances += account.balance;
-    } else if (account.type === "client") {
-      clientBalances += account.balance;
-    } else if (account.type === "cashout") {
-      pendingCashout += account.balance;
+    switch (account.type) {
+      case "cbook":
+        cbookBalances += account.balance;
+        break;
+      case "system":
+        systemBalances += account.balance;
+        break;
+      case "user":
+        userBalances += account.balance;
+        break;
+      case "pot":
+        potBalances += account.balance;
+        break;
+      case "supplier":
+        supplierBalances += account.balance;
+        break;
+      case "client":
+        clientBalances += account.balance;
+        break;
+      case "client_subacc":
+        clientSubaccBalances += account.balance;
+        break;
+      case "group":
+        groupBalances += account.balance;
+        break;
     }
   }
 
-  // True double-entry invariant: sum of ALL balances must be 0
-  const sumAllBalances =
-    mintBalance +
-    treasuryBalance +
-    otherSystemBalances +
+  // Double-entry invariant: asset balances = liability-like balances
+  const liabilityTotal =
+    systemBalances +
     userBalances +
     potBalances +
     supplierBalances +
     clientBalances +
-    pendingCashout;
+    clientSubaccBalances +
+    groupBalances;
 
-  const isValid = sumAllBalances === 0;
+  const drift = cbookBalances - liabilityTotal;
+  const isValid = drift === 0;
 
   if (!isValid) {
     console.error(
-      `System balance mismatch! Sum of all balances: ${sumAllBalances} (expected 0)`
+      `System balance mismatch! Asset-Liability drift: ${drift} (expected 0)`
     );
 
     await logAuditEvent({
       eventType: "reconciliation_failed",
       actorId: "system",
       actorType: "system",
-      description: "System balance verification failed — double-entry invariant broken",
+      description: "System balance verification failed — asset/liability drift detected",
       metadata: {
-        sumAllBalances,
-        mintBalance,
-        treasuryBalance,
-        otherSystemBalances,
+        drift,
+        cbookBalances,
+        liabilityTotal,
+        systemBalances,
         userBalances,
         potBalances,
         supplierBalances,
         clientBalances,
-        pendingCashout,
+        clientSubaccBalances,
+        groupBalances,
       },
     });
   }
 
   return {
     isValid,
-    sumAllBalances,
-    mintBalance,
-    totalMinted: Math.abs(mintBalance),
-    treasuryBalance,
+    drift,
+    cbookBalances,
     userBalances,
     potBalances,
     supplierBalances,
     clientBalances,
-    pendingCashout,
-    otherSystemBalances,
+    clientSubaccBalances,
+    systemBalances,
+    groupBalances,
   };
 }
 

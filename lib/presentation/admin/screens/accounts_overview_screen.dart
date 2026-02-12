@@ -15,15 +15,17 @@ class AccountsOverviewScreen extends StatefulWidget {
 }
 
 class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
-  // Tab selection: 0=Clients, 1=Suppliers, 2=Users
+  // Tab selection: 0=System, 1=Clients, 2=Suppliers, 3=Users
   int _selectedTab = 0;
 
   // Data
+  List<Map<String, dynamic>> _systemAccounts = [];
   List<Map<String, dynamic>> _clients = [];
   List<Map<String, dynamic>> _suppliers = [];
   List<Map<String, dynamic>> _users = [];
 
   // Loading
+  bool _isLoadingSystem = false;
   bool _isLoadingClients = false;
   bool _isLoadingSuppliers = false;
   bool _isLoadingUsers = false;
@@ -61,10 +63,85 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
 
   Future<void> _loadAllData() async {
     await Future.wait([
+      _loadSystemAccounts(),
       _loadClients(),
       _loadSuppliers(),
       _loadUsers(),
     ]);
+  }
+
+  Future<void> _loadSystemAccounts() async {
+    setState(() => _isLoadingSystem = true);
+    try {
+      final result = await FirebaseFunctions.instance
+          .httpsCallable('adminGetSystemAccountStatus')
+          .call();
+      final data = Map<String, dynamic>.from(result.data as Map);
+
+      // Convert the flat response into a list of account maps
+      final accounts = <Map<String, dynamic>>[
+        {
+          'id': 'cbook:bus',
+          'name': 'Business Cash Book',
+          'type': 'cbook',
+          'balance': data['cbookBus'] ?? 0,
+          'status': 'active',
+          'description': 'iMaliChat business token reserve',
+        },
+        {
+          'id': 'cbook:trust',
+          'name': 'Client Trust Cash Book',
+          'type': 'cbook',
+          'balance': data['cbookTrust'] ?? 0,
+          'status': 'active',
+          'description': 'External client trust funds',
+        },
+        {
+          'id': 'pot:daily',
+          'name': 'Daily Pot',
+          'type': 'pot',
+          'balance': data['dailyPot'] ?? 0,
+          'status': 'active',
+          'description': 'Daily pot accumulator',
+        },
+        {
+          'id': 'pot:weekly',
+          'name': 'Weekly Pot',
+          'type': 'pot',
+          'balance': data['weeklyPot'] ?? 0,
+          'status': 'active',
+          'description': 'Weekly pot accumulator',
+        },
+        {
+          'id': 'system:cashout_pending',
+          'name': 'Pending Cashouts',
+          'type': 'system',
+          'balance': data['cashoutPending'] ?? 0,
+          'status': 'active',
+          'description': 'Tokens pending cashout settlement',
+        },
+        {
+          'id': 'client:imalichat',
+          'name': 'iMaliChat',
+          'type': 'client',
+          'balance': data['imalichat'] ?? 0,
+          'status': 'active',
+          'description': 'iMaliChat own client account (incl. sub-accounts)',
+        },
+      ];
+
+      if (mounted) setState(() => _systemAccounts = accounts);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Error loading system accounts: $e'),
+              backgroundColor: AppColors.error),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoadingSystem = false);
+    }
   }
 
   Future<void> _loadClients() async {
@@ -175,29 +252,36 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
 
   List<Map<String, dynamic>> get _currentList {
     final raw = switch (_selectedTab) {
-      0 => _clients,
-      1 => _suppliers,
-      2 => _users,
+      0 => _systemAccounts,
+      1 => _clients,
+      2 => _suppliers,
+      3 => _users,
       _ => <Map<String, dynamic>>[],
     };
+    // System tab doesn't need filtering/sorting
+    if (_selectedTab == 0) return raw;
     return _filterAndSort(raw);
   }
 
   bool get _isCurrentTabLoading => switch (_selectedTab) {
-        0 => _isLoadingClients,
-        1 => _isLoadingSuppliers,
-        2 => _isLoadingUsers,
+        0 => _isLoadingSystem,
+        1 => _isLoadingClients,
+        2 => _isLoadingSuppliers,
+        3 => _isLoadingUsers,
         _ => false,
       };
 
   String get _currentEntityType => switch (_selectedTab) {
-        0 => 'client',
-        1 => 'supplier',
-        2 => 'user',
+        0 => 'system',
+        1 => 'client',
+        2 => 'supplier',
+        3 => 'user',
         _ => '',
       };
 
-  bool get _hasExpandableSubAccounts => _selectedTab != 1; // not suppliers
+  // System and suppliers don't have expandable sub-accounts
+  bool get _hasExpandableSubAccounts =>
+      _selectedTab == 1 || _selectedTab == 3;
 
   List<Map<String, dynamic>> _filterAndSort(List<Map<String, dynamic>> data) {
     var filtered = data.where((item) {
@@ -275,8 +359,11 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
             const SizedBox(height: 24),
             _buildTabs(),
             const SizedBox(height: 16),
-            _buildSearchBar(),
-            const SizedBox(height: 16),
+            // Hide search bar for System tab (fixed accounts)
+            if (_selectedTab != 0) ...[
+              _buildSearchBar(),
+              const SizedBox(height: 16),
+            ],
             _buildTable(),
           ],
         ),
@@ -321,9 +408,14 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
   }
 
   Widget _buildStatCards() {
-    final totalAccounts = _clients.length + _suppliers.length + _users.length;
-    final totalBalance =
-        _sumBalance(_clients) + _sumBalance(_suppliers) + _sumBalance(_users);
+    final totalAccounts = _systemAccounts.length +
+        _clients.length +
+        _suppliers.length +
+        _users.length;
+    final totalBalance = _sumBalance(_systemAccounts) +
+        _sumBalance(_clients) +
+        _sumBalance(_suppliers) +
+        _sumBalance(_users);
 
     return Wrap(
       spacing: 16,
@@ -337,56 +429,75 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
           subtitle: '${NumberFormat.compact().format(totalBalance)} tokens',
         ),
         _StatCard(
+          icon: Icons.account_balance_wallet,
+          color: Colors.deepPurple,
+          title: 'System',
+          value: _systemAccounts.length.toString(),
+          subtitle:
+              '${NumberFormat.compact().format(_sumBalance(_systemAccounts))} tokens',
+        ),
+        _StatCard(
           icon: Icons.business_center,
           color: AppColors.tokenGold,
           title: 'Clients',
           value: _clients.length.toString(),
-          subtitle: '${NumberFormat.compact().format(_sumBalance(_clients))} tokens',
+          subtitle:
+              '${NumberFormat.compact().format(_sumBalance(_clients))} tokens',
         ),
         _StatCard(
           icon: Icons.business,
           color: AppColors.success,
           title: 'Suppliers',
           value: _suppliers.length.toString(),
-          subtitle: '${NumberFormat.compact().format(_sumBalance(_suppliers))} tokens',
+          subtitle:
+              '${NumberFormat.compact().format(_sumBalance(_suppliers))} tokens',
         ),
         _StatCard(
           icon: Icons.people,
           color: AppColors.primary,
           title: 'Users',
           value: _users.length.toString(),
-          subtitle: '${NumberFormat.compact().format(_sumBalance(_users))} tokens',
+          subtitle:
+              '${NumberFormat.compact().format(_sumBalance(_users))} tokens',
         ),
       ],
     );
   }
 
   Widget _buildTabs() {
-    return Row(
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
       children: [
         _TabChip(
-          label: 'Clients (${_clients.length})',
+          label: 'System (${_systemAccounts.length})',
           isSelected: _selectedTab == 0,
           onTap: () => setState(() {
             _selectedTab = 0;
             _expandedIds.clear();
           }),
         ),
-        const SizedBox(width: 8),
         _TabChip(
-          label: 'Suppliers (${_suppliers.length})',
+          label: 'Clients (${_clients.length})',
           isSelected: _selectedTab == 1,
           onTap: () => setState(() {
             _selectedTab = 1;
             _expandedIds.clear();
           }),
         ),
-        const SizedBox(width: 8),
         _TabChip(
-          label: 'Users (${_users.length})',
+          label: 'Suppliers (${_suppliers.length})',
           isSelected: _selectedTab == 2,
           onTap: () => setState(() {
             _selectedTab = 2;
+            _expandedIds.clear();
+          }),
+        ),
+        _TabChip(
+          label: 'Users (${_users.length})',
+          isSelected: _selectedTab == 3,
+          onTap: () => setState(() {
+            _selectedTab = 3;
             _expandedIds.clear();
           }),
         ),
@@ -494,7 +605,15 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
 
   List<Widget> _getHeaderColumns() {
     switch (_selectedTab) {
-      case 0: // Clients
+      case 0: // System
+        return [
+          _sortableHeader('Account ID', 'id', flex: 2),
+          _sortableHeader('Name', 'name', flex: 2),
+          _sortableHeader('Type', 'type', flex: 1),
+          _sortableHeader('Balance', 'balance', flex: 1),
+          _sortableHeader('Description', 'description', flex: 2),
+        ];
+      case 1: // Clients
         return [
           _sortableHeader('Name', 'name', flex: 2),
           _sortableHeader('Contact', 'contact', flex: 2),
@@ -502,7 +621,7 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
           _sortableHeader('Balance', 'balance', flex: 1),
           _sortableHeader('Status', 'status', flex: 1),
         ];
-      case 1: // Suppliers
+      case 2: // Suppliers
         return [
           _sortableHeader('Name', 'name', flex: 2),
           _sortableHeader('Category', 'category', flex: 1),
@@ -510,7 +629,7 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
           _sortableHeader('Balance', 'balance', flex: 1),
           _sortableHeader('Status', 'status', flex: 1),
         ];
-      case 2: // Users
+      case 3: // Users
         return [
           _sortableHeader('Name', 'name', flex: 2),
           _sortableHeader('Phone', 'phone', flex: 1),
@@ -616,6 +735,80 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
     final status = item['status']?.toString() ?? 'unknown';
 
     switch (entityType) {
+      case 'system':
+        final type = item['type']?.toString() ?? '';
+        final typeColor = switch (type) {
+          'cbook' => Colors.deepPurple,
+          'pot' => AppColors.tokenGold,
+          'system' => AppColors.info,
+          'client' => AppColors.success,
+          _ => AppColors.textSecondaryDark,
+        };
+        return [
+          Expanded(
+            flex: 2,
+            child: Text(
+              item['id']?.toString() ?? '-',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'monospace',
+                color: AppColors.textPrimaryDark.withValues(alpha: 0.8),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              item['name']?.toString() ?? '-',
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                color: AppColors.textPrimaryDark,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: typeColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                type.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: typeColor,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              NumberFormat('#,###').format(balance),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: balance > 0
+                    ? AppColors.tokenGold
+                    : AppColors.textSecondaryDark,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              item['description']?.toString() ?? '-',
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textSecondaryDark,
+              ),
+            ),
+          ),
+        ];
+
       case 'client':
         return [
           Expanded(

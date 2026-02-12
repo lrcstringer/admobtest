@@ -38,7 +38,7 @@ mixin _$EarnThread {
   DateTime? get activeFrom => throw _privateConstructorUsedError;
   DateTime? get activeTo =>
       throw _privateConstructorUsedError; // Token configuration
-  String? get tokenSourceSubAccountId => throw _privateConstructorUsedError;
+  String? get tokenSourceAccountId => throw _privateConstructorUsedError;
   String? get tokenDestAccountTypeId =>
       throw _privateConstructorUsedError; // Counts
   int get availableOpportunities => throw _privateConstructorUsedError;
@@ -82,7 +82,7 @@ abstract class $EarnThreadCopyWith<$Res> {
     bool budgetExhausted,
     DateTime? activeFrom,
     DateTime? activeTo,
-    String? tokenSourceSubAccountId,
+    String? tokenSourceAccountId,
     String? tokenDestAccountTypeId,
     int availableOpportunities,
     int completedOpportunities,
@@ -124,7 +124,7 @@ class _$EarnThreadCopyWithImpl<$Res, $Val extends EarnThread>
     Object? budgetExhausted = null,
     Object? activeFrom = freezed,
     Object? activeTo = freezed,
-    Object? tokenSourceSubAccountId = freezed,
+    Object? tokenSourceAccountId = freezed,
     Object? tokenDestAccountTypeId = freezed,
     Object? availableOpportunities = null,
     Object? completedOpportunities = null,
@@ -191,9 +191,9 @@ class _$EarnThreadCopyWithImpl<$Res, $Val extends EarnThread>
                 ? _value.activeTo
                 : activeTo // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
-            tokenSourceSubAccountId: freezed == tokenSourceSubAccountId
-                ? _value.tokenSourceSubAccountId
-                : tokenSourceSubAccountId // ignore: cast_nullable_to_non_nullable
+            tokenSourceAccountId: freezed == tokenSourceAccountId
+                ? _value.tokenSourceAccountId
+                : tokenSourceAccountId // ignore: cast_nullable_to_non_nullable
                       as String?,
             tokenDestAccountTypeId: freezed == tokenDestAccountTypeId
                 ? _value.tokenDestAccountTypeId
@@ -267,7 +267,7 @@ abstract class _$$EarnThreadImplCopyWith<$Res>
     bool budgetExhausted,
     DateTime? activeFrom,
     DateTime? activeTo,
-    String? tokenSourceSubAccountId,
+    String? tokenSourceAccountId,
     String? tokenDestAccountTypeId,
     int availableOpportunities,
     int completedOpportunities,
@@ -309,7 +309,7 @@ class __$$EarnThreadImplCopyWithImpl<$Res>
     Object? budgetExhausted = null,
     Object? activeFrom = freezed,
     Object? activeTo = freezed,
-    Object? tokenSourceSubAccountId = freezed,
+    Object? tokenSourceAccountId = freezed,
     Object? tokenDestAccountTypeId = freezed,
     Object? availableOpportunities = null,
     Object? completedOpportunities = null,
@@ -376,9 +376,9 @@ class __$$EarnThreadImplCopyWithImpl<$Res>
             ? _value.activeTo
             : activeTo // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
-        tokenSourceSubAccountId: freezed == tokenSourceSubAccountId
-            ? _value.tokenSourceSubAccountId
-            : tokenSourceSubAccountId // ignore: cast_nullable_to_non_nullable
+        tokenSourceAccountId: freezed == tokenSourceAccountId
+            ? _value.tokenSourceAccountId
+            : tokenSourceAccountId // ignore: cast_nullable_to_non_nullable
                   as String?,
         tokenDestAccountTypeId: freezed == tokenDestAccountTypeId
             ? _value.tokenDestAccountTypeId
@@ -431,7 +431,7 @@ class _$EarnThreadImpl extends _EarnThread {
     this.budgetExhausted = false,
     this.activeFrom,
     this.activeTo,
-    this.tokenSourceSubAccountId,
+    this.tokenSourceAccountId,
     this.tokenDestAccountTypeId,
     required this.availableOpportunities,
     required this.completedOpportunities,
@@ -479,7 +479,7 @@ class _$EarnThreadImpl extends _EarnThread {
   final DateTime? activeTo;
   // Token configuration
   @override
-  final String? tokenSourceSubAccountId;
+  final String? tokenSourceAccountId;
   @override
   final String? tokenDestAccountTypeId;
   // Counts
@@ -501,7 +501,7 @@ class _$EarnThreadImpl extends _EarnThread {
 
   @override
   String toString() {
-    return 'EarnThread(id: $id, clientId: $clientId, clientName: $clientName, clientAvatarImage: $clientAvatarImage, clientAvatarColor: $clientAvatarColor, threadImage: $threadImage, title: $title, description: $description, isPinned: $isPinned, isFeatured: $isFeatured, isActive: $isActive, budgetExhausted: $budgetExhausted, activeFrom: $activeFrom, activeTo: $activeTo, tokenSourceSubAccountId: $tokenSourceSubAccountId, tokenDestAccountTypeId: $tokenDestAccountTypeId, availableOpportunities: $availableOpportunities, completedOpportunities: $completedOpportunities, completedUniqueUsers: $completedUniqueUsers, createdAt: $createdAt, lastActivityAt: $lastActivityAt, targeting: $targeting)';
+    return 'EarnThread(id: $id, clientId: $clientId, clientName: $clientName, clientAvatarImage: $clientAvatarImage, clientAvatarColor: $clientAvatarColor, threadImage: $threadImage, title: $title, description: $description, isPinned: $isPinned, isFeatured: $isFeatured, isActive: $isActive, budgetExhausted: $budgetExhausted, activeFrom: $activeFrom, activeTo: $activeTo, tokenSourceAccountId: $tokenSourceAccountId, tokenDestAccountTypeId: $tokenDestAccountTypeId, availableOpportunities: $availableOpportunities, completedOpportunities: $completedOpportunities, completedUniqueUsers: $completedUniqueUsers, createdAt: $createdAt, lastActivityAt: $lastActivityAt, targeting: $targeting)';
   }
 
   @override
@@ -535,11 +535,8 @@ class _$EarnThreadImpl extends _EarnThread {
                 other.activeFrom == activeFrom) &&
             (identical(other.activeTo, activeTo) ||
                 other.activeTo == activeTo) &&
-            (identical(
-                  other.tokenSourceSubAccountId,
-                  tokenSourceSubAccountId,
-                ) ||
-                other.tokenSourceSubAccountId == tokenSourceSubAccountId) &&
+            (identical(other.tokenSourceAccountId, tokenSourceAccountId) ||
+                other.tokenSourceAccountId == tokenSourceAccountId) &&
             (identical(other.tokenDestAccountTypeId, tokenDestAccountTypeId) ||
                 other.tokenDestAccountTypeId == tokenDestAccountTypeId) &&
             (identical(other.availableOpportunities, availableOpportunities) ||
@@ -574,7 +571,7 @@ class _$EarnThreadImpl extends _EarnThread {
     budgetExhausted,
     activeFrom,
     activeTo,
-    tokenSourceSubAccountId,
+    tokenSourceAccountId,
     tokenDestAccountTypeId,
     availableOpportunities,
     completedOpportunities,
@@ -614,7 +611,7 @@ abstract class _EarnThread extends EarnThread {
     final bool budgetExhausted,
     final DateTime? activeFrom,
     final DateTime? activeTo,
-    final String? tokenSourceSubAccountId,
+    final String? tokenSourceAccountId,
     final String? tokenDestAccountTypeId,
     required final int availableOpportunities,
     required final int completedOpportunities,
@@ -657,7 +654,7 @@ abstract class _EarnThread extends EarnThread {
   @override
   DateTime? get activeTo; // Token configuration
   @override
-  String? get tokenSourceSubAccountId;
+  String? get tokenSourceAccountId;
   @override
   String? get tokenDestAccountTypeId; // Counts
   @override

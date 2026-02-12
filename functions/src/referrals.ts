@@ -98,7 +98,7 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
   });
 
   // Process referral rewards through the Trust Ledger system
-  // This transfers tokens from system:referrals account to both users' sub-accounts
+  // This transfers tokens from client:imalichat account to both users' sub-accounts
   const ledgerResult = await processReferralRewards(
     referrerUserId,
     refereeUserId,

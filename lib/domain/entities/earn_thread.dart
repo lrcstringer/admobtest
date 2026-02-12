@@ -28,7 +28,7 @@ class EarnThread with _$EarnThread {
     DateTime? activeFrom,
     DateTime? activeTo,
     // Token configuration
-    String? tokenSourceSubAccountId,
+    String? tokenSourceAccountId,
     String? tokenDestAccountTypeId,
     // Counts
     required int availableOpportunities,

@@ -1935,7 +1935,7 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
     _selectedClientId = widget.selectedClientId;
     _loadAccountTypes();
     if (_selectedClientId != null) {
-      _loadSubAccounts(_selectedClientId!);
+      _loadTokenSourceAccounts(_selectedClientId!);
     }
   }
 
@@ -1955,21 +1955,39 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
     } catch (_) {}
   }
 
-  Future<void> _loadSubAccounts(String clientId) async {
+  Future<void> _loadTokenSourceAccounts(String clientId) async {
     try {
       final result = await FirebaseFunctions.instance
           .httpsCallable('adminListClientSubAccounts')
           .call({'clientId': clientId});
-      final list = (result.data['subAccounts'] as List?)
+      final subList = (result.data['subAccounts'] as List?)
               ?.map((s) => Map<String, dynamic>.from(s as Map))
               .toList() ??
           [];
+
+      // Find client display name from widget.clients
+      final clientData = widget.clients.firstWhere(
+        (c) => c['id'] == clientId,
+        orElse: () => <String, dynamic>{},
+      );
+      final clientName =
+          clientData['displayName'] ?? clientData['companyName'] ?? clientId;
+
+      // Build unified list: client main account + sub-accounts
+      final accounts = <Map<String, dynamic>>[
+        {
+          'ledgerAccountId': 'client:$clientId',
+          'name': '$clientName (Main Account)',
+        },
+        ...subList,
+      ];
+
       if (mounted) {
         setState(() {
-          _subAccounts = list;
-          // Auto-select first sub-account if none selected
-          if (_selectedSubAccountId == null && list.isNotEmpty) {
-            _selectedSubAccountId = list.first['id'] as String?;
+          _subAccounts = accounts;
+          // Auto-select main account if none selected
+          if (_selectedSubAccountId == null) {
+            _selectedSubAccountId = 'client:$clientId';
           }
         });
       }
@@ -2077,7 +2095,7 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
         'description': _descriptionController.text.trim().isEmpty
             ? null
             : _descriptionController.text.trim(),
-        'tokenSourceSubAccountId':
+        'tokenSourceAccountId':
             overrideSubAccountId ?? _selectedSubAccountId,
         'tokenDestAccountTypeId': _selectedAccountTypeId,
         'isPinned': _isPinned,
@@ -2223,7 +2241,7 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
                     _selectedSubAccountId = null;
                     _subAccounts = [];
                   });
-                  if (value != null) _loadSubAccounts(value);
+                  if (value != null) _loadTokenSourceAccounts(value);
                 },
                 validator: (value) =>
                     value == null ? 'Please select a client' : null,
@@ -2462,11 +2480,11 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
                       DropdownButtonFormField<String>(
                         initialValue: _selectedSubAccountId,
                         decoration: const InputDecoration(
-                          labelText: 'Token Source Sub-Account',
+                          labelText: 'Token Source Account',
                           isDense: true,
                         ),
                         items: _subAccounts.map((sa) => DropdownMenuItem<String>(
-                              value: sa['id'] as String,
+                              value: (sa['ledgerAccountId'] ?? sa['id']) as String,
                               child: Text(sa['name']?.toString() ?? sa['id'].toString()),
                             )).toList(),
                         onChanged: (v) =>
@@ -2619,7 +2637,7 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
     _existingImageUrl = t['threadImage'] as String?;
 
     // Init token config from existing data
-    final srcSub = t['tokenSourceSubAccountId']?.toString();
+    final srcSub = t['tokenSourceAccountId']?.toString() ?? t['tokenSourceSubAccountId']?.toString();
     _selectedSubAccountId = srcSub;
     _selectedAccountTypeId = t['tokenDestAccountTypeId']?.toString();
 
@@ -2640,7 +2658,7 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
 
     _loadAccountTypes();
     final clientId = t['clientId']?.toString();
-    if (clientId != null) _loadSubAccounts(clientId);
+    if (clientId != null) _loadTokenSourceAccounts(clientId);
   }
 
   Future<void> _loadAccountTypes() async {
@@ -2659,22 +2677,35 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
     } catch (_) {}
   }
 
-  Future<void> _loadSubAccounts(String clientId) async {
+  Future<void> _loadTokenSourceAccounts(String clientId) async {
     try {
       final result = await FirebaseFunctions.instance
           .httpsCallable('adminListClientSubAccounts')
           .call({'clientId': clientId});
-      final list = (result.data['subAccounts'] as List?)
+      final subList = (result.data['subAccounts'] as List?)
               ?.map((s) => Map<String, dynamic>.from(s as Map))
               .toList() ??
           [];
+
+      final clientName = widget.thread['clientName']?.toString() ?? clientId;
+
+      // Build unified list: client main account + sub-accounts
+      final accounts = <Map<String, dynamic>>[
+        {
+          'ledgerAccountId': 'client:$clientId',
+          'name': '$clientName (Main Account)',
+        },
+        ...subList,
+      ];
+
       if (mounted) {
         setState(() {
-          _subAccounts = list;
-          // If existing selection isn't in the list, select the first one
+          _subAccounts = accounts;
+          // If existing selection isn't in the list, keep main account
           if (_selectedSubAccountId != null &&
-              !list.any((sa) => sa['id'] == _selectedSubAccountId)) {
-            _selectedSubAccountId = list.isNotEmpty ? list.first['id'] as String? : null;
+              !accounts.any((sa) =>
+                  (sa['ledgerAccountId'] ?? sa['id']) == _selectedSubAccountId)) {
+            _selectedSubAccountId = 'client:$clientId';
           }
         });
       }
@@ -2791,7 +2822,7 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
         'isActive': _isActive,
         'isFeatured': _isFeatured,
         'isPinned': _isPinned,
-        'tokenSourceSubAccountId':
+        'tokenSourceAccountId':
             overrideSubAccountId ?? _selectedSubAccountId,
         'tokenDestAccountTypeId': _selectedAccountTypeId,
         'activeFrom': _activeFrom?.toIso8601String(),
@@ -3165,11 +3196,11 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
                         DropdownButtonFormField<String>(
                           initialValue: _selectedSubAccountId,
                           decoration: const InputDecoration(
-                            labelText: 'Token Source Sub-Account',
+                            labelText: 'Token Source Account',
                             isDense: true,
                           ),
                           items: _subAccounts.map((sa) => DropdownMenuItem<String>(
-                                value: sa['id'] as String,
+                                value: (sa['ledgerAccountId'] ?? sa['id']) as String,
                                 child: Text(sa['name']?.toString() ?? sa['id'].toString()),
                               )).toList(),
                           onChanged: (v) =>
@@ -3288,9 +3319,13 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
   final _tokenRewardController = TextEditingController(text: '10');
   final _durationController = TextEditingController(text: '30');
   String _earningType = 'video';
-  bool _isActive = true;
+  bool _isActive = false;
   bool _isLoading = false;
   final List<Map<String, dynamic>> _questions = [];
+
+  // Balance check state
+  int? _tokenSourceBalance;
+  bool _loadingBalance = false;
 
   DateTime? _expiresAt;
 
@@ -3353,6 +3388,61 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
   void initState() {
     super.initState();
     _loadRewardCampaigns();
+    _checkTokenSourceBalance();
+  }
+
+  Future<void> _checkTokenSourceBalance() async {
+    setState(() => _loadingBalance = true);
+    try {
+      final threadDoc = await FirebaseFirestore.instance
+          .collection('earnThreads')
+          .doc(widget.threadId)
+          .get();
+      if (!threadDoc.exists || !mounted) return;
+      final threadData = threadDoc.data()!;
+      final accountId = threadData['tokenSourceAccountId'] as String? ??
+          'client:${threadData['clientId']}';
+      final ledgerDoc = await FirebaseFirestore.instance
+          .collection('ledgerAccounts')
+          .doc(accountId)
+          .get();
+      if (mounted) {
+        setState(() {
+          _tokenSourceBalance =
+              (ledgerDoc.data()?['balance'] as num?)?.toInt() ?? 0;
+        });
+      }
+    } catch (_) {
+      // If we can't check, leave as null (unknown)
+    } finally {
+      if (mounted) setState(() => _loadingBalance = false);
+    }
+  }
+
+  void _onActiveToggled(bool value) {
+    if (value) {
+      if (_loadingBalance) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Checking account balance...'),
+            backgroundColor: AppColors.warning,
+          ),
+        );
+        return;
+      }
+      if (_tokenSourceBalance != null && _tokenSourceBalance! <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Cannot activate: the campaign\'s token source account has a zero balance',
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+    }
+    setState(() => _isActive = value);
   }
 
   Future<void> _loadRewardCampaigns() async {
@@ -3665,6 +3755,30 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
         .doc(widget.threadId)
         .get();
     final threadData = threadDoc.data()!;
+
+    // Re-check balance at save time if activating
+    if (_isActive) {
+      final accountId = threadData['tokenSourceAccountId'] as String? ??
+          'client:${threadData['clientId']}';
+      final ledgerDoc = await FirebaseFirestore.instance
+          .collection('ledgerAccounts')
+          .doc(accountId)
+          .get();
+      final balance = (ledgerDoc.data()?['balance'] as num?)?.toInt() ?? 0;
+      if (balance <= 0) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Cannot activate: the campaign\'s token source account has a zero balance',
+              ),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+        return;
+      }
+    }
 
     // Generate opportunity ID upfront (needed for storage path)
     final oppRef =
@@ -4602,7 +4716,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                 const SizedBox(height: 8),
                 SwitchListTile(
                   value: _isActive,
-                  onChanged: (v) => setState(() => _isActive = v),
+                  onChanged: _onActiveToggled,
                   title: const Text('Active'),
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -4711,6 +4825,10 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
   late bool _isActive;
   DateTime? _expiresAt;
   bool _isLoading = false;
+
+  // Balance check state
+  int? _tokenSourceBalance;
+  bool _loadingBalance = false;
 
   // Additional fields
   late String _earningType;
@@ -4839,6 +4957,63 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
     _uploadTextMaxCharsController = TextEditingController(
         text: (o['uploadTextMaxChars'] ?? 1500).toString());
     _requiresAdminReview = o['requiresAdminReview'] == true;
+    _checkTokenSourceBalance();
+  }
+
+  Future<void> _checkTokenSourceBalance() async {
+    setState(() => _loadingBalance = true);
+    try {
+      final threadId = widget.opportunity['threadId'] as String?;
+      if (threadId == null) return;
+      final threadDoc = await FirebaseFirestore.instance
+          .collection('earnThreads')
+          .doc(threadId)
+          .get();
+      if (!threadDoc.exists || !mounted) return;
+      final threadData = threadDoc.data()!;
+      final accountId = threadData['tokenSourceAccountId'] as String? ??
+          'client:${threadData['clientId']}';
+      final ledgerDoc = await FirebaseFirestore.instance
+          .collection('ledgerAccounts')
+          .doc(accountId)
+          .get();
+      if (mounted) {
+        setState(() {
+          _tokenSourceBalance =
+              (ledgerDoc.data()?['balance'] as num?)?.toInt() ?? 0;
+        });
+      }
+    } catch (_) {
+      // If we can't check, leave as null (unknown)
+    } finally {
+      if (mounted) setState(() => _loadingBalance = false);
+    }
+  }
+
+  void _onActiveToggled(bool value) {
+    if (value) {
+      if (_loadingBalance) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Checking account balance...'),
+            backgroundColor: AppColors.warning,
+          ),
+        );
+        return;
+      }
+      if (_tokenSourceBalance != null && _tokenSourceBalance! <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Cannot activate: the campaign\'s token source account has a zero balance',
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+    }
+    setState(() => _isActive = value);
   }
 
   @override
@@ -4950,10 +5125,51 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
 
   Future<void> _handleSave() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Re-check balance at save time if switching from inactive to active
+    final wasActive = widget.opportunity['isActive'] == true;
+    if (_isActive && !wasActive) {
+      try {
+        final threadId = widget.opportunity['threadId'] as String?;
+        if (threadId != null) {
+          final threadDoc = await FirebaseFirestore.instance
+              .collection('earnThreads')
+              .doc(threadId)
+              .get();
+          if (threadDoc.exists) {
+            final threadData = threadDoc.data()!;
+            final accountId =
+                threadData['tokenSourceAccountId'] as String? ??
+                    'client:${threadData['clientId']}';
+            final ledgerDoc = await FirebaseFirestore.instance
+                .collection('ledgerAccounts')
+                .doc(accountId)
+                .get();
+            final balance =
+                (ledgerDoc.data()?['balance'] as num?)?.toInt() ?? 0;
+            if (balance <= 0) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Cannot activate: the campaign\'s token source account has a zero balance',
+                    ),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
+              return;
+            }
+          }
+        }
+      } catch (_) {
+        // If balance check fails, allow the save (backend will enforce)
+      }
+    }
+
     setState(() => _isLoading = true);
     try {
       final oppId = widget.opportunity['id'] as String;
-      final wasActive = widget.opportunity['isActive'] == true;
       final nowActive = _isActive;
 
       // Upload opportunity image if picked
@@ -5656,7 +5872,7 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                 const SizedBox(height: 8),
                 SwitchListTile(
                   value: _isActive,
-                  onChanged: (v) => setState(() => _isActive = v),
+                  onChanged: _onActiveToggled,
                   title: const Text('Active'),
                   contentPadding: EdgeInsets.zero,
                 ),

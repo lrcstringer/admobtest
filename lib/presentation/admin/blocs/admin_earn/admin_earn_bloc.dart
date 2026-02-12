@@ -319,7 +319,7 @@ class AdminEarnBloc extends Bloc<AdminEarnEvent, AdminEarnState> {
         clientId: event.clientId,
         title: event.title,
         description: event.description,
-        tokenSourceSubAccountId: event.tokenSourceSubAccountId,
+        tokenSourceAccountId: event.tokenSourceAccountId,
         tokenDestAccountTypeId: event.tokenDestAccountTypeId,
         isPinned: event.isPinned,
         isFeatured: event.isFeatured,

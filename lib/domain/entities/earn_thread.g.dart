@@ -27,7 +27,7 @@ _$EarnThreadImpl _$$EarnThreadImplFromJson(
   activeTo: json['activeTo'] == null
       ? null
       : DateTime.parse(json['activeTo'] as String),
-  tokenSourceSubAccountId: json['tokenSourceSubAccountId'] as String?,
+  tokenSourceAccountId: json['tokenSourceAccountId'] as String?,
   tokenDestAccountTypeId: json['tokenDestAccountTypeId'] as String?,
   availableOpportunities: (json['availableOpportunities'] as num).toInt(),
   completedOpportunities: (json['completedOpportunities'] as num).toInt(),
@@ -57,7 +57,7 @@ Map<String, dynamic> _$$EarnThreadImplToJson(_$EarnThreadImpl instance) =>
       'budgetExhausted': instance.budgetExhausted,
       'activeFrom': instance.activeFrom?.toIso8601String(),
       'activeTo': instance.activeTo?.toIso8601String(),
-      'tokenSourceSubAccountId': instance.tokenSourceSubAccountId,
+      'tokenSourceAccountId': instance.tokenSourceAccountId,
       'tokenDestAccountTypeId': instance.tokenDestAccountTypeId,
       'availableOpportunities': instance.availableOpportunities,
       'completedOpportunities': instance.completedOpportunities,

@@ -41,7 +41,10 @@ const _$LedgerAccountTypeEnumMap = {
   LedgerAccountType.pot: 'pot',
   LedgerAccountType.user: 'user',
   LedgerAccountType.supplier: 'supplier',
-  LedgerAccountType.cashout: 'cashout',
+  LedgerAccountType.cbook: 'cbook',
+  LedgerAccountType.clientSubacc: 'clientSubacc',
+  LedgerAccountType.client: 'client',
+  LedgerAccountType.group: 'group',
 };
 
 const _$LedgerAccountStatusEnumMap = {

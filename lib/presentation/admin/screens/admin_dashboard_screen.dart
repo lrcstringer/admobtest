@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../theme/app_colors.dart';
 
-/// Admin dashboard screen with treasury metrics and seed action
+/// Admin dashboard screen with system account metrics
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
@@ -16,32 +16,42 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final _functions = FirebaseFunctions.instance;
   final _numberFormat = NumberFormat('#,###');
 
-  int? _treasuryBalance;
-  int? _mintBalance;
-  int? _tokensInCirculation;
+  int? _cbookBus;
+  int? _cbookTrust;
+  int? _dailyPot;
+  int? _weeklyPot;
+  int? _cashoutPending;
+  int? _imalichat;
   bool _isLoading = true;
   String? _error;
+
+  List<Map<String, dynamic>> _recentActivity = [];
+  bool _activityLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadTreasuryStatus();
+    _loadSystemStatus();
+    _loadRecentActivity();
   }
 
-  Future<void> _loadTreasuryStatus() async {
+  Future<void> _loadSystemStatus() async {
     setState(() {
       _isLoading = true;
       _error = null;
     });
 
     try {
-      final result = await _functions.httpsCallable('adminGetTreasuryStatus').call();
+      final result = await _functions.httpsCallable('adminGetSystemAccountStatus').call();
       final data = result.data as Map<String, dynamic>;
 
       setState(() {
-        _treasuryBalance = (data['treasuryBalance'] as num).toInt();
-        _mintBalance = (data['mintBalance'] as num).toInt();
-        _tokensInCirculation = (data['tokensInCirculation'] as num).toInt();
+        _cbookBus = (data['cbookBus'] as num?)?.toInt() ?? 0;
+        _cbookTrust = (data['cbookTrust'] as num?)?.toInt() ?? 0;
+        _dailyPot = (data['dailyPot'] as num?)?.toInt() ?? 0;
+        _weeklyPot = (data['weeklyPot'] as num?)?.toInt() ?? 0;
+        _cashoutPending = (data['cashoutPending'] as num?)?.toInt() ?? 0;
+        _imalichat = (data['imalichat'] as num?)?.toInt() ?? 0;
         _isLoading = false;
       });
     } catch (e) {
@@ -52,224 +62,85 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
-  Color _treasuryStatusColor() {
-    if (_treasuryBalance == null) return AppColors.textSecondary;
-    if (_treasuryBalance! <= 0) return AppColors.error;
-    if (_treasuryBalance! < 100000) return AppColors.warning;
-    return AppColors.success;
-  }
-
-  Future<void> _initializeLedger() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
-        title: const Text(
-          'Initialize Trust Ledger',
-          style: TextStyle(color: AppColors.textPrimaryDark),
-        ),
-        content: Text(
-          'This creates all system accounts (mint, treasury, pots, etc.) '
-          'in Firestore. Safe to call multiple times \u2014 existing accounts '
-          'are not affected.\n\nProceed?',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Initialize'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true || !mounted) return;
-
+  Future<void> _loadRecentActivity() async {
     try {
-      await _functions.httpsCallable('initializeTrustLedger').call();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Trust Ledger initialized \u2014 system accounts created'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        _loadTreasuryStatus();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Initialization failed: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
+      final result = await _functions.httpsCallable('adminGetAuditLogs').call({
+        'limit': 10,
+      });
+      final data = result.data as Map<String, dynamic>;
+      final logs = (data['logs'] as List<dynamic>?) ?? [];
+      setState(() {
+        _recentActivity = logs.cast<Map<String, dynamic>>();
+        _activityLoading = false;
+      });
+    } catch (_) {
+      setState(() => _activityLoading = false);
     }
   }
 
-  Future<void> _showSeedDialog() async {
-    final amountController = TextEditingController();
-    final reasonController = TextEditingController();
-    bool isSeeding = false;
-
-    await showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          backgroundColor: AppColors.cardDark,
-          title: const Text(
-            'Seed Treasury',
-            style: TextStyle(color: AppColors.textPrimaryDark),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Mint new tokens into the treasury. '
-                '100 tokens = R1 ZAR.',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: amountController,
-                keyboardType: TextInputType.number,
-                style: const TextStyle(color: AppColors.textPrimaryDark),
-                decoration: InputDecoration(
-                  labelText: 'Amount (tokens)',
-                  labelStyle: TextStyle(color: AppColors.textSecondary),
-                  hintText: 'e.g. 10000000 (= R100,000)',
-                  hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.5)),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.textSecondary.withValues(alpha: 0.3)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.primary),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: reasonController,
-                style: const TextStyle(color: AppColors.textPrimaryDark),
-                decoration: InputDecoration(
-                  labelText: 'Reason',
-                  labelStyle: TextStyle(color: AppColors.textSecondary),
-                  hintText: 'e.g. Initial seed, Monthly top-up',
-                  hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.5)),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.textSecondary.withValues(alpha: 0.3)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.primary),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: isSeeding ? null : () => Navigator.pop(ctx),
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: isSeeding
-                  ? null
-                  : () async {
-                      final amount = int.tryParse(amountController.text.trim());
-                      final reason = reasonController.text.trim();
-
-                      if (amount == null || amount <= 0) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Enter a valid positive amount')),
-                        );
-                        return;
-                      }
-                      if (reason.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Enter a reason')),
-                        );
-                        return;
-                      }
-
-                      setDialogState(() => isSeeding = true);
-
-                      try {
-                        final result = await _functions
-                            .httpsCallable('adminSeedTreasury')
-                            .call({'amount': amount, 'reason': reason});
-                        final data = result.data as Map<String, dynamic>;
-
-                        if (ctx.mounted) Navigator.pop(ctx);
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Treasury seeded with ${_numberFormat.format(amount)} tokens. '
-                                'Balance: ${_numberFormat.format(data['treasuryBalanceAfter'])}',
-                              ),
-                              backgroundColor: AppColors.success,
-                            ),
-                          );
-                          _loadTreasuryStatus();
-                        }
-                      } catch (e) {
-                        setDialogState(() => isSeeding = false);
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Seed failed: $e'),
-                              backgroundColor: AppColors.error,
-                            ),
-                          );
-                        }
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-              ),
-              child: isSeeding
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Text('Mint Tokens'),
-            ),
-          ],
-        ),
-      ),
-    );
+  String _formatActivityTime(dynamic ts) {
+    try {
+      if (ts is String && ts.isNotEmpty) {
+        final dt = DateTime.parse(ts).toLocal();
+        final now = DateTime.now();
+        final diff = now.difference(dt);
+        if (diff.inMinutes < 1) return 'Just now';
+        if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+        if (diff.inHours < 24) return '${diff.inHours}h ago';
+        if (diff.inDays < 7) return '${diff.inDays}d ago';
+        return DateFormat('dd MMM').format(dt);
+      }
+      if (ts is Map) {
+        final seconds = ts['_seconds'];
+        if (seconds is int) {
+          final dt = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
+          final now = DateTime.now();
+          final diff = now.difference(dt);
+          if (diff.inMinutes < 1) return 'Just now';
+          if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+          if (diff.inHours < 24) return '${diff.inHours}h ago';
+          if (diff.inDays < 7) return '${diff.inDays}d ago';
+          return DateFormat('dd MMM').format(dt);
+        }
+      }
+      return '';
+    } catch (_) {
+      return '';
+    }
   }
+
+  IconData _activityIcon(String action) {
+    if (action.contains('Create') || action.contains('create')) return Icons.add_circle_outline;
+    if (action.contains('Delete') || action.contains('delete') || action.contains('Soft')) return Icons.delete_outline;
+    if (action.contains('Fund') || action.contains('fund')) return Icons.payments_outlined;
+    if (action.contains('Update') || action.contains('update')) return Icons.edit_outlined;
+    if (action.contains('Review') || action.contains('review')) return Icons.rate_review_outlined;
+    if (action.contains('Poll') || action.contains('poll') || action.contains('open') || action.contains('close')) return Icons.poll_outlined;
+    if (action.contains('Reward') || action.contains('reward') || action.contains('import')) return Icons.card_giftcard_outlined;
+    if (action.contains('Approve') || action.contains('approve')) return Icons.check_circle_outline;
+    if (action.contains('Reject') || action.contains('reject')) return Icons.cancel_outlined;
+    return Icons.history;
+  }
+
+  Color _outcomeColor(String? outcome) {
+    switch (outcome) {
+      case 'success':
+        return AppColors.success;
+      case 'denied':
+        return AppColors.error;
+      case 'error':
+        return AppColors.error;
+      case 'maker_created':
+        return AppColors.warning;
+      default:
+        return AppColors.textSecondary;
+    }
+  }
+
+  String _fmt(int? value) => _isLoading ? '...' : value != null ? _numberFormat.format(value) : '--';
 
   @override
   Widget build(BuildContext context) {
-    final treasuryValue = _isLoading
-        ? '...'
-        : _treasuryBalance != null
-            ? _numberFormat.format(_treasuryBalance)
-            : '--';
-
-    final mintedValue = _isLoading
-        ? '...'
-        : _mintBalance != null
-            ? _numberFormat.format(_mintBalance!.abs())
-            : '--';
-
-    final circulationValue = _isLoading
-        ? '...'
-        : _tokensInCirculation != null
-            ? _numberFormat.format(_tokensInCirculation)
-            : '--';
-
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
       body: SingleChildScrollView(
@@ -312,13 +183,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Failed to load treasury status: $_error',
+                        'Failed to load system status: $_error',
                         style: const TextStyle(color: AppColors.error, fontSize: 13),
                       ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.refresh, color: AppColors.error, size: 20),
-                      onPressed: _loadTreasuryStatus,
+                      onPressed: _loadSystemStatus,
                     ),
                   ],
                 ),
@@ -330,28 +201,40 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               runSpacing: 16,
               children: [
                 _StatCard(
-                  title: 'Treasury Balance',
-                  value: treasuryValue,
-                  icon: Icons.account_balance_wallet,
-                  color: _treasuryStatusColor(),
-                ),
-                _StatCard(
-                  title: 'Total Minted',
-                  value: mintedValue,
-                  icon: Icons.toll,
-                  color: AppColors.secondary,
-                ),
-                _StatCard(
-                  title: 'In Circulation',
-                  value: circulationValue,
-                  icon: Icons.swap_horiz,
+                  title: 'CashBook Business',
+                  value: _fmt(_cbookBus),
+                  icon: Icons.account_balance,
                   color: AppColors.primary,
                 ),
                 _StatCard(
-                  title: 'Pending Cashouts',
-                  value: '--',
-                  icon: Icons.payments,
+                  title: 'CashBook Trust',
+                  value: _fmt(_cbookTrust),
+                  icon: Icons.account_balance,
+                  color: AppColors.secondary,
+                ),
+                _StatCard(
+                  title: 'iMaliChat Client',
+                  value: _fmt(_imalichat),
+                  icon: Icons.business,
+                  color: AppColors.success,
+                ),
+                _StatCard(
+                  title: 'Daily Pot',
+                  value: _fmt(_dailyPot),
+                  icon: Icons.emoji_events,
                   color: AppColors.warning,
+                ),
+                _StatCard(
+                  title: 'Weekly Pot',
+                  value: _fmt(_weeklyPot),
+                  icon: Icons.emoji_events,
+                  color: AppColors.warning,
+                ),
+                _StatCard(
+                  title: 'Pending Cashouts',
+                  value: _fmt(_cashoutPending),
+                  icon: Icons.payments,
+                  color: AppColors.error,
                 ),
               ],
             ),
@@ -372,21 +255,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               runSpacing: 12,
               children: [
                 _ActionButton(
-                  label: 'Initialize Ledger',
-                  icon: Icons.settings_suggest,
-                  onTap: _initializeLedger,
-                ),
-                _ActionButton(
-                  label: 'Seed Treasury',
-                  icon: Icons.add_circle,
-                  onTap: _showSeedDialog,
-                ),
-                _ActionButton(
-                  label: 'Run Ledger Recon',
-                  icon: Icons.account_balance,
-                  onTap: () {},
-                ),
-                _ActionButton(
                   label: 'Distribute Daily Pot',
                   icon: Icons.emoji_events,
                   onTap: () {},
@@ -400,7 +268,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Recent activity placeholder
+            // Recent activity
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -419,28 +287,97 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            size: 48,
-                            color: AppColors.textSecondary,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Dashboard data will be populated once\nFirestore admin queries are connected.',
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                  if (_activityLoading)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(32),
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
                       ),
+                    )
+                  else if (_recentActivity.isEmpty)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Text(
+                          'No recent activity',
+                          style: TextStyle(color: AppColors.textSecondary),
+                        ),
+                      ),
+                    )
+                  else
+                    ...List.generate(
+                      _recentActivity.length,
+                      (i) {
+                        final log = _recentActivity[i];
+                        final action = (log['action'] as String?) ?? '';
+                        final outcome = (log['outcome'] as String?) ?? '';
+                        final email = (log['actorEmail'] as String?) ?? 'Unknown';
+                        final time = _formatActivityTime(log['timestamp']);
+                        return Column(
+                          children: [
+                            if (i > 0)
+                              Divider(
+                                color: AppColors.textSecondary.withValues(alpha: 0.15),
+                                height: 1,
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: _outcomeColor(outcome).withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      _activityIcon(action),
+                                      size: 18,
+                                      color: _outcomeColor(outcome),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          action,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: AppColors.textPrimaryDark,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          email,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    time,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
-                  ),
                 ],
               ),
             ),

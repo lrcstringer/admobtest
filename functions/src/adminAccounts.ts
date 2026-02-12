@@ -16,34 +16,24 @@ import {
   getAccount,
   getBalance,
   closeAccount,
+  createAccount,
 } from "./ledger/accounts";
-import { AccountId, SystemAccounts } from "./ledger/types";
+import { postJournal, getRecentJournals } from "./ledger/journals";
+import { AccountId, SystemAccounts, LedgerConfig } from "./ledger/types";
+import { processClientSubAccountFunding } from "./ledger/index";
 import { getUserSubAccounts } from "./ledger/subAccounts";
+import {
+  reconcileAllAccounts,
+  verifySystemBalance,
+  verifyAllJournalsBalanced,
+  getLedgerStatistics,
+} from "./ledger/reconciliation";
 import { requireAppCheck } from "./security";
+import { requireAdminPermission, createPendingAction, logAdminAction } from "./adminAuth";
 
 const db = admin.firestore();
 
-// ============================================================================
-// ADMIN ROLE CHECK
-// ============================================================================
 
-/**
- * Verify the caller has admin role
- */
-async function requireAdmin(context: functions.https.CallableContext): Promise<void> {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "Must be authenticated");
-  }
-
-  // Check custom claims for admin role
-  const token = context.auth.token;
-  if (!token.admin && !token.superAdmin) {
-    throw new functions.https.HttpsError(
-      "permission-denied",
-      "Admin access required"
-    );
-  }
-}
 
 // ============================================================================
 // SUPPLIER ACCOUNT MANAGEMENT
@@ -64,7 +54,7 @@ export const adminCreateSupplier = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "adminCreateSupplier");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "accounts:createSupplier", "adminCreateSupplier");
 
     const { providerId, providerName, category, contactEmail, contactName } = data;
 
@@ -95,6 +85,8 @@ export const adminCreateSupplier = functions.https.onCall(
       { merge: true }
     );
 
+    logAdminAction(adminCtx.uid, "adminCreateSupplier", "success", { providerId, providerName, ledgerAccountId: account.id }).catch(() => {});
+
     return {
       success: true,
       supplier: {
@@ -111,7 +103,7 @@ export const adminCreateSupplier = functions.https.onCall(
  */
 export const adminListSuppliers = functions.https.onCall(async (data, context) => {
   requireAppCheck(context, "adminListSuppliers");
-  await requireAdmin(context);
+  await requireAdminPermission(context, "accounts:listSuppliers", "adminListSuppliers");
 
   // Get ledger accounts
   const accounts = await getAccountsByType("supplier");
@@ -157,7 +149,7 @@ export const adminUpdateSupplierStatus = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "adminUpdateSupplierStatus");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "accounts:updateSupplierStatus", "adminUpdateSupplierStatus");
 
     const { providerId, action, reason } = data;
     const accountId = AccountId.supplier(providerId);
@@ -176,6 +168,8 @@ export const adminUpdateSupplierStatus = functions.https.onCall(
       status: action === "freeze" ? "frozen" : "active",
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+
+    logAdminAction(adminCtx.uid, "adminUpdateSupplierStatus", "success", { providerId, action, reason }).catch(() => {});
 
     return { success: true };
   }
@@ -213,7 +207,7 @@ export const adminCreateClient = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "adminCreateClient");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "accounts:createClient", "adminCreateClient");
 
     const {
       clientId,
@@ -301,6 +295,8 @@ export const adminCreateClient = functions.https.onCall(
       createdBy: context.auth!.uid,
     });
 
+    logAdminAction(adminCtx.uid, "adminCreateClient", "success", { clientId, companyName, ledgerAccountId: account.id }).catch(() => {});
+
     return {
       success: true,
       client: {
@@ -318,7 +314,7 @@ export const adminCreateClient = functions.https.onCall(
  */
 export const adminListClients = functions.https.onCall(async (data, context) => {
   requireAppCheck(context, "adminListClients");
-  await requireAdmin(context);
+  await requireAdminPermission(context, "accounts:listClients", "adminListClients");
 
   // Get ledger accounts
   const accounts = await getAccountsByType("client");
@@ -375,7 +371,7 @@ export const adminListClients = functions.https.onCall(async (data, context) => 
 export const adminGetClient = functions.https.onCall(
   async (data: { clientId: string }, context) => {
     requireAppCheck(context, "adminGetClient");
-    await requireAdmin(context);
+    await requireAdminPermission(context, "accounts:getClient", "adminGetClient");
 
     const { clientId } = data;
     const accountId = AccountId.client(clientId);
@@ -414,7 +410,7 @@ export const adminUpdateClientStatus = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "adminUpdateClientStatus");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "accounts:updateClientStatus", "adminUpdateClientStatus");
 
     const { clientId, action, reason } = data;
     const accountId = AccountId.client(clientId);
@@ -433,6 +429,8 @@ export const adminUpdateClientStatus = functions.https.onCall(
       status: action === "freeze" ? "frozen" : "active",
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+
+    logAdminAction(adminCtx.uid, "adminUpdateClientStatus", "success", { clientId, action, reason }).catch(() => {});
 
     return { success: true };
   }
@@ -468,7 +466,7 @@ export const adminUpdateClient = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "adminUpdateClient");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "accounts:updateClient", "adminUpdateClient");
 
     const { clientId, updates } = data;
 
@@ -575,13 +573,21 @@ export const adminUpdateClient = functions.https.onCall(
       }
     }
 
+    logAdminAction(adminCtx.uid, "adminUpdateClient", "success", { clientId, updatedFields: Object.keys(updates) }).catch(() => {});
+
     return { success: true };
   }
 );
 
 /**
  * Fund a client account (admin adds tokens to client's balance)
- * This is used when a client pays for campaign credits
+ *
+ * Posts journal: DR cbook CR client:{clientId}
+ * This IS the token creation/seeding mechanism — because cbook is an asset account
+ * (debit-normal), the debit INCREASES cbook balance while the credit INCREASES
+ * client balance. Both sides go up. No separate seeding step needed.
+ *
+ * Uses cbook:bus for iMaliChat's own account, cbook:trust for external clients.
  */
 export const adminFundClientAccount = functions.https.onCall(
   async (
@@ -594,7 +600,7 @@ export const adminFundClientAccount = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "adminFundClientAccount");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "accounts:fundClient", "adminFundClientAccount");
 
     const { clientId, amount, reference, paymentMethod } = data;
 
@@ -614,54 +620,56 @@ export const adminFundClientAccount = functions.https.onCall(
       );
     }
 
-    // Import journal posting
-    const { postJournal } = await import("./ledger/journals");
-    const { SystemAccounts } = await import("./ledger/types");
+    // Create pending action instead of executing
+    const { pendingActionId } = await createPendingAction(
+      adminCtx,
+      "accounts:fundClient",
+      "adminFundClientAccount",
+      { clientId, amount, reference, paymentMethod, makerUid: adminCtx.uid },
+      `Fund client ${clientId} with ${amount} tokens`,
+    );
 
-    const accountId = AccountId.client(clientId);
+    return { success: true, pendingActionId, requiresApproval: true };
+  }
+);
 
-    // Post journal: Treasury -> Client
-    const result = await postJournal({
-      idempotencyKey: `client_fund:${clientId}:${reference}`,
-      type: "adjustment",
-      description: `Client account funding: ${reference}`,
-      entries: [
-        {
-          accountId: SystemAccounts.TREASURY,
-          entryType: "debit",
-          amount,
-          description: "Client funding outflow",
-        },
-        {
-          accountId,
-          entryType: "credit",
-          amount,
-          description: "Account credit from funding",
-        },
-      ],
-      referenceType: "campaign",
-      referenceId: reference,
-      initiatedBy: context.auth!.uid,
-      metadata: {
-        paymentMethod,
-        fundedBy: context.auth!.uid,
-      },
-    });
+/**
+ * Refund tokens from client account back to cash book
+ *
+ * Posts journal: DR client:{clientId} CR cbook
+ * Inverse of funding. Validates client has sufficient balance.
+ */
+export const adminRefundClient = functions.https.onCall(
+  async (
+    data: {
+      clientId: string;
+      amount: number;
+      reason: string;
+    },
+    context
+  ) => {
+    requireAppCheck(context, "adminRefundClient");
+    const adminCtx = await requireAdminPermission(context, "accounts:refundClient", "adminRefundClient");
 
-    if (!result.success) {
-      throw new functions.https.HttpsError("internal", result.error || "Failed to fund account");
+    const { clientId, amount, reason } = data;
+
+    if (!clientId || !amount || amount <= 0 || !reason) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Client ID, positive amount, and reason are required"
+      );
     }
 
-    // Update client stats
-    await db.collection("clients").doc(clientId).update({
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    // Create pending action instead of executing
+    const { pendingActionId } = await createPendingAction(
+      adminCtx,
+      "accounts:refundClient",
+      "adminRefundClient",
+      { clientId, amount, reason, makerUid: adminCtx.uid },
+      `Refund ${amount} tokens from client ${clientId}: ${reason}`,
+    );
 
-    return {
-      success: true,
-      journalId: result.journalId,
-      newBalance: result.data?.entries.find((e) => e.accountId === accountId)?.balanceAfter,
-    };
+    return { success: true, pendingActionId, requiresApproval: true };
   }
 );
 
@@ -671,20 +679,24 @@ export const adminFundClientAccount = functions.https.onCall(
 
 /**
  * Create a client sub-account for per-campaign budget tracking.
+ *
+ * Creates both:
+ * 1. A Firestore doc at clients/{clientId}/subAccounts/{subAccountId} (metadata)
+ * 2. A ledger account at ledgerAccounts/client_subacc:{subAccountId} (balance)
+ *
  * Sub-accounts are created empty (balance 0) and funded separately
- * via adminFundClientSubAccount to avoid double-counting.
+ * via adminFundClientSubAccount.
  */
 export const adminCreateClientSubAccount = functions.https.onCall(
   async (
     data: {
       clientId: string;
       name: string;
-      initialBudget?: number;
     },
     context
   ) => {
     requireAppCheck(context, "adminCreateClientSubAccount");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "accounts:createSubAccount", "adminCreateClientSubAccount");
 
     const { clientId, name } = data;
 
@@ -714,11 +726,28 @@ export const adminCreateClientSubAccount = functions.https.onCall(
       .collection("subAccounts")
       .doc();
 
+    const ledgerAccountId = AccountId.clientSubAccount(subAccountRef.id);
+
+    // Create the ledger account
+    const ledgerResult = await createAccount({
+      type: "client_subacc",
+      name: `${name} — ${clientId}`,
+      ownerId: subAccountRef.id,
+      metadata: { clientId, subAccountFirestoreId: subAccountRef.id },
+    });
+
+    if (!ledgerResult.success) {
+      throw new functions.https.HttpsError(
+        "internal",
+        `Failed to create ledger account: ${ledgerResult.error}`
+      );
+    }
+
+    // Create the Firestore metadata doc (balance is on the ledger, not here)
     await subAccountRef.set({
       id: subAccountRef.id,
       name,
-      balance: 0,
-      initialBudget: 0,
+      ledgerAccountId,
       isActive: true,
       budgetExhausted: false,
       warningNotifiedAt: null,
@@ -728,16 +757,17 @@ export const adminCreateClientSubAccount = functions.https.onCall(
       createdBy: context.auth!.uid,
     });
 
-    return { success: true, subAccountId: subAccountRef.id };
+    logAdminAction(adminCtx.uid, "adminCreateClientSubAccount", "success", { clientId, subAccountId: subAccountRef.id, ledgerAccountId }).catch(() => {});
+
+    return { success: true, subAccountId: subAccountRef.id, ledgerAccountId };
   }
 );
 
 /**
  * Fund (top up) a client sub-account.
- * Allocates tokens from the client's master ledger balance into the sub-account.
- * No journal is posted — sub-accounts are internal tracking docs, not real ledger
- * accounts. The tokens already exist in the client master ledger (funded via
- * adminFundClientAccount).
+ *
+ * Posts an on-ledger journal: DR client:{clientId} CR client_subacc:{subAccountId}
+ * Validates client master account has sufficient ledger balance.
  */
 export const adminFundClientSubAccount = functions.https.onCall(
   async (
@@ -750,7 +780,7 @@ export const adminFundClientSubAccount = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "adminFundClientSubAccount");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "accounts:fundSubAccount", "adminFundClientSubAccount");
 
     const { clientId, subAccountId, amount, reference } = data;
 
@@ -770,16 +800,6 @@ export const adminFundClientSubAccount = functions.https.onCall(
       );
     }
 
-    // Validate client master ledger has sufficient balance
-    const clientAccountId = AccountId.client(clientId);
-    const masterBalance = await getBalance(clientAccountId);
-    if (masterBalance < amount) {
-      throw new functions.https.HttpsError(
-        "failed-precondition",
-        `Insufficient client balance (${masterBalance} tokens). Fund the client account first.`
-      );
-    }
-
     const subAccountRef = db
       .collection("clients")
       .doc(clientId)
@@ -791,23 +811,48 @@ export const adminFundClientSubAccount = functions.https.onCall(
       throw new functions.https.HttpsError("not-found", "Sub-account not found");
     }
 
+    // Ensure the ledger account exists (auto-create for pre-existing sub-accounts)
+    const ledgerAccId = AccountId.clientSubAccount(subAccountId);
+    const existingLedger = await getAccount(ledgerAccId);
+    if (!existingLedger) {
+      const subAccData = subAccountDoc.data()!;
+      await createAccount({
+        type: "client_subacc",
+        name: `${subAccData.name || subAccountId} — ${clientId}`,
+        ownerId: subAccountId,
+        metadata: { clientId, subAccountFirestoreId: subAccountId, migratedFromLegacy: true },
+      });
+
+      // Store ledger account reference on the Firestore doc
+      await subAccountRef.update({ ledgerAccountId: ledgerAccId });
+    }
+
+    // Post on-ledger journal: DR client CR client_subacc
+    const result = await processClientSubAccountFunding(
+      clientId, subAccountId, amount, reference, context.auth!.uid
+    );
+
+    if (!result.success) {
+      throw new functions.https.HttpsError(
+        "internal",
+        result.error || "Failed to fund sub-account"
+      );
+    }
+
     const now = admin.firestore.FieldValue.serverTimestamp();
 
-    // Increment balance and initialBudget, clear budget exhaustion
-    // NOTE: isActive is NOT touched — that's admin-controlled only
+    // Clear budget exhaustion on the Firestore metadata doc
     await subAccountRef.update({
-      balance: admin.firestore.FieldValue.increment(amount),
-      initialBudget: admin.firestore.FieldValue.increment(amount),
       budgetExhausted: false,
       depletedAt: null,
       updatedAt: now,
     });
 
     // Clear budgetExhausted on threads linked to this sub-account
-    // NOTE: isActive is NOT touched — admin may have intentionally paused threads
+    const ledgerAccountId = AccountId.clientSubAccount(subAccountId);
     const threadsSnapshot = await db
       .collection("earnThreads")
-      .where("tokenSourceSubAccountId", "==", subAccountId)
+      .where("tokenSourceAccountId", "==", ledgerAccountId)
       .where("budgetExhausted", "==", true)
       .get();
 
@@ -819,17 +864,23 @@ export const adminFundClientSubAccount = functions.https.onCall(
       await batch.commit();
     }
 
-    return { success: true };
+    logAdminAction(adminCtx.uid, "adminFundClientSubAccount", "success", { clientId, subAccountId, amount, journalId: result.journalId }).catch(() => {});
+
+    return {
+      success: true,
+      journalId: result.journalId,
+    };
   }
 );
 
 /**
- * List all sub-accounts for a client
+ * List all sub-accounts for a client.
+ * Balance is read from the ledger account (authoritative), not the Firestore metadata doc.
  */
 export const adminListClientSubAccounts = functions.https.onCall(
   async (data: { clientId: string }, context) => {
     requireAppCheck(context, "adminListClientSubAccounts");
-    await requireAdmin(context);
+    await requireAdminPermission(context, "accounts:listSubAccounts", "adminListClientSubAccounts");
 
     const { clientId } = data;
 
@@ -847,115 +898,177 @@ export const adminListClientSubAccounts = functions.https.onCall(
       .orderBy("createdAt", "desc")
       .get();
 
-    const subAccounts = snapshot.docs.map((doc) => {
-      const d = doc.data();
-      const remainingPercent =
-        d.initialBudget > 0 ? d.balance / d.initialBudget : 0;
-      return {
-        id: doc.id,
-        ...d,
-        remainingPercent,
-      };
-    });
+    // Fetch ledger balances for all sub-accounts
+    const subAccounts = await Promise.all(
+      snapshot.docs.map(async (doc) => {
+        const d = doc.data();
+        const ledgerAccountId = AccountId.clientSubAccount(doc.id);
+        const balance = await getBalance(ledgerAccountId);
+
+        return {
+          id: doc.id,
+          name: d.name,
+          ledgerAccountId,
+          balance,
+          isActive: d.isActive,
+          budgetExhausted: d.budgetExhausted,
+          createdAt: d.createdAt,
+          updatedAt: d.updatedAt,
+          createdBy: d.createdBy,
+        };
+      })
+    );
 
     return { subAccounts };
   }
 );
 
 // ============================================================================
-// TREASURY MANAGEMENT
+// SYSTEM ACCOUNT STATUS
 // ============================================================================
 
 /**
- * Seed the treasury with newly minted tokens.
- *
- * Creates a balanced journal: debit system:mint, credit system:treasury.
- * system:mint is the only account allowed to go negative.
+ * Get current system account balances (CBooks, pots, cashout pending)
  */
-export const adminSeedTreasury = functions.https.onCall(
-  async (
-    data: {
-      amount: number;
-      reason: string;
-    },
-    context
-  ) => {
-    requireAppCheck(context, "adminSeedTreasury");
-    await requireAdmin(context);
+export const adminGetSystemAccountStatus = functions.https.onCall(
+  async (data, context) => {
+    requireAppCheck(context, "adminGetSystemAccountStatus");
+    await requireAdminPermission(context, "accounts:getSystemStatus", "adminGetSystemAccountStatus");
 
-    const { amount, reason } = data;
+    // Fetch system account balances + imalichat sub-account IDs in parallel
+    const [cbookBus, cbookTrust, dailyPot, weeklyPot, cashoutPending, imalichatMain, subAccountsSnap] = await Promise.all([
+      getBalance(SystemAccounts.CBOOK_BUS),
+      getBalance(SystemAccounts.CBOOK_TRUST),
+      getBalance(SystemAccounts.DAILY_POT),
+      getBalance(SystemAccounts.WEEKLY_POT),
+      getBalance(SystemAccounts.CASHOUT_PENDING),
+      getBalance(SystemAccounts.IMALICHAT_CLIENT),
+      db.collection("clients").doc("imalichat").collection("subAccounts").get(),
+    ]);
 
-    if (!amount || amount <= 0) {
-      throw new functions.https.HttpsError(
-        "invalid-argument",
-        "A positive amount is required"
+    // Sum all imalichat sub-account ledger balances
+    let subAccountTotal = 0;
+    if (!subAccountsSnap.empty) {
+      const subBalances = await Promise.all(
+        subAccountsSnap.docs.map((doc) => getBalance(AccountId.clientSubAccount(doc.id)))
       );
+      subAccountTotal = subBalances.reduce((sum, b) => sum + b, 0);
     }
-    if (!reason || reason.trim() === "") {
-      throw new functions.https.HttpsError(
-        "invalid-argument",
-        "A reason is required for audit trail"
-      );
-    }
-
-    const { seedTreasury } = await import("./ledger");
-
-    const result = await seedTreasury(amount, reason, context.auth!.uid);
-
-    if (!result.success) {
-      throw new functions.https.HttpsError(
-        "internal",
-        result.error || "Failed to seed treasury"
-      );
-    }
-
-    // Read balances after seed
-    const treasuryBalance = await getBalance(SystemAccounts.TREASURY);
-    const mintBalance = await getBalance(SystemAccounts.MINT);
 
     return {
-      success: true,
-      journalId: result.journalId,
-      amountMinted: amount,
-      treasuryBalanceAfter: treasuryBalance,
-      mintBalanceAfter: mintBalance,
+      cbookBus,
+      cbookTrust,
+      dailyPot,
+      weeklyPot,
+      cashoutPending,
+      imalichat: imalichatMain + subAccountTotal,
     };
   }
 );
+
+// ============================================================================
+// LEDGER RECONCILIATION
+// ============================================================================
 
 /**
- * Get current treasury status (balances + monitoring info)
+ * Run ledger reconciliation and return overview data.
+ * Always returns: system balance check, account list, statistics, recent journals.
+ * When runFullRecon=true, also runs per-account reconciliation + journal integrity check.
  */
-export const adminGetTreasuryStatus = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "adminGetTreasuryStatus");
-    await requireAdmin(context);
+export const adminRunLedgerRecon = functions
+  .runWith({ timeoutSeconds: 120, memory: "256MB" })
+  .https.onCall(
+    async (data, context) => {
+      requireAppCheck(context, "adminRunLedgerRecon");
+      await requireAdminPermission(context, "accounts:runRecon", "adminRunLedgerRecon");
 
-    const treasuryBalance = await getBalance(SystemAccounts.TREASURY);
-    const mintBalance = await getBalance(SystemAccounts.MINT);
+      // Always fetch overview data in parallel
+      const [systemBalance, stats, journals, accountsSnap] = await Promise.all([
+        verifySystemBalance(),
+        getLedgerStatistics(),
+        getRecentJournals(25),
+        db.collection(LedgerConfig.COLLECTION_ACCOUNTS).get(),
+      ]);
 
-    // Get latest notifications for context
-    const notificationsSnapshot = await db
-      .collection("adminNotifications")
-      .where("type", "in", ["treasury_low_balance", "treasury_depleted"])
-      .orderBy("createdAt", "desc")
-      .limit(5)
-      .get();
+      // Build account list
+      const accounts = accountsSnap.docs.map((doc) => {
+        const a = doc.data();
+        return {
+          id: a.id,
+          type: a.type,
+          name: a.name,
+          balance: a.balance,
+          status: a.status,
+        };
+      });
 
-    const recentNotifications = notificationsSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+      // Format recent journals
+      const recentJournals = journals.map((j) => ({
+        id: j.id,
+        type: j.type,
+        status: j.status,
+        description: j.description,
+        totalDebits: j.totalDebits,
+        totalCredits: j.totalCredits,
+        entries: j.entries.map((e) => ({
+          accountId: e.accountId,
+          entryType: e.entryType,
+          amount: e.amount,
+        })),
+        postedAt: j.postedAt?.toMillis?.() ?? null,
+      }));
 
-    return {
-      treasuryBalance,
-      mintBalance,
-      totalMinted: Math.abs(mintBalance),
-      tokensInCirculation: Math.abs(mintBalance) - treasuryBalance,
-      recentNotifications,
-    };
-  }
-);
+      // Optionally run full reconciliation
+      let reconciliation = null;
+      let journalIntegrity = null;
+
+      if (data?.runFullRecon === true) {
+        const [recon, integrity] = await Promise.all([
+          reconcileAllAccounts(),
+          verifyAllJournalsBalanced(),
+        ]);
+
+        reconciliation = {
+          total: recon.total,
+          passed: recon.passed,
+          failed: recon.failed,
+          results: recon.results.map((r) => ({
+            accountId: r.accountId,
+            storedBalance: r.storedBalance,
+            calculatedBalance: r.calculatedBalance,
+            isReconciled: r.isReconciled,
+            discrepancy: r.discrepancy,
+          })),
+        };
+
+        journalIntegrity = {
+          total: integrity.total,
+          balanced: integrity.balanced,
+          unbalanced: integrity.unbalanced,
+        };
+      }
+
+      return {
+        systemBalance: {
+          isValid: systemBalance.isValid,
+          drift: systemBalance.drift,
+          cbookBalances: systemBalance.cbookBalances,
+          userBalances: systemBalance.userBalances,
+          potBalances: systemBalance.potBalances,
+          supplierBalances: systemBalance.supplierBalances,
+          clientBalances: systemBalance.clientBalances,
+          clientSubaccBalances: systemBalance.clientSubaccBalances,
+          systemBalances: systemBalance.systemBalances,
+          groupBalances: systemBalance.groupBalances,
+        },
+        statistics: stats,
+        accounts,
+        recentJournals,
+        reconciliation,
+        journalIntegrity,
+      };
+    }
+  );
 
 // ============================================================================
 // USER ACCOUNTS
@@ -967,7 +1080,7 @@ export const adminGetTreasuryStatus = functions.https.onCall(
  */
 export const adminListUsers = functions.https.onCall(async (_data, context) => {
   requireAppCheck(context, "adminListUsers");
-  await requireAdmin(context);
+  await requireAdminPermission(context, "accounts:listUsers", "adminListUsers");
 
   // Query all user-type ledger accounts (including frozen)
   const snapshot = await db
@@ -1011,7 +1124,7 @@ export const adminListUsers = functions.https.onCall(async (_data, context) => {
 export const adminListUserSubAccounts = functions.https.onCall(
   async (data: { userId: string }, context) => {
     requireAppCheck(context, "adminListUserSubAccounts");
-    await requireAdmin(context);
+    await requireAdminPermission(context, "accounts:listUserSubAccounts", "adminListUserSubAccounts");
 
     const { userId } = data;
     if (!userId) {
@@ -1044,8 +1157,8 @@ export const adminListUserSubAccounts = functions.https.onCall(
 // ============================================================================
 
 /**
- * Soft-delete a client: refund remaining balance to Treasury, close ledger account,
- * cascade soft-delete to all threads, opportunities, and sub-accounts.
+ * Soft-delete a client: refund sub-account balances → master, then master → cbook.
+ * Close ledger accounts, cascade soft-delete to threads, opportunities, and sub-accounts.
  */
 export const adminSoftDeleteClient = functions.https.onCall(
   async (
@@ -1056,7 +1169,7 @@ export const adminSoftDeleteClient = functions.https.onCall(
     context
   ) => {
     requireAppCheck(context, "adminSoftDeleteClient");
-    await requireAdmin(context);
+    const adminCtx = await requireAdminPermission(context, "accounts:softDeleteClient", "adminSoftDeleteClient");
 
     const { clientId, reason } = data;
     if (!clientId) {
@@ -1079,17 +1192,60 @@ export const adminSoftDeleteClient = functions.https.onCall(
     const now = admin.firestore.FieldValue.serverTimestamp();
     const accountId = AccountId.client(clientId);
 
-    // 1. Refund remaining ledger balance to Treasury
+    // 1. Refund all sub-account balances back to client master
+    const subAccountsSnapshot = await clientRef.collection("subAccounts").get();
+    for (const saDoc of subAccountsSnapshot.docs) {
+      const ledgerAccountId = AccountId.clientSubAccount(saDoc.id);
+      const subBalance = await getBalance(ledgerAccountId);
+
+      if (subBalance > 0) {
+        const subRefundResult = await postJournal({
+          idempotencyKey: `client_delete_subacc_refund:${saDoc.id}:${Date.now()}`,
+          type: "subacc_fund",
+          description: `Sub-account refund on client deletion: ${saDoc.id}`,
+          entries: [
+            {
+              accountId: ledgerAccountId,
+              entryType: "debit",
+              amount: subBalance,
+              description: "Sub-account balance refund on deletion",
+            },
+            {
+              accountId,
+              entryType: "credit",
+              amount: subBalance,
+              description: `Refund from sub-account ${saDoc.id}`,
+            },
+          ],
+          referenceType: "client_fund",
+          referenceId: clientId,
+          initiatedBy: uid,
+          metadata: { deletionReason: reason || null, subAccountId: saDoc.id },
+        });
+
+        if (!subRefundResult.success) {
+          console.warn(`Could not refund sub-account ${saDoc.id}: ${subRefundResult.error}`);
+        }
+      }
+
+      // Close the sub-account ledger account
+      await closeAccount(ledgerAccountId, reason || "Client deleted", uid).catch((err) =>
+        console.warn(`Could not close sub-account ledger ${ledgerAccountId}: ${err}`)
+      );
+    }
+
+    // 2. Refund remaining client master balance to cbook
     let refundedAmount = 0;
     const balance = await getBalance(accountId);
 
     if (balance > 0) {
-      const { postJournal } = await import("./ledger/journals");
+      const isImalichat = clientId === "imalichat";
+      const cbookAccount = isImalichat ? SystemAccounts.CBOOK_BUS : SystemAccounts.CBOOK_TRUST;
 
       const result = await postJournal({
         idempotencyKey: `client_delete_refund:${clientId}:${Date.now()}`,
-        type: "adjustment",
-        description: `Client deleted: balance refund to Treasury. Reason: ${reason || "No reason provided"}`,
+        type: "client_refund",
+        description: `Client deleted: balance refund to CBook. Reason: ${reason || "No reason provided"}`,
         entries: [
           {
             accountId,
@@ -1098,13 +1254,13 @@ export const adminSoftDeleteClient = functions.https.onCall(
             description: "Balance refund on client deletion",
           },
           {
-            accountId: SystemAccounts.TREASURY,
+            accountId: cbookAccount,
             entryType: "credit",
             amount: balance,
             description: "Client deletion refund",
           },
         ],
-        referenceType: "system",
+        referenceType: "client_fund",
         referenceId: clientId,
         initiatedBy: uid,
         metadata: { deletionReason: reason || null },
@@ -1119,18 +1275,17 @@ export const adminSoftDeleteClient = functions.https.onCall(
       refundedAmount = balance;
     }
 
-    // 2. Close ledger account (requires balance == 0, which step 1 ensures)
+    // 3. Close client ledger account (requires balance == 0, which steps 1+2 ensure)
     const closeResult = await closeAccount(
       accountId,
       reason || "Client deleted by admin",
       uid
     );
     if (!closeResult.success) {
-      // Non-fatal: account may already be closed or frozen
       console.warn(`Could not close ledger account ${accountId}: ${closeResult.error}`);
     }
 
-    // 3. Cascade soft-delete to all threads and their opportunities
+    // 4. Cascade soft-delete to all threads and their opportunities
     let deletedThreads = 0;
     let deletedOpportunities = 0;
 
@@ -1176,15 +1331,13 @@ export const adminSoftDeleteClient = functions.https.onCall(
       deletedThreads++;
     }
 
-    // 4. Soft-delete all sub-accounts
-    const subAccountsSnapshot = await clientRef.collection("subAccounts").get();
+    // 5. Soft-delete all sub-account Firestore docs
     if (!subAccountsSnapshot.empty) {
       const subBatch = db.batch();
       for (const saDoc of subAccountsSnapshot.docs) {
         subBatch.update(saDoc.ref, {
           isDeleted: true,
           isActive: false,
-          balance: 0,
           deletedAt: now,
           updatedAt: now,
         });
@@ -1192,7 +1345,7 @@ export const adminSoftDeleteClient = functions.https.onCall(
       await subBatch.commit();
     }
 
-    // 5. Mark client as deleted
+    // 6. Mark client as deleted
     await clientRef.update({
       isDeleted: true,
       isActive: false,
@@ -1202,6 +1355,8 @@ export const adminSoftDeleteClient = functions.https.onCall(
       status: "closed",
       updatedAt: now,
     });
+
+    logAdminAction(adminCtx.uid, "adminSoftDeleteClient", "success", { clientId, reason, refundedAmount, deletedThreads, deletedOpportunities }).catch(() => {});
 
     return {
       success: true,

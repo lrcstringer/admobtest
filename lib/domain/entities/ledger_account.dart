@@ -6,12 +6,18 @@ part 'ledger_account.freezed.dart';
 part 'ledger_account.g.dart';
 
 /// Account type in the Trust Ledger system
+///
+/// Asset accounts (debit-normal): cbook — debit increases balance, credit decreases.
+/// All other accounts are credit-normal: credit increases balance, debit decreases.
 enum LedgerAccountType {
-  system,   // iMali system accounts (treasury, referrals, operations)
-  pot,      // Daily and weekly pot accounts
-  user,     // Individual user wallet accounts
-  supplier, // Service providers (Vodacom, MTN, Eskom, etc.)
-  cashout,  // Pending cashout holding account
+  system,       // iMali system accounts (cashout_pending)
+  pot,          // Daily and weekly pot accounts
+  user,         // Individual user wallet accounts
+  supplier,     // Service providers (Vodacom, MTN, Eskom, etc.)
+  cbook,        // Cash Book accounts (business, trust) — asset/debit-normal
+  clientSubacc, // Client sub-accounts (on-ledger budgets)
+  client,       // Brand partners (advertisers, campaign sponsors)
+  group,        // Group accounts (stokvels, family, organizations, clubs)
 }
 
 /// Account status

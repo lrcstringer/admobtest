@@ -177,8 +177,8 @@ async function createThread(): Promise<void> {
     availableOpportunities: 1,
     completedOpportunities: 0,
     completedUniqueUsers: 0,
-    // Client-funded: tokens will be debited from this sub-account
-    tokenSourceSubAccountId: ADMOB_CONFIG.SUB_ACCOUNT_ID,
+    // Client-funded: tokens will be debited from this account
+    tokenSourceAccountId: AccountId.clientSubAccount(ADMOB_CONFIG.SUB_ACCOUNT_ID),
     // Earnings go to user's default wallet
     tokenDestAccountTypeId: null,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
