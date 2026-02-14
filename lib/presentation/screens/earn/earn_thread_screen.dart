@@ -85,6 +85,21 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
       return _buildEmptyState(context);
     }
 
+    // Sort: active opportunities first (pinned/featured on top), completed last
+    final sorted = List<EarnOpportunity>.from(state.opportunities)
+      ..sort((a, b) {
+        final aCompleted = a.isCompletedByUser;
+        final bCompleted = b.isCompletedByUser;
+        // Active before completed
+        if (aCompleted != bCompleted) return aCompleted ? 1 : -1;
+        // Within active: pinned first, then featured
+        if (!aCompleted) {
+          if (a.isPinned != b.isPinned) return a.isPinned ? -1 : 1;
+          if (a.isFeatured != b.isFeatured) return a.isFeatured ? -1 : 1;
+        }
+        return 0; // preserve original order otherwise
+      });
+
     return RefreshIndicator(
       onRefresh: () async {
         context
@@ -93,12 +108,12 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
       },
       child: ListView.builder(
         padding: AppSpacing.pagePadding,
-        itemCount: state.opportunities.length + 1,
+        itemCount: sorted.length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {
             return _buildThreadHeader(context, state);
           }
-          final opportunity = state.opportunities[index - 1];
+          final opportunity = sorted[index - 1];
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: _buildOpportunityCard(context, opportunity),
