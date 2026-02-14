@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -27,18 +28,25 @@ class EarnWalletConfirmScreen extends StatefulWidget {
 class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
     with TickerProviderStateMixin {
   late ConfettiController _confettiController;
+  late ConfettiController _miniConfettiController;
   late AnimationController _scaleController;
   late AnimationController _fadeController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
+  bool _showRandomSparkle = false;
 
   @override
   void initState() {
     super.initState();
 
-    // Confetti controller
+    // Full confetti controller (first-ever completion)
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 3),
+    );
+
+    // Mini confetti controller (streak milestones)
+    _miniConfettiController = ConfettiController(
+      duration: const Duration(seconds: 1),
     );
 
     // Scale animation for the success icon
@@ -79,18 +87,36 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
   bool _completionHandled = false;
 
   void _onSubmissionCompleted(bool isPendingReview) {
-    if (_completionHandled) return;
+    if (_completionHandled || isPendingReview) return;
     _completionHandled = true;
 
-    if (!isPendingReview) {
+    context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+
+    final earnState = context.read<EarnBloc>().state;
+    final engagement = earnState.currentEngagement;
+    final isFirstCompletion = earnState.history.isEmpty;
+    final streakDay = engagement?.streakDayAtCompletion;
+    final isStreakMilestone =
+        streakDay == 3 || streakDay == 7 || streakDay == 14;
+
+    if (isFirstCompletion) {
       _confettiController.play();
-      context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+    } else if (isStreakMilestone) {
+      _miniConfettiController.play();
+    }
+
+    // ~10% random chance for extra sparkle on the success icon
+    if (mounted) {
+      setState(() {
+        _showRandomSparkle = math.Random().nextInt(10) == 0;
+      });
     }
   }
 
   @override
   void dispose() {
     _confettiController.dispose();
+    _miniConfettiController.dispose();
     _scaleController.dispose();
     _fadeController.dispose();
     super.dispose();
@@ -162,40 +188,10 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                 const Spacer(),
 
                                 // Animated success/loading icon
-                          ScaleTransition(
-                            scale: _scaleAnimation,
-                            child: Container(
-                              width: 120,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                color: isSubmitting
-                                    ? AppColors.primary.withValues(alpha: 0.2)
-                                    : isPendingReview
-                                        ? AppColors.warning
-                                            .withValues(alpha: 0.2)
-                                        : AppColors.success
-                                            .withValues(alpha: 0.2),
-                                shape: BoxShape.circle,
-                              ),
-                              child: isSubmitting
-                                  ? const Padding(
-                                      padding: EdgeInsets.all(28),
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 4,
-                                      ),
-                                    )
-                                  : Icon(
-                                      isPendingReview
-                                          ? Icons.hourglass_top
-                                          : Icons.check_circle,
-                                      size: 80,
-                                      color: isPendingReview
-                                          ? AppColors.warning
-                                          : AppColors.success,
-                                    ),
-                            ),
+                          _buildSuccessIcon(
+                            isSubmitting: isSubmitting,
+                            isPendingReview: isPendingReview,
                           ),
-                          SizedBox(height: AppSpacing.lg),
 
                           // Animated content
                           FadeTransition(
@@ -367,7 +363,22 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                                     ),
                                                   ],
                                                 ),
-                                              ),
+                                              )
+                                                  .animate()
+                                                  .shimmer(
+                                                    delay: 600.ms,
+                                                    duration: 800.ms,
+                                                    color: Colors.white
+                                                        .withValues(
+                                                            alpha: 0.4),
+                                                  )
+                                                  .then(delay: 200.ms)
+                                                  .shimmer(
+                                                    duration: 600.ms,
+                                                    color: Colors.white
+                                                        .withValues(
+                                                            alpha: 0.2),
+                                                  ),
                                             ],
                                           ),
                                           SizedBox(
@@ -610,12 +621,12 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                     ),
                   ),
 
-                  // Confetti overlay
+                  // Full confetti overlay (first-ever completion)
                   Align(
                     alignment: Alignment.topCenter,
                     child: ConfettiWidget(
                       confettiController: _confettiController,
-                      blastDirection: math.pi / 2, // downward
+                      blastDirection: math.pi / 2,
                       maxBlastForce: 5,
                       minBlastForce: 2,
                       emissionFrequency: 0.05,
@@ -632,12 +643,94 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                       ],
                     ),
                   ),
+
+                  // Mini confetti burst (streak milestones: 3, 7, 14 days)
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: ConfettiWidget(
+                      confettiController: _miniConfettiController,
+                      blastDirection: math.pi / 2,
+                      maxBlastForce: 3,
+                      minBlastForce: 1,
+                      emissionFrequency: 0.08,
+                      numberOfParticles: 4,
+                      gravity: 0.2,
+                      shouldLoop: false,
+                      colors: [
+                        AppColors.gold,
+                        AppColors.success,
+                        AppColors.primary,
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSuccessIcon({
+    required bool isSubmitting,
+    required bool isPendingReview,
+  }) {
+    Widget icon = ScaleTransition(
+      scale: _scaleAnimation,
+      child: Container(
+        width: 120,
+        height: 120,
+        decoration: BoxDecoration(
+          color: isSubmitting
+              ? AppColors.primary.withValues(alpha: 0.2)
+              : isPendingReview
+                  ? AppColors.warning.withValues(alpha: 0.2)
+                  : AppColors.success.withValues(alpha: 0.2),
+          shape: BoxShape.circle,
+        ),
+        child: isSubmitting
+            ? const Padding(
+                padding: EdgeInsets.all(28),
+                child: CircularProgressIndicator(strokeWidth: 4),
+              )
+            : Icon(
+                isPendingReview ? Icons.hourglass_top : Icons.check_circle,
+                size: 80,
+                color: isPendingReview ? AppColors.warning : AppColors.success,
+              ),
+      ),
+    );
+
+    // ~10% random sparkle: scale pulse + gold shimmer on the success icon
+    if (_showRandomSparkle && !isSubmitting && !isPendingReview) {
+      icon = icon
+          .animate(onPlay: (c) => c.forward())
+          .scale(
+            begin: const Offset(1, 1),
+            end: const Offset(1.12, 1.12),
+            delay: 500.ms,
+            duration: 300.ms,
+            curve: Curves.easeOut,
+          )
+          .then()
+          .scale(
+            end: const Offset(1, 1),
+            duration: 200.ms,
+            curve: Curves.easeIn,
+          )
+          .shimmer(
+            delay: 100.ms,
+            duration: 600.ms,
+            color: AppColors.gold.withValues(alpha: 0.5),
+          );
+    }
+
+    return Column(
+      children: [
+        icon,
+        SizedBox(height: AppSpacing.lg),
+      ],
     );
   }
 
