@@ -435,12 +435,25 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           _userId = state.currentEngagement!.userId;
         }
 
-        // Pre-load ad when opportunity is loaded (adVideo only)
+        // AdVideo: auto-start engagement + pre-load ad in parallel.
+        // Non-adVideo types have a manual "Start Earning" button;
+        // adVideo skips that screen so we start automatically.
         if (state.selectedOpportunity != null &&
-            state.selectedOpportunity!.earningType == EarningType.adVideo &&
-            !state.isAdLoading &&
-            !state.isAdReady) {
-          context.read<EarnBloc>().add(const EarnEvent.loadAdVideo());
+            state.selectedOpportunity!.earningType == EarningType.adVideo) {
+          // Kick off ad loading (once)
+          if (!state.isAdLoading &&
+              !state.isAdReady &&
+              state.adRetryRound == 0) {
+            context.read<EarnBloc>().add(const EarnEvent.loadAdVideo());
+          }
+          // Auto-start the engagement (once)
+          if (state.engagementPhase == EngagementPhase.idle &&
+              state.currentEngagement == null) {
+            context.read<EarnBloc>().add(
+                  EarnEvent.startEngagement(
+                      opportunityId: widget.opportunityId),
+                );
+          }
         }
 
         // Initialize video when opportunity is loaded (video type only)

@@ -56,6 +56,7 @@ class AdMobService {
   RewardedAd? _rewardedAd;
   bool _isLoading = false;
   int _loadRetryCount = 0;
+  int _loadGeneration = 0; // Incremented per load attempt to discard stale callbacks
   final bool _useTestAds;
   final SessionLockService _sessionLockService;
 
@@ -90,12 +91,15 @@ class AdMobService {
 
     if (_rewardedAd != null) {
       debugPrint('AdMobService: Ad already loaded');
+      isAdReady.value = true; // Ensure state is consistent
       return true;
     }
 
     _isLoading = true;
     isLoading.value = true;
 
+    // Capture generation so stale callbacks from timed-out loads are discarded
+    final gen = ++_loadGeneration;
     final completer = Completer<bool>();
 
     try {
@@ -104,6 +108,12 @@ class AdMobService {
         request: const AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (ad) {
+            if (gen != _loadGeneration) {
+              // Stale callback from a previous timed-out load — dispose and ignore
+              debugPrint('AdMobService: Discarding stale ad load (gen $gen != $_loadGeneration)');
+              ad.dispose();
+              return;
+            }
             debugPrint('AdMobService: Ad loaded successfully');
             _rewardedAd = ad;
             _isLoading = false;
@@ -115,11 +125,19 @@ class AdMobService {
             }
           },
           onAdFailedToLoad: (error) {
+            if (gen != _loadGeneration) {
+              // Stale callback — ignore (don't reset isAdReady)
+              debugPrint('AdMobService: Discarding stale ad failure (gen $gen != $_loadGeneration)');
+              return;
+            }
             debugPrint(
                 'AdMobService: Ad failed to load: ${error.code} - ${error.message}');
             _isLoading = false;
             isLoading.value = false;
-            isAdReady.value = false;
+            // Only reset isAdReady if no ad is actually loaded
+            if (_rewardedAd == null) {
+              isAdReady.value = false;
+            }
             if (!completer.isCompleted) {
               completer.complete(false);
             }
@@ -134,6 +152,7 @@ class AdMobService {
           debugPrint('AdMobService: Ad load timed out');
           _isLoading = false;
           isLoading.value = false;
+          // Don't reset isAdReady — the callback may still fire and succeed
           return false;
         },
       );
@@ -155,12 +174,21 @@ class AdMobService {
         currentAttempt.value = 0;
         return true;
       }
+      // If a previous load succeeded while we were retrying, honour it
+      if (_rewardedAd != null) {
+        debugPrint('AdMobService: Ad became ready during retry cycle');
+        currentAttempt.value = 0;
+        isAdReady.value = true;
+        return true;
+      }
       _loadRetryCount++;
       if (_loadRetryCount < AdMobConstants.maxLoadRetries) {
         // Exponential backoff: 2s, 4s, 8s, 16s
         final delay = AdMobConstants.initialRetryDelay * (1 << (_loadRetryCount - 1));
         debugPrint(
             'AdMobService: Retrying ad load ($_loadRetryCount/${AdMobConstants.maxLoadRetries}) after ${delay.inSeconds}s');
+        // Keep isLoading true during the delay so the UI shows spinner
+        isLoading.value = true;
         await Future.delayed(delay);
       }
     }
