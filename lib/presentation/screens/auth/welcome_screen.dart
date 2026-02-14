@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../core/config/auth_test_config.dart';
 import '../../../core/error/failures.dart';
@@ -30,6 +32,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   bool _isBiometricLoading = false;
   String? _biometricError;
 
+  // Intro video (first-launch only)
+  static const _kFirstLaunchKey = 'welcome_video_shown';
+  VideoPlayerController? _videoController;
+  bool _showVideo = false;
+  bool _videoPlaying = false;
+  bool _videoFinished = false;
+  bool _videoInitialized = false;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +54,49 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
     _controller.forward();
     _checkReturningUser();
+    _initVideoIfFirstLaunch();
+  }
+
+  Future<void> _initVideoIfFirstLaunch() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_kFirstLaunchKey) == true) return;
+
+    // Mark as shown immediately so interrupted sessions don't replay
+    await prefs.setBool(_kFirstLaunchKey, true);
+
+    if (!mounted) return;
+    setState(() => _showVideo = true);
+
+    final controller =
+        VideoPlayerController.asset('assets/video/Ayanda_cropped.mp4');
+    _videoController = controller;
+
+    await controller.initialize();
+    if (!mounted) return;
+    setState(() => _videoInitialized = true);
+
+    // Detect playback completion
+    controller.addListener(_onVideoPlaybackChanged);
+  }
+
+  void _onVideoPlaybackChanged() {
+    final c = _videoController;
+    if (c == null || _videoFinished) return;
+
+    final pos = c.value.position;
+    final dur = c.value.duration;
+    if (dur.inMilliseconds > 0 &&
+        pos.inMilliseconds > 0 &&
+        !c.value.isPlaying &&
+        (dur - pos).inMilliseconds < 500) {
+      setState(() => _videoFinished = true);
+    }
+  }
+
+  void _disposeVideo() {
+    _videoController?.removeListener(_onVideoPlaybackChanged);
+    _videoController?.dispose();
+    _videoController = null;
   }
 
   Future<void> _checkReturningUser() async {
@@ -107,6 +160,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   @override
   void dispose() {
+    _disposeVideo();
     _controller.dispose();
     super.dispose();
   }
@@ -114,7 +168,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final mascotSize = size.width * 0.40;
+    final mascotSize = size.width * 0.48;
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
@@ -231,8 +285,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   /// Standard welcome content for new users or users without device binding.
   Widget _buildNewUserContent(
       BuildContext context, Size size, double mascotSize) {
-    return Column(
-      children: [
+    return SingleChildScrollView(
+      child: Column(
+        children: [
         SizedBox(height: size.height * 0.02),
 
         // Mascot face
@@ -311,6 +366,77 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
         SizedBox(height: size.height * 0.03),
 
+        // Intro video (first-launch only)
+        if (_showVideo && _videoController != null)
+          AnimatedOpacity(
+            opacity: _videoFinished ? 0.0 : 1.0,
+            duration: const Duration(milliseconds: 500),
+            onEnd: () {
+              if (_videoFinished) {
+                setState(() {
+                  _showVideo = false;
+                  _disposeVideo();
+                });
+              }
+            },
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                bottom: size.height * 0.02,
+              ),
+              child: GestureDetector(
+                onTap: () {
+                  if (!_videoPlaying && _videoInitialized) {
+                    _videoController!.play();
+                    setState(() => _videoPlaying = true);
+                  }
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AspectRatio(
+                    aspectRatio: _videoInitialized
+                        ? _videoController!.value.aspectRatio
+                        : 16 / 9,
+                    child: _videoInitialized
+                        ? Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Video with cover fit
+                              SizedBox.expand(
+                                child: FittedBox(
+                                  fit: BoxFit.cover,
+                                  child: SizedBox(
+                                    width: _videoController!.value.size.width,
+                                    height: _videoController!.value.size.height,
+                                    child: VideoPlayer(_videoController!),
+                                  ),
+                                ),
+                              ),
+                              // Play button overlay
+                              if (!_videoPlaying)
+                                Container(
+                                  width: 64,
+                                  height: 64,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.play_arrow_rounded,
+                                    size: 40,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                            ],
+                          )
+                        : Container(color: Colors.black),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
         // Bullet points
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -377,8 +503,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           ),
         ),
 
-        const Spacer(),
-      ],
+        SizedBox(height: size.height * 0.04),
+        ],
+      ),
     );
   }
 

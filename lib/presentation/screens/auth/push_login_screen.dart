@@ -154,11 +154,11 @@ class _PushLoginScreenState extends State<PushLoginScreen> {
                         // Logo
                         Image.asset(
                           'assets/icons/ImaliFacewithText.png',
-                          width: 80,
-                          height: 80,
+                          width: 96,
+                          height: 96,
                           errorBuilder: (_, __, ___) => const Icon(
                             Icons.notifications_active_outlined,
-                            size: 80,
+                            size: 96,
                             color: AppColors.primary,
                           ),
                         ),

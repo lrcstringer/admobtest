@@ -168,7 +168,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final mascotSize = size.width * 0.25;
+    final mascotSize = size.width * 0.30;
 
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
