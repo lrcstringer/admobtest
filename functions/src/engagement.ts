@@ -429,26 +429,32 @@ export const processEngagement = functions.https.onCall(
     }
 
     // =========================================================================
-    // Admin Review Check (Upload opportunities with requiresAdminReview)
+    // Fetch opportunity once (used for admin review check + bonus logic)
     // =========================================================================
-    if (engagement.type === "upload" && engagement.earnOpportunityId) {
-      const reviewCheckDoc = await db
+    let opportunityData: FirebaseFirestore.DocumentData | null = null;
+    if (engagement.earnOpportunityId) {
+      const opportunityDoc = await db
         .collection("earnOpportunities")
         .doc(engagement.earnOpportunityId)
         .get();
-      if (reviewCheckDoc.exists && reviewCheckDoc.data()!.requiresAdminReview) {
-        await engagementDoc.ref.update({
-          status: EngagementStatus.PENDING_REVIEW,
-          evidence: evidence,
-          submittedAt: admin.firestore.FieldValue.serverTimestamp(),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-        return {
-          success: true,
-          status: "pending_review",
-          message: "Your submission is under review",
-        };
+      if (opportunityDoc.exists) {
+        opportunityData = opportunityDoc.data()!;
       }
+    }
+
+    // Admin Review Check (Upload opportunities with requiresAdminReview)
+    if (engagement.type === "upload" && opportunityData?.requiresAdminReview) {
+      await engagementDoc.ref.update({
+        status: EngagementStatus.PENDING_REVIEW,
+        evidence: evidence,
+        submittedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      return {
+        success: true,
+        status: "pending_review",
+        message: "Your submission is under review",
+      };
     }
 
     let rewardAmount = engagement.rewardAmount;
@@ -456,18 +462,12 @@ export const processEngagement = functions.https.onCall(
     let bonusMultiplier = 1.0;
 
     // =========================================================================
-    // Bonus Reward Logic
+    // Bonus Reward Logic (reuses opportunityData from above)
     // =========================================================================
-    if (engagement.earnOpportunityId) {
+    if (engagement.earnOpportunityId && opportunityData) {
       try {
-        // Fetch opportunity to get bonus configuration
-        const opportunityDoc = await db
-          .collection("earnOpportunities")
-          .doc(engagement.earnOpportunityId)
-          .get();
-
-        if (opportunityDoc.exists) {
-          const opportunity = opportunityDoc.data()!;
+        {
+          const opportunity = opportunityData;
 
           if (opportunity.bonusReward) {
             const bonusIntervalType = opportunity.bonusIntervalType;
@@ -993,7 +993,9 @@ export const processEngagement = functions.https.onCall(
       });
     };
 
-    await Promise.all([
+    // Fire-and-forget: leaderboard + streak audit are non-critical for the
+    // user response. Skipping the await saves ~1s (7 sequential daily score reads).
+    Promise.all([
       doLeaderboardUpdates().catch((e) => console.error("Leaderboard error:", e)),
       doStreakAudit().catch((e) => console.error("Streak audit error:", e)),
     ]);
