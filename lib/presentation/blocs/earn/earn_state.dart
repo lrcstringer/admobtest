@@ -78,7 +78,7 @@ class EarnState with _$EarnState {
       selectedOpportunity?.earningType == EarningType.adVideo;
 
   /// Get total tokens earned today (from history)
-  int get tokensEarnedToday {
+  double get tokensEarnedToday {
     final today = DateTime.now();
     return history
         .where((e) =>
@@ -87,7 +87,7 @@ class EarnState with _$EarnState {
             e.completedAt!.month == today.month &&
             e.completedAt!.day == today.day &&
             e.tokensEarned != null)
-        .fold(0, (sum, e) => sum + (e.tokensEarned ?? 0));
+        .fold(0.0, (sum, e) => sum + (e.tokensEarned ?? 0.0));
   }
 
   /// Get completed engagements count

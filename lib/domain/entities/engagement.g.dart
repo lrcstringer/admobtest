@@ -27,7 +27,7 @@ _$EngagementImpl _$$EngagementImplFromJson(Map<String, dynamic> json) =>
           : EngagementEvidence.fromJson(
               json['evidence'] as Map<String, dynamic>,
             ),
-      tokensEarned: (json['tokensEarned'] as num?)?.toInt(),
+      tokensEarned: (json['tokensEarned'] as num?)?.toDouble(),
       failureReason: json['failureReason'] as String?,
       attemptNumber: (json['attemptNumber'] as num).toInt(),
       createdAt: DateTime.parse(json['createdAt'] as String),

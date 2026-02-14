@@ -32,7 +32,7 @@ mixin _$Engagement {
   int get requiredDurationSeconds => throw _privateConstructorUsedError;
   List<SurveyResponse> get answers => throw _privateConstructorUsedError;
   EngagementEvidence? get evidence => throw _privateConstructorUsedError;
-  int? get tokensEarned => throw _privateConstructorUsedError;
+  double? get tokensEarned => throw _privateConstructorUsedError;
   String? get failureReason => throw _privateConstructorUsedError;
   int get attemptNumber => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
@@ -88,7 +88,7 @@ abstract class $EngagementCopyWith<$Res> {
     int requiredDurationSeconds,
     List<SurveyResponse> answers,
     EngagementEvidence? evidence,
-    int? tokensEarned,
+    double? tokensEarned,
     String? failureReason,
     int attemptNumber,
     DateTime createdAt,
@@ -193,7 +193,7 @@ class _$EngagementCopyWithImpl<$Res, $Val extends Engagement>
             tokensEarned: freezed == tokensEarned
                 ? _value.tokensEarned
                 : tokensEarned // ignore: cast_nullable_to_non_nullable
-                      as int?,
+                      as double?,
             failureReason: freezed == failureReason
                 ? _value.failureReason
                 : failureReason // ignore: cast_nullable_to_non_nullable
@@ -279,7 +279,7 @@ abstract class _$$EngagementImplCopyWith<$Res>
     int requiredDurationSeconds,
     List<SurveyResponse> answers,
     EngagementEvidence? evidence,
-    int? tokensEarned,
+    double? tokensEarned,
     String? failureReason,
     int attemptNumber,
     DateTime createdAt,
@@ -384,7 +384,7 @@ class __$$EngagementImplCopyWithImpl<$Res>
         tokensEarned: freezed == tokensEarned
             ? _value.tokensEarned
             : tokensEarned // ignore: cast_nullable_to_non_nullable
-                  as int?,
+                  as double?,
         failureReason: freezed == failureReason
             ? _value.failureReason
             : failureReason // ignore: cast_nullable_to_non_nullable
@@ -496,7 +496,7 @@ class _$EngagementImpl extends _Engagement {
   @override
   final EngagementEvidence? evidence;
   @override
-  final int? tokensEarned;
+  final double? tokensEarned;
   @override
   final String? failureReason;
   @override
@@ -648,7 +648,7 @@ abstract class _Engagement extends Engagement {
     required final int requiredDurationSeconds,
     required final List<SurveyResponse> answers,
     final EngagementEvidence? evidence,
-    final int? tokensEarned,
+    final double? tokensEarned,
     final String? failureReason,
     required final int attemptNumber,
     required final DateTime createdAt,
@@ -689,7 +689,7 @@ abstract class _Engagement extends Engagement {
   @override
   EngagementEvidence? get evidence;
   @override
-  int? get tokensEarned;
+  double? get tokensEarned;
   @override
   String? get failureReason;
   @override

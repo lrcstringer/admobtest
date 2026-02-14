@@ -292,7 +292,7 @@ class EngagementModel with _$EngagementModel {
     required int requiredDurationSeconds,
     required List<SurveyResponseModel> answers,
     EngagementEvidenceModel? evidence,
-    int? tokensEarned,
+    double? tokensEarned,
     String? failureReason,
     required int attemptNumber,
     required DateTime createdAt,
@@ -342,7 +342,7 @@ class EngagementModel with _$EngagementModel {
       evidence: evidence is Map<String, dynamic>
           ? EngagementEvidenceModel.fromJson(evidence)
           : null,
-      tokensEarned: json['tokensEarned'] as int?,
+      tokensEarned: (json['tokensEarned'] as num?)?.toDouble(),
       failureReason: json['failureReason'] as String?,
       attemptNumber: json['attemptNumber'] as int? ?? 1,
       createdAt: createdAt is Timestamp

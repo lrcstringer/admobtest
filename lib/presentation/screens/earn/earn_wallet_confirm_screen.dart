@@ -295,8 +295,8 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                     ),
                                   ),
                                   SizedBox(height: AppSpacing.md),
-                                ] else ...[
-                                  // Token breakdown card
+                                ] else if (!isSubmitting) ...[
+                                  // Token breakdown card (only after CF completes)
                                   Card(
                                     child: Padding(
                                       padding:
@@ -409,8 +409,8 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                   SizedBox(height: AppSpacing.md),
                                 ],
 
-                                // Opportunity info
-                                if (opportunity != null)
+                                // Opportunity info (hidden during submitting)
+                                if (opportunity != null && !isSubmitting)
                                   Card(
                                     color: AppColors.surface,
                                     child: Padding(

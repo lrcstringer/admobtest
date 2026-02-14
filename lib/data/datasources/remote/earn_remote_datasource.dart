@@ -421,8 +421,8 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
         'completedAt': now.toIso8601String(),
         'updatedAt': now.toIso8601String(),
         // Include token data from CF response (pre-call doc doesn't have it)
-        'tokensEarned': resultData['tokensEarned'] as int? ?? 0,
-        'totalTokensGenerated': resultData['totalGenerated'] as int? ?? 0,
+        'tokensEarned': (resultData['tokensEarned'] as num?)?.toDouble() ?? 0.0,
+        'totalTokensGenerated': (resultData['totalGenerated'] as num?)?.toInt() ?? 0,
         'streakDayAtCompletion': resultData['streakDay'] as int?,
         'multiplierApplied':
             (resultData['multiplierApplied'] as num?)?.toDouble(),

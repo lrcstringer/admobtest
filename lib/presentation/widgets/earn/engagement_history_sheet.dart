@@ -139,7 +139,7 @@ class EngagementHistorySheet extends StatelessWidget {
                           }
 
                           final engagement = state.history[index];
-                          final totalTokens = engagement.tokensEarned ?? 0;
+                          final totalTokens = engagement.tokensEarned ?? 0.0;
 
                           return Card(
                             margin: EdgeInsets.only(bottom: AppSpacing.sm),
@@ -190,7 +190,7 @@ class EngagementHistorySheet extends StatelessWidget {
                                 children: [
                                   if (engagement.isComplete)
                                     Text(
-                                      '+$totalTokens',
+                                      '+${totalTokens == totalTokens.roundToDouble() ? totalTokens.toInt().toString() : totalTokens.toStringAsFixed(2)}',
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleMedium
@@ -223,11 +223,11 @@ class EngagementHistorySheet extends StatelessWidget {
     );
   }
 
-  Widget _buildEarningsBreakdown(BuildContext context, int totalTokens) {
-    // Calculate 90/5/5 split
-    final walletAmount = (totalTokens * 0.90).round();
-    final dailyPot = (totalTokens * 0.05).round();
-    final weeklyPot = totalTokens - walletAmount - dailyPot;
+  Widget _buildEarningsBreakdown(BuildContext context, double totalTokens) {
+    // Calculate exact 90/5/5 split — NO rounding
+    final dailyPot = totalTokens * 0.05;
+    final weeklyPot = totalTokens * 0.05;
+    final walletAmount = totalTokens - dailyPot - weeklyPot;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,7 +241,7 @@ class EngagementHistorySheet extends StatelessWidget {
             ),
             SizedBox(width: 4),
             Text(
-              '+$walletAmount to wallet',
+              '+${_fmtTokens(walletAmount)} to wallet',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w600,
@@ -250,7 +250,7 @@ class EngagementHistorySheet extends StatelessWidget {
           ],
         ),
         Text(
-          '+$dailyPot daily pot, +$weeklyPot weekly pot',
+          '+${_fmtTokens(dailyPot)} daily pot, +${_fmtTokens(weeklyPot)} weekly pot',
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -258,6 +258,9 @@ class EngagementHistorySheet extends StatelessWidget {
       ],
     );
   }
+
+  String _fmtTokens(double v) =>
+      v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(2);
 
   String _formatDate(DateTime date) {
     final now = DateTime.now();

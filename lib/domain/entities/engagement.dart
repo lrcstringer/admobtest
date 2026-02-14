@@ -20,7 +20,7 @@ class Engagement with _$Engagement {
     required int requiredDurationSeconds,
     required List<SurveyResponse> answers,
     EngagementEvidence? evidence,
-    int? tokensEarned,
+    double? tokensEarned,
     String? failureReason,
     required int attemptNumber,
     required DateTime createdAt,

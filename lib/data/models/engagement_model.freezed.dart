@@ -986,7 +986,7 @@ mixin _$EngagementModel {
   int get requiredDurationSeconds => throw _privateConstructorUsedError;
   List<SurveyResponseModel> get answers => throw _privateConstructorUsedError;
   EngagementEvidenceModel? get evidence => throw _privateConstructorUsedError;
-  int? get tokensEarned => throw _privateConstructorUsedError;
+  double? get tokensEarned => throw _privateConstructorUsedError;
   String? get failureReason => throw _privateConstructorUsedError;
   int get attemptNumber => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
@@ -1028,7 +1028,7 @@ abstract class $EngagementModelCopyWith<$Res> {
     int requiredDurationSeconds,
     List<SurveyResponseModel> answers,
     EngagementEvidenceModel? evidence,
-    int? tokensEarned,
+    double? tokensEarned,
     String? failureReason,
     int attemptNumber,
     DateTime createdAt,
@@ -1133,7 +1133,7 @@ class _$EngagementModelCopyWithImpl<$Res, $Val extends EngagementModel>
             tokensEarned: freezed == tokensEarned
                 ? _value.tokensEarned
                 : tokensEarned // ignore: cast_nullable_to_non_nullable
-                      as int?,
+                      as double?,
             failureReason: freezed == failureReason
                 ? _value.failureReason
                 : failureReason // ignore: cast_nullable_to_non_nullable
@@ -1219,7 +1219,7 @@ abstract class _$$EngagementModelImplCopyWith<$Res>
     int requiredDurationSeconds,
     List<SurveyResponseModel> answers,
     EngagementEvidenceModel? evidence,
-    int? tokensEarned,
+    double? tokensEarned,
     String? failureReason,
     int attemptNumber,
     DateTime createdAt,
@@ -1324,7 +1324,7 @@ class __$$EngagementModelImplCopyWithImpl<$Res>
         tokensEarned: freezed == tokensEarned
             ? _value.tokensEarned
             : tokensEarned // ignore: cast_nullable_to_non_nullable
-                  as int?,
+                  as double?,
         failureReason: freezed == failureReason
             ? _value.failureReason
             : failureReason // ignore: cast_nullable_to_non_nullable
@@ -1433,7 +1433,7 @@ class _$EngagementModelImpl extends _EngagementModel {
   @override
   final EngagementEvidenceModel? evidence;
   @override
-  final int? tokensEarned;
+  final double? tokensEarned;
   @override
   final String? failureReason;
   @override
@@ -1571,7 +1571,7 @@ abstract class _EngagementModel extends EngagementModel {
     required final int requiredDurationSeconds,
     required final List<SurveyResponseModel> answers,
     final EngagementEvidenceModel? evidence,
-    final int? tokensEarned,
+    final double? tokensEarned,
     final String? failureReason,
     required final int attemptNumber,
     required final DateTime createdAt,
@@ -1609,7 +1609,7 @@ abstract class _EngagementModel extends EngagementModel {
   @override
   EngagementEvidenceModel? get evidence;
   @override
-  int? get tokensEarned;
+  double? get tokensEarned;
   @override
   String? get failureReason;
   @override
