@@ -2133,6 +2133,31 @@ export const getEligibleInbox = functions.https.onCall(
     }
 
     // ========================================================================
+    // 3b. Batch-query user's completed engagements for these opportunities
+    // ========================================================================
+    const allOppIds = Array.from(oppsByThread.values())
+      .flat()
+      .map((o) => (o as Record<string, unknown>)._id as string)
+      .filter(Boolean);
+
+    const completedOppIds = new Set<string>();
+    const userId = context.auth!.uid;
+
+    for (let i = 0; i < allOppIds.length; i += 30) {
+      const batch = allOppIds.slice(i, i + 30);
+      const engSnap = await db
+        .collection("engagements")
+        .where("userId", "==", userId)
+        .where("earnOpportunityId", "in", batch)
+        .where("status", "==", "completed")
+        .get();
+
+      for (const doc of engSnap.docs) {
+        completedOppIds.add(doc.data().earnOpportunityId);
+      }
+    }
+
+    // ========================================================================
     // 4. Build client response objects
     // ========================================================================
     const clientResults: Record<string, unknown>[] = [];
@@ -2166,8 +2191,12 @@ export const getEligibleInbox = functions.https.onCall(
         let soonestExpiry: admin.firestore.Timestamp | null = null;
         let totalDurationSeconds = 0;
 
+        let completedByUser = 0;
+
         for (const opp of opps) {
-          opportunityIds.push(opp._id || '');
+          const oppId = opp._id || '';
+          opportunityIds.push(oppId);
+          if (completedOppIds.has(oppId)) completedByUser++;
           if (opp.rewardType) rewardTypesSet.add(opp.rewardType);
           if (opp.earningType) earningTypesSet.add(opp.earningType);
           totalDurationSeconds += (opp.durationSeconds || 0);
@@ -2194,7 +2223,8 @@ export const getEligibleInbox = functions.https.onCall(
           isPinned: thread.isPinned ?? false,
           isFeatured: thread.isFeatured ?? false,
           activeTo: thread.activeTo || null,
-          availableOpportunities: thread.availableOpportunities ?? 0,
+          availableOpportunities: opps.length,
+          completedByUser,
           totalTokenReward,
           rewardTypes: Array.from(rewardTypesSet),
           earningTypes: Array.from(earningTypesSet),

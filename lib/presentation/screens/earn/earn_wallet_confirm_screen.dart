@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/earn_opportunity.dart';
 import '../../blocs/earn/earn_bloc.dart';
+import '../../blocs/earn_inbox/earn_inbox_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -710,14 +711,16 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
   }
 
   void _goToEarn() {
-    // Reset engagement state before navigating
     context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
+    // Refresh inbox so completed opportunity shows updated state
+    context.read<EarnInboxBloc>().add(const EarnInboxEvent.loadInbox());
     context.go('/earn');
   }
 
   void _goToWallet() {
-    // Reset engagement state before navigating
     context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
+    // Refresh inbox so completed opportunity shows updated state
+    context.read<EarnInboxBloc>().add(const EarnInboxEvent.loadInbox());
     context.go('/wallet');
   }
 }

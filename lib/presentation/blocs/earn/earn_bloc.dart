@@ -190,6 +190,16 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _StartEngagement event,
     Emitter<EarnState> emit,
   ) async {
+    // Guard: don't start if already completed
+    final opp = state.selectedOpportunity;
+    if (opp != null && opp.id == event.opportunityId && opp.isCompletedByUser) {
+      emit(state.copyWith(
+        engagementPhase: EngagementPhase.failed,
+        errorMessage: 'Already completed this opportunity',
+      ));
+      return;
+    }
+
     emit(state.copyWith(engagementPhase: EngagementPhase.starting));
 
     final result = await _earnRepository.startEngagement(
@@ -241,26 +251,23 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _UpdateWatchProgress event,
     Emitter<EarnState> emit,
   ) async {
-    final result = await _earnRepository.updateEngagementProgress(
-      engagementId: event.engagementId,
+    // Progress is tracked locally — no Firestore write needed.
+    // The completeEngagement Cloud Function persists the final state.
+    final current = state.currentEngagement;
+    if (current == null || current.id != event.engagementId) return;
+
+    final updated = current.copyWith(
       watchDurationSeconds: event.watchDurationSeconds,
     );
 
-    result.fold(
-      (failure) {
-        // Don't fail the engagement for progress update errors
-      },
-      (engagement) {
-        final newPhase = engagement.watchRequirementMet
-            ? EngagementPhase.surveying
-            : EngagementPhase.watching;
+    final newPhase = updated.watchRequirementMet
+        ? EngagementPhase.surveying
+        : EngagementPhase.watching;
 
-        emit(state.copyWith(
-          currentEngagement: engagement,
-          engagementPhase: newPhase,
-        ));
-      },
-    );
+    emit(state.copyWith(
+      currentEngagement: updated,
+      engagementPhase: newPhase,
+    ));
   }
 
   Future<void> _onSubmitSurvey(

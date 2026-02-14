@@ -252,13 +252,25 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       // Video position-based progress
       if (_videoController == null) return;
       final position = _videoController!.value.position;
+      final duration = _videoController!.value.duration;
       _watchDurationMs = position.inMilliseconds;
+
+      // Detect video completion: position near end and no longer playing.
+      // position.inSeconds truncates, so a 10.0s video may report 9s at
+      // its last frame. When the video is done, credit the full duration.
+      final videoFinished = !_videoController!.value.isPlaying &&
+          position.inMilliseconds > 0 &&
+          (duration - position).inMilliseconds < 1000;
+
+      final watchSeconds = videoFinished
+          ? duration.inSeconds + 1 // round up to cover truncation
+          : position.inSeconds;
 
       if (state.currentEngagement != null) {
         context.read<EarnBloc>().add(
               EarnEvent.updateWatchProgress(
                 engagementId: state.currentEngagement!.id,
-                watchDurationSeconds: position.inSeconds,
+                watchDurationSeconds: watchSeconds,
               ),
             );
       }
@@ -468,7 +480,22 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           context.go('/earn/opportunity/${widget.opportunityId}/confirm');
         }
 
-        // Show error snackbar
+        // "Already completed" — pop back instead of showing error screen
+        if (state.engagementPhase == EngagementPhase.failed &&
+            state.errorMessage != null &&
+            state.errorMessage!.toLowerCase().contains('already completed')) {
+          context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('You already completed this opportunity'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          context.pop();
+          return;
+        }
+
+        // Show error snackbar for other failures
         if (state.engagementPhase == EngagementPhase.failed &&
             state.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(

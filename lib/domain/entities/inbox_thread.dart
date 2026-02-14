@@ -15,6 +15,7 @@ class InboxThread with _$InboxThread {
     required bool isFeatured,
     DateTime? activeTo,
     required int availableOpportunities,
+    @Default(0) int completedByUser,
     required int totalTokenReward,
     @Default([]) List<String> rewardTypes,
     @Default([]) List<String> earningTypes,
@@ -34,6 +35,10 @@ class InboxThread with _$InboxThread {
     if (soonestExpiry == null) return null;
     return soonestExpiry!.difference(DateTime.now()).inDays;
   }
+
+  /// Whether the user has completed all opportunities in this thread
+  bool get allCompleted =>
+      availableOpportunities > 0 && completedByUser >= availableOpportunities;
 
   /// Whether this thread is expiring within 5 days
   bool get isExpiringSoon {

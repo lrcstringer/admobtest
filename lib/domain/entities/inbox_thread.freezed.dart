@@ -29,6 +29,7 @@ mixin _$InboxThread {
   bool get isFeatured => throw _privateConstructorUsedError;
   DateTime? get activeTo => throw _privateConstructorUsedError;
   int get availableOpportunities => throw _privateConstructorUsedError;
+  int get completedByUser => throw _privateConstructorUsedError;
   int get totalTokenReward => throw _privateConstructorUsedError;
   List<String> get rewardTypes => throw _privateConstructorUsedError;
   List<String> get earningTypes => throw _privateConstructorUsedError;
@@ -63,6 +64,7 @@ abstract class $InboxThreadCopyWith<$Res> {
     bool isFeatured,
     DateTime? activeTo,
     int availableOpportunities,
+    int completedByUser,
     int totalTokenReward,
     List<String> rewardTypes,
     List<String> earningTypes,
@@ -96,6 +98,7 @@ class _$InboxThreadCopyWithImpl<$Res, $Val extends InboxThread>
     Object? isFeatured = null,
     Object? activeTo = freezed,
     Object? availableOpportunities = null,
+    Object? completedByUser = null,
     Object? totalTokenReward = null,
     Object? rewardTypes = null,
     Object? earningTypes = null,
@@ -137,6 +140,10 @@ class _$InboxThreadCopyWithImpl<$Res, $Val extends InboxThread>
             availableOpportunities: null == availableOpportunities
                 ? _value.availableOpportunities
                 : availableOpportunities // ignore: cast_nullable_to_non_nullable
+                      as int,
+            completedByUser: null == completedByUser
+                ? _value.completedByUser
+                : completedByUser // ignore: cast_nullable_to_non_nullable
                       as int,
             totalTokenReward: null == totalTokenReward
                 ? _value.totalTokenReward
@@ -190,6 +197,7 @@ abstract class _$$InboxThreadImplCopyWith<$Res>
     bool isFeatured,
     DateTime? activeTo,
     int availableOpportunities,
+    int completedByUser,
     int totalTokenReward,
     List<String> rewardTypes,
     List<String> earningTypes,
@@ -222,6 +230,7 @@ class __$$InboxThreadImplCopyWithImpl<$Res>
     Object? isFeatured = null,
     Object? activeTo = freezed,
     Object? availableOpportunities = null,
+    Object? completedByUser = null,
     Object? totalTokenReward = null,
     Object? rewardTypes = null,
     Object? earningTypes = null,
@@ -263,6 +272,10 @@ class __$$InboxThreadImplCopyWithImpl<$Res>
         availableOpportunities: null == availableOpportunities
             ? _value.availableOpportunities
             : availableOpportunities // ignore: cast_nullable_to_non_nullable
+                  as int,
+        completedByUser: null == completedByUser
+            ? _value.completedByUser
+            : completedByUser // ignore: cast_nullable_to_non_nullable
                   as int,
         totalTokenReward: null == totalTokenReward
             ? _value.totalTokenReward
@@ -309,6 +322,7 @@ class _$InboxThreadImpl extends _InboxThread {
     required this.isFeatured,
     this.activeTo,
     required this.availableOpportunities,
+    this.completedByUser = 0,
     required this.totalTokenReward,
     final List<String> rewardTypes = const [],
     final List<String> earningTypes = const [],
@@ -340,6 +354,9 @@ class _$InboxThreadImpl extends _InboxThread {
   final DateTime? activeTo;
   @override
   final int availableOpportunities;
+  @override
+  @JsonKey()
+  final int completedByUser;
   @override
   final int totalTokenReward;
   final List<String> _rewardTypes;
@@ -380,7 +397,7 @@ class _$InboxThreadImpl extends _InboxThread {
 
   @override
   String toString() {
-    return 'InboxThread(id: $id, title: $title, description: $description, threadImage: $threadImage, isPinned: $isPinned, isFeatured: $isFeatured, activeTo: $activeTo, availableOpportunities: $availableOpportunities, totalTokenReward: $totalTokenReward, rewardTypes: $rewardTypes, earningTypes: $earningTypes, estimatedDurationSeconds: $estimatedDurationSeconds, opportunityIds: $opportunityIds, hasRewardCampaign: $hasRewardCampaign, soonestExpiry: $soonestExpiry)';
+    return 'InboxThread(id: $id, title: $title, description: $description, threadImage: $threadImage, isPinned: $isPinned, isFeatured: $isFeatured, activeTo: $activeTo, availableOpportunities: $availableOpportunities, completedByUser: $completedByUser, totalTokenReward: $totalTokenReward, rewardTypes: $rewardTypes, earningTypes: $earningTypes, estimatedDurationSeconds: $estimatedDurationSeconds, opportunityIds: $opportunityIds, hasRewardCampaign: $hasRewardCampaign, soonestExpiry: $soonestExpiry)';
   }
 
   @override
@@ -402,6 +419,8 @@ class _$InboxThreadImpl extends _InboxThread {
                 other.activeTo == activeTo) &&
             (identical(other.availableOpportunities, availableOpportunities) ||
                 other.availableOpportunities == availableOpportunities) &&
+            (identical(other.completedByUser, completedByUser) ||
+                other.completedByUser == completedByUser) &&
             (identical(other.totalTokenReward, totalTokenReward) ||
                 other.totalTokenReward == totalTokenReward) &&
             const DeepCollectionEquality().equals(
@@ -439,6 +458,7 @@ class _$InboxThreadImpl extends _InboxThread {
     isFeatured,
     activeTo,
     availableOpportunities,
+    completedByUser,
     totalTokenReward,
     const DeepCollectionEquality().hash(_rewardTypes),
     const DeepCollectionEquality().hash(_earningTypes),
@@ -472,6 +492,7 @@ abstract class _InboxThread extends InboxThread {
     required final bool isFeatured,
     final DateTime? activeTo,
     required final int availableOpportunities,
+    final int completedByUser,
     required final int totalTokenReward,
     final List<String> rewardTypes,
     final List<String> earningTypes,
@@ -501,6 +522,8 @@ abstract class _InboxThread extends InboxThread {
   DateTime? get activeTo;
   @override
   int get availableOpportunities;
+  @override
+  int get completedByUser;
   @override
   int get totalTokenReward;
   @override

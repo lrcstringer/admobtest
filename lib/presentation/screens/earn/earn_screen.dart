@@ -820,12 +820,13 @@ class _EarnScreenState extends State<EarnScreen> {
     required String clientId,
     bool isDisabled = false,
   }) {
+    final allDone = thread.allCompleted;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Opacity(
-        opacity: isDisabled ? 0.5 : 1.0,
+        opacity: (isDisabled || allDone) ? 0.5 : 1.0,
         child: InkWell(
-          onTap: isDisabled
+          onTap: (isDisabled || allDone)
               ? null
               : () {
                   if (thread.isSingleOpportunity) {
@@ -956,11 +957,17 @@ class _EarnScreenState extends State<EarnScreen> {
                             if (thread.availableOpportunities > 1) ...[
                               const Spacer(),
                               Text(
-                                '${thread.availableOpportunities} opportunities',
+                                thread.completedByUser > 0
+                                    ? '${thread.completedByUser}/${thread.availableOpportunities} done'
+                                    : '${thread.availableOpportunities} opportunities',
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelSmall
-                                    ?.copyWith(color: AppColors.textSecondary),
+                                    ?.copyWith(
+                                      color: thread.completedByUser > 0
+                                          ? AppColors.success
+                                          : AppColors.textSecondary,
+                                    ),
                               ),
                             ],
                           ],
@@ -969,16 +976,23 @@ class _EarnScreenState extends State<EarnScreen> {
                       // Reward info row
                       Row(
                         children: [
-                          Icon(Icons.toll,
-                              size: 14, color: AppColors.gold),
+                          Icon(
+                            allDone ? Icons.check_circle_outline : Icons.toll,
+                            size: 14,
+                            color: allDone ? AppColors.success : AppColors.gold,
+                          ),
                           const SizedBox(width: 4),
                           Text(
-                            'Earn ${thread.totalTokenReward} tokens',
+                            allDone
+                                ? 'Completed'
+                                : 'Earn ${thread.totalTokenReward} tokens',
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall
                                 ?.copyWith(
-                                  color: AppColors.gold,
+                                  color: allDone
+                                      ? AppColors.success
+                                      : AppColors.gold,
                                   fontWeight: FontWeight.w600,
                                 ),
                           ),
@@ -1031,8 +1045,11 @@ class _EarnScreenState extends State<EarnScreen> {
                   ),
                 ),
                 AppSpacing.horizontalXs,
-                const Icon(Icons.chevron_right,
-                    size: 18, color: AppColors.textSecondary),
+                Icon(
+                  allDone ? Icons.check_circle : Icons.chevron_right,
+                  size: 18,
+                  color: allDone ? AppColors.success : AppColors.textSecondary,
+                ),
               ],
             ),
           ),

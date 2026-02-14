@@ -18,6 +18,7 @@ _$InboxThreadImpl _$$InboxThreadImplFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['activeTo'] as String),
       availableOpportunities: (json['availableOpportunities'] as num).toInt(),
+      completedByUser: (json['completedByUser'] as num?)?.toInt() ?? 0,
       totalTokenReward: (json['totalTokenReward'] as num).toInt(),
       rewardTypes:
           (json['rewardTypes'] as List<dynamic>?)
@@ -52,6 +53,7 @@ Map<String, dynamic> _$$InboxThreadImplToJson(_$InboxThreadImpl instance) =>
       'isFeatured': instance.isFeatured,
       'activeTo': instance.activeTo?.toIso8601String(),
       'availableOpportunities': instance.availableOpportunities,
+      'completedByUser': instance.completedByUser,
       'totalTokenReward': instance.totalTokenReward,
       'rewardTypes': instance.rewardTypes,
       'earningTypes': instance.earningTypes,
