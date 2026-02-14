@@ -23,6 +23,9 @@ class EarnScreen extends StatefulWidget {
 }
 
 class _EarnScreenState extends State<EarnScreen> {
+  /// Client IDs where "Expiring Soon" filter is active
+  final _expiringSoonFilter = <String>{};
+
   @override
   void initState() {
     super.initState();
@@ -452,11 +455,13 @@ class _EarnScreenState extends State<EarnScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Brands',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+            Flexible(
+              child: Text(
+                'Chat with brands, complete tasks, earn tokens.',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
             ),
             Text(
               '${state.totalAvailableOpportunities} opportunities',
@@ -547,12 +552,38 @@ class _EarnScreenState extends State<EarnScreen> {
                           ],
                         ),
                         AppSpacing.verticalXxs,
-                        Text(
-                          '${client.activeThreadCount} active campaign${client.activeThreadCount != 1 ? 's' : ''}',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                        Row(
+                          children: [
+                            Text(
+                              '${client.activeThreadCount} campaign${client.activeThreadCount != 1 ? 's' : ''}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(color: AppColors.textSecondary),
+                            ),
+                            if (client.totalTokens > 0) ...[
+                              Text(
+                                ' · ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(color: AppColors.textHint),
+                              ),
+                              Icon(Icons.toll,
+                                  size: 12, color: AppColors.gold),
+                              const SizedBox(width: 3),
+                              Text(
+                                '${client.totalTokens} tokens',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: AppColors.gold,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),
@@ -644,19 +675,142 @@ class _EarnScreenState extends State<EarnScreen> {
       );
     }
 
+    final expiringCount =
+        client.threads.where((t) => t.isExpiringSoon).length;
+    final showExpiring = _expiringSoonFilter.contains(client.clientId);
+
+    // Filter threads based on selected chip
+    final filteredThreads = showExpiring
+        ? client.threads.where((t) => t.isExpiringSoon).toList()
+        : client.threads.where((t) => !t.isExpiringSoon).toList();
+
     return Column(
       children: [
         const Divider(height: 1, indent: 14, endIndent: 14),
+        // Filter chips (only show if there are expiring threads)
+        if (expiringCount > 0)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+            child: Row(
+              children: [
+                _buildFilterChip(
+                  context,
+                  label: 'Current Offers',
+                  isSelected: !showExpiring,
+                  onTap: () => setState(() {
+                    _expiringSoonFilter.remove(client.clientId);
+                  }),
+                ),
+                const SizedBox(width: 8),
+                _buildFilterChip(
+                  context,
+                  label: 'Expiring Soon',
+                  count: expiringCount,
+                  isSelected: showExpiring,
+                  isUrgent: true,
+                  onTap: () => setState(() {
+                    _expiringSoonFilter.add(client.clientId);
+                  }),
+                ),
+              ],
+            ),
+          ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
+          padding: EdgeInsets.fromLTRB(
+              14, expiringCount > 0 ? 4 : 8, 14, 10),
           child: Column(
-            children: client.threads
-                .map((thread) => _buildThreadCard(context, thread,
-                    clientId: client.clientId, isDisabled: isDisabled))
-                .toList(),
+            children: filteredThreads.isEmpty
+                ? [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Text(
+                        showExpiring
+                            ? 'No offers expiring soon'
+                            : 'All offers are expiring soon!',
+                        style:
+                            Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppColors.textHint,
+                                ),
+                      ),
+                    ),
+                  ]
+                : filteredThreads
+                    .map((thread) => _buildThreadCard(context, thread,
+                        clientId: client.clientId, isDisabled: isDisabled))
+                    .toList(),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildFilterChip(
+    BuildContext context, {
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    int? count,
+    bool isUrgent = false,
+  }) {
+    final activeColor = isUrgent ? AppColors.error : AppColors.primary;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? activeColor.withValues(alpha: 0.15)
+              : Colors.transparent,
+          borderRadius: AppSpacing.borderRadiusSm,
+          border: Border.all(
+            color: isSelected
+                ? activeColor.withValues(alpha: 0.6)
+                : AppColors.border.withValues(alpha: 0.5),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isUrgent && isSelected) ...[
+              Icon(Icons.timer, size: 11, color: activeColor),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: isSelected ? activeColor : AppColors.textSecondary,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.normal,
+                  ),
+            ),
+            if (count != null) ...[
+              const SizedBox(width: 4),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? activeColor.withValues(alpha: 0.25)
+                      : AppColors.border.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '$count',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: isSelected
+                            ? activeColor
+                            : AppColors.textSecondary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -674,24 +828,45 @@ class _EarnScreenState extends State<EarnScreen> {
           onTap: isDisabled
               ? null
               : () {
-                  context
-                      .read<EarnBloc>()
-                      .add(EarnEvent.selectThread(thread.id));
-                  context.push('/earn/thread/${thread.id}');
+                  if (thread.isSingleOpportunity) {
+                    // Single opportunity — skip intermediate screen.
+                    // Engagement starts when user taps "Start Earning" on
+                    // the interaction screen.
+                    context
+                        .read<EarnBloc>()
+                        .add(EarnEvent.selectThread(thread.id));
+                    context.push(
+                        '/earn/opportunity/${thread.singleOpportunityId}');
+                  } else {
+                    // Multiple opportunities — show thread detail
+                    context
+                        .read<EarnBloc>()
+                        .add(EarnEvent.selectThread(thread.id));
+                    context.push('/earn/thread/${thread.id}');
+                  }
                 },
           borderRadius: AppSpacing.borderRadiusSm,
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.surfaceElevated,
-              borderRadius: AppSpacing.borderRadiusSm,
-              border: Border.all(
-                color: thread.isPinned
-                    ? AppColors.primary.withValues(alpha: 0.4)
-                    : thread.isFeatured
-                        ? AppColors.accent.withValues(alpha: 0.4)
-                        : AppColors.border.withValues(alpha: 0.5),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.alphaBlend(
+                    AppColors.tertiaryGradient[0]
+                        .withValues(alpha: 0.05),
+                    AppColors.surface,
+                  ),
+                  Color.alphaBlend(
+                    AppColors.tertiaryGradient[1]
+                        .withValues(alpha: 0.025),
+                    AppColors.surface,
+                  ),
+                ],
               ),
+              borderRadius: AppSpacing.borderRadiusSm,
+              border: Border.all(color: AppColors.border),
             ),
             child: Row(
               children: [
@@ -761,6 +936,36 @@ class _EarnScreenState extends State<EarnScreen> {
                         ),
                       ],
                       AppSpacing.verticalXs,
+                      // Duration and opps row
+                      if (thread.formattedDuration.isNotEmpty ||
+                          thread.availableOpportunities > 1)
+                        Row(
+                          children: [
+                            if (thread.formattedDuration.isNotEmpty) ...[
+                              Icon(Icons.schedule,
+                                  size: 11, color: AppColors.textHint),
+                              const SizedBox(width: 3),
+                              Text(
+                                thread.formattedDuration,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(color: AppColors.textSecondary),
+                              ),
+                            ],
+                            if (thread.availableOpportunities > 1) ...[
+                              const Spacer(),
+                              Text(
+                                '${thread.availableOpportunities} opportunities',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ],
+                        ),
+                      AppSpacing.verticalXxs,
                       // Reward info row
                       Row(
                         children: [
@@ -797,14 +1002,6 @@ class _EarnScreenState extends State<EarnScreen> {
                                   ),
                             ),
                           ],
-                          const Spacer(),
-                          Text(
-                            '${thread.availableOpportunities} opp${thread.availableOpportunities != 1 ? 's' : ''}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
-                                ?.copyWith(color: AppColors.textSecondary),
-                          ),
                         ],
                       ),
                       // Expiry warning

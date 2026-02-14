@@ -24,6 +24,18 @@ _$InboxThreadImpl _$$InboxThreadImplFromJson(Map<String, dynamic> json) =>
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      earningTypes:
+          (json['earningTypes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      estimatedDurationSeconds:
+          (json['estimatedDurationSeconds'] as num?)?.toInt() ?? 0,
+      opportunityIds:
+          (json['opportunityIds'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
       hasRewardCampaign: json['hasRewardCampaign'] as bool? ?? false,
       soonestExpiry: json['soonestExpiry'] == null
           ? null
@@ -42,6 +54,9 @@ Map<String, dynamic> _$$InboxThreadImplToJson(_$InboxThreadImpl instance) =>
       'availableOpportunities': instance.availableOpportunities,
       'totalTokenReward': instance.totalTokenReward,
       'rewardTypes': instance.rewardTypes,
+      'earningTypes': instance.earningTypes,
+      'estimatedDurationSeconds': instance.estimatedDurationSeconds,
+      'opportunityIds': instance.opportunityIds,
       'hasRewardCampaign': instance.hasRewardCampaign,
       'soonestExpiry': instance.soonestExpiry?.toIso8601String(),
     };

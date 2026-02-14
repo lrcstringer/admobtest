@@ -285,6 +285,11 @@ export async function initializeSystemAccounts(): Promise<void> {
       type: "client",
       name: "iMaliChat",
     },
+    {
+      id: SystemAccounts.POT_RESIDUAL,
+      type: "system",
+      name: "Pot Distribution Residual",
+    },
   ];
 
   const batch = db.batch();

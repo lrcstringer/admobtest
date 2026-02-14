@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../domain/entities/purchase.dart';
 import '../../blocs/purchase/purchase_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
@@ -40,9 +41,10 @@ class BuySuccessScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    ElevatedButton(
+                    AppButton(
+                      text: 'Back to Buy',
                       onPressed: () => context.go('/buy'),
-                      child: const Text('Back to Buy'),
+                      isFullWidth: false,
                     ),
                   ],
                 ),
@@ -150,26 +152,9 @@ class BuySuccessScreen extends StatelessWidget {
                 const SizedBox(height: 32),
 
                 // Action buttons
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => context.go('/buy'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Done',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                AppButton(
+                  text: 'Done',
+                  onPressed: () => context.go('/buy'),
                 ),
                 const SizedBox(height: 12),
                 SizedBox(

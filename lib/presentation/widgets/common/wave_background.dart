@@ -17,10 +17,14 @@ class WaveBackground extends StatelessWidget {
           top: 0,
           left: 0,
           right: 0,
-          child: Image.asset(
-            'assets/images/wave_feather_fixed_r7.png',
-            width: double.infinity,
-            fit: BoxFit.fitWidth,
+          child: Transform.scale(
+            scale: 1.2,
+            alignment: Alignment.topCenter,
+            child: Image.asset(
+              'assets/images/wave_feather_fixed_r7.png',
+              width: double.infinity,
+              fit: BoxFit.fitWidth,
+            ),
           ),
         ),
         child,

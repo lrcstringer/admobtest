@@ -396,6 +396,9 @@ export const createEarnOpportunity = functions.https.onCall(
       uploadTextMinChars = 10,
       uploadTextMaxChars = 1500,
       requiresAdminReview = false,
+      // Pin/feature flags for ordering
+      isPinned = false,
+      isFeatured = false,
     } = data;
 
     // Validate required fields
@@ -610,6 +613,9 @@ export const createEarnOpportunity = functions.https.onCall(
       uploadTextMinChars: uploadTextMinChars ?? 10,
       uploadTextMaxChars: uploadTextMaxChars ?? 1500,
       requiresAdminReview: requiresAdminReview ?? false,
+      // Pin/feature flags for ordering
+      isPinned: isPinned ?? false,
+      isFeatured: isFeatured ?? false,
       // Budget cap fields
       tokenBudget: tokenBudget ?? null,
       tokenSpent: existingOpportunity.exists
@@ -1264,7 +1270,7 @@ export const getEligibleOpportunities = functions.https.onCall(
       });
     }
 
-    // Sort by: completed first (for "continue" UX), then tokenReward descending
+    // Sort by: in-progress first, completed last, then pinned, featured, tokenReward
     eligibleOpportunities.sort((a, b) => {
       // In-progress engagements first
       const aInProgress = a.userEngagementStatus === "started" || a.userEngagementStatus === "watching";
@@ -1277,6 +1283,18 @@ export const getEligibleOpportunities = functions.https.onCall(
       const bCompleted = b.userEngagementStatus === "completed";
       if (aCompleted && !bCompleted) return 1;
       if (!aCompleted && bCompleted) return -1;
+
+      // Pinned opportunities first
+      const aPinned = a.isPinned === true;
+      const bPinned = b.isPinned === true;
+      if (aPinned && !bPinned) return -1;
+      if (!aPinned && bPinned) return 1;
+
+      // Featured opportunities next
+      const aFeatured = a.isFeatured === true;
+      const bFeatured = b.isFeatured === true;
+      if (aFeatured && !bFeatured) return -1;
+      if (!aFeatured && bFeatured) return 1;
 
       // Then by token reward (highest first)
       return (b.tokenReward || 0) - (a.tokenReward || 0);
@@ -2110,7 +2128,7 @@ export const getEligibleInbox = functions.https.onCall(
         if (!oppsByThread.has(tid)) {
           oppsByThread.set(tid, []);
         }
-        oppsByThread.get(tid)!.push(opp);
+        oppsByThread.get(tid)!.push({ ...opp, _id: oppDoc.id });
       }
     }
 
@@ -2142,11 +2160,17 @@ export const getEligibleInbox = functions.https.onCall(
           (sum, o) => sum + (o.tokenReward || 0), 0
         );
         const rewardTypesSet = new Set<string>();
+        const earningTypesSet = new Set<string>();
+        const opportunityIds: string[] = [];
         let hasRewardCampaign = false;
         let soonestExpiry: admin.firestore.Timestamp | null = null;
+        let totalDurationSeconds = 0;
 
         for (const opp of opps) {
+          opportunityIds.push(opp._id || '');
           if (opp.rewardType) rewardTypesSet.add(opp.rewardType);
+          if (opp.earningType) earningTypesSet.add(opp.earningType);
+          totalDurationSeconds += (opp.durationSeconds || 0);
           if (opp.rewardCampaignId) hasRewardCampaign = true;
           if (opp.expiresAt) {
             if (!soonestExpiry || opp.expiresAt.toMillis() < soonestExpiry.toMillis()) {
@@ -2173,6 +2197,9 @@ export const getEligibleInbox = functions.https.onCall(
           availableOpportunities: thread.availableOpportunities ?? 0,
           totalTokenReward,
           rewardTypes: Array.from(rewardTypesSet),
+          earningTypes: Array.from(earningTypesSet),
+          estimatedDurationSeconds: totalDurationSeconds,
+          opportunityIds,
           hasRewardCampaign,
           soonestExpiry,
         });

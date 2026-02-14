@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/onboarding/onboarding_progress_indicator.dart';
 
 class PermissionsScreen extends StatefulWidget {
@@ -105,7 +106,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                       width: mascotSize,
                       height: mascotSize,
                       child: Image.asset(
-                        'assets/icons/elephantFinal2.png',
+                        'assets/icons/iMaliCrown4.png',
                         width: mascotSize,
                         height: mascotSize,
                         fit: BoxFit.contain,
@@ -216,37 +217,11 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 48, vertical: 24),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _onContinue,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: const Color(0xFF0D1028),
-                            disabledBackgroundColor:
-                                AppColors.primary.withValues(alpha: 0.5),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Text(
-                                  'Continue',
-                                  style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                        ),
+                      child: AppButton(
+                        text: 'Continue',
+                        onPressed: _onContinue,
+                        isLoading: _isLoading,
+                        size: AppButtonSize.large,
                       ),
                     ),
 

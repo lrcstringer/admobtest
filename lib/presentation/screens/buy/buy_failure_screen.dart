@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../blocs/purchase/purchase_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
@@ -165,32 +166,15 @@ class BuyFailureScreen extends StatelessWidget {
                 const SizedBox(height: 32),
 
                 // Action buttons
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Clear error and try again
-                      context.read<PurchaseBloc>().add(
-                            const PurchaseEvent.clearError(),
-                          );
-                      context.pop();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Try Again',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                AppButton(
+                  text: 'Try Again',
+                  onPressed: () {
+                    // Clear error and try again
+                    context.read<PurchaseBloc>().add(
+                          const PurchaseEvent.clearError(),
+                        );
+                    context.pop();
+                  },
                 ),
                 const SizedBox(height: 12),
                 SizedBox(

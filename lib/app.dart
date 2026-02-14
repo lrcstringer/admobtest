@@ -165,6 +165,10 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     // Only check session lock if user is authenticated
     if (_authBloc.state.status != AuthStatus.authenticated &&
         _authBloc.state.status != AuthStatus.sessionLocked) {
+      // Discard any background timestamp so it doesn't linger and cause
+      // a spurious lock after auth completes (e.g. user switched to SMS
+      // app during OTP flow, came back, then authenticated).
+      _sessionLockService.discardBackgroundTimestamp();
       return;
     }
 

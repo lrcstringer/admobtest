@@ -11,6 +11,7 @@ import '../../../domain/enums/reward_enums.dart';
 import '../../blocs/reward/reward_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
 class RewardItemDetailScreen extends StatefulWidget {
@@ -88,11 +89,12 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
                     textAlign: TextAlign.center,
                   ),
                   AppSpacing.verticalLg,
-                  ElevatedButton(
+                  AppButton(
+                    text: 'Retry',
                     onPressed: () => context
                         .read<RewardBloc>()
                         .add(RewardEvent.loadItemDetail(widget.rewardId)),
-                    child: const Text('Retry'),
+                    isFullWidth: false,
                   ),
                 ],
               ),
@@ -601,35 +603,10 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
     // Active — show "Mark as Used" button
     final isRedeeming = state.redeemStatus == RewardLoadStatus.loading;
 
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: isRedeeming ? null : () => _confirmRedeem(context, item),
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: AppSpacing.borderRadiusMd,
-          ),
-        ),
-        child: isRedeeming
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : const Text(
-                'Mark as Used',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-      ),
+    return AppButton(
+      text: 'Mark as Used',
+      onPressed: isRedeeming ? null : () => _confirmRedeem(context, item),
+      isLoading: isRedeeming,
     );
   }
 
@@ -646,18 +623,15 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
             onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          AppButton(
+            text: 'Yes, I Used It',
             onPressed: () {
               Navigator.pop(dialogContext);
               context
                   .read<RewardBloc>()
                   .add(RewardEvent.redeemItem(item.id));
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Yes, I Used It'),
+            isFullWidth: false,
           ),
         ],
       ),

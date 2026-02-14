@@ -43,6 +43,7 @@ export const SystemAccounts = {
   CASHOUT_PENDING: "system:cashout_pending", // Pending cashout holding
   ENGAGEMENT_ESCROW: "system:escrow", // Engagement token reservation holding
   IMALICHAT_CLIENT: "client:imalichat", // iMaliChat's own client account
+  POT_RESIDUAL: "system:pot_residual", // Rounding residual from pot distributions
 } as const;
 
 /**
@@ -95,6 +96,7 @@ export type JournalType =
   | "subacc_fund" // Client -> Sub-Account funding
   | "escrow_reserve" // Tokens source → escrow at engagement start
   | "escrow_release" // Tokens escrow → user/pots/source at engagement completion
+  | "pot_residual" // Rounding residual swept from pot at distribution time
   | "reversal" // Reversal of a previous journal
   | "adjustment" // Manual admin adjustment
   // Group transactions

@@ -6,6 +6,7 @@ import '../../../domain/entities/referral.dart';
 import '../../blocs/referral/referral_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
@@ -175,7 +176,17 @@ class _ReferralScreenState extends State<ReferralScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(
+              iconColor.withValues(alpha: 0.08),
+              AppColors.surface,
+            ),
+            AppColors.surface,
+          ],
+        ),
         borderRadius: AppSpacing.borderRadiusMd,
         border: Border.all(color: AppColors.border),
       ),
@@ -206,38 +217,14 @@ class _ReferralScreenState extends State<ReferralScreen> {
   // 2. Primary CTA — gradient "Invite Friends" button
   // ---------------------------------------------------------------------------
   Widget _buildInviteCTA(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: AppColors.primaryGradient),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: ElevatedButton.icon(
-          onPressed: () {
-            context.read<ReferralBloc>().add(
-                  const ReferralEvent.shareReferral(platform: 'share'),
-                );
-          },
-          icon: const Icon(Icons.person_add, size: 20),
-          label: Text(
-            'Invite Friends',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-        ),
-      ),
+    return AppButton(
+      text: 'Invite Friends',
+      onPressed: () {
+        context.read<ReferralBloc>().add(
+              const ReferralEvent.shareReferral(platform: 'share'),
+            );
+      },
+      icon: Icons.person_add,
     );
   }
 
@@ -248,7 +235,20 @@ class _ReferralScreenState extends State<ReferralScreen> {
     return Container(
       padding: AppSpacing.cardPaddingLarge,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(
+              AppColors.primaryGradient[0].withValues(alpha: 0.05),
+              AppColors.surface,
+            ),
+            Color.alphaBlend(
+              AppColors.primaryGradient[1].withValues(alpha: 0.025),
+              AppColors.surface,
+            ),
+          ],
+        ),
         borderRadius: AppSpacing.borderRadiusLg,
         border: Border.all(color: AppColors.border),
       ),
@@ -489,7 +489,12 @@ class _ReferralScreenState extends State<ReferralScreen> {
     return Container(
       padding: AppSpacing.cardPadding,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: isJoined
+            ? Color.alphaBlend(
+                AppColors.success.withValues(alpha: 0.04),
+                AppColors.surface,
+              )
+            : AppColors.surface,
         borderRadius: AppSpacing.borderRadiusMd,
         border: Border.all(color: AppColors.border),
       ),
@@ -651,12 +656,9 @@ class _ReferralScreenState extends State<ReferralScreen> {
                   _buildExplainerStep(context, '4',
                       'As your friends keep watching ads and completing surveys, your assist score grows.'),
                   const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Got it'),
-                    ),
+                  AppButton(
+                    text: 'Got it',
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
@@ -795,29 +797,18 @@ class _ReferralScreenState extends State<ReferralScreen> {
               AppSpacing.verticalLg,
               BlocBuilder<ReferralBloc, ReferralState>(
                 builder: (context, state) {
-                  return SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: state.isApplying ||
-                              controller.text.length < 6 ||
-                              state.isCodeValid == false
-                          ? null
-                          : () {
-                              bloc.add(ReferralEvent.applyCode(
-                                  controller.text));
-                              Navigator.pop(context);
-                            },
-                      child: state.isApplying
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text('Apply Code'),
-                    ),
+                  return AppButton(
+                    text: 'Apply Code',
+                    isLoading: state.isApplying,
+                    onPressed: state.isApplying ||
+                            controller.text.length < 6 ||
+                            state.isCodeValid == false
+                        ? null
+                        : () {
+                            bloc.add(ReferralEvent.applyCode(
+                                controller.text));
+                            Navigator.pop(context);
+                          },
                   );
                 },
               ),

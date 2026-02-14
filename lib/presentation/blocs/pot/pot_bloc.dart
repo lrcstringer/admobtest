@@ -83,7 +83,7 @@ class PotBloc extends Bloc<PotEvent, PotState> {
     _dailyPotSubscription = _gamificationRepository.watchPot(PotType.daily).listen(
       (result) {
         result.fold(
-          (failure) {},
+          (failure) => add(const PotEvent.loadDailyPot()),
           (pot) => add(PotEvent.dailyPotUpdated(pot)),
         );
       },
@@ -98,7 +98,7 @@ class PotBloc extends Bloc<PotEvent, PotState> {
     _weeklyPotSubscription = _gamificationRepository.watchPot(PotType.weekly).listen(
       (result) {
         result.fold(
-          (failure) {},
+          (failure) => add(const PotEvent.loadWeeklyPot()),
           (pot) => add(PotEvent.weeklyPotUpdated(pot)),
         );
       },

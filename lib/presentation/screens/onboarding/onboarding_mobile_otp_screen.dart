@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../theme/app_colors.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/onboarding/onboarding_progress_indicator.dart';
 
 class OnboardingMobileOtpScreen extends StatefulWidget {
@@ -90,7 +91,7 @@ class _OnboardingMobileOtpScreenState
                 width: mascotSize,
                 height: mascotSize,
                 child: Image.asset(
-                  'assets/icons/elephantFinal2.png',
+                  'assets/icons/iMaliCrown4.png',
                   width: mascotSize,
                   height: mascotSize,
                   fit: BoxFit.contain,
@@ -281,25 +282,9 @@ class _OnboardingMobileOtpScreenState
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: () => context.go('/onboarding/picture'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: const Color(0xFF0D1028),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Continue',
-                      style:
-                          TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-                    ),
-                  ),
+                child: AppButton(
+                  text: 'Continue',
+                  onPressed: () => context.go('/onboarding/picture'),
                 ),
               ),
 

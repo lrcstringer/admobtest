@@ -18,6 +18,7 @@ import * as admin from "firebase-admin";
 import * as crypto from "crypto";
 import * as https from "https";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
+import { getSASTDayStart, getSASTWeekStart, SAST_OFFSET_MS } from "./pots";
 import {
   processEarningWithSplit,
   LedgerConfig,
@@ -110,6 +111,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
   let resolvedClientId: string | null = null;
   let resolvedTokenSourceAccountId: string | null = null;
   let bonusRewardMultiplier = 1;
+  let resolvedRequiredDuration = 0;
   let escrowAmount = 0;
   let escrowJournalId: string | null = null;
 
@@ -153,6 +155,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     engagementType = opportunity.earningType || opportunity.mediaType || "video";
     resolvedCampaignId = opportunity.campaignId || null;
     resolvedThreadId = opportunity.threadId || threadId || null;
+    resolvedRequiredDuration = opportunity.durationSeconds ?? 0;
     // Capture bonus multiplier for escrow reservation (max possible payout)
     if (opportunity.bonusReward && opportunity.bonusRewardMultiplier) {
       bonusRewardMultiplier = opportunity.bonusRewardMultiplier;
@@ -310,7 +313,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     rewardAmount: rewardAmount,
     streakPoints: streakPoints, // Streak points from opportunity
     watchDurationSeconds: 0,
-    requiredDurationSeconds: 0, // Will be updated by client
+    requiredDurationSeconds: resolvedRequiredDuration,
     answers: [],
     attemptNumber: 1,
     startedAt: now,
@@ -541,7 +544,10 @@ export const processEngagement = functions.https.onCall(
     const campaignId = engagement.campaignId || engagement.audienceCampaignId;
 
     // Calculate user's share for display (90% of total reward)
+    // Pot shares are unrounded — rounding deferred to distribution time
     const userShare = Math.floor(rewardAmount * LedgerConfig.EARNING_USER_SHARE);
+    const dailyPotShare = rewardAmount * LedgerConfig.EARNING_DAILY_POT_SHARE;
+    const weeklyPotShare = rewardAmount - userShare - dailyPotShare;
 
     // ===========================================================================
     // Client-funded token flow: fetch thread and validate budget
@@ -694,69 +700,7 @@ export const processEngagement = functions.https.onCall(
       );
     }
 
-    // ===========================================================================
-    // Budget monitoring: check for low balance warnings and depletion
-    // ===========================================================================
-    const monitorSourceAccountId = tokenSourceAccountId || engagementTokenSourceAccountId;
-    if (monitorSourceAccountId) {
-      try {
-        // Read balance from ledger (authoritative source)
-        const currentBalance = await getBalance(monitorSourceAccountId);
-
-        // Check for budget depletion
-        if (currentBalance <= 0) {
-          // Parse the sub-account Firestore ID from the ledger account ID
-          const subAccFirestoreId = AccountId.parseClientSubAccountId(monitorSourceAccountId);
-
-          if (subAccFirestoreId && clientId) {
-            // Mark Firestore metadata doc as budget-exhausted
-            await db
-              .collection("clients")
-              .doc(clientId)
-              .collection("subAccounts")
-              .doc(subAccFirestoreId)
-              .update({
-                budgetExhausted: true,
-                depletedAt: admin.firestore.FieldValue.serverTimestamp(),
-              });
-          }
-
-          // Mark threads linked to this token source as budget-exhausted
-          const threadsToExhaust = await db
-            .collection("earnThreads")
-            .where("tokenSourceAccountId", "==", monitorSourceAccountId)
-            .where("budgetExhausted", "!=", true)
-            .get();
-
-          if (!threadsToExhaust.empty) {
-            const batch = db.batch();
-            for (const threadDoc of threadsToExhaust.docs) {
-              batch.update(threadDoc.ref, {
-                budgetExhausted: true,
-                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-              });
-            }
-            await batch.commit();
-          }
-
-          // Create admin notification for depletion
-          await db.collection("adminNotifications").add({
-            type: "budget_depleted",
-            clientId: clientId,
-            tokenSourceAccountId: monitorSourceAccountId,
-            threadsExhausted: threadsToExhaust.size,
-            message: `Token source ${monitorSourceAccountId} budget depleted. ${threadsToExhaust.size} threads marked as budget-exhausted.`,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            read: false,
-          });
-        }
-      } catch (budgetError) {
-        console.error("Failed to process budget monitoring:", budgetError);
-        // Don't fail the engagement for budget monitoring errors
-      }
-    }
-
-    // Update engagement and related records in transaction
+    // Update engagement and related records in transaction (CRITICAL — must complete)
     await db.runTransaction(async (transaction) => {
       // Update engagement with Flutter-compatible fields
       transaction.update(engagementDoc.ref, {
@@ -793,23 +737,63 @@ export const processEngagement = functions.https.onCall(
       }
 
       // Update pot entries (tracks user's draw eligibility, not actual pot balance)
-      // Pot balances are now managed by the ledger
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      // Use SAST-aware date so pot entry IDs match the SAST calendar day
+      const today = getSASTDayStart();
+      const sastNow = new Date(Date.now() + SAST_OFFSET_MS);
+      const sastDateStr = `${sastNow.getUTCFullYear()}-${String(sastNow.getUTCMonth() + 1).padStart(2, "0")}-${String(sastNow.getUTCDate()).padStart(2, "0")}`;
       const potEntryRef = db
         .collection("potEntries")
-        .doc(`${userId}_${today.toISOString().split("T")[0]}`);
+        .doc(`${userId}_${sastDateStr}`);
       transaction.set(
         potEntryRef,
         {
           userId: userId,
-          date: today.toISOString().split("T")[0],
+          date: sastDateStr,
           entries: admin.firestore.FieldValue.increment(rewardAmount),
           ledgerJournalId: ledgerResult.journalId,
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         },
         { merge: true }
       );
+
+      // Update Firestore pot running totals (Flutter reads these for display)
+      // IDs must match those created by initializeDailyPot/initializeWeeklyPot in pots.ts
+      const dailyPotId = `daily_${today.getTime()}`;
+      const dailyPotRef = db.collection("pots").doc(dailyPotId);
+      if (dailyPotShare > 0) {
+        transaction.set(
+          dailyPotRef,
+          {
+            id: dailyPotId,
+            type: "daily",
+            totalTokens: admin.firestore.FieldValue.increment(dailyPotShare),
+            participantCount: admin.firestore.FieldValue.increment(1),
+            isActive: true,
+            isDistributed: false,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+      }
+
+      const weekStart = getSASTWeekStart();
+      const weeklyPotId = `weekly_${weekStart.getTime()}`;
+      const weeklyPotRef = db.collection("pots").doc(weeklyPotId);
+      if (weeklyPotShare > 0) {
+        transaction.set(
+          weeklyPotRef,
+          {
+            id: weeklyPotId,
+            type: "weekly",
+            totalTokens: admin.firestore.FieldValue.increment(weeklyPotShare),
+            participantCount: admin.firestore.FieldValue.increment(1),
+            isActive: true,
+            isDistributed: false,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+      }
 
       // Update earn thread completed count if present
       if (engagement.threadId) {
@@ -822,114 +806,166 @@ export const processEngagement = functions.https.onCall(
       }
     });
 
-    // ===========================================================================
-    // Targeting tracking updates
-    // ===========================================================================
-
-    // Update user's interactedClientIds for previousBrandInteraction targeting
-    if (clientId) {
-      try {
-        await db
-          .collection("users")
-          .doc(userId)
-          .update({
-            interactedClientIds: admin.firestore.FieldValue.arrayUnion(clientId),
-          });
-      } catch (clientTrackingError) {
-        console.error("Failed to update interactedClientIds:", clientTrackingError);
-      }
-    }
-
-    // Update thread's completedUniqueUsers for maxAudience targeting
-    if (engagement.threadId) {
-      try {
-        // Check if this is the user's first completed engagement for this thread
-        const previousCompletedEngagements = await db
-          .collection("engagements")
-          .where("userId", "==", userId)
-          .where("threadId", "==", engagement.threadId)
-          .where("status", "==", EngagementStatus.COMPLETED)
-          .limit(2)
-          .get();
-
-        // If this is the only completed engagement (the one we just updated),
-        // increment the uniqueUsers counter
-        if (previousCompletedEngagements.size === 1) {
-          await db
-            .collection("earnThreads")
-            .doc(engagement.threadId)
-            .update({
-              completedUniqueUsers: admin.firestore.FieldValue.increment(1),
-            });
-        }
-      } catch (uniqueUsersError) {
-        console.error("Failed to update completedUniqueUsers:", uniqueUsersError);
-      }
-    }
-
-    // ===========================================================================
-    // Opportunity-level budget tracking
-    // ===========================================================================
-    if (engagement.earnOpportunityId) {
-      try {
-        const oppRef = db
-          .collection("earnOpportunities")
-          .doc(engagement.earnOpportunityId);
-        const oppDoc = await oppRef.get();
-        if (oppDoc.exists) {
-          const oppData = oppDoc.data()!;
-          const tokenBudget = oppData.tokenBudget;
-          if (tokenBudget != null && tokenBudget > 0) {
-            const newSpent = (oppData.tokenSpent || 0) + rewardAmount;
-            const updates: Record<string, unknown> = {
-              tokenSpent: admin.firestore.FieldValue.increment(rewardAmount),
-              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            };
-            if (newSpent >= tokenBudget) {
-              updates.budgetExhausted = true;
-              // Create admin notification for opportunity budget depletion
-              await db.collection("adminNotifications").add({
-                type: "opportunity_budget_depleted",
-                opportunityId: engagement.earnOpportunityId,
-                threadId: engagement.threadId,
-                clientId: clientId,
-                tokenBudget,
-                tokenSpent: newSpent,
-                message: `Opportunity "${oppData.title}" budget exhausted (${newSpent}/${tokenBudget} tokens)`,
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                read: false,
-              });
-            }
-            await oppRef.update(updates);
-          }
-        }
-      } catch (oppBudgetError) {
-        console.error("Failed to track opportunity budget:", oppBudgetError);
-        // Don't fail the engagement for budget tracking errors
-      }
-    }
-
-    // Update engagement stats (streak tracking) - NEW SYSTEM
-    // Get streakPoints from engagement (defaults to 1 for backward compatibility)
+    // =========================================================================
+    // PARALLEL BATCH 1: streak stats + reward check + budget/targeting tracking
+    // These are all independent — run concurrently to cut ~1.5s of serial awaits
+    // =========================================================================
     const engagementStreakPoints = engagement.streakPoints ?? 1;
+    const monitorSourceAccountId = tokenSourceAccountId || engagementTokenSourceAccountId;
 
-    let streakInfo = {
+    const defaultStreak = {
       currentStreak: 1,
       longestStreak: 1,
       multiplier: 1.0,
       isNewDay: true,
       streakBroken: false,
     };
-    try {
-      streakInfo = await updateEngagementStats(userId, userShare, engagementStreakPoints);
-    } catch (statsError) {
-      // Log but don't fail - streak update is secondary
-      console.error("Failed to update engagement stats:", statsError);
-    }
 
-    // Update daily score for pot leaderboard - NEW SYSTEM
-    try {
-      // Get user profile for leaderboard display
+    // Helper: budget monitoring
+    const doBudgetMonitoring = async () => {
+      if (!monitorSourceAccountId) return;
+      const currentBalance = await getBalance(monitorSourceAccountId);
+      if (currentBalance <= 0) {
+        const subAccFirestoreId = AccountId.parseClientSubAccountId(monitorSourceAccountId);
+        if (subAccFirestoreId && clientId) {
+          await db
+            .collection("clients").doc(clientId)
+            .collection("subAccounts").doc(subAccFirestoreId)
+            .update({
+              budgetExhausted: true,
+              depletedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+        }
+        const threadsToExhaust = await db
+          .collection("earnThreads")
+          .where("tokenSourceAccountId", "==", monitorSourceAccountId)
+          .where("budgetExhausted", "!=", true)
+          .get();
+        if (!threadsToExhaust.empty) {
+          const batch = db.batch();
+          for (const threadDoc of threadsToExhaust.docs) {
+            batch.update(threadDoc.ref, {
+              budgetExhausted: true,
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+          }
+          await batch.commit();
+        }
+        await db.collection("adminNotifications").add({
+          type: "budget_depleted",
+          clientId: clientId,
+          tokenSourceAccountId: monitorSourceAccountId,
+          threadsExhausted: threadsToExhaust.size,
+          message: `Token source ${monitorSourceAccountId} budget depleted. ${threadsToExhaust.size} threads marked as budget-exhausted.`,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          read: false,
+        });
+      }
+    };
+
+    // Helper: targeting tracking
+    const doTargetingTracking = async () => {
+      if (clientId) {
+        await db.collection("users").doc(userId).update({
+          interactedClientIds: admin.firestore.FieldValue.arrayUnion(clientId),
+        });
+      }
+      if (engagement.threadId) {
+        const previousCompleted = await db
+          .collection("engagements")
+          .where("userId", "==", userId)
+          .where("threadId", "==", engagement.threadId)
+          .where("status", "==", EngagementStatus.COMPLETED)
+          .limit(2)
+          .get();
+        if (previousCompleted.size === 1) {
+          await db.collection("earnThreads").doc(engagement.threadId).update({
+            completedUniqueUsers: admin.firestore.FieldValue.increment(1),
+          });
+        }
+      }
+    };
+
+    // Helper: opportunity budget tracking
+    const doOpportunityBudgetTracking = async () => {
+      if (!engagement.earnOpportunityId) return;
+      const oppRef = db.collection("earnOpportunities").doc(engagement.earnOpportunityId);
+      const oppDoc = await oppRef.get();
+      if (!oppDoc.exists) return;
+      const oppData = oppDoc.data()!;
+      const tokenBudget = oppData.tokenBudget;
+      if (tokenBudget == null || tokenBudget <= 0) return;
+      const newSpent = (oppData.tokenSpent || 0) + rewardAmount;
+      const updates: Record<string, unknown> = {
+        tokenSpent: admin.firestore.FieldValue.increment(rewardAmount),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
+      if (newSpent >= tokenBudget) {
+        updates.budgetExhausted = true;
+        await db.collection("adminNotifications").add({
+          type: "opportunity_budget_depleted",
+          opportunityId: engagement.earnOpportunityId,
+          threadId: engagement.threadId,
+          clientId: clientId,
+          tokenBudget,
+          tokenSpent: newSpent,
+          message: `Opportunity "${oppData.title}" budget exhausted (${newSpent}/${tokenBudget} tokens)`,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          read: false,
+        });
+      }
+      await oppRef.update(updates);
+    };
+
+    // Helper: reward allocation check
+    const doRewardAllocation = async (): Promise<{
+      rewardPending: boolean;
+      rewardCampaignName: string | null;
+      rewardType: string | null;
+    }> => {
+      if (!engagement.earnOpportunityId) {
+        return { rewardPending: false, rewardCampaignName: null, rewardType: null };
+      }
+      const oppDoc = await db
+        .collection("earnOpportunities")
+        .doc(engagement.earnOpportunityId)
+        .get();
+      if (!oppDoc.exists) {
+        return { rewardPending: false, rewardCampaignName: null, rewardType: null };
+      }
+      const oppData = oppDoc.data()!;
+      if (!oppData.rewardCampaignId) {
+        return { rewardPending: false, rewardCampaignName: null, rewardType: null };
+      }
+      await enqueueRewardAllocation(userId, oppData.rewardCampaignId, engagementId);
+      return {
+        rewardPending: true,
+        rewardCampaignName: oppData.rewardCampaignName || null,
+        rewardType: oppData.rewardType || null,
+      };
+    };
+
+    // Run all parallel batch 1 operations concurrently
+    const [streakInfo, , , , rewardInfo] = await Promise.all([
+      updateEngagementStats(userId, userShare, engagementStreakPoints)
+        .catch((e) => { console.error("Streak stats error:", e); return defaultStreak; }),
+      doBudgetMonitoring()
+        .catch((e) => console.error("Budget monitoring error:", e)),
+      doTargetingTracking()
+        .catch((e) => console.error("Targeting tracking error:", e)),
+      doOpportunityBudgetTracking()
+        .catch((e) => console.error("Opportunity budget tracking error:", e)),
+      doRewardAllocation()
+        .catch((e) => {
+          console.error("Reward allocation error:", e);
+          return { rewardPending: false, rewardCampaignName: null, rewardType: null };
+        }),
+    ]);
+
+    // =========================================================================
+    // PARALLEL BATCH 2: leaderboard + streak audit (depend on streakInfo)
+    // =========================================================================
+    const doLeaderboardUpdates = async () => {
       const userDoc = await db.collection("users").doc(userId).get();
       const userData = userDoc.data();
       const userProfile = {
@@ -938,96 +974,46 @@ export const processEngagement = functions.https.onCall(
         username: userData?.profile?.username || userData?.username || null,
         avatarUrl: userData?.profile?.avatarUrl || userData?.avatarUrl || null,
       };
-
-      // Update user's daily score
       const updatedDailyScore = await updateDailyScore(
-        userId,
-        userShare,
-        streakInfo.currentStreak,
-        streakInfo.multiplier,
-        userProfile
+        userId, userShare, streakInfo.currentStreak, streakInfo.multiplier, userProfile
       );
-
-      // Update live leaderboard scores (daily + weekly)
       await updateLeaderboardScores(
-        userId,
-        updatedDailyScore,
-        streakInfo.currentStreak,
-        userProfile
+        userId, updatedDailyScore, streakInfo.currentStreak, userProfile
       );
-
-      // If user has a referrer, update referrer's assist score
       if (userData?.referredBy) {
         await updateReferrerAssistScore(userData.referredBy, userShare);
       }
-    } catch (scoreError) {
-      // Log but don't fail the engagement - score update is secondary
-      console.error("Failed to update daily score:", scoreError);
-    }
+    };
 
-    // Store streak audit fields on the engagement document
-    try {
+    const doStreakAudit = async () => {
       await engagementDoc.ref.update({
         streakDayAtCompletion: streakInfo.currentStreak,
         multiplierApplied: streakInfo.multiplier,
-        subAccountId: subAccountId, // Track which sub-account was credited
+        subAccountId: subAccountId,
       });
-    } catch (auditError) {
-      console.error("Failed to store streak audit fields:", auditError);
-    }
+    };
 
-    // ===========================================================================
-    // Reward allocation: enqueue inventory reward if opportunity has a linked campaign
-    // ===========================================================================
-    let rewardPending = false;
-    let rewardCampaignName: string | null = null;
-    let rewardType: string | null = null;
-
-    if (engagement.earnOpportunityId) {
-      try {
-        // Read opportunity to check for reward campaign linkage
-        const oppDocForReward = await db
-          .collection("earnOpportunities")
-          .doc(engagement.earnOpportunityId)
-          .get();
-
-        if (oppDocForReward.exists) {
-          const oppData = oppDocForReward.data()!;
-          if (oppData.rewardCampaignId) {
-            await enqueueRewardAllocation(
-              userId,
-              oppData.rewardCampaignId,
-              engagementId
-            );
-            rewardPending = true;
-            rewardCampaignName = oppData.rewardCampaignName || null;
-            rewardType = oppData.rewardType || null;
-          }
-        }
-      } catch (rewardError) {
-        // Log but don't fail — token reward already credited
-        console.error("Failed to enqueue reward allocation:", rewardError);
-      }
-    }
+    await Promise.all([
+      doLeaderboardUpdates().catch((e) => console.error("Leaderboard error:", e)),
+      doStreakAudit().catch((e) => console.error("Streak audit error:", e)),
+    ]);
 
     return {
       success: true,
-      tokensEarned: userShare, // User's 90% share
-      totalGenerated: rewardAmount, // Total including pot contributions
-      dailyPotContribution: Math.floor(rewardAmount * LedgerConfig.EARNING_DAILY_POT_SHARE),
-      weeklyPotContribution: rewardAmount - userShare - Math.floor(rewardAmount * LedgerConfig.EARNING_DAILY_POT_SHARE),
+      tokensEarned: userShare,
+      totalGenerated: rewardAmount,
+      dailyPotContribution: dailyPotShare,
+      weeklyPotContribution: weeklyPotShare,
       ledgerJournalId: ledgerResult.journalId,
       streakDay: streakInfo.currentStreak,
       multiplierApplied: streakInfo.multiplier,
       streakBroken: streakInfo.streakBroken,
       subAccountId: subAccountId,
-      // Bonus reward info
       bonusApplied: bonusApplied,
       bonusMultiplier: bonusApplied ? bonusMultiplier : null,
-      // Reward allocation info
-      rewardPending,
-      rewardCampaignName,
-      rewardType,
+      rewardPending: rewardInfo.rewardPending,
+      rewardCampaignName: rewardInfo.rewardCampaignName,
+      rewardType: rewardInfo.rewardType,
     };
   }
 );

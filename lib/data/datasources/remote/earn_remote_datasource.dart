@@ -368,7 +368,20 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
     }
 
     try {
-      final doc = await _engagementsCollection.doc(engagementId).get();
+      final answersModels =
+          answers.map((a) => EngagementAnswerModel.fromEntity(a)).toList();
+      final evidenceModel = EngagementEvidenceModel.fromEntity(evidence);
+
+      // Start Firestore read and Play Integrity token fetch in parallel
+      final nonce = _playIntegrity.generateNonce();
+      final docFuture = _engagementsCollection.doc(engagementId).get();
+      final integrityFuture =
+          _playIntegrity.getIntegrityToken(nonce: nonce);
+
+      // Await both concurrently
+      final doc = await docFuture;
+      final integrityToken = await integrityFuture;
+
       if (!doc.exists) {
         throw const ServerException(message: 'Engagement not found');
       }
@@ -377,15 +390,6 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       if (data['userId'] != userId) {
         throw const ServerException(message: 'Not authorized');
       }
-
-      final answersModels =
-          answers.map((a) => EngagementAnswerModel.fromEntity(a)).toList();
-      final evidenceModel = EngagementEvidenceModel.fromEntity(evidence);
-
-      // Get Play Integrity token for this sensitive operation
-      final nonce = _playIntegrity.generateNonce();
-      final integrityToken =
-          await _playIntegrity.getIntegrityToken(nonce: nonce);
 
       // sanitizeFirestoreData converts Timestamp → ISO 8601 strings;
       // callable.call() only accepts JSON-serializable data, not Timestamp.
@@ -416,6 +420,12 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
         'status': returnedStatus,
         'completedAt': now.toIso8601String(),
         'updatedAt': now.toIso8601String(),
+        // Include token data from CF response (pre-call doc doesn't have it)
+        'tokensEarned': resultData['tokensEarned'] as int? ?? 0,
+        'totalTokensGenerated': resultData['totalGenerated'] as int? ?? 0,
+        'streakDayAtCompletion': resultData['streakDay'] as int?,
+        'multiplierApplied':
+            (resultData['multiplierApplied'] as num?)?.toDouble(),
       });
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(

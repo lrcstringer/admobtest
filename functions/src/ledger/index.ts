@@ -207,9 +207,9 @@ export async function processEarningWithSplit(
     finalSubAccountId = result.subAccountId;
   }
 
-  // Calculate user share
+  // Calculate user share (floor for user, unrounded for pots — rounding deferred to distribution)
   const userShare = Math.floor(totalAmount * LedgerConfig.EARNING_USER_SHARE);
-  const dailyPotShare = Math.floor(totalAmount * LedgerConfig.EARNING_DAILY_POT_SHARE);
+  const dailyPotShare = totalAmount * LedgerConfig.EARNING_DAILY_POT_SHARE;
   const weeklyPotShare = totalAmount - userShare - dailyPotShare;
 
   // Create earning entries with split — source is the token source account
@@ -323,6 +323,62 @@ export async function processPotWin(
   }
 
   return journalResult;
+}
+
+/**
+ * Sweep rounding residual from a pot account to the residual account.
+ *
+ * Called at distribution time: pot balance is fractional, winners get
+ * Math.floor(share), and the leftover (pot balance - sum of floored payouts)
+ * is transferred here to keep the ledger balanced.
+ *
+ * @param potType - "daily" | "weekly"
+ * @param residualAmount - The fractional residual to sweep
+ * @param potDrawId - Reference to the pot draw
+ */
+export async function processPotResidual(
+  potType: "daily" | "weekly",
+  residualAmount: number,
+  potDrawId: string,
+  metadata?: Record<string, unknown>,
+): Promise<PostJournalResult> {
+  if (residualAmount <= 0) {
+    return { success: true, journalId: "", isDuplicate: false };
+  }
+
+  await ensureSystemAccounts();
+
+  const potAccountId = potType === "daily" ? SystemAccounts.DAILY_POT : SystemAccounts.WEEKLY_POT;
+
+  const entries: JournalEntryInput[] = [
+    {
+      accountId: potAccountId,
+      entryType: "debit",
+      amount: residualAmount,
+      description: `${potType} pot distribution residual`,
+    },
+    {
+      accountId: SystemAccounts.POT_RESIDUAL,
+      entryType: "credit",
+      amount: residualAmount,
+      description: `Rounding residual from ${potType} pot draw`,
+    },
+  ];
+
+  return postJournal({
+    idempotencyKey: `pot_residual:${potDrawId}`,
+    type: "pot_residual",
+    description: `${potType} pot distribution residual: ${residualAmount} tokens`,
+    entries,
+    referenceType: "pot_draw",
+    referenceId: potDrawId,
+    initiatedBy: "system",
+    metadata: {
+      ...metadata,
+      potType,
+      residualAmount,
+    },
+  });
 }
 
 /**
@@ -930,7 +986,7 @@ export function createEscrowCompletionEntries(
   tokenSourceAccountId: string,
 ): JournalEntryInput[] {
   const userAmount = Math.floor(actualReward * LedgerConfig.EARNING_USER_SHARE);
-  const dailyPotAmount = Math.floor(actualReward * LedgerConfig.EARNING_DAILY_POT_SHARE);
+  const dailyPotAmount = actualReward * LedgerConfig.EARNING_DAILY_POT_SHARE;
   const weeklyPotAmount = actualReward - userAmount - dailyPotAmount;
   const excess = escrowAmount - actualReward;
 

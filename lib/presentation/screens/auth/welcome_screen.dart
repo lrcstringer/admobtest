@@ -9,6 +9,7 @@ import '../../../core/error/failures.dart';
 import '../../../core/services/biometric_login_service.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/app_button.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -239,7 +240,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           width: mascotSize,
           height: mascotSize,
           child: Image.asset(
-            'assets/icons/elephantFinal2.png',
+            'assets/icons/iMaliCrown4.png',
             width: mascotSize,
             height: mascotSize,
             fit: BoxFit.contain,
@@ -329,28 +330,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         // "Get Started" button
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 48),
-          child: SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              onPressed: () => context.go('/auth/age-consent'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: const Color(0xFF0D1028),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Get Started',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF0D1028),
-                ),
-              ),
-            ),
+          child: AppButton(
+            text: 'Get Started',
+            onPressed: () => context.go('/auth/age-consent'),
+            size: AppButtonSize.large,
           ),
         ),
 
@@ -415,7 +398,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           width: mascotSize,
           height: mascotSize,
           child: Image.asset(
-            'assets/icons/elephantFinal2.png',
+            'assets/icons/iMaliCrown4.png',
             width: mascotSize,
             height: mascotSize,
             fit: BoxFit.contain,
@@ -459,37 +442,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         // Biometric sign-in button
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 48),
-          child: SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: ElevatedButton.icon(
-              onPressed: _isBiometricLoading ? null : _handleBiometricLogin,
-              icon: _isBiometricLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.fingerprint, size: 28),
-              label: Text(
-                _isBiometricLoading ? 'Signing in...' : 'Sign in',
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: const Color(0xFF0D1028),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                elevation: 0,
-              ),
-            ),
+          child: AppButton(
+            text: 'Sign in',
+            onPressed: _handleBiometricLogin,
+            isLoading: _isBiometricLoading,
+            icon: Icons.fingerprint,
+            size: AppButtonSize.large,
           ),
         ),
 

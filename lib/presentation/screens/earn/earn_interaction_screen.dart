@@ -22,7 +22,11 @@ import '../../blocs/earn/earn_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
+import '../../widgets/common/brand_card.dart';
 import '../../widgets/common/wave_background.dart';
+
+/// Which upload section currently owns the camera controller.
+enum _CameraOwner { none, video, photo }
 
 /// Earn Interaction Screen
 /// Handles the full video watching + survey completion flow
@@ -59,9 +63,13 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   final List<EngagementAnswer> _answers = [];
   final List<int> _responseTimesMs = [];
   DateTime? _questionStartTime;
+  bool _showReview = false;
+  int? _editingAnswerIndex; // non-null = editing a single answer
 
   // AdMob ad state (for adVideo unified screen)
   bool _isShowingAd = false;
+  bool _isPreparingAd = false;
+  int _prepCountdown = 3;
 
   // Poll vote state
   String? _pollSelectedOption;
@@ -82,12 +90,15 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   DateTime? _uploadStartedAt;
   bool _isOnWifi = false;
   VideoPlayerController? _uploadVideoPreviewController;
-  // Camera state for video recording
+  // Camera state for inline video/photo viewfinders
   CameraController? _cameraController;
   bool _isRecording = false;
   int _recordingSeconds = 0;
   Timer? _recordingTimer;
-  bool _showCamera = false;
+  _CameraOwner _cameraOwner = _CameraOwner.none;
+  CameraLensDirection _currentLensDirection = CameraLensDirection.front;
+  List<CameraDescription>? _availableCameras;
+  int _currentMaxSeconds = 0;
 
   // Services
   late final PlayIntegrityService _integrityService;
@@ -131,6 +142,8 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       case AppLifecycleState.inactive:
         _appInForeground = false;
         _videoController?.pause();
+        // Auto-stop recording if user backgrounds the app
+        if (_isRecording) _stopRecording();
         break;
       case AppLifecycleState.resumed:
         _appInForeground = true;
@@ -152,6 +165,11 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           setState(() {
             _videoInitialized = true;
           });
+          // If we're already in watching phase, start playback now
+          final phase = context.read<EarnBloc>().state.engagementPhase;
+          if (phase == EngagementPhase.watching && _videoStartedAt == null) {
+            _startWatching();
+          }
         }
       }).catchError((error) {
         if (mounted) {
@@ -263,6 +281,18 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     final responseTime = _questionStartTime != null
         ? DateTime.now().difference(_questionStartTime!).inMilliseconds
         : 1000;
+
+    // Edit mode: replace the single answer and return to review
+    if (_editingAnswerIndex != null) {
+      setState(() {
+        _answers[_editingAnswerIndex!] = response;
+        _responseTimesMs[_editingAnswerIndex!] = responseTime;
+        _editingAnswerIndex = null;
+        _showReview = true;
+      });
+      return;
+    }
+
     _responseTimesMs.add(responseTime);
     _answers.add(response);
 
@@ -298,7 +328,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         _questionStartTime = DateTime.now();
       });
     } else {
-      _submitEngagement();
+      // Show review screen before submitting
+      setState(() {
+        _showReview = true;
+      });
     }
   }
 
@@ -390,17 +423,12 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           _userId = state.currentEngagement!.userId;
         }
 
-        // Auto-fire startEngagement + loadAdVideo for adVideo deep links
+        // Pre-load ad when opportunity is loaded (adVideo only)
         if (state.selectedOpportunity != null &&
             state.selectedOpportunity!.earningType == EarningType.adVideo &&
-            state.engagementPhase == EngagementPhase.idle &&
-            state.currentEngagement == null) {
-          final bloc = context.read<EarnBloc>();
-          bloc.add(EarnEvent.startEngagement(
-              opportunityId: widget.opportunityId));
-          if (!state.isAdLoading && !state.isAdReady) {
-            bloc.add(const EarnEvent.loadAdVideo());
-          }
+            !state.isAdLoading &&
+            !state.isAdReady) {
+          context.read<EarnBloc>().add(const EarnEvent.loadAdVideo());
         }
 
         // Initialize video when opportunity is loaded (video type only)
@@ -433,8 +461,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           _checkWifi();
         }
 
-        // Navigate to confirm screen on completion
-        if (state.engagementPhase == EngagementPhase.completed) {
+        // Optimistic navigation: go to confirm screen as soon as submission
+        // starts. The confirm screen handles the loading → success transition.
+        if (state.engagementPhase == EngagementPhase.submitting ||
+            state.engagementPhase == EngagementPhase.completed) {
           context.go('/earn/opportunity/${widget.opportunityId}/confirm');
         }
 
@@ -608,40 +638,12 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                         Icons.category_outlined,
                         opportunity.earningTypeLabel,
                       ),
+                      _buildDetailChip(
+                        Icons.monetization_on,
+                        '+${opportunity.tokenReward} tokens',
+                        color: AppColors.gold,
+                      ),
                     ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: AppSpacing.lg),
-
-          // Reward preview
-          Card(
-            color: AppColors.primaryLight.withValues(alpha: 0.3),
-            child: Padding(
-              padding: EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.monetization_on,
-                    size: 48,
-                    color: AppColors.gold,
-                  ),
-                  SizedBox(height: AppSpacing.sm),
-                  Text(
-                    '+${opportunity.tokenReward} tokens',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: AppColors.gold,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  SizedBox(height: AppSpacing.xs),
-                  Text(
-                    'Complete to earn',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
                   ),
                 ],
               ),
@@ -711,6 +713,11 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                     _buildInstructionStep(1, 'Read the prompt carefully'),
                     _buildInstructionStep(2, 'Record, capture, or type your response'),
                     _buildInstructionStep(3, 'Submit and earn your tokens'),
+                  ] else if (opportunity.earningType == EarningType.survey ||
+                      opportunity.earningType == EarningType.poll) ...[
+                    _buildInstructionStep(1, 'Read each question carefully'),
+                    _buildInstructionStep(2, 'Answer all questions'),
+                    _buildInstructionStep(3, 'Receive your tokens instantly'),
                   ] else ...[
                     _buildInstructionStep(
                       1,
@@ -740,12 +747,27 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   }
 
   Future<void> _showAd() async {
-    if (_isShowingAd) return;
+    if (_isShowingAd || _isPreparingAd) return;
 
+    // --- Pre-ad branded countdown ---
     setState(() {
+      _isPreparingAd = true;
+      _prepCountdown = 3;
+    });
+
+    for (int i = 3; i >= 1; i--) {
+      if (!mounted) return;
+      setState(() => _prepCountdown = i);
+      await Future.delayed(const Duration(milliseconds: 800));
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _isPreparingAd = false;
       _isShowingAd = true;
     });
 
+    // --- Show the ad ---
     final bloc = context.read<EarnBloc>();
     final userId = _userId ?? bloc.state.currentEngagement?.userId ?? 'unknown';
     final engagementId = bloc.state.currentEngagement?.id;
@@ -837,7 +859,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           SizedBox(height: AppSpacing.xl),
 
           // Ad loading / ready state
-          if (!bothReady && !_isShowingAd) ...[
+          if (_isPreparingAd) ...[
+            // Branded pre-ad countdown
+            _buildPreAdCountdown(),
+          ] else if (!bothReady && !_isShowingAd) ...[
             // Engagement creating or ad actively loading — show spinner + attempt
             if (state.isAdLoading ||
                 state.engagementPhase == EngagementPhase.starting ||
@@ -967,6 +992,51 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
             ),
           ],
           SizedBox(height: AppSpacing.lg),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreAdCountdown() {
+    return Center(
+      child: Column(
+        children: [
+          // Animated countdown circle
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: AppColors.goldGradient,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                '$_prepCountdown',
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+          ),
+          SizedBox(height: AppSpacing.lg),
+          Text(
+            'Get ready!',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          SizedBox(height: AppSpacing.sm),
+          Text(
+            'Your ad is about to start',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+          ),
         ],
       ),
     );
@@ -1230,6 +1300,11 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       return const Center(child: CircularProgressIndicator());
     }
 
+    // Show review screen after all questions answered
+    if (_showReview) {
+      return _buildReviewState(state);
+    }
+
     final question = questions[_currentQuestionIndex];
     final totalQuestions = questions.length;
 
@@ -1264,10 +1339,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           SizedBox(height: AppSpacing.lg),
 
           // Question card
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(AppSpacing.md),
-              child: Column(
+          BrandCard(
+            gradient: BrandGradient.cyanBlue,
+            padding: EdgeInsets.all(AppSpacing.md),
+            child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -1283,7 +1358,6 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                   ),
                 ],
               ),
-            ),
           ),
           SizedBox(height: AppSpacing.md),
 
@@ -1292,6 +1366,168 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         ],
       ),
     );
+  }
+
+  /// Review screen showing all answers before submission
+  Widget _buildReviewState(EarnState state) {
+    final opportunity = state.selectedOpportunity!;
+    final questions = opportunity.questions;
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Full progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: 1.0,
+              minHeight: 6,
+              backgroundColor: AppColors.divider,
+              valueColor: AlwaysStoppedAnimation(AppColors.success),
+            ),
+          ),
+          SizedBox(height: AppSpacing.lg),
+
+          // Header
+          Text(
+            'Review Your Responses',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          SizedBox(height: AppSpacing.xs),
+          Text(
+            'Tap any answer to change it before submitting.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+          ),
+          SizedBox(height: AppSpacing.lg),
+
+          // Answer summary cards
+          ...List.generate(_answers.length, (index) {
+            final answer = _answers[index];
+            // Find matching question by questionId
+            final question = questions.firstWhere(
+              (q) => q.id == answer.questionId,
+              orElse: () => questions[index < questions.length ? index : 0],
+            );
+            return Padding(
+              padding: EdgeInsets.only(bottom: AppSpacing.sm),
+              child: InkWell(
+                onTap: () => _editAnswer(index, question, questions),
+                borderRadius: BorderRadius.circular(12),
+                child: Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(AppSpacing.md),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Question number badge
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '${index + 1}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ),
+                        SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                question.text,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                _formatAnswer(answer),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.edit_outlined,
+                          size: 18,
+                          color: AppColors.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+          SizedBox(height: AppSpacing.lg),
+
+          // Submit button
+          AppButton(
+            text: 'Submit Responses',
+            onPressed: _submitEngagement,
+            icon: Icons.send,
+          ),
+          SizedBox(height: AppSpacing.md),
+        ],
+      ),
+    );
+  }
+
+  /// Format an answer for display in the review screen
+  String _formatAnswer(EngagementAnswer answer) {
+    if (answer.selectedOption != null) return answer.selectedOption!;
+    if (answer.selectedOptions != null && answer.selectedOptions!.isNotEmpty) {
+      return answer.selectedOptions!.join(', ');
+    }
+    if (answer.textResponses != null && answer.textResponses!.isNotEmpty) {
+      return answer.textResponses!.join('; ');
+    }
+    if (answer.likertValue != null) return '${answer.likertValue} / 5';
+    if (answer.starRating != null) {
+      final stars = '${'★' * answer.starRating!}${'☆' * (5 - answer.starRating!)}';
+      final tags = answer.selectedTags?.join(', ') ?? '';
+      return tags.isNotEmpty ? '$stars — $tags' : stars;
+    }
+    if (answer.sliderValue != null) return answer.sliderValue!.toStringAsFixed(0);
+    return '—';
+  }
+
+  /// Show a single question for editing, then return to review
+  void _editAnswer(int answerIndex, SurveyQuestion question, List<SurveyQuestion> questions) {
+    final questionIndex = questions.indexOf(question);
+    if (questionIndex < 0) return;
+
+    setState(() {
+      _editingAnswerIndex = answerIndex;
+      _currentQuestionIndex = questionIndex;
+      _questionStartTime = DateTime.now();
+      _showReview = false;
+    });
   }
 
   Widget _buildQuestionWidget(SurveyQuestion question) {
@@ -1446,7 +1682,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   }
 
   // --- Text Input ---
-  List<TextEditingController> _textInputControllers = [];
+  final List<TextEditingController> _textInputControllers = [];
 
   Widget _buildTextInput(SurveyQuestion question) {
     // Initialize controllers if needed
@@ -2225,25 +2461,29 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     );
   }
 
-  Widget _buildDetailChip(IconData icon, String label) {
+  Widget _buildDetailChip(IconData icon, String label, {Color? color}) {
+    final chipColor = color ?? AppColors.primary;
+    final bgColor = color != null
+        ? color.withValues(alpha: 0.15)
+        : AppColors.primaryLight.withValues(alpha: 0.3);
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.primaryLight.withValues(alpha: 0.3),
+        color: bgColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: AppColors.primary),
+          Icon(icon, size: 14, color: chipColor),
           SizedBox(width: AppSpacing.xs),
           Text(
             label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.primary,
+                  color: chipColor,
                 ),
           ),
         ],
@@ -2340,11 +2580,6 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   Widget _buildUploadState(EarnState state) {
     final opportunity = state.selectedOpportunity!;
 
-    // If currently showing camera overlay, render that instead
-    if (_showCamera) {
-      return _buildCameraOverlay(opportunity);
-    }
-
     // If uploading/compressing, show progress
     if (_isUploading || _isCompressing) {
       return _buildUploadProgressState();
@@ -2356,10 +2591,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Prompt/question
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(AppSpacing.md),
-              child: Column(
+          BrandCard(
+            gradient: BrandGradient.pinkPurple,
+            padding: EdgeInsets.all(AppSpacing.md),
+            child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
@@ -2383,7 +2618,6 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                   ),
                 ],
               ),
-            ),
           ),
           SizedBox(height: AppSpacing.md),
 
@@ -2479,96 +2713,132 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     final required = opportunity.uploadVideoRequired;
     final maxSeconds = opportunity.uploadVideoMaxSeconds;
 
+    // Determine which state key to show
+    final String stateKey;
+    if (_recordedVideo != null) {
+      stateKey = 'preview';
+    } else if (_cameraOwner == _CameraOwner.video) {
+      stateKey = 'camera';
+    } else {
+      stateKey = 'placeholder';
+    }
+
     return Padding(
       padding: EdgeInsets.only(bottom: AppSpacing.md),
-      child: Card(
-        child: Padding(
-          padding: EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.videocam_outlined, size: 20),
-                  SizedBox(width: AppSpacing.sm),
-                  Text(
-                    'Video Recording',
-                    style: Theme.of(context).textTheme.titleSmall,
+      child: BrandCard(
+        gradient: BrandGradient.cyanBlue,
+        padding: EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.videocam_outlined, size: 20),
+                SizedBox(width: AppSpacing.sm),
+                Text(
+                  'Video Recording',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const Spacer(),
+                _buildRequiredBadge(required),
+              ],
+            ),
+            SizedBox(height: AppSpacing.xs),
+            Text(
+              'Max ${maxSeconds}s',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
                   ),
-                  const Spacer(),
-                  _buildRequiredBadge(required),
-                ],
-              ),
-              SizedBox(height: AppSpacing.xs),
-              Text(
-                'Max ${maxSeconds}s',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-              ),
-              SizedBox(height: AppSpacing.md),
-              if (_recordedVideo != null) ...[
-                // Preview recorded video
-                Container(
-                  height: 180,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: AppSpacing.borderRadiusMd,
-                  ),
-                  child: _uploadVideoPreviewController != null &&
-                          _uploadVideoPreviewController!.value.isInitialized
-                      ? ClipRRect(
-                          borderRadius: AppSpacing.borderRadiusMd,
-                          child: AspectRatio(
-                            aspectRatio: _uploadVideoPreviewController!
-                                .value.aspectRatio,
-                            child:
-                                VideoPlayer(_uploadVideoPreviewController!),
+            ),
+            SizedBox(height: AppSpacing.md),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              child: stateKey == 'preview'
+                  ? KeyedSubtree(
+                      key: const ValueKey('video-preview'),
+                      child: _buildVideoPreview(),
+                    )
+                  : stateKey == 'camera'
+                      ? KeyedSubtree(
+                          key: const ValueKey('video-camera'),
+                          child: _buildInlineCameraViewfinder(
+                            height: 200,
+                            isVideoMode: true,
+                            maxSeconds: maxSeconds,
                           ),
                         )
-                      : const Center(
-                          child: Icon(Icons.videocam,
-                              size: 48, color: Colors.white54),
+                      : KeyedSubtree(
+                          key: const ValueKey('video-placeholder'),
+                          child: _buildDashedPlaceholder(
+                            height: 200,
+                            icon: Icons.videocam_outlined,
+                            label: 'Tap to record',
+                            onTap: () => _openInlineCamera(
+                                _CameraOwner.video, maxSeconds),
+                          ),
                         ),
-                ),
-                SizedBox(height: AppSpacing.sm),
-                // File size info
-                if (_compressedVideo != null)
-                  _buildFileSizeInfo(_compressedVideo!)
-                else
-                  _buildFileSizeInfo(_recordedVideo!),
-                SizedBox(height: AppSpacing.sm),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _clearRecordedVideo,
-                        icon: const Icon(Icons.refresh, size: 18),
-                        label: const Text('Re-record'),
-                      ),
-                    ),
-                  ],
-                ),
-              ] else
-                OutlinedButton.icon(
-                  onPressed: () => _openCamera(maxSeconds),
-                  icon: const Icon(Icons.videocam),
-                  label: const Text('Record Video'),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 48),
-                  ),
-                ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Future<void> _openCamera(int maxSeconds) async {
+  Widget _buildVideoPreview() {
+    return Column(
+      children: [
+        Container(
+          height: 180,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: AppSpacing.borderRadiusMd,
+          ),
+          child: _uploadVideoPreviewController != null &&
+                  _uploadVideoPreviewController!.value.isInitialized
+              ? ClipRRect(
+                  borderRadius: AppSpacing.borderRadiusMd,
+                  child: AspectRatio(
+                    aspectRatio:
+                        _uploadVideoPreviewController!.value.aspectRatio,
+                    child: VideoPlayer(_uploadVideoPreviewController!),
+                  ),
+                )
+              : const Center(
+                  child: Icon(Icons.videocam, size: 48, color: Colors.white54),
+                ),
+        ),
+        SizedBox(height: AppSpacing.sm),
+        if (_compressedVideo != null)
+          _buildFileSizeInfo(_compressedVideo!)
+        else
+          _buildFileSizeInfo(_recordedVideo!),
+        SizedBox(height: AppSpacing.sm),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _clearRecordedVideo,
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('Re-record'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _openInlineCamera(_CameraOwner owner, int maxSeconds) async {
+    // Dispose any existing camera first
+    if (_cameraOwner != _CameraOwner.none) {
+      _disposeCamera();
+    }
+
     try {
-      final cameras = await availableCameras();
-      if (cameras.isEmpty) {
+      _availableCameras ??= await availableCameras();
+      if (_availableCameras!.isEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('No camera available')),
@@ -2577,22 +2847,25 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         return;
       }
 
-      // Prefer front camera for user-facing video
-      final camera = cameras.firstWhere(
-        (c) => c.lensDirection == CameraLensDirection.front,
-        orElse: () => cameras.first,
+      // Select camera by current lens direction
+      final camera = _availableCameras!.firstWhere(
+        (c) => c.lensDirection == _currentLensDirection,
+        orElse: () => _availableCameras!.first,
       );
 
       _cameraController = CameraController(
         camera,
         ResolutionPreset.medium,
-        enableAudio: true,
+        enableAudio: owner == _CameraOwner.video,
       );
 
       await _cameraController!.initialize();
 
       if (mounted) {
-        setState(() => _showCamera = true);
+        setState(() {
+          _cameraOwner = owner;
+          _currentMaxSeconds = maxSeconds;
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -2603,114 +2876,347 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     }
   }
 
-  Widget _buildCameraOverlay(EarnOpportunity opportunity) {
-    final maxSeconds = opportunity.uploadVideoMaxSeconds;
+  // ── Inline Camera Helper Widgets ──
 
-    if (_cameraController == null ||
-        !_cameraController!.value.isInitialized) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return Column(
-      children: [
-        // Camera preview
-        Expanded(
-          child: Stack(
-            fit: StackFit.expand,
+  Widget _buildDashedPlaceholder({
+    required double height,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: CustomPaint(
+        painter: _DashedBorderPainter(
+          color: AppColors.textHint.withValues(alpha: 0.4),
+          radius: AppSpacing.radiusMd,
+        ),
+        child: Container(
+          height: height,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: AppColors.surfaceElevated,
+            borderRadius: AppSpacing.borderRadiusMd,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CameraPreview(_cameraController!),
-              // Timer overlay
-              if (_isRecording)
-                Positioned(
-                  top: AppSpacing.md,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.xs,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          SizedBox(width: AppSpacing.xs),
-                          Text(
-                            '${_recordingSeconds}s / ${maxSeconds}s',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
+              Icon(icon, size: 48, color: AppColors.textHint),
+              SizedBox(height: AppSpacing.sm),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
                     ),
-                  ),
-                ),
+              ),
             ],
           ),
         ),
-        // Controls
-        Container(
-          padding: EdgeInsets.all(AppSpacing.lg),
-          color: Colors.black87,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Cancel
-              IconButton(
-                onPressed: _cancelCamera,
-                icon: const Icon(Icons.close, color: Colors.white, size: 32),
-              ),
-              // Record/Stop button
-              GestureDetector(
-                onTap: _isRecording
-                    ? _stopRecording
-                    : () => _startRecording(maxSeconds),
-                child: Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 4),
-                  ),
-                  child: Center(
-                    child: Container(
-                      width: _isRecording ? 28 : 56,
-                      height: _isRecording ? 28 : 56,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: _isRecording
-                            ? BorderRadius.circular(4)
-                            : BorderRadius.circular(28),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              // Spacer for symmetry
-              const SizedBox(width: 32),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 
+  Widget _buildInlineCameraViewfinder({
+    required double height,
+    required bool isVideoMode,
+    required int maxSeconds,
+  }) {
+    if (_cameraController == null ||
+        !_cameraController!.value.isInitialized) {
+      return Container(
+        height: height,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: AppSpacing.borderRadiusMd,
+        ),
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: AppSpacing.borderRadiusMd,
+      child: SizedBox(
+        height: height,
+        width: double.infinity,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Camera preview (fill the container)
+            FittedBox(
+              fit: BoxFit.cover,
+              clipBehavior: Clip.hardEdge,
+              child: SizedBox(
+                width: _cameraController!.value.previewSize?.height ?? 1,
+                height: _cameraController!.value.previewSize?.width ?? 1,
+                child: CameraPreview(_cameraController!),
+              ),
+            ),
+            // Timer overlay (video only, while recording)
+            if (isVideoMode && _isRecording)
+              _buildRecordingTimerOverlay(maxSeconds),
+            // Camera controls at bottom
+            _buildCameraControls(
+              isVideoMode: isVideoMode,
+              maxSeconds: maxSeconds,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCameraControls({
+    required bool isVideoMode,
+    required int maxSeconds,
+  }) {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.transparent,
+              Colors.black.withValues(alpha: 0.7),
+            ],
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // Cancel
+            _buildCircleButton(Icons.close, _disposeCamera),
+            // Primary action (record/stop or shutter)
+            _buildPrimaryActionButton(
+              isVideoMode: isVideoMode,
+              onTap: isVideoMode
+                  ? (_isRecording
+                      ? _stopRecording
+                      : () => _startRecording(maxSeconds))
+                  : _takeInlinePhoto,
+            ),
+            // Flip camera (disabled during recording)
+            _buildCircleButton(
+              Icons.flip_camera_ios,
+              _isRecording ? () {} : _flipCamera,
+            ),
+            // Gallery (photo only)
+            if (!isVideoMode)
+              _buildCircleButton(
+                Icons.photo_library,
+                () {
+                  _disposeCamera();
+                  _pickImage(ImageSource.gallery);
+                },
+              )
+            else
+              const SizedBox(width: 36),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPrimaryActionButton({
+    required bool isVideoMode,
+    required VoidCallback onTap,
+  }) {
+    if (isVideoMode) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 3),
+          ),
+          child: Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: _isRecording ? 22 : 44,
+              height: _isRecording ? 22 : 44,
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: _isRecording
+                    ? BorderRadius.circular(4)
+                    : BorderRadius.circular(22),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Shutter button for photo
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 3),
+        ),
+        child: Center(
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCircleButton(IconData icon, VoidCallback onTap, {double size = 36}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.black.withValues(alpha: 0.5),
+        ),
+        child: Icon(icon, color: Colors.white, size: size * 0.55),
+      ),
+    );
+  }
+
+  Widget _buildRecordingTimerOverlay(int maxSeconds) {
+    final progress = maxSeconds > 0 ? _recordingSeconds / maxSeconds : 0.0;
+
+    // Color lerp: green → orange → red
+    Color progressColor;
+    if (progress < 0.5) {
+      progressColor = Color.lerp(AppColors.success, AppColors.warning, progress * 2)!;
+    } else {
+      progressColor = Color.lerp(AppColors.warning, AppColors.error, (progress - 0.5) * 2)!;
+    }
+
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Column(
+        children: [
+          // Linear progress bar
+          LinearProgressIndicator(
+            value: progress,
+            backgroundColor: Colors.black.withValues(alpha: 0.3),
+            valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+            minHeight: 3,
+          ),
+          // Time label pill
+          Padding(
+            padding: EdgeInsets.only(top: AppSpacing.xs),
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm,
+                vertical: 2,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: progressColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  SizedBox(width: AppSpacing.xxs),
+                  Text(
+                    '${_recordingSeconds}s / ${maxSeconds}s',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Inline Photo Capture ──
+
+  Future<void> _takeInlinePhoto() async {
+    if (_cameraController == null ||
+        !_cameraController!.value.isInitialized ||
+        _cameraOwner != _CameraOwner.photo) {
+      return;
+    }
+
+    try {
+      final xFile = await _cameraController!.takePicture();
+      final file = File(xFile.path);
+
+      if (!await _uploadService.isValidImageFile(file)) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Image is too large (max 10MB)')),
+          );
+        }
+        return;
+      }
+
+      _disposeCamera();
+
+      if (mounted) {
+        setState(() => _selectedImage = file);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to capture photo: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _flipCamera() async {
+    if (_cameraController == null ||
+        _cameraOwner == _CameraOwner.none ||
+        _isRecording) {
+      return;
+    }
+
+    final currentOwner = _cameraOwner;
+    final newDirection = _currentLensDirection == CameraLensDirection.front
+        ? CameraLensDirection.back
+        : CameraLensDirection.front;
+
+    _cameraController?.dispose();
+    _cameraController = null;
+    _currentLensDirection = newDirection;
+
+    await _openInlineCamera(currentOwner, _currentMaxSeconds);
+  }
+
   Future<void> _startRecording(int maxSeconds) async {
-    if (_cameraController == null || _isRecording) return;
+    if (_cameraController == null || _isRecording || _cameraOwner != _CameraOwner.video) return;
 
     try {
       await _cameraController!.startVideoRecording();
@@ -2754,14 +3260,14 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         return;
       }
 
-      setState(() {
-        _recordedVideo = file;
-        _showCamera = false;
-      });
-
       // Dispose camera
       await _cameraController?.dispose();
       _cameraController = null;
+
+      setState(() {
+        _recordedVideo = file;
+        _cameraOwner = _CameraOwner.none;
+      });
 
       // Compress video
       _compressRecordedVideo(file);
@@ -2777,15 +3283,17 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     }
   }
 
-  void _cancelCamera() {
+  void _disposeCamera() {
     _recordingTimer?.cancel();
     _cameraController?.dispose();
     _cameraController = null;
-    setState(() {
-      _showCamera = false;
-      _isRecording = false;
-      _recordingSeconds = 0;
-    });
+    if (mounted) {
+      setState(() {
+        _cameraOwner = _CameraOwner.none;
+        _isRecording = false;
+        _recordingSeconds = 0;
+      });
+    }
   }
 
   Future<void> _compressRecordedVideo(File file) async {
@@ -2832,78 +3340,111 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   Widget _buildUploadImageSection(EarnOpportunity opportunity) {
     final required = opportunity.uploadImageRequired;
 
+    // Determine which state key to show
+    final String stateKey;
+    if (_selectedImage != null) {
+      stateKey = 'preview';
+    } else if (_cameraOwner == _CameraOwner.photo) {
+      stateKey = 'camera';
+    } else {
+      stateKey = 'placeholder';
+    }
+
     return Padding(
       padding: EdgeInsets.only(bottom: AppSpacing.md),
-      child: Card(
-        child: Padding(
-          padding: EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.photo_camera_outlined, size: 20),
-                  SizedBox(width: AppSpacing.sm),
-                  Text(
-                    'Photo',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  const Spacer(),
-                  _buildRequiredBadge(required),
-                ],
-              ),
-              SizedBox(height: AppSpacing.md),
-              if (_selectedImage != null) ...[
-                // Preview selected image
-                ClipRRect(
-                  borderRadius: AppSpacing.borderRadiusMd,
-                  child: Image.file(
-                    _selectedImage!,
-                    height: 180,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+      child: BrandCard(
+        gradient: BrandGradient.pinkPurple,
+        padding: EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.photo_camera_outlined, size: 20),
+                SizedBox(width: AppSpacing.sm),
+                Text(
+                  'Photo',
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
-                SizedBox(height: AppSpacing.sm),
-                _buildFileSizeInfo(_selectedImage!),
-                SizedBox(height: AppSpacing.sm),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _clearSelectedImage,
-                        icon: const Icon(Icons.refresh, size: 18),
-                        label: const Text('Re-pick'),
-                      ),
-                    ),
-                  ],
-                ),
-              ] else
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () =>
-                            _pickImage(ImageSource.camera),
-                        icon: const Icon(Icons.photo_camera),
-                        label: const Text('Take Photo'),
-                      ),
-                    ),
-                    SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () =>
-                            _pickImage(ImageSource.gallery),
-                        icon: const Icon(Icons.photo_library),
-                        label: const Text('Gallery'),
-                      ),
-                    ),
-                  ],
-                ),
-            ],
-          ),
+                const Spacer(),
+                _buildRequiredBadge(required),
+              ],
+            ),
+            SizedBox(height: AppSpacing.md),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              child: stateKey == 'preview'
+                  ? KeyedSubtree(
+                      key: const ValueKey('image-preview'),
+                      child: _buildImagePreview(),
+                    )
+                  : stateKey == 'camera'
+                      ? KeyedSubtree(
+                          key: const ValueKey('image-camera'),
+                          child: _buildInlineCameraViewfinder(
+                            height: 180,
+                            isVideoMode: false,
+                            maxSeconds: 0,
+                          ),
+                        )
+                      : KeyedSubtree(
+                          key: const ValueKey('image-placeholder'),
+                          child: Column(
+                            children: [
+                              _buildDashedPlaceholder(
+                                height: 180,
+                                icon: Icons.photo_camera_outlined,
+                                label: 'Tap to capture',
+                                onTap: () => _openInlineCamera(
+                                    _CameraOwner.photo, 0),
+                              ),
+                              SizedBox(height: AppSpacing.sm),
+                              TextButton.icon(
+                                onPressed: () =>
+                                    _pickImage(ImageSource.gallery),
+                                icon: const Icon(Icons.photo_library,
+                                    size: 16),
+                                label: const Text('Or pick from gallery'),
+                              ),
+                            ],
+                          ),
+                        ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildImagePreview() {
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: AppSpacing.borderRadiusMd,
+          child: Image.file(
+            _selectedImage!,
+            height: 180,
+            width: double.infinity,
+            fit: BoxFit.cover,
+          ),
+        ),
+        SizedBox(height: AppSpacing.sm),
+        _buildFileSizeInfo(_selectedImage!),
+        SizedBox(height: AppSpacing.sm),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _clearSelectedImage,
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('Re-pick'),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -2956,10 +3497,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
     return Padding(
       padding: EdgeInsets.only(bottom: AppSpacing.md),
-      child: Card(
-        child: Padding(
-          padding: EdgeInsets.all(AppSpacing.md),
-          child: Column(
+      child: BrandCard(
+        gradient: BrandGradient.goldOrange,
+        padding: EdgeInsets.all(AppSpacing.md),
+        child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
@@ -3007,7 +3548,6 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
             ],
           ),
         ),
-      ),
     );
   }
 
@@ -3360,4 +3900,51 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       }
     }
   }
+}
+
+/// Draws a dashed rounded-rectangle border for empty-state placeholders.
+class _DashedBorderPainter extends CustomPainter {
+  final Color color;
+  final double radius;
+
+  static const double _dashWidth = 6;
+  static const double _dashGap = 4;
+  static const double _strokeWidth = 1.5;
+
+  _DashedBorderPainter({
+    required this.color,
+    required this.radius,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = _strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Radius.circular(radius),
+    );
+
+    final path = Path()..addRRect(rrect);
+    final metrics = path.computeMetrics();
+
+    for (final metric in metrics) {
+      double distance = 0;
+      while (distance < metric.length) {
+        final end = (distance + _dashWidth).clamp(0.0, metric.length);
+        canvas.drawPath(
+          metric.extractPath(distance, end),
+          paint,
+        );
+        distance += _dashWidth + _dashGap;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedBorderPainter old) =>
+      color != old.color || radius != old.radius;
 }

@@ -59,7 +59,22 @@ class _ChatScreenState extends State<ChatScreen> {
                 // Quick Actions
                 Container(
                   padding: AppSpacing.cardPadding,
-                  color: AppColors.surface,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color.alphaBlend(
+                          AppColors.logoGradient[0].withValues(alpha: 0.06),
+                          AppColors.surface,
+                        ),
+                        Color.alphaBlend(
+                          AppColors.logoGradient[1].withValues(alpha: 0.03),
+                          AppColors.surface,
+                        ),
+                      ],
+                    ),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [

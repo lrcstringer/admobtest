@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
 class HelpSupportScreen extends StatelessWidget {
@@ -247,7 +248,8 @@ class HelpSupportScreen extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          AppButton(
+            text: 'Send',
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
@@ -257,7 +259,7 @@ class HelpSupportScreen extends StatelessWidget {
                 ),
               );
             },
-            child: const Text('Send'),
+            isFullWidth: false,
           ),
         ],
       ),

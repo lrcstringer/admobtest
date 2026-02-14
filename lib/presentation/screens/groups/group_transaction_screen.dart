@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../blocs/group/group_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
 enum TransactionType { contribute, withdraw }
@@ -236,25 +237,27 @@ class _GroupTransactionScreenState extends State<GroupTransactionScreen> {
                   AppSpacing.verticalXl,
 
                   // Submit button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
+                  if (isContribution)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: isLoading ? null : _submitTransaction,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.success,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: Text(
+                          isLoading ? 'Processing...' : 'Contribute',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    )
+                  else
+                    AppButton(
+                      text: 'Request Withdrawal',
                       onPressed: isLoading ? null : _submitTransaction,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            isContribution ? AppColors.success : AppColors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: Text(
-                        isLoading
-                            ? 'Processing...'
-                            : isContribution
-                                ? 'Contribute'
-                                : 'Request Withdrawal',
-                        style: const TextStyle(fontSize: 16),
-                      ),
+                      isLoading: isLoading,
                     ),
-                  ),
                 ],
               ),
             ),

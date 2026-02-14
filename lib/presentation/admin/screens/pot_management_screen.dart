@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../theme/app_colors.dart';
@@ -31,12 +32,18 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
   List<Map<String, dynamic>> _distributions = [];
   bool _historyLoading = true;
 
+  // Distribution mode flags
+  bool _dailyAutoDistribute = true;
+  bool _weeklyAutoDistribute = true;
+  bool _flagsLoading = true;
+
   @override
   void initState() {
     super.initState();
     _loadBalances();
     _loadActivePots();
     _loadDistributionHistory();
+    _loadDistributionFlags();
   }
 
   Future<void> _refresh() async {
@@ -83,13 +90,15 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
 
       setState(() {
         _activeDailyPot = dailyQuery.docs.isNotEmpty
-            ? dailyQuery.docs.first.data()
+            ? {...dailyQuery.docs.first.data(), '__docId__': dailyQuery.docs.first.id}
             : null;
         _activeWeeklyPot = weeklyQuery.docs.isNotEmpty
-            ? weeklyQuery.docs.first.data()
+            ? {...weeklyQuery.docs.first.data(), '__docId__': weeklyQuery.docs.first.id}
             : null;
       });
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('PotManagement: Failed to load active pots: $e');
+    }
   }
 
   Future<void> _loadDistributionHistory() async {
@@ -107,6 +116,397 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
       });
     } catch (_) {
       setState(() => _historyLoading = false);
+    }
+  }
+
+  Future<void> _loadDistributionFlags() async {
+    try {
+      final doc = await _db
+          .collection('platformSettings')
+          .doc('pots')
+          .get();
+
+      if (!mounted) return;
+
+      if (doc.exists) {
+        final data = doc.data() ?? {};
+        setState(() {
+          _dailyAutoDistribute = data['dailyPotAutoDistribute'] ?? true;
+          _weeklyAutoDistribute = data['weeklyPotAutoDistribute'] ?? true;
+          _flagsLoading = false;
+        });
+      } else {
+        setState(() => _flagsLoading = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _flagsLoading = false);
+    }
+  }
+
+  Future<void> _saveDistributionFlag(String key, bool value) async {
+    try {
+      await _db
+          .collection('platformSettings')
+          .doc('pots')
+          .set({key: value}, SetOptions(merge: true));
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${key == 'dailyPotAutoDistribute' ? 'Daily' : 'Weekly'} pot set to ${value ? 'Scheduled' : 'Manual'}'),
+          backgroundColor: AppColors.success,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
+  void _showSettingsDialog() {
+    // Use local copies so the dialog switches update immediately
+    bool dailyAuto = _dailyAutoDistribute;
+    bool weeklyAuto = _weeklyAutoDistribute;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.cardDark,
+          title: const Text(
+            'Distribution Settings',
+            style: TextStyle(color: AppColors.textPrimaryDark),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Choose whether pots are distributed automatically by the scheduled Cloud Function or manually using the buttons on this page.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (_flagsLoading)
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                )
+              else ...[
+              SwitchListTile(
+                title: const Text(
+                  'Daily Pot',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimaryDark,
+                  ),
+                ),
+                subtitle: Text(
+                  dailyAuto ? 'Scheduled (8 PM SAST daily)' : 'Manual only',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: dailyAuto ? AppColors.success : AppColors.warning,
+                  ),
+                ),
+                value: dailyAuto,
+                activeThumbColor: AppColors.success,
+                onChanged: (v) {
+                  setDialogState(() => dailyAuto = v);
+                  setState(() => _dailyAutoDistribute = v);
+                  _saveDistributionFlag('dailyPotAutoDistribute', v);
+                },
+              ),
+              SwitchListTile(
+                title: const Text(
+                  'Weekly Pot',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimaryDark,
+                  ),
+                ),
+                subtitle: Text(
+                  weeklyAuto ? 'Scheduled (Sun 8 PM SAST)' : 'Manual only',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: weeklyAuto ? AppColors.success : AppColors.warning,
+                  ),
+                ),
+                value: weeklyAuto,
+                activeThumbColor: AppColors.success,
+                onChanged: (v) {
+                  setDialogState(() => weeklyAuto = v);
+                  setState(() => _weeklyAutoDistribute = v);
+                  _saveDistributionFlag('weeklyPotAutoDistribute', v);
+                },
+              ),
+              const Divider(height: 24),
+              Text(
+                'If the scheduled pot creation missed, use this to create today\'s daily pot and this week\'s weekly pot.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _initializePots();
+                  },
+                  icon: const Icon(Icons.add_circle_outline, size: 18),
+                  label: const Text('Initialize Pots'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 40),
+                  ),
+                ),
+              ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _distributeDailyPot() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardDark,
+        title: const Text(
+          'Distribute Daily Pot',
+          style: TextStyle(color: AppColors.textPrimaryDark),
+        ),
+        content: const Text(
+          'This will immediately distribute the daily pot to today\'s top earners. '
+          'This action cannot be undone.',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+            ),
+            child: const Text('Distribute Now'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.cardDark,
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 16),
+            const Text(
+              'Distributing daily pot...',
+              style: TextStyle(color: AppColors.textPrimaryDark),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final result = await _functions
+          .httpsCallable('adminDistributeDailyPot')
+          .call({'potId': _activeDailyPot?['__docId__']});
+      final data = result.data as Map<String, dynamic>;
+
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // Dismiss loading
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(data['message'] as String? ?? 'Distribution complete'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+      _refresh();
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // Dismiss loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to distribute: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
+  Future<void> _distributeWeeklyPot() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardDark,
+        title: const Text(
+          'Distribute Weekly Pot',
+          style: TextStyle(color: AppColors.textPrimaryDark),
+        ),
+        content: const Text(
+          'This will immediately distribute the weekly pot to this week\'s top earners. '
+          'This action cannot be undone.',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+            ),
+            child: const Text('Distribute Now'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.cardDark,
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 16),
+            const Text(
+              'Distributing weekly pot...',
+              style: TextStyle(color: AppColors.textPrimaryDark),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final result = await _functions
+          .httpsCallable('adminDistributeWeeklyPot')
+          .call({'potId': _activeWeeklyPot?['__docId__']});
+      final data = result.data as Map<String, dynamic>;
+
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(data['message'] as String? ?? 'Distribution complete'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+      _refresh();
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to distribute: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
+  Future<void> _initializePots() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.cardDark,
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 16),
+            const Text(
+              'Initializing pots...',
+              style: TextStyle(color: AppColors.textPrimaryDark),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final result = await _functions
+          .httpsCallable('adminInitializePots')
+          .call();
+      final data = result.data as Map<String, dynamic>;
+
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(data['message'] as String? ?? 'Pots initialized'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+      _refresh();
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to initialize pots: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 
@@ -135,7 +535,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
         return '--';
       }
       final diff = end.difference(DateTime.now());
-      if (diff.isNegative) return 'Ended';
+      if (diff.isNegative) return 'Awaiting draw';
       if (diff.inHours >= 24) return '${diff.inDays}d ${diff.inHours % 24}h';
       if (diff.inHours >= 1) return '${diff.inHours}h ${diff.inMinutes % 60}m';
       return '${diff.inMinutes}m';
@@ -181,13 +581,24 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
                       ),
                     ],
                   ),
-                  OutlinedButton.icon(
-                    onPressed: _refresh,
-                    icon: const Icon(Icons.refresh, size: 18),
-                    label: const Text('Refresh'),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(0, 40),
-                    ),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: _showSettingsDialog,
+                        icon: const Icon(Icons.settings, size: 22),
+                        tooltip: 'Distribution Settings',
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 8),
+                      OutlinedButton.icon(
+                        onPressed: _refresh,
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: const Text('Refresh'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 40),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -257,6 +668,24 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
     final participants = activePot?['participantCount'] as int? ?? 0;
     final periodEnd = activePot?['periodEnd'];
     final isActive = activePot?['isActive'] == true;
+    // Check if pot period has ended but not yet distributed
+    final bool periodEnded = periodEnd is Timestamp &&
+        periodEnd.toDate().isBefore(DateTime.now());
+    final bool awaitingDraw = isActive && periodEnded;
+
+    // Status badge
+    String statusLabel;
+    Color statusColor;
+    if (awaitingDraw) {
+      statusLabel = 'Awaiting draw';
+      statusColor = AppColors.warning;
+    } else if (isActive) {
+      statusLabel = 'Active';
+      statusColor = AppColors.success;
+    } else {
+      statusLabel = 'No active pot';
+      statusColor = AppColors.textSecondary;
+    }
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -292,17 +721,15 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isActive
-                      ? AppColors.success.withValues(alpha: 0.15)
-                      : AppColors.textSecondary.withValues(alpha: 0.15),
+                  color: statusColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  isActive ? 'Active' : 'No active pot',
+                  statusLabel,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: isActive ? AppColors.success : AppColors.textSecondary,
+                    color: statusColor,
                   ),
                 ),
               ),
@@ -351,17 +778,19 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Time Remaining',
+                      awaitingDraw ? 'Status' : 'Time Remaining',
                       style: TextStyle(
                           fontSize: 12, color: AppColors.textSecondary),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       isActive ? _timeRemaining(periodEnd) : '--',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimaryDark,
+                        color: awaitingDraw
+                            ? AppColors.warning
+                            : AppColors.textPrimaryDark,
                       ),
                     ),
                   ],
@@ -369,12 +798,86 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            'Distribution runs automatically at the end of each ${type == 'Daily' ? 'day (8 PM SAST)' : 'week (Sun 8 PM SAST)'}',
-            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-            textAlign: TextAlign.center,
-          ),
+          if (isActive && periodEnd is Timestamp) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Period: ${_fmtTimestamp(activePot?['periodStart'])} — ${_fmtTimestamp(periodEnd)}',
+              style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+            ),
+          ],
+          if (isActive && activePot?['__docId__'] != null) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => context.go(
+                  '/pot-entries?potId=${activePot!['__docId__']}',
+                ),
+                icon: const Icon(Icons.list_alt, size: 18),
+                label: const Text('Show Entries'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: color,
+                  side: BorderSide(color: color.withValues(alpha: 0.4)),
+                  minimumSize: const Size(0, 38),
+                ),
+              ),
+            ),
+          ],
+          if (isActive) ...[
+            const SizedBox(height: 8),
+            Builder(builder: (_) {
+              final isAuto = type == 'Daily'
+                  ? _dailyAutoDistribute
+                  : _weeklyAutoDistribute;
+              final modeLabel = isAuto ? 'Scheduled' : 'Manual';
+              final modeColor = isAuto ? AppColors.success : AppColors.warning;
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isAuto ? Icons.schedule : Icons.touch_app,
+                    size: 14,
+                    color: modeColor,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Mode: $modeLabel',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: modeColor,
+                    ),
+                  ),
+                  if (isAuto) ...[
+                    Text(
+                      ' — ${type == 'Daily' ? '8 PM SAST daily' : 'Sun 8 PM SAST'}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ],
+              );
+            }),
+            if (!(type == 'Daily' ? _dailyAutoDistribute : _weeklyAutoDistribute)) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: type == 'Daily'
+                      ? _distributeDailyPot
+                      : _distributeWeeklyPot,
+                  icon: const Icon(Icons.emoji_events, size: 18),
+                  label: Text('Distribute $type Pot'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: color,
+                    minimumSize: const Size(0, 40),
+                  ),
+                ),
+              ),
+            ],
+          ],
         ],
       ),
     );

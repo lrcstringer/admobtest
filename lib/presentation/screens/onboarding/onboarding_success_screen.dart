@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/onboarding/onboarding_progress_indicator.dart';
 
 class OnboardingSuccessScreen extends StatelessWidget {
@@ -199,25 +200,11 @@ class OnboardingSuccessScreen extends StatelessWidget {
                 // "Upgrade Now" blue button
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 48),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: () => _completeAndNavigate(context, '/home/upgrade-status'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.accent,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Upgrade Now',
-                        style: TextStyle(
-                            fontSize: 17, fontWeight: FontWeight.w600),
-                      ),
-                    ),
+                  child: AppButton(
+                    text: 'Upgrade Now',
+                    onPressed: () => _completeAndNavigate(context, '/home/upgrade-status'),
+                    variant: AppButtonVariant.secondary,
+                    size: AppButtonSize.large,
                   ),
                 ),
 
@@ -226,25 +213,10 @@ class OnboardingSuccessScreen extends StatelessWidget {
                 // "Continue" pink button
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 48),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: () => _completeAndNavigate(context, '/home'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: const Color(0xFF0D1028),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Continue',
-                        style: TextStyle(
-                            fontSize: 17, fontWeight: FontWeight.w600),
-                      ),
-                    ),
+                  child: AppButton(
+                    text: 'Continue',
+                    onPressed: () => _completeAndNavigate(context, '/home'),
+                    size: AppButtonSize.large,
                   ),
                 ),
 

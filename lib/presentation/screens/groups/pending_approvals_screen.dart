@@ -96,6 +96,10 @@ class PendingApprovalsScreen extends StatelessWidget {
   Widget _buildApprovalCard(BuildContext context, PendingApproval approval) {
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      color: Color.alphaBlend(
+        AppColors.tertiaryGradient[0].withValues(alpha: 0.04),
+        AppColors.surface,
+      ),
       child: Padding(
         padding: AppSpacing.cardPadding,
         child: Column(

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/utils/phone_utils.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/numeric_keyboard.dart';
 
 class PhoneInputScreen extends StatefulWidget {
@@ -237,7 +238,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                             width: mascotSize,
                             height: mascotSize,
                             child: Image.asset(
-                              'assets/icons/elephantFinal2.png',
+                              'assets/icons/iMaliCrown4.png',
                               width: mascotSize,
                               height: mascotSize,
                               fit: BoxFit.contain,
@@ -422,51 +423,11 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 48, vertical: 8),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : _onSubmit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: const Color(0xFF0D1028),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: isLoading
-                              ? const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      'Sending SMS...',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : const Text(
-                                  'Continue',
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                        ),
+                      child: AppButton(
+                        text: 'Continue',
+                        onPressed: _onSubmit,
+                        isLoading: isLoading,
+                        size: AppButtonSize.large,
                       ),
                     )
                   else

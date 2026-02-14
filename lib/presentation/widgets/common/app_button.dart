@@ -62,16 +62,31 @@ class AppButton extends StatelessWidget {
 
     switch (variant) {
       case AppButtonVariant.primary:
-        return SizedBox(
+        return Container(
           width: isFullWidth ? double.infinity : null,
           height: buttonHeight,
+          decoration: BoxDecoration(
+            gradient: isDisabled
+                ? null
+                : const LinearGradient(colors: AppColors.primaryGradient),
+            color: isDisabled
+                ? AppColors.primary.withValues(alpha: 0.3)
+                : null,
+            borderRadius: AppSpacing.borderRadiusRound,
+          ),
           child: ElevatedButton(
             onPressed: isDisabled ? null : onPressed,
-            style: isFullWidth
-                ? null
-                : ElevatedButton.styleFrom(
-                    minimumSize: Size(0, buttonHeight),
-                  ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              disabledBackgroundColor: Colors.transparent,
+              disabledForegroundColor:
+                  AppColors.textOnPrimary.withValues(alpha: 0.5),
+              minimumSize: isFullWidth ? null : Size(0, buttonHeight),
+              shape: RoundedRectangleBorder(
+                borderRadius: AppSpacing.borderRadiusRound,
+              ),
+            ),
             child: child,
           ),
         );

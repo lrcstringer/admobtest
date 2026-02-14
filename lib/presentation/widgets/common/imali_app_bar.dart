@@ -29,7 +29,7 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
     const mascot = Padding(
       padding: EdgeInsets.all(4),
       child: Image(
-        image: AssetImage('assets/icons/elephantFinal1.png'),
+        image: AssetImage('assets/icons/iMaliCrown4.png'),
         width: 48,
         height: 48,
       ),

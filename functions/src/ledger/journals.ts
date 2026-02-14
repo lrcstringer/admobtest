@@ -634,9 +634,7 @@ export function createEarningEntries(
   sourceAccountId: string
 ): JournalEntryInput[] {
   const userAmount = Math.floor(totalAmount * LedgerConfig.EARNING_USER_SHARE);
-  const dailyPotAmount = Math.floor(
-    totalAmount * LedgerConfig.EARNING_DAILY_POT_SHARE
-  );
+  const dailyPotAmount = totalAmount * LedgerConfig.EARNING_DAILY_POT_SHARE;
   const weeklyPotAmount = totalAmount - userAmount - dailyPotAmount; // Remainder to weekly pot
 
   const entries: JournalEntryInput[] = [

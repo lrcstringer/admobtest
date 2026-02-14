@@ -31,6 +31,9 @@ mixin _$InboxThread {
   int get availableOpportunities => throw _privateConstructorUsedError;
   int get totalTokenReward => throw _privateConstructorUsedError;
   List<String> get rewardTypes => throw _privateConstructorUsedError;
+  List<String> get earningTypes => throw _privateConstructorUsedError;
+  int get estimatedDurationSeconds => throw _privateConstructorUsedError;
+  List<String> get opportunityIds => throw _privateConstructorUsedError;
   bool get hasRewardCampaign => throw _privateConstructorUsedError;
   DateTime? get soonestExpiry => throw _privateConstructorUsedError;
 
@@ -62,6 +65,9 @@ abstract class $InboxThreadCopyWith<$Res> {
     int availableOpportunities,
     int totalTokenReward,
     List<String> rewardTypes,
+    List<String> earningTypes,
+    int estimatedDurationSeconds,
+    List<String> opportunityIds,
     bool hasRewardCampaign,
     DateTime? soonestExpiry,
   });
@@ -92,6 +98,9 @@ class _$InboxThreadCopyWithImpl<$Res, $Val extends InboxThread>
     Object? availableOpportunities = null,
     Object? totalTokenReward = null,
     Object? rewardTypes = null,
+    Object? earningTypes = null,
+    Object? estimatedDurationSeconds = null,
+    Object? opportunityIds = null,
     Object? hasRewardCampaign = null,
     Object? soonestExpiry = freezed,
   }) {
@@ -137,6 +146,18 @@ class _$InboxThreadCopyWithImpl<$Res, $Val extends InboxThread>
                 ? _value.rewardTypes
                 : rewardTypes // ignore: cast_nullable_to_non_nullable
                       as List<String>,
+            earningTypes: null == earningTypes
+                ? _value.earningTypes
+                : earningTypes // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            estimatedDurationSeconds: null == estimatedDurationSeconds
+                ? _value.estimatedDurationSeconds
+                : estimatedDurationSeconds // ignore: cast_nullable_to_non_nullable
+                      as int,
+            opportunityIds: null == opportunityIds
+                ? _value.opportunityIds
+                : opportunityIds // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
             hasRewardCampaign: null == hasRewardCampaign
                 ? _value.hasRewardCampaign
                 : hasRewardCampaign // ignore: cast_nullable_to_non_nullable
@@ -171,6 +192,9 @@ abstract class _$$InboxThreadImplCopyWith<$Res>
     int availableOpportunities,
     int totalTokenReward,
     List<String> rewardTypes,
+    List<String> earningTypes,
+    int estimatedDurationSeconds,
+    List<String> opportunityIds,
     bool hasRewardCampaign,
     DateTime? soonestExpiry,
   });
@@ -200,6 +224,9 @@ class __$$InboxThreadImplCopyWithImpl<$Res>
     Object? availableOpportunities = null,
     Object? totalTokenReward = null,
     Object? rewardTypes = null,
+    Object? earningTypes = null,
+    Object? estimatedDurationSeconds = null,
+    Object? opportunityIds = null,
     Object? hasRewardCampaign = null,
     Object? soonestExpiry = freezed,
   }) {
@@ -245,6 +272,18 @@ class __$$InboxThreadImplCopyWithImpl<$Res>
             ? _value._rewardTypes
             : rewardTypes // ignore: cast_nullable_to_non_nullable
                   as List<String>,
+        earningTypes: null == earningTypes
+            ? _value._earningTypes
+            : earningTypes // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        estimatedDurationSeconds: null == estimatedDurationSeconds
+            ? _value.estimatedDurationSeconds
+            : estimatedDurationSeconds // ignore: cast_nullable_to_non_nullable
+                  as int,
+        opportunityIds: null == opportunityIds
+            ? _value._opportunityIds
+            : opportunityIds // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
         hasRewardCampaign: null == hasRewardCampaign
             ? _value.hasRewardCampaign
             : hasRewardCampaign // ignore: cast_nullable_to_non_nullable
@@ -272,9 +311,14 @@ class _$InboxThreadImpl extends _InboxThread {
     required this.availableOpportunities,
     required this.totalTokenReward,
     final List<String> rewardTypes = const [],
+    final List<String> earningTypes = const [],
+    this.estimatedDurationSeconds = 0,
+    final List<String> opportunityIds = const [],
     this.hasRewardCampaign = false,
     this.soonestExpiry,
   }) : _rewardTypes = rewardTypes,
+       _earningTypes = earningTypes,
+       _opportunityIds = opportunityIds,
        super._();
 
   factory _$InboxThreadImpl.fromJson(Map<String, dynamic> json) =>
@@ -307,6 +351,27 @@ class _$InboxThreadImpl extends _InboxThread {
     return EqualUnmodifiableListView(_rewardTypes);
   }
 
+  final List<String> _earningTypes;
+  @override
+  @JsonKey()
+  List<String> get earningTypes {
+    if (_earningTypes is EqualUnmodifiableListView) return _earningTypes;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_earningTypes);
+  }
+
+  @override
+  @JsonKey()
+  final int estimatedDurationSeconds;
+  final List<String> _opportunityIds;
+  @override
+  @JsonKey()
+  List<String> get opportunityIds {
+    if (_opportunityIds is EqualUnmodifiableListView) return _opportunityIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_opportunityIds);
+  }
+
   @override
   @JsonKey()
   final bool hasRewardCampaign;
@@ -315,7 +380,7 @@ class _$InboxThreadImpl extends _InboxThread {
 
   @override
   String toString() {
-    return 'InboxThread(id: $id, title: $title, description: $description, threadImage: $threadImage, isPinned: $isPinned, isFeatured: $isFeatured, activeTo: $activeTo, availableOpportunities: $availableOpportunities, totalTokenReward: $totalTokenReward, rewardTypes: $rewardTypes, hasRewardCampaign: $hasRewardCampaign, soonestExpiry: $soonestExpiry)';
+    return 'InboxThread(id: $id, title: $title, description: $description, threadImage: $threadImage, isPinned: $isPinned, isFeatured: $isFeatured, activeTo: $activeTo, availableOpportunities: $availableOpportunities, totalTokenReward: $totalTokenReward, rewardTypes: $rewardTypes, earningTypes: $earningTypes, estimatedDurationSeconds: $estimatedDurationSeconds, opportunityIds: $opportunityIds, hasRewardCampaign: $hasRewardCampaign, soonestExpiry: $soonestExpiry)';
   }
 
   @override
@@ -343,6 +408,19 @@ class _$InboxThreadImpl extends _InboxThread {
               other._rewardTypes,
               _rewardTypes,
             ) &&
+            const DeepCollectionEquality().equals(
+              other._earningTypes,
+              _earningTypes,
+            ) &&
+            (identical(
+                  other.estimatedDurationSeconds,
+                  estimatedDurationSeconds,
+                ) ||
+                other.estimatedDurationSeconds == estimatedDurationSeconds) &&
+            const DeepCollectionEquality().equals(
+              other._opportunityIds,
+              _opportunityIds,
+            ) &&
             (identical(other.hasRewardCampaign, hasRewardCampaign) ||
                 other.hasRewardCampaign == hasRewardCampaign) &&
             (identical(other.soonestExpiry, soonestExpiry) ||
@@ -363,6 +441,9 @@ class _$InboxThreadImpl extends _InboxThread {
     availableOpportunities,
     totalTokenReward,
     const DeepCollectionEquality().hash(_rewardTypes),
+    const DeepCollectionEquality().hash(_earningTypes),
+    estimatedDurationSeconds,
+    const DeepCollectionEquality().hash(_opportunityIds),
     hasRewardCampaign,
     soonestExpiry,
   );
@@ -393,6 +474,9 @@ abstract class _InboxThread extends InboxThread {
     required final int availableOpportunities,
     required final int totalTokenReward,
     final List<String> rewardTypes,
+    final List<String> earningTypes,
+    final int estimatedDurationSeconds,
+    final List<String> opportunityIds,
     final bool hasRewardCampaign,
     final DateTime? soonestExpiry,
   }) = _$InboxThreadImpl;
@@ -421,6 +505,12 @@ abstract class _InboxThread extends InboxThread {
   int get totalTokenReward;
   @override
   List<String> get rewardTypes;
+  @override
+  List<String> get earningTypes;
+  @override
+  int get estimatedDurationSeconds;
+  @override
+  List<String> get opportunityIds;
   @override
   bool get hasRewardCampaign;
   @override

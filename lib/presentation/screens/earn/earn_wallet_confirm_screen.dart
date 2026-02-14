@@ -60,23 +60,31 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
       curve: Curves.easeIn,
     );
 
-    // Start animations
+    // Start scale + fade animations immediately (screen may show loading)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final earnState = context.read<EarnBloc>().state;
-      // Only play confetti for instant completions, not pending review
-      if (!earnState.isPendingReview) {
-        _confettiController.play();
-      }
       _scaleController.forward();
       Future.delayed(const Duration(milliseconds: 300), () {
-        _fadeController.forward();
+        if (mounted) _fadeController.forward();
       });
 
-      // Refresh wallet to show updated balance (only if not pending)
-      if (!earnState.isPendingReview) {
-        context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+      // If already completed on first frame (fast CF), trigger success effects
+      final earnState = context.read<EarnBloc>().state;
+      if (earnState.engagementPhase == EngagementPhase.completed) {
+        _onSubmissionCompleted(earnState.isPendingReview);
       }
     });
+  }
+
+  bool _completionHandled = false;
+
+  void _onSubmissionCompleted(bool isPendingReview) {
+    if (_completionHandled) return;
+    _completionHandled = true;
+
+    if (!isPendingReview) {
+      _confettiController.play();
+      context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+    }
   }
 
   @override
@@ -89,12 +97,37 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EarnBloc, EarnState>(
+    return BlocConsumer<EarnBloc, EarnState>(
+      listener: (context, earnState) {
+        // Trigger confetti + wallet refresh when submission completes
+        if (earnState.engagementPhase == EngagementPhase.completed) {
+          _onSubmissionCompleted(earnState.isPendingReview);
+        }
+
+        // Handle submission failure — show error and navigate back
+        if (earnState.engagementPhase == EngagementPhase.failed) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  earnState.errorMessage ?? 'Submission failed. Please retry.'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+          context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
+          context.go('/earn');
+        }
+      },
       builder: (context, earnState) {
+        final isSubmitting =
+            earnState.engagementPhase == EngagementPhase.submitting;
         final engagement = earnState.currentEngagement;
-        final tokensEarned = engagement?.tokensEarned ?? 0;
         final opportunity = earnState.selectedOpportunity;
         final isPendingReview = earnState.isPendingReview;
+        // Use engagement tokensEarned, fall back to opportunity tokenReward
+        final tokensEarned = (engagement?.tokensEarned != null &&
+                engagement!.tokensEarned! > 0)
+            ? engagement.tokensEarned!
+            : opportunity?.tokenReward ?? 0;
 
         // Calculate 90/5/5 breakdown
         final userTokens = (tokensEarned * 0.90).round();
@@ -115,32 +148,53 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                   // Main content
                   SafeArea(
                     child: Padding(
-                      padding: EdgeInsets.all(AppSpacing.lg),
-                      child: Column(
-                        children: [
-                          const Spacer(),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg),
+                      child: CustomScrollView(
+                        slivers: [
+                          // Top spacing
+                          SliverToBoxAdapter(
+                            child: SizedBox(height: AppSpacing.xl),
+                          ),
+                          // Centered content
+                          SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: Column(
+                              children: [
+                                const Spacer(),
 
-                          // Animated success icon
+                                // Animated success/loading icon
                           ScaleTransition(
                             scale: _scaleAnimation,
                             child: Container(
                               width: 120,
                               height: 120,
                               decoration: BoxDecoration(
-                                color: isPendingReview
-                                    ? AppColors.warning.withValues(alpha: 0.2)
-                                    : AppColors.success.withValues(alpha: 0.2),
+                                color: isSubmitting
+                                    ? AppColors.primary.withValues(alpha: 0.2)
+                                    : isPendingReview
+                                        ? AppColors.warning
+                                            .withValues(alpha: 0.2)
+                                        : AppColors.success
+                                            .withValues(alpha: 0.2),
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(
-                                isPendingReview
-                                    ? Icons.hourglass_top
-                                    : Icons.check_circle,
-                                size: 80,
-                                color: isPendingReview
-                                    ? AppColors.warning
-                                    : AppColors.success,
-                              ),
+                              child: isSubmitting
+                                  ? const Padding(
+                                      padding: EdgeInsets.all(28),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 4,
+                                      ),
+                                    )
+                                  : Icon(
+                                      isPendingReview
+                                          ? Icons.hourglass_top
+                                          : Icons.check_circle,
+                                      size: 80,
+                                      color: isPendingReview
+                                          ? AppColors.warning
+                                          : AppColors.success,
+                                    ),
                             ),
                           ),
                           SizedBox(height: AppSpacing.lg),
@@ -150,11 +204,13 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                             opacity: _fadeAnimation,
                             child: Column(
                               children: [
-                                // Success message
+                                // Success / submitting message
                                 Text(
-                                  isPendingReview
-                                      ? 'Submission Received!'
-                                      : 'Congratulations!',
+                                  isSubmitting
+                                      ? 'Almost there...'
+                                      : isPendingReview
+                                          ? 'Submission Received!'
+                                          : 'Congratulations!',
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineMedium
@@ -164,9 +220,11 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                 ),
                                 SizedBox(height: AppSpacing.xs),
                                 Text(
-                                  isPendingReview
-                                      ? 'Your upload is under review'
-                                      : 'You earned tokens successfully',
+                                  isSubmitting
+                                      ? 'Processing your tokens'
+                                      : isPendingReview
+                                          ? 'Your upload is under review'
+                                          : 'You earned tokens successfully',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyLarge
@@ -240,68 +298,6 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                   ),
                                   SizedBox(height: AppSpacing.md),
                                 ] else ...[
-                                  // Total tokens earned
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: AppSpacing.xl,
-                                      vertical: AppSpacing.md,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          AppColors.gold,
-                                          AppColors.gold
-                                              .withValues(alpha: 0.8),
-                                        ],
-                                      ),
-                                      borderRadius:
-                                          BorderRadius.circular(24),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: AppColors.gold
-                                              .withValues(alpha: 0.4),
-                                          blurRadius: 16,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.monetization_on,
-                                          color: Colors.white,
-                                          size: 32,
-                                        ),
-                                        SizedBox(width: AppSpacing.sm),
-                                        Text(
-                                          '+$tokensEarned',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineMedium
-                                              ?.copyWith(
-                                                color: Colors.white,
-                                                fontWeight:
-                                                    FontWeight.bold,
-                                              ),
-                                        ),
-                                        SizedBox(width: AppSpacing.xs),
-                                        Text(
-                                          'tokens',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                color: Colors.white
-                                                    .withValues(
-                                                        alpha: 0.9),
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(height: AppSpacing.xl),
-
                                   // Token breakdown card
                                   Card(
                                     child: Padding(
@@ -311,15 +307,70 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            'Token Distribution',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleSmall
-                                                ?.copyWith(
-                                                  color: AppColors
-                                                      .textSecondary,
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Token Distribution',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleSmall
+                                                    ?.copyWith(
+                                                      color: AppColors
+                                                          .textSecondary,
+                                                    ),
+                                              ),
+                                              const Spacer(),
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets
+                                                        .symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 4,
                                                 ),
+                                                decoration: BoxDecoration(
+                                                  gradient:
+                                                      LinearGradient(
+                                                    colors: [
+                                                      AppColors.gold,
+                                                      AppColors.gold
+                                                          .withValues(
+                                                              alpha: 0.8),
+                                                    ],
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius
+                                                          .circular(12),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons
+                                                          .monetization_on,
+                                                      color: Colors.white,
+                                                      size: 14,
+                                                    ),
+                                                    const SizedBox(
+                                                        width: 4),
+                                                    Text(
+                                                      '+$tokensEarned',
+                                                      style: Theme.of(
+                                                              context)
+                                                          .textTheme
+                                                          .labelMedium
+                                                          ?.copyWith(
+                                                            color: Colors
+                                                                .white,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                           SizedBox(
                                               height: AppSpacing.md),
@@ -534,21 +585,28 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 AppButton(
-                                  text: 'Continue Earning',
-                                  onPressed: _goToEarn,
+                                  text: isSubmitting
+                                      ? 'Processing...'
+                                      : 'Continue Earning',
+                                  onPressed:
+                                      isSubmitting ? null : _goToEarn,
                                   icon: Icons.arrow_forward,
                                 ),
                                 SizedBox(height: AppSpacing.sm),
                                 AppButton(
                                   text: 'Go to Wallet',
-                                  onPressed: _goToWallet,
+                                  onPressed:
+                                      isSubmitting ? null : _goToWallet,
                                   variant: AppButtonVariant.outline,
                                   icon: Icons.account_balance_wallet,
                                 ),
                               ],
                             ),
                           ),
-                          SizedBox(height: AppSpacing.lg),
+                                SizedBox(height: AppSpacing.xl),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),

@@ -68,11 +68,19 @@ class RaspService {
       },
     );
 
-    Talsec.instance.attachListener(callback);
-    await Talsec.instance.start(config);
-
-    _initialized = true;
-    debugPrint('[RASP] Initialized successfully');
+    try {
+      Talsec.instance.attachListener(callback);
+      await Talsec.instance.start(config).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          debugPrint('[RASP] Initialization timed out — continuing without RASP');
+        },
+      );
+      _initialized = true;
+      debugPrint('[RASP] Initialized successfully');
+    } catch (e) {
+      debugPrint('[RASP] Initialization failed: $e — continuing without RASP');
+    }
   }
 
   void _handleCriticalThreat(String threatType) {

@@ -83,6 +83,9 @@ export type AdminPermission =
   // Platform / migration
   | "platform:setup"
   | "platform:runMigration"
+  // Pots
+  | "pots:distribute"
+  | "pots:viewEntries"
   // Cashout
   | "cashout:complete"
   // Admin user management
@@ -139,6 +142,8 @@ const platformAdminPerms: AdminPermission[] = [
   "accounts:getSystemStatus",
   "accounts:runRecon",
   "accounts:initializeLedger",
+  "pots:distribute",
+  "pots:viewEntries",
   "platform:setup",
   "platform:runMigration",
   "audit:viewLogs",
@@ -162,6 +167,8 @@ const financeAdminPerms: AdminPermission[] = [
   "accounts:listUsers",
   "accounts:listUserSubAccounts",
   "accounts:softDeleteClient",
+  "pots:distribute",
+  "pots:viewEntries",
   "cashout:complete",
   "audit:viewLogs",
   "pending:list",
@@ -203,6 +210,7 @@ const campaignAdminPerms: AdminPermission[] = [
 ];
 
 const auditorPerms: AdminPermission[] = [
+  "pots:viewEntries",
   "accounts:listSuppliers",
   "accounts:listClients",
   "accounts:getClient",

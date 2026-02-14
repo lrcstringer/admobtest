@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
@@ -252,40 +253,14 @@ class _WalletSendAmountScreenState extends State<WalletSendAmountScreen> {
                   AppSpacing.verticalXl,
 
                   // Send button
-                  SizedBox(
-                    width: double.infinity,
-                    height: AppSpacing.buttonHeightLg,
-                    child: ElevatedButton(
-                      onPressed:
-                          _amount > 0 && _amount <= availableBalance && !_isSending
-                              ? _send
-                              : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        disabledBackgroundColor:
-                            AppColors.primary.withValues(alpha: 0.3),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppSpacing.borderRadiusMd,
-                        ),
-                      ),
-                      child: _isSending
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text(
-                              'Send',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                    ),
+                  AppButton(
+                    text: 'Send',
+                    onPressed:
+                        _amount > 0 && _amount <= availableBalance && !_isSending
+                            ? _send
+                            : null,
+                    isLoading: _isSending,
+                    size: AppButtonSize.large,
                   ),
                 ],
               ),

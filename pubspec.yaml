@@ -96,7 +96,8 @@ dependencies:
   camera: ^0.11.0+2
 
   # Video compression (min variant = smallest binary size)
-  ffmpeg_kit_flutter_min: ^6.0.3
+  # Original ffmpeg_kit_flutter_min archived; using maintained fork
+  ffmpeg_kit_flutter_new_min: ^3.1.0
 
   # Device Info (for fraud prevention)
   device_info_plus: ^10.1.2
@@ -170,8 +171,8 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icons/elephantFinal2.png"
-  adaptive_icon_foreground: "assets/icons/elephantFinal2.png"
+  image_path: "assets/icons/iMaliCrown4.png"
+  adaptive_icon_foreground: "assets/icons/iMaliCrown4.png"
   adaptive_icon_background: "#000000"
   adaptive_icon_padding: 0
   min_sdk_android: 21

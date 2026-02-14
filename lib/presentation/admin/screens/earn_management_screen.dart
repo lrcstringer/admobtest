@@ -3596,6 +3596,8 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
   final _durationController = TextEditingController(text: '30');
   String _earningType = 'video';
   bool _isActive = false;
+  bool _isPinned = false;
+  bool _isFeatured = false;
   bool _isLoading = false;
   final List<Map<String, dynamic>> _questions = [];
 
@@ -4100,6 +4102,8 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
       'durationSeconds': int.tryParse(_durationController.text) ?? 30,
       'questions': _questions,
       'isActive': _isActive,
+      'isPinned': _isPinned,
+      'isFeatured': _isFeatured,
       'expiresAt': _expiresAt != null ? Timestamp.fromDate(_expiresAt!) : null,
       'dailyLimitPerUser': _dailyLimitController.text.trim().isNotEmpty
           ? int.tryParse(_dailyLimitController.text.trim())
@@ -4996,6 +5000,20 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                   title: const Text('Active'),
                   contentPadding: EdgeInsets.zero,
                 ),
+                SwitchListTile(
+                  value: _isPinned,
+                  onChanged: (v) => setState(() => _isPinned = v),
+                  title: const Text('Pinned'),
+                  subtitle: const Text('Pin to top of opportunity list'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                SwitchListTile(
+                  value: _isFeatured,
+                  onChanged: (v) => setState(() => _isFeatured = v),
+                  title: const Text('Featured'),
+                  subtitle: const Text('Highlight as featured opportunity'),
+                  contentPadding: EdgeInsets.zero,
+                ),
                 const SizedBox(height: 8),
                 // Expiry date
                 InkWell(
@@ -5099,6 +5117,8 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
   late final TextEditingController _tokenRewardController;
   late final TextEditingController _durationController;
   late bool _isActive;
+  late bool _isPinned;
+  late bool _isFeatured;
   DateTime? _expiresAt;
   bool _isLoading = false;
 
@@ -5178,6 +5198,8 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
     _durationController =
         TextEditingController(text: (o['durationSeconds'] ?? 30).toString());
     _isActive = o['isActive'] == true;
+    _isPinned = o['isPinned'] == true;
+    _isFeatured = o['isFeatured'] == true;
 
     // Init additional fields
     _earningType = o['earningType']?.toString() ?? 'video';
@@ -5476,6 +5498,8 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
         'streakPoints': int.tryParse(_streakPointsController.text) ?? 0,
         'durationSeconds': int.tryParse(_durationController.text) ?? 30,
         'isActive': _isActive,
+        'isPinned': _isPinned,
+        'isFeatured': _isFeatured,
         'expiresAt': _expiresAt != null ? Timestamp.fromDate(_expiresAt!) : null,
         'dailyLimitPerUser': _dailyLimitController.text.trim().isNotEmpty
             ? int.tryParse(_dailyLimitController.text.trim())
@@ -6150,6 +6174,20 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                   value: _isActive,
                   onChanged: _onActiveToggled,
                   title: const Text('Active'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                SwitchListTile(
+                  value: _isPinned,
+                  onChanged: (v) => setState(() => _isPinned = v),
+                  title: const Text('Pinned'),
+                  subtitle: const Text('Pin to top of opportunity list'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                SwitchListTile(
+                  value: _isFeatured,
+                  onChanged: (v) => setState(() => _isFeatured = v),
+                  title: const Text('Featured'),
+                  subtitle: const Text('Highlight as featured opportunity'),
                   contentPadding: EdgeInsets.zero,
                 ),
                 const SizedBox(height: 8),

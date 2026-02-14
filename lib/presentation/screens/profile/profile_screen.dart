@@ -11,6 +11,7 @@ import '../../blocs/referral/referral_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/brand_card.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -42,7 +43,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   width: double.infinity,
                   padding: AppSpacing.cardPaddingLarge,
-                  color: AppColors.surface,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color.alphaBlend(
+                          AppColors.primaryGradient[0]
+                              .withValues(alpha: 0.05),
+                          AppColors.surface,
+                        ),
+                        Color.alphaBlend(
+                          AppColors.primaryGradient[1]
+                              .withValues(alpha: 0.025),
+                          AppColors.surface,
+                        ),
+                      ],
+                    ),
+                  ),
                   child: Column(
                     children: [
                       // Avatar with edit button
@@ -133,6 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     context,
                                     _formatNumber(totalEarned),
                                     'Tokens Earned',
+                                    valueColor: AppColors.gold,
                                   ),
                                   Container(
                                     height: 30,
@@ -145,6 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     context,
                                     referralCount.toString(),
                                     'Referrals',
+                                    valueColor: AppColors.primary,
                                   ),
                                   Container(
                                     height: 30,
@@ -153,7 +173,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     margin: const EdgeInsets.symmetric(
                                         horizontal: 24),
                                   ),
-                                  _buildStat(context, '0', 'Pots Won'),
+                                  _buildStat(context, '0', 'Pots Won',
+                                      valueColor: AppColors.secondary),
                                 ],
                               );
                             },
@@ -167,107 +188,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // Account section
                 _buildSectionHeader(context, 'Account'),
-                Container(
-                  color: AppColors.surface,
-                  child: Column(
-                    children: [
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.person_outline,
-                        title: 'Edit Profile',
-                        subtitle: 'Name, username, avatar',
-                        onTap: () =>
-                            context.push('/home/profile/edit'),
-                      ),
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.verified_user_outlined,
-                        title: 'Verify Identity',
-                        subtitle: 'KYC verification for cashouts',
-                        onTap: () =>
-                            context.push('/home/profile/kyc'),
-                      ),
-                    ],
-                  ),
+                _buildMenuSection(
+                  gradient: BrandGradient.logo,
+                  children: [
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.person_outline,
+                      title: 'Edit Profile',
+                      subtitle: 'Name, username, avatar',
+                      onTap: () =>
+                          context.push('/home/profile/edit'),
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.verified_user_outlined,
+                      title: 'Verify Identity',
+                      subtitle: 'KYC verification for cashouts',
+                      onTap: () =>
+                          context.push('/home/profile/kyc'),
+                    ),
+                  ],
                 ),
                 AppSpacing.verticalMd,
 
                 // Preferences section
                 _buildSectionHeader(context, 'Preferences'),
-                Container(
-                  color: AppColors.surface,
-                  child: Column(
-                    children: [
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.notifications_outlined,
-                        title: 'Notifications',
-                        subtitle: 'Manage notification preferences',
-                        onTap: () =>
-                            context.push('/home/profile/notifications'),
-                      ),
-                    ],
-                  ),
+                _buildMenuSection(
+                  gradient: BrandGradient.cyanBlue,
+                  children: [
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.notifications_outlined,
+                      title: 'Notifications',
+                      subtitle: 'Manage notification preferences',
+                      onTap: () =>
+                          context.push('/home/profile/notifications'),
+                    ),
+                  ],
                 ),
                 AppSpacing.verticalMd,
 
                 // Security section
                 _buildSectionHeader(context, 'Security'),
-                Container(
-                  color: AppColors.surface,
-                  child: Column(
-                    children: [
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.lock_outline,
-                        title: 'Security',
-                        subtitle: 'PIN and biometric settings',
-                        onTap: () =>
-                            context.push('/home/profile/security'),
-                      ),
-                    ],
-                  ),
+                _buildMenuSection(
+                  gradient: BrandGradient.pinkPurple,
+                  children: [
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.lock_outline,
+                      title: 'Security',
+                      subtitle: 'PIN and biometric settings',
+                      onTap: () =>
+                          context.push('/home/profile/security'),
+                    ),
+                  ],
                 ),
                 AppSpacing.verticalMd,
 
                 // Support section
                 _buildSectionHeader(context, 'Support'),
-                Container(
-                  color: AppColors.surface,
-                  child: Column(
-                    children: [
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.help_outline,
-                        title: 'Help & Support',
-                        subtitle: 'FAQs and contact support',
-                        onTap: () =>
-                            context.push('/home/profile/help'),
-                      ),
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.info_outline,
-                        title: 'About',
-                        subtitle: 'App version and legal',
-                        onTap: () =>
-                            context.push('/home/profile/about'),
-                      ),
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.description_outlined,
-                        title: 'Terms of Service',
-                        onTap: () =>
-                            context.push('/auth/terms-of-service'),
-                      ),
-                      _buildMenuItem(
-                        context,
-                        icon: Icons.shield_outlined,
-                        title: 'Privacy Policy',
-                        onTap: () =>
-                            context.push('/auth/privacy-policy'),
-                      ),
-                    ],
-                  ),
+                _buildMenuSection(
+                  gradient: BrandGradient.goldOrange,
+                  children: [
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.help_outline,
+                      title: 'Help & Support',
+                      subtitle: 'FAQs and contact support',
+                      onTap: () =>
+                          context.push('/home/profile/help'),
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.info_outline,
+                      title: 'About',
+                      subtitle: 'App version and legal',
+                      onTap: () =>
+                          context.push('/home/profile/about'),
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.description_outlined,
+                      title: 'Terms of Service',
+                      onTap: () =>
+                          context.push('/auth/terms-of-service'),
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.shield_outlined,
+                      title: 'Privacy Policy',
+                      onTap: () =>
+                          context.push('/auth/privacy-policy'),
+                    ),
+                  ],
                 ),
                 AppSpacing.verticalMd,
 
@@ -330,14 +343,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return number.toString();
   }
 
-  Widget _buildStat(BuildContext context, String value, String label) {
+  Widget _buildStat(BuildContext context, String value, String label,
+      {Color? valueColor}) {
     return Column(
       children: [
         Text(
           value,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+                color: valueColor ?? AppColors.primary,
               ),
         ),
         Text(
@@ -347,6 +361,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
         ),
       ],
+    );
+  }
+
+  Widget _buildMenuSection({
+    required BrandGradient gradient,
+    required List<Widget> children,
+  }) {
+    final colors = BrandCard.colorsFor(gradient);
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(
+              colors[0].withValues(alpha: 0.04),
+              AppColors.surface,
+            ),
+            Color.alphaBlend(
+              colors[1].withValues(alpha: 0.02),
+              AppColors.surface,
+            ),
+          ],
+        ),
+      ),
+      child: Column(children: children),
     );
   }
 

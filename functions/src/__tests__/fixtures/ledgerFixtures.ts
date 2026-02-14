@@ -389,7 +389,7 @@ export function calculateTokenSplit(totalAmount: number): {
   weeklyPotShare: number;
 } {
   const userShare = Math.floor(totalAmount * 0.9);
-  const dailyPotShare = Math.floor(totalAmount * 0.05);
+  const dailyPotShare = totalAmount * 0.05; // No rounding — deferred to distribution
   const weeklyPotShare = totalAmount - userShare - dailyPotShare;
   return { userShare, dailyPotShare, weeklyPotShare };
 }

@@ -68,6 +68,15 @@ class SessionLockService {
   /// Whether the session is currently locked.
   bool get isLocked => _isLocked;
 
+  /// Discard any pending background timestamp without evaluating it.
+  ///
+  /// Called when the app resumes but the user is not yet authenticated
+  /// (e.g. during OTP flow), so the timestamp doesn't linger and cause
+  /// a spurious lock after auth completes.
+  void discardBackgroundTimestamp() {
+    _backgroundTimestamp = null;
+  }
+
   /// Suppress session locking temporarily (e.g. while showing an ad overlay).
   /// Call [unsuppressLock] when the overlay is dismissed.
   void suppressLock() {

@@ -218,6 +218,10 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
   Widget _buildProviderCard(BuildContext context, ServiceProvider provider) {
     return Card(
       clipBehavior: Clip.antiAlias,
+      color: Color.alphaBlend(
+        AppColors.secondaryGradient[0].withValues(alpha: 0.04),
+        AppColors.surface,
+      ),
       child: InkWell(
         onTap: () {
           context

@@ -24,6 +24,10 @@ class InboxClient with _$InboxClient {
   factory InboxClient.fromJson(Map<String, dynamic> json) =>
       _$InboxClientFromJson(json);
 
+  /// Total tokens available across all threads
+  int get totalTokens =>
+      threads.fold(0, (sum, t) => sum + t.totalTokenReward);
+
   /// Get client initials for avatar fallback
   String get clientInitials {
     if (clientName.isEmpty) return '??';

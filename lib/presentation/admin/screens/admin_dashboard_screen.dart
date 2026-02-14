@@ -16,12 +16,23 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final _functions = FirebaseFunctions.instance;
   final _numberFormat = NumberFormat('#,###');
 
+  // Ledger balances
   int? _cbookBus;
   int? _cbookTrust;
   int? _dailyPot;
   int? _weeklyPot;
   int? _cashoutPending;
   int? _imalichat;
+  int? _otherClientsBalance;
+  // Earn activity
+  int? _activeCampaigns;
+  int? _activeOpportunities;
+  int? _activeOpportunitiesTokens;
+  // User activity
+  int? _totalUsers;
+  int? _uniqueLoginsLast24h;
+  int? _tokensEarnedLast24h;
+
   bool _isLoading = true;
   String? _error;
 
@@ -52,6 +63,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         _weeklyPot = (data['weeklyPot'] as num?)?.toInt() ?? 0;
         _cashoutPending = (data['cashoutPending'] as num?)?.toInt() ?? 0;
         _imalichat = (data['imalichat'] as num?)?.toInt() ?? 0;
+        _otherClientsBalance = (data['otherClientsBalance'] as num?)?.toInt() ?? 0;
+        _activeCampaigns = (data['activeCampaigns'] as num?)?.toInt() ?? 0;
+        _activeOpportunities = (data['activeOpportunities'] as num?)?.toInt() ?? 0;
+        _activeOpportunitiesTokens = (data['activeOpportunitiesTokens'] as num?)?.toInt() ?? 0;
+        _totalUsers = (data['totalUsers'] as num?)?.toInt() ?? 0;
+        _uniqueLoginsLast24h = (data['uniqueLoginsLast24h'] as num?)?.toInt() ?? 0;
+        _tokensEarnedLast24h = (data['tokensEarnedLast24h'] as num?)?.toInt() ?? 0;
         _isLoading = false;
       });
     } catch (e) {
@@ -139,6 +157,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   String _fmt(int? value) => _isLoading ? '...' : value != null ? _numberFormat.format(value) : '--';
 
+  Widget _sectionHeader(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textSecondary,
+        letterSpacing: 0.5,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -165,7 +195,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
 
             // Error banner
             if (_error != null)
@@ -195,78 +225,51 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
               ),
 
-            // Stats cards row
+            // ── Ledger Balances ──
+            _sectionHeader('Ledger Balances'),
+            const SizedBox(height: 8),
             Wrap(
-              spacing: 16,
-              runSpacing: 16,
+              spacing: 10,
+              runSpacing: 10,
               children: [
-                _StatCard(
-                  title: 'CashBook Business',
-                  value: _fmt(_cbookBus),
-                  icon: Icons.account_balance,
-                  color: AppColors.primary,
-                ),
-                _StatCard(
-                  title: 'CashBook Trust',
-                  value: _fmt(_cbookTrust),
-                  icon: Icons.account_balance,
-                  color: AppColors.secondary,
-                ),
-                _StatCard(
-                  title: 'iMaliChat Client',
-                  value: _fmt(_imalichat),
-                  icon: Icons.business,
-                  color: AppColors.success,
-                ),
-                _StatCard(
-                  title: 'Daily Pot',
-                  value: _fmt(_dailyPot),
-                  icon: Icons.emoji_events,
-                  color: AppColors.warning,
-                ),
-                _StatCard(
-                  title: 'Weekly Pot',
-                  value: _fmt(_weeklyPot),
-                  icon: Icons.emoji_events,
-                  color: AppColors.warning,
-                ),
-                _StatCard(
-                  title: 'Pending Cashouts',
-                  value: _fmt(_cashoutPending),
-                  icon: Icons.payments,
-                  color: AppColors.error,
-                ),
+                _StatChip(title: 'CashBook Business', value: _fmt(_cbookBus), icon: Icons.account_balance, color: AppColors.primary),
+                _StatChip(title: 'CashBook Trust', value: _fmt(_cbookTrust), icon: Icons.account_balance, color: AppColors.secondary),
+                _StatChip(title: 'iMaliChat Client', value: _fmt(_imalichat), icon: Icons.business, color: AppColors.success),
+                _StatChip(title: 'Other Clients', value: _fmt(_otherClientsBalance), icon: Icons.business_center, color: AppColors.accent),
+                _StatChip(title: 'Daily Pot', value: _fmt(_dailyPot), icon: Icons.emoji_events, color: AppColors.warning),
+                _StatChip(title: 'Weekly Pot', value: _fmt(_weeklyPot), icon: Icons.emoji_events, color: AppColors.warning),
+                _StatChip(title: 'Pending Cashouts', value: _fmt(_cashoutPending), icon: Icons.payments, color: AppColors.error),
               ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
 
-            // Quick actions
-            const Text(
-              'Quick Actions',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimaryDark,
-              ),
-            ),
-            const SizedBox(height: 16),
+            // ── Earn Activity ──
+            _sectionHeader('Earn Activity'),
+            const SizedBox(height: 8),
             Wrap(
-              spacing: 12,
-              runSpacing: 12,
+              spacing: 10,
+              runSpacing: 10,
               children: [
-                _ActionButton(
-                  label: 'Distribute Daily Pot',
-                  icon: Icons.emoji_events,
-                  onTap: () {},
-                ),
-                _ActionButton(
-                  label: 'Approve Cashouts',
-                  icon: Icons.check_circle,
-                  onTap: () {},
-                ),
+                _StatChip(title: 'Active Campaigns', value: _fmt(_activeCampaigns), icon: Icons.campaign, color: AppColors.primary),
+                _StatChip(title: 'Active Opportunities', value: _fmt(_activeOpportunities), icon: Icons.play_circle_outline, color: AppColors.secondary),
+                _StatChip(title: 'Opportunity Tokens', value: _fmt(_activeOpportunitiesTokens), icon: Icons.toll, color: AppColors.warning),
               ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
+
+            // ── User Activity ──
+            _sectionHeader('User Activity'),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                _StatChip(title: 'Registered Users', value: _fmt(_totalUsers), icon: Icons.people, color: AppColors.primary),
+                _StatChip(title: 'Logins (24h)', value: _fmt(_uniqueLoginsLast24h), icon: Icons.login, color: AppColors.success),
+                _StatChip(title: 'Tokens Earned (24h)', value: _fmt(_tokensEarnedLast24h), icon: Icons.toll, color: AppColors.accent),
+              ],
+            ),
+            const SizedBox(height: 24),
 
             // Recent activity
             Container(
@@ -388,13 +391,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 }
 
-class _StatCard extends StatelessWidget {
+class _StatChip extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
   final Color color;
 
-  const _StatCard({
+  const _StatChip({
     required this.title,
     required this.value,
     required this.icon,
@@ -404,83 +407,46 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 200,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.cardDark,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(6),
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: Icon(icon, color: color, size: 16),
           ),
-          const SizedBox(height: 16),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimaryDark,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _ActionButton({
-    required this.label,
-    required this.icon,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.cardDark,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, size: 18, color: AppColors.primary),
-              const SizedBox(width: 8),
               Text(
-                label,
+                value,
                 style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                   color: AppColors.textPrimaryDark,
+                  height: 1.1,
+                ),
+              ),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textSecondary,
+                  height: 1.2,
                 ),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }

@@ -9,7 +9,7 @@ import cloud_firestore
 import cloud_functions
 import connectivity_plus
 import device_info_plus
-import ffmpeg_kit_flutter_min
+import ffmpeg_kit_flutter_new_min
 import file_picker
 import file_selector_macos
 import firebase_analytics

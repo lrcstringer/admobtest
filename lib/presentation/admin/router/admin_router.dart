@@ -17,6 +17,7 @@ import '../screens/reward_campaign_screen.dart';
 import '../screens/upload_review_screen.dart';
 import '../screens/ledger_recon_screen.dart';
 import '../screens/platform_management_screen.dart';
+import '../screens/pot_entries_screen.dart';
 import '../screens/pot_management_screen.dart';
 import '../screens/supplier_management_screen.dart';
 import '../screens/user_management_screen.dart';
@@ -63,6 +64,17 @@ class AdminRouter {
             path: '/pots',
             name: 'adminPots',
             builder: (context, state) => const PotManagementScreen(),
+          ),
+
+          // Pot Entries Viewer
+          GoRoute(
+            path: '/pot-entries',
+            name: 'adminPotEntries',
+            builder: (context, state) {
+              final potId =
+                  state.uri.queryParameters['potId'] ?? '';
+              return PotEntriesScreen(potId: potId);
+            },
           ),
 
           // User Management

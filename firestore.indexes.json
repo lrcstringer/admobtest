@@ -228,6 +228,23 @@
       ]
     },
     {
+      "collectionGroup": "pots",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "pots",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isDistributed", "order": "ASCENDING" },
+        { "fieldPath": "distributedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "engagements",
       "queryScope": "COLLECTION",
       "fields": [
@@ -358,6 +375,14 @@
       ]
     },
     {
+      "collectionGroup": "dailyScores",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "date", "order": "ASCENDING" },
+        { "fieldPath": "finalScore", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "scores",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
@@ -444,6 +469,14 @@
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "engagements",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "completedAt", "order": "ASCENDING" }
       ]
     },
     {

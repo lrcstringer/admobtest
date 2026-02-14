@@ -13,6 +13,7 @@ import '../../blocs/reward/reward_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/brand_card.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 import '../../widgets/reward/reward_consent_dialog.dart';
@@ -81,6 +82,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             icon: Icons.arrow_upward,
                             label: 'Cash Out',
                             color: AppColors.success,
+                            gradient: BrandGradient.goldOrange,
                             onTap: () => context.go('/wallet/withdraw'),
                           ),
                         ),
@@ -91,6 +93,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             icon: Icons.history,
                             label: 'History',
                             color: AppColors.secondary,
+                            gradient: BrandGradient.cyanBlue,
                             onTap: () => context.go('/wallet/transactions'),
                           ),
                         ),
@@ -223,36 +226,56 @@ class _WalletScreenState extends State<WalletScreen> {
     required String label,
     required Color color,
     required VoidCallback onTap,
+    BrandGradient? gradient,
   }) {
+    final gradientColors =
+        gradient != null ? BrandCard.colorsFor(gradient) : null;
+
     return InkWell(
       onTap: onTap,
       borderRadius: AppSpacing.borderRadiusMd,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          gradient: gradientColors != null
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color.alphaBlend(
+                      gradientColors[0].withValues(alpha: 0.05),
+                      AppColors.surface,
+                    ),
+                    Color.alphaBlend(
+                      gradientColors[1].withValues(alpha: 0.025),
+                      AppColors.surface,
+                    ),
+                  ],
+                )
+              : null,
+          color: gradientColors == null ? AppColors.surface : null,
           borderRadius: AppSpacing.borderRadiusMd,
           border: Border.all(color: AppColors.border),
         ),
         child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 24),
-            ),
-            AppSpacing.verticalSm,
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: AppColors.textPrimary,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, color: color, size: 24),
                   ),
-            ),
-          ],
-        ),
+                  AppSpacing.verticalSm,
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -304,7 +327,22 @@ class _WalletScreenState extends State<WalletScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color.alphaBlend(
+                        AppColors.tertiaryGradient[0]
+                            .withValues(alpha: 0.04),
+                        AppColors.surface,
+                      ),
+                      Color.alphaBlend(
+                        AppColors.tertiaryGradient[1]
+                            .withValues(alpha: 0.02),
+                        AppColors.surface,
+                      ),
+                    ],
+                  ),
                   borderRadius: AppSpacing.borderRadiusMd,
                   border: Border.all(color: AppColors.border),
                 ),
@@ -383,7 +421,17 @@ class _WalletScreenState extends State<WalletScreen> {
         borderRadius: AppSpacing.borderRadiusMd,
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.alphaBlend(
+                  accentColor.withValues(alpha: 0.03),
+                  AppColors.surface,
+                ),
+                AppColors.surface,
+              ],
+            ),
             borderRadius: AppSpacing.borderRadiusMd,
             border: Border.all(color: AppColors.border),
           ),

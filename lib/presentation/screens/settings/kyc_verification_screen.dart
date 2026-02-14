@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
 class KycVerificationScreen extends StatefulWidget {
@@ -79,31 +80,12 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
               ],
 
               if (tier != 'verified')
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _initiateKyc,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: const Color(0xFF0D1028),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(
-                          tier == 'none'
-                              ? 'Start Verification'
-                              : 'Upgrade to Verified',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                AppButton(
+                  text: tier == 'none'
+                      ? 'Start Verification'
+                      : 'Upgrade to Verified',
+                  onPressed: _initiateKyc,
+                  isLoading: _isLoading,
                 ),
             ],
           );

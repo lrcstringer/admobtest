@@ -434,7 +434,7 @@ describe("Earn Flow Integration", () => {
       const grossTokens = 100;
 
       const userShare = Math.floor(grossTokens * 0.9);
-      const dailyPotShare = Math.floor(grossTokens * 0.05);
+      const dailyPotShare = grossTokens * 0.05; // No rounding — deferred to distribution
       const weeklyPotShare = grossTokens - userShare - dailyPotShare;
 
       expect(userShare).toBe(90);
@@ -447,12 +447,12 @@ describe("Earn Flow Integration", () => {
       const grossTokens = 99;
 
       const userShare = Math.floor(grossTokens * 0.9); // 89
-      const dailyPotShare = Math.floor(grossTokens * 0.05); // 4
-      const weeklyPotShare = grossTokens - userShare - dailyPotShare; // 6
+      const dailyPotShare = grossTokens * 0.05; // 4.95 — no rounding at contribution
+      const weeklyPotShare = grossTokens - userShare - dailyPotShare; // 5.05
 
       expect(userShare).toBe(89);
-      expect(dailyPotShare).toBe(4);
-      expect(weeklyPotShare).toBe(6);
+      expect(dailyPotShare).toBe(4.95);
+      expect(weeklyPotShare).toBeCloseTo(5.05);
       expect(userShare + dailyPotShare + weeklyPotShare).toBe(grossTokens);
     });
   });

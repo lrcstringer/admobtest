@@ -9,6 +9,7 @@ import '../../../domain/repositories/user_repository.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -255,18 +256,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               AppSpacing.verticalXl,
 
               // Save Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _saveProfile,
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Save Changes'),
-                ),
+              AppButton(
+                text: 'Save Changes',
+                onPressed: _saveProfile,
+                isLoading: _isLoading,
               ),
             ],
           ),

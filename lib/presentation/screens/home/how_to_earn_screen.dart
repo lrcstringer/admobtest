@@ -474,7 +474,17 @@ class HowToEarnScreen extends StatelessWidget {
       width: double.infinity,
       padding: AppSpacing.cardPadding,
       decoration: BoxDecoration(
-        color: AppColors.card,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(
+              AppColors.secondaryGradient[0].withValues(alpha: 0.06),
+              AppColors.card,
+            ),
+            AppColors.card,
+          ],
+        ),
         border: Border.all(color: AppColors.border),
         borderRadius: AppSpacing.borderRadiusLg,
       ),
@@ -518,7 +528,17 @@ class HowToEarnScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(
+              iconColor.withValues(alpha: 0.06),
+              AppColors.card,
+            ),
+            AppColors.card,
+          ],
+        ),
         border: Border.all(color: AppColors.border),
         borderRadius: AppSpacing.borderRadiusLg,
       ),

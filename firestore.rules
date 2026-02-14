@@ -562,6 +562,12 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // Platform settings collection (admin-managed feature flags)
+    match /platformSettings/{docId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
     // =========================================================================
     // ADMIN RBAC COLLECTIONS
     // Admin user registry, maker-checker queue, and immutable audit trail

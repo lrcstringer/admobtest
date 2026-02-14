@@ -11,6 +11,7 @@ import '../../blocs/cashout/cashout_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
@@ -203,21 +204,10 @@ class _CashoutScreenState extends State<CashoutScreen> {
                         final isLoading =
                             cashoutState.requestStatus == CashoutRequestStatus.loading;
 
-                        return SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: isLoading ? null : () => _submitCashout(context),
-                            child: isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Text('Request Cashout'),
-                          ),
+                        return AppButton(
+                          text: 'Request Cashout',
+                          onPressed: isLoading ? null : () => _submitCashout(context),
+                          isLoading: isLoading,
                         );
                       },
                     ),

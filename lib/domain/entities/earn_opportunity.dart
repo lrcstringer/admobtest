@@ -116,6 +116,9 @@ class EarnOpportunity with _$EarnOpportunity {
     required int durationSeconds,
     DateTime? expiresAt,
     required bool isActive,
+    // Pin/feature flags for ordering
+    @Default(false) bool isPinned,
+    @Default(false) bool isFeatured,
     // Denormalized client info
     String? clientId,
     String? clientName,

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/security/device_capability_service.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/onboarding/onboarding_progress_indicator.dart';
 
 class OnboardingSettingsScreen extends StatefulWidget {
@@ -173,25 +174,9 @@ class _OnboardingSettingsScreenState extends State<OnboardingSettingsScreen> {
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: _onContinue,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: const Color(0xFF0D1028),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Continue',
-                      style:
-                          TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-                    ),
-                  ),
+                child: AppButton(
+                  text: 'Continue',
+                  onPressed: _onContinue,
                 ),
               ),
 

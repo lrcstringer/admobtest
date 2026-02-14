@@ -6,6 +6,7 @@ import '../../../domain/entities/group.dart';
 import '../../blocs/group/group_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
 class GroupsListScreen extends StatefulWidget {
@@ -70,11 +71,12 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
                     textAlign: TextAlign.center,
                   ),
                   AppSpacing.verticalMd,
-                  ElevatedButton(
+                  AppButton(
+                    text: 'Retry',
                     onPressed: () {
                       context.read<GroupBloc>().add(const GroupEvent.loadUserGroups());
                     },
-                    child: const Text('Retry'),
+                    isFullWidth: false,
                   ),
                 ],
               ),
@@ -154,10 +156,11 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
                                 ),
                           ),
                           AppSpacing.verticalLg,
-                          ElevatedButton.icon(
+                          AppButton(
+                            text: 'Create Group',
                             onPressed: () => context.go('/groups/create'),
-                            icon: const Icon(Icons.add),
-                            label: const Text('Create Group'),
+                            icon: Icons.add,
+                            isFullWidth: false,
                           ),
                         ],
                       ),
@@ -228,6 +231,10 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
   Widget _buildGroupCard(BuildContext context, Group group) {
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      color: Color.alphaBlend(
+        AppColors.primaryGradient[0].withValues(alpha: 0.04),
+        AppColors.surface,
+      ),
       child: InkWell(
         onTap: () => context.go('/groups/${group.id}'),
         borderRadius: AppSpacing.borderRadiusMd,

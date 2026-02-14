@@ -25,6 +25,32 @@
 # flutter_secure_storage
 -keep class com.it_nomads.fluttersecurestorage.** { *; }
 
+# Google Mobile Ads
+-keep class com.google.android.gms.ads.** { *; }
+-keep class com.google.ads.** { *; }
+
+# FFmpeg Kit
+-keep class com.arthenica.ffmpegkit.** { *; }
+-keep class com.arthenica.smartexception.** { *; }
+
+# freeRASP (Talsec)
+-keep class com.aheaditec.** { *; }
+-keep class com.talsec.** { *; }
+-dontwarn com.aheaditec.**
+
+# Pigeon-generated platform channels (Firebase, etc.)
+# Pigeon generates native classes in dev.flutter.pigeon.* namespace
+-keep class dev.flutter.pigeon.** { *; }
+-keep class io.flutter.plugins.firebase.** { *; }
+-keep class io.flutter.plugins.** { *; }
+
+# Keep all GeneratedPluginRegistrant (ensures plugin registration survives R8)
+-keep class com.example.imalichat.GeneratedPluginRegistrant { *; }
+
+# Google Play Services (needed by Firebase, Ads, etc.)
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**
+
 # Suppress warnings
 -dontwarn org.bouncycastle.**
 -dontwarn org.conscrypt.**

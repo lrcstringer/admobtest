@@ -204,23 +204,30 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
         ));
       },
       (engagement) {
-        // Determine phase based on earning type
-        final isAdVideo =
-            state.selectedOpportunity?.earningType == EarningType.adVideo ||
-                state.opportunities.any((o) =>
-                    o.id == event.opportunityId &&
-                    o.earningType == EarningType.adVideo);
-        final isUpload =
-            state.selectedOpportunity?.earningType == EarningType.upload ||
-                state.opportunities.any((o) =>
-                    o.id == event.opportunityId &&
-                    o.earningType == EarningType.upload);
+        // Determine phase based on earning type.
+        // Prefer the opportunities list (fresh from current thread) over
+        // selectedOpportunity which may be stale from a previous interaction.
+        final earningType =
+            state.opportunities
+                .where((o) => o.id == event.opportunityId)
+                .map((o) => o.earningType)
+                .firstOrNull ??
+            (state.selectedOpportunity?.id == event.opportunityId
+                ? state.selectedOpportunity?.earningType
+                : null);
 
-        final phase = isAdVideo
-            ? EngagementPhase.watchingAd
-            : isUpload
-                ? EngagementPhase.uploading
-                : EngagementPhase.watching;
+        final EngagementPhase phase;
+        switch (earningType) {
+          case EarningType.adVideo:
+            phase = EngagementPhase.watchingAd;
+          case EarningType.upload:
+            phase = EngagementPhase.uploading;
+          case EarningType.survey:
+          case EarningType.poll:
+            phase = EngagementPhase.surveying;
+          default:
+            phase = EngagementPhase.watching;
+        }
 
         emit(state.copyWith(
           currentEngagement: engagement,

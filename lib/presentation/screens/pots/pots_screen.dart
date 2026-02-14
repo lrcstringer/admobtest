@@ -169,7 +169,26 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
     return Container(
       padding: AppSpacing.cardPaddingLarge,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(
+              (pot.type == PotType.daily
+                      ? AppColors.tertiaryGradient[0]
+                      : AppColors.primaryGradient[0])
+                  .withValues(alpha: 0.05),
+              AppColors.surface,
+            ),
+            Color.alphaBlend(
+              (pot.type == PotType.daily
+                      ? AppColors.tertiaryGradient[1]
+                      : AppColors.primaryGradient[1])
+                  .withValues(alpha: 0.025),
+              AppColors.surface,
+            ),
+          ],
+        ),
         borderRadius: AppSpacing.borderRadiusLg,
         border: Border.all(
           color: hasJoined
@@ -471,7 +490,17 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
     return Container(
       padding: AppSpacing.cardPadding,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(
+              AppColors.tertiaryGradient[0].withValues(alpha: 0.04),
+              AppColors.surface,
+            ),
+            AppColors.surface,
+          ],
+        ),
         borderRadius: AppSpacing.borderRadiusLg,
         border: Border.all(color: AppColors.border),
       ),

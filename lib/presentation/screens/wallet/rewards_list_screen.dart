@@ -9,6 +9,7 @@ import '../../../domain/enums/reward_enums.dart';
 import '../../blocs/reward/reward_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/reward/reward_consent_dialog.dart';
 
@@ -376,9 +377,10 @@ class _RewardsListScreenState extends State<RewardsListScreen>
               textAlign: TextAlign.center,
             ),
             AppSpacing.verticalLg,
-            ElevatedButton(
+            AppButton(
+              text: 'Review Consent',
               onPressed: () => _checkConsentThenLoad(),
-              child: const Text('Review Consent'),
+              isFullWidth: false,
             ),
           ],
         ),
@@ -401,11 +403,12 @@ class _RewardsListScreenState extends State<RewardsListScreen>
             textAlign: TextAlign.center,
           ),
           AppSpacing.verticalLg,
-          ElevatedButton(
+          AppButton(
+            text: 'Retry',
             onPressed: () {
               context.read<RewardBloc>().add(const RewardEvent.loadItems());
             },
-            child: const Text('Retry'),
+            isFullWidth: false,
           ),
         ],
       ),

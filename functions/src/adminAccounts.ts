@@ -935,18 +935,37 @@ export const adminGetSystemAccountStatus = functions.https.onCall(
     requireAppCheck(context, "adminGetSystemAccountStatus");
     await requireAdminPermission(context, "accounts:getSystemStatus", "adminGetSystemAccountStatus");
 
-    // Fetch system account balances + imalichat sub-account IDs in parallel
-    const [cbookBus, cbookTrust, dailyPot, weeklyPot, cashoutPending, imalichatMain, subAccountsSnap] = await Promise.all([
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const twentyFourHoursAgoTs = admin.firestore.Timestamp.fromDate(twentyFourHoursAgo);
+
+    // Phase 1: All independent queries in parallel
+    const [
+      cbookBus, cbookTrust, dailyPot, weeklyPot, cashoutPending, imalichatMain,
+      potResidual, subAccountsSnap, activeClientsSnap, activeCampaignsAgg, activeOppsSnap,
+      totalUsersAgg, recentLoginsAgg, recentCompletedSnap,
+    ] = await Promise.all([
+      // Existing ledger balances
       getBalance(SystemAccounts.CBOOK_BUS),
       getBalance(SystemAccounts.CBOOK_TRUST),
       getBalance(SystemAccounts.DAILY_POT),
       getBalance(SystemAccounts.WEEKLY_POT),
       getBalance(SystemAccounts.CASHOUT_PENDING),
       getBalance(SystemAccounts.IMALICHAT_CLIENT),
+      getBalance(SystemAccounts.POT_RESIDUAL),
       db.collection("clients").doc("imalichat").collection("subAccounts").get(),
+      // New: other clients, campaigns, opportunities, users, activity
+      db.collection("clients").where("isActive", "==", true).get(),
+      db.collection("earnThreads").where("isActive", "==", true).count().get(),
+      db.collection("earnOpportunities").where("isActive", "==", true).get(),
+      db.collection("users").count().get(),
+      db.collection("users").where("lastLoginAt", ">=", twentyFourHoursAgoTs).count().get(),
+      db.collection("engagements")
+        .where("status", "==", "completed")
+        .where("completedAt", ">=", twentyFourHoursAgoTs)
+        .get(),
     ]);
 
-    // Sum all imalichat sub-account ledger balances
+    // Phase 2: iMaliChat sub-account balances
     let subAccountTotal = 0;
     if (!subAccountsSnap.empty) {
       const subBalances = await Promise.all(
@@ -955,13 +974,47 @@ export const adminGetSystemAccountStatus = functions.https.onCall(
       subAccountTotal = subBalances.reduce((sum, b) => sum + b, 0);
     }
 
+    // Phase 2b: Other clients' sub-account balances
+    let otherClientsBalance = 0;
+    const otherClients = activeClientsSnap.docs.filter((d) => d.id !== "imalichat");
+    if (otherClients.length > 0) {
+      const otherSubSnaps = await Promise.all(
+        otherClients.map((c) => c.ref.collection("subAccounts").get())
+      );
+      const allSubIds = otherSubSnaps.flatMap((snap) => snap.docs.map((d) => d.id));
+      if (allSubIds.length > 0) {
+        const otherSubBalances = await Promise.all(
+          allSubIds.map((id) => getBalance(AccountId.clientSubAccount(id)))
+        );
+        otherClientsBalance = otherSubBalances.reduce((sum, b) => sum + b, 0);
+      }
+    }
+
+    // Compute aggregates from fetched docs
+    const activeOpportunitiesTokens = activeOppsSnap.docs.reduce(
+      (sum, d) => sum + ((d.data().tokenReward as number) || 0), 0
+    );
+    const tokensEarnedLast24h = recentCompletedSnap.docs.reduce(
+      (sum, d) => sum + ((d.data().tokensEarned as number) || 0), 0
+    );
+
     return {
+      // Existing
       cbookBus,
       cbookTrust,
       dailyPot,
       weeklyPot,
       cashoutPending,
+      potResidual,
       imalichat: imalichatMain + subAccountTotal,
+      // New metrics
+      otherClientsBalance,
+      activeCampaigns: activeCampaignsAgg.data().count,
+      activeOpportunities: activeOppsSnap.size,
+      activeOpportunitiesTokens,
+      totalUsers: totalUsersAgg.data().count,
+      uniqueLoginsLast24h: recentLoginsAgg.data().count,
+      tokensEarnedLast24h,
     };
   }
 );
@@ -1115,6 +1168,7 @@ export const adminListUsers = functions.https.onCall(async (_data, context) => {
       balance: ledger?.balance ?? 0,
       status: ledger?.status || "active",
       createdAt: ledger?.createdAt || profile?.createdAt || null,
+      lastLoginAt: profile?.lastLoginAt || null,
     };
   });
 

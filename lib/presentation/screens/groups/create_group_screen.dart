@@ -7,6 +7,7 @@ import '../../../domain/repositories/group_repository.dart';
 import '../../blocs/group/group_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
 class CreateGroupScreen extends StatefulWidget {
@@ -232,18 +233,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                       AppSpacing.verticalXl,
 
                       // Create Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : _createGroup,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Text(
-                              isLoading ? 'Creating...' : 'Create Group',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ),
+                      AppButton(
+                        text: 'Create Group',
+                        onPressed: isLoading ? null : _createGroup,
+                        isLoading: isLoading,
                       ),
                       AppSpacing.verticalLg,
                     ],

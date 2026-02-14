@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
@@ -59,26 +60,10 @@ class WalletWithdrawSuccessScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               AppSpacing.verticalXxl,
-              SizedBox(
-                width: double.infinity,
-                height: AppSpacing.buttonHeightLg,
-                child: ElevatedButton(
-                  onPressed: () => context.go('/wallet'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppSpacing.borderRadiusMd,
-                    ),
-                  ),
-                  child: const Text(
-                    'Back to Wallet',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+              AppButton(
+                text: 'Back to Wallet',
+                onPressed: () => context.go('/wallet'),
+                size: AppButtonSize.large,
               ),
             ],
           ),

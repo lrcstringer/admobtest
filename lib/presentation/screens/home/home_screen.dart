@@ -10,6 +10,7 @@ import '../../blocs/pot/pot_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
@@ -186,7 +187,20 @@ class _HomeScreenState extends State<HomeScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(
+              AppColors.logoGradient[0].withValues(alpha: 0.06),
+              AppColors.surface,
+            ),
+            Color.alphaBlend(
+              AppColors.logoGradient[1].withValues(alpha: 0.03),
+              AppColors.surface,
+            ),
+          ],
+        ),
         borderRadius: AppSpacing.borderRadiusLg,
         border: Border.all(color: AppColors.border),
       ),
@@ -224,32 +238,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
             ),
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                    colors: AppColors.primaryGradient),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ElevatedButton(
-                onPressed: () => context.go('/earn'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'Earn Now',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ),
-            ),
+          AppButton(
+            text: 'Earn Now',
+            onPressed: () => context.go('/earn'),
           ),
         ],
       ),
@@ -379,91 +370,99 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color.alphaBlend(
+                accentColors[0].withValues(alpha: 0.04),
+                AppColors.surface,
+              ),
+              Color.alphaBlend(
+                accentColors[1].withValues(alpha: 0.02),
+                AppColors.surface,
+              ),
+            ],
+          ),
           borderRadius: AppSpacing.borderRadiusLg,
           border: Border.all(color: AppColors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top accent line
-            Container(
-              height: 3,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: accentColors),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Label + trophy row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: accentColors.first,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.0,
+                  // Label + trophy row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        label,
+                        style:
+                            Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: accentColors.first,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.0,
+                                ),
                       ),
-                ),
-                Icon(Icons.emoji_events, color: accentColors.first, size: 18),
-              ],
-            ),
-            const SizedBox(height: 8),
-            // Title
-            Text(
-              title,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500,
+                      Icon(Icons.emoji_events,
+                          color: accentColors.first, size: 18),
+                    ],
                   ),
-            ),
-            const SizedBox(height: 4),
-            // Amount
-            Text(
-              amount,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            // Timer row
-            Row(
-              children: [
-                Icon(Icons.timer_outlined,
-                    size: 14, color: AppColors.textSecondary),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    timeLeft,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  const SizedBox(height: 8),
+                  // Title
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
                         ),
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  userRank != null
-                      ? 'Your Rank: #$userRank'
-                      : 'Your Rank: #\u2014',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                  const SizedBox(height: 4),
+                  // Amount
+                  Text(
+                    amount,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Timer row
+                  Row(
+                    children: [
+                      Icon(Icons.timer_outlined,
+                          size: 14, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          timeLeft,
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                ),
-                Icon(Icons.chevron_right,
-                    size: 18, color: AppColors.textSecondary),
-              ],
-            ),
-          ],
-        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        userRank != null
+                            ? 'Your Rank: #$userRank'
+                            : 'Your Rank: #\u2014',
+                        style:
+                            Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                      ),
+                      Icon(Icons.chevron_right,
+                          size: 18, color: AppColors.textSecondary),
+                    ],
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -475,21 +474,20 @@ class _HomeScreenState extends State<HomeScreen> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          gradient: const LinearGradient(colors: AppColors.primaryGradient),
           borderRadius: AppSpacing.borderRadiusMd,
-          border: Border.all(color: AppColors.border),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.person_add_outlined,
-                color: AppColors.textPrimary, size: 20),
+            const Icon(Icons.person_add_outlined,
+                color: Colors.white, size: 20),
             const SizedBox(width: 10),
             Text(
-              'Invite friends & Earn',
+              'Invite Friends & Earn',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
             ),
           ],

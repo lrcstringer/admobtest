@@ -12,6 +12,7 @@ import '../../../domain/repositories/device_repository.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
 class SecuritySettingsScreen extends StatefulWidget {
@@ -265,7 +266,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
               onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
+            AppButton(
+              text: 'Set PIN',
+              isFullWidth: false,
               onPressed: () async {
                 final pin = pinController.text;
                 final confirm = confirmController.text;
@@ -297,7 +300,6 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                   );
                 }
               },
-              child: const Text('Set PIN'),
             ),
           ],
         ),
@@ -371,7 +373,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
               onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
+            AppButton(
+              text: 'Change PIN',
+              isFullWidth: false,
               onPressed: () async {
                 final currentPin = currentPinController.text;
                 final newPin = newPinController.text;
@@ -403,7 +407,6 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                   );
                 }
               },
-              child: const Text('Change PIN'),
             ),
           ],
         ),

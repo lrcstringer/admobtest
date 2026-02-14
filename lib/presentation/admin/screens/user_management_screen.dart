@@ -164,11 +164,28 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       return;
     }
 
-    // Show loading dialog
+    // Show loading dialog with visible indicator
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.cardDark,
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 16),
+            const Text(
+              'Loading sub-accounts...',
+              style: TextStyle(color: AppColors.textPrimaryDark),
+            ),
+          ],
+        ),
+      ),
     );
 
     try {
@@ -182,12 +199,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           [];
 
       if (!mounted) return;
-      Navigator.of(context).pop(); // Dismiss loading
+      Navigator.of(context, rootNavigator: true).pop(); // Dismiss loading
 
       _showSubAccountsDialog(user, subAccounts);
     } catch (e) {
       if (!mounted) return;
-      Navigator.of(context).pop(); // Dismiss loading
+      Navigator.of(context, rootNavigator: true).pop(); // Dismiss loading
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to load sub-accounts: $e'),
@@ -419,6 +436,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 _detailRow(
                   'Joined',
                   _formatTimestamp(user['createdAt']),
+                ),
+                _detailRow(
+                  'Last Login',
+                  _formatTimestamp(user['lastLoginAt']),
                 ),
               ],
             ),
@@ -656,6 +677,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           _headerCell('Balance', flex: 1),
           _headerCell('Status', flex: 1),
           _headerCell('Joined', flex: 1),
+          _headerCell('Last Login', flex: 1),
           _headerCell('Actions', flex: 1),
         ],
       ),
@@ -683,6 +705,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     final balance = _formatBalance(user['balance']);
     final status = (user['status'] ?? 'unknown').toString();
     final joined = _formatTimestamp(user['createdAt']);
+    final lastLogin = _formatTimestamp(user['lastLoginAt']);
     final sColor = _statusColor(status);
 
     return Column(
@@ -776,6 +799,18 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 flex: 1,
                 child: Text(
                   joined,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+
+              // Last Login
+              Expanded(
+                flex: 1,
+                child: Text(
+                  lastLogin,
                   style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textSecondary,

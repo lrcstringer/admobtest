@@ -112,6 +112,8 @@ _$EarnOpportunityImpl _$$EarnOpportunityImplFromJson(
       ? null
       : DateTime.parse(json['expiresAt'] as String),
   isActive: json['isActive'] as bool,
+  isPinned: json['isPinned'] as bool? ?? false,
+  isFeatured: json['isFeatured'] as bool? ?? false,
   clientId: json['clientId'] as String?,
   clientName: json['clientName'] as String?,
   clientAvatarColor: json['clientAvatarColor'] as String?,
@@ -172,6 +174,8 @@ Map<String, dynamic> _$$EarnOpportunityImplToJson(
   'durationSeconds': instance.durationSeconds,
   'expiresAt': instance.expiresAt?.toIso8601String(),
   'isActive': instance.isActive,
+  'isPinned': instance.isPinned,
+  'isFeatured': instance.isFeatured,
   'clientId': instance.clientId,
   'clientName': instance.clientName,
   'clientAvatarColor': instance.clientAvatarColor,

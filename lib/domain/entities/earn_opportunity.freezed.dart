@@ -907,6 +907,9 @@ mixin _$EarnOpportunity {
   int get durationSeconds => throw _privateConstructorUsedError;
   DateTime? get expiresAt => throw _privateConstructorUsedError;
   bool get isActive =>
+      throw _privateConstructorUsedError; // Pin/feature flags for ordering
+  bool get isPinned => throw _privateConstructorUsedError;
+  bool get isFeatured =>
       throw _privateConstructorUsedError; // Denormalized client info
   String? get clientId => throw _privateConstructorUsedError;
   String? get clientName => throw _privateConstructorUsedError;
@@ -984,6 +987,8 @@ abstract class $EarnOpportunityCopyWith<$Res> {
     int durationSeconds,
     DateTime? expiresAt,
     bool isActive,
+    bool isPinned,
+    bool isFeatured,
     String? clientId,
     String? clientName,
     String? clientAvatarColor,
@@ -1053,6 +1058,8 @@ class _$EarnOpportunityCopyWithImpl<$Res, $Val extends EarnOpportunity>
     Object? durationSeconds = null,
     Object? expiresAt = freezed,
     Object? isActive = null,
+    Object? isPinned = null,
+    Object? isFeatured = null,
     Object? clientId = freezed,
     Object? clientName = freezed,
     Object? clientAvatarColor = freezed,
@@ -1143,6 +1150,14 @@ class _$EarnOpportunityCopyWithImpl<$Res, $Val extends EarnOpportunity>
             isActive: null == isActive
                 ? _value.isActive
                 : isActive // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isPinned: null == isPinned
+                ? _value.isPinned
+                : isPinned // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isFeatured: null == isFeatured
+                ? _value.isFeatured
+                : isFeatured // ignore: cast_nullable_to_non_nullable
                       as bool,
             clientId: freezed == clientId
                 ? _value.clientId
@@ -1331,6 +1346,8 @@ abstract class _$$EarnOpportunityImplCopyWith<$Res>
     int durationSeconds,
     DateTime? expiresAt,
     bool isActive,
+    bool isPinned,
+    bool isFeatured,
     String? clientId,
     String? clientName,
     String? clientAvatarColor,
@@ -1400,6 +1417,8 @@ class __$$EarnOpportunityImplCopyWithImpl<$Res>
     Object? durationSeconds = null,
     Object? expiresAt = freezed,
     Object? isActive = null,
+    Object? isPinned = null,
+    Object? isFeatured = null,
     Object? clientId = freezed,
     Object? clientName = freezed,
     Object? clientAvatarColor = freezed,
@@ -1490,6 +1509,14 @@ class __$$EarnOpportunityImplCopyWithImpl<$Res>
         isActive: null == isActive
             ? _value.isActive
             : isActive // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isPinned: null == isPinned
+            ? _value.isPinned
+            : isPinned // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isFeatured: null == isFeatured
+            ? _value.isFeatured
+            : isFeatured // ignore: cast_nullable_to_non_nullable
                   as bool,
         clientId: freezed == clientId
             ? _value.clientId
@@ -1657,6 +1684,8 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
     required this.durationSeconds,
     this.expiresAt,
     required this.isActive,
+    this.isPinned = false,
+    this.isFeatured = false,
     this.clientId,
     this.clientName,
     this.clientAvatarColor,
@@ -1733,6 +1762,13 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
   final DateTime? expiresAt;
   @override
   final bool isActive;
+  // Pin/feature flags for ordering
+  @override
+  @JsonKey()
+  final bool isPinned;
+  @override
+  @JsonKey()
+  final bool isFeatured;
   // Denormalized client info
   @override
   final String? clientId;
@@ -1833,7 +1869,7 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
 
   @override
   String toString() {
-    return 'EarnOpportunity(id: $id, threadId: $threadId, title: $title, description: $description, earningType: $earningType, tokenReward: $tokenReward, streakPoints: $streakPoints, mediaType: $mediaType, mediaUrl: $mediaUrl, questions: $questions, durationSeconds: $durationSeconds, expiresAt: $expiresAt, isActive: $isActive, clientId: $clientId, clientName: $clientName, clientAvatarColor: $clientAvatarColor, clientAvatarImage: $clientAvatarImage, threadImage: $threadImage, opportunityImage: $opportunityImage, campaignId: $campaignId, targeting: $targeting, bonusReward: $bonusReward, bonusRewardMultiplier: $bonusRewardMultiplier, bonusIntervalType: $bonusIntervalType, bonusIntervalX: $bonusIntervalX, userEngagementStatus: $userEngagementStatus, userEngagementId: $userEngagementId, adUnitId: $adUnitId, dailyLimitPerUser: $dailyLimitPerUser, budgetExhausted: $budgetExhausted, tokenBudget: $tokenBudget, tokenSpent: $tokenSpent, pollId: $pollId, uploadPrompt: $uploadPrompt, uploadContextMediaUrl: $uploadContextMediaUrl, uploadContextMediaType: $uploadContextMediaType, uploadVideoEnabled: $uploadVideoEnabled, uploadImageEnabled: $uploadImageEnabled, uploadTextEnabled: $uploadTextEnabled, uploadVideoRequired: $uploadVideoRequired, uploadImageRequired: $uploadImageRequired, uploadTextRequired: $uploadTextRequired, uploadVideoMaxSeconds: $uploadVideoMaxSeconds, uploadTextMinChars: $uploadTextMinChars, uploadTextMaxChars: $uploadTextMaxChars, requiresAdminReview: $requiresAdminReview, rewardCampaignId: $rewardCampaignId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
+    return 'EarnOpportunity(id: $id, threadId: $threadId, title: $title, description: $description, earningType: $earningType, tokenReward: $tokenReward, streakPoints: $streakPoints, mediaType: $mediaType, mediaUrl: $mediaUrl, questions: $questions, durationSeconds: $durationSeconds, expiresAt: $expiresAt, isActive: $isActive, isPinned: $isPinned, isFeatured: $isFeatured, clientId: $clientId, clientName: $clientName, clientAvatarColor: $clientAvatarColor, clientAvatarImage: $clientAvatarImage, threadImage: $threadImage, opportunityImage: $opportunityImage, campaignId: $campaignId, targeting: $targeting, bonusReward: $bonusReward, bonusRewardMultiplier: $bonusRewardMultiplier, bonusIntervalType: $bonusIntervalType, bonusIntervalX: $bonusIntervalX, userEngagementStatus: $userEngagementStatus, userEngagementId: $userEngagementId, adUnitId: $adUnitId, dailyLimitPerUser: $dailyLimitPerUser, budgetExhausted: $budgetExhausted, tokenBudget: $tokenBudget, tokenSpent: $tokenSpent, pollId: $pollId, uploadPrompt: $uploadPrompt, uploadContextMediaUrl: $uploadContextMediaUrl, uploadContextMediaType: $uploadContextMediaType, uploadVideoEnabled: $uploadVideoEnabled, uploadImageEnabled: $uploadImageEnabled, uploadTextEnabled: $uploadTextEnabled, uploadVideoRequired: $uploadVideoRequired, uploadImageRequired: $uploadImageRequired, uploadTextRequired: $uploadTextRequired, uploadVideoMaxSeconds: $uploadVideoMaxSeconds, uploadTextMinChars: $uploadTextMinChars, uploadTextMaxChars: $uploadTextMaxChars, requiresAdminReview: $requiresAdminReview, rewardCampaignId: $rewardCampaignId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
   }
 
   @override
@@ -1867,6 +1903,10 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
                 other.expiresAt == expiresAt) &&
             (identical(other.isActive, isActive) ||
                 other.isActive == isActive) &&
+            (identical(other.isPinned, isPinned) ||
+                other.isPinned == isPinned) &&
+            (identical(other.isFeatured, isFeatured) ||
+                other.isFeatured == isFeatured) &&
             (identical(other.clientId, clientId) ||
                 other.clientId == clientId) &&
             (identical(other.clientName, clientName) ||
@@ -1957,6 +1997,8 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
     durationSeconds,
     expiresAt,
     isActive,
+    isPinned,
+    isFeatured,
     clientId,
     clientName,
     clientAvatarColor,
@@ -2027,6 +2069,8 @@ abstract class _EarnOpportunity extends EarnOpportunity {
     required final int durationSeconds,
     final DateTime? expiresAt,
     required final bool isActive,
+    final bool isPinned,
+    final bool isFeatured,
     final String? clientId,
     final String? clientName,
     final String? clientAvatarColor,
@@ -2094,7 +2138,11 @@ abstract class _EarnOpportunity extends EarnOpportunity {
   @override
   DateTime? get expiresAt;
   @override
-  bool get isActive; // Denormalized client info
+  bool get isActive; // Pin/feature flags for ordering
+  @override
+  bool get isPinned;
+  @override
+  bool get isFeatured; // Denormalized client info
   @override
   String? get clientId;
   @override

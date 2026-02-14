@@ -6,6 +6,7 @@ import '../../../domain/entities/earn_opportunity.dart';
 import '../../blocs/earn/earn_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
@@ -22,11 +23,9 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
   @override
   void initState() {
     super.initState();
-    // Load opportunities if not already loaded
-    final earnBloc = context.read<EarnBloc>();
-    if (earnBloc.state.selectedThread?.id != widget.threadId) {
-      earnBloc.add(EarnEvent.selectThread(widget.threadId));
-    }
+    // Always reload so counters and statuses are fresh after completing
+    // an opportunity and navigating back.
+    context.read<EarnBloc>().add(EarnEvent.selectThread(widget.threadId));
   }
 
   @override
@@ -68,16 +67,14 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             AppSpacing.verticalSm,
-            ElevatedButton(
+            AppButton(
+              text: 'Retry',
               onPressed: () {
                 context
                     .read<EarnBloc>()
                     .add(EarnEvent.loadOpportunities(threadId: widget.threadId));
               },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(120, 40),
-              ),
-              child: const Text('Retry'),
+              isFullWidth: false,
             ),
           ],
         ),
@@ -135,7 +132,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
                       Text(
                         thread.description!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
+                              color: AppColors.textPrimary.withValues(alpha: 0.85),
                             ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -154,15 +151,15 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
                 '${state.opportunities.length}',
                 'Opportunities',
                 Icons.play_circle_outline,
-                AppColors.primary,
+                AppColors.success,
               ),
               AppSpacing.horizontalSm,
               _buildStatChip(
                 context,
-                '${thread.completedOpportunities}',
+                '${state.opportunities.where((o) => o.isCompletedByUser).length}',
                 'Completed',
                 Icons.check_circle_outline,
-                AppColors.success,
+                AppColors.tertiary,
               ),
             ],
           ),
@@ -232,32 +229,35 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
   ) {
     return Expanded(
       child: Container(
-        padding: AppSpacing.cardPadding,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.15),
+          color: Color.alphaBlend(
+            color.withValues(alpha: 0.15),
+            AppColors.surface,
+          ),
           borderRadius: AppSpacing.borderRadiusMd,
+          border: Border.all(color: color.withValues(alpha: 0.25)),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: color),
-            AppSpacing.horizontalSm,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: color,
-                      ),
-                ),
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                ),
-              ],
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: 6),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+            ),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -269,119 +269,181 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
     final isCompleted = opportunity.isCompletedByUser;
     final isInProgress = opportunity.isInProgressByUser;
 
+    // Green gradient for uncompleted, orange gradient for completed
+    final accentColors = isCompleted
+        ? AppColors.tertiaryGradient // gold-orange
+        : [AppColors.success, AppColors.successDark]; // green
+
     return InkWell(
       onTap: isCompleted
           ? null
           : () => _startOpportunity(context, opportunity),
-      borderRadius: AppSpacing.borderRadiusMd,
-      child: Container(
-        padding: AppSpacing.cardPadding,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: AppSpacing.borderRadiusMd,
-          border: Border.all(
-            color: isCompleted
-                ? AppColors.success
-                : isInProgress
-                    ? AppColors.primary
-                    : AppColors.border,
-          ),
-        ),
-        child: Row(
-          children: [
-            _buildOpportunityIcon(opportunity),
-            AppSpacing.horizontalMd,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          opportunity.title,
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: AppSpacing.borderRadiusSm,
-                        ),
-                        child: Text(
-                          '${opportunity.tokenReward} tokens',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  AppSpacing.verticalXs,
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.access_time,
-                        size: 14,
-                        color: AppColors.textHint,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        opportunity.formattedDuration,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                      ),
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: AppSpacing.borderRadiusSm,
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Text(
-                          opportunity.earningTypeLabel,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (opportunity.description != null) ...[
-                    AppSpacing.verticalXs,
-                    Text(
-                      opportunity.description!,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
+      borderRadius: AppSpacing.borderRadiusLg,
+      child: ClipRRect(
+        borderRadius: AppSpacing.borderRadiusLg,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.alphaBlend(
+                  accentColors[0].withValues(alpha: 0.12),
+                  AppColors.surfaceElevated,
+                ),
+                Color.alphaBlend(
+                  accentColors[1].withValues(alpha: 0.06),
+                  AppColors.surfaceElevated,
+                ),
+              ],
             ),
-            AppSpacing.horizontalSm,
-            _buildOpportunityAction(context, opportunity, isCompleted, isInProgress),
-          ],
+            border: Border.all(
+              color: accentColors[0].withValues(alpha: 0.2),
+            ),
+          ),
+          child: Column(
+            children: [
+              // Top color bar (pot-card style)
+              Container(
+                height: 4,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: accentColors),
+                ),
+              ),
+              // Card content
+              Padding(
+                padding: AppSpacing.cardPadding,
+                child: Row(
+                  children: [
+                    _buildOpportunityIcon(opportunity),
+                    AppSpacing.horizontalMd,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              if (opportunity.isPinned)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 4),
+                                  child: Icon(
+                                    Icons.push_pin,
+                                    size: 12,
+                                    color: accentColors[0],
+                                  ),
+                                ),
+                              Expanded(
+                                child: Text(
+                                  opportunity.title,
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                              ),
+                              if (opportunity.isFeatured)
+                                Container(
+                                  margin: const EdgeInsets.only(right: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accent,
+                                    borderRadius: AppSpacing.borderRadiusSm,
+                                  ),
+                                  child: Text(
+                                    'Featured',
+                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 9,
+                                        ),
+                                  ),
+                                ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: accentColors[0].withValues(alpha: 0.15),
+                                  borderRadius: AppSpacing.borderRadiusSm,
+                                ),
+                                child: Text(
+                                  '${opportunity.tokenReward} tokens',
+                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                        color: accentColors[0],
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          AppSpacing.verticalXs,
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                size: 14,
+                                color: AppColors.textHint,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                opportunity.formattedDuration,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                              ),
+                              const SizedBox(width: 12),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surface,
+                                  borderRadius: AppSpacing.borderRadiusSm,
+                                  border: Border.all(color: AppColors.border),
+                                ),
+                                child: Text(
+                                  opportunity.earningTypeLabel,
+                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (opportunity.description != null) ...[
+                            AppSpacing.verticalXs,
+                            Text(
+                              opportunity.description!,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    AppSpacing.horizontalSm,
+                    _buildOpportunityAction(context, opportunity, isCompleted, isInProgress),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildOpportunityIcon(EarnOpportunity opportunity) {
+    final isCompleted = opportunity.isCompletedByUser;
+    final accentColor = isCompleted ? AppColors.tertiary : AppColors.success;
+
     IconData icon;
     switch (opportunity.earningType) {
       case EarningType.survey:
@@ -408,12 +470,12 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
+        color: accentColor.withValues(alpha: 0.15),
         borderRadius: AppSpacing.borderRadiusMd,
       ),
       child: Icon(
         icon,
-        color: AppColors.primary,
+        color: accentColor,
         size: 24,
       ),
     );
@@ -441,14 +503,11 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
     }
 
     if (isInProgress) {
-      return ElevatedButton(
+      return AppButton(
+        text: 'Resume',
         onPressed: () => _resumeOpportunity(context, opportunity),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          minimumSize: const Size(0, 36),
-        ),
-        child: const Text('Resume'),
+        isFullWidth: false,
+        size: AppButtonSize.small,
       );
     }
 
@@ -492,14 +551,12 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
   }
 
   void _startOpportunity(BuildContext context, EarnOpportunity opportunity) {
-    final bloc = context.read<EarnBloc>();
-    bloc.add(EarnEvent.startEngagement(opportunityId: opportunity.id));
-
     // Pre-load ad for adVideo opportunities so it's ready when watch screen renders
     if (opportunity.earningType == EarningType.adVideo) {
-      bloc.add(const EarnEvent.loadAdVideo());
+      context.read<EarnBloc>().add(const EarnEvent.loadAdVideo());
     }
 
+    // Navigate to interaction screen — engagement starts when user taps "Start Earning"
     context.push('/earn/opportunity/${opportunity.id}');
   }
 

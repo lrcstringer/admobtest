@@ -56,8 +56,8 @@ Future<void> main() async {
     cacheSizeBytes: 100 * 1024 * 1024, // 100 MB
   );
 
-  // Initialize Google Mobile Ads SDK
-  await MobileAds.instance.initialize();
+  // Initialize Google Mobile Ads SDK (don't block app launch)
+  MobileAds.instance.initialize();
 
   // TODO: Activate App Check once app is published to Google Play
   // Play Integrity requires the app to be listed on Play Store.
@@ -79,9 +79,9 @@ Future<void> main() async {
   await configureDependencies();
 
   // Initialize Runtime Application Self-Protection (skip in debug)
+  // Fire-and-forget: don't block app startup; RASP has internal timeout
   if (!kDebugMode) {
-    final raspService = GetIt.instance<RaspService>();
-    await raspService.initialize();
+    GetIt.instance<RaspService>().initialize();
   }
 
   // TODO: Re-enable screenshot prevention before production release

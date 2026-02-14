@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/numeric_keyboard.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
@@ -149,7 +150,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                   width: mascotSize,
                                   height: mascotSize,
                                   child: Image.asset(
-                                    'assets/icons/elephantFinal2.png',
+                                    'assets/icons/iMaliCrown4.png',
                                     width: mascotSize,
                                     height: mascotSize,
                                     fit: BoxFit.contain,
@@ -391,36 +392,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 48, vertical: 8),
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 52,
-                              child: ElevatedButton(
-                                onPressed: isLoading ? null : _onVerify,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: const Color(0xFF0D1028),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: isLoading
-                                    ? const SizedBox(
-                                        width: 22,
-                                        height: 22,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Text(
-                                        'Continue',
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                              ),
+                            child: AppButton(
+                              text: 'Continue',
+                              onPressed: _onVerify,
+                              isLoading: isLoading,
+                              size: AppButtonSize.large,
                             ),
                           )
                         else

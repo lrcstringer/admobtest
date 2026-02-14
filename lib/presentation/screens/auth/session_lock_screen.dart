@@ -6,6 +6,7 @@ import '../../../core/security/device_capability_service.dart';
 import '../../../core/security/session_lock_service.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/app_button.dart';
 import '../../widgets/common/numeric_keyboard.dart';
 
 /// Full-screen session lock overlay.
@@ -328,16 +329,10 @@ class _SessionLockScreenState extends State<SessionLockScreen> {
           ),
         ),
         const SizedBox(height: 24),
-        ElevatedButton(
+        AppButton(
+          text: 'Verify Identity',
           onPressed: _navigateToOtp,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: const Color(0xFF0D1028),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-          ),
-          child: const Text('Verify Identity'),
+          isFullWidth: false,
         ),
       ],
     );
