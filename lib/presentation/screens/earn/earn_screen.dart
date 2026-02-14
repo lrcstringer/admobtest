@@ -679,10 +679,20 @@ class _EarnScreenState extends State<EarnScreen> {
         client.threads.where((t) => t.isExpiringSoon).length;
     final showExpiring = _expiringSoonFilter.contains(client.clientId);
 
-    // Filter threads based on selected chip
+    // Filter threads based on selected chip, then sort completed to bottom
     final filteredThreads = showExpiring
         ? client.threads.where((t) => t.isExpiringSoon).toList()
-        : client.threads.where((t) => !t.isExpiringSoon).toList();
+        : client.threads.where((t) => !t.isExpiringSoon).toList()
+      ..sort((a, b) {
+        final aDone = a.allCompleted;
+        final bDone = b.allCompleted;
+        if (aDone != bDone) return aDone ? 1 : -1;
+        if (!aDone) {
+          if (a.isPinned != b.isPinned) return a.isPinned ? -1 : 1;
+          if (a.isFeatured != b.isFeatured) return a.isFeatured ? -1 : 1;
+        }
+        return 0;
+      });
 
     return Column(
       children: [

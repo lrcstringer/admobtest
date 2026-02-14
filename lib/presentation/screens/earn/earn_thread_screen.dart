@@ -298,20 +298,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
         borderRadius: AppSpacing.borderRadiusLg,
         child: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.alphaBlend(
-                  accentColors[0].withValues(alpha: 0.12),
-                  AppColors.surfaceElevated,
-                ),
-                Color.alphaBlend(
-                  accentColors[1].withValues(alpha: 0.06),
-                  AppColors.surfaceElevated,
-                ),
-              ],
-            ),
+            color: AppColors.surfaceElevated,
             border: Border.all(
               color: accentColors[0].withValues(alpha: 0.2),
             ),
