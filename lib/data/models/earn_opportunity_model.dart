@@ -247,6 +247,9 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
     required int durationSeconds,
     DateTime? expiresAt,
     required bool isActive,
+    // Pin/feature flags for ordering
+    @Default(false) bool isPinned,
+    @Default(false) bool isFeatured,
     // Denormalized client info
     String? clientId,
     String? clientName,
@@ -322,6 +325,8 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
               ? expiresAt.toDate()
               : DateTime.parse(expiresAt as String),
       isActive: json['isActive'] as bool? ?? true,
+      isPinned: json['isPinned'] as bool? ?? false,
+      isFeatured: json['isFeatured'] as bool? ?? false,
       // Client info (with legacy brandName fallback)
       clientId: json['clientId'] as String?,
       clientName: json['clientName'] as String? ?? json['brandName'] as String?,
@@ -385,6 +390,8 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       durationSeconds: durationSeconds,
       expiresAt: expiresAt,
       isActive: isActive,
+      isPinned: isPinned,
+      isFeatured: isFeatured,
       clientId: clientId,
       clientName: clientName,
       clientAvatarColor: clientAvatarColor,
@@ -448,6 +455,8 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       durationSeconds: entity.durationSeconds,
       expiresAt: entity.expiresAt,
       isActive: entity.isActive,
+      isPinned: entity.isPinned,
+      isFeatured: entity.isFeatured,
       clientId: entity.clientId,
       clientName: entity.clientName,
       clientAvatarColor: entity.clientAvatarColor,
