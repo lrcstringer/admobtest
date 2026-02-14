@@ -1053,7 +1053,7 @@ export const getEligibleOpportunities = functions.https.onCall(
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const [threadDoc, userDoc, recentEngagementsQuery, thirtyDayEngagementsQuery, opportunitiesSnapshot, existingEngagements] =
+    const [threadDoc, userDoc, recentEngagementsQuery, thirtyDayEngagementsQuery, opportunitiesSnapshot] =
       await Promise.all([
         db.collection("earnThreads").doc(threadId).get(),
         db.collection("users").doc(userId).get(),
@@ -1073,11 +1073,31 @@ export const getEligibleOpportunities = functions.https.onCall(
           .where("threadId", "==", threadId)
           .where("isActive", "==", true)
           .get(),
-        db.collection("engagements")
-          .where("userId", "==", userId)
-          .where("threadId", "==", threadId)
-          .get(),
       ]);
+
+    // Query engagements by earnOpportunityId (not threadId, which may be null on older docs)
+    const opportunityIds = opportunitiesSnapshot.docs.map((d) => d.id);
+    let existingEngagements: admin.firestore.QuerySnapshot = { docs: [], size: 0, empty: true } as unknown as admin.firestore.QuerySnapshot;
+    if (opportunityIds.length > 0) {
+      // Firestore 'in' supports up to 30 values; batch if needed
+      const batches: admin.firestore.QuerySnapshot[] = [];
+      for (let i = 0; i < opportunityIds.length; i += 30) {
+        const batch = opportunityIds.slice(i, i + 30);
+        batches.push(
+          await db.collection("engagements")
+            .where("userId", "==", userId)
+            .where("earnOpportunityId", "in", batch)
+            .get()
+        );
+      }
+      // Merge batch results
+      if (batches.length === 1) {
+        existingEngagements = batches[0];
+      } else {
+        const allDocs = batches.flatMap((b) => b.docs);
+        existingEngagements = { docs: allDocs, size: allDocs.length, empty: allDocs.length === 0 } as unknown as admin.firestore.QuerySnapshot;
+      }
+    }
 
     // Early exit if parent thread is budget-exhausted
     if (threadDoc.exists && threadDoc.data()?.budgetExhausted === true) {

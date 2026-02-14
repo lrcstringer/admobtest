@@ -113,7 +113,22 @@ class AppRouter {
 
   AppRouter({required this.authBloc});
 
+  // Stable navigator keys — prevent Duplicate GlobalKey errors on refresh
+  static final _rootNavigatorKey =
+      GlobalKey<NavigatorState>(debugLabel: 'root');
+  static final _homeNavKey =
+      GlobalKey<NavigatorState>(debugLabel: 'homeTab');
+  static final _earnNavKey =
+      GlobalKey<NavigatorState>(debugLabel: 'earnTab');
+  static final _chatNavKey =
+      GlobalKey<NavigatorState>(debugLabel: 'chatTab');
+  static final _walletNavKey =
+      GlobalKey<NavigatorState>(debugLabel: 'walletTab');
+  static final _buyNavKey =
+      GlobalKey<NavigatorState>(debugLabel: 'buyTab');
+
   late final GoRouter router = GoRouter(
+    navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
     debugLogDiagnostics: true,
     refreshListenable: GoRouterRefreshStream(authBloc.stream),
@@ -366,6 +381,7 @@ class AppRouter {
         branches: [
           // ---- Tab 0: Home ----
           StatefulShellBranch(
+            navigatorKey: _homeNavKey,
             routes: [
               GoRoute(
                 path: '/home',
@@ -461,6 +477,7 @@ class AppRouter {
 
           // ---- Tab 1: Earn ----
           StatefulShellBranch(
+            navigatorKey: _earnNavKey,
             routes: [
               GoRoute(
                 path: '/earn',
@@ -504,6 +521,7 @@ class AppRouter {
 
           // ---- Tab 2: Chat ----
           StatefulShellBranch(
+            navigatorKey: _chatNavKey,
             routes: [
               GoRoute(
                 path: '/chat',
@@ -573,6 +591,7 @@ class AppRouter {
 
           // ---- Tab 3: Wallet ----
           StatefulShellBranch(
+            navigatorKey: _walletNavKey,
             routes: [
               GoRoute(
                 path: '/wallet',
@@ -726,6 +745,7 @@ class AppRouter {
 
           // ---- Tab 4: Buy ----
           StatefulShellBranch(
+            navigatorKey: _buyNavKey,
             routes: [
               GoRoute(
                 path: '/buy',
@@ -844,7 +864,6 @@ class AppRouter {
 /// when the stream emits.
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
-    notifyListeners();
     _subscription =
         stream.asBroadcastStream().listen((_) => notifyListeners());
   }
