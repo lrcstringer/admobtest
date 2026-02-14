@@ -207,10 +207,10 @@ export async function processEarningWithSplit(
     finalSubAccountId = result.subAccountId;
   }
 
-  // Calculate user share (floor for user, unrounded for pots — rounding deferred to distribution)
-  const userShare = Math.floor(totalAmount * LedgerConfig.EARNING_USER_SHARE);
+  // Calculate token split — NO rounding. Pot shares are exact 5%, user gets remainder.
   const dailyPotShare = totalAmount * LedgerConfig.EARNING_DAILY_POT_SHARE;
-  const weeklyPotShare = totalAmount - userShare - dailyPotShare;
+  const weeklyPotShare = totalAmount * LedgerConfig.EARNING_WEEKLY_POT_SHARE;
+  const userShare = totalAmount - dailyPotShare - weeklyPotShare;
 
   // Create earning entries with split — source is the token source account
   const entries = createEarningEntries(userId, totalAmount, tokenSourceAccountId);
@@ -985,9 +985,9 @@ export function createEscrowCompletionEntries(
   escrowAmount: number,
   tokenSourceAccountId: string,
 ): JournalEntryInput[] {
-  const userAmount = Math.floor(actualReward * LedgerConfig.EARNING_USER_SHARE);
   const dailyPotAmount = actualReward * LedgerConfig.EARNING_DAILY_POT_SHARE;
-  const weeklyPotAmount = actualReward - userAmount - dailyPotAmount;
+  const weeklyPotAmount = actualReward * LedgerConfig.EARNING_WEEKLY_POT_SHARE;
+  const userAmount = actualReward - dailyPotAmount - weeklyPotAmount;
   const excess = escrowAmount - actualReward;
 
   const entries: JournalEntryInput[] = [
@@ -1075,7 +1075,9 @@ export async function processEscrowCompletion(
     finalSubAccountId = result.subAccountId;
   }
 
-  const userShare = Math.floor(actualReward * LedgerConfig.EARNING_USER_SHARE);
+  const dailyPotShare = actualReward * LedgerConfig.EARNING_DAILY_POT_SHARE;
+  const weeklyPotShare = actualReward * LedgerConfig.EARNING_WEEKLY_POT_SHARE;
+  const userShare = actualReward - dailyPotShare - weeklyPotShare;
   const excess = escrowAmount - actualReward;
 
   const entries = createEscrowCompletionEntries(

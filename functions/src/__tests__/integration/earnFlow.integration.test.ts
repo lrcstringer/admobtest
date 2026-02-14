@@ -433,9 +433,9 @@ describe("Earn Flow Integration", () => {
     it("should split tokens correctly: 90% user, 5% daily pot, 5% weekly pot", async () => {
       const grossTokens = 100;
 
-      const userShare = Math.floor(grossTokens * 0.9);
-      const dailyPotShare = grossTokens * 0.05; // No rounding — deferred to distribution
-      const weeklyPotShare = grossTokens - userShare - dailyPotShare;
+      const dailyPotShare = grossTokens * 0.05;
+      const weeklyPotShare = grossTokens * 0.05;
+      const userShare = grossTokens - dailyPotShare - weeklyPotShare;
 
       expect(userShare).toBe(90);
       expect(dailyPotShare).toBe(5);
@@ -446,13 +446,26 @@ describe("Earn Flow Integration", () => {
     it("should handle odd token amounts correctly", async () => {
       const grossTokens = 99;
 
-      const userShare = Math.floor(grossTokens * 0.9); // 89
-      const dailyPotShare = grossTokens * 0.05; // 4.95 — no rounding at contribution
-      const weeklyPotShare = grossTokens - userShare - dailyPotShare; // 5.05
+      const dailyPotShare = grossTokens * 0.05; // 4.95
+      const weeklyPotShare = grossTokens * 0.05; // 4.95
+      const userShare = grossTokens - dailyPotShare - weeklyPotShare; // 89.1
 
-      expect(userShare).toBe(89);
+      expect(userShare).toBeCloseTo(89.1);
       expect(dailyPotShare).toBe(4.95);
-      expect(weeklyPotShare).toBeCloseTo(5.05);
+      expect(weeklyPotShare).toBe(4.95);
+      expect(userShare + dailyPotShare + weeklyPotShare).toBe(grossTokens);
+    });
+
+    it("should handle small token amounts without losing tokens", async () => {
+      const grossTokens = 5;
+
+      const dailyPotShare = grossTokens * 0.05; // 0.25
+      const weeklyPotShare = grossTokens * 0.05; // 0.25
+      const userShare = grossTokens - dailyPotShare - weeklyPotShare; // 4.5
+
+      expect(userShare).toBe(4.5);
+      expect(dailyPotShare).toBe(0.25);
+      expect(weeklyPotShare).toBe(0.25);
       expect(userShare + dailyPotShare + weeklyPotShare).toBe(grossTokens);
     });
   });

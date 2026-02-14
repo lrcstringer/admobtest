@@ -124,16 +124,13 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
         final engagement = earnState.currentEngagement;
         final opportunity = earnState.selectedOpportunity;
         final isPendingReview = earnState.isPendingReview;
-        // Use engagement tokensEarned, fall back to opportunity tokenReward
-        final tokensEarned = (engagement?.tokensEarned != null &&
-                engagement!.tokensEarned! > 0)
-            ? engagement.tokensEarned!
-            : opportunity?.tokenReward ?? 0;
+        // Always use gross total (opportunity reward) so the number never jumps
+        final grossTokens = opportunity?.tokenReward ?? 0;
 
-        // Calculate 90/5/5 breakdown
-        final userTokens = (tokensEarned * 0.90).round();
-        final dailyPotTokens = (tokensEarned * 0.05).round();
-        final weeklyPotTokens = (tokensEarned * 0.05).round();
+        // Calculate exact 90/5/5 breakdown — NO rounding
+        final dailyPotTokens = grossTokens * 0.05;
+        final weeklyPotTokens = grossTokens * 0.05;
+        final userTokens = grossTokens - dailyPotTokens - weeklyPotTokens;
 
         return PopScope(
           canPop: false,
@@ -281,7 +278,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                                       16),
                                             ),
                                             child: Text(
-                                              '+$tokensEarned tokens pending',
+                                              '+$grossTokens tokens pending',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .titleMedium
@@ -355,7 +352,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                                     const SizedBox(
                                                         width: 4),
                                                     Text(
-                                                      '+$tokensEarned',
+                                                      '+$grossTokens',
                                                       style: Theme.of(
                                                               context)
                                                           .textTheme
@@ -649,9 +646,14 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
     required IconData icon,
     required Color iconColor,
     required String label,
-    required int tokens,
+    required double tokens,
     required String percentage,
   }) {
+    // Show decimals only when needed (e.g. 4.5 not 4.50, but 5 not 5.0)
+    final tokenStr = tokens == tokens.roundToDouble()
+        ? tokens.toInt().toString()
+        : tokens.toStringAsFixed(2).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+
     return Row(
       children: [
         Container(
@@ -678,7 +680,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
         ),
         SizedBox(width: AppSpacing.sm),
         Text(
-          '+$tokens',
+          '+$tokenStr',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: iconColor,

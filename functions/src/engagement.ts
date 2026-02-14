@@ -543,11 +543,11 @@ export const processEngagement = functions.https.onCall(
     // Get campaignId - support multiple field names
     const campaignId = engagement.campaignId || engagement.audienceCampaignId;
 
-    // Calculate user's share for display (90% of total reward)
-    // Pot shares are unrounded — rounding deferred to distribution time
-    const userShare = Math.floor(rewardAmount * LedgerConfig.EARNING_USER_SHARE);
+    // Calculate token split — NO rounding anywhere.
+    // Pot shares are exact 5%, user gets the remainder.
     const dailyPotShare = rewardAmount * LedgerConfig.EARNING_DAILY_POT_SHARE;
-    const weeklyPotShare = rewardAmount - userShare - dailyPotShare;
+    const weeklyPotShare = rewardAmount * LedgerConfig.EARNING_WEEKLY_POT_SHARE;
+    const userShare = rewardAmount - dailyPotShare - weeklyPotShare;
 
     // ===========================================================================
     // Client-funded token flow: fetch thread and validate budget
