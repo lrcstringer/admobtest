@@ -319,7 +319,7 @@ service cloud.firestore {
       // Sub-accounts (wallets) subcollection
       match /subAccounts/{subAccountId} {
         allow read: if isAuthenticated()
-          && (accountId == request.auth.uid
+          && (accountId == 'user:' + request.auth.uid
               || isAdmin());
         allow create, update, delete: if false;
       }
@@ -334,9 +334,13 @@ service cloud.firestore {
     // Ledger journals collection
     // Immutable double-entry bookkeeping records
     match /ledgerJournals/{journalId} {
-      // Users can read journals where they are involved
-      // (journals that affect their account)
-      allow read: if isAuthenticated();
+      // Users can read journals where their account is a participant
+      // participantAccountIds is a denormalized array written at journal creation
+      // Legacy journals without this field are admin-only
+      allow read: if isAuthenticated()
+        && (('participantAccountIds' in resource.data
+              && ('user:' + request.auth.uid) in resource.data.participantAccountIds)
+            || isAdmin());
 
       // Journals are immutable and created by Cloud Functions only
       // Corrections are done via reversal journals, never mutation
@@ -551,6 +555,14 @@ service cloud.firestore {
 
       // All writes through Cloud Functions only
       allow create, update, delete: if false;
+    }
+
+    // Failed reward allocations (admin-managed retry queue)
+    match /failedRewardAllocations/{docId} {
+      allow read: if isAdmin();
+      // Admins can mark as resolved; creates/deletes via Cloud Functions only
+      allow update: if isAdmin();
+      allow create, delete: if false;
     }
 
     // Reward activity log (append-only audit trail)

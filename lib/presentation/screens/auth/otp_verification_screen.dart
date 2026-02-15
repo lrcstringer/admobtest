@@ -396,6 +396,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                               text: 'Continue',
                               onPressed: _onVerify,
                               isLoading: isLoading,
+                              loadingText: 'Verifying OTP ...',
                               size: AppButtonSize.large,
                             ),
                           )

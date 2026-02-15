@@ -127,17 +127,9 @@ class CashoutBloc extends Bloc<CashoutEvent, CashoutState> {
         emit(state.copyWith(errorMessage: failure.displayMessage));
       },
       (_) {
-        // Update history to reflect cancelled status
-        final updatedHistory = state.history.map((c) {
-          if (c.id == event.cashoutId) {
-            // We don't have a way to update the status directly with freezed,
-            // so we'll reload the history
-            add(const CashoutEvent.loadHistory());
-          }
-          return c;
-        }).toList();
-
-        emit(state.copyWith(history: updatedHistory));
+        // Cancellation succeeded — reload full history to get updated statuses
+        emit(state.copyWith(isLoadingHistory: true));
+        add(const CashoutEvent.loadHistory());
       },
     );
   }

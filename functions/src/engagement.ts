@@ -78,9 +78,8 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
 
   const userId = context.auth.uid;
 
-  // Check daily completion limit (resets at midnight)
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // Check daily completion limit (resets at midnight SAST)
+  const today = getSASTDayStart();
 
   const todayCompletionsSnapshot = await db
     .collection("engagements")

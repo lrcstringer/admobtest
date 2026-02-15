@@ -87,6 +87,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     _ledgerAccountSubscription?.cancel();
     _ledgerAccountSubscription = _walletRepository.watchLedgerAccount().listen(
       (result) {
+        if (isClosed) return;
         result.fold(
           (failure) {},
           (ledgerAccount) {
@@ -139,7 +140,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
 
     final result = await _walletRepository.getLedgerJournals(
       limit: 20,
-      startAfter: lastJournal?.postedAt ?? lastJournal?.createdAt,
+      startAfter: lastJournal?.postedAt,
     );
 
     result.fold(
@@ -165,6 +166,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
         .watchLedgerJournals(limit: event.limit ?? 20)
         .listen(
       (result) {
+        if (isClosed) return;
         result.fold(
           (failure) {},
           (journals) {
@@ -189,6 +191,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     _engagementStatsSubscription?.cancel();
     _engagementStatsSubscription = _walletRepository.watchEngagementStats().listen(
       (result) {
+        if (isClosed) return;
         result.fold(
           (failure) {},
           (stats) {
@@ -272,6 +275,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     _subAccountsSubscription?.cancel();
     _subAccountsSubscription = _walletRepository.watchSubAccounts().listen(
       (result) {
+        if (isClosed) return;
         result.fold(
           (failure) {},
           (subAccounts) => add(WalletEvent.subAccountsUpdated(subAccounts)),

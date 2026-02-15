@@ -41,7 +41,8 @@ const db = admin.firestore();
  * 6. Creates the immutable journal record
  */
 export async function postJournal(
-  input: PostJournalInput
+  input: PostJournalInput,
+  parentTx?: admin.firestore.Transaction
 ): Promise<PostJournalResult> {
   // Validate input
   const validationError = validateJournalInput(input);
@@ -142,129 +143,31 @@ export async function postJournal(
     }
   }
 
-  // Execute atomic transaction
+  // Transaction body — extracted so it can run inside a parent transaction
+  // or inside its own db.runTransaction wrapper.
+  const txBody = async (tx: admin.firestore.Transaction): Promise<LedgerJournal> => {
+    return executeJournalTx(tx, input, accountIds, balanceChanges, totalDebits, totalCredits);
+  };
+
+  if (parentTx) {
+    // Caller manages the transaction — execute body with provided tx.
+    // Errors propagate to parent transaction for retry/abort.
+    // Audit log is skipped — caller fires it after commit via logJournalPostedAudit.
+    const journal = await txBody(parentTx);
+    return {
+      success: true,
+      data: journal,
+      journalId: journal.id,
+      isDuplicate: false,
+    };
+  }
+
+  // No parent tx — existing behaviour: own transaction + audit + error handling
   try {
-    const result = await db.runTransaction(async (tx) => {
-      // Re-fetch accounts inside transaction for consistency
-      const accountRefs = accountIds.map((id) =>
-        db.collection(LedgerConfig.COLLECTION_ACCOUNTS).doc(id)
-      );
-      const accountDocs = await Promise.all(accountRefs.map((ref) => tx.get(ref)));
-
-      // Build account map from fresh data
-      const freshAccounts = new Map<string, LedgerAccount>();
-      for (let i = 0; i < accountIds.length; i++) {
-        if (!accountDocs[i].exists) {
-          throw new Error(`${LedgerErrorCodes.ACCOUNT_NOT_FOUND}: ${accountIds[i]}`);
-        }
-        freshAccounts.set(accountIds[i], accountDocs[i].data() as LedgerAccount);
-      }
-
-      // Re-validate balances inside transaction — all accounts validated equally
-      for (const [accountId, change] of balanceChanges) {
-        const account = freshAccounts.get(accountId)!;
-        const newBalance = account.balance + change;
-        if (newBalance < 0) {
-          throw new Error(
-            `${LedgerErrorCodes.INSUFFICIENT_BALANCE}: ${accountId} has ${account.balance}, needs ${-change}`
-          );
-        }
-      }
-
-      // Create journal document
-      const journalRef = db.collection(LedgerConfig.COLLECTION_JOURNALS).doc();
-      const now = admin.firestore.Timestamp.now();
-
-      // Build entries with balanceAfter
-      const entries: LedgerEntry[] = [];
-      const newBalances = new Map<string, number>();
-
-      // Initialize with current balances
-      for (const [accountId, account] of freshAccounts) {
-        newBalances.set(accountId, account.balance);
-      }
-
-      // Process entries in order, updating running balances
-      for (let i = 0; i < input.entries.length; i++) {
-        const inputEntry = input.entries[i];
-        const isAsset = AccountId.isDebitNormal(inputEntry.accountId);
-        const change = isAsset
-          ? (inputEntry.entryType === "debit" ? inputEntry.amount : -inputEntry.amount)
-          : (inputEntry.entryType === "credit" ? inputEntry.amount : -inputEntry.amount);
-
-        const currentBalance = newBalances.get(inputEntry.accountId)!;
-        const balanceAfter = currentBalance + change;
-        newBalances.set(inputEntry.accountId, balanceAfter);
-
-        entries.push({
-          id: `${journalRef.id}_${i}`,
-          accountId: inputEntry.accountId,
-          entryType: inputEntry.entryType,
-          amount: inputEntry.amount,
-          balanceAfter,
-          description: inputEntry.description,
-        });
-      }
-
-      const journal: LedgerJournal = {
-        id: journalRef.id,
-        idempotencyKey: input.idempotencyKey,
-        type: input.type,
-        status: "posted",
-        description: input.description,
-        entries,
-        totalDebits,
-        totalCredits,
-        referenceType: input.referenceType,
-        referenceId: input.referenceId,
-        ...(input.subAccountId !== undefined && { subAccountId: input.subAccountId }),
-        ...(input.accountTypeId !== undefined && { accountTypeId: input.accountTypeId }),
-        initiatedBy: input.initiatedBy,
-        ...(input.approvedBy !== undefined && { approvedBy: input.approvedBy }),
-        ...(input.ipAddress !== undefined && { ipAddress: input.ipAddress }),
-        ...(input.userAgent !== undefined && { userAgent: input.userAgent }),
-        createdAt: now,
-        postedAt: now,
-        metadata: input.metadata || {},
-      };
-
-      // Write journal
-      tx.set(journalRef, journal);
-
-      // Update all account balances
-      for (let i = 0; i < accountIds.length; i++) {
-        const newBalance = newBalances.get(accountIds[i])!;
-
-        tx.update(accountRefs[i], {
-          balance: newBalance,
-          updatedAt: now,
-          version: admin.firestore.FieldValue.increment(1),
-        });
-      }
-
-      return journal;
-    });
+    const result = await db.runTransaction(txBody);
 
     // Log audit event
-    await logAuditEvent({
-      eventType: "journal_posted",
-      journalId: result.id,
-      actorId: input.initiatedBy,
-      actorType: input.initiatedBy === "system" ? "system" : "user",
-      description: `Journal posted: ${input.type} - ${input.description}`,
-      newValue: {
-        journalId: result.id,
-        type: input.type,
-        totalAmount: totalDebits,
-        entryCount: input.entries.length,
-      },
-      ...(input.ipAddress !== undefined && { ipAddress: input.ipAddress }),
-      ...(input.userAgent !== undefined && { userAgent: input.userAgent }),
-      metadata: {
-        referenceType: input.referenceType,
-        referenceId: input.referenceId,
-      },
-    });
+    logJournalPostedAudit(input, result.id, totalDebits);
 
     return {
       success: true,
@@ -294,6 +197,155 @@ export async function postJournal(
       errorCode: LedgerErrorCodes.TRANSACTION_FAILED,
     };
   }
+}
+
+/**
+ * Core transaction body for journal posting.
+ *
+ * Re-fetches accounts inside the transaction for read consistency,
+ * re-validates balances, creates the immutable journal, and updates
+ * all affected account balances atomically.
+ */
+async function executeJournalTx(
+  tx: admin.firestore.Transaction,
+  input: PostJournalInput,
+  accountIds: string[],
+  balanceChanges: Map<string, number>,
+  totalDebits: number,
+  totalCredits: number,
+): Promise<LedgerJournal> {
+  // Re-fetch accounts inside transaction for consistency
+  const accountRefs = accountIds.map((id) =>
+    db.collection(LedgerConfig.COLLECTION_ACCOUNTS).doc(id)
+  );
+  const accountDocs = await Promise.all(accountRefs.map((ref) => tx.get(ref)));
+
+  // Build account map from fresh data
+  const freshAccounts = new Map<string, LedgerAccount>();
+  for (let i = 0; i < accountIds.length; i++) {
+    if (!accountDocs[i].exists) {
+      throw new Error(`${LedgerErrorCodes.ACCOUNT_NOT_FOUND}: ${accountIds[i]}`);
+    }
+    freshAccounts.set(accountIds[i], accountDocs[i].data() as LedgerAccount);
+  }
+
+  // Re-validate balances inside transaction — all accounts validated equally
+  for (const [accountId, change] of balanceChanges) {
+    const account = freshAccounts.get(accountId)!;
+    const newBalance = account.balance + change;
+    if (newBalance < 0) {
+      throw new Error(
+        `${LedgerErrorCodes.INSUFFICIENT_BALANCE}: ${accountId} has ${account.balance}, needs ${-change}`
+      );
+    }
+  }
+
+  // Create journal document
+  const journalRef = db.collection(LedgerConfig.COLLECTION_JOURNALS).doc();
+  const now = admin.firestore.Timestamp.now();
+
+  // Build entries with balanceAfter
+  const entries: LedgerEntry[] = [];
+  const newBalances = new Map<string, number>();
+
+  // Initialize with current balances
+  for (const [accountId, account] of freshAccounts) {
+    newBalances.set(accountId, account.balance);
+  }
+
+  // Process entries in order, updating running balances
+  for (let i = 0; i < input.entries.length; i++) {
+    const inputEntry = input.entries[i];
+    const isAsset = AccountId.isDebitNormal(inputEntry.accountId);
+    const change = isAsset
+      ? (inputEntry.entryType === "debit" ? inputEntry.amount : -inputEntry.amount)
+      : (inputEntry.entryType === "credit" ? inputEntry.amount : -inputEntry.amount);
+
+    const currentBalance = newBalances.get(inputEntry.accountId)!;
+    const balanceAfter = currentBalance + change;
+    newBalances.set(inputEntry.accountId, balanceAfter);
+
+    entries.push({
+      id: `${journalRef.id}_${i}`,
+      accountId: inputEntry.accountId,
+      entryType: inputEntry.entryType,
+      amount: inputEntry.amount,
+      balanceAfter,
+      description: inputEntry.description,
+    });
+  }
+
+  const journal: LedgerJournal = {
+    id: journalRef.id,
+    idempotencyKey: input.idempotencyKey,
+    type: input.type,
+    status: "posted",
+    description: input.description,
+    entries,
+    totalDebits,
+    totalCredits,
+    referenceType: input.referenceType,
+    referenceId: input.referenceId,
+    ...(input.subAccountId !== undefined && { subAccountId: input.subAccountId }),
+    ...(input.accountTypeId !== undefined && { accountTypeId: input.accountTypeId }),
+    initiatedBy: input.initiatedBy,
+    ...(input.approvedBy !== undefined && { approvedBy: input.approvedBy }),
+    ...(input.ipAddress !== undefined && { ipAddress: input.ipAddress }),
+    ...(input.userAgent !== undefined && { userAgent: input.userAgent }),
+    createdAt: now,
+    postedAt: now,
+    metadata: input.metadata || {},
+    // Denormalized for Firestore security rules — allows efficient per-user read access
+    participantAccountIds: accountIds,
+  };
+
+  // Write journal
+  tx.set(journalRef, journal);
+
+  // Update all account balances
+  for (let i = 0; i < accountIds.length; i++) {
+    const newBalance = newBalances.get(accountIds[i])!;
+
+    tx.update(accountRefs[i], {
+      balance: newBalance,
+      updatedAt: now,
+      version: admin.firestore.FieldValue.increment(1),
+    });
+  }
+
+  return journal;
+}
+
+/**
+ * Fire-and-forget audit log for a successfully posted journal.
+ *
+ * Call this AFTER a parent transaction commits to record the audit trail.
+ * When postJournal is called without a parentTx, it handles audit internally.
+ */
+export function logJournalPostedAudit(
+  input: PostJournalInput,
+  journalId: string,
+  totalDebits: number,
+): void {
+  logAuditEvent({
+    eventType: "journal_posted",
+    journalId,
+    actorId: input.initiatedBy,
+    actorType: input.initiatedBy === "system" ? "system" : "user",
+    description: `Journal posted: ${input.type} - ${input.description}`,
+    newValue: {
+      journalId,
+      type: input.type,
+      totalAmount: totalDebits,
+      entryCount: input.entries.length,
+    },
+    ...(input.ipAddress !== undefined && { ipAddress: input.ipAddress }),
+    ...(input.userAgent !== undefined && { userAgent: input.userAgent }),
+    metadata: {
+      referenceType: input.referenceType,
+      referenceId: input.referenceId,
+    },
+  }).catch((err) => console.error("Audit log failed:", err));
 }
 
 // ============================================================================

@@ -98,6 +98,7 @@ export {
   createTransferEntries,
   createEarningEntries,
   createReferralEntries,
+  logJournalPostedAudit,
 } from "./journals";
 
 // Re-export reconciliation functions
@@ -129,22 +130,26 @@ export {
 // HIGH-LEVEL TRANSACTION HELPERS
 // ============================================================================
 
+import * as admin from "firebase-admin";
 import {
   SystemAccounts,
   LedgerConfig,
   AccountId,
   IdempotencyKey,
+  PostJournalInput,
   PostJournalResult,
   JournalEntryInput,
 } from "./types";
 import { getOrCreateUserAccount, createSupplierAccount, initializeSystemAccounts } from "./accounts";
-import { postJournal, createEarningEntries, createReferralEntries, createTransferEntries } from "./journals";
+import { postJournal, createEarningEntries, createReferralEntries, createTransferEntries, logJournalPostedAudit } from "./journals";
 import {
   getOrCreateDefaultSubAccount,
   getSubAccount,
   creditSubAccount,
   debitSubAccount,
 } from "./subAccounts";
+
+const db = admin.firestore();
 
 // Module-level promise to ensure system accounts are initialized once per cold start.
 // This is a SAFETY NET — admins should call initializeTrustLedger explicitly before
@@ -215,8 +220,7 @@ export async function processEarningWithSplit(
   // Create earning entries with split — source is the token source account
   const entries = createEarningEntries(userId, totalAmount, tokenSourceAccountId);
 
-  // Post journal entry
-  const journalResult = await postJournal({
+  const journalInput: PostJournalInput = {
     idempotencyKey: IdempotencyKey.earning(engagementId),
     type: "earn",
     description,
@@ -235,18 +239,31 @@ export async function processEarningWithSplit(
       weeklyPotShare,
       tokenSourceAccountId,
     },
-  });
+  };
 
-  if (!journalResult.success) {
+  // Atomic: journal + sub-account credit in a single Firestore transaction
+  try {
+    const journalResult = await db.runTransaction(async (tx) => {
+      const result = await postJournal(journalInput, tx);
+      if (result.success && !result.isDuplicate && userShare > 0) {
+        await creditSubAccount(userId, finalSubAccountId, userShare, tx);
+      }
+      return result;
+    });
+
+    if (journalResult.success && !journalResult.isDuplicate && journalResult.journalId) {
+      logJournalPostedAudit(journalInput, journalResult.journalId, totalAmount);
+    }
+
     return journalResult;
+  } catch (error) {
+    console.error("processEarningWithSplit failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+      errorCode: "TRANSACTION_FAILED",
+    };
   }
-
-  // Credit the user's sub-account with their share (90%)
-  if (userShare > 0 && !journalResult.isDuplicate) {
-    await creditSubAccount(userId, finalSubAccountId, userShare);
-  }
-
-  return journalResult;
 }
 
 /**
@@ -296,7 +313,7 @@ export async function processPotWin(
     },
   ];
 
-  const journalResult = await postJournal({
+  const journalInput: PostJournalInput = {
     idempotencyKey: IdempotencyKey.potWin(potDrawId, winnerId),
     type: "pot_win",
     description: `${potType.charAt(0).toUpperCase() + potType.slice(1)} pot win: ${amount} tokens`,
@@ -311,18 +328,30 @@ export async function processPotWin(
       winnerId,
       amount,
     },
-  });
+  };
 
-  if (!journalResult.success) {
+  try {
+    const journalResult = await db.runTransaction(async (tx) => {
+      const result = await postJournal(journalInput, tx);
+      if (result.success && !result.isDuplicate) {
+        await creditSubAccount(winnerId, finalSubAccountId, amount, tx);
+      }
+      return result;
+    });
+
+    if (journalResult.success && !journalResult.isDuplicate && journalResult.journalId) {
+      logJournalPostedAudit(journalInput, journalResult.journalId, amount);
+    }
+
     return journalResult;
+  } catch (error) {
+    console.error("processPotWin failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+      errorCode: "TRANSACTION_FAILED",
+    };
   }
-
-  // Credit the winner's sub-account
-  if (!journalResult.isDuplicate) {
-    await creditSubAccount(winnerId, finalSubAccountId, amount);
-  }
-
-  return journalResult;
 }
 
 /**
@@ -407,7 +436,7 @@ export async function processPurchaseTransaction(
   await getOrCreateUserAccount(userId);
   await createSupplierAccount(providerId, providerName);
 
-  // Validate sub-account has sufficient balance
+  // Validate sub-account has sufficient balance (fast pre-check — re-validated inside tx)
   const subAccount = await getSubAccount(userId, subAccountId);
   if (!subAccount) {
     return {
@@ -431,7 +460,7 @@ export async function processPurchaseTransaction(
     `Purchase from ${providerName}`
   );
 
-  const journalResult = await postJournal({
+  const journalInput: PostJournalInput = {
     idempotencyKey: IdempotencyKey.purchase(purchaseId),
     type: "purchase",
     description: `Purchase: ${amount} tokens to ${providerName}`,
@@ -448,18 +477,30 @@ export async function processPurchaseTransaction(
       providerName,
       amount,
     },
-  });
+  };
 
-  if (!journalResult.success) {
+  try {
+    const journalResult = await db.runTransaction(async (tx) => {
+      const result = await postJournal(journalInput, tx);
+      if (result.success && !result.isDuplicate) {
+        await debitSubAccount(userId, subAccountId, amount, tx);
+      }
+      return result;
+    });
+
+    if (journalResult.success && !journalResult.isDuplicate && journalResult.journalId) {
+      logJournalPostedAudit(journalInput, journalResult.journalId, amount);
+    }
+
     return journalResult;
+  } catch (error) {
+    console.error("processPurchaseTransaction failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+      errorCode: "TRANSACTION_FAILED",
+    };
   }
-
-  // Debit the user's sub-account
-  if (!journalResult.isDuplicate) {
-    await debitSubAccount(userId, subAccountId, amount);
-  }
-
-  return journalResult;
 }
 
 /**
@@ -500,8 +541,9 @@ export async function processReferralRewards(
   }
 
   const entries = createReferralEntries(referrerId, refereeId, SystemAccounts.IMALICHAT_CLIENT);
+  const totalAmount = LedgerConfig.REFERRER_REWARD + LedgerConfig.REFEREE_REWARD;
 
-  const journalResult = await postJournal({
+  const journalInput: PostJournalInput = {
     idempotencyKey: IdempotencyKey.referral(referralId),
     type: "referral_reward",
     description: `Referral rewards: ${LedgerConfig.REFERRER_REWARD} to referrer, ${LedgerConfig.REFEREE_REWARD} to referee`,
@@ -518,19 +560,31 @@ export async function processReferralRewards(
       referrerSubAccountId: finalReferrerSubAccountId,
       refereeSubAccountId: finalRefereeSubAccountId,
     },
-  });
+  };
 
-  if (!journalResult.success) {
+  try {
+    const journalResult = await db.runTransaction(async (tx) => {
+      const result = await postJournal(journalInput, tx);
+      if (result.success && !result.isDuplicate) {
+        await creditSubAccount(referrerId, finalReferrerSubAccountId, LedgerConfig.REFERRER_REWARD, tx);
+        await creditSubAccount(refereeId, finalRefereeSubAccountId, LedgerConfig.REFEREE_REWARD, tx);
+      }
+      return result;
+    });
+
+    if (journalResult.success && !journalResult.isDuplicate && journalResult.journalId) {
+      logJournalPostedAudit(journalInput, journalResult.journalId, totalAmount);
+    }
+
     return journalResult;
+  } catch (error) {
+    console.error("processReferralRewards failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+      errorCode: "TRANSACTION_FAILED",
+    };
   }
-
-  // Credit both sub-accounts
-  if (!journalResult.isDuplicate) {
-    await creditSubAccount(referrerId, finalReferrerSubAccountId, LedgerConfig.REFERRER_REWARD);
-    await creditSubAccount(refereeId, finalRefereeSubAccountId, LedgerConfig.REFEREE_REWARD);
-  }
-
-  return journalResult;
 }
 
 /**
@@ -559,7 +613,7 @@ export async function processP2PTransfer(
   await getOrCreateUserAccount(senderId);
   await getOrCreateUserAccount(recipientId);
 
-  // Get sender's sub-account to validate balance
+  // Get sender's sub-account to validate balance (fast pre-check — re-validated inside tx)
   const senderSubAccount = await getSubAccount(senderId, senderSubAccountId);
   if (!senderSubAccount) {
     return {
@@ -590,7 +644,7 @@ export async function processP2PTransfer(
     message || `P2P transfer`
   );
 
-  const journalResult = await postJournal({
+  const journalInput: PostJournalInput = {
     idempotencyKey: IdempotencyKey.p2pTransfer(transferId),
     type: "p2p_transfer",
     description: `P2P: ${amount} tokens from ${senderId} to ${recipientId}`,
@@ -609,19 +663,31 @@ export async function processP2PTransfer(
       senderSubAccountId,
       recipientSubAccountId: finalRecipientSubAccountId,
     },
-  });
+  };
 
-  if (!journalResult.success) {
+  try {
+    const journalResult = await db.runTransaction(async (tx) => {
+      const result = await postJournal(journalInput, tx);
+      if (result.success && !result.isDuplicate) {
+        await debitSubAccount(senderId, senderSubAccountId, amount, tx);
+        await creditSubAccount(recipientId, finalRecipientSubAccountId, amount, tx);
+      }
+      return result;
+    });
+
+    if (journalResult.success && !journalResult.isDuplicate && journalResult.journalId) {
+      logJournalPostedAudit(journalInput, journalResult.journalId, amount);
+    }
+
     return journalResult;
+  } catch (error) {
+    console.error("processP2PTransfer failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+      errorCode: "TRANSACTION_FAILED",
+    };
   }
-
-  // Transfer between sub-accounts
-  if (!journalResult.isDuplicate) {
-    await debitSubAccount(senderId, senderSubAccountId, amount);
-    await creditSubAccount(recipientId, finalRecipientSubAccountId, amount);
-  }
-
-  return journalResult;
 }
 
 /**
@@ -642,7 +708,7 @@ export async function initiateCashout(
 ): Promise<PostJournalResult> {
   await ensureSystemAccounts();
 
-  // Validate sub-account has sufficient balance
+  // Validate sub-account has sufficient balance (fast pre-check — re-validated inside tx)
   const subAccount = await getSubAccount(userId, subAccountId);
   if (!subAccount) {
     return {
@@ -674,7 +740,7 @@ export async function initiateCashout(
     },
   ];
 
-  const journalResult = await postJournal({
+  const journalInput: PostJournalInput = {
     idempotencyKey: IdempotencyKey.cashoutInitiate(cashoutId),
     type: "cashout_initiate",
     description: `Cashout initiated: ${amount} tokens`,
@@ -690,18 +756,30 @@ export async function initiateCashout(
       amount,
       subAccountId,
     },
-  });
+  };
 
-  if (!journalResult.success) {
+  try {
+    const journalResult = await db.runTransaction(async (tx) => {
+      const result = await postJournal(journalInput, tx);
+      if (result.success && !result.isDuplicate) {
+        await debitSubAccount(userId, subAccountId, amount, tx);
+      }
+      return result;
+    });
+
+    if (journalResult.success && !journalResult.isDuplicate && journalResult.journalId) {
+      logJournalPostedAudit(journalInput, journalResult.journalId, amount);
+    }
+
     return journalResult;
+  } catch (error) {
+    console.error("initiateCashout failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+      errorCode: "TRANSACTION_FAILED",
+    };
   }
-
-  // Debit the user's sub-account
-  if (!journalResult.isDuplicate) {
-    await debitSubAccount(userId, subAccountId, amount);
-  }
-
-  return journalResult;
 }
 
 /**
@@ -789,7 +867,7 @@ export async function failCashout(
     },
   ];
 
-  const journalResult = await postJournal({
+  const journalInput: PostJournalInput = {
     idempotencyKey: IdempotencyKey.cashoutFailed(cashoutId),
     type: "cashout_failed",
     description: `Cashout failed: ${amount} tokens refunded - ${reason}`,
@@ -805,18 +883,30 @@ export async function failCashout(
       reason,
       subAccountId,
     },
-  });
+  };
 
-  if (!journalResult.success) {
+  try {
+    const journalResult = await db.runTransaction(async (tx) => {
+      const result = await postJournal(journalInput, tx);
+      if (result.success && !result.isDuplicate) {
+        await creditSubAccount(userId, subAccountId, amount, tx);
+      }
+      return result;
+    });
+
+    if (journalResult.success && !journalResult.isDuplicate && journalResult.journalId) {
+      logJournalPostedAudit(journalInput, journalResult.journalId, amount);
+    }
+
     return journalResult;
+  } catch (error) {
+    console.error("failCashout failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+      errorCode: "TRANSACTION_FAILED",
+    };
   }
-
-  // Credit the user's sub-account with the refund
-  if (!journalResult.isDuplicate) {
-    await creditSubAccount(userId, subAccountId, amount);
-  }
-
-  return journalResult;
 }
 
 /**
@@ -1087,7 +1177,7 @@ export async function processEscrowCompletion(
     tokenSourceAccountId,
   );
 
-  const journalResult = await postJournal({
+  const journalInput: PostJournalInput = {
     idempotencyKey: IdempotencyKey.escrowRelease(engagementId),
     type: "escrow_release",
     description: `Escrow release: ${actualReward} tokens earned, ${excess} returned`,
@@ -1106,16 +1196,28 @@ export async function processEscrowCompletion(
       userShare,
       tokenSourceAccountId,
     },
-  });
+  };
 
-  if (!journalResult.success) {
+  try {
+    const journalResult = await db.runTransaction(async (tx) => {
+      const result = await postJournal(journalInput, tx);
+      if (result.success && !result.isDuplicate && userShare > 0) {
+        await creditSubAccount(userId, finalSubAccountId, userShare, tx);
+      }
+      return result;
+    });
+
+    if (journalResult.success && !journalResult.isDuplicate && journalResult.journalId) {
+      logJournalPostedAudit(journalInput, journalResult.journalId, escrowAmount);
+    }
+
     return journalResult;
+  } catch (error) {
+    console.error("processEscrowCompletion failed:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+      errorCode: "TRANSACTION_FAILED",
+    };
   }
-
-  // Credit the user's sub-account with their share (90%)
-  if (userShare > 0 && !journalResult.isDuplicate) {
-    await creditSubAccount(userId, finalSubAccountId, userShare);
-  }
-
-  return journalResult;
 }

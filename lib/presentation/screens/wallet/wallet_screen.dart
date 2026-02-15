@@ -36,6 +36,25 @@ class _WalletScreenState extends State<WalletScreen> {
     _loadRewardFlag();
   }
 
+  Future<void> _navigateToRewards(BuildContext context) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .get();
+    final hasConsent = userDoc.data()?['rewardConsent'] == true;
+
+    if (!context.mounted) return;
+
+    if (!hasConsent) {
+      final consented = await RewardConsentDialog.show(context);
+      if (!consented || !context.mounted) return;
+    }
+    context.go('/wallet/rewards');
+  }
+
   Future<void> _loadRewardFlag() async {
     try {
       final doc = await FirebaseFirestore.instance
@@ -60,6 +79,7 @@ class _WalletScreenState extends State<WalletScreen> {
           return RefreshIndicator(
           onRefresh: () async {
             context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+            context.read<RewardBloc>().add(const RewardEvent.refreshItems());
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -97,12 +117,24 @@ class _WalletScreenState extends State<WalletScreen> {
                             onTap: () => context.go('/wallet/transactions'),
                           ),
                         ),
+                        if (_rewardsUiEnabled) ...[
+                          AppSpacing.horizontalMd,
+                          Expanded(
+                            child: _buildActionCard(
+                              context,
+                              icon: Icons.card_giftcard,
+                              label: 'Rewards',
+                              color: AppColors.accent,
+                              onTap: () => _navigateToRewards(context),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     AppSpacing.verticalXl,
 
-                    // My Rewards card (hidden when no items)
-                    _buildRewardsCard(context),
+                    // My Rewards section (inline preview)
+                    _buildRewardsSection(context),
 
                     // Wallets section header
                     Text(
@@ -141,82 +173,111 @@ class _WalletScreenState extends State<WalletScreen> {
     WalletState state,
     bool isLoading,
   ) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: AppColors.logoGradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: AppSpacing.borderRadiusLg,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Portfolio Balance',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.8),
-                      ),
-                ),
-                const SizedBox(height: 4),
-                if (isLoading)
-                  const SizedBox(
-                    height: 28,
-                    width: 28,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
-                    ),
-                  )
-                else
-                  Text(
-                    '${state.portfolioBalance}',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-              ],
+    return BlocBuilder<RewardBloc, RewardState>(
+      builder: (context, rewardState) {
+        final activeRewards = rewardState.activeCount;
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: AppColors.logoGradient,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
+            borderRadius: AppSpacing.borderRadiusLg,
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          child: Row(
             children: [
-              Text(
-                'R${state.portfolioBalanceZar.toStringAsFixed(2)}',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Portfolio Balance',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.8),
+                          ),
                     ),
+                    const SizedBox(height: 4),
+                    if (isLoading)
+                      const SizedBox(
+                        height: 28,
+                        width: 28,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    else
+                      Text(
+                        '${state.portfolioBalance}',
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                      ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 2),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Icon(
-                    Icons.account_balance_wallet_outlined,
-                    color: Colors.white.withValues(alpha: 0.7),
-                    size: 14,
-                  ),
-                  const SizedBox(width: 4),
                   Text(
-                    '${state.subAccounts.length} wallet${state.subAccounts.length == 1 ? '' : 's'}',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.7),
+                    'R${state.portfolioBalanceZar.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
                         ),
                   ),
+                  const SizedBox(height: 2),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.account_balance_wallet_outlined,
+                        color: Colors.white.withValues(alpha: 0.7),
+                        size: 14,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${state.subAccounts.length} wallet${state.subAccounts.length == 1 ? '' : 's'}',
+                        style:
+                            Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                ),
+                      ),
+                    ],
+                  ),
+                  if (_rewardsUiEnabled && activeRewards > 0) ...[
+                    const SizedBox(height: 2),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.card_giftcard,
+                          color: Colors.white.withValues(alpha: 0.7),
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '$activeRewards reward${activeRewards == 1 ? '' : 's'}',
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -280,131 +341,305 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  Widget _buildRewardsCard(BuildContext context) {
-    // Hide entire card if feature flag is off
+  Widget _buildRewardsSection(BuildContext context) {
     if (!_rewardsUiEnabled) return const SizedBox.shrink();
 
     return BlocBuilder<RewardBloc, RewardState>(
       builder: (context, rewardState) {
-        // Hide when no active items
-        if (!rewardState.hasActiveItems &&
-            rewardState.status == RewardLoadStatus.loaded) {
-          return const SizedBox.shrink();
-        }
-
         // Hide during initial load
         if (rewardState.status == RewardLoadStatus.initial) {
           return const SizedBox.shrink();
         }
 
-        final activeCount = rewardState.activeCount;
+        final activeItems = rewardState.activeItems;
+        final totalItems = rewardState.items.length;
 
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            InkWell(
-              onTap: () async {
-                // Check consent before navigating
-                final uid = FirebaseAuth.instance.currentUser?.uid;
-                if (uid == null) return;
-
-                final userDoc = await FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(uid)
-                    .get();
-                final hasConsent = userDoc.data()?['rewardConsent'] == true;
-
-                if (!context.mounted) return;
-
-                if (!hasConsent) {
-                  final consented =
-                      await RewardConsentDialog.show(context);
-                  if (!consented || !context.mounted) return;
-                }
-                context.go('/wallet/rewards');
-              },
-              borderRadius: AppSpacing.borderRadiusMd,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color.alphaBlend(
-                        AppColors.tertiaryGradient[0]
-                            .withValues(alpha: 0.04),
-                        AppColors.surface,
-                      ),
-                      Color.alphaBlend(
-                        AppColors.tertiaryGradient[1]
-                            .withValues(alpha: 0.02),
-                        AppColors.surface,
-                      ),
-                    ],
+            // Section header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'My Rewards',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                if (totalItems > 0)
+                  GestureDetector(
+                    onTap: () => _navigateToRewards(context),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'View All ($totalItems)',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelMedium
+                              ?.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        const SizedBox(width: 2),
+                        Icon(
+                          Icons.chevron_right,
+                          color: AppColors.primary,
+                          size: 16,
+                        ),
+                      ],
+                    ),
                   ),
+              ],
+            ),
+            AppSpacing.verticalMd,
+
+            // Active reward items (up to 3)
+            if (activeItems.isNotEmpty) ...[
+              ...activeItems.take(3).map(
+                    (item) => _buildCompactRewardCard(context, item),
+                  ),
+              if (activeItems.length > 3)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () => _navigateToRewards(context),
+                      child: Text(
+                        'See ${activeItems.length - 3} more',
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                      ),
+                    ),
+                  ),
+                ),
+            ] else if (totalItems > 0)
+              // Has redeemed/expired but no active
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
                   borderRadius: AppSpacing.borderRadiusMd,
                   border: Border.all(color: AppColors.border),
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.accent.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.card_giftcard,
-                        color: AppColors.accent,
-                        size: 22,
-                      ),
+                    Icon(
+                      Icons.card_giftcard_outlined,
+                      color: AppColors.textTertiary,
+                      size: 20,
                     ),
                     AppSpacing.horizontalMd,
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'My Rewards',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                          ),
-                          AppSpacing.verticalXxs,
-                          Text(
-                            '$activeCount active reward${activeCount == 1 ? '' : 's'}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: AppColors.textSecondary),
-                          ),
-                        ],
+                      child: Text(
+                        'No active rewards',
+                        style:
+                            Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
                       ),
                     ),
-                    Text(
-                      'View All',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                    GestureDetector(
+                      onTap: () => _navigateToRewards(context),
+                      child: Text(
+                        'View history',
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                      ),
                     ),
-                    const SizedBox(width: 4),
+                  ],
+                ),
+              )
+            else
+              // No items at all
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: AppSpacing.borderRadiusMd,
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  children: [
                     Icon(
-                      Icons.chevron_right,
-                      color: AppColors.primary,
-                      size: 18,
+                      Icons.card_giftcard_outlined,
+                      color: AppColors.textTertiary,
+                      size: 20,
+                    ),
+                    AppSpacing.horizontalMd,
+                    Expanded(
+                      child: Text(
+                        'Complete earn activities to unlock rewards',
+                        style:
+                            Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
+
             AppSpacing.verticalXl,
           ],
         );
       },
     );
+  }
+
+  Widget _buildCompactRewardCard(BuildContext context, RewardItem item) {
+    final IconData icon;
+    final Color color;
+
+    switch (item.rewardType) {
+      case RewardType.qrCode:
+        icon = Icons.qr_code_2;
+        color = AppColors.primary;
+      case RewardType.voucherCode:
+        icon = Icons.confirmation_number_outlined;
+        color = AppColors.secondary;
+      case RewardType.discountCode:
+        icon = Icons.percent;
+        color = AppColors.success;
+      case RewardType.digitalContent:
+        icon = Icons.download;
+        color = AppColors.info;
+      case null:
+        icon = Icons.card_giftcard;
+        color = AppColors.accent;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: () => context.go('/wallet/rewards/${item.id}'),
+        borderRadius: AppSpacing.borderRadiusMd,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: AppSpacing.borderRadiusMd,
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 18),
+              ),
+              AppSpacing.horizontalMd,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.campaignName ?? 'Reward',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (item.clientName != null)
+                      Text(
+                        item.clientName!,
+                        style:
+                            Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+              _buildCompactExpiryBadge(context, item),
+              const SizedBox(width: 4),
+              Icon(
+                Icons.chevron_right,
+                color: AppColors.textTertiary,
+                size: 18,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactExpiryBadge(BuildContext context, RewardItem item) {
+    if (item.expiresAt == null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: AppColors.success.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          'Active',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: AppColors.success,
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+      );
+    }
+
+    final hours = item.hoursUntilExpiry;
+    final days = item.daysUntilExpiry;
+
+    if (hours != null && hours < 24) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: AppColors.error.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          '${hours}h left',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: AppColors.error,
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+      );
+    }
+
+    if (days != null) {
+      final isUrgent = days <= 3;
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: (isUrgent ? AppColors.warning : AppColors.success)
+              .withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          '${days}d left',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: isUrgent ? AppColors.warning : AppColors.success,
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 
   Widget _buildWalletCard(BuildContext context, SubAccount subAccount) {

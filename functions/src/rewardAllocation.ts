@@ -341,6 +341,19 @@ export async function enqueueRewardAllocation(
         engagementId,
         reason: result.reason,
       });
+      // Record retryable failures for admin intervention (skip expected non-errors)
+      const expectedReasons = ["consent_not_given", "rewards_disabled", "earn_integration_disabled", "user_limit_reached"];
+      if (!expectedReasons.includes(result.reason || "")) {
+        await db.collection("failedRewardAllocations").add({
+          userId,
+          campaignId,
+          engagementId,
+          reason: result.reason,
+          retryable: ["allocation_contention", "no_available_items", "allocation_failed"].includes(result.reason || ""),
+          resolved: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        }).catch((e) => functions.logger.error("Failed to write allocation failure record", { error: e }));
+      }
     }
   } catch (err) {
     functions.logger.error("Failed to process reward allocation", {
@@ -349,6 +362,16 @@ export async function enqueueRewardAllocation(
       engagementId,
       error: err,
     });
+    // Record unexpected errors for admin intervention
+    await db.collection("failedRewardAllocations").add({
+      userId,
+      campaignId,
+      engagementId,
+      reason: err instanceof Error ? err.message : String(err),
+      retryable: true,
+      resolved: false,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    }).catch((e) => functions.logger.error("Failed to write allocation failure record", { error: e }));
     throw err;
   }
 }

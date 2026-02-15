@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/ledger_journal.dart';
+import '../../../domain/entities/reward_item.dart';
+import '../../../domain/enums/reward_enums.dart';
+import '../../blocs/reward/reward_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
+
+enum _HistoryView { all, tokensOnly }
 
 class TransactionHistoryScreen extends StatefulWidget {
   const TransactionHistoryScreen({super.key});
@@ -18,6 +24,8 @@ class TransactionHistoryScreen extends StatefulWidget {
 class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   final ScrollController _scrollController = ScrollController();
   LedgerJournalType? _selectedFilter;
+  _HistoryView _currentView = _HistoryView.all;
+  bool _rewardFilterActive = false;
 
   @override
   void initState() {
@@ -42,11 +50,11 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IMaliAppBar(
-        title: 'Transaction History',
+        title: 'Activity History',
         extraActions: [
           IconButton(
             icon: Badge(
-              isLabelVisible: _selectedFilter != null,
+              isLabelVisible: _selectedFilter != null || _rewardFilterActive,
               child: const Icon(Icons.filter_list),
             ),
             tooltip: 'Filter',
@@ -56,49 +64,278 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       ),
       body: WaveBackground(
         child: BlocBuilder<WalletBloc, WalletState>(
-        builder: (context, state) {
-          if (state.status == WalletStatus.loading && state.ledgerJournals.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          // Apply filter
-          final filteredJournals = _selectedFilter == null
-              ? state.ledgerJournals
-              : state.ledgerJournals.where((j) => j.type == _selectedFilter).toList();
-
-          if (state.ledgerJournals.isEmpty) {
-            return _buildEmptyState(context);
-          }
-
-          if (filteredJournals.isEmpty && _selectedFilter != null) {
-            return _buildNoFilterResultsState(context);
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
-            },
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: AppSpacing.pagePadding,
-              itemCount: filteredJournals.length + (state.isLoadingMore ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == filteredJournals.length) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: CircularProgressIndicator(),
+        builder: (context, walletState) {
+          return BlocBuilder<RewardBloc, RewardState>(
+            builder: (context, rewardState) {
+              return Column(
+                children: [
+                  // View toggle
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    child: SegmentedButton<_HistoryView>(
+                      segments: const [
+                        ButtonSegment(
+                          value: _HistoryView.all,
+                          label: Text('All Activity'),
+                        ),
+                        ButtonSegment(
+                          value: _HistoryView.tokensOnly,
+                          label: Text('Tokens Only'),
+                        ),
+                      ],
+                      selected: {_currentView},
+                      onSelectionChanged: (selected) {
+                        setState(() {
+                          _currentView = selected.first;
+                          // Clear reward filter when switching to tokens-only
+                          if (_currentView == _HistoryView.tokensOnly) {
+                            _rewardFilterActive = false;
+                          }
+                        });
+                      },
+                      style: ButtonStyle(
+                        visualDensity: VisualDensity.compact,
+                        textStyle: WidgetStatePropertyAll(
+                          Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ),
                     ),
-                  );
-                }
+                  ),
 
-                final journal = filteredJournals[index];
-                return _buildJournalCard(context, journal, state.ledgerAccount?.id);
-              },
-            ),
+                  // Content
+                  Expanded(
+                    child: _buildHistoryContent(
+                        context, walletState, rewardState),
+                  ),
+                ],
+              );
+            },
           );
         },
       ),
+      ),
+    );
+  }
+
+  Widget _buildHistoryContent(
+    BuildContext context,
+    WalletState walletState,
+    RewardState rewardState,
+  ) {
+    if (walletState.status == WalletStatus.loading &&
+        walletState.ledgerJournals.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_currentView == _HistoryView.tokensOnly) {
+      return _buildTokensOnlyView(context, walletState);
+    }
+
+    return _buildAllActivityView(context, walletState, rewardState);
+  }
+
+  Widget _buildTokensOnlyView(BuildContext context, WalletState state) {
+    final filteredJournals = _selectedFilter == null
+        ? state.ledgerJournals
+        : state.ledgerJournals
+            .where((j) => j.type == _selectedFilter)
+            .toList();
+
+    if (state.ledgerJournals.isEmpty) {
+      return _buildEmptyState(context);
+    }
+
+    if (filteredJournals.isEmpty && _selectedFilter != null) {
+      return _buildNoFilterResultsState(context);
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+      },
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: AppSpacing.pagePadding,
+        itemCount: filteredJournals.length + (state.isLoadingMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == filteredJournals.length) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          final journal = filteredJournals[index];
+          return _buildJournalCard(
+              context, journal, state.ledgerAccount?.id);
+        },
+      ),
+    );
+  }
+
+  Widget _buildAllActivityView(
+    BuildContext context,
+    WalletState walletState,
+    RewardState rewardState,
+  ) {
+    // Build unified activity list
+    final activities = <_UnifiedActivity>[];
+
+    // Add token journals (unless reward filter is active)
+    if (!_rewardFilterActive) {
+      final filteredJournals = _selectedFilter == null
+          ? walletState.ledgerJournals
+          : walletState.ledgerJournals
+              .where((j) => j.type == _selectedFilter)
+              .toList();
+
+      for (final journal in filteredJournals) {
+        activities.add(_UnifiedActivity(
+          timestamp: journal.postedAt ?? journal.createdAt,
+          journal: journal,
+        ));
+      }
+    }
+
+    // Add reward items (unless a token-type filter is active)
+    if (_selectedFilter == null || _rewardFilterActive) {
+      final rewardItems = [
+        ...rewardState.activeItems,
+        ...rewardState.redeemedItems,
+        ...rewardState.expiredItems,
+      ];
+      for (final item in rewardItems) {
+        activities.add(_UnifiedActivity(
+          timestamp: item.redeemedAt ?? item.allocatedAt ?? DateTime(2000),
+          rewardItem: item,
+        ));
+      }
+    }
+
+    // Sort by timestamp descending
+    activities.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+    if (activities.isEmpty) {
+      return _buildEmptyState(context);
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+        context.read<RewardBloc>().add(const RewardEvent.refreshItems());
+      },
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: AppSpacing.pagePadding,
+        itemCount:
+            activities.length + (walletState.isLoadingMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == activities.length) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          final activity = activities[index];
+          if (activity.journal != null) {
+            return _buildJournalCard(
+              context,
+              activity.journal!,
+              walletState.ledgerAccount?.id,
+            );
+          } else if (activity.rewardItem != null) {
+            return _buildRewardActivityCard(context, activity.rewardItem!);
+          }
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+
+  Widget _buildRewardActivityCard(BuildContext context, RewardItem item) {
+    final Color color;
+    final String statusLabel;
+
+    switch (item.status) {
+      case RewardItemStatus.allocated:
+        color = AppColors.success;
+        statusLabel = 'Active';
+      case RewardItemStatus.redeemed:
+        color = AppColors.textSecondary;
+        statusLabel = 'Used';
+      case RewardItemStatus.expired:
+        color = AppColors.error;
+        statusLabel = 'Expired';
+      default:
+        color = AppColors.textTertiary;
+        statusLabel = item.status.displayName;
+    }
+
+    return InkWell(
+      onTap: () => context.go('/wallet/rewards/${item.id}'),
+      borderRadius: AppSpacing.borderRadiusMd,
+      child: Container(
+        padding: AppSpacing.cardPadding,
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppSpacing.borderRadiusMd,
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.accent.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.card_giftcard, color: AppColors.accent, size: 24),
+            ),
+            AppSpacing.horizontalMd,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.campaignName ?? 'Reward',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  AppSpacing.verticalXs,
+                  Text(
+                    item.clientName ?? '',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                statusLabel,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -108,8 +345,20 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       context: context,
       builder: (context) => _FilterSheet(
         selectedFilter: _selectedFilter,
+        rewardFilterActive: _rewardFilterActive,
+        showRewardFilter: _currentView == _HistoryView.all,
         onFilterSelected: (filter) {
-          setState(() => _selectedFilter = filter);
+          setState(() {
+            _selectedFilter = filter;
+            _rewardFilterActive = false;
+          });
+          Navigator.pop(context);
+        },
+        onRewardFilterToggled: () {
+          setState(() {
+            _rewardFilterActive = !_rewardFilterActive;
+            if (_rewardFilterActive) _selectedFilter = null;
+          });
           Navigator.pop(context);
         },
       ),
@@ -477,15 +726,23 @@ class JournalDetailSheet extends StatelessWidget {
 
 class _FilterSheet extends StatelessWidget {
   final LedgerJournalType? selectedFilter;
+  final bool rewardFilterActive;
+  final bool showRewardFilter;
   final ValueChanged<LedgerJournalType?> onFilterSelected;
+  final VoidCallback onRewardFilterToggled;
 
   const _FilterSheet({
     required this.selectedFilter,
+    required this.rewardFilterActive,
+    required this.showRewardFilter,
     required this.onFilterSelected,
+    required this.onRewardFilterToggled,
   });
 
   @override
   Widget build(BuildContext context) {
+    final hasActiveFilter = selectedFilter != null || rewardFilterActive;
+
     return Container(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -496,12 +753,12 @@ class _FilterSheet extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Filter Transactions',
+                'Filter Activity',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
               ),
-              if (selectedFilter != null)
+              if (hasActiveFilter)
                 TextButton(
                   onPressed: () => onFilterSelected(null),
                   child: const Text('Clear'),
@@ -520,6 +777,28 @@ class _FilterSheet extends StatelessWidget {
               _buildFilterChip(context, LedgerJournalType.p2pTransfer, 'Transfers', Icons.swap_horiz),
               _buildFilterChip(context, LedgerJournalType.cashoutInitiate, 'Cashouts', Icons.account_balance_wallet),
               _buildFilterChip(context, LedgerJournalType.referralReward, 'Referrals', Icons.people),
+              if (showRewardFilter)
+                FilterChip(
+                  selected: rewardFilterActive,
+                  label: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.card_giftcard,
+                        size: 18,
+                        color: rewardFilterActive ? Colors.white : AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 6),
+                      const Text('Rewards'),
+                    ],
+                  ),
+                  onSelected: (_) => onRewardFilterToggled(),
+                  selectedColor: AppColors.accent,
+                  checkmarkColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: rewardFilterActive ? Colors.white : AppColors.textPrimary,
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: 24),
@@ -557,4 +836,16 @@ class _FilterSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+class _UnifiedActivity {
+  final DateTime timestamp;
+  final LedgerJournal? journal;
+  final RewardItem? rewardItem;
+
+  _UnifiedActivity({
+    required this.timestamp,
+    this.journal,
+    this.rewardItem,
+  });
 }

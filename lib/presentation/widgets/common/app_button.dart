@@ -16,6 +16,7 @@ class AppButton extends StatelessWidget {
   final bool isFullWidth;
   final IconData? icon;
   final IconData? trailingIcon;
+  final String? loadingText;
 
   const AppButton({
     super.key,
@@ -27,6 +28,7 @@ class AppButton extends StatelessWidget {
     this.isFullWidth = true,
     this.icon,
     this.trailingIcon,
+    this.loadingText,
   });
 
   @override
@@ -36,13 +38,24 @@ class AppButton extends StatelessWidget {
     final isDisabled = onPressed == null || isLoading;
 
     Widget child = isLoading
-        ? SizedBox(
-            height: 20,
-            width: 20,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(_getLoadingColor()),
-            ),
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(_getLoadingColor()),
+                ),
+              ),
+              if (loadingText != null) ...[
+                SizedBox(width: AppSpacing.sm),
+                Text(loadingText!, style: textStyle),
+              ],
+            ],
           )
         : Row(
             mainAxisSize: isFullWidth ? MainAxisSize.max : MainAxisSize.min,

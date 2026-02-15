@@ -67,6 +67,14 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
         if (extraActions != null) ...extraActions!,
         IconButton(
           icon: const Icon(
+            Icons.info_outline,
+            color: AppColors.textSecondary,
+          ),
+          onPressed: () => context.push('/home/profile/settings/help'),
+          tooltip: 'Help',
+        ),
+        IconButton(
+          icon: const Icon(
             Icons.notifications_outlined,
             color: AppColors.textSecondary,
           ),

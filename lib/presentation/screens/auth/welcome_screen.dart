@@ -68,7 +68,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     setState(() => _showVideo = true);
 
     final controller =
-        VideoPlayerController.asset('assets/video/Ayanda_cropped.mp4');
+        VideoPlayerController.asset('assets/video/AyandaWelcomeVid_cropped.mp4');
     _videoController = controller;
 
     await controller.initialize();

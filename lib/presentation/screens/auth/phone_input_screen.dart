@@ -427,6 +427,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                         text: 'Continue',
                         onPressed: _onSubmit,
                         isLoading: isLoading,
+                        loadingText: 'Sending SMS ...',
                         size: AppButtonSize.large,
                       ),
                     )

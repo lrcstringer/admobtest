@@ -13,6 +13,7 @@ import '../screens/cashout_approval_screen.dart';
 import '../screens/client_management_screen.dart';
 import '../screens/earn_management_screen.dart';
 import '../screens/pending_actions_screen.dart';
+import '../screens/reward_activity_screen.dart';
 import '../screens/reward_campaign_screen.dart';
 import '../screens/upload_review_screen.dart';
 import '../screens/ledger_recon_screen.dart';
@@ -138,6 +139,13 @@ class AdminRouter {
             path: '/rewards',
             name: 'adminRewards',
             builder: (context, state) => const RewardCampaignScreen(),
+          ),
+
+          // Reward Activity & Failed Allocations
+          GoRoute(
+            path: '/reward-activity',
+            name: 'adminRewardActivity',
+            builder: (context, state) => const RewardActivityScreen(),
           ),
 
           // Platform Management

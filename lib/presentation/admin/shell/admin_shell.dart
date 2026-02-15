@@ -19,6 +19,7 @@ const routeRoles = <String, List<String>>{
   '/earn': ['superAdmin', 'campaignAdmin'],
   '/upload-reviews': ['superAdmin', 'campaignAdmin'],
   '/rewards': ['superAdmin', 'campaignAdmin', 'auditor'],
+  '/reward-activity': ['superAdmin', 'campaignAdmin', 'auditor'],
   '/platform': ['superAdmin', 'platformAdmin'],
   '/admin-users': ['superAdmin'],
   '/audit-logs': [
@@ -225,8 +226,8 @@ class _AdminSidebar extends StatelessWidget {
                       ),
 
                     // ── EARN MANAGEMENT ──
-                    if (_anySectionVisible(
-                        roles, ['/earn', '/upload-reviews', '/rewards']))
+                    if (_anySectionVisible(roles,
+                        ['/earn', '/upload-reviews', '/rewards', '/reward-activity']))
                       const _SectionHeader('EARN MANAGEMENT'),
                     if (isRouteAllowed('/earn', roles))
                       _NavItem(
@@ -252,6 +253,14 @@ class _AdminSidebar extends StatelessWidget {
                         label: 'Reward Campaigns',
                         path: '/rewards',
                         isSelected: currentPath == '/rewards',
+                      ),
+                    if (isRouteAllowed('/reward-activity', roles))
+                      _NavItem(
+                        icon: Icons.history_outlined,
+                        selectedIcon: Icons.history,
+                        label: 'Reward Activity',
+                        path: '/reward-activity',
+                        isSelected: currentPath == '/reward-activity',
                       ),
 
                     // ── PLATFORM MANAGEMENT ──

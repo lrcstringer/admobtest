@@ -23,6 +23,8 @@ class RewardRepositoryImpl implements RewardRepository {
       return Right(items.map((i) => i.toEntity()).toList());
     } on AuthException {
       return const Left(Failure.unauthenticated());
+    } on NetworkException catch (e) {
+      return Left(Failure.network(message: e.message));
     } on ServerException catch (e) {
       return Left(Failure.serverError(message: e.message));
     } catch (e) {
@@ -39,6 +41,8 @@ class RewardRepositoryImpl implements RewardRepository {
       return Right(item.toEntity());
     } on AuthException {
       return const Left(Failure.unauthenticated());
+    } on NetworkException catch (e) {
+      return Left(Failure.network(message: e.message));
     } on ServerException catch (e) {
       return Left(Failure.serverError(message: e.message));
     } catch (e) {
@@ -56,6 +60,8 @@ class RewardRepositoryImpl implements RewardRepository {
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
+    } on NetworkException catch (e) {
+      return Left(Failure.network(message: e.message));
     } on ServerException catch (e) {
       return Left(Failure.serverError(message: e.message));
     } catch (e) {
@@ -70,6 +76,8 @@ class RewardRepositoryImpl implements RewardRepository {
       return Right(campaigns.map((c) => c.toEntity()).toList());
     } on AuthException {
       return const Left(Failure.unauthenticated());
+    } on NetworkException catch (e) {
+      return Left(Failure.network(message: e.message));
     } on ServerException catch (e) {
       return Left(Failure.serverError(message: e.message));
     } catch (e) {

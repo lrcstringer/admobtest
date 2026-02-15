@@ -191,11 +191,8 @@ export const completeCashoutRequest = functions.https.onCall(async (data, contex
  * Fail/refund a cashout (if bank transfer fails)
  */
 export const failCashoutRequest = functions.https.onCall(async (data, context) => {
-  // This should be called by an admin or automated system
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
-  }
   requireAppCheck(context, "failCashoutRequest");
+  const adminCtx = await requireAdminPermission(context, "cashout:fail", "failCashoutRequest");
 
   const { cashoutId, reason } = data;
 
@@ -240,7 +237,7 @@ export const failCashoutRequest = functions.https.onCall(async (data, context) =
     reason,
     subAccountId, // User's sub-account to credit with refund
     {
-      failedBy: context.auth.uid,
+      failedBy: adminCtx.uid,
     }
   );
 
@@ -256,7 +253,7 @@ export const failCashoutRequest = functions.https.onCall(async (data, context) =
     status: "failed",
     failureReason: reason,
     failedAt: admin.firestore.FieldValue.serverTimestamp(),
-    failedBy: context.auth.uid,
+    failedBy: adminCtx.uid,
     refundLedgerJournalId: ledgerResult.journalId,
   });
 

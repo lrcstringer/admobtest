@@ -88,6 +88,7 @@ export type AdminPermission =
   | "pots:viewEntries"
   // Cashout
   | "cashout:complete"
+  | "cashout:fail"
   // Admin user management
   | "admin:listAdmins"
   | "admin:createAdmin"
@@ -170,6 +171,7 @@ const financeAdminPerms: AdminPermission[] = [
   "pots:distribute",
   "pots:viewEntries",
   "cashout:complete",
+  "cashout:fail",
   "audit:viewLogs",
   "pending:list",
   "pending:approve",

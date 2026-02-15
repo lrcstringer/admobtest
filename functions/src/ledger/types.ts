@@ -176,6 +176,9 @@ export interface LedgerJournal {
 
   // Additional metadata
   metadata: Record<string, unknown>;
+
+  // Denormalized for Firestore security rules
+  participantAccountIds?: string[];
 }
 
 /**

@@ -302,8 +302,9 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       return Stream.error(const AuthException(message: 'User not authenticated'));
     }
 
+    // Ledger account ID format: user:{userId}
     return _ledgerAccountsCollection
-        .doc(userId)
+        .doc('user:$userId')
         .collection('subAccounts')
         .where('isActive', isEqualTo: true)
         .snapshots()

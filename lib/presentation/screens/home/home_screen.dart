@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../domain/entities/pot_pool.dart';
 import '../../../domain/enums/pot_type.dart';
@@ -14,6 +16,9 @@ import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
+/// Highlight zones synced to intro video playback timestamps.
+enum _HighlightZone { none, potCards, streakDays, inviteFriends, helpIcon }
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -22,6 +27,22 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // Intro video (first visit to Home only)
+  static const _kHomeVideoKey = 'home_video_shown';
+  VideoPlayerController? _videoController;
+  bool _showVideo = false;
+  bool _videoPlaying = false;
+  bool _videoFinished = false;
+  bool _videoInitialized = false;
+
+  // Highlight overlay tied to video playback
+  final _potCardsKey = GlobalKey();
+  final _streakKey = GlobalKey();
+  final _inviteKey = GlobalKey();
+  _HighlightZone _activeZone = _HighlightZone.none;
+  OverlayEntry? _highlightOverlay;
+  final _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +52,168 @@ class _HomeScreenState extends State<HomeScreen> {
     potBloc.add(const PotEvent.watchWeeklyPot());
     potBloc.add(const PotEvent.loadCurrentUserScore(PotType.daily));
     potBloc.add(const PotEvent.loadCurrentUserScore(PotType.weekly));
+    // Keep overlay in sync with scroll position
+    _scrollController.addListener(() => _highlightOverlay?.markNeedsBuild());
+    _initVideoIfFirstVisit();
+  }
+
+  Future<void> _initVideoIfFirstVisit() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_kHomeVideoKey) == true) return;
+
+    // Mark as shown immediately so interrupted sessions don't replay
+    await prefs.setBool(_kHomeVideoKey, true);
+
+    if (!mounted) return;
+    setState(() => _showVideo = true);
+
+    final controller = VideoPlayerController.asset(
+        'assets/video/AyandaHomeVid_cropped.mp4');
+    _videoController = controller;
+
+    await controller.initialize();
+    if (!mounted) return;
+    setState(() => _videoInitialized = true);
+
+    controller.addListener(_onVideoPlaybackChanged);
+  }
+
+  void _onVideoPlaybackChanged() {
+    final c = _videoController;
+    if (c == null || _videoFinished) return;
+
+    final pos = c.value.position;
+    final dur = c.value.duration;
+
+    // Update highlight zone while playing
+    if (_videoPlaying) {
+      final newZone = _zoneForSeconds(pos.inSeconds);
+      if (newZone != _activeZone) {
+        _activeZone = newZone;
+        _scrollToActiveZone();
+      }
+    }
+
+    // Detect playback completion
+    if (dur.inMilliseconds > 0 &&
+        pos.inMilliseconds > 0 &&
+        !c.value.isPlaying &&
+        (dur - pos).inMilliseconds < 500) {
+      _removeHighlightOverlay();
+      setState(() => _videoFinished = true);
+    }
+  }
+
+  /// Smoothly scrolls to bring the currently highlighted widget into view,
+  /// then rebuilds the overlay so the glow tracks the new position.
+  void _scrollToActiveZone() {
+    GlobalKey? targetKey;
+    switch (_activeZone) {
+      case _HighlightZone.potCards:
+        targetKey = _potCardsKey;
+      case _HighlightZone.streakDays:
+        targetKey = _streakKey;
+      case _HighlightZone.inviteFriends:
+        targetKey = _inviteKey;
+      case _HighlightZone.helpIcon:
+      case _HighlightZone.none:
+        // Help icon is in the AppBar (fixed, not scrollable) — just rebuild.
+        _highlightOverlay?.markNeedsBuild();
+        return;
+    }
+
+    final ctx = targetKey.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+        alignment: 0.5, // centre widget in viewport
+      ).then((_) => _highlightOverlay?.markNeedsBuild());
+    } else {
+      _highlightOverlay?.markNeedsBuild();
+    }
+  }
+
+  _HighlightZone _zoneForSeconds(int s) {
+    // 4-14s: bottom nav (skipped)
+    if (s >= 16 && s <= 25) return _HighlightZone.potCards;
+    if (s >= 28 && s <= 60) return _HighlightZone.streakDays;
+    if (s >= 64 && s <= 80) return _HighlightZone.inviteFriends;
+    if (s >= 82 && s <= 92) return _HighlightZone.helpIcon;
+    return _HighlightZone.none;
+  }
+
+  Rect? _getHighlightRect() {
+    switch (_activeZone) {
+      case _HighlightZone.none:
+        return null;
+      case _HighlightZone.potCards:
+        return _rectFromKey(_potCardsKey);
+      case _HighlightZone.streakDays:
+        return _rectFromKey(_streakKey);
+      case _HighlightZone.inviteFriends:
+        return _rectFromKey(_inviteKey);
+      case _HighlightZone.helpIcon:
+        // Help icon is the first action button in the AppBar (right side)
+        final topPad = MediaQuery.of(context).padding.top;
+        final screenW = MediaQuery.of(context).size.width;
+        return Rect.fromLTWH(screenW - 144, topPad + 4, 48, 48);
+    }
+  }
+
+  Rect? _rectFromKey(GlobalKey key) {
+    final box = key.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return null;
+    final pos = box.localToGlobal(Offset.zero);
+    return pos & box.size;
+  }
+
+  void _showHighlightOverlay() {
+    _highlightOverlay = OverlayEntry(
+      builder: (_) {
+        final rect = _getHighlightRect();
+        if (rect == null) return const SizedBox.shrink();
+
+        const pad = 6.0;
+        return IgnorePointer(
+          child: SizedBox.expand(
+            child: Stack(
+              children: [
+                Positioned(
+                  left: rect.left - pad,
+                  top: rect.top - pad,
+                  width: rect.width + pad * 2,
+                  height: rect.height + pad * 2,
+                  child: _PulsingGlowBorder(key: ValueKey(_activeZone)),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    Overlay.of(context).insert(_highlightOverlay!);
+  }
+
+  void _removeHighlightOverlay() {
+    _highlightOverlay?.remove();
+    _highlightOverlay = null;
+    _activeZone = _HighlightZone.none;
+  }
+
+  void _disposeVideo() {
+    _removeHighlightOverlay();
+    _videoController?.removeListener(_onVideoPlaybackChanged);
+    _videoController?.dispose();
+    _videoController = null;
+  }
+
+  @override
+  void dispose() {
+    _disposeVideo();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   String _getGreeting() {
@@ -77,6 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               PotType.weekly));
                         },
                         child: SingleChildScrollView(
+                          controller: _scrollController,
                           physics: const AlwaysScrollableScrollPhysics(),
                           child: WaveBackground(
                             child: Padding(
@@ -89,6 +273,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     _buildTokenBalanceCard(context, walletState),
                                     const SizedBox(height: 16),
                                     _buildDailyProgressCard(context),
+                                    // Intro video (first visit only)
+                                    if (_showVideo && _videoController != null)
+                                      _buildIntroVideo(),
                                     const SizedBox(height: 24),
                                     _buildPotCardsRow(context, potState),
                                     const SizedBox(height: 24),
@@ -148,6 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildStreakBadge(BuildContext context, int streak) {
     return Container(
+      key: _streakKey,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -208,36 +396,35 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Icon(Icons.account_balance_wallet_outlined,
+                  color: AppColors.primary, size: 20),
+              const SizedBox(width: 8),
               Text(
-                'Tokens Balance',
+                'Tokens Balance:',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,
                     ),
               ),
-              Icon(Icons.account_balance_wallet_outlined,
-                  color: AppColors.primary, size: 24),
+              const SizedBox(width: 8),
+              if (isLoading)
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                      color: AppColors.primary, strokeWidth: 2),
+                )
+              else
+                Text(
+                  '$balance',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
             ],
           ),
-          const SizedBox(height: 8),
-          if (isLoading)
-            const SizedBox(
-              height: 36,
-              child: Center(
-                child: CircularProgressIndicator(
-                    color: AppColors.primary, strokeWidth: 2),
-              ),
-            )
-          else
-            Text(
-              '$balance',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           AppButton(
             text: 'Earn Now',
             onPressed: () => context.go('/earn'),
@@ -319,8 +506,91 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildIntroVideo() {
+    return AnimatedOpacity(
+      opacity: _videoFinished ? 0.0 : 1.0,
+      duration: const Duration(milliseconds: 500),
+      onEnd: () {
+        if (_videoFinished) {
+          setState(() {
+            _showVideo = false;
+            _disposeVideo();
+          });
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: GestureDetector(
+          onTap: () {
+            if (!_videoPlaying && _videoInitialized) {
+              _videoController!.play();
+              setState(() => _videoPlaying = true);
+              _showHighlightOverlay();
+            }
+          },
+          // Shrink to mini-player once playing so all highlights stay on-screen
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 1.0, end: _videoPlaying ? 0.55 : 1.0),
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOut,
+            builder: (context, widthFactor, _) {
+              return Center(
+                child: FractionallySizedBox(
+                  widthFactor: widthFactor,
+                  child: ClipRRect(
+                  borderRadius: AppSpacing.borderRadiusMd,
+                  child: AspectRatio(
+                    aspectRatio: _videoInitialized
+                        ? _videoController!.value.aspectRatio
+                        : 16 / 9,
+                    child: _videoInitialized
+                        ? Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              SizedBox.expand(
+                                child: FittedBox(
+                                  fit: BoxFit.cover,
+                                  child: SizedBox(
+                                    width:
+                                        _videoController!.value.size.width,
+                                    height:
+                                        _videoController!.value.size.height,
+                                    child: VideoPlayer(_videoController!),
+                                  ),
+                                ),
+                              ),
+                              if (!_videoPlaying)
+                                Container(
+                                  width: 64,
+                                  height: 64,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Colors.black.withValues(alpha: 0.5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.play_arrow_rounded,
+                                    size: 40,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                            ],
+                          )
+                        : Container(color: Colors.black),
+                  ),
+                ),
+              ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildPotCardsRow(BuildContext context, PotState potState) {
     return Row(
+      key: _potCardsKey,
       children: [
         Expanded(
           child: _buildPotCard(
@@ -367,29 +637,42 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return GestureDetector(
       onTap: () => context.push('/pots'),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color.alphaBlend(
-                accentColors[0].withValues(alpha: 0.04),
-                AppColors.surface,
-              ),
-              Color.alphaBlend(
-                accentColors[1].withValues(alpha: 0.02),
-                AppColors.surface,
-              ),
-            ],
+      child: ClipRRect(
+        borderRadius: AppSpacing.borderRadiusLg,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.alphaBlend(
+                  accentColors[0].withValues(alpha: 0.04),
+                  AppColors.surface,
+                ),
+                Color.alphaBlend(
+                  accentColors[1].withValues(alpha: 0.02),
+                  AppColors.surface,
+                ),
+              ],
+            ),
+            borderRadius: AppSpacing.borderRadiusLg,
+            border: Border.all(color: AppColors.border),
           ),
-          borderRadius: AppSpacing.borderRadiusLg,
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+                  // Top gradient color bar
+                  Container(
+                    height: 4,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: accentColors),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                   // Label + trophy row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -461,14 +744,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           size: 18, color: AppColors.textSecondary),
                     ],
                   ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
+        ),
       ),
     );
   }
 
   Widget _buildInviteFriendsButton(BuildContext context) {
     return GestureDetector(
+      key: _inviteKey,
       onTap: () => context.push('/home/profile/referrals'),
       child: Container(
         width: double.infinity,
@@ -508,6 +796,60 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
         ),
       ),
+    );
+  }
+}
+
+/// Pulsing gold glow border used as a highlight overlay during intro video.
+class _PulsingGlowBorder extends StatefulWidget {
+  const _PulsingGlowBorder({super.key});
+
+  @override
+  State<_PulsingGlowBorder> createState() => _PulsingGlowBorderState();
+}
+
+class _PulsingGlowBorderState extends State<_PulsingGlowBorder>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) {
+        final t = _pulse.value;
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: AppColors.gold.withValues(alpha: 0.4 + t * 0.4),
+              width: 2 + t,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.gold.withValues(alpha: 0.15 + t * 0.2),
+                blurRadius: 12 + t * 8,
+                spreadRadius: 1 + t * 2,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
