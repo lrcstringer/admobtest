@@ -6979,7 +6979,7 @@ mixin _$EarnState {
   /// Whether the completed engagement is pending admin review
   bool get isPendingReview =>
       throw _privateConstructorUsedError; // Reward allocation state (set after engagement completion)
-  bool get rewardPending => throw _privateConstructorUsedError;
+  String? get rewardItemId => throw _privateConstructorUsedError;
   String? get rewardCampaignName => throw _privateConstructorUsedError;
   String? get rewardType => throw _privateConstructorUsedError;
 
@@ -7023,7 +7023,7 @@ abstract class $EarnStateCopyWith<$Res> {
     int? uploadBytesTransferred,
     int? uploadTotalBytes,
     bool isPendingReview,
-    bool rewardPending,
+    String? rewardItemId,
     String? rewardCampaignName,
     String? rewardType,
   });
@@ -7075,7 +7075,7 @@ class _$EarnStateCopyWithImpl<$Res, $Val extends EarnState>
     Object? uploadBytesTransferred = freezed,
     Object? uploadTotalBytes = freezed,
     Object? isPendingReview = null,
-    Object? rewardPending = null,
+    Object? rewardItemId = freezed,
     Object? rewardCampaignName = freezed,
     Object? rewardType = freezed,
   }) {
@@ -7189,10 +7189,10 @@ class _$EarnStateCopyWithImpl<$Res, $Val extends EarnState>
                 ? _value.isPendingReview
                 : isPendingReview // ignore: cast_nullable_to_non_nullable
                       as bool,
-            rewardPending: null == rewardPending
-                ? _value.rewardPending
-                : rewardPending // ignore: cast_nullable_to_non_nullable
-                      as bool,
+            rewardItemId: freezed == rewardItemId
+                ? _value.rewardItemId
+                : rewardItemId // ignore: cast_nullable_to_non_nullable
+                      as String?,
             rewardCampaignName: freezed == rewardCampaignName
                 ? _value.rewardCampaignName
                 : rewardCampaignName // ignore: cast_nullable_to_non_nullable
@@ -7286,7 +7286,7 @@ abstract class _$$EarnStateImplCopyWith<$Res>
     int? uploadBytesTransferred,
     int? uploadTotalBytes,
     bool isPendingReview,
-    bool rewardPending,
+    String? rewardItemId,
     String? rewardCampaignName,
     String? rewardType,
   });
@@ -7340,7 +7340,7 @@ class __$$EarnStateImplCopyWithImpl<$Res>
     Object? uploadBytesTransferred = freezed,
     Object? uploadTotalBytes = freezed,
     Object? isPendingReview = null,
-    Object? rewardPending = null,
+    Object? rewardItemId = freezed,
     Object? rewardCampaignName = freezed,
     Object? rewardType = freezed,
   }) {
@@ -7454,10 +7454,10 @@ class __$$EarnStateImplCopyWithImpl<$Res>
             ? _value.isPendingReview
             : isPendingReview // ignore: cast_nullable_to_non_nullable
                   as bool,
-        rewardPending: null == rewardPending
-            ? _value.rewardPending
-            : rewardPending // ignore: cast_nullable_to_non_nullable
-                  as bool,
+        rewardItemId: freezed == rewardItemId
+            ? _value.rewardItemId
+            : rewardItemId // ignore: cast_nullable_to_non_nullable
+                  as String?,
         rewardCampaignName: freezed == rewardCampaignName
             ? _value.rewardCampaignName
             : rewardCampaignName // ignore: cast_nullable_to_non_nullable
@@ -7502,7 +7502,7 @@ class _$EarnStateImpl extends _EarnState {
     this.uploadBytesTransferred,
     this.uploadTotalBytes,
     this.isPendingReview = false,
-    this.rewardPending = false,
+    this.rewardItemId,
     this.rewardCampaignName,
     this.rewardType,
   }) : _threads = threads,
@@ -7612,8 +7612,7 @@ class _$EarnStateImpl extends _EarnState {
   final bool isPendingReview;
   // Reward allocation state (set after engagement completion)
   @override
-  @JsonKey()
-  final bool rewardPending;
+  final String? rewardItemId;
   @override
   final String? rewardCampaignName;
   @override
@@ -7621,7 +7620,7 @@ class _$EarnStateImpl extends _EarnState {
 
   @override
   String toString() {
-    return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adResponseId: $adResponseId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound, uploadProgress: $uploadProgress, uploadBytesTransferred: $uploadBytesTransferred, uploadTotalBytes: $uploadTotalBytes, isPendingReview: $isPendingReview, rewardPending: $rewardPending, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
+    return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adResponseId: $adResponseId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound, uploadProgress: $uploadProgress, uploadBytesTransferred: $uploadBytesTransferred, uploadTotalBytes: $uploadTotalBytes, isPendingReview: $isPendingReview, rewardItemId: $rewardItemId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
   }
 
   @override
@@ -7686,8 +7685,8 @@ class _$EarnStateImpl extends _EarnState {
                 other.uploadTotalBytes == uploadTotalBytes) &&
             (identical(other.isPendingReview, isPendingReview) ||
                 other.isPendingReview == isPendingReview) &&
-            (identical(other.rewardPending, rewardPending) ||
-                other.rewardPending == rewardPending) &&
+            (identical(other.rewardItemId, rewardItemId) ||
+                other.rewardItemId == rewardItemId) &&
             (identical(other.rewardCampaignName, rewardCampaignName) ||
                 other.rewardCampaignName == rewardCampaignName) &&
             (identical(other.rewardType, rewardType) ||
@@ -7724,7 +7723,7 @@ class _$EarnStateImpl extends _EarnState {
     uploadBytesTransferred,
     uploadTotalBytes,
     isPendingReview,
-    rewardPending,
+    rewardItemId,
     rewardCampaignName,
     rewardType,
   ]);
@@ -7767,7 +7766,7 @@ abstract class _EarnState extends EarnState {
     final int? uploadBytesTransferred,
     final int? uploadTotalBytes,
     final bool isPendingReview,
-    final bool rewardPending,
+    final String? rewardItemId,
     final String? rewardCampaignName,
     final String? rewardType,
   }) = _$EarnStateImpl;
@@ -7836,7 +7835,7 @@ abstract class _EarnState extends EarnState {
   @override
   bool get isPendingReview; // Reward allocation state (set after engagement completion)
   @override
-  bool get rewardPending;
+  String? get rewardItemId;
   @override
   String? get rewardCampaignName;
   @override

@@ -1000,7 +1000,11 @@ mixin _$EngagementModel {
       throw _privateConstructorUsedError; // AdMob tracking fields
   bool get adWatched => throw _privateConstructorUsedError;
   String? get adTransactionId => throw _privateConstructorUsedError;
-  DateTime? get adCompletedAt => throw _privateConstructorUsedError;
+  DateTime? get adCompletedAt =>
+      throw _privateConstructorUsedError; // Reward escrow fields
+  String? get rewardItemId => throw _privateConstructorUsedError;
+  String? get rewardCampaignName => throw _privateConstructorUsedError;
+  String? get rewardType => throw _privateConstructorUsedError;
 
   /// Create a copy of EngagementModel
   /// with the given fields replaced by the non-null parameter values.
@@ -1040,6 +1044,9 @@ abstract class $EngagementModelCopyWith<$Res> {
     bool adWatched,
     String? adTransactionId,
     DateTime? adCompletedAt,
+    String? rewardItemId,
+    String? rewardCampaignName,
+    String? rewardType,
   });
 
   $EngagementEvidenceModelCopyWith<$Res>? get evidence;
@@ -1083,6 +1090,9 @@ class _$EngagementModelCopyWithImpl<$Res, $Val extends EngagementModel>
     Object? adWatched = null,
     Object? adTransactionId = freezed,
     Object? adCompletedAt = freezed,
+    Object? rewardItemId = freezed,
+    Object? rewardCampaignName = freezed,
+    Object? rewardType = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1178,6 +1188,18 @@ class _$EngagementModelCopyWithImpl<$Res, $Val extends EngagementModel>
                 ? _value.adCompletedAt
                 : adCompletedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            rewardItemId: freezed == rewardItemId
+                ? _value.rewardItemId
+                : rewardItemId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            rewardCampaignName: freezed == rewardCampaignName
+                ? _value.rewardCampaignName
+                : rewardCampaignName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            rewardType: freezed == rewardType
+                ? _value.rewardType
+                : rewardType // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -1231,6 +1253,9 @@ abstract class _$$EngagementModelImplCopyWith<$Res>
     bool adWatched,
     String? adTransactionId,
     DateTime? adCompletedAt,
+    String? rewardItemId,
+    String? rewardCampaignName,
+    String? rewardType,
   });
 
   @override
@@ -1274,6 +1299,9 @@ class __$$EngagementModelImplCopyWithImpl<$Res>
     Object? adWatched = null,
     Object? adTransactionId = freezed,
     Object? adCompletedAt = freezed,
+    Object? rewardItemId = freezed,
+    Object? rewardCampaignName = freezed,
+    Object? rewardType = freezed,
   }) {
     return _then(
       _$EngagementModelImpl(
@@ -1369,6 +1397,18 @@ class __$$EngagementModelImplCopyWithImpl<$Res>
             ? _value.adCompletedAt
             : adCompletedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        rewardItemId: freezed == rewardItemId
+            ? _value.rewardItemId
+            : rewardItemId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        rewardCampaignName: freezed == rewardCampaignName
+            ? _value.rewardCampaignName
+            : rewardCampaignName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        rewardType: freezed == rewardType
+            ? _value.rewardType
+            : rewardType // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -1401,6 +1441,9 @@ class _$EngagementModelImpl extends _EngagementModel {
     this.adWatched = false,
     this.adTransactionId,
     this.adCompletedAt,
+    this.rewardItemId,
+    this.rewardCampaignName,
+    this.rewardType,
   }) : _answers = answers,
        super._();
 
@@ -1460,10 +1503,17 @@ class _$EngagementModelImpl extends _EngagementModel {
   final String? adTransactionId;
   @override
   final DateTime? adCompletedAt;
+  // Reward escrow fields
+  @override
+  final String? rewardItemId;
+  @override
+  final String? rewardCampaignName;
+  @override
+  final String? rewardType;
 
   @override
   String toString() {
-    return 'EngagementModel(id: $id, userId: $userId, audienceCampaignId: $audienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, threadId: $threadId, clientId: $clientId, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied, adWatched: $adWatched, adTransactionId: $adTransactionId, adCompletedAt: $adCompletedAt)';
+    return 'EngagementModel(id: $id, userId: $userId, audienceCampaignId: $audienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, threadId: $threadId, clientId: $clientId, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied, adWatched: $adWatched, adTransactionId: $adTransactionId, adCompletedAt: $adCompletedAt, rewardItemId: $rewardItemId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
   }
 
   @override
@@ -1515,7 +1565,13 @@ class _$EngagementModelImpl extends _EngagementModel {
             (identical(other.adTransactionId, adTransactionId) ||
                 other.adTransactionId == adTransactionId) &&
             (identical(other.adCompletedAt, adCompletedAt) ||
-                other.adCompletedAt == adCompletedAt));
+                other.adCompletedAt == adCompletedAt) &&
+            (identical(other.rewardItemId, rewardItemId) ||
+                other.rewardItemId == rewardItemId) &&
+            (identical(other.rewardCampaignName, rewardCampaignName) ||
+                other.rewardCampaignName == rewardCampaignName) &&
+            (identical(other.rewardType, rewardType) ||
+                other.rewardType == rewardType));
   }
 
   @override
@@ -1544,6 +1600,9 @@ class _$EngagementModelImpl extends _EngagementModel {
     adWatched,
     adTransactionId,
     adCompletedAt,
+    rewardItemId,
+    rewardCampaignName,
+    rewardType,
   ]);
 
   /// Create a copy of EngagementModel
@@ -1583,6 +1642,9 @@ abstract class _EngagementModel extends EngagementModel {
     final bool adWatched,
     final String? adTransactionId,
     final DateTime? adCompletedAt,
+    final String? rewardItemId,
+    final String? rewardCampaignName,
+    final String? rewardType,
   }) = _$EngagementModelImpl;
   const _EngagementModel._() : super._();
 
@@ -1631,7 +1693,13 @@ abstract class _EngagementModel extends EngagementModel {
   @override
   String? get adTransactionId;
   @override
-  DateTime? get adCompletedAt;
+  DateTime? get adCompletedAt; // Reward escrow fields
+  @override
+  String? get rewardItemId;
+  @override
+  String? get rewardCampaignName;
+  @override
+  String? get rewardType;
 
   /// Create a copy of EngagementModel
   /// with the given fields replaced by the non-null parameter values.

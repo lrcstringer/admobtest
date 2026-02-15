@@ -42,6 +42,13 @@ class Engagement with _$Engagement {
     String? adTransactionId,
     /// Timestamp when ad completed
     DateTime? adCompletedAt,
+    // Reward escrow fields
+    /// Reward item ID (set after engagement completion — confirmed allocation)
+    String? rewardItemId,
+    /// Reward campaign name (denormalized for display)
+    String? rewardCampaignName,
+    /// Reward type (e.g. 'voucher', 'digital_code', 'physical')
+    String? rewardType,
   }) = _Engagement;
 
   const Engagement._();

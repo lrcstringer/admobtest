@@ -80,6 +80,7 @@ export type AdminPermission =
   | "rewards:importItems"
   | "rewards:revokeItem"
   | "rewards:getItems"
+  | "rewards:processAllocation"
   // Platform / migration
   | "platform:setup"
   | "platform:runMigration"
@@ -208,6 +209,7 @@ const campaignAdminPerms: AdminPermission[] = [
   "rewards:importItems",
   "rewards:revokeItem",
   "rewards:getItems",
+  "rewards:processAllocation",
   "audit:viewLogs",
 ];
 

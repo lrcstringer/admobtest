@@ -307,6 +307,10 @@ class EngagementModel with _$EngagementModel {
     @Default(false) bool adWatched,
     String? adTransactionId,
     DateTime? adCompletedAt,
+    // Reward escrow fields
+    String? rewardItemId,
+    String? rewardCampaignName,
+    String? rewardType,
   }) = _EngagementModel;
 
   const EngagementModel._();
@@ -363,6 +367,10 @@ class EngagementModel with _$EngagementModel {
       adWatched: json['adWatched'] as bool? ?? false,
       adTransactionId: json['adTransactionId'] as String?,
       adCompletedAt: _parseOptionalTimestamp(json['adCompletedAt']),
+      // Reward escrow fields
+      rewardItemId: json['rewardItemId'] as String?,
+      rewardCampaignName: json['rewardCampaignName'] as String?,
+      rewardType: json['rewardType'] as String?,
     );
   }
 
@@ -400,6 +408,10 @@ class EngagementModel with _$EngagementModel {
       adWatched: adWatched,
       adTransactionId: adTransactionId,
       adCompletedAt: adCompletedAt,
+      // Reward escrow fields
+      rewardItemId: rewardItemId,
+      rewardCampaignName: rewardCampaignName,
+      rewardType: rewardType,
     );
   }
 
@@ -434,6 +446,10 @@ class EngagementModel with _$EngagementModel {
       adWatched: entity.adWatched,
       adTransactionId: entity.adTransactionId,
       adCompletedAt: entity.adCompletedAt,
+      // Reward escrow fields
+      rewardItemId: entity.rewardItemId,
+      rewardCampaignName: entity.rewardCampaignName,
+      rewardType: entity.rewardType,
     );
   }
 
@@ -465,6 +481,10 @@ class EngagementModel with _$EngagementModel {
       'adWatched': adWatched,
       if (adTransactionId != null) 'adTransactionId': adTransactionId,
       if (adCompletedAt != null) 'adCompletedAt': Timestamp.fromDate(adCompletedAt!),
+      // Reward escrow fields
+      if (rewardItemId != null) 'rewardItemId': rewardItemId,
+      if (rewardCampaignName != null) 'rewardCampaignName': rewardCampaignName,
+      if (rewardType != null) 'rewardType': rewardType,
     };
   }
 

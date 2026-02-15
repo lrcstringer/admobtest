@@ -773,6 +773,8 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
   String? _clientId;
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _displayImageUrlController = TextEditingController();
+  int _displayPriority = 0;
   String _rewardType = 'qr_code';
   DateTime? _startsAt;
   DateTime? _endsAt;
@@ -808,6 +810,9 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
           meta['redemption_instructions'] as String? ?? '';
       _termsController.text =
           meta['terms_and_conditions'] as String? ?? '';
+      _displayImageUrlController.text =
+          c['displayImageUrl'] as String? ?? '';
+      _displayPriority = (c['displayPriority'] as num?)?.toInt() ?? 0;
 
       // Pre-populate A/B test fields
       final abTest = c['abTest'] as Map<String, dynamic>?;
@@ -837,6 +842,7 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    _displayImageUrlController.dispose();
     _instructionsController.dispose();
     _termsController.dispose();
     super.dispose();
@@ -976,6 +982,33 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
       }
     }
 
+    // Warn when editing an active campaign
+    if (_isEditing) {
+      final currentStatus = widget.campaign!['status'] as String? ?? 'draft';
+      if (currentStatus == 'active') {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Edit Active Campaign?'),
+            content: const Text(
+              'This campaign is currently active. Changes will take effect immediately for all users.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: const Text('Save Changes'),
+              ),
+            ],
+          ),
+        );
+        if (confirmed != true) return;
+      }
+    }
+
     setState(() => _isSaving = true);
 
     try {
@@ -1015,6 +1048,10 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
             if (_itemExpiresAt != null)
               'itemExpiresAt': _itemExpiresAt!.toIso8601String(),
             'maxPerUser': _maxPerUser,
+            'displayImageUrl': _displayImageUrlController.text.isNotEmpty
+                ? _displayImageUrlController.text
+                : null,
+            'displayPriority': _displayPriority,
             'metadata': metadata,
             'abTest': abTestData,
           },
@@ -1033,6 +1070,9 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
           if (_itemExpiresAt != null)
             'itemExpiresAt': _itemExpiresAt!.toIso8601String(),
           'maxPerUser': _maxPerUser,
+          if (_displayImageUrlController.text.isNotEmpty)
+            'displayImageUrl': _displayImageUrlController.text,
+          'displayPriority': _displayPriority,
           'metadata': metadata,
           'abTest': abTestData,
         });
@@ -1144,6 +1184,31 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 2,
+                ),
+                const SizedBox(height: 16),
+
+                // Display image URL
+                TextFormField(
+                  controller: _displayImageUrlController,
+                  decoration: const InputDecoration(
+                    labelText: 'Display Image URL (optional)',
+                    border: OutlineInputBorder(),
+                    helperText: 'Image shown to users in the reward card',
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Display priority
+                TextFormField(
+                  initialValue: '$_displayPriority',
+                  decoration: const InputDecoration(
+                    labelText: 'Display Priority',
+                    border: OutlineInputBorder(),
+                    helperText: 'Higher values appear first (0 = default)',
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (v) =>
+                      _displayPriority = int.tryParse(v) ?? 0,
                 ),
                 const SizedBox(height: 16),
 

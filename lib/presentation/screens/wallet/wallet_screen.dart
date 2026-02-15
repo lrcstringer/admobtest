@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../domain/entities/ledger_journal.dart';
 import '../../../domain/entities/reward_item.dart';
@@ -16,7 +15,6 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/common/brand_card.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
-import '../../widgets/reward/reward_consent_dialog.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -36,22 +34,7 @@ class _WalletScreenState extends State<WalletScreen> {
     _loadRewardFlag();
   }
 
-  Future<void> _navigateToRewards(BuildContext context) async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
-
-    final userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .get();
-    final hasConsent = userDoc.data()?['rewardConsent'] == true;
-
-    if (!context.mounted) return;
-
-    if (!hasConsent) {
-      final consented = await RewardConsentDialog.show(context);
-      if (!consented || !context.mounted) return;
-    }
+  void _navigateToRewards(BuildContext context) {
     context.go('/wallet/rewards');
   }
 

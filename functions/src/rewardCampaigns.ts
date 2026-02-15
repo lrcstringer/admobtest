@@ -134,6 +134,14 @@ export const createRewardCampaign = functions.https.onCall(
           "A/B test must have 2-4 variants"
         );
       }
+      // #12 — Variant IDs must be unique
+      const variantIds = abTest.variants.map((v) => v.id);
+      if (new Set(variantIds).size !== variantIds.length) {
+        throw new functions.https.HttpsError(
+          "invalid-argument",
+          "A/B test variant IDs must be unique"
+        );
+      }
       const totalWeight = abTest.variants.reduce(
         (sum, v) => sum + (v.weight || 0),
         0
@@ -142,6 +150,26 @@ export const createRewardCampaign = functions.https.onCall(
         throw new functions.https.HttpsError(
           "invalid-argument",
           "A/B test variant weights must sum to 100"
+        );
+      }
+    }
+
+    // #9 — Validate maxPerUser if provided
+    if (maxPerUser !== undefined && maxPerUser !== null) {
+      if (typeof maxPerUser !== 'number' || maxPerUser < 1 || !Number.isInteger(maxPerUser)) {
+        throw new functions.https.HttpsError(
+          "invalid-argument",
+          "maxPerUser must be a positive integer (minimum 1)"
+        );
+      }
+    }
+
+    // #13 — Validate displayPriority bounds if provided
+    if (displayPriority !== undefined && displayPriority !== null) {
+      if (typeof displayPriority !== 'number' || displayPriority < -1000 || displayPriority > 1000) {
+        throw new functions.https.HttpsError(
+          "invalid-argument",
+          "displayPriority must be between -1000 and 1000"
         );
       }
     }
@@ -251,12 +279,46 @@ export const updateRewardCampaign = functions.https.onCall(
       );
     }
 
-    // Validate status transition
+    // #6 — rewardType is immutable after creation
+    if ((updates as Record<string, unknown>).rewardType !== undefined) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "rewardType cannot be changed after campaign creation"
+      );
+    }
+
+    // Validate status transition (#5 — state machine enforcement)
     if (updates.status) {
       if (!VALID_STATUSES.includes(updates.status as CampaignStatus)) {
         throw new functions.https.HttpsError(
           "invalid-argument",
           `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}`
+        );
+      }
+
+      const VALID_TRANSITIONS: Record<string, string[]> = {
+        draft: ["active"],
+        active: ["paused", "cancelled"],
+        paused: ["active", "cancelled"],
+        cancelled: [],   // terminal
+        exhausted: [],   // terminal (set by system)
+        expired: [],     // terminal (set by system)
+      };
+
+      const currentStatus = campaign.status as string;
+      const allowed = VALID_TRANSITIONS[currentStatus] || [];
+      if (!allowed.includes(updates.status)) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          `Cannot transition from '${currentStatus}' to '${updates.status}'`
+        );
+      }
+
+      // #18 — Guard against activating campaign with 0 items
+      if (updates.status === "active" && (campaign.totalQuantity ?? 0) === 0) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          "Cannot activate campaign with 0 items. Import items first."
         );
       }
     }
@@ -269,28 +331,74 @@ export const updateRewardCampaign = functions.https.onCall(
     if (updates.name !== undefined) updateData.name = updates.name;
     if (updates.description !== undefined)
       updateData.description = updates.description;
-    if (updates.maxPerUser !== undefined)
+    if (updates.maxPerUser !== undefined) {
+      // #9 — Validate maxPerUser >= 1
+      if (typeof updates.maxPerUser !== 'number' || updates.maxPerUser < 1 || !Number.isInteger(updates.maxPerUser)) {
+        throw new functions.https.HttpsError(
+          "invalid-argument",
+          "maxPerUser must be a positive integer (minimum 1)"
+        );
+      }
       updateData.maxPerUser = updates.maxPerUser;
+    }
     if (updates.displayImageUrl !== undefined)
       updateData.displayImageUrl = updates.displayImageUrl;
-    if (updates.displayPriority !== undefined)
+    if (updates.displayPriority !== undefined) {
+      // #13 — Enforce displayPriority bounds
+      if (typeof updates.displayPriority !== 'number' || updates.displayPriority < -1000 || updates.displayPriority > 1000) {
+        throw new functions.https.HttpsError(
+          "invalid-argument",
+          "displayPriority must be between -1000 and 1000"
+        );
+      }
       updateData.displayPriority = updates.displayPriority;
+    }
     if (updates.status !== undefined) updateData.status = updates.status;
-    if (updates.metadata !== undefined) updateData.metadata = updates.metadata;
+    // #5 — Use FieldValue.delete() for null metadata keys so they're properly removed
+    if (updates.metadata !== undefined) {
+      if (updates.metadata === null) {
+        updateData.metadata = admin.firestore.FieldValue.delete();
+      } else {
+        for (const [key, value] of Object.entries(updates.metadata)) {
+          if (value === null || value === undefined) {
+            updateData[`metadata.${key}`] = admin.firestore.FieldValue.delete();
+          } else {
+            updateData[`metadata.${key}`] = value;
+          }
+        }
+      }
+    }
     if (updates.abTest !== undefined) {
+      // #11 — Block A/B test modification on active campaigns
+      if (campaign.status === "active") {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          "Cannot modify A/B test configuration on an active campaign. Pause the campaign first."
+        );
+      }
       if (updates.abTest.enabled && Array.isArray(updates.abTest.variants)) {
+        if (updates.abTest.variants.length < 2 || updates.abTest.variants.length > 4) {
+          throw new functions.https.HttpsError(
+            "invalid-argument",
+            "A/B test requires 2-4 variants"
+          );
+        }
+        // #12 — Variant IDs must be unique
+        const variantIds = updates.abTest.variants.map((v) => v.id);
+        if (new Set(variantIds).size !== variantIds.length) {
+          throw new functions.https.HttpsError(
+            "invalid-argument",
+            "A/B test variant IDs must be unique"
+          );
+        }
         const totalWeight = updates.abTest.variants.reduce(
           (sum, v) => sum + (v.weight || 0),
           0
         );
-        if (
-          updates.abTest.variants.length < 2 ||
-          updates.abTest.variants.length > 4 ||
-          totalWeight !== 100
-        ) {
+        if (totalWeight !== 100) {
           throw new functions.https.HttpsError(
             "invalid-argument",
-            "A/B test requires 2-4 variants with weights summing to 100"
+            "A/B test variant weights must sum to 100"
           );
         }
       }
@@ -469,12 +577,6 @@ export const getActiveRewardCampaigns = functions.https.onCall(
         "unauthenticated",
         "Must be authenticated"
       );
-    }
-
-    // Feature flag check
-    const flagDoc = await db.collection("platformSettings").doc("rewards").get();
-    if (flagDoc.exists && flagDoc.data()?.rewardsEnabled === false) {
-      return { campaigns: [] };
     }
 
     const userId = context.auth.uid;

@@ -100,6 +100,61 @@ export const rewardWebhook = functions.https.onRequest(async (req, res) => {
     return;
   }
 
+  // #13 — Timestamp validation (replay protection)
+  if (payload.redeemedAt) {
+    const redeemedAt = new Date(payload.redeemedAt);
+    const now = Date.now();
+    if (isNaN(redeemedAt.getTime())) {
+      res.status(400).json({ error: "Invalid redeemedAt format" });
+      return;
+    }
+    // Reject if more than 5 minutes in the future
+    if (redeemedAt.getTime() > now + 5 * 60 * 1000) {
+      res.status(400).json({ error: "redeemedAt is in the future" });
+      return;
+    }
+    // Reject if more than 24 hours in the past
+    if (redeemedAt.getTime() < now - 24 * 60 * 60 * 1000) {
+      res.status(400).json({ error: "redeemedAt is too far in the past" });
+      return;
+    }
+  }
+
+  // #14 — Rate limiting: max 100 calls per minute per client (atomic via transaction)
+  const rateLimitRef = db.collection("rateLimits").doc(`webhook:${clientId}`);
+  const currentTime = Date.now();
+
+  try {
+    await db.runTransaction(async (txn) => {
+      const rateLimitDoc = await txn.get(rateLimitRef);
+      if (rateLimitDoc.exists) {
+        const rlData = rateLimitDoc.data()!;
+        const windowStart = rlData.windowStart || 0;
+        const count = rlData.count || 0;
+
+        if (currentTime - windowStart >= 60000) {
+          // Window expired — reset atomically
+          txn.set(rateLimitRef, { windowStart: currentTime, count: 1 });
+        } else if (count >= 100) {
+          throw new Error("rate_limited");
+        } else {
+          txn.update(rateLimitRef, {
+            count: admin.firestore.FieldValue.increment(1),
+          });
+        }
+      } else {
+        txn.set(rateLimitRef, { windowStart: currentTime, count: 1 });
+      }
+    });
+  } catch (rlError: unknown) {
+    if (rlError instanceof Error && rlError.message === "rate_limited") {
+      res.status(429).json({ error: "Rate limit exceeded. Try again later." });
+      return;
+    }
+    // Non-rate-limit transaction errors — continue (don't block webhook for rate limit infra failure)
+    functions.logger.warn("Rate limit transaction error", { error: rlError });
+  }
+
   // Find item by codeHash
   const itemsSnapshot = await db
     .collection("rewardItems")
@@ -133,32 +188,84 @@ export const rewardWebhook = functions.https.onRequest(async (req, res) => {
     return;
   }
 
-  // Mark as redeemed
+  // #1 + #4 — Atomic redemption in transaction (prevents double-count race condition
+  // and validates campaign existence before counter update)
   const now = admin.firestore.Timestamp.now();
   const redeemedAt = payload.redeemedAt
     ? admin.firestore.Timestamp.fromDate(new Date(payload.redeemedAt))
     : now;
 
-  await itemDoc.ref.update({
-    status: "redeemed",
-    redeemedAt,
-    redemptionLocation: payload.location || null,
-    "metadata.posTransactionId": payload.posTransactionId || null,
-    "metadata.redeemedVia": "webhook",
-    updatedAt: now,
-  });
+  const itemRef = itemDoc.ref;
+  const campaignId = item.campaignId;
 
-  // Update campaign stats
-  const campaignRef = db.collection("rewardCampaigns").doc(item.campaignId);
-  await campaignRef.update({
-    redeemedQuantity: admin.firestore.FieldValue.increment(1),
-    updatedAt: now,
-  });
+  try {
+    await db.runTransaction(async (txn) => {
+      // Re-read item inside transaction for consistency
+      const freshItemDoc = await txn.get(itemRef);
+      const freshItem = freshItemDoc.data();
 
-  // Activity log
-  await db.collection("rewardActivityLog").add({
+      if (!freshItemDoc.exists || !freshItem) {
+        throw new Error("item_not_found");
+      }
+
+      // Idempotency re-check inside transaction
+      if (freshItem.status === "redeemed") {
+        throw new Error("already_redeemed");
+      }
+
+      if (freshItem.status !== "allocated") {
+        throw new Error(`invalid_status:${freshItem.status}`);
+      }
+
+      // #4 — Validate campaign exists and is not deleted
+      const campaignRef = db.collection("rewardCampaigns").doc(campaignId);
+      const campaignDoc = await txn.get(campaignRef);
+      if (!campaignDoc.exists || campaignDoc.data()?.isDeleted === true) {
+        throw new Error("campaign_unavailable");
+      }
+
+      // Update item status
+      txn.update(itemRef, {
+        status: "redeemed",
+        redeemedAt,
+        redemptionLocation: payload.location || null,
+        "metadata.posTransactionId": payload.posTransactionId || null,
+        "metadata.redeemedVia": "webhook",
+        updatedAt: now,
+      });
+
+      // Update campaign counter atomically with item status change
+      txn.update(campaignRef, {
+        redeemedQuantity: admin.firestore.FieldValue.increment(1),
+        updatedAt: now,
+      });
+    });
+  } catch (txnError: unknown) {
+    const errMsg = txnError instanceof Error ? txnError.message : "";
+    if (errMsg === "already_redeemed") {
+      res.status(200).json({
+        status: "already_redeemed",
+        itemId: itemDoc.id,
+      });
+      return;
+    }
+    if (errMsg === "campaign_unavailable") {
+      res.status(410).json({ error: "Campaign no longer available" });
+      return;
+    }
+    if (errMsg.startsWith("invalid_status:")) {
+      res.status(409).json({ error: `Item status is '${errMsg.split(":")[1]}', cannot redeem` });
+      return;
+    }
+    functions.logger.error("Webhook redemption transaction failed", { error: txnError });
+    res.status(500).json({ error: "Internal error processing redemption" });
+    return;
+  }
+
+  // Activity log (fire-and-forget, outside transaction)
+  db.collection("rewardActivityLog").add({
     itemId: itemDoc.id,
-    campaignId: item.campaignId,
+    campaignId,
     userId: item.allocatedToUserId || null,
     action: "redeemed",
     previousStatus: "allocated",
@@ -172,11 +279,11 @@ export const rewardWebhook = functions.https.onRequest(async (req, res) => {
     },
     ipAddress: req.ip || req.headers["x-forwarded-for"] || null,
     createdAt: now,
-  });
+  }).catch((e) => functions.logger.warn("Failed to write webhook activity log", { error: e }));
 
   functions.logger.info("Reward redeemed via webhook", {
     itemId: itemDoc.id,
-    campaignId: item.campaignId,
+    campaignId,
     clientId,
   });
 

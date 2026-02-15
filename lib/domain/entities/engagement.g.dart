@@ -43,6 +43,9 @@ _$EngagementImpl _$$EngagementImplFromJson(Map<String, dynamic> json) =>
       adCompletedAt: json['adCompletedAt'] == null
           ? null
           : DateTime.parse(json['adCompletedAt'] as String),
+      rewardItemId: json['rewardItemId'] as String?,
+      rewardCampaignName: json['rewardCampaignName'] as String?,
+      rewardType: json['rewardType'] as String?,
     );
 
 Map<String, dynamic> _$$EngagementImplToJson(_$EngagementImpl instance) =>
@@ -70,6 +73,9 @@ Map<String, dynamic> _$$EngagementImplToJson(_$EngagementImpl instance) =>
       'adWatched': instance.adWatched,
       'adTransactionId': instance.adTransactionId,
       'adCompletedAt': instance.adCompletedAt?.toIso8601String(),
+      'rewardItemId': instance.rewardItemId,
+      'rewardCampaignName': instance.rewardCampaignName,
+      'rewardType': instance.rewardType,
     };
 
 const _$EngagementStatusEnumMap = {

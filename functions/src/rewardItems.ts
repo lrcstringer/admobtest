@@ -68,6 +68,14 @@ export const importRewardItems = functions.https.onCall(
       );
     }
 
+    // #19 — Check campaign status (not just isDeleted)
+    if (!["draft", "active", "paused"].includes(campaign.status)) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        `Cannot import items into a ${campaign.status} campaign`
+      );
+    }
+
     // Hash all codes first to check for duplicates
     const codeHashes = codes.map((c) => ({
       code: c.code,
@@ -95,11 +103,13 @@ export const importRewardItems = functions.https.onCall(
     const existingHashes = new Set<string>();
     const allHashes = codeHashes.map((c) => c.hash);
 
+    // #7 — Scope dedup query to this campaign (same code CAN exist in different campaigns)
     // Firestore IN query supports max 30 values, so batch the checks
     for (let i = 0; i < allHashes.length; i += 30) {
       const batch = allHashes.slice(i, i + 30);
       const existing = await db
         .collection("rewardItems")
+        .where("campaignId", "==", campaignId)
         .where("codeHash", "in", batch)
         .get();
       existing.docs.forEach((doc) => {
@@ -162,15 +172,15 @@ export const importRewardItems = functions.https.onCall(
       });
     }
 
-    await writeBatch.commit();
-    await activityBatch.commit();
-
-    // Update campaign quantities
-    await campaignRef.update({
+    // #8 — Include counter update in the same batch as item creation (atomic)
+    writeBatch.update(campaignRef, {
       totalQuantity: admin.firestore.FieldValue.increment(newCodes.length),
       remainingQuantity: admin.firestore.FieldValue.increment(newCodes.length),
       updatedAt: now,
     });
+
+    await writeBatch.commit();
+    await activityBatch.commit();
 
     logAdminAction(adminCtx.uid, "importRewardItems", "success", { campaignId, imported: newCodes.length, skipped: skippedCount }).catch(() => {});
 
@@ -191,7 +201,7 @@ export const importRewardItems = functions.https.onCall(
  * Returns items WITHOUT decrypted code values (use getRewardItemDetail for that).
  */
 export const getUserRewardItems = functions.https.onCall(
-  async (data: { status?: string }, context) => {
+  async (data: { status?: string; limit?: number; startAfter?: number; startAfterId?: string }, context) => {
     requireAppCheck(context, "getUserRewardItems");
 
     if (!context.auth) {
@@ -202,12 +212,35 @@ export const getUserRewardItems = functions.https.onCall(
     }
 
     const userId = context.auth.uid;
+    // #7 — Add pagination (max 50 per page)
+    const pageLimit = Math.min(data.limit || 20, 50);
+
     let query: FirebaseFirestore.Query = db
       .collection("rewardItems")
       .where("allocatedToUserId", "==", userId);
 
     if (data.status) {
       query = query.where("status", "==", data.status);
+    }
+
+    query = query.orderBy("allocatedAt", "desc").limit(pageLimit);
+
+    // #2 — Fix pagination: use composite cursor (allocatedAt + docId) to avoid
+    // skipping items with identical allocatedAt timestamps
+    if (data.startAfter && data.startAfterId) {
+      const cursorTimestamp = admin.firestore.Timestamp.fromMillis(data.startAfter);
+      const cursorDoc = await db.collection("rewardItems").doc(data.startAfterId).get();
+      if (cursorDoc.exists) {
+        query = query.startAfter(cursorDoc);
+      } else {
+        // Fallback to timestamp-only cursor if doc no longer exists
+        query = query.startAfter(cursorTimestamp);
+      }
+    } else if (data.startAfter) {
+      // Legacy: timestamp-only cursor for backward compatibility
+      query = query.startAfter(
+        admin.firestore.Timestamp.fromMillis(data.startAfter)
+      );
     }
 
     const snapshot = await query.get();
@@ -248,7 +281,14 @@ export const getUserRewardItems = functions.https.onCall(
       };
     });
 
-    return { items };
+    // Return lastDocId for composite cursor pagination
+    const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+    return {
+      items,
+      hasMore: snapshot.size === pageLimit,
+      lastAllocatedAt: lastDoc?.data()?.allocatedAt?.toMillis?.() || null,
+      lastDocId: lastDoc?.id || null,
+    };
   }
 );
 
@@ -440,6 +480,17 @@ export const redeemRewardItem = functions.https.onCall(
         throw new functions.https.HttpsError(
           "failed-precondition",
           `Item cannot be redeemed (current status: ${item.status})`
+        );
+      }
+
+      // #16 — Check if campaign is deleted before allowing redemption
+      const campaignDoc = await txn.get(
+        db.collection("rewardCampaigns").doc(item.campaignId)
+      );
+      if (!campaignDoc.exists || campaignDoc.data()?.isDeleted === true) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          "This reward campaign is no longer available"
         );
       }
 
@@ -639,39 +690,6 @@ export const getAdminRewardItems = functions.https.onCall(
   }
 );
 
-// ============================================================================
-// UPDATE REWARD CONSENT (POPIA)
-// ============================================================================
-
-/**
- * Update the user's reward program consent (POPIA compliance).
- * Sets rewardConsent flag on the user profile.
- */
-export const updateRewardConsent = functions.https.onCall(
-  async (data: { consent: boolean }, context) => {
-    requireAppCheck(context, "updateRewardConsent");
-
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
-        "unauthenticated",
-        "Must be authenticated"
-      );
-    }
-
-    const { consent } = data;
-    if (typeof consent !== "boolean") {
-      throw new functions.https.HttpsError(
-        "invalid-argument",
-        "consent must be a boolean"
-      );
-    }
-
-    const userId = context.auth.uid;
-    await db.collection("users").doc(userId).update({
-      rewardConsent: consent,
-      rewardConsentUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    return { success: true };
-  }
-);
+// updateRewardConsent removed — POPIA consent gate no longer needed.
+// Rewards are now allocated via the escrow pattern (reserve/confirm/release)
+// without requiring explicit consent.

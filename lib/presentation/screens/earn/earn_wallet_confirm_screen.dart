@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../../domain/entities/earn_opportunity.dart';
 import '../../blocs/earn/earn_bloc.dart';
 import '../../blocs/earn_inbox/earn_inbox_bloc.dart';
+import '../../blocs/reward/reward_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -91,6 +92,11 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
     _completionHandled = true;
 
     context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+
+    // #15 — Refresh reward items so wallet shows newly allocated reward
+    if (context.read<EarnBloc>().state.rewardItemId != null) {
+      context.read<RewardBloc>().add(const RewardEvent.refreshItems());
+    }
 
     final earnState = context.read<EarnBloc>().state;
     final engagement = earnState.currentEngagement;
@@ -527,56 +533,66 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                     ),
                                   ),
 
-                                // Reward pending card
-                                if (earnState.rewardPending)
+                                // Reward allocated card
+                                if (earnState.rewardItemId != null)
                                   Padding(
                                     padding:
                                         EdgeInsets.only(top: AppSpacing.md),
                                     child: Card(
                                       color: AppColors.accent
                                           .withValues(alpha: 0.15),
-                                      child: Padding(
-                                        padding:
-                                            EdgeInsets.all(AppSpacing.md),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.card_giftcard,
-                                              color: AppColors.accent,
-                                              size: 28,
-                                            ),
-                                            SizedBox(width: AppSpacing.sm),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    'A reward is on its way!',
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .titleSmall
-                                                        ?.copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ),
-                                                  ),
-                                                  SizedBox(height: 2),
-                                                  Text(
-                                                    earnState.rewardCampaignName ??
-                                                        'Check your rewards shortly',
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodySmall
-                                                        ?.copyWith(
-                                                          color: AppColors
-                                                              .textSecondary,
-                                                        ),
-                                                  ),
-                                                ],
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(12),
+                                        onTap: () => context.push(
+                                          '/wallet/rewards/${earnState.rewardItemId}',
+                                        ),
+                                        child: Padding(
+                                          padding:
+                                              EdgeInsets.all(AppSpacing.md),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.card_giftcard,
+                                                color: AppColors.accent,
+                                                size: 28,
                                               ),
-                                            ),
-                                          ],
+                                              SizedBox(width: AppSpacing.sm),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'You earned a reward!',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .titleSmall
+                                                          ?.copyWith(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                    ),
+                                                    SizedBox(height: 2),
+                                                    Text(
+                                                      earnState.rewardCampaignName ??
+                                                          'View your reward',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodySmall
+                                                          ?.copyWith(
+                                                            color: AppColors
+                                                                .textSecondary,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Icon(
+                                                Icons.chevron_right,
+                                                color: AppColors.accent,
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),

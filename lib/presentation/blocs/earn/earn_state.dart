@@ -58,7 +58,7 @@ class EarnState with _$EarnState {
     /// Whether the completed engagement is pending admin review
     @Default(false) bool isPendingReview,
     // Reward allocation state (set after engagement completion)
-    @Default(false) bool rewardPending,
+    String? rewardItemId,
     String? rewardCampaignName,
     String? rewardType,
   }) = _EarnState;

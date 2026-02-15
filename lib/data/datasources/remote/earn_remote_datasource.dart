@@ -422,10 +422,13 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
         'updatedAt': now.toIso8601String(),
         // Include token data from CF response (pre-call doc doesn't have it)
         'tokensEarned': (resultData['tokensEarned'] as num?)?.toDouble() ?? 0.0,
-        'totalTokensGenerated': (resultData['totalGenerated'] as num?)?.toInt() ?? 0,
         'streakDayAtCompletion': resultData['streakDay'] as int?,
         'multiplierApplied':
             (resultData['multiplierApplied'] as num?)?.toDouble(),
+        // Reward escrow fields from CF response
+        'rewardItemId': resultData['rewardItemId'] as String?,
+        'rewardCampaignName': resultData['rewardCampaignName'] as String?,
+        'rewardType': resultData['rewardType'] as String?,
       });
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(

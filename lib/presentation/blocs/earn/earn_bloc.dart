@@ -290,16 +290,12 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
         ));
       },
       (engagement) {
-        // Check if the opportunity has a linked reward campaign
-        final opp = state.selectedOpportunity;
-        final hasReward = opp?.hasRewardCampaign ?? false;
-
         emit(state.copyWith(
           currentEngagement: engagement,
           engagementPhase: EngagementPhase.completed,
-          rewardPending: hasReward,
-          rewardCampaignName: hasReward ? opp?.rewardCampaignName : null,
-          rewardType: hasReward ? opp?.rewardType : null,
+          rewardItemId: engagement.rewardItemId,
+          rewardCampaignName: engagement.rewardCampaignName,
+          rewardType: engagement.rewardType,
         ));
       },
     );
@@ -451,7 +447,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
       engagementPhase: EngagementPhase.idle,
       adTransactionId: null,
       adResponseId: null,
-      rewardPending: false,
+      rewardItemId: null,
       rewardCampaignName: null,
       rewardType: null,
     ));
@@ -569,10 +565,6 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
         final isPending =
             engagement.status == EngagementStatus.pendingReview;
 
-        // Check if the opportunity has a linked reward campaign
-        final opp = state.selectedOpportunity;
-        final hasReward = opp?.hasRewardCampaign ?? false;
-
         emit(state.copyWith(
           currentEngagement: engagement,
           engagementPhase: EngagementPhase.completed,
@@ -580,9 +572,9 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
           uploadProgress: null,
           uploadBytesTransferred: null,
           uploadTotalBytes: null,
-          rewardPending: hasReward,
-          rewardCampaignName: hasReward ? opp?.rewardCampaignName : null,
-          rewardType: hasReward ? opp?.rewardType : null,
+          rewardItemId: engagement.rewardItemId,
+          rewardCampaignName: engagement.rewardCampaignName,
+          rewardType: engagement.rewardType,
         ));
       },
     );

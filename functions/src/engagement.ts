@@ -39,7 +39,11 @@ import {
   stateToFirestore,
   DEFAULT_BONUS_CONFIG,
 } from "./bonus";
-import { enqueueRewardAllocation } from "./rewardAllocation";
+import {
+  reserveRewardItem,
+  confirmRewardReservation,
+  releaseRewardReservation,
+} from "./rewardAllocation";
 
 const db = admin.firestore();
 
@@ -305,6 +309,57 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     escrowJournalId = escrowResult.journalId || null;
   }
 
+  // =========================================================================
+  // Reward Reservation: Atomically reserve reward item before creating engagement
+  // Mirrors escrow reservation above — if reservation fails, engagement doesn't start
+  // =========================================================================
+  let reservedRewardItemId: string | null = null;
+  let reservedRewardCampaignId: string | null = null;
+  let reservedRewardCampaignName: string | null = null;
+  let reservedRewardType: string | null = null;
+
+  if (earnOpportunityId) {
+    const opportunityDoc = await db
+      .collection("earnOpportunities")
+      .doc(earnOpportunityId)
+      .get();
+    const opportunityForReward = opportunityDoc.exists
+      ? opportunityDoc.data()!
+      : null;
+
+    if (opportunityForReward?.rewardCampaignId) {
+      try {
+        const rewardResult = await reserveRewardItem(
+          userId,
+          opportunityForReward.rewardCampaignId,
+          engagementId,
+          opportunityForReward.rewardQuantity ?? 1
+        );
+        reservedRewardItemId = rewardResult.itemId;
+        reservedRewardCampaignId = opportunityForReward.rewardCampaignId;
+        reservedRewardCampaignName = rewardResult.campaignName;
+        reservedRewardType = rewardResult.rewardType;
+      } catch (rewardError) {
+        // If reward reservation fails, reverse escrow (if any) and throw
+        if (escrowJournalId) {
+          try {
+            await reverseJournal(
+              escrowJournalId,
+              "Reward reservation failed — reversing token escrow",
+              "system"
+            );
+          } catch (reverseErr) {
+            console.error(
+              `Failed to reverse escrow after reward reservation failure:`,
+              reverseErr
+            );
+          }
+        }
+        throw rewardError;
+      }
+    }
+  }
+
   // Create engagement record with Flutter-compatible fields
   await engagementRef.set({
     id: engagementId,
@@ -332,6 +387,11 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     escrowJournalId: escrowJournalId,
     escrowReservedAt: escrowJournalId ? now : null,
     tokenSourceAccountId: resolvedTokenSourceAccountId,
+    // Reward reservation fields (mirrors token escrow)
+    reservedRewardItemId: reservedRewardItemId,
+    reservedRewardCampaignId: reservedRewardCampaignId,
+    reservedRewardCampaignName: reservedRewardCampaignName,
+    reservedRewardType: reservedRewardType,
   });
 
   // Update earn thread if provided
@@ -352,6 +412,9 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     engagementId: engagementId,
     rewardAmount: rewardAmount,
     escrowReserved: !!escrowJournalId,
+    rewardReserved: !!reservedRewardItemId,
+    reservedRewardCampaignName: reservedRewardCampaignName,
+    reservedRewardType: reservedRewardType,
   };
 });
 
@@ -425,6 +488,15 @@ export const processEngagement = functions.https.onCall(
     const isValid = validateEngagementEvidence(engagement.type, evidence);
 
     if (!isValid) {
+      // Release reward reservation on failure
+      if (engagement.reservedRewardItemId) {
+        await releaseRewardReservation(
+          engagement.reservedRewardItemId,
+          engagementId
+        ).catch((e) =>
+          console.error("Failed to release reward reservation on evidence failure:", e)
+        );
+      }
       await engagementDoc.ref.update({
         status: EngagementStatus.FAILED,
         failedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -691,6 +763,30 @@ export const processEngagement = functions.https.onCall(
       );
     }
 
+    // =========================================================================
+    // Confirm reward reservation — best-effort, does NOT block engagement completion.
+    // #3 fix: If confirmation fails, engagement still completes with tokens.
+    // The reserved item will be released by releaseStaleRewardReservations (30-min job).
+    // =========================================================================
+    let confirmedRewardItemId: string | null = null;
+    if (engagement.reservedRewardItemId) {
+      try {
+        confirmedRewardItemId = await confirmRewardReservation(
+          engagement.reservedRewardItemId,
+          userId,
+          engagementId
+        );
+      } catch (rewardConfirmError) {
+        functions.logger.error(
+          `Failed to confirm reward reservation for engagement ${engagementId}. ` +
+            `Tokens credited but reward not allocated. ` +
+            `Stale reservation cleanup will release item ${engagement.reservedRewardItemId}.`,
+          { error: rewardConfirmError, engagementId, userId }
+        );
+        // Continue — engagement completes with tokens, reward reservation released by scheduled job
+      }
+    }
+
     // Update engagement and related records in transaction (CRITICAL — must complete)
     await db.runTransaction(async (transaction) => {
       // Update engagement with Flutter-compatible fields
@@ -702,6 +798,8 @@ export const processEngagement = functions.https.onCall(
         totalTokensGenerated: rewardAmount, // Total including pot contributions
         ledgerJournalId: ledgerResult.journalId, // Link to ledger entry
         evidence: admin.firestore.FieldValue.arrayUnion(evidence),
+        // Reward allocation (confirmed from reservation)
+        rewardItemId: confirmedRewardItemId || null,
         // Bonus reward tracking
         bonusApplied: bonusApplied,
         bonusMultiplier: bonusApplied ? bonusMultiplier : null,
@@ -908,45 +1006,8 @@ export const processEngagement = functions.https.onCall(
       await oppRef.update(updates);
     };
 
-    // Helper: reward allocation check
-    const doRewardAllocation = async (): Promise<{
-      rewardPending: boolean;
-      rewardCampaignName: string | null;
-      rewardType: string | null;
-    }> => {
-      if (!engagement.earnOpportunityId) {
-        return { rewardPending: false, rewardCampaignName: null, rewardType: null };
-      }
-      const oppDoc = await db
-        .collection("earnOpportunities")
-        .doc(engagement.earnOpportunityId)
-        .get();
-      if (!oppDoc.exists) {
-        return { rewardPending: false, rewardCampaignName: null, rewardType: null };
-      }
-      const oppData = oppDoc.data()!;
-      if (!oppData.rewardCampaignId) {
-        return { rewardPending: false, rewardCampaignName: null, rewardType: null };
-      }
-      // Allocate rewardQuantity items (default 1) — each with unique idempotency suffix
-      const qty = oppData.rewardQuantity ?? 1;
-      const allocationPromises = [];
-      for (let i = 0; i < qty; i++) {
-        const idempotencyId = qty === 1 ? engagementId : `${engagementId}_r${i}`;
-        allocationPromises.push(
-          enqueueRewardAllocation(userId, oppData.rewardCampaignId, idempotencyId)
-        );
-      }
-      await Promise.all(allocationPromises);
-      return {
-        rewardPending: true,
-        rewardCampaignName: oppData.rewardCampaignName || null,
-        rewardType: oppData.rewardType || null,
-      };
-    };
-
     // Run all parallel batch 1 operations concurrently
-    const [streakInfo, , , , rewardInfo] = await Promise.all([
+    const [streakInfo] = await Promise.all([
       updateEngagementStats(userId, userShare, engagementStreakPoints)
         .catch((e) => { console.error("Streak stats error:", e); return defaultStreak; }),
       doBudgetMonitoring()
@@ -955,11 +1016,6 @@ export const processEngagement = functions.https.onCall(
         .catch((e) => console.error("Targeting tracking error:", e)),
       doOpportunityBudgetTracking()
         .catch((e) => console.error("Opportunity budget tracking error:", e)),
-      doRewardAllocation()
-        .catch((e) => {
-          console.error("Reward allocation error:", e);
-          return { rewardPending: false, rewardCampaignName: null, rewardType: null };
-        }),
     ]);
 
     // =========================================================================
@@ -1013,9 +1069,9 @@ export const processEngagement = functions.https.onCall(
       subAccountId: subAccountId,
       bonusApplied: bonusApplied,
       bonusMultiplier: bonusApplied ? bonusMultiplier : null,
-      rewardPending: rewardInfo.rewardPending,
-      rewardCampaignName: rewardInfo.rewardCampaignName,
-      rewardType: rewardInfo.rewardType,
+      rewardItemId: confirmedRewardItemId || null,
+      rewardCampaignName: engagement.reservedRewardCampaignName || null,
+      rewardType: engagement.reservedRewardType || null,
     };
   }
 );
@@ -1168,6 +1224,26 @@ export const abandonEngagement = functions.https.onCall(
           error
         );
         escrowReversalFailed = true;
+      }
+    }
+
+    // Release reward reservation if one exists
+    if (engagement.reservedRewardItemId) {
+      try {
+        await releaseRewardReservation(
+          engagement.reservedRewardItemId,
+          engagementId
+        );
+        console.log(
+          `Reward reservation released for engagement ${engagementId}: ` +
+            `itemId=${engagement.reservedRewardItemId}`
+        );
+      } catch (rewardReleaseError) {
+        // Still abandon — stale reservation cleanup will handle it
+        console.error(
+          `Failed to release reward reservation for engagement ${engagementId}:`,
+          rewardReleaseError
+        );
       }
     }
 

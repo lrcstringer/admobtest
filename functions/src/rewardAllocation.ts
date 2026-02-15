@@ -1,106 +1,78 @@
 /**
- * Reward Allocation Engine
+ * Reward Allocation Engine — Escrow-Based
  *
- * Processes allocation of non-fungible reward items to users.
+ * Reward items follow the same escrow pattern as tokens:
+ *   startEngagement:    reserveRewardItem()   → item becomes "reserved"
+ *   processEngagement:  confirmRewardReservation() → item becomes "allocated"
+ *   abandon/failure:    releaseRewardReservation()  → item returns to "available"
  *
- * Allocation flow:
- * 1. processEngagement completes → calls enqueueRewardAllocation()
- * 2. Core logic runs: idempotency check → campaign validation → per-user limit → random item selection
- * 3. Firestore transaction to atomically assign item → update campaign counters
- * 4. Push notification to user
- *
- * The core logic is extracted into allocateRewardItem() so it can be called:
- * - Directly from processEngagement via enqueueRewardAllocation() (fire-and-forget)
- * - Via the processRewardAllocation onCall for admin or retry scenarios
+ * This guarantees that reward allocation is deterministic and never fire-and-forget.
+ * If a reward item can't be reserved, the engagement doesn't start.
+ * At completion, confirming a reserved item is a simple status change — guaranteed.
  */
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
-import { checkRateLimit, checkRewardFraud } from "./security";
+import { requireAdminPermission } from "./adminAuth";
+import { requireAppCheck } from "./security";
 
 const db = admin.firestore();
 
 // ============================================================================
-// CORE ALLOCATION LOGIC
+// RESERVE REWARD ITEM (called from startEngagement)
 // ============================================================================
 
-interface AllocationResult {
-  success: boolean;
-  alreadyAllocated?: boolean;
-  itemId?: string;
-  reason?: string;
+interface ReservationResult {
+  itemId: string;
+  itemIds?: string[];
+  campaignName: string;
+  rewardType: string;
 }
 
 /**
- * Core reward allocation logic.
- * Idempotent: safe to call multiple times for the same engagement.
+ * Reserve a reward item for an engagement.
+ * Mirrors createEscrowReservation() for tokens.
+ *
+ * Idempotent: if item is already reserved for this engagementId, returns it.
+ * Throws on failure — engagement should not start if reservation fails.
  */
-async function allocateRewardItem(
+export async function reserveRewardItem(
   userId: string,
   campaignId: string,
-  engagementId: string
-): Promise<AllocationResult> {
-  functions.logger.info("Processing reward allocation", {
+  engagementId: string,
+  quantity: number = 1
+): Promise<ReservationResult> {
+  functions.logger.info("Reserving reward item", {
     userId,
     campaignId,
     engagementId,
+    quantity,
   });
 
-  // Step 0: Feature flag check
-  const flagDoc = await db.collection("platformSettings").doc("rewards").get();
-  const flagData = flagDoc.exists ? flagDoc.data() : {};
-  if (flagData?.rewardsEnabled === false) {
-    functions.logger.info("Reward allocation disabled via feature flag");
-    return { success: false, reason: "rewards_disabled" };
-  }
-
-  // Step 0a: Granular earn-integration flag
-  if (flagData?.rewardsEarnIntegrationEnabled === false) {
-    functions.logger.info("Reward earn integration disabled via feature flag");
-    return { success: false, reason: "earn_integration_disabled" };
-  }
-
-  // Step 0b: POPIA consent check
-  const userDoc = await db.collection("users").doc(userId).get();
-  if (!userDoc.exists || userDoc.data()?.rewardConsent !== true) {
-    functions.logger.info("User has not given reward consent", { userId });
-    return { success: false, reason: "consent_not_given" };
-  }
-
-  // Step 0c: Fraud / rate-limit checks
-  const rateCheck = await checkRateLimit(userId, "reward_claim");
-  if (!rateCheck.allowed) {
-    functions.logger.warn("Reward claim rate limited", { userId });
-    return { success: false, reason: "rate_limited" };
-  }
-
-  const fraudCheck = await checkRewardFraud(userId);
-  if (!fraudCheck.allowed) {
-    functions.logger.warn("Reward claim blocked by fraud check", {
-      userId,
-      alerts: fraudCheck.alerts,
-    });
-    return { success: false, reason: "fraud_check_failed" };
-  }
-
-  // Step 1: Idempotency check — has this engagement already been allocated?
-  const existingItems = await db
+  // Step 1: Idempotency check — already reserved for this engagement?
+  const existingReserved = await db
     .collection("rewardItems")
-    .where("allocatedToUserId", "==", userId)
+    .where("reservedForEngagementId", "==", engagementId)
     .where("campaignId", "==", campaignId)
-    .limit(10)
+    .limit(quantity)
     .get();
 
-  for (const doc of existingItems.docs) {
-    const itemData = doc.data();
-    if (itemData.metadata?.engagementId === engagementId) {
-      functions.logger.info("Reward already allocated for this engagement", {
-        engagementId,
-        itemId: doc.id,
-      });
-      return { success: true, alreadyAllocated: true, itemId: doc.id };
-    }
+  if (!existingReserved.empty && existingReserved.size >= quantity) {
+    functions.logger.info("Reward already reserved for this engagement", {
+      engagementId,
+      itemId: existingReserved.docs[0].id,
+    });
+    const campaign = await db.collection("rewardCampaigns").doc(campaignId).get();
+    const campaignData = campaign.data();
+    return {
+      itemId: existingReserved.docs[0].id,
+      ...(quantity > 1
+        ? { itemIds: existingReserved.docs.map((d) => d.id) }
+        : {}),
+      campaignName: campaignData?.name || "",
+      rewardType: campaignData?.rewardType || "",
+    };
   }
 
   // Step 2: Campaign validation
@@ -110,18 +82,26 @@ async function allocateRewardItem(
     .get();
 
   if (!campaignDoc.exists) {
-    functions.logger.error("Campaign not found", { campaignId });
-    return { success: false, reason: "campaign_not_found" };
+    throw new functions.https.HttpsError(
+      "not-found",
+      "Reward campaign not found"
+    );
   }
 
   const campaign = campaignDoc.data()!;
 
   if (campaign.isDeleted === true) {
-    return { success: false, reason: "campaign_deleted" };
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      "This offer is currently unavailable"
+    );
   }
 
   if (campaign.status !== "active") {
-    return { success: false, reason: `campaign_status_${campaign.status}` };
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      "This offer is currently unavailable"
+    );
   }
 
   const now = new Date();
@@ -129,33 +109,50 @@ async function allocateRewardItem(
   const endsAt = campaign.endsAt?.toDate?.() || new Date(0);
 
   if (now < startsAt || now > endsAt) {
-    return { success: false, reason: "campaign_outside_date_range" };
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      "This offer is currently unavailable"
+    );
   }
 
-  if (campaign.remainingQuantity <= 0) {
-    return { success: false, reason: "campaign_exhausted" };
+  if ((campaign.remainingQuantity ?? 0) < quantity) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      "This offer is currently unavailable"
+    );
   }
 
-  // Step 3: Per-user limit check
+  // Step 3: Per-user limit check (fix #4 — no .limit(10) bypass)
   const maxPerUser = campaign.maxPerUser || 1;
-  if (existingItems.size >= maxPerUser) {
-    functions.logger.info("User has reached max allocations for campaign", {
-      userId,
-      campaignId,
-      maxPerUser,
-      currentCount: existingItems.size,
-    });
-    return { success: false, reason: "user_limit_reached" };
+  const [allocatedItems, reservedItems] = await Promise.all([
+    db
+      .collection("rewardItems")
+      .where("allocatedToUserId", "==", userId)
+      .where("campaignId", "==", campaignId)
+      .get(),
+    db
+      .collection("rewardItems")
+      .where("reservedForUserId", "==", userId)
+      .where("campaignId", "==", campaignId)
+      .get(),
+  ]);
+
+  const totalClaimed = allocatedItems.size + reservedItems.size;
+  if (totalClaimed + quantity > maxPerUser) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      "This offer is currently unavailable"
+    );
   }
 
-  // Step 3b: A/B variant assignment (if campaign has A/B test enabled)
+  // Step 4: A/B variant assignment (deterministic per user+campaign)
   let abVariant: string | null = null;
   if (campaign.abTest?.enabled && Array.isArray(campaign.abTest.variants)) {
     const hash = crypto
       .createHash("md5")
       .update(`${userId}:${campaignId}`)
       .digest();
-    const bucket = hash.readUInt16BE(0) % 100; // 0-99
+    const bucket = hash.readUInt16BE(0) % 100;
     let cumulative = 0;
     for (const variant of campaign.abTest.variants) {
       cumulative += variant.weight || 0;
@@ -169,220 +166,365 @@ async function allocateRewardItem(
     }
   }
 
-  // Step 4: Random item selection + atomic allocation
-  // Query 20 available items and pick randomly to reduce contention
-  const availableItems = await db
-    .collection("rewardItems")
-    .where("campaignId", "==", campaignId)
-    .where("status", "==", "available")
-    .limit(20)
-    .get();
+  // Step 5: Reserve item(s) — atomic transaction with retry
+  const reservedItemIds: string[] = [];
 
-  if (availableItems.empty) {
-    functions.logger.warn("No available items found", { campaignId });
-    return { success: false, reason: "no_available_items" };
-  }
+  for (let itemIndex = 0; itemIndex < quantity; itemIndex++) {
+    const idempotencyId =
+      quantity === 1 ? engagementId : `${engagementId}_r${itemIndex}`;
 
-  // Pick a random item from results
-  const randomIndex = Math.floor(Math.random() * availableItems.size);
-  const candidates = availableItems.docs;
+    // Query available items (sample 20 to reduce contention)
+    const availableItems = await db
+      .collection("rewardItems")
+      .where("campaignId", "==", campaignId)
+      .where("status", "==", "available")
+      .limit(20)
+      .get();
 
-  // Try up to 3 times with different random picks
-  const maxRetries = 3;
-  let allocatedItemId: string | null = null;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const pickIndex = (randomIndex + attempt) % candidates.length;
-    const candidate = candidates[pickIndex];
-    const itemRef = db.collection("rewardItems").doc(candidate.id);
-    const campaignRef = db.collection("rewardCampaigns").doc(campaignId);
-
-    try {
-      await db.runTransaction(async (txn) => {
-        const itemDoc = await txn.get(itemRef);
-        if (!itemDoc.exists || itemDoc.data()?.status !== "available") {
-          throw new Error("Item no longer available");
-        }
-
-        const nowTimestamp = admin.firestore.FieldValue.serverTimestamp();
-
-        // Allocate the item
-        txn.update(itemRef, {
-          status: "allocated",
-          allocatedToUserId: userId,
-          allocatedAt: nowTimestamp,
-          expiresAt: campaign.itemExpiresAt || null,
-          metadata: {
-            ...itemDoc.data()?.metadata,
-            engagementId,
-            ...(abVariant ? { abVariant } : {}),
-          },
-          updatedAt: nowTimestamp,
-        });
-
-        // Update campaign counters
-        txn.update(campaignRef, {
-          remainingQuantity: admin.firestore.FieldValue.increment(-1),
-          allocatedQuantity: admin.firestore.FieldValue.increment(1),
-          updatedAt: nowTimestamp,
-        });
-      });
-
-      allocatedItemId = candidate.id;
-      break; // Success
-    } catch (txnError) {
-      functions.logger.warn(
-        `Allocation attempt ${attempt + 1} failed, retrying`,
-        { itemId: candidate.id, error: txnError }
+    if (availableItems.empty) {
+      // If we already reserved some items in a multi-quantity request, release them
+      for (const alreadyReservedId of reservedItemIds) {
+        await releaseRewardReservation(alreadyReservedId, engagementId);
+      }
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "This offer is currently unavailable"
       );
-      if (attempt === maxRetries - 1) {
-        functions.logger.error("All allocation attempts failed", {
-          userId,
-          campaignId,
-          engagementId,
+    }
+
+    const randomIndex = Math.floor(Math.random() * availableItems.size);
+    const candidates = availableItems.docs;
+    const maxRetries = 3;
+    let reservedItemId: string | null = null;
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      const pickIndex = (randomIndex + attempt) % candidates.length;
+      const candidate = candidates[pickIndex];
+      const itemRef = db.collection("rewardItems").doc(candidate.id);
+      const campaignRef = db.collection("rewardCampaigns").doc(campaignId);
+
+      try {
+        await db.runTransaction(async (txn) => {
+          const itemDoc = await txn.get(itemRef);
+          if (!itemDoc.exists || itemDoc.data()?.status !== "available") {
+            throw new Error("Item no longer available");
+          }
+
+          const nowTimestamp = admin.firestore.FieldValue.serverTimestamp();
+
+          txn.update(itemRef, {
+            status: "reserved",
+            reservedForUserId: userId,
+            reservedForEngagementId: engagementId,
+            reservedAt: nowTimestamp,
+            expiresAt: campaign.itemExpiresAt || null,
+            metadata: {
+              ...itemDoc.data()?.metadata,
+              engagementId: idempotencyId,
+              ...(abVariant ? { abVariant } : {}),
+            },
+            updatedAt: nowTimestamp,
+          });
+
+          txn.update(campaignRef, {
+            remainingQuantity: admin.firestore.FieldValue.increment(-1),
+            updatedAt: nowTimestamp,
+          });
         });
-        return { success: false, reason: "allocation_contention" };
+
+        reservedItemId = candidate.id;
+        break;
+      } catch (txnError) {
+        functions.logger.warn(
+          `Reservation attempt ${attempt + 1} failed, retrying`,
+          { itemId: candidate.id, error: txnError }
+        );
+        if (attempt === maxRetries - 1) {
+          // Release any partially reserved items
+          for (const alreadyReservedId of reservedItemIds) {
+            await releaseRewardReservation(alreadyReservedId, engagementId);
+          }
+          throw new functions.https.HttpsError(
+            "failed-precondition",
+            "This offer is currently unavailable"
+          );
+        }
       }
     }
-  }
 
-  if (!allocatedItemId) {
-    return { success: false, reason: "allocation_failed" };
-  }
-
-  // Step 5: Activity log
-  await db.collection("rewardActivityLog").add({
-    itemId: allocatedItemId,
-    campaignId,
-    userId,
-    action: "allocated",
-    previousStatus: "available",
-    newStatus: "allocated",
-    performedBy: "system",
-    notes: `Allocated via engagement ${engagementId}`,
-    metadata: { engagementId, ...(abVariant ? { abVariant } : {}) },
-    ipAddress: null, // System-triggered allocation — no client IP available
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
-
-  // Step 6: Check if campaign is now exhausted
-  const updatedCampaign = await db
-    .collection("rewardCampaigns")
-    .doc(campaignId)
-    .get();
-  if (
-    updatedCampaign.exists &&
-    (updatedCampaign.data()?.remainingQuantity ?? 0) <= 0
-  ) {
-    await db.collection("rewardCampaigns").doc(campaignId).update({
-      status: "exhausted",
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-  }
-
-  // Step 7: Push notification
-  try {
-    const userDoc = await db.collection("users").doc(userId).get();
-    const fcmToken = userDoc.data()?.fcmToken;
-
-    if (fcmToken) {
-      await admin.messaging().send({
-        token: fcmToken,
-        notification: {
-          title: "New Reward!",
-          body: `You earned a ${campaign.name} from ${campaign.clientName}! Check your rewards.`,
-        },
-        data: {
-          type: "reward_allocated",
-          itemId: allocatedItemId,
-          campaignId,
-        },
-      });
+    if (reservedItemId) {
+      reservedItemIds.push(reservedItemId);
     }
-  } catch (notifError) {
-    functions.logger.warn("Failed to send allocation notification", {
-      userId,
-      error: notifError,
-    });
-    // Don't fail allocation for notification errors
   }
 
-  functions.logger.info("Reward allocated successfully", {
+  // #8 — Post-reservation per-user limit re-check (TOCTOU guard for concurrent requests)
+  if (reservedItemIds.length > 0) {
+    const [finalAllocated, finalReserved] = await Promise.all([
+      db
+        .collection("rewardItems")
+        .where("allocatedToUserId", "==", userId)
+        .where("campaignId", "==", campaignId)
+        .get(),
+      db
+        .collection("rewardItems")
+        .where("reservedForUserId", "==", userId)
+        .where("campaignId", "==", campaignId)
+        .get(),
+    ]);
+    const finalTotal = finalAllocated.size + finalReserved.size;
+    if (finalTotal > maxPerUser) {
+      // Concurrent request pushed us over the limit — release our reservations
+      for (const id of reservedItemIds) {
+        await releaseRewardReservation(id, engagementId);
+      }
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "This offer is currently unavailable"
+      );
+    }
+  }
+
+  functions.logger.info("Reward item(s) reserved successfully", {
     userId,
     campaignId,
     engagementId,
-    itemId: allocatedItemId,
+    itemIds: reservedItemIds,
   });
 
-  return { success: true, itemId: allocatedItemId };
+  return {
+    itemId: reservedItemIds[0],
+    ...(quantity > 1 ? { itemIds: reservedItemIds } : {}),
+    campaignName: campaign.name || "",
+    rewardType: campaign.rewardType || "",
+  };
 }
 
 // ============================================================================
-// ENQUEUE REWARD ALLOCATION (called from processEngagement)
+// CONFIRM REWARD RESERVATION (called from processEngagement)
 // ============================================================================
 
 /**
- * Trigger reward allocation for a completed engagement.
- * Runs the allocation logic directly (fire-and-forget from caller's perspective).
- * The caller should wrap this in try/catch so allocation failures don't
- * block the main engagement completion flow.
+ * Confirm a reserved reward item — transition from "reserved" to "allocated".
+ * Mirrors processEscrowCompletion() for tokens.
+ *
+ * This is a simple status change on an already-reserved item — guaranteed to succeed.
  */
-export async function enqueueRewardAllocation(
+export async function confirmRewardReservation(
+  itemId: string,
   userId: string,
-  campaignId: string,
+  engagementId: string
+): Promise<string> {
+  const itemRef = db.collection("rewardItems").doc(itemId);
+
+  await db.runTransaction(async (txn) => {
+    const itemDoc = await txn.get(itemRef);
+    if (!itemDoc.exists) {
+      throw new Error(`Reserved reward item ${itemId} not found`);
+    }
+
+    const item = itemDoc.data()!;
+    if (
+      item.status !== "reserved" ||
+      item.reservedForEngagementId !== engagementId
+    ) {
+      throw new Error(
+        `Item reservation mismatch: status=${item.status}, ` +
+          `expected engagementId=${engagementId}, got=${item.reservedForEngagementId}`
+      );
+    }
+
+    const nowTimestamp = admin.firestore.FieldValue.serverTimestamp();
+
+    txn.update(itemRef, {
+      status: "allocated",
+      allocatedToUserId: userId,
+      allocatedAt: nowTimestamp,
+      reservedForUserId: null,
+      reservedForEngagementId: null,
+      updatedAt: nowTimestamp,
+    });
+
+    // Update campaign allocated counter
+    const campaignRef = db
+      .collection("rewardCampaigns")
+      .doc(item.campaignId);
+    txn.update(campaignRef, {
+      allocatedQuantity: admin.firestore.FieldValue.increment(1),
+      updatedAt: nowTimestamp,
+    });
+  });
+
+  // Post-transaction: fire-and-forget non-critical operations
+  const itemDoc = await itemRef.get();
+  const item = itemDoc.data();
+
+  // Activity log
+  db.collection("rewardActivityLog")
+    .add({
+      itemId,
+      campaignId: item?.campaignId,
+      userId,
+      action: "allocated",
+      previousStatus: "reserved",
+      newStatus: "allocated",
+      performedBy: "system",
+      notes: `Confirmed via engagement ${engagementId}`,
+      metadata: { engagementId },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    })
+    .catch((e) =>
+      functions.logger.warn("Failed to write allocation activity log", {
+        error: e,
+      })
+    );
+
+  // Campaign exhaustion check
+  if (item?.campaignId) {
+    db.collection("rewardCampaigns")
+      .doc(item.campaignId)
+      .get()
+      .then(async (campaignDoc) => {
+        if (
+          campaignDoc.exists &&
+          (campaignDoc.data()?.remainingQuantity ?? 0) <= 0
+        ) {
+          await campaignDoc.ref.update({
+            status: "exhausted",
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        }
+      })
+      .catch((e) =>
+        functions.logger.warn("Failed to check campaign exhaustion", {
+          error: e,
+        })
+      );
+  }
+
+  // Push notification
+  if (item?.campaignId) {
+    db.collection("users")
+      .doc(userId)
+      .get()
+      .then(async (userDoc) => {
+        const fcmToken = userDoc.data()?.fcmToken;
+        if (fcmToken) {
+          const campaignDoc = await db
+            .collection("rewardCampaigns")
+            .doc(item.campaignId)
+            .get();
+          const campaignData = campaignDoc.data();
+          await admin.messaging().send({
+            token: fcmToken,
+            notification: {
+              title: "New Reward!",
+              body: `You earned a ${campaignData?.name || "reward"} from ${campaignData?.clientName || "a brand"}! Check your rewards.`,
+            },
+            data: {
+              type: "reward_allocated",
+              itemId,
+              campaignId: item.campaignId,
+            },
+          });
+        }
+      })
+      .catch((e) =>
+        functions.logger.warn("Failed to send allocation notification", {
+          error: e,
+        })
+      );
+  }
+
+  functions.logger.info("Reward reservation confirmed", {
+    itemId,
+    userId,
+    engagementId,
+  });
+
+  return itemId;
+}
+
+// ============================================================================
+// RELEASE REWARD RESERVATION (called on engagement failure/abandon/expiry)
+// ============================================================================
+
+/**
+ * Release a reserved reward item — return it to the available pool.
+ * Mirrors reverseJournal() / releaseEscrowReservation() for tokens.
+ *
+ * Idempotent: if item is not reserved or doesn't match, silently returns.
+ */
+export async function releaseRewardReservation(
+  itemId: string,
   engagementId: string
 ): Promise<void> {
-  try {
-    const result = await allocateRewardItem(userId, campaignId, engagementId);
-    if (!result.success) {
-      functions.logger.warn("Reward allocation did not succeed", {
-        userId,
-        campaignId,
-        engagementId,
-        reason: result.reason,
-      });
-      // Record retryable failures for admin intervention (skip expected non-errors)
-      const expectedReasons = ["consent_not_given", "rewards_disabled", "earn_integration_disabled", "user_limit_reached"];
-      if (!expectedReasons.includes(result.reason || "")) {
-        await db.collection("failedRewardAllocations").add({
-          userId,
-          campaignId,
-          engagementId,
-          reason: result.reason,
-          retryable: ["allocation_contention", "no_available_items", "allocation_failed"].includes(result.reason || ""),
-          resolved: false,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        }).catch((e) => functions.logger.error("Failed to write allocation failure record", { error: e }));
-      }
+  const itemRef = db.collection("rewardItems").doc(itemId);
+
+  await db.runTransaction(async (txn) => {
+    const itemDoc = await txn.get(itemRef);
+    if (!itemDoc.exists) {
+      return; // Item doesn't exist — idempotent
     }
-  } catch (err) {
-    functions.logger.error("Failed to process reward allocation", {
-      userId,
-      campaignId,
-      engagementId,
-      error: err,
+
+    const item = itemDoc.data()!;
+    if (
+      item.status !== "reserved" ||
+      item.reservedForEngagementId !== engagementId
+    ) {
+      return; // Already released or mismatched — idempotent
+    }
+
+    const nowTimestamp = admin.firestore.FieldValue.serverTimestamp();
+
+    txn.update(itemRef, {
+      status: "available",
+      reservedForUserId: null,
+      reservedForEngagementId: null,
+      reservedAt: null,
+      updatedAt: nowTimestamp,
     });
-    // Record unexpected errors for admin intervention
-    await db.collection("failedRewardAllocations").add({
-      userId,
-      campaignId,
-      engagementId,
-      reason: err instanceof Error ? err.message : String(err),
-      retryable: true,
-      resolved: false,
+
+    // Return to campaign pool
+    const campaignRef = db
+      .collection("rewardCampaigns")
+      .doc(item.campaignId);
+    txn.update(campaignRef, {
+      remainingQuantity: admin.firestore.FieldValue.increment(1),
+      updatedAt: nowTimestamp,
+    });
+  });
+
+  // Activity log (fire-and-forget)
+  db.collection("rewardActivityLog")
+    .add({
+      itemId,
+      action: "reservation_released",
+      previousStatus: "reserved",
+      newStatus: "available",
+      performedBy: "system",
+      notes: `Reservation released for engagement ${engagementId}`,
+      metadata: { engagementId },
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    }).catch((e) => functions.logger.error("Failed to write allocation failure record", { error: e }));
-    throw err;
-  }
+    })
+    .catch((e) =>
+      functions.logger.warn("Failed to write release activity log", {
+        error: e,
+      })
+    );
+
+  functions.logger.info("Reward reservation released", {
+    itemId,
+    engagementId,
+  });
 }
 
 // ============================================================================
-// PROCESS REWARD ALLOCATION (callable endpoint for admin/retry)
+// PROCESS REWARD ALLOCATION (admin callable — secured)
 // ============================================================================
 
 /**
- * Callable endpoint for manually triggering or retrying reward allocation.
- * Can be called by admins or used for retry scenarios.
+ * Admin-only callable for manually triggering reward allocation.
+ * Useful for edge-case recovery. Requires admin permission.
  */
 export const processRewardAllocation = functions.https.onCall(
   async (
@@ -393,13 +535,12 @@ export const processRewardAllocation = functions.https.onCall(
     },
     context
   ) => {
-    // Allow both admin calls and authenticated user calls
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
-        "unauthenticated",
-        "Must be authenticated"
-      );
-    }
+    requireAppCheck(context, "processRewardAllocation");
+    await requireAdminPermission(
+      context,
+      "rewards:processAllocation",
+      "processRewardAllocation"
+    );
 
     const { userId, campaignId, engagementId } = data;
 
@@ -410,6 +551,21 @@ export const processRewardAllocation = functions.https.onCall(
       );
     }
 
-    return allocateRewardItem(userId, campaignId, engagementId);
+    // Reserve and immediately confirm
+    const reservation = await reserveRewardItem(
+      userId,
+      campaignId,
+      engagementId
+    );
+    const confirmedItemId = await confirmRewardReservation(
+      reservation.itemId,
+      userId,
+      engagementId
+    );
+
+    return {
+      success: true,
+      itemId: confirmedItemId,
+    };
   }
 );

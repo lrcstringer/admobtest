@@ -9,6 +9,7 @@
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { releaseRewardReservation } from "./rewardAllocation";
 
 const db = admin.firestore();
 
@@ -83,9 +84,16 @@ export const processRewardExpiries = functions.pubsub
       }
       await logBatch.commit();
 
-      // Note: We don't increment remainingQuantity on expiry because
-      // expired items are not available for re-allocation. The campaign's
-      // totalQuantity remains the same, but the item is no longer usable.
+      // #21 — Return expired items to inventory so campaign can re-allocate
+      // An expired item represents failed consumption; the campaign paid for it
+      for (const [cId, count] of campaignExpiryCount) {
+        const campaignRef = db.collection("rewardCampaigns").doc(cId);
+        await campaignRef.update({
+          remainingQuantity: admin.firestore.FieldValue.increment(count),
+          allocatedQuantity: admin.firestore.FieldValue.increment(-count),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
     }
 
     // ──────────────────────────────────────────────────────────────────────
@@ -170,13 +178,19 @@ export const reconcileRewardCounts = functions.pubsub
       const campaign = campaignDoc.data();
       checkedCampaigns++;
 
-      // Count actual items by status
-      const [availableCount, allocatedCount, redeemedCount] = await Promise.all(
-        [
+      // Count actual items by status (include "reserved" in remainingQuantity calculation)
+      const [availableCount, reservedCount, allocatedCount, redeemedCount] =
+        await Promise.all([
           db
             .collection("rewardItems")
             .where("campaignId", "==", campaignDoc.id)
             .where("status", "==", "available")
+            .count()
+            .get(),
+          db
+            .collection("rewardItems")
+            .where("campaignId", "==", campaignDoc.id)
+            .where("status", "==", "reserved")
             .count()
             .get(),
           db
@@ -191,13 +205,16 @@ export const reconcileRewardCounts = functions.pubsub
             .where("status", "==", "redeemed")
             .count()
             .get(),
-        ]
-      );
+        ]);
 
       const actualAvailable = availableCount.data().count;
+      // Reserved items have already decremented remainingQuantity, so they don't
+      // need to be included here. The reserved count is logged for diagnostics.
+      const actualReserved = reservedCount.data().count; void actualReserved;
       const actualAllocated = allocatedCount.data().count;
       const actualRedeemed = redeemedCount.data().count;
 
+      // remainingQuantity = available items only (reserved are already decremented)
       const storedRemaining = campaign.remainingQuantity ?? 0;
       const storedAllocated = campaign.allocatedQuantity ?? 0;
       const storedRedeemed = campaign.redeemedQuantity ?? 0;
@@ -423,6 +440,54 @@ export const sendExpiryWarnings = functions.pubsub
 
     if (sent48h > 0 || sent4h > 0) {
       functions.logger.info("Expiry warnings sent", { sent48h, sent4h });
+    }
+
+    return null;
+  });
+
+// ============================================================================
+// 4. RELEASE STALE RESERVATIONS (every 15 minutes)
+// ============================================================================
+
+/**
+ * Release reward reservations for engagements that are stale (>30 min, not completed).
+ * Handles edge cases: user starts engagement, app crashes, reservation sits forever.
+ * Same concept as escrow timeout for tokens.
+ */
+export const releaseStaleRewardReservations = functions.pubsub
+  .schedule("*/15 * * * *")
+  .timeZone("Africa/Johannesburg")
+  .onRun(async () => {
+    const staleThreshold = new Date(Date.now() - 30 * 60 * 1000);
+    let releasedCount = 0;
+
+    const staleReserved = await db
+      .collection("rewardItems")
+      .where("status", "==", "reserved")
+      .where("reservedAt", "<", admin.firestore.Timestamp.fromDate(staleThreshold))
+      .limit(100)
+      .get();
+
+    for (const doc of staleReserved.docs) {
+      const data = doc.data();
+      try {
+        await releaseRewardReservation(
+          doc.id,
+          data.reservedForEngagementId
+        );
+        releasedCount++;
+      } catch (err) {
+        functions.logger.warn("Failed to release stale reservation", {
+          itemId: doc.id,
+          error: err,
+        });
+      }
+    }
+
+    if (releasedCount > 0) {
+      functions.logger.info("Released stale reward reservations", {
+        releasedCount,
+      });
     }
 
     return null;

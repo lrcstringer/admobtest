@@ -82,9 +82,11 @@ class RewardBloc extends Bloc<RewardEvent, RewardState> {
       )),
       (_) {
         // Update the selected item to redeemed status locally
+        // Use UTC to match Firestore server timestamps
+        final now = DateTime.now().toUtc();
         final updatedSelected = state.selectedItem?.copyWith(
           status: RewardItemStatus.redeemed,
-          redeemedAt: DateTime.now(),
+          redeemedAt: now,
         );
 
         // Update the item in the list too
@@ -92,7 +94,7 @@ class RewardBloc extends Bloc<RewardEvent, RewardState> {
           if (item.id == event.itemId) {
             return item.copyWith(
               status: RewardItemStatus.redeemed,
-              redeemedAt: DateTime.now(),
+              redeemedAt: now,
             );
           }
           return item;

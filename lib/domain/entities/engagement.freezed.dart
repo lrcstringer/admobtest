@@ -57,7 +57,16 @@ mixin _$Engagement {
   String? get adTransactionId => throw _privateConstructorUsedError;
 
   /// Timestamp when ad completed
-  DateTime? get adCompletedAt => throw _privateConstructorUsedError;
+  DateTime? get adCompletedAt =>
+      throw _privateConstructorUsedError; // Reward escrow fields
+  /// Reward item ID (set after engagement completion — confirmed allocation)
+  String? get rewardItemId => throw _privateConstructorUsedError;
+
+  /// Reward campaign name (denormalized for display)
+  String? get rewardCampaignName => throw _privateConstructorUsedError;
+
+  /// Reward type (e.g. 'voucher', 'digital_code', 'physical')
+  String? get rewardType => throw _privateConstructorUsedError;
 
   /// Serializes this Engagement to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -100,6 +109,9 @@ abstract class $EngagementCopyWith<$Res> {
     bool adWatched,
     String? adTransactionId,
     DateTime? adCompletedAt,
+    String? rewardItemId,
+    String? rewardCampaignName,
+    String? rewardType,
   });
 
   $EngagementEvidenceCopyWith<$Res>? get evidence;
@@ -143,6 +155,9 @@ class _$EngagementCopyWithImpl<$Res, $Val extends Engagement>
     Object? adWatched = null,
     Object? adTransactionId = freezed,
     Object? adCompletedAt = freezed,
+    Object? rewardItemId = freezed,
+    Object? rewardCampaignName = freezed,
+    Object? rewardType = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -238,6 +253,18 @@ class _$EngagementCopyWithImpl<$Res, $Val extends Engagement>
                 ? _value.adCompletedAt
                 : adCompletedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            rewardItemId: freezed == rewardItemId
+                ? _value.rewardItemId
+                : rewardItemId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            rewardCampaignName: freezed == rewardCampaignName
+                ? _value.rewardCampaignName
+                : rewardCampaignName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            rewardType: freezed == rewardType
+                ? _value.rewardType
+                : rewardType // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -291,6 +318,9 @@ abstract class _$$EngagementImplCopyWith<$Res>
     bool adWatched,
     String? adTransactionId,
     DateTime? adCompletedAt,
+    String? rewardItemId,
+    String? rewardCampaignName,
+    String? rewardType,
   });
 
   @override
@@ -334,6 +364,9 @@ class __$$EngagementImplCopyWithImpl<$Res>
     Object? adWatched = null,
     Object? adTransactionId = freezed,
     Object? adCompletedAt = freezed,
+    Object? rewardItemId = freezed,
+    Object? rewardCampaignName = freezed,
+    Object? rewardType = freezed,
   }) {
     return _then(
       _$EngagementImpl(
@@ -429,6 +462,18 @@ class __$$EngagementImplCopyWithImpl<$Res>
             ? _value.adCompletedAt
             : adCompletedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        rewardItemId: freezed == rewardItemId
+            ? _value.rewardItemId
+            : rewardItemId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        rewardCampaignName: freezed == rewardCampaignName
+            ? _value.rewardCampaignName
+            : rewardCampaignName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        rewardType: freezed == rewardType
+            ? _value.rewardType
+            : rewardType // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -461,6 +506,9 @@ class _$EngagementImpl extends _Engagement {
     this.adWatched = false,
     this.adTransactionId,
     this.adCompletedAt,
+    this.rewardItemId,
+    this.rewardCampaignName,
+    this.rewardType,
   }) : _answers = answers,
        super._();
 
@@ -534,10 +582,22 @@ class _$EngagementImpl extends _Engagement {
   /// Timestamp when ad completed
   @override
   final DateTime? adCompletedAt;
+  // Reward escrow fields
+  /// Reward item ID (set after engagement completion — confirmed allocation)
+  @override
+  final String? rewardItemId;
+
+  /// Reward campaign name (denormalized for display)
+  @override
+  final String? rewardCampaignName;
+
+  /// Reward type (e.g. 'voucher', 'digital_code', 'physical')
+  @override
+  final String? rewardType;
 
   @override
   String toString() {
-    return 'Engagement(id: $id, userId: $userId, audienceCampaignId: $audienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, threadId: $threadId, clientId: $clientId, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied, adWatched: $adWatched, adTransactionId: $adTransactionId, adCompletedAt: $adCompletedAt)';
+    return 'Engagement(id: $id, userId: $userId, audienceCampaignId: $audienceCampaignId, earnOpportunityId: $earnOpportunityId, status: $status, startedAt: $startedAt, completedAt: $completedAt, watchDurationSeconds: $watchDurationSeconds, requiredDurationSeconds: $requiredDurationSeconds, answers: $answers, evidence: $evidence, tokensEarned: $tokensEarned, failureReason: $failureReason, attemptNumber: $attemptNumber, createdAt: $createdAt, updatedAt: $updatedAt, threadId: $threadId, clientId: $clientId, streakDayAtCompletion: $streakDayAtCompletion, multiplierApplied: $multiplierApplied, adWatched: $adWatched, adTransactionId: $adTransactionId, adCompletedAt: $adCompletedAt, rewardItemId: $rewardItemId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
   }
 
   @override
@@ -589,7 +649,13 @@ class _$EngagementImpl extends _Engagement {
             (identical(other.adTransactionId, adTransactionId) ||
                 other.adTransactionId == adTransactionId) &&
             (identical(other.adCompletedAt, adCompletedAt) ||
-                other.adCompletedAt == adCompletedAt));
+                other.adCompletedAt == adCompletedAt) &&
+            (identical(other.rewardItemId, rewardItemId) ||
+                other.rewardItemId == rewardItemId) &&
+            (identical(other.rewardCampaignName, rewardCampaignName) ||
+                other.rewardCampaignName == rewardCampaignName) &&
+            (identical(other.rewardType, rewardType) ||
+                other.rewardType == rewardType));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -619,6 +685,9 @@ class _$EngagementImpl extends _Engagement {
     adWatched,
     adTransactionId,
     adCompletedAt,
+    rewardItemId,
+    rewardCampaignName,
+    rewardType,
   ]);
 
   /// Create a copy of Engagement
@@ -660,6 +729,9 @@ abstract class _Engagement extends Engagement {
     final bool adWatched,
     final String? adTransactionId,
     final DateTime? adCompletedAt,
+    final String? rewardItemId,
+    final String? rewardCampaignName,
+    final String? rewardType,
   }) = _$EngagementImpl;
   const _Engagement._() : super._();
 
@@ -722,7 +794,18 @@ abstract class _Engagement extends Engagement {
 
   /// Timestamp when ad completed
   @override
-  DateTime? get adCompletedAt;
+  DateTime? get adCompletedAt; // Reward escrow fields
+  /// Reward item ID (set after engagement completion — confirmed allocation)
+  @override
+  String? get rewardItemId;
+
+  /// Reward campaign name (denormalized for display)
+  @override
+  String? get rewardCampaignName;
+
+  /// Reward type (e.g. 'voucher', 'digital_code', 'physical')
+  @override
+  String? get rewardType;
 
   /// Create a copy of Engagement
   /// with the given fields replaced by the non-null parameter values.

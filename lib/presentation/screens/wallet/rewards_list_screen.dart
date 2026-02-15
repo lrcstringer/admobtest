@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,7 +9,6 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/reward/reward_consent_dialog.dart';
 
 class RewardsListScreen extends StatefulWidget {
   const RewardsListScreen({super.key});
@@ -23,51 +20,12 @@ class RewardsListScreen extends StatefulWidget {
 class _RewardsListScreenState extends State<RewardsListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _consentChecked = false;
-  bool _hasConsent = true; // assume true until checked
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _checkConsentThenLoad();
-  }
-
-  Future<void> _checkConsentThenLoad() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
-
-    try {
-      final userDoc =
-          await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      final consented = userDoc.data()?['rewardConsent'] == true;
-
-      if (!mounted) return;
-
-      if (!consented) {
-        final accepted = await RewardConsentDialog.show(context);
-        if (!mounted) return;
-        if (!accepted) {
-          // User declined — go back
-          setState(() {
-            _consentChecked = true;
-            _hasConsent = false;
-          });
-          return;
-        }
-      }
-
-      setState(() {
-        _consentChecked = true;
-        _hasConsent = true;
-      });
-      context.read<RewardBloc>().add(const RewardEvent.refreshItems());
-    } catch (_) {
-      // On error, proceed normally
-      if (!mounted) return;
-      setState(() => _consentChecked = true);
-      context.read<RewardBloc>().add(const RewardEvent.refreshItems());
-    }
+    context.read<RewardBloc>().add(const RewardEvent.refreshItems());
   }
 
   @override
@@ -93,11 +51,7 @@ class _RewardsListScreenState extends State<RewardsListScreen>
           ],
         ),
       ),
-      body: !_consentChecked
-          ? const Center(child: CircularProgressIndicator())
-          : !_hasConsent
-              ? _buildNoConsentState(context)
-              : BlocBuilder<RewardBloc, RewardState>(
+      body: BlocBuilder<RewardBloc, RewardState>(
                   builder: (context, state) {
                     if (state.status == RewardLoadStatus.loading) {
                       return const Center(child: CircularProgressIndicator());
@@ -349,41 +303,6 @@ class _RewardsListScreenState extends State<RewardsListScreen>
             textAlign: TextAlign.center,
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildNoConsentState(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: AppSpacing.pagePadding,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.shield_outlined, size: 64, color: AppColors.textTertiary),
-            AppSpacing.verticalMd,
-            Text(
-              'Consent Required',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-            ),
-            AppSpacing.verticalXs,
-            Text(
-              'You need to accept the reward program terms to view your rewards.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textTertiary,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            AppSpacing.verticalLg,
-            AppButton(
-              text: 'Review Consent',
-              onPressed: () => _checkConsentThenLoad(),
-              isFullWidth: false,
-            ),
-          ],
-        ),
       ),
     );
   }
