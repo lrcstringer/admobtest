@@ -35,6 +35,7 @@ abstract class WalletRemoteDataSource {
   // Sub-account methods (multi-wallet)
   Future<List<SubAccountModel>> getSubAccounts();
   Stream<List<SubAccountModel>> watchSubAccounts();
+  Future<String> createUserWallet({required String name});
   Future<void> transferBetweenWallets({
     required String fromSubAccountId,
     required String toSubAccountId,
@@ -320,6 +321,21 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       });
       return models;
     });
+  }
+
+  @override
+  Future<String> createUserWallet({required String name}) async {
+    try {
+      final callable = _functions.httpsCallable('createUserWallet');
+      final result = await callable.call<Map<String, dynamic>>({
+        'name': name,
+      });
+      return result.data['subAccountId'] as String;
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Failed to create wallet');
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
   }
 
   @override

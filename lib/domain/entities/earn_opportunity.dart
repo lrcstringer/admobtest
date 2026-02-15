@@ -161,10 +161,13 @@ class EarnOpportunity with _$EarnOpportunity {
     @Default(10) int uploadTextMinChars,
     @Default(1500) int uploadTextMaxChars,
     @Default(false) bool requiresAdminReview,
+    // Token source (opportunity-level override; falls back to thread-level)
+    String? tokenSourceAccountId,
     // Reward campaign linkage
     String? rewardCampaignId,
     String? rewardCampaignName,
     String? rewardType,
+    @Default(1) int rewardQuantity,
   }) = _EarnOpportunity;
 
   const EarnOpportunity._();

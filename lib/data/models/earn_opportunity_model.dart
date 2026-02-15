@@ -292,10 +292,13 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
     @Default(10) int uploadTextMinChars,
     @Default(1500) int uploadTextMaxChars,
     @Default(false) bool requiresAdminReview,
+    // Token source (opportunity-level override; falls back to thread-level)
+    String? tokenSourceAccountId,
     // Reward campaign linkage
     String? rewardCampaignId,
     String? rewardCampaignName,
     String? rewardType,
+    @Default(1) int rewardQuantity,
   }) = _EarnOpportunityModel;
 
   const EarnOpportunityModel._();
@@ -368,10 +371,13 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       uploadTextMinChars: json['uploadTextMinChars'] as int? ?? 10,
       uploadTextMaxChars: json['uploadTextMaxChars'] as int? ?? 1500,
       requiresAdminReview: json['requiresAdminReview'] as bool? ?? false,
+      // Token source (opportunity-level override)
+      tokenSourceAccountId: json['tokenSourceAccountId'] as String?,
       // Reward campaign linkage
       rewardCampaignId: json['rewardCampaignId'] as String?,
       rewardCampaignName: json['rewardCampaignName'] as String?,
       rewardType: json['rewardType'] as String?,
+      rewardQuantity: json['rewardQuantity'] as int? ?? 1,
     );
   }
 
@@ -431,10 +437,13 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       uploadTextMinChars: uploadTextMinChars,
       uploadTextMaxChars: uploadTextMaxChars,
       requiresAdminReview: requiresAdminReview,
+      // Token source (opportunity-level override)
+      tokenSourceAccountId: tokenSourceAccountId,
       // Reward campaign linkage
       rewardCampaignId: rewardCampaignId,
       rewardCampaignName: rewardCampaignName,
       rewardType: rewardType,
+      rewardQuantity: rewardQuantity,
     );
   }
 
@@ -497,10 +506,13 @@ class EarnOpportunityModel with _$EarnOpportunityModel {
       uploadTextMinChars: entity.uploadTextMinChars,
       uploadTextMaxChars: entity.uploadTextMaxChars,
       requiresAdminReview: entity.requiresAdminReview,
+      // Token source (opportunity-level override)
+      tokenSourceAccountId: entity.tokenSourceAccountId,
       // Reward campaign linkage
       rewardCampaignId: entity.rewardCampaignId,
       rewardCampaignName: entity.rewardCampaignName,
       rewardType: entity.rewardType,
+      rewardQuantity: entity.rewardQuantity,
     );
   }
 

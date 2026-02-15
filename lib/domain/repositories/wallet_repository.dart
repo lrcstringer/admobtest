@@ -56,6 +56,9 @@ abstract class WalletRepository {
   /// Stream sub-account updates
   Stream<Either<Failure, List<SubAccount>>> watchSubAccounts();
 
+  /// Create a user-defined wallet (budget envelope)
+  Future<Either<Failure, String>> createUserWallet({required String name});
+
   /// Transfer tokens between the user's own wallets
   Future<Either<Failure, void>> transferBetweenWallets({
     required String fromSubAccountId,

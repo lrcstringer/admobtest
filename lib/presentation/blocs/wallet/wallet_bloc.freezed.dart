@@ -34,6 +34,7 @@ mixin _$WalletEvent {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -65,6 +66,7 @@ mixin _$WalletEvent {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -96,6 +98,7 @@ mixin _$WalletEvent {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -131,6 +134,7 @@ mixin _$WalletEvent {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -152,6 +156,7 @@ mixin _$WalletEvent {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -172,6 +177,7 @@ mixin _$WalletEvent {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -259,6 +265,7 @@ class _$LoadLedgerImpl implements _LoadLedger {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -294,6 +301,7 @@ class _$LoadLedgerImpl implements _LoadLedger {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -329,6 +337,7 @@ class _$LoadLedgerImpl implements _LoadLedger {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -371,6 +380,7 @@ class _$LoadLedgerImpl implements _LoadLedger {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -396,6 +406,7 @@ class _$LoadLedgerImpl implements _LoadLedger {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -420,6 +431,7 @@ class _$LoadLedgerImpl implements _LoadLedger {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -494,6 +506,7 @@ class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -529,6 +542,7 @@ class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -564,6 +578,7 @@ class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -606,6 +621,7 @@ class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -631,6 +647,7 @@ class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -655,6 +672,7 @@ class _$WatchLedgerAccountImpl implements _WatchLedgerAccount {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -773,6 +791,7 @@ class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -808,6 +827,7 @@ class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -843,6 +863,7 @@ class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -885,6 +906,7 @@ class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -910,6 +932,7 @@ class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -934,6 +957,7 @@ class _$LedgerAccountUpdatedImpl implements _LedgerAccountUpdated {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -1047,6 +1071,7 @@ class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -1082,6 +1107,7 @@ class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -1117,6 +1143,7 @@ class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -1159,6 +1186,7 @@ class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -1184,6 +1212,7 @@ class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -1208,6 +1237,7 @@ class _$LoadLedgerJournalsImpl implements _LoadLedgerJournals {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -1292,6 +1322,7 @@ class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -1327,6 +1358,7 @@ class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -1362,6 +1394,7 @@ class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -1404,6 +1437,7 @@ class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -1429,6 +1463,7 @@ class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -1453,6 +1488,7 @@ class _$LoadMoreLedgerJournalsImpl implements _LoadMoreLedgerJournals {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -1557,6 +1593,7 @@ class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -1592,6 +1629,7 @@ class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -1627,6 +1665,7 @@ class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -1669,6 +1708,7 @@ class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -1694,6 +1734,7 @@ class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -1718,6 +1759,7 @@ class _$WatchLedgerJournalsImpl implements _WatchLedgerJournals {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -1839,6 +1881,7 @@ class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -1874,6 +1917,7 @@ class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -1909,6 +1953,7 @@ class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -1951,6 +1996,7 @@ class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -1976,6 +2022,7 @@ class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -2000,6 +2047,7 @@ class _$LedgerJournalsUpdatedImpl implements _LedgerJournalsUpdated {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -2083,6 +2131,7 @@ class _$RefreshLedgerImpl implements _RefreshLedger {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -2118,6 +2167,7 @@ class _$RefreshLedgerImpl implements _RefreshLedger {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -2153,6 +2203,7 @@ class _$RefreshLedgerImpl implements _RefreshLedger {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -2195,6 +2246,7 @@ class _$RefreshLedgerImpl implements _RefreshLedger {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -2220,6 +2272,7 @@ class _$RefreshLedgerImpl implements _RefreshLedger {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -2244,6 +2297,7 @@ class _$RefreshLedgerImpl implements _RefreshLedger {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -2319,6 +2373,7 @@ class _$WatchEngagementStatsImpl implements _WatchEngagementStats {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -2354,6 +2409,7 @@ class _$WatchEngagementStatsImpl implements _WatchEngagementStats {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -2389,6 +2445,7 @@ class _$WatchEngagementStatsImpl implements _WatchEngagementStats {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -2431,6 +2488,7 @@ class _$WatchEngagementStatsImpl implements _WatchEngagementStats {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -2456,6 +2514,7 @@ class _$WatchEngagementStatsImpl implements _WatchEngagementStats {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -2480,6 +2539,7 @@ class _$WatchEngagementStatsImpl implements _WatchEngagementStats {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -2597,6 +2657,7 @@ class _$EngagementStatsUpdatedImpl implements _EngagementStatsUpdated {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -2632,6 +2693,7 @@ class _$EngagementStatsUpdatedImpl implements _EngagementStatsUpdated {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -2667,6 +2729,7 @@ class _$EngagementStatsUpdatedImpl implements _EngagementStatsUpdated {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -2709,6 +2772,7 @@ class _$EngagementStatsUpdatedImpl implements _EngagementStatsUpdated {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -2734,6 +2798,7 @@ class _$EngagementStatsUpdatedImpl implements _EngagementStatsUpdated {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -2758,6 +2823,7 @@ class _$EngagementStatsUpdatedImpl implements _EngagementStatsUpdated {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -2841,6 +2907,7 @@ class _$LoadSubAccountsImpl implements _LoadSubAccounts {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -2876,6 +2943,7 @@ class _$LoadSubAccountsImpl implements _LoadSubAccounts {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -2911,6 +2979,7 @@ class _$LoadSubAccountsImpl implements _LoadSubAccounts {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -2953,6 +3022,7 @@ class _$LoadSubAccountsImpl implements _LoadSubAccounts {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -2978,6 +3048,7 @@ class _$LoadSubAccountsImpl implements _LoadSubAccounts {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -3002,6 +3073,7 @@ class _$LoadSubAccountsImpl implements _LoadSubAccounts {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -3076,6 +3148,7 @@ class _$WatchSubAccountsImpl implements _WatchSubAccounts {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -3111,6 +3184,7 @@ class _$WatchSubAccountsImpl implements _WatchSubAccounts {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -3146,6 +3220,7 @@ class _$WatchSubAccountsImpl implements _WatchSubAccounts {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -3188,6 +3263,7 @@ class _$WatchSubAccountsImpl implements _WatchSubAccounts {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -3213,6 +3289,7 @@ class _$WatchSubAccountsImpl implements _WatchSubAccounts {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -3237,6 +3314,7 @@ class _$WatchSubAccountsImpl implements _WatchSubAccounts {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -3353,6 +3431,7 @@ class _$SubAccountsUpdatedImpl implements _SubAccountsUpdated {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -3388,6 +3467,7 @@ class _$SubAccountsUpdatedImpl implements _SubAccountsUpdated {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -3423,6 +3503,7 @@ class _$SubAccountsUpdatedImpl implements _SubAccountsUpdated {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -3465,6 +3546,7 @@ class _$SubAccountsUpdatedImpl implements _SubAccountsUpdated {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -3490,6 +3572,7 @@ class _$SubAccountsUpdatedImpl implements _SubAccountsUpdated {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -3514,6 +3597,7 @@ class _$SubAccountsUpdatedImpl implements _SubAccountsUpdated {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -3628,6 +3712,7 @@ class _$SelectSubAccountImpl implements _SelectSubAccount {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -3663,6 +3748,7 @@ class _$SelectSubAccountImpl implements _SelectSubAccount {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -3698,6 +3784,7 @@ class _$SelectSubAccountImpl implements _SelectSubAccount {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -3740,6 +3827,7 @@ class _$SelectSubAccountImpl implements _SelectSubAccount {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -3765,6 +3853,7 @@ class _$SelectSubAccountImpl implements _SelectSubAccount {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -3789,6 +3878,7 @@ class _$SelectSubAccountImpl implements _SelectSubAccount {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -3811,6 +3901,286 @@ abstract class _SelectSubAccount implements WalletEvent {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$SelectSubAccountImplCopyWith<_$SelectSubAccountImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$CreateUserWalletImplCopyWith<$Res> {
+  factory _$$CreateUserWalletImplCopyWith(
+    _$CreateUserWalletImpl value,
+    $Res Function(_$CreateUserWalletImpl) then,
+  ) = __$$CreateUserWalletImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String name});
+}
+
+/// @nodoc
+class __$$CreateUserWalletImplCopyWithImpl<$Res>
+    extends _$WalletEventCopyWithImpl<$Res, _$CreateUserWalletImpl>
+    implements _$$CreateUserWalletImplCopyWith<$Res> {
+  __$$CreateUserWalletImplCopyWithImpl(
+    _$CreateUserWalletImpl _value,
+    $Res Function(_$CreateUserWalletImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? name = null}) {
+    return _then(
+      _$CreateUserWalletImpl(
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$CreateUserWalletImpl implements _CreateUserWallet {
+  const _$CreateUserWalletImpl({required this.name});
+
+  @override
+  final String name;
+
+  @override
+  String toString() {
+    return 'WalletEvent.createUserWallet(name: $name)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$CreateUserWalletImpl &&
+            (identical(other.name, name) || other.name == name));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, name);
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$CreateUserWalletImplCopyWith<_$CreateUserWalletImpl> get copyWith =>
+      __$$CreateUserWalletImplCopyWithImpl<_$CreateUserWalletImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadLedger,
+    required TResult Function() watchLedgerAccount,
+    required TResult Function(LedgerAccount ledgerAccount) ledgerAccountUpdated,
+    required TResult Function(int? limit) loadLedgerJournals,
+    required TResult Function() loadMoreLedgerJournals,
+    required TResult Function(int? limit) watchLedgerJournals,
+    required TResult Function(List<LedgerJournal> journals)
+    ledgerJournalsUpdated,
+    required TResult Function() refreshLedger,
+    required TResult Function() watchEngagementStats,
+    required TResult Function(UserEngagementStats stats) engagementStatsUpdated,
+    required TResult Function() loadSubAccounts,
+    required TResult Function() watchSubAccounts,
+    required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
+    required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
+    required TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )
+    transferBetweenWallets,
+    required TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )
+    sendP2PTransfer,
+    required TResult Function() clearMessages,
+  }) {
+    return createUserWallet(name);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadLedger,
+    TResult? Function()? watchLedgerAccount,
+    TResult? Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult? Function(int? limit)? loadLedgerJournals,
+    TResult? Function()? loadMoreLedgerJournals,
+    TResult? Function(int? limit)? watchLedgerJournals,
+    TResult? Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult? Function()? refreshLedger,
+    TResult? Function()? watchEngagementStats,
+    TResult? Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult? Function()? loadSubAccounts,
+    TResult? Function()? watchSubAccounts,
+    TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
+    TResult? Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult? Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult? Function()? clearMessages,
+  }) {
+    return createUserWallet?.call(name);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadLedger,
+    TResult Function()? watchLedgerAccount,
+    TResult Function(LedgerAccount ledgerAccount)? ledgerAccountUpdated,
+    TResult Function(int? limit)? loadLedgerJournals,
+    TResult Function()? loadMoreLedgerJournals,
+    TResult Function(int? limit)? watchLedgerJournals,
+    TResult Function(List<LedgerJournal> journals)? ledgerJournalsUpdated,
+    TResult Function()? refreshLedger,
+    TResult Function()? watchEngagementStats,
+    TResult Function(UserEngagementStats stats)? engagementStatsUpdated,
+    TResult Function()? loadSubAccounts,
+    TResult Function()? watchSubAccounts,
+    TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
+    TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
+    TResult Function(
+      String fromSubAccountId,
+      String toSubAccountId,
+      int amount,
+    )?
+    transferBetweenWallets,
+    TResult Function(
+      String recipientUserId,
+      int amount,
+      String subAccountId,
+      String? note,
+    )?
+    sendP2PTransfer,
+    TResult Function()? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (createUserWallet != null) {
+      return createUserWallet(name);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadLedger value) loadLedger,
+    required TResult Function(_WatchLedgerAccount value) watchLedgerAccount,
+    required TResult Function(_LedgerAccountUpdated value) ledgerAccountUpdated,
+    required TResult Function(_LoadLedgerJournals value) loadLedgerJournals,
+    required TResult Function(_LoadMoreLedgerJournals value)
+    loadMoreLedgerJournals,
+    required TResult Function(_WatchLedgerJournals value) watchLedgerJournals,
+    required TResult Function(_LedgerJournalsUpdated value)
+    ledgerJournalsUpdated,
+    required TResult Function(_RefreshLedger value) refreshLedger,
+    required TResult Function(_WatchEngagementStats value) watchEngagementStats,
+    required TResult Function(_EngagementStatsUpdated value)
+    engagementStatsUpdated,
+    required TResult Function(_LoadSubAccounts value) loadSubAccounts,
+    required TResult Function(_WatchSubAccounts value) watchSubAccounts,
+    required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
+    required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
+    required TResult Function(_TransferBetweenWallets value)
+    transferBetweenWallets,
+    required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
+    required TResult Function(_ClearMessages value) clearMessages,
+  }) {
+    return createUserWallet(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadLedger value)? loadLedger,
+    TResult? Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult? Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult? Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult? Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult? Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult? Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult? Function(_RefreshLedger value)? refreshLedger,
+    TResult? Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult? Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult? Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
+    TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult? Function(_ClearMessages value)? clearMessages,
+  }) {
+    return createUserWallet?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadLedger value)? loadLedger,
+    TResult Function(_WatchLedgerAccount value)? watchLedgerAccount,
+    TResult Function(_LedgerAccountUpdated value)? ledgerAccountUpdated,
+    TResult Function(_LoadLedgerJournals value)? loadLedgerJournals,
+    TResult Function(_LoadMoreLedgerJournals value)? loadMoreLedgerJournals,
+    TResult Function(_WatchLedgerJournals value)? watchLedgerJournals,
+    TResult Function(_LedgerJournalsUpdated value)? ledgerJournalsUpdated,
+    TResult Function(_RefreshLedger value)? refreshLedger,
+    TResult Function(_WatchEngagementStats value)? watchEngagementStats,
+    TResult Function(_EngagementStatsUpdated value)? engagementStatsUpdated,
+    TResult Function(_LoadSubAccounts value)? loadSubAccounts,
+    TResult Function(_WatchSubAccounts value)? watchSubAccounts,
+    TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
+    TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
+    TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
+    TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
+    TResult Function(_ClearMessages value)? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (createUserWallet != null) {
+      return createUserWallet(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _CreateUserWallet implements WalletEvent {
+  const factory _CreateUserWallet({required final String name}) =
+      _$CreateUserWalletImpl;
+
+  String get name;
+
+  /// Create a copy of WalletEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$CreateUserWalletImplCopyWith<_$CreateUserWalletImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -3928,6 +4298,7 @@ class _$TransferBetweenWalletsImpl implements _TransferBetweenWallets {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -3963,6 +4334,7 @@ class _$TransferBetweenWalletsImpl implements _TransferBetweenWallets {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -4002,6 +4374,7 @@ class _$TransferBetweenWalletsImpl implements _TransferBetweenWallets {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -4044,6 +4417,7 @@ class _$TransferBetweenWalletsImpl implements _TransferBetweenWallets {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -4069,6 +4443,7 @@ class _$TransferBetweenWalletsImpl implements _TransferBetweenWallets {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -4093,6 +4468,7 @@ class _$TransferBetweenWalletsImpl implements _TransferBetweenWallets {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -4250,6 +4626,7 @@ class _$SendP2PTransferImpl implements _SendP2PTransfer {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -4285,6 +4662,7 @@ class _$SendP2PTransferImpl implements _SendP2PTransfer {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -4320,6 +4698,7 @@ class _$SendP2PTransferImpl implements _SendP2PTransfer {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -4362,6 +4741,7 @@ class _$SendP2PTransferImpl implements _SendP2PTransfer {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -4387,6 +4767,7 @@ class _$SendP2PTransferImpl implements _SendP2PTransfer {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -4411,6 +4792,7 @@ class _$SendP2PTransferImpl implements _SendP2PTransfer {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,
@@ -4501,6 +4883,7 @@ class _$ClearMessagesImpl implements _ClearMessages {
     required TResult Function() watchSubAccounts,
     required TResult Function(List<SubAccount> subAccounts) subAccountsUpdated,
     required TResult Function(String subAccountId) selectSubAccount,
+    required TResult Function(String name) createUserWallet,
     required TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -4536,6 +4919,7 @@ class _$ClearMessagesImpl implements _ClearMessages {
     TResult? Function()? watchSubAccounts,
     TResult? Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult? Function(String subAccountId)? selectSubAccount,
+    TResult? Function(String name)? createUserWallet,
     TResult? Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -4571,6 +4955,7 @@ class _$ClearMessagesImpl implements _ClearMessages {
     TResult Function()? watchSubAccounts,
     TResult Function(List<SubAccount> subAccounts)? subAccountsUpdated,
     TResult Function(String subAccountId)? selectSubAccount,
+    TResult Function(String name)? createUserWallet,
     TResult Function(
       String fromSubAccountId,
       String toSubAccountId,
@@ -4613,6 +4998,7 @@ class _$ClearMessagesImpl implements _ClearMessages {
     required TResult Function(_WatchSubAccounts value) watchSubAccounts,
     required TResult Function(_SubAccountsUpdated value) subAccountsUpdated,
     required TResult Function(_SelectSubAccount value) selectSubAccount,
+    required TResult Function(_CreateUserWallet value) createUserWallet,
     required TResult Function(_TransferBetweenWallets value)
     transferBetweenWallets,
     required TResult Function(_SendP2PTransfer value) sendP2PTransfer,
@@ -4638,6 +5024,7 @@ class _$ClearMessagesImpl implements _ClearMessages {
     TResult? Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult? Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult? Function(_SelectSubAccount value)? selectSubAccount,
+    TResult? Function(_CreateUserWallet value)? createUserWallet,
     TResult? Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult? Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult? Function(_ClearMessages value)? clearMessages,
@@ -4662,6 +5049,7 @@ class _$ClearMessagesImpl implements _ClearMessages {
     TResult Function(_WatchSubAccounts value)? watchSubAccounts,
     TResult Function(_SubAccountsUpdated value)? subAccountsUpdated,
     TResult Function(_SelectSubAccount value)? selectSubAccount,
+    TResult Function(_CreateUserWallet value)? createUserWallet,
     TResult Function(_TransferBetweenWallets value)? transferBetweenWallets,
     TResult Function(_SendP2PTransfer value)? sendP2PTransfer,
     TResult Function(_ClearMessages value)? clearMessages,

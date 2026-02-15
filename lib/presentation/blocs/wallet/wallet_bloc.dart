@@ -39,6 +39,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     on<_WatchSubAccounts>(_onWatchSubAccounts);
     on<_SubAccountsUpdated>(_onSubAccountsUpdated);
     on<_SelectSubAccount>(_onSelectSubAccount);
+    on<_CreateUserWallet>(_onCreateUserWallet);
     on<_TransferBetweenWallets>(_onTransferBetweenWallets);
     on<_SendP2PTransfer>(_onSendP2PTransfer);
     on<_ClearMessages>(_onClearMessages);
@@ -294,6 +295,30 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     Emitter<WalletState> emit,
   ) {
     emit(state.copyWith(selectedSubAccountId: event.subAccountId));
+  }
+
+  Future<void> _onCreateUserWallet(
+    _CreateUserWallet event,
+    Emitter<WalletState> emit,
+  ) async {
+    emit(state.copyWith(isTransferring: true, errorMessage: null));
+
+    final result = await _walletRepository.createUserWallet(name: event.name);
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isTransferring: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) {
+        emit(state.copyWith(
+          isTransferring: false,
+          successMessage: 'Wallet "${event.name}" created',
+        ));
+        // Refresh sub-accounts to show the new wallet
+        add(const WalletEvent.loadSubAccounts());
+      },
+    );
   }
 
   Future<void> _onTransferBetweenWallets(

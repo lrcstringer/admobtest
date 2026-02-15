@@ -3649,6 +3649,14 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
   List<Map<String, dynamic>> _rewardCampaigns = [];
   bool _loadingRewardCampaigns = false;
 
+  // Token source override (Q1: opportunity-level token source)
+  String? _tokenSourceAccountId;
+  List<Map<String, dynamic>> _clientSubAccounts = [];
+  bool _loadingClientSubAccounts = false;
+
+  // Reward quantity (Q2: how many reward items per engagement)
+  final _rewardQuantityController = TextEditingController(text: '1');
+
   // Upload-specific fields (used when earningType == 'upload')
   final _uploadPromptController = TextEditingController();
   bool _uploadVideoEnabled = false;
@@ -3666,6 +3674,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
   void initState() {
     super.initState();
     _loadRewardCampaigns();
+    _loadClientSubAccounts();
     _checkTokenSourceBalance();
   }
 
@@ -3759,6 +3768,41 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
     }
   }
 
+  Future<void> _loadClientSubAccounts() async {
+    setState(() => _loadingClientSubAccounts = true);
+    try {
+      final threadDoc = await FirebaseFirestore.instance
+          .collection('earnThreads')
+          .doc(widget.threadId)
+          .get();
+      if (!threadDoc.exists || !mounted) return;
+      final clientId = threadDoc.data()?['clientId'] as String?;
+      if (clientId == null) return;
+
+      final accountDoc = await FirebaseFirestore.instance
+          .collection('ledgerAccounts')
+          .doc('client:$clientId')
+          .get();
+      if (!accountDoc.exists || !mounted) return;
+
+      final subAccountsSnap = await accountDoc.reference
+          .collection('subAccounts')
+          .where('isActive', isEqualTo: true)
+          .get();
+
+      if (mounted) {
+        setState(() {
+          _clientSubAccounts = subAccountsSnap.docs
+              .map((d) => {'id': d.id, ...d.data()})
+              .toList();
+        });
+      }
+    } catch (_) {}
+    finally {
+      if (mounted) setState(() => _loadingClientSubAccounts = false);
+    }
+  }
+
   int get _uploadEnabledCount =>
       [_uploadVideoEnabled, _uploadImageEnabled, _uploadTextEnabled]
           .where((e) => e)
@@ -3787,6 +3831,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
     _bonusMultiplierController.dispose();
     _bonusIntervalXController.dispose();
     _tokenBudgetController.dispose();
+    _rewardQuantityController.dispose();
     _uploadPromptController.dispose();
     _uploadTextMinCharsController.dispose();
     _uploadTextMaxCharsController.dispose();
@@ -4125,6 +4170,8 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
           : null,
       'tokenSpent': 0,
       'budgetExhausted': false,
+      // Token source override (Q1)
+      'tokenSourceAccountId': _tokenSourceAccountId,
       // Reward campaign linkage
       'rewardCampaignId': _rewardCampaignId,
       if (_rewardCampaignId != null) ...{
@@ -4134,6 +4181,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
         'rewardType': _rewardCampaigns
             .firstWhere((c) => c['id'] == _rewardCampaignId,
                 orElse: () => {})['rewardType'],
+        'rewardQuantity': int.tryParse(_rewardQuantityController.text) ?? 1,
       },
       // Upload-specific fields
       if (_earningType == 'upload') ...{
@@ -4555,6 +4603,54 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                           )),
                     ],
                     onChanged: (v) => setState(() => _rewardCampaignId = v),
+                  ),
+                  const SizedBox(height: 16),
+                  // Reward quantity (visible when reward campaign is linked)
+                  if (_rewardCampaignId != null) ...[
+                    TextFormField(
+                      controller: _rewardQuantityController,
+                      decoration: const InputDecoration(
+                        labelText: 'Reward Quantity per Completion',
+                        hintText: 'Items allocated per engagement',
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) return null;
+                        final n = int.tryParse(value.trim());
+                        if (n == null || n < 1) return 'Must be at least 1';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ],
+                // Token source override (optional — defaults to thread's token source)
+                if (_loadingClientSubAccounts)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: LinearProgressIndicator(),
+                  )
+                else if (_clientSubAccounts.isNotEmpty) ...[
+                  DropdownButtonFormField<String?>(
+                    value: _tokenSourceAccountId,
+                    decoration: const InputDecoration(
+                      labelText: 'Token Source Override (optional)',
+                      hintText: 'Defaults to campaign token source',
+                    ),
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text('Use campaign default'),
+                      ),
+                      ..._clientSubAccounts.map((sa) => DropdownMenuItem<String?>(
+                            value: sa['id'] as String,
+                            child: Text(
+                              '${sa['name'] ?? sa['id']} (bal: ${sa['balance'] ?? 0})',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )),
+                    ],
+                    onChanged: (v) => setState(() => _tokenSourceAccountId = v),
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -5156,6 +5252,14 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
   List<Map<String, dynamic>> _rewardCampaigns = [];
   bool _loadingRewardCampaigns = false;
 
+  // Token source override (Q1: opportunity-level token source)
+  String? _tokenSourceAccountId;
+  List<Map<String, dynamic>> _clientSubAccounts = [];
+  bool _loadingClientSubAccounts = false;
+
+  // Reward quantity (Q2)
+  late final TextEditingController _rewardQuantityController;
+
   // Upload-specific fields (used when earningType == 'upload')
   late final TextEditingController _uploadPromptController;
   bool _uploadVideoEnabled = false;
@@ -5188,7 +5292,11 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
     super.initState();
     final o = widget.opportunity;
     _rewardCampaignId = o['rewardCampaignId'] as String?;
+    _tokenSourceAccountId = o['tokenSourceAccountId'] as String?;
+    _rewardQuantityController = TextEditingController(
+        text: (o['rewardQuantity'] ?? 1).toString());
     _loadRewardCampaigns();
+    _loadClientSubAccounts();
     _existingImageUrl = o['opportunityImage'] as String?;
     _titleController = TextEditingController(text: o['title']?.toString() ?? '');
     _descriptionController =
@@ -5328,6 +5436,7 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
     _bonusMultiplierController.dispose();
     _bonusIntervalXController.dispose();
     _tokenBudgetController.dispose();
+    _rewardQuantityController.dispose();
     _uploadPromptController.dispose();
     _uploadTextMinCharsController.dispose();
     _uploadTextMaxCharsController.dispose();
@@ -5360,6 +5469,36 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
       // Silently fail — reward campaigns are optional
     } finally {
       if (mounted) setState(() => _loadingRewardCampaigns = false);
+    }
+  }
+
+  Future<void> _loadClientSubAccounts() async {
+    setState(() => _loadingClientSubAccounts = true);
+    try {
+      final clientId = widget.opportunity['clientId'] as String?;
+      if (clientId == null) return;
+
+      final accountDoc = await FirebaseFirestore.instance
+          .collection('ledgerAccounts')
+          .doc('client:$clientId')
+          .get();
+      if (!accountDoc.exists || !mounted) return;
+
+      final subAccountsSnap = await accountDoc.reference
+          .collection('subAccounts')
+          .where('isActive', isEqualTo: true)
+          .get();
+
+      if (mounted) {
+        setState(() {
+          _clientSubAccounts = subAccountsSnap.docs
+              .map((d) => {'id': d.id, ...d.data()})
+              .toList();
+        });
+      }
+    } catch (_) {}
+    finally {
+      if (mounted) setState(() => _loadingClientSubAccounts = false);
     }
   }
 
@@ -5519,6 +5658,8 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
         'tokenBudget': _tokenBudgetController.text.trim().isNotEmpty
             ? int.tryParse(_tokenBudgetController.text.trim())
             : null,
+        // Token source override (Q1)
+        'tokenSourceAccountId': _tokenSourceAccountId,
         // Reward campaign linkage
         'rewardCampaignId': _rewardCampaignId,
         if (_rewardCampaignId != null) ...{
@@ -5528,10 +5669,12 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
           'rewardType': _rewardCampaigns
               .firstWhere((c) => c['id'] == _rewardCampaignId,
                   orElse: () => {})['rewardType'],
+          'rewardQuantity': int.tryParse(_rewardQuantityController.text) ?? 1,
         },
         if (_rewardCampaignId == null) ...{
           'rewardCampaignName': null,
           'rewardType': null,
+          'rewardQuantity': null,
         },
         // Upload-specific fields
         if (_earningType == 'upload') ...{
@@ -5885,6 +6028,54 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                           )),
                     ],
                     onChanged: (v) => setState(() => _rewardCampaignId = v),
+                  ),
+                  const SizedBox(height: 16),
+                  // Reward quantity (visible when reward campaign is linked)
+                  if (_rewardCampaignId != null) ...[
+                    TextFormField(
+                      controller: _rewardQuantityController,
+                      decoration: const InputDecoration(
+                        labelText: 'Reward Quantity per Completion',
+                        hintText: 'Items allocated per engagement',
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) return null;
+                        final n = int.tryParse(value.trim());
+                        if (n == null || n < 1) return 'Must be at least 1';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ],
+                // Token source override (optional — defaults to thread's token source)
+                if (_loadingClientSubAccounts)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: LinearProgressIndicator(),
+                  )
+                else if (_clientSubAccounts.isNotEmpty) ...[
+                  DropdownButtonFormField<String?>(
+                    value: _tokenSourceAccountId,
+                    decoration: const InputDecoration(
+                      labelText: 'Token Source Override (optional)',
+                      hintText: 'Defaults to campaign token source',
+                    ),
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text('Use campaign default'),
+                      ),
+                      ..._clientSubAccounts.map((sa) => DropdownMenuItem<String?>(
+                            value: sa['id'] as String,
+                            child: Text(
+                              '${sa['name'] ?? sa['id']} (bal: ${sa['balance'] ?? 0})',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )),
+                    ],
+                    onChanged: (v) => setState(() => _tokenSourceAccountId = v),
                   ),
                   const SizedBox(height: 16),
                 ],

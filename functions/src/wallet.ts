@@ -16,6 +16,7 @@ import {
   initiateCashout,
   failCashout,
   LedgerConfig,
+  getSubAccount,
   getDefaultSubAccount,
   getOrCreateDefaultSubAccount,
   getUserSubAccounts,
@@ -23,7 +24,9 @@ import {
   processP2PTransfer,
   validateSubAccountAllows,
   validateSubAccountBalance,
+  AccountId,
 } from "./ledger";
+import { SubAccountConfig } from "./ledger/types";
 
 const db = admin.firestore();
 
@@ -308,6 +311,18 @@ export const transferBetweenWallets = functions.https.onCall(async (data, contex
     throw new functions.https.HttpsError("invalid-argument", "Source and destination must be different");
   }
 
+  // Enforce account type rules: restricted wallets may not allow outbound transfers
+  const fromSubAccount = await getSubAccount(userId, fromSubAccountId);
+  if (fromSubAccount?.accountTypeId) {
+    const allowed = await validateSubAccountAllows(fromSubAccount.accountTypeId, "p2p_send");
+    if (!allowed.allowed) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        allowed.reason || "This wallet does not allow outbound transfers"
+      );
+    }
+  }
+
   try {
     await transferBetweenSubAccounts(userId, fromSubAccountId, userId, toSubAccountId, amount);
     return { success: true };
@@ -387,5 +402,86 @@ export const sendP2PTransfer = functions.https.onCall(async (data, context) => {
     success: true,
     journalId: result.journalId,
     amount,
+  };
+});
+
+/**
+ * Create a user-defined wallet (budget envelope).
+ * Creates an unrestricted sub-account the user can transfer tokens into.
+ * Max 10 user-created wallets per user.
+ */
+export const createUserWallet = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+  }
+
+  const userId = context.auth.uid;
+  const { name } = data;
+
+  if (!name || typeof name !== "string" || name.trim().length === 0) {
+    throw new functions.https.HttpsError("invalid-argument", "Wallet name is required");
+  }
+
+  const trimmedName = name.trim();
+  if (trimmedName.length > 30) {
+    throw new functions.https.HttpsError("invalid-argument", "Wallet name must be 30 characters or less");
+  }
+
+  // Fetch existing sub-accounts to check limits and duplicates
+  const existingSubAccounts = await getUserSubAccounts(userId);
+
+  // Check max wallet limit (10 user-created + 1 default + brand wallets)
+  const userCreatedCount = existingSubAccounts.filter(
+    (sa) => !sa.isDefault && !sa.accountTypeId
+  ).length;
+  if (userCreatedCount >= 10) {
+    throw new functions.https.HttpsError(
+      "resource-exhausted",
+      "Maximum of 10 custom wallets reached"
+    );
+  }
+
+  // Check for duplicate name
+  const nameExists = existingSubAccounts.some(
+    (sa) => sa.name.toLowerCase() === trimmedName.toLowerCase()
+  );
+  if (nameExists) {
+    throw new functions.https.HttpsError(
+      "already-exists",
+      "A wallet with this name already exists"
+    );
+  }
+
+  // Create the sub-account under ledgerAccounts/user:{uid}/subAccounts/
+  const ledgerAccountRef = db
+    .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
+    .doc(AccountId.user(userId));
+
+  const subAccountRef = ledgerAccountRef
+    .collection(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS)
+    .doc();
+
+  const now = admin.firestore.Timestamp.now();
+
+  const subAccount = {
+    id: subAccountRef.id,
+    userId,
+    accountTypeId: null, // unrestricted
+    name: trimmedName,
+    balance: 0,
+    lifetimeCredits: 0,
+    lifetimeDebits: 0,
+    isDefault: false,
+    isActive: true,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await subAccountRef.set(subAccount);
+
+  return {
+    success: true,
+    subAccountId: subAccountRef.id,
+    name: trimmedName,
   };
 });

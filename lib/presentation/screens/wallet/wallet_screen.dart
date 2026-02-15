@@ -68,11 +68,91 @@ class _WalletScreenState extends State<WalletScreen> {
     } catch (_) {}
   }
 
+  void _showCreateWalletDialog(BuildContext context) {
+    final nameController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Create Wallet'),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            controller: nameController,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: 'Wallet Name',
+              hintText: 'e.g. Savings, Groceries',
+            ),
+            maxLength: 30,
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return 'Name is required';
+              return null;
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          BlocBuilder<WalletBloc, WalletState>(
+            builder: (ctx, state) => FilledButton(
+              onPressed: state.isTransferring
+                  ? null
+                  : () {
+                      if (!formKey.currentState!.validate()) return;
+                      context.read<WalletBloc>().add(
+                            WalletEvent.createUserWallet(
+                              name: nameController.text.trim(),
+                            ),
+                          );
+                      Navigator.of(dialogContext).pop();
+                    },
+              child: state.isTransferring
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Create'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const IMaliAppBar(title: 'Wallet'),
-      body: BlocBuilder<WalletBloc, WalletState>(
+      body: BlocListener<WalletBloc, WalletState>(
+        listenWhen: (prev, curr) =>
+            prev.successMessage != curr.successMessage ||
+            prev.errorMessage != curr.errorMessage,
+        listener: (context, state) {
+          if (state.successMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.successMessage!),
+                backgroundColor: AppColors.success,
+              ),
+            );
+            context.read<WalletBloc>().add(const WalletEvent.clearMessages());
+          }
+          if (state.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                backgroundColor: AppColors.error,
+              ),
+            );
+            context.read<WalletBloc>().add(const WalletEvent.clearMessages());
+          }
+        },
+        child: BlocBuilder<WalletBloc, WalletState>(
         builder: (context, state) {
           final isLoading = state.status == WalletStatus.loading;
 
@@ -137,9 +217,19 @@ class _WalletScreenState extends State<WalletScreen> {
                     _buildRewardsSection(context),
 
                     // Wallets section header
-                    Text(
-                      'My Wallets',
-                      style: Theme.of(context).textTheme.headlineSmall,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'My Wallets',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add_circle_outline, size: 24),
+                          tooltip: 'Create Wallet',
+                          onPressed: () => _showCreateWalletDialog(context),
+                        ),
+                      ],
                     ),
                     AppSpacing.verticalMd,
 
@@ -181,6 +271,7 @@ class _WalletScreenState extends State<WalletScreen> {
           ),
         );
         },
+      ),
       ),
     );
   }
@@ -724,7 +815,9 @@ class _WalletScreenState extends State<WalletScreen> {
                         child: Icon(
                           subAccount.isDefault
                               ? Icons.account_balance_wallet
-                              : Icons.storefront,
+                              : subAccount.isRestricted
+                                  ? Icons.storefront
+                                  : Icons.savings_outlined,
                           color: accentColor,
                           size: 20,
                         ),
@@ -746,7 +839,9 @@ class _WalletScreenState extends State<WalletScreen> {
                             Text(
                               subAccount.isDefault
                                   ? 'Main Wallet'
-                                  : 'Brand Wallet',
+                                  : subAccount.isRestricted
+                                      ? 'Brand Wallet'
+                                      : 'Custom Wallet',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall

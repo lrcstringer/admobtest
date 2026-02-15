@@ -153,9 +153,11 @@ _$EarnOpportunityImpl _$$EarnOpportunityImplFromJson(
   uploadTextMinChars: (json['uploadTextMinChars'] as num?)?.toInt() ?? 10,
   uploadTextMaxChars: (json['uploadTextMaxChars'] as num?)?.toInt() ?? 1500,
   requiresAdminReview: json['requiresAdminReview'] as bool? ?? false,
+  tokenSourceAccountId: json['tokenSourceAccountId'] as String?,
   rewardCampaignId: json['rewardCampaignId'] as String?,
   rewardCampaignName: json['rewardCampaignName'] as String?,
   rewardType: json['rewardType'] as String?,
+  rewardQuantity: (json['rewardQuantity'] as num?)?.toInt() ?? 1,
 );
 
 Map<String, dynamic> _$$EarnOpportunityImplToJson(
@@ -209,9 +211,11 @@ Map<String, dynamic> _$$EarnOpportunityImplToJson(
   'uploadTextMinChars': instance.uploadTextMinChars,
   'uploadTextMaxChars': instance.uploadTextMaxChars,
   'requiresAdminReview': instance.requiresAdminReview,
+  'tokenSourceAccountId': instance.tokenSourceAccountId,
   'rewardCampaignId': instance.rewardCampaignId,
   'rewardCampaignName': instance.rewardCampaignName,
   'rewardType': instance.rewardType,
+  'rewardQuantity': instance.rewardQuantity,
 };
 
 const _$EarningTypeEnumMap = {

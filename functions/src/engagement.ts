@@ -24,6 +24,7 @@ import {
   LedgerConfig,
   AccountId,
   getOrCreateDefaultSubAccount,
+  getOrCreateBrandSubAccount,
   getBalance,
   createEscrowReservation,
   processEscrowCompletion,
@@ -181,7 +182,12 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
       }
     }
 
-    // Get thread to denormalize clientId and resolve token source
+    // Opportunity-level token source takes priority (Q1: granular budget control)
+    if (opportunity.tokenSourceAccountId) {
+      resolvedTokenSourceAccountId = opportunity.tokenSourceAccountId;
+    }
+
+    // Get thread to denormalize clientId and resolve token source (fallback)
     if (resolvedThreadId) {
       const threadDoc = await db
         .collection("earnThreads")
@@ -191,7 +197,10 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
       if (threadDoc.exists) {
         const threadData = threadDoc.data()!;
         resolvedClientId = threadData.clientId || null;
-        resolvedTokenSourceAccountId = threadData.tokenSourceAccountId || null;
+        // Only use thread-level token source if opportunity didn't specify one
+        if (!resolvedTokenSourceAccountId) {
+          resolvedTokenSourceAccountId = threadData.tokenSourceAccountId || null;
+        }
       }
     }
 
@@ -556,6 +565,11 @@ export const processEngagement = functions.https.onCall(
     let tokenDestAccountTypeId: string | null = null;
     let clientName: string | null = null;
 
+    // Opportunity-level token source takes priority over thread-level (Q1)
+    if (opportunityData?.tokenSourceAccountId) {
+      tokenSourceAccountId = opportunityData.tokenSourceAccountId;
+    }
+
     if (engagement.threadId) {
       const threadDoc = await db
         .collection("earnThreads")
@@ -573,7 +587,10 @@ export const processEngagement = functions.https.onCall(
         }
 
         clientId = threadData.clientId || null;
-        tokenSourceAccountId = threadData.tokenSourceAccountId || null;
+        // Only use thread-level token source if opportunity didn't specify one
+        if (!tokenSourceAccountId) {
+          tokenSourceAccountId = threadData.tokenSourceAccountId || null;
+        }
         tokenDestAccountTypeId = threadData.tokenDestAccountTypeId || null;
         clientName = threadData.clientName || null;
 
@@ -597,39 +614,14 @@ export const processEngagement = functions.https.onCall(
     let subAccountId: string;
 
     if (tokenDestAccountTypeId && clientName) {
-      // Thread specifies a restricted wallet type - find or create brand wallet
-      const userSubAccountsSnapshot = await db
-        .collection("users")
-        .doc(userId)
-        .collection("subAccounts")
-        .where("accountTypeId", "==", tokenDestAccountTypeId)
-        .limit(1)
-        .get();
-
-      if (!userSubAccountsSnapshot.empty) {
-        subAccountId = userSubAccountsSnapshot.docs[0].id;
-      } else {
-        // Auto-create brand-restricted wallet
-        const newSubAccountRef = db
-          .collection("users")
-          .doc(userId)
-          .collection("subAccounts")
-          .doc();
-
-        await newSubAccountRef.set({
-          id: newSubAccountRef.id,
-          userId: userId,
-          accountTypeId: tokenDestAccountTypeId,
-          name: `${clientName} Wallet`,
-          balance: 0,
-          isDefault: false,
-          isActive: true,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-
-        subAccountId = newSubAccountRef.id;
-      }
+      // Thread specifies a restricted wallet type — use canonical sub-account function
+      // (writes to ledgerAccounts/user:{uid}/subAccounts/, not users/{uid}/subAccounts/)
+      const brandResult = await getOrCreateBrandSubAccount(
+        userId,
+        tokenDestAccountTypeId,
+        `${clientName} Wallet`
+      );
+      subAccountId = brandResult.subAccountId;
     } else {
       // Use default sub-account
       const defaultResult = await getOrCreateDefaultSubAccount(userId);
@@ -936,7 +928,16 @@ export const processEngagement = functions.https.onCall(
       if (!oppData.rewardCampaignId) {
         return { rewardPending: false, rewardCampaignName: null, rewardType: null };
       }
-      await enqueueRewardAllocation(userId, oppData.rewardCampaignId, engagementId);
+      // Allocate rewardQuantity items (default 1) — each with unique idempotency suffix
+      const qty = oppData.rewardQuantity ?? 1;
+      const allocationPromises = [];
+      for (let i = 0; i < qty; i++) {
+        const idempotencyId = qty === 1 ? engagementId : `${engagementId}_r${i}`;
+        allocationPromises.push(
+          enqueueRewardAllocation(userId, oppData.rewardCampaignId, idempotencyId)
+        );
+      }
+      await Promise.all(allocationPromises);
       return {
         rewardPending: true,
         rewardCampaignName: oppData.rewardCampaignName || null,

@@ -378,8 +378,12 @@ export const createEarnOpportunity = functions.https.onCall(
       tokenBudget = null,
       // Optional opportunity image URL (uploaded by admin client-side)
       opportunityImage = null,
+      // Token source (opportunity-level override; falls back to thread-level)
+      tokenSourceAccountId = null,
       // Reward campaign linkage (for dual rewards)
       rewardCampaignId = null,
+      // Reward quantity per engagement (default: 1 item per completion)
+      rewardQuantity = 1,
       // Poll reference (for poll-type opportunities)
       pollId = null,
       // Upload configuration (for upload-type opportunities)
@@ -435,8 +439,10 @@ export const createEarnOpportunity = functions.https.onCall(
     const threadData = threadDoc.data()!;
 
     // Balance check: prevent activation when token source has zero balance
+    // Opportunity-level tokenSourceAccountId takes priority over thread-level
     if (isActive) {
-      const tokenSource = threadData.tokenSourceAccountId
+      const tokenSource = tokenSourceAccountId
+        || threadData.tokenSourceAccountId
         || AccountId.client(threadData.clientId);
       const sourceBalance = await getBalance(tokenSource);
       if (sourceBalance <= 0) {
@@ -593,10 +599,13 @@ export const createEarnOpportunity = functions.https.onCall(
       clientAvatarColor: threadData.clientAvatarColor,
       threadImage: threadData.threadImage ?? null,
       opportunityImage: opportunityImage ?? null,
+      // Token source (opportunity-level override; null = inherit from thread)
+      tokenSourceAccountId: tokenSourceAccountId ?? null,
       // Reward campaign linkage
       rewardCampaignId: rewardCampaignId ?? null,
       rewardCampaignName: resolvedRewardCampaignName,
       rewardType: resolvedRewardType,
+      rewardQuantity: rewardCampaignId ? Math.max(1, rewardQuantity ?? 1) : null,
       // Poll reference
       pollId: pollId ?? null,
       // Upload configuration

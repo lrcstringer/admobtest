@@ -190,6 +190,22 @@ class WalletRepositoryImpl implements WalletRepository {
   }
 
   @override
+  Future<Either<Failure, String>> createUserWallet({required String name}) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(Failure.network());
+    }
+
+    try {
+      final subAccountId = await _remoteDataSource.createUserWallet(name: name);
+      return Right(subAccountId);
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> transferBetweenWallets({
     required String fromSubAccountId,
     required String toSubAccountId,

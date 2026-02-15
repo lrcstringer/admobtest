@@ -951,10 +951,13 @@ mixin _$EarnOpportunity {
   int get uploadTextMinChars => throw _privateConstructorUsedError;
   int get uploadTextMaxChars => throw _privateConstructorUsedError;
   bool get requiresAdminReview =>
+      throw _privateConstructorUsedError; // Token source (opportunity-level override; falls back to thread-level)
+  String? get tokenSourceAccountId =>
       throw _privateConstructorUsedError; // Reward campaign linkage
   String? get rewardCampaignId => throw _privateConstructorUsedError;
   String? get rewardCampaignName => throw _privateConstructorUsedError;
   String? get rewardType => throw _privateConstructorUsedError;
+  int get rewardQuantity => throw _privateConstructorUsedError;
 
   /// Serializes this EarnOpportunity to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1022,9 +1025,11 @@ abstract class $EarnOpportunityCopyWith<$Res> {
     int uploadTextMinChars,
     int uploadTextMaxChars,
     bool requiresAdminReview,
+    String? tokenSourceAccountId,
     String? rewardCampaignId,
     String? rewardCampaignName,
     String? rewardType,
+    int rewardQuantity,
   });
 
   $TargetingCriteriaCopyWith<$Res>? get targeting;
@@ -1093,9 +1098,11 @@ class _$EarnOpportunityCopyWithImpl<$Res, $Val extends EarnOpportunity>
     Object? uploadTextMinChars = null,
     Object? uploadTextMaxChars = null,
     Object? requiresAdminReview = null,
+    Object? tokenSourceAccountId = freezed,
     Object? rewardCampaignId = freezed,
     Object? rewardCampaignName = freezed,
     Object? rewardType = freezed,
+    Object? rewardQuantity = null,
   }) {
     return _then(
       _value.copyWith(
@@ -1291,6 +1298,10 @@ class _$EarnOpportunityCopyWithImpl<$Res, $Val extends EarnOpportunity>
                 ? _value.requiresAdminReview
                 : requiresAdminReview // ignore: cast_nullable_to_non_nullable
                       as bool,
+            tokenSourceAccountId: freezed == tokenSourceAccountId
+                ? _value.tokenSourceAccountId
+                : tokenSourceAccountId // ignore: cast_nullable_to_non_nullable
+                      as String?,
             rewardCampaignId: freezed == rewardCampaignId
                 ? _value.rewardCampaignId
                 : rewardCampaignId // ignore: cast_nullable_to_non_nullable
@@ -1303,6 +1314,10 @@ class _$EarnOpportunityCopyWithImpl<$Res, $Val extends EarnOpportunity>
                 ? _value.rewardType
                 : rewardType // ignore: cast_nullable_to_non_nullable
                       as String?,
+            rewardQuantity: null == rewardQuantity
+                ? _value.rewardQuantity
+                : rewardQuantity // ignore: cast_nullable_to_non_nullable
+                      as int,
           )
           as $Val,
     );
@@ -1381,9 +1396,11 @@ abstract class _$$EarnOpportunityImplCopyWith<$Res>
     int uploadTextMinChars,
     int uploadTextMaxChars,
     bool requiresAdminReview,
+    String? tokenSourceAccountId,
     String? rewardCampaignId,
     String? rewardCampaignName,
     String? rewardType,
+    int rewardQuantity,
   });
 
   @override
@@ -1452,9 +1469,11 @@ class __$$EarnOpportunityImplCopyWithImpl<$Res>
     Object? uploadTextMinChars = null,
     Object? uploadTextMaxChars = null,
     Object? requiresAdminReview = null,
+    Object? tokenSourceAccountId = freezed,
     Object? rewardCampaignId = freezed,
     Object? rewardCampaignName = freezed,
     Object? rewardType = freezed,
+    Object? rewardQuantity = null,
   }) {
     return _then(
       _$EarnOpportunityImpl(
@@ -1650,6 +1669,10 @@ class __$$EarnOpportunityImplCopyWithImpl<$Res>
             ? _value.requiresAdminReview
             : requiresAdminReview // ignore: cast_nullable_to_non_nullable
                   as bool,
+        tokenSourceAccountId: freezed == tokenSourceAccountId
+            ? _value.tokenSourceAccountId
+            : tokenSourceAccountId // ignore: cast_nullable_to_non_nullable
+                  as String?,
         rewardCampaignId: freezed == rewardCampaignId
             ? _value.rewardCampaignId
             : rewardCampaignId // ignore: cast_nullable_to_non_nullable
@@ -1662,6 +1685,10 @@ class __$$EarnOpportunityImplCopyWithImpl<$Res>
             ? _value.rewardType
             : rewardType // ignore: cast_nullable_to_non_nullable
                   as String?,
+        rewardQuantity: null == rewardQuantity
+            ? _value.rewardQuantity
+            : rewardQuantity // ignore: cast_nullable_to_non_nullable
+                  as int,
       ),
     );
   }
@@ -1719,9 +1746,11 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
     this.uploadTextMinChars = 10,
     this.uploadTextMaxChars = 1500,
     this.requiresAdminReview = false,
+    this.tokenSourceAccountId,
     this.rewardCampaignId,
     this.rewardCampaignName,
     this.rewardType,
+    this.rewardQuantity = 1,
   }) : _questions = questions,
        super._();
 
@@ -1859,6 +1888,9 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
   @override
   @JsonKey()
   final bool requiresAdminReview;
+  // Token source (opportunity-level override; falls back to thread-level)
+  @override
+  final String? tokenSourceAccountId;
   // Reward campaign linkage
   @override
   final String? rewardCampaignId;
@@ -1866,10 +1898,13 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
   final String? rewardCampaignName;
   @override
   final String? rewardType;
+  @override
+  @JsonKey()
+  final int rewardQuantity;
 
   @override
   String toString() {
-    return 'EarnOpportunity(id: $id, threadId: $threadId, title: $title, description: $description, earningType: $earningType, tokenReward: $tokenReward, streakPoints: $streakPoints, mediaType: $mediaType, mediaUrl: $mediaUrl, questions: $questions, durationSeconds: $durationSeconds, expiresAt: $expiresAt, isActive: $isActive, isPinned: $isPinned, isFeatured: $isFeatured, clientId: $clientId, clientName: $clientName, clientAvatarColor: $clientAvatarColor, clientAvatarImage: $clientAvatarImage, threadImage: $threadImage, opportunityImage: $opportunityImage, campaignId: $campaignId, targeting: $targeting, bonusReward: $bonusReward, bonusRewardMultiplier: $bonusRewardMultiplier, bonusIntervalType: $bonusIntervalType, bonusIntervalX: $bonusIntervalX, userEngagementStatus: $userEngagementStatus, userEngagementId: $userEngagementId, adUnitId: $adUnitId, dailyLimitPerUser: $dailyLimitPerUser, budgetExhausted: $budgetExhausted, tokenBudget: $tokenBudget, tokenSpent: $tokenSpent, pollId: $pollId, uploadPrompt: $uploadPrompt, uploadContextMediaUrl: $uploadContextMediaUrl, uploadContextMediaType: $uploadContextMediaType, uploadVideoEnabled: $uploadVideoEnabled, uploadImageEnabled: $uploadImageEnabled, uploadTextEnabled: $uploadTextEnabled, uploadVideoRequired: $uploadVideoRequired, uploadImageRequired: $uploadImageRequired, uploadTextRequired: $uploadTextRequired, uploadVideoMaxSeconds: $uploadVideoMaxSeconds, uploadTextMinChars: $uploadTextMinChars, uploadTextMaxChars: $uploadTextMaxChars, requiresAdminReview: $requiresAdminReview, rewardCampaignId: $rewardCampaignId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
+    return 'EarnOpportunity(id: $id, threadId: $threadId, title: $title, description: $description, earningType: $earningType, tokenReward: $tokenReward, streakPoints: $streakPoints, mediaType: $mediaType, mediaUrl: $mediaUrl, questions: $questions, durationSeconds: $durationSeconds, expiresAt: $expiresAt, isActive: $isActive, isPinned: $isPinned, isFeatured: $isFeatured, clientId: $clientId, clientName: $clientName, clientAvatarColor: $clientAvatarColor, clientAvatarImage: $clientAvatarImage, threadImage: $threadImage, opportunityImage: $opportunityImage, campaignId: $campaignId, targeting: $targeting, bonusReward: $bonusReward, bonusRewardMultiplier: $bonusRewardMultiplier, bonusIntervalType: $bonusIntervalType, bonusIntervalX: $bonusIntervalX, userEngagementStatus: $userEngagementStatus, userEngagementId: $userEngagementId, adUnitId: $adUnitId, dailyLimitPerUser: $dailyLimitPerUser, budgetExhausted: $budgetExhausted, tokenBudget: $tokenBudget, tokenSpent: $tokenSpent, pollId: $pollId, uploadPrompt: $uploadPrompt, uploadContextMediaUrl: $uploadContextMediaUrl, uploadContextMediaType: $uploadContextMediaType, uploadVideoEnabled: $uploadVideoEnabled, uploadImageEnabled: $uploadImageEnabled, uploadTextEnabled: $uploadTextEnabled, uploadVideoRequired: $uploadVideoRequired, uploadImageRequired: $uploadImageRequired, uploadTextRequired: $uploadTextRequired, uploadVideoMaxSeconds: $uploadVideoMaxSeconds, uploadTextMinChars: $uploadTextMinChars, uploadTextMaxChars: $uploadTextMaxChars, requiresAdminReview: $requiresAdminReview, tokenSourceAccountId: $tokenSourceAccountId, rewardCampaignId: $rewardCampaignId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType, rewardQuantity: $rewardQuantity)';
   }
 
   @override
@@ -1972,12 +2007,16 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
                 other.uploadTextMaxChars == uploadTextMaxChars) &&
             (identical(other.requiresAdminReview, requiresAdminReview) ||
                 other.requiresAdminReview == requiresAdminReview) &&
+            (identical(other.tokenSourceAccountId, tokenSourceAccountId) ||
+                other.tokenSourceAccountId == tokenSourceAccountId) &&
             (identical(other.rewardCampaignId, rewardCampaignId) ||
                 other.rewardCampaignId == rewardCampaignId) &&
             (identical(other.rewardCampaignName, rewardCampaignName) ||
                 other.rewardCampaignName == rewardCampaignName) &&
             (identical(other.rewardType, rewardType) ||
-                other.rewardType == rewardType));
+                other.rewardType == rewardType) &&
+            (identical(other.rewardQuantity, rewardQuantity) ||
+                other.rewardQuantity == rewardQuantity));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2032,9 +2071,11 @@ class _$EarnOpportunityImpl extends _EarnOpportunity {
     uploadTextMinChars,
     uploadTextMaxChars,
     requiresAdminReview,
+    tokenSourceAccountId,
     rewardCampaignId,
     rewardCampaignName,
     rewardType,
+    rewardQuantity,
   ]);
 
   /// Create a copy of EarnOpportunity
@@ -2104,9 +2145,11 @@ abstract class _EarnOpportunity extends EarnOpportunity {
     final int uploadTextMinChars,
     final int uploadTextMaxChars,
     final bool requiresAdminReview,
+    final String? tokenSourceAccountId,
     final String? rewardCampaignId,
     final String? rewardCampaignName,
     final String? rewardType,
+    final int rewardQuantity,
   }) = _$EarnOpportunityImpl;
   const _EarnOpportunity._() : super._();
 
@@ -2208,13 +2251,17 @@ abstract class _EarnOpportunity extends EarnOpportunity {
   @override
   int get uploadTextMaxChars;
   @override
-  bool get requiresAdminReview; // Reward campaign linkage
+  bool get requiresAdminReview; // Token source (opportunity-level override; falls back to thread-level)
+  @override
+  String? get tokenSourceAccountId; // Reward campaign linkage
   @override
   String? get rewardCampaignId;
   @override
   String? get rewardCampaignName;
   @override
   String? get rewardType;
+  @override
+  int get rewardQuantity;
 
   /// Create a copy of EarnOpportunity
   /// with the given fields replaced by the non-null parameter values.

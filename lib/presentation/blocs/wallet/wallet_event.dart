@@ -27,6 +27,7 @@ class WalletEvent with _$WalletEvent {
   const factory WalletEvent.watchSubAccounts() = _WatchSubAccounts;
   const factory WalletEvent.subAccountsUpdated(List<SubAccount> subAccounts) = _SubAccountsUpdated;
   const factory WalletEvent.selectSubAccount(String subAccountId) = _SelectSubAccount;
+  const factory WalletEvent.createUserWallet({required String name}) = _CreateUserWallet;
   const factory WalletEvent.transferBetweenWallets({
     required String fromSubAccountId,
     required String toSubAccountId,
