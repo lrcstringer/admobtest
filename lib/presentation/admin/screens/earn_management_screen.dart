@@ -4623,6 +4623,29 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                     ),
                     const SizedBox(height: 16),
                   ],
+                ]
+                else ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceDark,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.borderDark),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.card_giftcard_outlined, size: 18, color: AppColors.textSecondary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'No reward campaigns found for this client. Create one in the Reward Campaigns section first.',
+                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                 ],
                 // Token source override (optional — defaults to thread's token source)
                 if (_loadingClientSubAccounts)
@@ -6048,6 +6071,29 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                     ),
                     const SizedBox(height: 16),
                   ],
+                ]
+                else ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceDark,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.borderDark),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.card_giftcard_outlined, size: 18, color: AppColors.textSecondary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'No reward campaigns found for this client. Create one in the Reward Campaigns section first.',
+                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                 ],
                 // Token source override (optional — defaults to thread's token source)
                 if (_loadingClientSubAccounts)

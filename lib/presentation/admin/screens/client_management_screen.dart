@@ -947,6 +947,8 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
   List<Map<String, dynamic>> _accountTypes = [];
   bool _isLoading = false;
   bool _isRewardSponsor = false;
+  bool _isPinned = false;
+  bool _isFeatured = false;
 
   // Logo upload state
   String? _pickedLogoName;
@@ -1086,6 +1088,8 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
           'brandAccountTypeId': _selectedAccountTypeId,
         if (avatarImage != null) 'avatarImage': avatarImage,
         'isRewardSponsor': _isRewardSponsor,
+        'isPinned': _isPinned,
+        'isFeatured': _isFeatured,
       });
       if (mounted) {
         Navigator.of(context).pop();
@@ -1437,6 +1441,31 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
                   ),
                   value: _isRewardSponsor,
                   onChanged: (v) => setState(() => _isRewardSponsor = v),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const Divider(),
+                const Text('Inbox Display',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary,
+                    )),
+                const SizedBox(height: 4),
+                SwitchListTile(
+                  title: const Text('Pinned'),
+                  subtitle: const Text(
+                    'Pin this client to the top of the earn inbox',
+                  ),
+                  value: _isPinned,
+                  onChanged: (v) => setState(() => _isPinned = v),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                SwitchListTile(
+                  title: const Text('Featured'),
+                  subtitle: const Text(
+                    'Highlight this client as featured in the earn inbox',
+                  ),
+                  value: _isFeatured,
+                  onChanged: (v) => setState(() => _isFeatured = v),
                   contentPadding: EdgeInsets.zero,
                 ),
               ],
@@ -2366,6 +2395,111 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
     );
   }
 
+  void _showFundSubAccountDialog(Map<String, dynamic> sa) {
+    final amountCtrl = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    var saving = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setInnerState) {
+          return AlertDialog(
+            backgroundColor: AppColors.cardDark,
+            title: Text('Fund: ${sa['name'] ?? 'Sub-Account'}',
+                style: const TextStyle(color: AppColors.textPrimaryDark)),
+            content: SizedBox(
+              width: 400,
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Current balance: ${(sa['balance'] as num?)?.toInt() ?? 0} tokens',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: amountCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Amount to add (tokens)',
+                        hintText: 'e.g., 10000',
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Required';
+                        final n = int.tryParse(v);
+                        if (n == null || n <= 0) return 'Must be > 0';
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: saving ? null : () => Navigator.of(ctx).pop(),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        if (!formKey.currentState!.validate()) return;
+                        setInnerState(() => saving = true);
+                        try {
+                          await FirebaseFunctions.instance
+                              .httpsCallable('adminFundClientSubAccount')
+                              .call({
+                            'clientId': widget.clientId,
+                            'subAccountId': sa['id'],
+                            'amount': int.parse(amountCtrl.text.trim()),
+                          });
+                          if (ctx.mounted) {
+                            Navigator.of(ctx).pop();
+                            _loadSubAccounts();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Sub-account funded successfully'),
+                                backgroundColor: AppColors.success,
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error: $e'),
+                                backgroundColor: AppColors.error,
+                              ),
+                            );
+                            setInnerState(() => saving = false);
+                          }
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.secondary),
+                child: saving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Fund'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -2525,6 +2659,13 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
                 ),
               ),
             ),
+          ),
+          // Fund button
+          IconButton(
+            icon: const Icon(Icons.account_balance_wallet, size: 18),
+            color: AppColors.secondary,
+            tooltip: 'Fund sub-account',
+            onPressed: () => _showFundSubAccountDialog(sa),
           ),
         ],
       ),
