@@ -53,31 +53,29 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     // Load ledger account
     final accountResult = await _walletRepository.getLedgerAccount();
 
-    await accountResult.fold(
-      (failure) async {
+    accountResult.fold(
+      (failure) {
         emit(state.copyWith(
-          status: WalletStatus.error,
+          status: WalletStatus.loaded,
           errorMessage: failure.displayMessage,
         ));
       },
-      (ledgerAccount) async {
+      (ledgerAccount) {
         emit(state.copyWith(
           status: WalletStatus.loaded,
           ledgerAccount: ledgerAccount,
         ));
         // Start watching ledger account updates
         add(const WalletEvent.watchLedgerAccount());
-        // Start watching ledger journals (transaction history)
-        add(const WalletEvent.watchLedgerJournals());
-        // Start watching engagement stats (streak tracking)
-        add(const WalletEvent.watchEngagementStats());
-        // Load initial journals
-        add(const WalletEvent.loadLedgerJournals());
-        // Load and watch sub-accounts (multi-wallet)
-        add(const WalletEvent.loadSubAccounts());
-        add(const WalletEvent.watchSubAccounts());
       },
     );
+
+    // Always load sub-accounts, journals, and stats regardless of ledger account result
+    add(const WalletEvent.watchLedgerJournals());
+    add(const WalletEvent.watchEngagementStats());
+    add(const WalletEvent.loadLedgerJournals());
+    add(const WalletEvent.loadSubAccounts());
+    add(const WalletEvent.watchSubAccounts());
   }
 
   void _onWatchLedgerAccount(

@@ -11,6 +11,7 @@
 
 import * as admin from "firebase-admin";
 import {
+  AccountId,
   SubAccount,
   SubAccountTypeDefinition,
   AccountTypeRules,
@@ -35,7 +36,7 @@ export async function getSubAccount(
 ): Promise<SubAccount | null> {
   const doc = await db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId)
+    .doc(AccountId.user(userId))
     .collection(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS)
     .doc(subAccountId)
     .get();
@@ -55,7 +56,7 @@ export async function getUserSubAccounts(
 ): Promise<SubAccount[]> {
   const snapshot = await db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId)
+    .doc(AccountId.user(userId))
     .collection(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS)
     .where("isActive", "==", true)
     .orderBy("createdAt", "asc")
@@ -72,7 +73,7 @@ export async function getDefaultSubAccount(
 ): Promise<SubAccount | null> {
   const snapshot = await db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId)
+    .doc(AccountId.user(userId))
     .collection(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS)
     .where("isDefault", "==", true)
     .where("isActive", "==", true)
@@ -99,22 +100,12 @@ export async function getOrCreateDefaultSubAccount(
     return { subAccountId: existing.id, isNew: false };
   }
 
-  // Create ledger account document if it doesn't exist
+  // Parent doc is the ledger account (user:{uid}) — already created by getOrCreateUserAccount
   const ledgerAccountRef = db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId);
+    .doc(AccountId.user(userId));
 
-  const ledgerAccountDoc = await ledgerAccountRef.get();
   const now = admin.firestore.Timestamp.now();
-
-  if (!ledgerAccountDoc.exists) {
-    await ledgerAccountRef.set({
-      userId,
-      totalBalance: 0,
-      createdAt: now,
-      updatedAt: now,
-    });
-  }
 
   // Create the default sub-account
   const subAccountRef = ledgerAccountRef
@@ -153,7 +144,7 @@ export async function getOrCreateBrandSubAccount(
   // Check if user already has a sub-account with this account type
   const snapshot = await db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId)
+    .doc(AccountId.user(userId))
     .collection(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS)
     .where("accountTypeId", "==", accountTypeId)
     .where("isActive", "==", true)
@@ -171,21 +162,12 @@ export async function getOrCreateBrandSubAccount(
   }
 
   // Create ledger account document if it doesn't exist
+  // Parent doc is the ledger account (user:{uid}) — already created by getOrCreateUserAccount
   const ledgerAccountRef = db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId);
+    .doc(AccountId.user(userId));
 
-  const ledgerAccountDoc = await ledgerAccountRef.get();
   const now = admin.firestore.Timestamp.now();
-
-  if (!ledgerAccountDoc.exists) {
-    await ledgerAccountRef.set({
-      userId,
-      totalBalance: 0,
-      createdAt: now,
-      updatedAt: now,
-    });
-  }
 
   // Create the brand sub-account
   const subAccountRef = ledgerAccountRef
@@ -397,13 +379,13 @@ export async function creditSubAccount(
 
   const subAccountRef = db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId)
+    .doc(AccountId.user(userId))
     .collection(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS)
     .doc(subAccountId);
 
   const ledgerAccountRef = db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId);
+    .doc(AccountId.user(userId));
 
   const now = admin.firestore.Timestamp.now();
 
@@ -450,13 +432,13 @@ export async function debitSubAccount(
 
   const subAccountRef = db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId)
+    .doc(AccountId.user(userId))
     .collection(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS)
     .doc(subAccountId);
 
   const ledgerAccountRef = db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId);
+    .doc(AccountId.user(userId));
 
   const now = admin.firestore.Timestamp.now();
 
@@ -552,7 +534,7 @@ export async function getSubAccountBalance(
 export async function getUserTotalBalance(userId: string): Promise<number> {
   const ledgerAccountDoc = await db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId)
+    .doc(AccountId.user(userId))
     .get();
 
   if (!ledgerAccountDoc.exists) {
@@ -598,7 +580,7 @@ export async function deactivateSubAccount(
 
   await db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId)
+    .doc(AccountId.user(userId))
     .collection(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS)
     .doc(subAccountId)
     .update({
@@ -613,7 +595,7 @@ export async function deactivateSubAccount(
 export async function deleteAllSubAccounts(userId: string): Promise<void> {
   const subAccountsRef = db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId)
+    .doc(AccountId.user(userId))
     .collection(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS);
 
   const snapshot = await subAccountsRef.get();
@@ -627,7 +609,7 @@ export async function deleteAllSubAccounts(userId: string): Promise<void> {
   // Delete the ledger account document
   await db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(userId)
+    .doc(AccountId.user(userId))
     .delete();
 
   console.log(`Deleted all sub-accounts for user ${userId}`);

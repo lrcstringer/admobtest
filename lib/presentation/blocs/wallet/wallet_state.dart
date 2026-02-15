@@ -39,9 +39,11 @@ class WalletState with _$WalletState {
   /// Get total tokens earned from engagement stats
   int get totalTokensEarned => engagementStats?.totalTokensEarned ?? 0;
 
-  /// Total portfolio value in tokens (sum of all sub-account balances)
-  int get portfolioBalance =>
-      subAccounts.fold(0, (sum, sa) => sum + sa.balance);
+  /// Total portfolio value in tokens (sub-account sum, falls back to ledger balance)
+  int get portfolioBalance {
+    final subTotal = subAccounts.fold(0, (sum, sa) => sum + sa.balance);
+    return subTotal > 0 ? subTotal : balance;
+  }
 
   /// Total portfolio value in ZAR
   double get portfolioBalanceZar => AppConstants.tokensToZar(portfolioBalance);

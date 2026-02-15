@@ -208,13 +208,10 @@ export const generateReferralCode = functions.firestore
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Create ledger account with default sub-account
-    try {
-      const { subAccountId } = await getOrCreateDefaultSubAccount(userId);
-      console.log(`Created ledger account with sub-account ${subAccountId} for user ${userId}`);
-    } catch (error) {
-      console.error(`Failed to create ledger account for user ${userId}:`, error);
-    }
+    // Ledger account is created lazily by getOrCreateUserAccount()
+    // when the user first earns tokens (via processEarningWithSplit).
+    // No need to pre-create a default sub-account — the ledger account
+    // IS the user's main wallet.
 
     // Create engagement stats document
     try {

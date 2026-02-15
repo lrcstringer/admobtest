@@ -146,6 +146,23 @@ class _WalletScreenState extends State<WalletScreen> {
                     // Wallet cards
                     if (isLoading && state.subAccounts.isEmpty)
                       _buildLoadingWallets()
+                    else if (state.subAccounts.isEmpty && state.balance > 0)
+                      // No sub-accounts yet but ledger has tokens — show main wallet
+                      _buildWalletCard(
+                        context,
+                        SubAccount(
+                          id: 'main',
+                          userId: '',
+                          name: 'iMaliChat Wallet',
+                          balance: state.balance,
+                          lifetimeCredits: 0,
+                          lifetimeDebits: 0,
+                          isActive: true,
+                          isDefault: true,
+                          createdAt: DateTime.now(),
+                          updatedAt: DateTime.now(),
+                        ),
+                      )
                     else if (state.subAccounts.isEmpty)
                       _buildEmptyWallets(context)
                     else
@@ -212,7 +229,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       )
                     else
                       Text(
-                        '${state.portfolioBalance}',
+                        '${state.balance}',
                         style:
                             Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   color: Colors.white,
@@ -226,7 +243,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'R${state.portfolioBalanceZar.toStringAsFixed(2)}',
+                    'R${state.balanceZar.toStringAsFixed(2)}',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -243,7 +260,12 @@ class _WalletScreenState extends State<WalletScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${state.subAccounts.length} wallet${state.subAccounts.length == 1 ? '' : 's'}',
+                        () {
+                          final count = state.subAccounts.isNotEmpty
+                              ? state.subAccounts.length
+                              : (state.balance > 0 ? 1 : 0);
+                          return '$count wallet${count == 1 ? '' : 's'}';
+                        }(),
                         style:
                             Theme.of(context).textTheme.labelSmall?.copyWith(
                                   color: Colors.white.withValues(alpha: 0.7),
