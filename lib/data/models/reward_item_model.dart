@@ -50,11 +50,14 @@ class RewardItemModel with _$RewardItemModel {
           ? _parseDateTime(json['expiresAt'])
           : null,
       redemptionLocation: json['redemptionLocation'] as String?,
-      campaignMetadata:
-          (json['campaignMetadata'] as Map<String, dynamic>?) ?? {},
-      itemMetadata: (json['itemMetadata'] as Map<String, dynamic>?) ??
-          (json['metadata'] as Map<String, dynamic>?) ??
-          {},
+      campaignMetadata: json['campaignMetadata'] is Map
+          ? Map<String, dynamic>.from(json['campaignMetadata'] as Map)
+          : {},
+      itemMetadata: json['itemMetadata'] is Map
+          ? Map<String, dynamic>.from(json['itemMetadata'] as Map)
+          : json['metadata'] is Map
+              ? Map<String, dynamic>.from(json['metadata'] as Map)
+              : {},
     );
   }
 

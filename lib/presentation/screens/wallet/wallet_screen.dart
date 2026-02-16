@@ -443,8 +443,66 @@ class _WalletScreenState extends State<WalletScreen> {
     return BlocBuilder<RewardBloc, RewardState>(
       builder: (context, rewardState) {
         // Hide during initial load
-        if (rewardState.status == RewardLoadStatus.initial) {
+        if (rewardState.status == RewardLoadStatus.initial ||
+            rewardState.status == RewardLoadStatus.loading) {
           return const SizedBox.shrink();
+        }
+
+        // Show error state with retry instead of empty state
+        if (rewardState.status == RewardLoadStatus.error) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'My Rewards',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              AppSpacing.verticalMd,
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: AppSpacing.borderRadiusMd,
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      color: AppColors.textTertiary,
+                      size: 20,
+                    ),
+                    AppSpacing.horizontalMd,
+                    Expanded(
+                      child: Text(
+                        'Could not load rewards',
+                        style:
+                            Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => context
+                          .read<RewardBloc>()
+                          .add(const RewardEvent.loadItems()),
+                      child: Text(
+                        'Retry',
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              AppSpacing.verticalXl,
+            ],
+          );
         }
 
         final activeItems = rewardState.activeItems;

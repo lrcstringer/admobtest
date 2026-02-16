@@ -27,9 +27,40 @@ class WalletDetailScreen extends StatelessWidget {
             .firstOrNull;
 
         if (subAccount == null) {
+          // Still loading — show spinner
+          if (state.status == WalletStatus.loading) {
+            return Scaffold(
+              appBar: IMaliAppBar(title: 'Wallet'),
+              body: const Center(child: CircularProgressIndicator()),
+            );
+          }
+          // Loaded but sub-account not found — show error with retry
           return Scaffold(
             appBar: IMaliAppBar(title: 'Wallet'),
-            body: const Center(child: CircularProgressIndicator()),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 48,
+                      color: AppColors.textTertiary),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Could not load wallet',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      context.read<WalletBloc>().add(
+                          const WalletEvent.loadSubAccounts());
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
           );
         }
 

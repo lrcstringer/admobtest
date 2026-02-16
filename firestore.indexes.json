@@ -410,6 +410,23 @@
       "collectionGroup": "rewardItems",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "allocatedToUserId", "order": "ASCENDING" },
+        { "fieldPath": "allocatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "rewardItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "allocatedToUserId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "allocatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "rewardItems",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "expiresAt", "order": "ASCENDING" }
       ]
@@ -501,6 +518,14 @@
       "fields": [
         { "fieldPath": "actorUid", "order": "ASCENDING" },
         { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "subAccounts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
       ]
     }
   ],

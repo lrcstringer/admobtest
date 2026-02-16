@@ -58,10 +58,13 @@ class RewardRemoteDataSourceImpl implements RewardRemoteDataSource {
       }).toList();
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(
-          message: e.message ?? 'Failed to fetch reward items');
+          message: e.message != null && e.message!.length > 30
+              ? e.message!
+              : 'Failed to load rewards. Please try again.');
     } catch (e) {
       if (e is AuthException) rethrow;
-      throw ServerException(message: e.toString());
+      throw ServerException(
+          message: 'Failed to load rewards. Please try again.');
     }
   }
 
@@ -79,7 +82,7 @@ class RewardRemoteDataSourceImpl implements RewardRemoteDataSource {
       });
 
       final data = result.data;
-      final item = data['item'] as Map<String, dynamic>?;
+      final item = data['item'] as Map?;
       if (item == null) {
         throw const ServerException(message: 'Reward item not found');
       }
