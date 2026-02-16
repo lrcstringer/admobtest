@@ -93,32 +93,45 @@ export async function reserveRewardItem(
   if (campaign.isDeleted === true) {
     throw new functions.https.HttpsError(
       "failed-precondition",
-      "This offer is currently unavailable"
+      `Reward campaign ${campaignId} is deleted`
     );
   }
 
   if (campaign.status !== "active") {
     throw new functions.https.HttpsError(
       "failed-precondition",
-      "This offer is currently unavailable"
+      `Reward campaign ${campaignId} status is '${campaign.status}', expected 'active'`
     );
   }
 
   const now = new Date();
-  const startsAt = campaign.startsAt?.toDate?.() || new Date(0);
-  const endsAt = campaign.endsAt?.toDate?.() || new Date(0);
+  const startsAt = campaign.startsAt?.toDate?.() || null;
+  const endsAt = campaign.endsAt?.toDate?.() || null;
 
-  if (now < startsAt || now > endsAt) {
+  if (startsAt && now < startsAt) {
     throw new functions.https.HttpsError(
       "failed-precondition",
-      "This offer is currently unavailable"
+      `Reward campaign ${campaignId} has not started yet (starts ${startsAt.toISOString()})`
     );
   }
 
-  if ((campaign.remainingQuantity ?? 0) < quantity) {
+  if (endsAt && now > endsAt) {
     throw new functions.https.HttpsError(
       "failed-precondition",
-      "This offer is currently unavailable"
+      `Reward campaign ${campaignId} has ended (ended ${endsAt.toISOString()})`
+    );
+  }
+
+  // Pre-check remaining quantity — skip if counter is undefined (trigger may not have fired yet).
+  // The actual availability is determined by the item query in Step 5.
+  if (
+    campaign.remainingQuantity !== undefined &&
+    campaign.remainingQuantity !== null &&
+    campaign.remainingQuantity < quantity
+  ) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      `Reward campaign ${campaignId} has insufficient items (remaining: ${campaign.remainingQuantity}, needed: ${quantity})`
     );
   }
 
@@ -141,7 +154,7 @@ export async function reserveRewardItem(
   if (totalClaimed + quantity > maxPerUser) {
     throw new functions.https.HttpsError(
       "failed-precondition",
-      "This offer is currently unavailable"
+      `User ${userId} has already claimed ${totalClaimed}/${maxPerUser} items from campaign ${campaignId}`
     );
   }
 
@@ -188,7 +201,7 @@ export async function reserveRewardItem(
       }
       throw new functions.https.HttpsError(
         "failed-precondition",
-        "This offer is currently unavailable"
+        `No available reward items found for campaign ${campaignId} (all items reserved/allocated/exhausted)`
       );
     }
 
@@ -241,7 +254,7 @@ export async function reserveRewardItem(
           }
           throw new functions.https.HttpsError(
             "failed-precondition",
-            "This offer is currently unavailable"
+            `Failed to reserve reward item after ${maxRetries} attempts for campaign ${campaignId} (contention)`
           );
         }
       }
@@ -274,7 +287,7 @@ export async function reserveRewardItem(
       }
       throw new functions.https.HttpsError(
         "failed-precondition",
-        "This offer is currently unavailable"
+        `User ${userId} exceeded per-user limit (${finalTotal}/${maxPerUser}) for campaign ${campaignId} (concurrent request)`
       );
     }
   }

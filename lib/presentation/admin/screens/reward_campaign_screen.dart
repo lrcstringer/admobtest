@@ -1042,7 +1042,6 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
           'updates': {
             'name': _nameController.text,
             'description': _descriptionController.text,
-            'rewardType': _rewardType,
             'startsAt': _startsAt!.toIso8601String(),
             'endsAt': _endsAt!.toIso8601String(),
             if (_itemExpiresAt != null)

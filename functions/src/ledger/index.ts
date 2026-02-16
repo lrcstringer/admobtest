@@ -1049,10 +1049,10 @@ export async function createEscrowReservation(
 ): Promise<PostJournalResult> {
   await ensureSystemAccounts();
 
-  if (escrowAmount <= 0) {
+  if (!Number.isFinite(escrowAmount) || escrowAmount <= 0) {
     return {
       success: false,
-      error: "Escrow amount must be positive",
+      error: `Escrow amount must be a positive number, got: ${escrowAmount}`,
       errorCode: "INVALID_AMOUNT",
     };
   }

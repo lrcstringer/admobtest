@@ -154,6 +154,12 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     }
 
     rewardAmount = opportunity.tokenReward;
+    if (!Number.isFinite(rewardAmount) || rewardAmount <= 0) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        `Opportunity ${earnOpportunityId} has invalid tokenReward: ${rewardAmount}`
+      );
+    }
     streakPoints = opportunity.streakPoints ?? 1; // Default to 1 if not set
     engagementType = opportunity.earningType || opportunity.mediaType || "video";
     resolvedCampaignId = opportunity.campaignId || null;
@@ -283,6 +289,12 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
   if (resolvedTokenSourceAccountId) {
     // Reserve maximum possible payout (base × bonus multiplier)
     escrowAmount = Math.floor(rewardAmount * bonusRewardMultiplier);
+    if (!Number.isFinite(escrowAmount) || escrowAmount <= 0) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        `Invalid escrow amount (${escrowAmount}) from rewardAmount=${rewardAmount}, multiplier=${bonusRewardMultiplier}`
+      );
+    }
 
     const escrowResult = await createEscrowReservation(
       engagementId,
@@ -299,9 +311,14 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     );
 
     if (!escrowResult.success) {
+      functions.logger.error(
+        `Escrow reservation failed for engagement ${engagementId}. ` +
+        `Source: ${resolvedTokenSourceAccountId}, amount: ${escrowAmount}, ` +
+        `error: ${escrowResult.error}, code: ${escrowResult.errorCode}`
+      );
       throw new functions.https.HttpsError(
         "failed-precondition",
-        "This offer is currently unavailable"
+        `Escrow failed: ${escrowResult.errorCode} — ${escrowResult.error}`
       );
     }
 
@@ -338,7 +355,14 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
         reservedRewardCampaignId = opportunityForReward.rewardCampaignId;
         reservedRewardCampaignName = rewardResult.campaignName;
         reservedRewardType = rewardResult.rewardType;
-      } catch (rewardError) {
+      } catch (rewardError: unknown) {
+        // Log the specific reward reservation failure
+        const rewardErrorMsg = rewardError instanceof Error ? rewardError.message : String(rewardError);
+        functions.logger.error(
+          `Reward reservation failed for engagement ${engagementId}. ` +
+          `campaignId: ${opportunityForReward.rewardCampaignId}, ` +
+          `error: ${rewardErrorMsg}`
+        );
         // If reward reservation fails, reverse escrow (if any) and throw
         if (escrowJournalId) {
           try {
