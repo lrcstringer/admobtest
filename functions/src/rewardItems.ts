@@ -172,12 +172,7 @@ export const importRewardItems = functions.https.onCall(
       });
     }
 
-    // #8 — Include counter update in the same batch as item creation (atomic)
-    writeBatch.update(campaignRef, {
-      totalQuantity: admin.firestore.FieldValue.increment(newCodes.length),
-      remainingQuantity: admin.firestore.FieldValue.increment(newCodes.length),
-      updatedAt: now,
-    });
+    // Campaign counters (totalQuantity, remainingQuantity) updated by onRewardItemWritten trigger
 
     await writeBatch.commit();
     await activityBatch.commit();
@@ -516,14 +511,7 @@ export const redeemRewardItem = functions.https.onCall(
         updatedAt: now,
       });
 
-      // Update campaign counter
-      const campaignRef = db
-        .collection("rewardCampaigns")
-        .doc(item.campaignId);
-      txn.update(campaignRef, {
-        redeemedQuantity: admin.firestore.FieldValue.increment(1),
-        updatedAt: now,
-      });
+      // Campaign counter update handled by onRewardItemWritten trigger
 
       return { campaignId: item.campaignId };
     });
@@ -597,15 +585,7 @@ export const revokeRewardItem = functions.https.onCall(
         updatedAt: now,
       });
 
-      // Increment remaining quantity on campaign
-      const campaignRef = db
-        .collection("rewardCampaigns")
-        .doc(item.campaignId);
-      txn.update(campaignRef, {
-        remainingQuantity: admin.firestore.FieldValue.increment(1),
-        allocatedQuantity: admin.firestore.FieldValue.increment(-1),
-        updatedAt: now,
-      });
+      // Campaign counter update handled by onRewardItemWritten trigger
 
       return {
         campaignId: item.campaignId,

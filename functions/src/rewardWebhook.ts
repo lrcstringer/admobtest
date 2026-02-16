@@ -234,11 +234,7 @@ export const rewardWebhook = functions.https.onRequest(async (req, res) => {
         updatedAt: now,
       });
 
-      // Update campaign counter atomically with item status change
-      txn.update(campaignRef, {
-        redeemedQuantity: admin.firestore.FieldValue.increment(1),
-        updatedAt: now,
-      });
+      // Campaign counter update handled by onRewardItemWritten trigger
     });
   } catch (txnError: unknown) {
     const errMsg = txnError instanceof Error ? txnError.message : "";

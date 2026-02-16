@@ -201,7 +201,6 @@ export async function reserveRewardItem(
       const pickIndex = (randomIndex + attempt) % candidates.length;
       const candidate = candidates[pickIndex];
       const itemRef = db.collection("rewardItems").doc(candidate.id);
-      const campaignRef = db.collection("rewardCampaigns").doc(campaignId);
 
       try {
         await db.runTransaction(async (txn) => {
@@ -225,11 +224,7 @@ export async function reserveRewardItem(
             },
             updatedAt: nowTimestamp,
           });
-
-          txn.update(campaignRef, {
-            remainingQuantity: admin.firestore.FieldValue.increment(-1),
-            updatedAt: nowTimestamp,
-          });
+          // Campaign counter update handled by onRewardItemWritten trigger
         });
 
         reservedItemId = candidate.id;
@@ -344,14 +339,7 @@ export async function confirmRewardReservation(
       updatedAt: nowTimestamp,
     });
 
-    // Update campaign allocated counter
-    const campaignRef = db
-      .collection("rewardCampaigns")
-      .doc(item.campaignId);
-    txn.update(campaignRef, {
-      allocatedQuantity: admin.firestore.FieldValue.increment(1),
-      updatedAt: nowTimestamp,
-    });
+    // Campaign counter update handled by onRewardItemWritten trigger
   });
 
   // Post-transaction: fire-and-forget non-critical operations
@@ -378,28 +366,7 @@ export async function confirmRewardReservation(
       })
     );
 
-  // Campaign exhaustion check
-  if (item?.campaignId) {
-    db.collection("rewardCampaigns")
-      .doc(item.campaignId)
-      .get()
-      .then(async (campaignDoc) => {
-        if (
-          campaignDoc.exists &&
-          (campaignDoc.data()?.remainingQuantity ?? 0) <= 0
-        ) {
-          await campaignDoc.ref.update({
-            status: "exhausted",
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          });
-        }
-      })
-      .catch((e) =>
-        functions.logger.warn("Failed to check campaign exhaustion", {
-          error: e,
-        })
-      );
-  }
+  // Campaign exhaustion handled by onRewardItemWritten trigger
 
   // Push notification
   if (item?.campaignId) {
@@ -484,14 +451,7 @@ export async function releaseRewardReservation(
       updatedAt: nowTimestamp,
     });
 
-    // Return to campaign pool
-    const campaignRef = db
-      .collection("rewardCampaigns")
-      .doc(item.campaignId);
-    txn.update(campaignRef, {
-      remainingQuantity: admin.firestore.FieldValue.increment(1),
-      updatedAt: nowTimestamp,
-    });
+    // Campaign counter update handled by onRewardItemWritten trigger
   });
 
   // Activity log (fire-and-forget)

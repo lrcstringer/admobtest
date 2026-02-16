@@ -53,6 +53,7 @@ export const getSponsorCampaignReport = functions.https.onCall(
     let totalAllocated = 0;
     let totalRedeemed = 0;
     let totalExpired = 0;
+    let totalRevoked = 0;
     let totalQuantity = 0;
 
     for (const doc of campaignsSnapshot.docs) {
@@ -60,12 +61,15 @@ export const getSponsorCampaignReport = functions.https.onCall(
       const allocated = c.allocatedQuantity || 0;
       const redeemed = c.redeemedQuantity || 0;
       const remaining = c.remainingQuantity || 0;
+      const reserved = c.reservedCount || 0;
+      const expired = c.expiredCount || 0;
+      const revoked = c.revokedCount || 0;
       const total = c.totalQuantity || 0;
-      const expired = total - remaining - allocated - redeemed;
 
       totalAllocated += allocated;
       totalRedeemed += redeemed;
-      totalExpired += Math.max(0, expired);
+      totalExpired += expired;
+      totalRevoked += revoked;
       totalQuantity += total;
 
       campaigns.push({
@@ -75,8 +79,11 @@ export const getSponsorCampaignReport = functions.https.onCall(
         rewardType: c.rewardType,
         totalQuantity: total,
         remainingQuantity: remaining,
+        reservedCount: reserved,
         allocatedQuantity: allocated,
         redeemedQuantity: redeemed,
+        expiredCount: expired,
+        revokedCount: revoked,
         redemptionRate:
           allocated > 0
             ? Math.round((redeemed / allocated) * 10000) / 100
@@ -132,7 +139,8 @@ export const getSponsorCampaignReport = functions.https.onCall(
         totalQuantity,
         totalAllocated,
         totalRedeemed,
-        totalExpired: Math.max(0, totalExpired),
+        totalExpired,
+        totalRevoked,
         overallRedemptionRate:
           totalAllocated > 0
             ? Math.round((totalRedeemed / totalAllocated) * 10000) / 100

@@ -41,6 +41,7 @@ export * from "./rewardAllocation";
 export * from "./rewardScheduled";
 export * from "./rewardWebhook";
 export * from "./rewardSponsorReport";
+export * from "./rewardTriggers";
 export * from "./earnNotifications";
 export * from "./adminAuth";
 export * from "./groups";

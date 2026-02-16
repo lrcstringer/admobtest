@@ -41,29 +41,16 @@ export const processRewardExpiries = functions.pubsub
       .get();
 
     if (!expiredItemsSnapshot.empty) {
-      // Group by campaign for counter updates
-      const campaignExpiryCount = new Map<string, number>();
-
       const batch = db.batch();
       for (const doc of expiredItemsSnapshot.docs) {
-        const data = doc.data();
         batch.update(doc.ref, {
           status: "expired",
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-
-        // Track campaign counter adjustments
-        const campaignId = data.campaignId;
-        if (campaignId) {
-          campaignExpiryCount.set(
-            campaignId,
-            (campaignExpiryCount.get(campaignId) || 0) + 1
-          );
-        }
-
         expiredItems++;
       }
       await batch.commit();
+      // Campaign counters updated by onRewardItemWritten trigger per item
 
       // Write activity log entries
       const logBatch = db.batch();
@@ -83,17 +70,6 @@ export const processRewardExpiries = functions.pubsub
         });
       }
       await logBatch.commit();
-
-      // #21 — Return expired items to inventory so campaign can re-allocate
-      // An expired item represents failed consumption; the campaign paid for it
-      for (const [cId, count] of campaignExpiryCount) {
-        const campaignRef = db.collection("rewardCampaigns").doc(cId);
-        await campaignRef.update({
-          remainingQuantity: admin.firestore.FieldValue.increment(count),
-          allocatedQuantity: admin.firestore.FieldValue.increment(-count),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-      }
     }
 
     // ──────────────────────────────────────────────────────────────────────
@@ -158,17 +134,21 @@ export const processRewardExpiries = functions.pubsub
 // ============================================================================
 
 /**
- * For each active campaign, count actual items by status and compare
- * against the stored counters. Fix mismatches and log discrepancies.
+ * Weekly verification audit — count actual items by status and compare
+ * against trigger-maintained counters. Fix mismatches and log discrepancies.
+ * Reconciles all 7 counter fields: totalQuantity, remainingQuantity,
+ * reservedCount, allocatedQuantity, redeemedQuantity, expiredCount, revokedCount.
  */
 export const reconcileRewardCounts = functions.pubsub
-  .schedule("0 5 * * *") // 5 AM daily
+  .schedule("0 5 * * 1") // 5 AM every Monday
   .timeZone("Africa/Johannesburg")
   .onRun(async () => {
-    // Get all non-deleted campaigns (any status)
+    // Only reconcile campaigns with recent activity (updated in the last 7 days)
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const campaigns = await db
       .collection("rewardCampaigns")
       .where("isDeleted", "==", false)
+      .where("updatedAt", ">=", admin.firestore.Timestamp.fromDate(oneWeekAgo))
       .get();
 
     let checkedCampaigns = 0;
@@ -178,58 +158,69 @@ export const reconcileRewardCounts = functions.pubsub
       const campaign = campaignDoc.data();
       checkedCampaigns++;
 
-      // Count actual items by status (include "reserved" in remainingQuantity calculation)
-      const [availableCount, reservedCount, allocatedCount, redeemedCount] =
-        await Promise.all([
-          db
-            .collection("rewardItems")
-            .where("campaignId", "==", campaignDoc.id)
-            .where("status", "==", "available")
-            .count()
-            .get(),
-          db
-            .collection("rewardItems")
-            .where("campaignId", "==", campaignDoc.id)
-            .where("status", "==", "reserved")
-            .count()
-            .get(),
-          db
-            .collection("rewardItems")
-            .where("campaignId", "==", campaignDoc.id)
-            .where("status", "==", "allocated")
-            .count()
-            .get(),
-          db
-            .collection("rewardItems")
-            .where("campaignId", "==", campaignDoc.id)
-            .where("status", "==", "redeemed")
-            .count()
-            .get(),
-        ]);
+      // Count actual items by all 6 statuses
+      const [
+        availableCount, reservedCount, allocatedCount,
+        redeemedCount, expiredCount, revokedCount,
+      ] = await Promise.all([
+        db.collection("rewardItems")
+          .where("campaignId", "==", campaignDoc.id)
+          .where("status", "==", "available").count().get(),
+        db.collection("rewardItems")
+          .where("campaignId", "==", campaignDoc.id)
+          .where("status", "==", "reserved").count().get(),
+        db.collection("rewardItems")
+          .where("campaignId", "==", campaignDoc.id)
+          .where("status", "==", "allocated").count().get(),
+        db.collection("rewardItems")
+          .where("campaignId", "==", campaignDoc.id)
+          .where("status", "==", "redeemed").count().get(),
+        db.collection("rewardItems")
+          .where("campaignId", "==", campaignDoc.id)
+          .where("status", "==", "expired").count().get(),
+        db.collection("rewardItems")
+          .where("campaignId", "==", campaignDoc.id)
+          .where("status", "==", "revoked").count().get(),
+      ]);
 
       const actualAvailable = availableCount.data().count;
-      // Reserved items have already decremented remainingQuantity, so they don't
-      // need to be included here. The reserved count is logged for diagnostics.
-      const actualReserved = reservedCount.data().count; void actualReserved;
+      const actualReserved = reservedCount.data().count;
       const actualAllocated = allocatedCount.data().count;
       const actualRedeemed = redeemedCount.data().count;
+      const actualExpired = expiredCount.data().count;
+      const actualRevoked = revokedCount.data().count;
+      const actualTotal = actualAvailable + actualReserved + actualAllocated
+        + actualRedeemed + actualExpired + actualRevoked;
 
-      // remainingQuantity = available items only (reserved are already decremented)
+      // Read stored counter values
       const storedRemaining = campaign.remainingQuantity ?? 0;
+      const storedReserved = campaign.reservedCount ?? 0;
       const storedAllocated = campaign.allocatedQuantity ?? 0;
       const storedRedeemed = campaign.redeemedQuantity ?? 0;
+      const storedExpired = campaign.expiredCount ?? 0;
+      const storedRevoked = campaign.revokedCount ?? 0;
+      const storedTotal = campaign.totalQuantity ?? 0;
 
-      // Check for mismatches
-      const hasRemainingMismatch = actualAvailable !== storedRemaining;
-      const hasAllocatedMismatch = actualAllocated !== storedAllocated;
-      const hasRedeemedMismatch = actualRedeemed !== storedRedeemed;
+      // Check for mismatches across all 7 fields
+      const hasMismatch =
+        actualAvailable !== storedRemaining ||
+        actualReserved !== storedReserved ||
+        actualAllocated !== storedAllocated ||
+        actualRedeemed !== storedRedeemed ||
+        actualExpired !== storedExpired ||
+        actualRevoked !== storedRevoked ||
+        actualTotal !== storedTotal;
 
-      if (hasRemainingMismatch || hasAllocatedMismatch || hasRedeemedMismatch) {
-        // Fix the counters
+      if (hasMismatch) {
+        // Fix all counters
         await campaignDoc.ref.update({
+          totalQuantity: actualTotal,
           remainingQuantity: actualAvailable,
+          reservedCount: actualReserved,
           allocatedQuantity: actualAllocated,
           redeemedQuantity: actualRedeemed,
+          expiredCount: actualExpired,
+          revokedCount: actualRevoked,
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
 
@@ -238,17 +229,25 @@ export const reconcileRewardCounts = functions.pubsub
           campaignId: campaignDoc.id,
           action: "reconciled",
           performedBy: "system",
-          notes: "Counter reconciliation",
+          notes: "Weekly counter reconciliation audit",
           metadata: {
             stored: {
+              total: storedTotal,
               remaining: storedRemaining,
+              reserved: storedReserved,
               allocated: storedAllocated,
               redeemed: storedRedeemed,
+              expired: storedExpired,
+              revoked: storedRevoked,
             },
             actual: {
+              total: actualTotal,
               remaining: actualAvailable,
+              reserved: actualReserved,
               allocated: actualAllocated,
               redeemed: actualRedeemed,
+              expired: actualExpired,
+              revoked: actualRevoked,
             },
           },
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -260,20 +259,23 @@ export const reconcileRewardCounts = functions.pubsub
           campaignId: campaignDoc.id,
           campaignName: campaign.name,
           stored: {
-            remaining: storedRemaining,
-            allocated: storedAllocated,
-            redeemed: storedRedeemed,
+            total: storedTotal, remaining: storedRemaining,
+            reserved: storedReserved, allocated: storedAllocated,
+            redeemed: storedRedeemed, expired: storedExpired,
+            revoked: storedRevoked,
           },
           actual: {
-            remaining: actualAvailable,
-            allocated: actualAllocated,
-            redeemed: actualRedeemed,
+            total: actualTotal, remaining: actualAvailable,
+            reserved: actualReserved, allocated: actualAllocated,
+            redeemed: actualRedeemed, expired: actualExpired,
+            revoked: actualRevoked,
           },
         });
 
         // If remaining went to 0, check if campaign should be exhausted
         if (
           actualAvailable === 0 &&
+          actualReserved === 0 &&
           campaign.status === "active"
         ) {
           await campaignDoc.ref.update({
