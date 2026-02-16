@@ -665,7 +665,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
     required Map<String, dynamic>? activePot,
     required Color color,
   }) {
-    final participants = activePot?['participantCount'] as int? ?? 0;
+    final participants = (activePot?['participantCount'] as num?)?.toInt() ?? 0;
     final periodEnd = activePot?['periodEnd'];
     final isActive = activePot?['isActive'] == true;
     // Check if pot period has ended but not yet distributed
@@ -936,8 +936,8 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
           final type = dist['type'] as String? ?? '';
           final isDaily = type == 'daily';
           final winners = dist['winners'] as List<dynamic>? ?? [];
-          final totalParticipants = dist['totalParticipants'] as int? ?? dist['participantCount'] as int? ?? 0;
-          final totalTokens = dist['totalTokens'] as int? ?? 0;
+          final totalParticipants = (dist['totalParticipants'] as num?)?.toInt() ?? (dist['participantCount'] as num?)?.toInt() ?? 0;
+          final totalTokens = (dist['totalTokens'] as num?)?.toInt() ?? 0;
 
           return Column(
             children: [
@@ -1051,10 +1051,10 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: winners.map((w) {
                       final winner = w as Map<String, dynamic>;
-                      final rank = winner['rank'] as int? ?? 0;
+                      final rank = (winner['rank'] as num?)?.toInt() ?? 0;
                       final name =
                           winner['displayName'] as String? ?? 'User';
-                      final tokens = winner['tokensWon'] as int? ?? 0;
+                      final tokens = (winner['tokensWon'] as num?)?.toInt() ?? 0;
                       final pct = winner['percentage'] as num? ?? 0;
 
                       return ListTile(
