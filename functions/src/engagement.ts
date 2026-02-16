@@ -23,7 +23,6 @@ import {
   processEarningWithSplit,
   LedgerConfig,
   AccountId,
-  getOrCreateDefaultSubAccount,
   getOrCreateBrandSubAccount,
   getBalance,
   createEscrowReservation,
@@ -497,6 +496,16 @@ export const processEngagement = functions.https.onCall(
           console.error("Failed to release reward reservation on evidence failure:", e)
         );
       }
+      // Reverse escrow if tokens were reserved — return them to the source immediately
+      if (engagement.escrowJournalId) {
+        await reverseJournal(
+          engagement.escrowJournalId,
+          "Evidence validation failed",
+          "system"
+        ).catch((e) =>
+          console.error("Failed to reverse escrow on evidence failure:", e)
+        );
+      }
       await engagementDoc.ref.update({
         status: EngagementStatus.FAILED,
         failedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -623,10 +632,9 @@ export const processEngagement = functions.https.onCall(
     // Get campaignId - support multiple field names
     const campaignId = engagement.campaignId || engagement.audienceCampaignId;
 
-    // Calculate token split — NO rounding anywhere.
-    // Pot shares are exact 5%, user gets the remainder.
-    const dailyPotShare = rewardAmount * LedgerConfig.EARNING_DAILY_POT_SHARE;
-    const weeklyPotShare = rewardAmount * LedgerConfig.EARNING_WEEKLY_POT_SHARE;
+    // Calculate token split — floor pot shares to avoid fractional tokens.
+    const dailyPotShare = Math.floor(rewardAmount * LedgerConfig.EARNING_DAILY_POT_SHARE);
+    const weeklyPotShare = Math.floor(rewardAmount * LedgerConfig.EARNING_WEEKLY_POT_SHARE);
     const userShare = rewardAmount - dailyPotShare - weeklyPotShare;
 
     // ===========================================================================
@@ -681,9 +689,9 @@ export const processEngagement = functions.https.onCall(
     }
 
     // ===========================================================================
-    // Determine user sub-account (default or brand-restricted)
+    // Determine user sub-account (brand-restricted only; otherwise main wallet)
     // ===========================================================================
-    let subAccountId: string;
+    let subAccountId: string | undefined;
 
     if (tokenDestAccountTypeId && clientName) {
       // Thread specifies a restricted wallet type — use canonical sub-account function
@@ -694,11 +702,8 @@ export const processEngagement = functions.https.onCall(
         `${clientName} Wallet`
       );
       subAccountId = brandResult.subAccountId;
-    } else {
-      // Use default sub-account
-      const defaultResult = await getOrCreateDefaultSubAccount(userId);
-      subAccountId = defaultResult.subAccountId;
     }
+    // else: no sub-account — tokens go to main wallet (ledger account balance)
 
     // Process reward through the Trust Ledger system
     // This handles the 90/5/5 split: 90% to user, 5% daily pot, 5% weekly pot

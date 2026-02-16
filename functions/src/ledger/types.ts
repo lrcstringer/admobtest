@@ -54,7 +54,8 @@ export interface LedgerAccount {
   type: AccountType;
   name: string; // Human-readable name
   ownerId?: string; // userId for user accounts, providerId for suppliers
-  balance: number; // Current balance (always kept in sync)
+  balance: number; // Current balance (maintained by journal system)
+  allocatedBalance: number; // Sum of all active sub-account balances
   currency: "TOKEN"; // Always TOKEN for iMali
   status: AccountStatus;
   metadata: Record<string, unknown>;

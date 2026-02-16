@@ -8,7 +8,7 @@ import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
   processReferralRewards,
   LedgerConfig,
-  getOrCreateDefaultSubAccount,
+  getOrCreateUserAccount,
 } from "./ledger";
 import { createEngagementStats } from "./engagementStats";
 
@@ -72,9 +72,7 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
 
   const now = admin.firestore.FieldValue.serverTimestamp();
 
-  // Get or create default sub-accounts for both users
-  const { subAccountId: referrerSubAccountId } = await getOrCreateDefaultSubAccount(referrerUserId);
-  const { subAccountId: refereeSubAccountId } = await getOrCreateDefaultSubAccount(refereeUserId);
+  // Referral rewards go to main wallet (no sub-account needed)
 
   // Create referral record first
   const referralRef = db.collection("referrals").doc();
@@ -89,8 +87,8 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
     status: "processing",
     referrerReward: REFERRER_REWARD,
     refereeReward: REFEREE_REWARD,
-    referrerSubAccountId: referrerSubAccountId,
-    refereeSubAccountId: refereeSubAccountId,
+    referrerSubAccountId: null,
+    refereeSubAccountId: null,
     createdAt: now,
     registeredAt: now,
     qualifiedAt: now,
@@ -98,13 +96,13 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
   });
 
   // Process referral rewards through the Trust Ledger system
-  // This transfers tokens from client:imalichat account to both users' sub-accounts
+  // Tokens go to both users' main wallets (ledger account balances)
   const ledgerResult = await processReferralRewards(
     referrerUserId,
     refereeUserId,
     referralRef.id,
-    referrerSubAccountId,
-    refereeSubAccountId,
+    undefined, // Referrer main wallet
+    undefined, // Referee main wallet
     {
       referralCode: code.toUpperCase(),
       refereeDisplayName,
@@ -208,10 +206,14 @@ export const generateReferralCode = functions.firestore
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Ledger account is created lazily by getOrCreateUserAccount()
-    // when the user first earns tokens (via processEarningWithSplit).
-    // No need to pre-create a default sub-account — the ledger account
-    // IS the user's main wallet.
+    // Eagerly create the user's main ledger account (= their main wallet).
+    // No default sub-account — the ledger account IS the main wallet.
+    try {
+      await getOrCreateUserAccount(userId);
+      console.log(`Created ledger account for user ${userId}`);
+    } catch (error) {
+      console.error(`Failed to create ledger account for user ${userId}:`, error);
+    }
 
     // Create engagement stats document
     try {

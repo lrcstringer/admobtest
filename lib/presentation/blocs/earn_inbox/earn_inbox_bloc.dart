@@ -57,7 +57,7 @@ class EarnInboxBloc extends Bloc<EarnInboxEvent, EarnInboxState> {
     _RefreshInbox event,
     Emitter<EarnInboxState> emit,
   ) async {
-    final result = await _earnRepository.getEligibleInbox();
+    final result = await _earnRepository.getEligibleInbox(forceRefresh: true);
 
     result.fold(
       (failure) => emit(state.copyWith(

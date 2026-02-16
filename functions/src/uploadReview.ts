@@ -12,9 +12,13 @@ import { requireAdminPermission, logAdminAction } from "./adminAuth";
 import * as admin from "firebase-admin";
 import {
   processEarningWithSplit,
-  getOrCreateDefaultSubAccount,
+  processEscrowCompletion,
+  reverseJournal,
+  getOrCreateBrandSubAccount,
   AccountId,
+  LedgerConfig,
 } from "./ledger";
+import { releaseRewardReservation } from "./rewardAllocation";
 import { updateEngagementStats } from "./engagementStats";
 import { updateDailyScore, updateReferrerAssistScore, updateLeaderboardScores } from "./dailyScores";
 
@@ -69,6 +73,25 @@ export const adminReviewUpload = functions.https.onCall(
 
     // ── REJECT ──
     if (action === "reject") {
+      // Reverse escrow if tokens were reserved
+      if (engagement.escrowJournalId) {
+        await reverseJournal(
+          engagement.escrowJournalId,
+          `Upload rejected by admin: ${reason || "No reason provided"}`,
+          adminUid
+        );
+      }
+
+      // Release reward item reservation if one exists
+      if (engagement.reservedRewardItemId) {
+        await releaseRewardReservation(
+          engagement.reservedRewardItemId,
+          engagementId
+        ).catch((e: unknown) =>
+          console.error("Failed to release reward reservation on rejection:", e)
+        );
+      }
+
       await engagementRef.update({
         status: "rejected",
         rejectedAt: now,
@@ -109,51 +132,71 @@ export const adminReviewUpload = functions.https.onCall(
       }
     }
 
-    // Get or create user sub-account
-    let subAccountId: string;
-    if (clientId && engagement.earnOpportunityId) {
-      // Check for brand-specific sub-account
-      const subAccountQuery = await db
-        .collection("users")
-        .doc(userId)
-        .collection("subAccounts")
-        .where("clientId", "==", clientId)
-        .where("isActive", "==", true)
-        .limit(1)
-        .get();
-
-      if (!subAccountQuery.empty) {
-        subAccountId = subAccountQuery.docs[0].id;
-      } else {
-        const defaultResult = await getOrCreateDefaultSubAccount(userId);
-        subAccountId = defaultResult.subAccountId;
-      }
-    } else {
-      const defaultResult = await getOrCreateDefaultSubAccount(userId);
-      subAccountId = defaultResult.subAccountId;
+    // Determine user sub-account (brand-restricted only; otherwise main wallet)
+    // Uses canonical ledgerAccounts/user:{uid}/subAccounts/ path (same as engagement.ts)
+    let subAccountId: string | undefined;
+    if (tokenDestAccountTypeId) {
+      // Thread specifies a restricted wallet type — use canonical sub-account function
+      const clientDisplayName = engagement.clientName || "Brand";
+      const brandResult = await getOrCreateBrandSubAccount(
+        userId,
+        tokenDestAccountTypeId,
+        `${clientDisplayName} Wallet`
+      );
+      subAccountId = brandResult.subAccountId;
     }
+    // else: no restricted type — tokens go to main wallet (ledger account balance)
 
     // Process reward through Trust Ledger (90/5/5 split)
     // tokenSourceAccountId is the ledger account to debit (client main or sub-account)
     const tokenSourceAccountId = clientSubAccountId
       || (clientId ? AccountId.client(clientId) : AccountId.client("imalichat"));
 
-    const ledgerResult = await processEarningWithSplit(
-      userId,
-      rewardAmount,
-      engagementId,
-      `Earned from upload (admin approved)`,
-      tokenSourceAccountId,
-      subAccountId,
-      tokenDestAccountTypeId,
-      {
-        engagementType: engagement.type,
-        earnOpportunityId: engagement.earnOpportunityId,
-        threadId: engagement.threadId,
-        clientId: clientId,
-        reviewedBy: adminUid,
-      },
-    );
+    // Calculate split for stats (must use userShare, not full rewardAmount)
+    const dailyPotShare = Math.floor(rewardAmount * LedgerConfig.EARNING_DAILY_POT_SHARE);
+    const weeklyPotShare = Math.floor(rewardAmount * LedgerConfig.EARNING_WEEKLY_POT_SHARE);
+    const userShare = rewardAmount - dailyPotShare - weeklyPotShare;
+
+    let ledgerResult;
+
+    if (engagement.escrowJournalId) {
+      // ESCROW PATH: Release tokens from escrow
+      const escrowAmount = engagement.escrowAmount || rewardAmount;
+      ledgerResult = await processEscrowCompletion(
+        userId,
+        rewardAmount,
+        escrowAmount,
+        engagementId,
+        tokenSourceAccountId,
+        subAccountId,
+        tokenDestAccountTypeId,
+        {
+          engagementType: engagement.type,
+          earnOpportunityId: engagement.earnOpportunityId,
+          threadId: engagement.threadId,
+          clientId: clientId,
+          reviewedBy: adminUid,
+        },
+      );
+    } else {
+      // NON-ESCROW PATH: Direct earning split
+      ledgerResult = await processEarningWithSplit(
+        userId,
+        rewardAmount,
+        engagementId,
+        `Earned from upload (admin approved)`,
+        tokenSourceAccountId,
+        subAccountId,
+        tokenDestAccountTypeId,
+        {
+          engagementType: engagement.type,
+          earnOpportunityId: engagement.earnOpportunityId,
+          threadId: engagement.threadId,
+          clientId: clientId,
+          reviewedBy: adminUid,
+        },
+      );
+    }
 
     if (!ledgerResult.success) {
       throw new functions.https.HttpsError(
@@ -162,20 +205,20 @@ export const adminReviewUpload = functions.https.onCall(
       );
     }
 
-    // Update engagement to completed
+    // Update engagement to completed — record userShare (90%), not full rewardAmount
     await engagementRef.update({
       status: "completed",
       completedAt: now,
-      tokensEarned: rewardAmount,
+      tokensEarned: userShare,
       reviewedBy: adminUid,
       reviewedAt: now,
       updatedAt: now,
     });
 
-    // Update stats (mirrors processEngagement flow)
+    // Update stats (mirrors processEngagement flow) — use userShare, not rewardAmount
     try {
       // Update engagement stats (streak tracking)
-      const streakInfo = await updateEngagementStats(userId, rewardAmount, 1);
+      const streakInfo = await updateEngagementStats(userId, userShare, 1);
 
       // Get user profile for leaderboard display
       const userDoc = await db.collection("users").doc(userId).get();
@@ -190,7 +233,7 @@ export const adminReviewUpload = functions.https.onCall(
       // Update daily score
       const updatedDailyScore = await updateDailyScore(
         userId,
-        rewardAmount,
+        userShare,
         streakInfo.currentStreak,
         streakInfo.multiplier,
         userProfile
@@ -206,19 +249,19 @@ export const adminReviewUpload = functions.https.onCall(
 
       // If user has a referrer, update referrer's assist score
       if (userData?.referredBy) {
-        await updateReferrerAssistScore(userData.referredBy, rewardAmount);
+        await updateReferrerAssistScore(userData.referredBy, userShare);
       }
     } catch (statsError) {
       console.warn("Non-critical: stats update failed after upload approval", statsError);
     }
 
-    logAdminAction(adminCtx.uid, "adminReviewUpload", "success", { engagementId, action: "approved", userId, tokensAwarded: rewardAmount }).catch(() => {});
+    logAdminAction(adminCtx.uid, "adminReviewUpload", "success", { engagementId, action: "approved", userId, tokensAwarded: userShare }).catch(() => {});
 
     return {
       success: true,
       action: "approved",
-      tokensAwarded: rewardAmount,
-      message: `Upload approved — ${rewardAmount} tokens awarded`,
+      tokensAwarded: userShare,
+      message: `Upload approved — ${userShare} tokens awarded (${rewardAmount} total with pot split)`,
     };
   }
 );

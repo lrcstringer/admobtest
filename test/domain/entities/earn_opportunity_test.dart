@@ -94,6 +94,16 @@ void main() {
         expect(opp.isCompletedByUser, isTrue);
       });
 
+      test('returns true when userEngagementStatus is pending_review', () {
+        final opp = createOpportunity(userEngagementStatus: 'pending_review');
+        expect(opp.isCompletedByUser, isTrue);
+      });
+
+      test('returns true when userEngagementStatus is rewarded', () {
+        final opp = createOpportunity(userEngagementStatus: 'rewarded');
+        expect(opp.isCompletedByUser, isTrue);
+      });
+
       test('returns false when userEngagementStatus is null', () {
         final opp = createOpportunity(userEngagementStatus: null);
         expect(opp.isCompletedByUser, isFalse);
@@ -106,6 +116,16 @@ void main() {
 
       test('returns false when userEngagementStatus is failed', () {
         final opp = createOpportunity(userEngagementStatus: 'failed');
+        expect(opp.isCompletedByUser, isFalse);
+      });
+
+      test('returns false when userEngagementStatus is abandoned', () {
+        final opp = createOpportunity(userEngagementStatus: 'abandoned');
+        expect(opp.isCompletedByUser, isFalse);
+      });
+
+      test('returns false when userEngagementStatus is rejected', () {
+        final opp = createOpportunity(userEngagementStatus: 'rejected');
         expect(opp.isCompletedByUser, isFalse);
       });
     });

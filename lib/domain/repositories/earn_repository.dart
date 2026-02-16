@@ -99,7 +99,7 @@ abstract class EarnRepository {
   // =========================================================================
 
   /// Get eligible inbox grouped by client (server-side targeting)
-  Future<Either<Failure, EligibleInboxResult>> getEligibleInbox();
+  Future<Either<Failure, EligibleInboxResult>> getEligibleInbox({bool forceRefresh = false});
 
   /// Get user's earn notifications
   Future<Either<Failure, List<EarnNotification>>> getEarnNotifications();

@@ -18,14 +18,17 @@ class WalletState with _$WalletState {
 
   const WalletState._();
 
-  /// Get balance from ledger account (primary source of truth)
+  /// Total balance from ledger account (primary source of truth)
   int get balance => ledgerAccount?.balance ?? 0;
+
+  /// Main wallet available = balance minus tokens allocated to sub-accounts
+  int get mainWalletAvailable => ledgerAccount?.mainWalletAvailable ?? 0;
 
   /// Get balance in ZAR (100 tokens = R1)
   double get balanceZar => AppConstants.tokensToZar(balance);
 
   /// Check if can cashout - ledger balance must meet minimum and account active
-  bool get canCashout => ledgerAccount?.isActive == true && balance >= 5000;
+  bool get canCashout => ledgerAccount?.isActive == true && mainWalletAvailable >= 5000;
 
   /// Get current streak from engagement stats
   int get currentStreak => engagementStats?.currentStreak ?? 0;
@@ -39,18 +42,11 @@ class WalletState with _$WalletState {
   /// Get total tokens earned from engagement stats
   int get totalTokensEarned => engagementStats?.totalTokensEarned ?? 0;
 
-  /// Total portfolio value in tokens (sub-account sum, falls back to ledger balance)
-  int get portfolioBalance {
-    final subTotal = subAccounts.fold(0, (sum, sa) => sum + sa.balance);
-    return subTotal > 0 ? subTotal : balance;
-  }
+  /// Total portfolio value in tokens (ledger balance is the total)
+  int get portfolioBalance => balance;
 
   /// Total portfolio value in ZAR
   double get portfolioBalanceZar => AppConstants.tokensToZar(portfolioBalance);
-
-  /// Get the default (iMaliChat) sub-account
-  SubAccount? get defaultSubAccount =>
-      subAccounts.where((sa) => sa.isDefault).firstOrNull;
 
   /// Get the currently selected sub-account
   SubAccount? get selectedSubAccount => selectedSubAccountId != null

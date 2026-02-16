@@ -23,7 +23,7 @@ export const onUserCreated = functions.firestore
     const userId = context.params.userId;
     // const userData = snap.data();
 
-    // Ledger account with default sub-account is created by generateReferralCode
+    // Ledger account (main wallet, no default sub-account) is created by generateReferralCode
     // Engagement stats are created by generateReferralCode
     // Referral code is created by generateReferralCode
 

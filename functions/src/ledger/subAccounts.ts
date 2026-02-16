@@ -88,52 +88,6 @@ export async function getDefaultSubAccount(
 }
 
 /**
- * Get or create the default sub-account for a user
- * Returns the subAccountId and whether it was newly created
- */
-export async function getOrCreateDefaultSubAccount(
-  userId: string
-): Promise<{ subAccountId: string; isNew: boolean }> {
-  const existing = await getDefaultSubAccount(userId);
-
-  if (existing) {
-    return { subAccountId: existing.id, isNew: false };
-  }
-
-  // Parent doc is the ledger account (user:{uid}) — already created by getOrCreateUserAccount
-  const ledgerAccountRef = db
-    .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(AccountId.user(userId));
-
-  const now = admin.firestore.Timestamp.now();
-
-  // Create the default sub-account
-  const subAccountRef = ledgerAccountRef
-    .collection(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS)
-    .doc();
-
-  const subAccount: SubAccount = {
-    id: subAccountRef.id,
-    userId,
-    accountTypeId: null, // null = unrestricted
-    name: SubAccountConfig.DEFAULT_SUB_ACCOUNT_NAME,
-    balance: 0,
-    lifetimeCredits: 0,
-    lifetimeDebits: 0,
-    isActive: true,
-    isDefault: true,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  await subAccountRef.set(subAccount);
-
-  console.log(`Created default sub-account for user ${userId}: ${subAccountRef.id}`);
-
-  return { subAccountId: subAccountRef.id, isNew: true };
-}
-
-/**
  * Get or create a brand-specific sub-account for a user
  */
 export async function getOrCreateBrandSubAccount(
@@ -397,7 +351,7 @@ export async function creditSubAccount(
       updatedAt: now,
     });
     tx.update(ledgerAccountRef, {
-      totalBalance: admin.firestore.FieldValue.increment(amount),
+      allocatedBalance: admin.firestore.FieldValue.increment(amount),
       updatedAt: now,
     });
   } else {
@@ -409,7 +363,8 @@ export async function creditSubAccount(
         updatedAt: now,
       });
       transaction.update(ledgerAccountRef, {
-        totalBalance: admin.firestore.FieldValue.increment(amount),
+        allocatedBalance: admin.firestore.FieldValue.increment(amount),
+        totalBalance: admin.firestore.FieldValue.increment(amount), // backward compat
         updatedAt: now,
       });
     });
@@ -461,7 +416,7 @@ export async function debitSubAccount(
       updatedAt: now,
     });
     tx.update(ledgerAccountRef, {
-      totalBalance: admin.firestore.FieldValue.increment(-amount),
+      allocatedBalance: admin.firestore.FieldValue.increment(-amount),
       updatedAt: now,
     });
   } else {
@@ -484,7 +439,8 @@ export async function debitSubAccount(
         updatedAt: now,
       });
       transaction.update(ledgerAccountRef, {
-        totalBalance: admin.firestore.FieldValue.increment(-amount),
+        allocatedBalance: admin.firestore.FieldValue.increment(-amount),
+        totalBalance: admin.firestore.FieldValue.increment(-amount), // backward compat
         updatedAt: now,
       });
     });
@@ -529,7 +485,7 @@ export async function getSubAccountBalance(
 }
 
 /**
- * Get user's total balance across all sub-accounts
+ * Get user's total balance across all sub-accounts (allocated portion)
  */
 export async function getUserTotalBalance(userId: string): Promise<number> {
   const ledgerAccountDoc = await db
@@ -541,15 +497,40 @@ export async function getUserTotalBalance(userId: string): Promise<number> {
     return 0;
   }
 
-  return ledgerAccountDoc.data()?.totalBalance || 0;
+  const data = ledgerAccountDoc.data();
+  return data?.allocatedBalance ?? 0;
 }
 
 /**
- * Get user's default sub-account balance
+ * Validate that the user's main wallet has sufficient available balance.
+ *
+ * Main wallet available = ledgerAccount.balance - ledgerAccount.allocatedBalance
+ *
+ * Can be called within a transaction by passing the tx parameter.
  */
-export async function getUserDefaultBalance(userId: string): Promise<number> {
-  const defaultSubAccount = await getDefaultSubAccount(userId);
-  return defaultSubAccount?.balance || 0;
+export async function validateMainWalletBalance(
+  userId: string,
+  requiredAmount: number,
+  tx?: admin.firestore.Transaction
+): Promise<{ available: number; sufficient: boolean }> {
+  const ledgerAccountRef = db
+    .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
+    .doc(AccountId.user(userId));
+
+  const doc = tx
+    ? await tx.get(ledgerAccountRef)
+    : await ledgerAccountRef.get();
+
+  if (!doc.exists) {
+    return { available: 0, sufficient: false };
+  }
+
+  const data = doc.data()!;
+  const balance = data.balance || 0;
+  const allocated = data.allocatedBalance ?? 0;
+  const available = balance - allocated;
+
+  return { available, sufficient: available >= requiredAmount };
 }
 
 // ============================================================================

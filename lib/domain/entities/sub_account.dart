@@ -10,9 +10,8 @@ part 'sub_account.g.dart';
 /// Represents a subdivision within a user's ledger account.
 /// Displayed as "wallet" in the UI but internally called sub-account.
 ///
-/// Each user has:
-/// - One default (unrestricted) sub-account for general use
-/// - Zero or more brand-specific (restricted) sub-accounts
+/// The main wallet is the ledger account itself (id='main' in UI).
+/// Sub-accounts are optional user-created wallets or brand-restricted wallets.
 @freezed
 class SubAccount with _$SubAccount {
   const factory SubAccount({
@@ -41,15 +40,6 @@ class SubAccount with _$SubAccount {
   /// Get balance in ZAR
   double get balanceZar => balance * AppConstants.tokenValueZar;
 
-  /// Check if balance meets cashout minimum
-  bool get canCashout =>
-      isDefault && // Only default account can cashout
-      accountTypeId == null && // Only unrestricted accounts
-      balance >= AppConstants.cashoutMinTokens;
-
   /// Check if this is a restricted (brand) sub-account
   bool get isRestricted => accountTypeId != null;
-
-  /// Check if this is the default (unrestricted) sub-account
-  bool get isUnrestricted => accountTypeId == null && isDefault;
 }

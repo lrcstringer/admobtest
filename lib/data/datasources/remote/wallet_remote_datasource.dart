@@ -310,15 +310,12 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
         .where('isActive', isEqualTo: true)
         .snapshots()
         .map((snapshot) {
-      final models = snapshot.docs.map((doc) {
-        return SubAccountModel.fromFirestore(doc);
-      }).toList();
-      // Sort: default first, then by name
-      models.sort((a, b) {
-        if (a.isDefault && !b.isDefault) return -1;
-        if (!a.isDefault && b.isDefault) return 1;
-        return a.name.compareTo(b.name);
-      });
+      final models = snapshot.docs
+          .map((doc) => SubAccountModel.fromFirestore(doc))
+          .where((m) => !m.isDefault) // Filter out legacy default sub-accounts
+          .toList();
+      // Sort alphabetically by name (main wallet is shown separately in UI)
+      models.sort((a, b) => a.name.compareTo(b.name));
       return models;
     });
   }
@@ -407,6 +404,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       final callable = _functions.httpsCallable('processCashout');
       final result = await callable.call<Map<String, dynamic>>({
         'amount': tokenAmount,
+        'subAccountId': 'main',
         'bankDetails': {
           'method': method.name,
           'destinationDetails': destinationDetails,
@@ -492,32 +490,14 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
   @override
   Future<void> cancelCashout(String cashoutId) async {
-    final userId = currentUserId;
-    if (userId == null) {
-      throw const AuthException(message: 'User not authenticated');
-    }
-
     try {
-      final doc = await _cashoutCollection.doc(cashoutId).get();
-      if (!doc.exists) {
-        throw const ServerException(message: 'Cashout not found');
-      }
-
-      final data = doc.data()!;
-      if (data['userId'] != userId) {
-        throw const ServerException(message: 'Not authorized to cancel this cashout');
-      }
-
-      if (data['status'] != 'pending') {
-        throw const ServerException(message: 'Can only cancel pending cashouts');
-      }
-
-      await _cashoutCollection.doc(cashoutId).update({
-        'status': 'cancelled',
-        'updatedAt': FieldValue.serverTimestamp(),
+      final callable = _functions.httpsCallable('cancelCashout');
+      await callable.call<Map<String, dynamic>>({
+        'cashoutId': cashoutId,
       });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Failed to cancel cashout');
     } catch (e) {
-      if (e is ServerException) rethrow;
       throw ServerException(message: e.toString());
     }
   }

@@ -17,13 +17,14 @@ import {
   failCashout,
   LedgerConfig,
   getSubAccount,
-  getDefaultSubAccount,
-  getOrCreateDefaultSubAccount,
   getUserSubAccounts,
+  creditSubAccount,
+  debitSubAccount,
   transferBetweenSubAccounts,
   processP2PTransfer,
   validateSubAccountAllows,
   validateSubAccountBalance,
+  validateMainWalletBalance,
   AccountId,
 } from "./ledger";
 import { SubAccountConfig } from "./ledger/types";
@@ -41,7 +42,7 @@ export const processCashout = functions.https.onCall(async (data, context) => {
   await requirePlayIntegrity(data, context, "processCashout", "HIGHEST");
 
   const userId = context.auth.uid;
-  const { amount, bankDetails } = data;
+  const { amount, bankDetails, subAccountId: requestedSubAccountId } = data;
 
   // Validate minimum cashout (from ledger config)
   if (amount < LedgerConfig.MIN_CASHOUT_AMOUNT) {
@@ -51,62 +52,77 @@ export const processCashout = functions.https.onCall(async (data, context) => {
     );
   }
 
-  // Get user's default sub-account
-  const subAccount = await getDefaultSubAccount(userId);
-  if (!subAccount) {
-    throw new functions.https.HttpsError(
-      "failed-precondition",
-      "Account not found. Please complete setup first."
-    );
-  }
+  // Determine source: specific sub-account or main wallet
+  let subAccountId: string | undefined;
 
-  // Validate user's account type allows cashout
-  const cashoutAllowed = await validateSubAccountAllows(
-    subAccount.accountTypeId,
-    "cashout"
-  );
-  if (!cashoutAllowed.allowed) {
-    throw new functions.https.HttpsError(
-      "failed-precondition",
-      cashoutAllowed.reason || "This account cannot perform cashouts"
-    );
-  }
+  if (requestedSubAccountId && requestedSubAccountId !== "main") {
+    // Specific sub-account requested
+    const subAccount = await getSubAccount(userId, requestedSubAccountId);
+    if (!subAccount) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Sub-account not found."
+      );
+    }
 
-  // Validate user's sub-account has sufficient balance
-  const balanceCheck = await validateSubAccountBalance(
-    userId,
-    subAccount.id,
-    amount
-  );
-  if (!balanceCheck.allowed) {
-    throw new functions.https.HttpsError(
-      "failed-precondition",
-      balanceCheck.reason || "Insufficient balance"
+    // Validate sub-account's account type allows cashout
+    const cashoutAllowed = await validateSubAccountAllows(
+      subAccount.accountTypeId,
+      "cashout"
     );
+    if (!cashoutAllowed.allowed) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        cashoutAllowed.reason || "This account cannot perform cashouts"
+      );
+    }
+
+    // Validate sub-account balance
+    const balanceCheck = await validateSubAccountBalance(
+      userId,
+      subAccount.id,
+      amount
+    );
+    if (!balanceCheck.allowed) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        balanceCheck.reason || "Insufficient balance"
+      );
+    }
+    subAccountId = subAccount.id;
+  } else {
+    // Main wallet cashout — validate main wallet balance
+    const mainCheck = await validateMainWalletBalance(userId, amount);
+    if (!mainCheck.sufficient) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        `Insufficient balance: has ${mainCheck.available}, needs ${amount}`
+      );
+    }
+    // subAccountId remains undefined → main wallet
   }
 
   const zarAmount = amount / LedgerConfig.TOKENS_PER_ZAR;
 
-  // Create cashout record first
+  // Create cashout record
   const cashoutRef = db.collection("cashouts").doc();
   await cashoutRef.set({
     id: cashoutRef.id,
     userId: userId,
     tokenAmount: amount,
     zarAmount: zarAmount,
-    subAccountId: subAccount.id,
+    subAccountId: subAccountId || null,
     status: "processing",
     bankDetails: bankDetails,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
   // Process cashout through the Trust Ledger system
-  // This moves tokens from user's sub-account to system:cashout_pending
   const ledgerResult = await initiateCashout(
     userId,
     amount,
     cashoutRef.id,
-    subAccount.id, // User's sub-account to debit
+    subAccountId, // Sub-account to debit, or undefined for main wallet
     {
       bankDetails,
       zarAmount,
@@ -218,27 +234,16 @@ export const failCashoutRequest = functions.https.onCall(async (data, context) =
     );
   }
 
-  // Fail/refund cashout through ledger (moves from pending back to user's sub-account)
-  // Get the subAccountId from the cashout record (if not stored, use default)
-  let subAccountId = cashoutData.subAccountId;
-  if (!subAccountId) {
-    // Fallback: get user's default sub-account
-    const subAccount = await getDefaultSubAccount(cashoutData.userId);
-    if (!subAccount) {
-      throw new functions.https.HttpsError(
-        "internal",
-        "Could not find sub-account for refund"
-      );
-    }
-    subAccountId = subAccount.id;
-  }
+  // Fail/refund cashout through ledger (moves from pending back to user's account)
+  // subAccountId may be null for main wallet cashouts
+  const subAccountId = cashoutData.subAccountId || undefined;
 
   const ledgerResult = await failCashout(
     cashoutData.userId,
     cashoutId,
     cashoutData.tokenAmount,
     reason,
-    subAccountId, // User's sub-account to credit with refund
+    subAccountId, // Sub-account to credit, or undefined for main wallet refund
     {
       failedBy: adminCtx.uid,
     }
@@ -268,19 +273,17 @@ export const failCashoutRequest = functions.https.onCall(async (data, context) =
 
 /**
  * Get all sub-accounts (wallets) for the current user.
- * Auto-creates the default sub-account if none exists.
+ * Returns only user-created and brand sub-accounts (no default auto-creation).
  */
 export const getSubAccounts = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
   }
+  requireAppCheck(context, "getSubAccounts");
 
   const userId = context.auth.uid;
 
-  // Ensure default sub-account exists
-  await getOrCreateDefaultSubAccount(userId);
-
-  // Return all active sub-accounts
+  // Return all active sub-accounts (user-created + brand)
   const subAccounts = await getUserSubAccounts(userId);
   return subAccounts;
 });
@@ -292,6 +295,7 @@ export const transferBetweenWallets = functions.https.onCall(async (data, contex
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
   }
+  requireAppCheck(context, "transferBetweenWallets");
 
   const userId = context.auth.uid;
   const { fromSubAccountId, toSubAccountId, amount } = data;
@@ -311,22 +315,57 @@ export const transferBetweenWallets = functions.https.onCall(async (data, contex
     throw new functions.https.HttpsError("invalid-argument", "Source and destination must be different");
   }
 
-  // Enforce account type rules: restricted wallets may not allow outbound transfers
-  const fromSubAccount = await getSubAccount(userId, fromSubAccountId);
-  if (fromSubAccount?.accountTypeId) {
-    const allowed = await validateSubAccountAllows(fromSubAccount.accountTypeId, "p2p_send");
-    if (!allowed.allowed) {
-      throw new functions.https.HttpsError(
-        "failed-precondition",
-        allowed.reason || "This wallet does not allow outbound transfers"
-      );
-    }
-  }
-
   try {
-    await transferBetweenSubAccounts(userId, fromSubAccountId, userId, toSubAccountId, amount);
+    const fromIsMain = fromSubAccountId === "main";
+    const toIsMain = toSubAccountId === "main";
+
+    if (fromIsMain && toIsMain) {
+      throw new functions.https.HttpsError("invalid-argument", "Source and destination cannot both be main wallet");
+    }
+
+    if (fromIsMain) {
+      // Main wallet → sub-account: validate main wallet balance, credit destination only.
+      // creditSubAccount increases allocatedBalance, effectively reducing main wallet available.
+      const { sufficient, available } = await validateMainWalletBalance(userId, amount);
+      if (!sufficient) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          `Insufficient main wallet balance: has ${available}, needs ${amount}`
+        );
+      }
+      await creditSubAccount(userId, toSubAccountId, amount);
+    } else if (toIsMain) {
+      // Sub-account → main wallet: validate source, debit source only.
+      // debitSubAccount decreases allocatedBalance, effectively increasing main wallet available.
+      const fromSubAccount = await getSubAccount(userId, fromSubAccountId);
+      if (fromSubAccount?.accountTypeId) {
+        const allowed = await validateSubAccountAllows(fromSubAccount.accountTypeId, "p2p_send");
+        if (!allowed.allowed) {
+          throw new functions.https.HttpsError(
+            "failed-precondition",
+            allowed.reason || "This wallet does not allow outbound transfers"
+          );
+        }
+      }
+      await debitSubAccount(userId, fromSubAccountId, amount);
+    } else {
+      // Sub-account → sub-account: enforce account type rules on source
+      const fromSubAccount = await getSubAccount(userId, fromSubAccountId);
+      if (fromSubAccount?.accountTypeId) {
+        const allowed = await validateSubAccountAllows(fromSubAccount.accountTypeId, "p2p_send");
+        if (!allowed.allowed) {
+          throw new functions.https.HttpsError(
+            "failed-precondition",
+            allowed.reason || "This wallet does not allow outbound transfers"
+          );
+        }
+      }
+      await transferBetweenSubAccounts(userId, fromSubAccountId, userId, toSubAccountId, amount);
+    }
+
     return { success: true };
   } catch (e: unknown) {
+    if (e instanceof functions.https.HttpsError) throw e;
     const message = e instanceof Error ? e.message : "Transfer failed";
     throw new functions.https.HttpsError("internal", message);
   }
@@ -342,12 +381,12 @@ export const sendP2PTransfer = functions.https.onCall(async (data, context) => {
   requireAppCheck(context, "sendP2PTransfer");
 
   const userId = context.auth.uid;
-  const { recipientUserId, amount, subAccountId, note } = data;
+  const { recipientUserId, amount, subAccountId: requestedSubAccountId, note } = data;
 
-  if (!recipientUserId || !amount || !subAccountId) {
+  if (!recipientUserId || !amount) {
     throw new functions.https.HttpsError(
       "invalid-argument",
-      "recipientUserId, amount, and subAccountId are required"
+      "recipientUserId and amount are required"
     );
   }
 
@@ -359,25 +398,40 @@ export const sendP2PTransfer = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError("invalid-argument", "Cannot send to yourself");
   }
 
-  // Validate sender's sub-account allows P2P sends
-  const subAccount = await getDefaultSubAccount(userId);
-  if (subAccount) {
-    const allowed = await validateSubAccountAllows(subAccount.accountTypeId, "p2p_send");
-    if (!allowed.allowed) {
+  // Determine source: specific sub-account or main wallet
+  let senderSubAccountId: string | undefined;
+
+  if (requestedSubAccountId && requestedSubAccountId !== "main") {
+    // Specific sub-account
+    const subAccount = await getSubAccount(userId, requestedSubAccountId);
+    if (subAccount) {
+      const allowed = await validateSubAccountAllows(subAccount.accountTypeId, "p2p_send");
+      if (!allowed.allowed) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          allowed.reason || "This wallet cannot send tokens"
+        );
+      }
+    }
+
+    // Validate sub-account balance
+    const balanceCheck = await validateSubAccountBalance(userId, requestedSubAccountId, amount);
+    if (!balanceCheck.allowed) {
       throw new functions.https.HttpsError(
         "failed-precondition",
-        allowed.reason || "This wallet cannot send tokens"
+        balanceCheck.reason || "Insufficient balance"
       );
     }
-  }
-
-  // Validate sufficient balance
-  const balanceCheck = await validateSubAccountBalance(userId, subAccountId, amount);
-  if (!balanceCheck.allowed) {
-    throw new functions.https.HttpsError(
-      "failed-precondition",
-      balanceCheck.reason || "Insufficient balance"
-    );
+    senderSubAccountId = requestedSubAccountId;
+  } else {
+    // Main wallet — validate main wallet balance
+    const mainCheck = await validateMainWalletBalance(userId, amount);
+    if (!mainCheck.sufficient) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        `Insufficient balance: has ${mainCheck.available}, needs ${amount}`
+      );
+    }
   }
 
   // Generate a transfer ID
@@ -388,8 +442,8 @@ export const sendP2PTransfer = functions.https.onCall(async (data, context) => {
     recipientUserId,
     amount,
     transferRef.id,
-    subAccountId,
-    undefined, // recipient gets default sub-account
+    senderSubAccountId, // Sender sub-account or undefined for main wallet
+    undefined, // Recipient main wallet
     note || "P2P Transfer",
     { initiatedFrom: "wallet" }
   );
@@ -483,5 +537,78 @@ export const createUserWallet = functions.https.onCall(async (data, context) => 
     success: true,
     subAccountId: subAccountRef.id,
     name: trimmedName,
+  };
+});
+
+/**
+ * Cancel a pending cashout — reverse the ledger transaction and return tokens.
+ */
+export const cancelCashout = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+  }
+  requireAppCheck(context, "cancelCashout");
+
+  const userId = context.auth.uid;
+  const { cashoutId } = data;
+
+  if (!cashoutId) {
+    throw new functions.https.HttpsError("invalid-argument", "cashoutId is required");
+  }
+
+  // Get cashout document
+  const cashoutRef = db.collection("cashouts").doc(cashoutId);
+  const cashoutDoc = await cashoutRef.get();
+
+  if (!cashoutDoc.exists) {
+    throw new functions.https.HttpsError("not-found", "Cashout not found");
+  }
+
+  const cashout = cashoutDoc.data()!;
+
+  // Validate ownership
+  if (cashout.userId !== userId) {
+    throw new functions.https.HttpsError("permission-denied", "Not authorized to cancel this cashout");
+  }
+
+  // Only pending cashouts can be cancelled
+  if (cashout.status !== "pending") {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      "Can only cancel pending cashouts"
+    );
+  }
+
+  const tokenAmount = cashout.tokenAmount || cashout.amount;
+  const subAccountId = cashout.subAccountId === "main" ? undefined : cashout.subAccountId;
+
+  // Use the ledger failCashout function to reverse the transaction
+  const ledgerResult = await failCashout(
+    userId,
+    cashoutId,
+    tokenAmount,
+    "User cancelled cashout",
+    subAccountId,
+  );
+
+  if (!ledgerResult.success) {
+    throw new functions.https.HttpsError(
+      "internal",
+      `Failed to reverse cashout: ${ledgerResult.error}`
+    );
+  }
+
+  // Update cashout document
+  await cashoutRef.update({
+    status: "cancelled",
+    cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    refundLedgerJournalId: ledgerResult.journalId,
+  });
+
+  return {
+    success: true,
+    cashoutId,
+    refundLedgerJournalId: ledgerResult.journalId,
   };
 });

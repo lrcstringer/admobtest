@@ -9,6 +9,7 @@ class LedgerAccountModel {
   final String name;
   final String? ownerId;
   final int balance;
+  final int allocatedBalance;
   final String currency;
   final LedgerAccountStatus status;
   final Map<String, dynamic> metadata;
@@ -22,6 +23,7 @@ class LedgerAccountModel {
     required this.name,
     this.ownerId,
     required this.balance,
+    this.allocatedBalance = 0,
     this.currency = 'TOKEN',
     required this.status,
     this.metadata = const {},
@@ -37,6 +39,8 @@ class LedgerAccountModel {
       name: json['name'] as String? ?? '',
       ownerId: json['ownerId'] as String?,
       balance: (json['balance'] as num?)?.toInt() ?? 0,
+      allocatedBalance: (json['allocatedBalance'] as num?)?.toInt()
+          ?? (json['totalBalance'] as num?)?.toInt() ?? 0,
       currency: json['currency'] as String? ?? 'TOKEN',
       status: _parseAccountStatus(json['status'] as String?),
       metadata: (json['metadata'] as Map<String, dynamic>?) ?? {},
@@ -53,6 +57,7 @@ class LedgerAccountModel {
       name: entity.name,
       ownerId: entity.ownerId,
       balance: entity.balance,
+      allocatedBalance: entity.allocatedBalance,
       currency: entity.currency,
       status: entity.status,
       metadata: entity.metadata,
@@ -69,6 +74,7 @@ class LedgerAccountModel {
       name: name,
       ownerId: ownerId,
       balance: balance,
+      allocatedBalance: allocatedBalance,
       currency: currency,
       status: status,
       metadata: metadata,
@@ -85,6 +91,7 @@ class LedgerAccountModel {
       'name': name,
       'ownerId': ownerId,
       'balance': balance,
+      'allocatedBalance': allocatedBalance,
       'currency': currency,
       'status': status.name,
       'metadata': metadata,

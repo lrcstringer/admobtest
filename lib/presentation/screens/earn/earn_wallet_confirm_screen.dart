@@ -100,7 +100,8 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
 
     final earnState = context.read<EarnBloc>().state;
     final engagement = earnState.currentEngagement;
-    final isFirstCompletion = earnState.history.isEmpty;
+    final walletState = context.read<WalletBloc>().state;
+    final isFirstCompletion = (walletState.engagementStats?.totalEngagementsCompleted ?? 0) <= 1;
     final streakDay = engagement?.streakDayAtCompletion;
     final isStreakMilestone =
         streakDay == 3 || streakDay == 7 || streakDay == 14;

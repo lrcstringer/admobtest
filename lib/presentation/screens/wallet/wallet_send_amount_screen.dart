@@ -47,26 +47,27 @@ class _WalletSendAmountScreenState extends State<WalletSendAmountScreen> {
     final walletBloc = context.read<WalletBloc>();
     final state = walletBloc.state;
 
-    // Determine sub-account to send from
-    final subAccountId =
-        widget.subAccountId ?? state.defaultSubAccount?.id;
-
-    if (subAccountId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No wallet available to send from')),
-      );
-      return;
-    }
+    // Determine sub-account to send from ('main' = main wallet)
+    final subAccountId = widget.subAccountId ?? 'main';
 
     // Check balance
-    final subAccount = state.subAccounts
-        .where((sa) => sa.id == subAccountId)
-        .firstOrNull;
-    if (subAccount != null && _amount > subAccount.balance) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Insufficient balance')),
-      );
-      return;
+    if (subAccountId == 'main') {
+      if (_amount > state.mainWalletAvailable) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Insufficient balance')),
+        );
+        return;
+      }
+    } else {
+      final subAccount = state.subAccounts
+          .where((sa) => sa.id == subAccountId)
+          .firstOrNull;
+      if (subAccount != null && _amount > subAccount.balance) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Insufficient balance')),
+        );
+        return;
+      }
     }
 
     setState(() => _isSending = true);
@@ -101,14 +102,14 @@ class _WalletSendAmountScreenState extends State<WalletSendAmountScreen> {
         appBar: IMaliAppBar(title: 'Send Amount'),
         body: BlocBuilder<WalletBloc, WalletState>(
           builder: (context, state) {
-            final subAccountId =
-                widget.subAccountId ?? state.defaultSubAccount?.id;
-            final subAccount = subAccountId != null
-                ? state.subAccounts
-                    .where((sa) => sa.id == subAccountId)
-                    .firstOrNull
-                : null;
-            final availableBalance = subAccount?.balance ?? state.balance;
+            final subAccountId = widget.subAccountId ?? 'main';
+            final availableBalance = subAccountId == 'main'
+                ? state.mainWalletAvailable
+                : (state.subAccounts
+                        .where((sa) => sa.id == subAccountId)
+                        .firstOrNull
+                        ?.balance ??
+                    state.mainWalletAvailable);
 
             return SingleChildScrollView(
               child: WaveBackground(

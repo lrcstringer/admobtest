@@ -26,6 +26,7 @@ mixin _$LedgerAccount {
   String get name => throw _privateConstructorUsedError;
   String? get ownerId => throw _privateConstructorUsedError;
   int get balance => throw _privateConstructorUsedError;
+  int get allocatedBalance => throw _privateConstructorUsedError;
   String get currency => throw _privateConstructorUsedError;
   LedgerAccountStatus get status => throw _privateConstructorUsedError;
   Map<String, dynamic> get metadata => throw _privateConstructorUsedError;
@@ -56,6 +57,7 @@ abstract class $LedgerAccountCopyWith<$Res> {
     String name,
     String? ownerId,
     int balance,
+    int allocatedBalance,
     String currency,
     LedgerAccountStatus status,
     Map<String, dynamic> metadata,
@@ -85,6 +87,7 @@ class _$LedgerAccountCopyWithImpl<$Res, $Val extends LedgerAccount>
     Object? name = null,
     Object? ownerId = freezed,
     Object? balance = null,
+    Object? allocatedBalance = null,
     Object? currency = null,
     Object? status = null,
     Object? metadata = null,
@@ -113,6 +116,10 @@ class _$LedgerAccountCopyWithImpl<$Res, $Val extends LedgerAccount>
             balance: null == balance
                 ? _value.balance
                 : balance // ignore: cast_nullable_to_non_nullable
+                      as int,
+            allocatedBalance: null == allocatedBalance
+                ? _value.allocatedBalance
+                : allocatedBalance // ignore: cast_nullable_to_non_nullable
                       as int,
             currency: null == currency
                 ? _value.currency
@@ -159,6 +166,7 @@ abstract class _$$LedgerAccountImplCopyWith<$Res>
     String name,
     String? ownerId,
     int balance,
+    int allocatedBalance,
     String currency,
     LedgerAccountStatus status,
     Map<String, dynamic> metadata,
@@ -187,6 +195,7 @@ class __$$LedgerAccountImplCopyWithImpl<$Res>
     Object? name = null,
     Object? ownerId = freezed,
     Object? balance = null,
+    Object? allocatedBalance = null,
     Object? currency = null,
     Object? status = null,
     Object? metadata = null,
@@ -215,6 +224,10 @@ class __$$LedgerAccountImplCopyWithImpl<$Res>
         balance: null == balance
             ? _value.balance
             : balance // ignore: cast_nullable_to_non_nullable
+                  as int,
+        allocatedBalance: null == allocatedBalance
+            ? _value.allocatedBalance
+            : allocatedBalance // ignore: cast_nullable_to_non_nullable
                   as int,
         currency: null == currency
             ? _value.currency
@@ -254,6 +267,7 @@ class _$LedgerAccountImpl extends _LedgerAccount {
     required this.name,
     this.ownerId,
     required this.balance,
+    this.allocatedBalance = 0,
     this.currency = 'TOKEN',
     required this.status,
     final Map<String, dynamic> metadata = const {},
@@ -278,6 +292,9 @@ class _$LedgerAccountImpl extends _LedgerAccount {
   final int balance;
   @override
   @JsonKey()
+  final int allocatedBalance;
+  @override
+  @JsonKey()
   final String currency;
   @override
   final LedgerAccountStatus status;
@@ -300,7 +317,7 @@ class _$LedgerAccountImpl extends _LedgerAccount {
 
   @override
   String toString() {
-    return 'LedgerAccount(id: $id, type: $type, name: $name, ownerId: $ownerId, balance: $balance, currency: $currency, status: $status, metadata: $metadata, createdAt: $createdAt, updatedAt: $updatedAt, version: $version)';
+    return 'LedgerAccount(id: $id, type: $type, name: $name, ownerId: $ownerId, balance: $balance, allocatedBalance: $allocatedBalance, currency: $currency, status: $status, metadata: $metadata, createdAt: $createdAt, updatedAt: $updatedAt, version: $version)';
   }
 
   @override
@@ -313,6 +330,8 @@ class _$LedgerAccountImpl extends _LedgerAccount {
             (identical(other.name, name) || other.name == name) &&
             (identical(other.ownerId, ownerId) || other.ownerId == ownerId) &&
             (identical(other.balance, balance) || other.balance == balance) &&
+            (identical(other.allocatedBalance, allocatedBalance) ||
+                other.allocatedBalance == allocatedBalance) &&
             (identical(other.currency, currency) ||
                 other.currency == currency) &&
             (identical(other.status, status) || other.status == status) &&
@@ -333,6 +352,7 @@ class _$LedgerAccountImpl extends _LedgerAccount {
     name,
     ownerId,
     balance,
+    allocatedBalance,
     currency,
     status,
     const DeepCollectionEquality().hash(_metadata),
@@ -362,6 +382,7 @@ abstract class _LedgerAccount extends LedgerAccount {
     required final String name,
     final String? ownerId,
     required final int balance,
+    final int allocatedBalance,
     final String currency,
     required final LedgerAccountStatus status,
     final Map<String, dynamic> metadata,
@@ -384,6 +405,8 @@ abstract class _LedgerAccount extends LedgerAccount {
   String? get ownerId;
   @override
   int get balance;
+  @override
+  int get allocatedBalance;
   @override
   String get currency;
   @override

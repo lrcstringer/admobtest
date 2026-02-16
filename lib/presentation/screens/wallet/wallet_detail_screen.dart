@@ -22,9 +22,23 @@ class WalletDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<WalletBloc, WalletState>(
       builder: (context, state) {
-        final subAccount = state.subAccounts
-            .where((sa) => sa.id == subAccountId)
-            .firstOrNull;
+        // Handle main wallet (synthetic sub-account from ledger account)
+        final subAccount = subAccountId == 'main'
+            ? SubAccount(
+                id: 'main',
+                userId: '',
+                name: 'Main Wallet',
+                balance: state.mainWalletAvailable,
+                lifetimeCredits: 0,
+                lifetimeDebits: 0,
+                isActive: true,
+                isDefault: true,
+                createdAt: state.ledgerAccount?.createdAt ?? DateTime.now(),
+                updatedAt: state.ledgerAccount?.updatedAt ?? DateTime.now(),
+              )
+            : state.subAccounts
+                .where((sa) => sa.id == subAccountId)
+                .firstOrNull;
 
         if (subAccount == null) {
           // Still loading — show spinner
@@ -156,13 +170,19 @@ class WalletDetailScreen extends StatelessWidget {
           Icon(
             subAccount.isDefault
                 ? Icons.account_balance_wallet
-                : Icons.storefront,
+                : subAccount.isRestricted
+                    ? Icons.storefront
+                    : Icons.savings_outlined,
             color: Colors.white.withValues(alpha: 0.8),
             size: 20,
           ),
           const SizedBox(width: 8),
           Text(
-            subAccount.isDefault ? 'Main Wallet' : 'Brand Wallet',
+            subAccount.isDefault
+                ? 'Main Wallet'
+                : subAccount.isRestricted
+                    ? 'Brand Wallet'
+                    : 'Custom Wallet',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.white.withValues(alpha: 0.8),
                 ),

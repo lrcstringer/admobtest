@@ -122,12 +122,13 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _SelectThread event,
     Emitter<EarnState> emit,
   ) async {
-    if (state.threads.isEmpty) return;
-
-    final thread = state.threads.firstWhere(
-      (t) => t.id == event.threadId,
-      orElse: () => state.threads.first,
-    );
+    // Find the thread in state (may be null if navigating from inbox)
+    final thread = state.threads.isEmpty
+        ? null
+        : state.threads.firstWhere(
+            (t) => t.id == event.threadId,
+            orElse: () => state.threads.first,
+          );
 
     emit(state.copyWith(
       selectedThread: thread,
@@ -136,7 +137,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
       opportunitiesStatus: EarnStatus.loading,
     ));
 
-    // Load opportunities for the selected thread
+    // Load opportunities for the selected thread regardless of threads list
     add(EarnEvent.loadOpportunities(threadId: event.threadId));
   }
 

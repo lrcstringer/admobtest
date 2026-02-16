@@ -51,7 +51,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   DateTime? _videoStartedAt;
   int _watchDurationMs = 0;
   bool _videoSeeked = false;
-  final bool _screenVisible = true;
+  bool _screenVisible = true;
   bool _appInForeground = true;
   Timer? _progressTimer;
 
@@ -141,17 +141,20 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
         _appInForeground = false;
+        _screenVisible = false;
         _videoController?.pause();
         // Auto-stop recording if user backgrounds the app
         if (_isRecording) _stopRecording();
         break;
       case AppLifecycleState.resumed:
         _appInForeground = true;
+        _screenVisible = true;
         // Don't auto-resume - let user control playback
         break;
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
         _appInForeground = false;
+        _screenVisible = false;
         break;
     }
   }

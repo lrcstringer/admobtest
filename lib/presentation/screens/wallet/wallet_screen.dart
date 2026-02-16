@@ -160,13 +160,18 @@ class _WalletScreenState extends State<WalletScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: _buildActionCard(
-                            context,
-                            icon: Icons.arrow_upward,
-                            label: 'Cash Out',
-                            color: AppColors.success,
-                            gradient: BrandGradient.goldOrange,
-                            onTap: () => context.go('/wallet/withdraw'),
+                          child: Opacity(
+                            opacity: state.canCashout ? 1.0 : 0.4,
+                            child: _buildActionCard(
+                              context,
+                              icon: Icons.arrow_upward,
+                              label: 'Cash Out',
+                              color: AppColors.success,
+                              gradient: BrandGradient.goldOrange,
+                              onTap: state.canCashout
+                                  ? () => context.go('/wallet/withdraw')
+                                  : () {},
+                            ),
                           ),
                         ),
                         AppSpacing.horizontalMd,
@@ -216,18 +221,18 @@ class _WalletScreenState extends State<WalletScreen> {
                     ),
                     AppSpacing.verticalMd,
 
-                    // Wallet cards
-                    if (isLoading && state.subAccounts.isEmpty)
+                    // Wallet cards — always show main wallet first
+                    if (isLoading && state.subAccounts.isEmpty && state.ledgerAccount == null)
                       _buildLoadingWallets()
-                    else if (state.subAccounts.isEmpty && state.balance > 0)
-                      // No sub-accounts yet but ledger has tokens — show main wallet
+                    else ...[
+                      // Main wallet card (always present)
                       _buildWalletCard(
                         context,
                         SubAccount(
                           id: 'main',
                           userId: '',
-                          name: 'iMaliChat Wallet',
-                          balance: state.balance,
+                          name: 'Main Wallet',
+                          balance: state.mainWalletAvailable,
                           lifetimeCredits: 0,
                           lifetimeDebits: 0,
                           isActive: true,
@@ -235,13 +240,12 @@ class _WalletScreenState extends State<WalletScreen> {
                           createdAt: DateTime.now(),
                           updatedAt: DateTime.now(),
                         ),
-                      )
-                    else if (state.subAccounts.isEmpty)
-                      _buildEmptyWallets(context)
-                    else
+                      ),
+                      // User-created and brand sub-accounts
                       ...state.subAccounts.map(
                         (sa) => _buildWalletCard(context, sa),
                       ),
+                    ],
 
                     AppSpacing.verticalXl,
 
@@ -335,9 +339,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       const SizedBox(width: 4),
                       Text(
                         () {
-                          final count = state.subAccounts.isNotEmpty
-                              ? state.subAccounts.length
-                              : (state.balance > 0 ? 1 : 0);
+                          final count = state.subAccounts.length + 1; // main wallet + sub-accounts
                           return '$count wallet${count == 1 ? '' : 's'}';
                         }(),
                         style:
@@ -1125,40 +1127,6 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  Widget _buildEmptyWallets(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: AppSpacing.cardPaddingLarge,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppSpacing.borderRadiusMd,
-      ),
-      child: Column(
-        children: [
-          Icon(
-            Icons.account_balance_wallet_outlined,
-            size: 48,
-            color: AppColors.textSecondary,
-          ),
-          AppSpacing.verticalMd,
-          Text(
-            'No wallets yet',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-          ),
-          AppSpacing.verticalXs,
-          Text(
-            'Start earning tokens to see your wallets here',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textTertiary,
-                ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 enum _ActivityType { token, reward }

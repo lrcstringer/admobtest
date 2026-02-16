@@ -16,7 +16,6 @@ import {
   processPotResidual,
   getBalance,
   SystemAccounts,
-  getOrCreateDefaultSubAccount,
 } from "./ledger";
 import { buildPotLeaderboard, getPotLeaderboardEntries } from "./dailyScores";
 import { getSASTDateString } from "./engagementStats";
@@ -290,17 +289,14 @@ async function executeDailyPotDraw(potId?: string): Promise<{ winnersCount: numb
       };
       winners.push(winner);
 
-      // Get or create winner's default sub-account
-      const { subAccountId } = await getOrCreateDefaultSubAccount(entry.userId);
-
       // Process pot win through the Trust Ledger system
-      // This transfers tokens from pot:daily account to user's sub-account
+      // Tokens go to user's main wallet (ledger account balance)
       const ledgerResult = await processPotWin(
         "daily",
         entry.userId,
         tokensWon,
         potDoc.id,
-        subAccountId, // Credit to winner's default sub-account
+        undefined, // Main wallet — no sub-account
         {
           rank: i + 1,
           percentage: percentage,
@@ -327,7 +323,7 @@ async function executeDailyPotDraw(potId?: string): Promise<{ winnersCount: numb
         tokensWon: tokensWon,
         percentage: percentage,
         finalScore: entry.finalScore,
-        subAccountId: subAccountId,
+        subAccountId: null,
         ledgerJournalId: ledgerResult.journalId,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
@@ -550,17 +546,14 @@ async function executeWeeklyPotDraw(potId?: string): Promise<{ winnersCount: num
       };
       winners.push(winner);
 
-      // Get or create winner's default sub-account
-      const { subAccountId } = await getOrCreateDefaultSubAccount(entry.userId);
-
       // Process pot win through the Trust Ledger system
-      // This transfers tokens from pot:weekly account to user's sub-account
+      // Tokens go to user's main wallet (ledger account balance)
       const ledgerResult = await processPotWin(
         "weekly",
         entry.userId,
         tokensWon,
         potDoc.id,
-        subAccountId, // Credit to winner's default sub-account
+        undefined, // Main wallet — no sub-account
         {
           rank: i + 1,
           percentage: percentage,
@@ -587,7 +580,7 @@ async function executeWeeklyPotDraw(potId?: string): Promise<{ winnersCount: num
         tokensWon: tokensWon,
         percentage: percentage,
         finalScore: entry.totalScore,
-        subAccountId: subAccountId,
+        subAccountId: null,
         ledgerJournalId: ledgerResult.journalId,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });

@@ -9,9 +9,11 @@ import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
   processPurchaseTransaction,
   reverseJournal,
+  creditSubAccount,
   getDefaultSubAccount,
   validateSubAccountBalance,
   validatePurchaseAllowed,
+  validateMainWalletBalance,
 } from "./ledger";
 
 const db = admin.firestore();
@@ -56,38 +58,47 @@ export const processPurchase = functions.https.onCall(async (data, context) => {
   const zarAmount = product.priceZar || 0;
   const purchaseCategory = provider.category || "airtime";
 
-  // Get user's default sub-account
+  // Check user's sub-account or main wallet
   const subAccount = await getDefaultSubAccount(userId);
-  if (!subAccount) {
-    throw new functions.https.HttpsError(
-      "failed-precondition",
-      "Account not found. Please complete setup first."
-    );
-  }
+  let subAccountId: string | undefined;
+  let accountTypeId: string | null = null;
 
-  // Validate user's account type allows this purchase category
-  const purchaseAllowed = await validatePurchaseAllowed(
-    subAccount.accountTypeId,
-    purchaseCategory
-  );
-  if (!purchaseAllowed.allowed) {
-    throw new functions.https.HttpsError(
-      "failed-precondition",
-      purchaseAllowed.reason || `This account cannot purchase ${purchaseCategory}`
+  if (subAccount) {
+    // Has a sub-account — validate account type allows this purchase category
+    const purchaseAllowed = await validatePurchaseAllowed(
+      subAccount.accountTypeId,
+      purchaseCategory
     );
-  }
+    if (!purchaseAllowed.allowed) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        purchaseAllowed.reason || `This account cannot purchase ${purchaseCategory}`
+      );
+    }
 
-  // Validate user's sub-account has sufficient balance
-  const balanceCheck = await validateSubAccountBalance(
-    userId,
-    subAccount.id,
-    tokenAmount
-  );
-  if (!balanceCheck.allowed) {
-    throw new functions.https.HttpsError(
-      "failed-precondition",
-      balanceCheck.reason || "Insufficient balance"
+    // Validate sub-account balance
+    const balanceCheck = await validateSubAccountBalance(
+      userId,
+      subAccount.id,
+      tokenAmount
     );
+    if (!balanceCheck.allowed) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        balanceCheck.reason || "Insufficient balance"
+      );
+    }
+    subAccountId = subAccount.id;
+    accountTypeId = subAccount.accountTypeId || null;
+  } else {
+    // No sub-account — validate main wallet balance
+    const mainCheck = await validateMainWalletBalance(userId, tokenAmount);
+    if (!mainCheck.sufficient) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        `Insufficient balance: has ${mainCheck.available}, needs ${tokenAmount}`
+      );
+    }
   }
 
   // Create purchase document first
@@ -107,7 +118,7 @@ export const processPurchase = functions.https.onCall(async (data, context) => {
       tokenAmount,
       zarAmount,
       recipientNumber,
-      subAccountId: subAccount.id,
+      subAccountId: subAccountId || null,
       status: "processing",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       processedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -121,8 +132,8 @@ export const processPurchase = functions.https.onCall(async (data, context) => {
       provider.name,
       tokenAmount,
       purchaseRef.id,
-      subAccount.id, // User's sub-account to debit
-      subAccount.accountTypeId, // For audit
+      subAccountId, // User's sub-account to debit (undefined = main wallet)
+      accountTypeId, // For audit
       {
         productId,
         productName: product.name,
@@ -199,6 +210,13 @@ export const processPurchase = functions.https.onCall(async (data, context) => {
           `Purchase failed: ${error instanceof Error ? error.message : String(error)}`,
           "system"
         );
+
+        // Restore sub-account balance if purchase was from a sub-account
+        if (purchaseData.subAccountId) {
+          await creditSubAccount(userId, purchaseData.subAccountId, tokenAmount).catch(
+            (e: unknown) => console.error("Failed to restore sub-account balance on purchase reversal:", e)
+          );
+        }
       }
 
       // Update purchase as failed

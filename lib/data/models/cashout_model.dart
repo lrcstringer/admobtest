@@ -50,7 +50,7 @@ class CashoutModel with _$CashoutModel {
 
     return CashoutModel(
       id: json['id'] as String,
-      walletId: json['walletId'] as String,
+      walletId: json['walletId'] as String? ?? 'user:${json['userId']}',
       userId: json['userId'] as String,
       tokenAmount: json['tokenAmount'] as int,
       zarAmount: (json['zarAmount'] as num).toDouble(),

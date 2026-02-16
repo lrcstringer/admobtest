@@ -183,7 +183,10 @@ class EarnOpportunity with _$EarnOpportunity {
   bool get isAvailable => isActive && !isExpired && !budgetExhausted;
 
   /// Check if user has completed this opportunity
-  bool get isCompletedByUser => userEngagementStatus == 'completed';
+  bool get isCompletedByUser =>
+      userEngagementStatus == 'completed' ||
+      userEngagementStatus == 'pending_review' ||
+      userEngagementStatus == 'rewarded';
 
   /// Check if user has an in-progress engagement
   bool get isInProgressByUser =>

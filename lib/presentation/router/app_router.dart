@@ -96,8 +96,6 @@ import '../screens/wallet/wallet_send_amount_screen.dart';
 import '../screens/wallet/wallet_send_failure_screen.dart';
 import '../screens/wallet/wallet_send_screen.dart';
 import '../screens/wallet/wallet_send_success_screen.dart';
-import '../screens/wallet/wallet_withdraw_failure_screen.dart';
-import '../screens/wallet/wallet_withdraw_success_screen.dart';
 import '../screens/wallet/reward_item_detail_screen.dart';
 import '../screens/wallet/rewards_list_screen.dart';
 
@@ -677,32 +675,6 @@ class AppRouter {
                     name: 'walletWithdraw',
                     builder: (context, state) =>
                         const CashoutScreen(),
-                    routes: [
-                      // 9.3.1) Wallet Withdraw Success
-                      GoRoute(
-                        path: 'success',
-                        name: 'walletWithdrawSuccess',
-                        builder: (context, state) {
-                          final extra =
-                              state.extra as Map<String, dynamic>?;
-                          return WalletWithdrawSuccessScreen(
-                            amount: extra?['amount'] as int?,
-                          );
-                        },
-                      ),
-                      // 9.3.2) Wallet Withdraw Failure
-                      GoRoute(
-                        path: 'failure',
-                        name: 'walletWithdrawFailure',
-                        builder: (context, state) {
-                          final extra =
-                              state.extra as Map<String, dynamic>?;
-                          return WalletWithdrawFailureScreen(
-                            error: extra?['error'] as String?,
-                          );
-                        },
-                      ),
-                    ],
                   ),
                   // 9.4) Transaction History
                   GoRoute(

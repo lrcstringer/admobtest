@@ -261,9 +261,10 @@ class EarnRepositoryImpl implements EarnRepository {
   DateTime? _cachedInboxAt;
 
   @override
-  Future<Either<Failure, EligibleInboxResult>> getEligibleInbox() async {
-    // Return cache if fresh (< 30s old)
-    if (_cachedInboxResult != null &&
+  Future<Either<Failure, EligibleInboxResult>> getEligibleInbox({bool forceRefresh = false}) async {
+    // Return cache if fresh (< 30s old) unless force refresh requested
+    if (!forceRefresh &&
+        _cachedInboxResult != null &&
         _cachedInboxAt != null &&
         DateTime.now().difference(_cachedInboxAt!) < _cacheTtl) {
       return Right(_cachedInboxResult!);

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/security/step_up_auth_service.dart';
 import '../../../domain/entities/cashout.dart';
@@ -72,9 +73,9 @@ class _CashoutScreenState extends State<CashoutScreen> {
         ),
         body: BlocBuilder<WalletBloc, WalletState>(
           builder: (context, walletState) {
-            final balance = walletState.balance;
-            final balanceZar = walletState.balanceZar;
-            final minCashout = 1000; // Minimum 1000 tokens (R10)
+            final balance = walletState.mainWalletAvailable;
+            final balanceZar = AppConstants.tokensToZar(balance);
+            final minCashout = 5000; // Minimum 5000 tokens (R50) — matches backend MIN_CASHOUT_AMOUNT
 
             return SingleChildScrollView(
               child: WaveBackground(
@@ -153,11 +154,11 @@ class _CashoutScreenState extends State<CashoutScreen> {
                     // Quick amount buttons
                     Row(
                       children: [
-                        _buildQuickAmountButton(1000),
-                        AppSpacing.horizontalSm,
-                        _buildQuickAmountButton(2500),
-                        AppSpacing.horizontalSm,
                         _buildQuickAmountButton(5000),
+                        AppSpacing.horizontalSm,
+                        _buildQuickAmountButton(10000),
+                        AppSpacing.horizontalSm,
+                        _buildQuickAmountButton(25000),
                         AppSpacing.horizontalSm,
                         Expanded(
                           child: OutlinedButton(
@@ -622,9 +623,9 @@ class _CashoutScreenState extends State<CashoutScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
+              Navigator.pop(context); // close dialog
               context.read<CashoutBloc>().add(const CashoutEvent.reset());
+              if (context.mounted) context.go('/wallet');
             },
             child: const Text('Done'),
           ),

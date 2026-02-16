@@ -16,7 +16,7 @@ import {
   LedgerConfig,
 } from "./types";
 import { postJournal } from "./journals";
-import { getOrCreateDefaultSubAccount, creditSubAccount, debitSubAccount, getSubAccount } from "./subAccounts";
+import { validateMainWalletBalance } from "./subAccounts";
 
 const db = admin.firestore();
 
@@ -64,6 +64,7 @@ export async function getOrCreateGroupAccount(
       name: `Group Account: ${groupId}`,
       ownerId: groupId,
       balance: 0,
+      allocatedBalance: 0,
       currency: "TOKEN",
       status: "active",
       metadata: {
@@ -187,16 +188,13 @@ export async function processGroupContribution(
   const { accountId: groupAccountId, subAccountId: groupSubAccountId } =
     await getOrCreateGroupAccount(groupId);
 
-  // Get member's default sub-account
-  const { subAccountId: memberSubAccountId } = await getOrCreateDefaultSubAccount(memberId);
-
-  // Validate member has sufficient balance
-  const memberSubAccount = await getSubAccount(memberId, memberSubAccountId);
-  if (!memberSubAccount || memberSubAccount.balance < amount) {
+  // Validate member has sufficient balance (main wallet)
+  const mainCheck = await validateMainWalletBalance(memberId, amount);
+  if (!mainCheck.sufficient) {
     return {
       success: false,
-      error: `Insufficient balance: has ${memberSubAccount?.balance || 0}, needs ${amount}`,
-      errorCode: "INSUFFICIENT_SUB_ACCOUNT_BALANCE",
+      error: `Insufficient balance: has ${mainCheck.available}, needs ${amount}`,
+      errorCode: "INSUFFICIENT_BALANCE",
     };
   }
 
@@ -223,7 +221,6 @@ export async function processGroupContribution(
     referenceType: "group",
     referenceId: transactionId,
     initiatedBy: memberId,
-    subAccountId: memberSubAccountId,
     metadata: {
       groupId,
       memberId,
@@ -237,10 +234,9 @@ export async function processGroupContribution(
     return journalResult;
   }
 
-  // Update sub-account balances
+  // Journal entry debits the user's ledger account balance
+  // No sub-account debit needed — tokens come from main wallet
   if (!journalResult.isDuplicate) {
-    // Debit member's sub-account
-    await debitSubAccount(memberId, memberSubAccountId, amount);
 
     // Credit group's treasury sub-account
     await creditGroupSubAccount(groupId, groupSubAccountId, amount);
@@ -283,9 +279,6 @@ export async function processGroupWithdrawal(
     };
   }
 
-  // Get or create member's default sub-account
-  const { subAccountId: memberSubAccountId } = await getOrCreateDefaultSubAccount(memberId);
-
   const entries: JournalEntryInput[] = [
     {
       accountId: groupTreasury.accountId,
@@ -309,7 +302,6 @@ export async function processGroupWithdrawal(
     referenceType: "group",
     referenceId: transactionId,
     initiatedBy: memberId,
-    subAccountId: memberSubAccountId,
     metadata: {
       groupId,
       memberId,
@@ -323,13 +315,10 @@ export async function processGroupWithdrawal(
     return journalResult;
   }
 
-  // Update sub-account balances
+  // Journal entry credits the user's ledger account balance (main wallet)
+  // Only debit the group's treasury sub-account
   if (!journalResult.isDuplicate) {
-    // Debit group's treasury sub-account
     await debitGroupSubAccount(groupId, groupTreasury.subAccountId, amount);
-
-    // Credit member's sub-account
-    await creditSubAccount(memberId, memberSubAccountId, amount);
   }
 
   return journalResult;
@@ -415,11 +404,8 @@ export async function processGroupPayout(
     // Debit group's treasury sub-account
     await debitGroupSubAccount(groupId, groupTreasury.subAccountId, totalAmount);
 
-    // Credit each member's sub-account
-    for (const payout of payouts) {
-      const { subAccountId: memberSubAccountId } = await getOrCreateDefaultSubAccount(payout.memberId);
-      await creditSubAccount(payout.memberId, memberSubAccountId, payout.amount);
-    }
+    // Journal entries credit each member's ledger account (main wallet)
+    // No sub-account credits needed
   }
 
   return journalResult;
@@ -442,16 +428,13 @@ export async function processGroupPenalty(
   reason: string,
   date: string
 ): Promise<PostJournalResult> {
-  // Get member's default sub-account
-  const { subAccountId: memberSubAccountId } = await getOrCreateDefaultSubAccount(memberId);
-
-  // Validate member has sufficient balance
-  const memberSubAccount = await getSubAccount(memberId, memberSubAccountId);
-  if (!memberSubAccount || memberSubAccount.balance < amount) {
+  // Validate member has sufficient balance (main wallet)
+  const mainCheck = await validateMainWalletBalance(memberId, amount);
+  if (!mainCheck.sufficient) {
     return {
       success: false,
-      error: `Insufficient balance for penalty: has ${memberSubAccount?.balance || 0}, needs ${amount}`,
-      errorCode: "INSUFFICIENT_SUB_ACCOUNT_BALANCE",
+      error: `Insufficient balance for penalty: has ${mainCheck.available}, needs ${amount}`,
+      errorCode: "INSUFFICIENT_BALANCE",
     };
   }
 
@@ -482,7 +465,6 @@ export async function processGroupPenalty(
     referenceType: "group",
     referenceId: `penalty:${groupId}:${memberId}:${date}`,
     initiatedBy: "system",
-    subAccountId: memberSubAccountId,
     metadata: {
       groupId,
       memberId,
@@ -497,12 +479,9 @@ export async function processGroupPenalty(
     return journalResult;
   }
 
-  // Update sub-account balances
+  // Journal entry debits the user's ledger account balance (main wallet)
+  // Only credit the group's treasury sub-account
   if (!journalResult.isDuplicate) {
-    // Debit member's sub-account
-    await debitSubAccount(memberId, memberSubAccountId, amount);
-
-    // Credit group's treasury sub-account
     await creditGroupSubAccount(groupId, groupSubAccountId, amount);
   }
 

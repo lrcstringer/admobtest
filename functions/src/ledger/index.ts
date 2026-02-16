@@ -41,7 +41,6 @@ export {
   getSubAccount,
   getUserSubAccounts,
   getDefaultSubAccount,
-  getOrCreateDefaultSubAccount,
   getOrCreateBrandSubAccount,
   getAccountType,
   getAccountTypeRules,
@@ -53,7 +52,7 @@ export {
   transferBetweenSubAccounts,
   getSubAccountBalance,
   getUserTotalBalance,
-  getUserDefaultBalance,
+  validateMainWalletBalance,
   deactivateSubAccount,
   deleteAllSubAccounts,
   createAccountType,
@@ -143,10 +142,10 @@ import {
 import { getOrCreateUserAccount, createSupplierAccount, initializeSystemAccounts } from "./accounts";
 import { postJournal, createEarningEntries, createReferralEntries, createTransferEntries, logJournalPostedAudit } from "./journals";
 import {
-  getOrCreateDefaultSubAccount,
   getSubAccount,
   creditSubAccount,
   debitSubAccount,
+  validateMainWalletBalance,
 } from "./subAccounts";
 
 const db = admin.firestore();
@@ -205,16 +204,13 @@ export async function processEarningWithSplit(
   // Ensure user account exists (legacy ledgerAccounts)
   await getOrCreateUserAccount(userId);
 
-  // Get or create sub-account if not provided
-  let finalSubAccountId = userSubAccountId;
-  if (!finalSubAccountId) {
-    const result = await getOrCreateDefaultSubAccount(userId);
-    finalSubAccountId = result.subAccountId;
-  }
+  // Sub-account is optional: if provided (brand sub-account), credit it.
+  // If not provided, tokens go to main wallet (journal only, no sub-account op).
+  const finalSubAccountId = userSubAccountId || undefined;
 
-  // Calculate token split — NO rounding. Pot shares are exact 5%, user gets remainder.
-  const dailyPotShare = totalAmount * LedgerConfig.EARNING_DAILY_POT_SHARE;
-  const weeklyPotShare = totalAmount * LedgerConfig.EARNING_WEEKLY_POT_SHARE;
+  // Calculate token split — floor pot shares to avoid fractional tokens.
+  const dailyPotShare = Math.floor(totalAmount * LedgerConfig.EARNING_DAILY_POT_SHARE);
+  const weeklyPotShare = Math.floor(totalAmount * LedgerConfig.EARNING_WEEKLY_POT_SHARE);
   const userShare = totalAmount - dailyPotShare - weeklyPotShare;
 
   // Create earning entries with split — source is the token source account
@@ -228,7 +224,7 @@ export async function processEarningWithSplit(
     referenceType: "engagement",
     referenceId: engagementId,
     initiatedBy: "system",
-    subAccountId: finalSubAccountId,
+    subAccountId: finalSubAccountId || null,
     accountTypeId: accountTypeId || null,
     metadata: {
       ...metadata,
@@ -245,7 +241,7 @@ export async function processEarningWithSplit(
   try {
     const journalResult = await db.runTransaction(async (tx) => {
       const result = await postJournal(journalInput, tx);
-      if (result.success && !result.isDuplicate && userShare > 0) {
+      if (result.success && !result.isDuplicate && userShare > 0 && finalSubAccountId) {
         await creditSubAccount(userId, finalSubAccountId, userShare, tx);
       }
       return result;
@@ -289,12 +285,8 @@ export async function processPotWin(
   // Ensure winner account exists
   await getOrCreateUserAccount(winnerId);
 
-  // Get or create sub-account if not provided
-  let finalSubAccountId = subAccountId;
-  if (!finalSubAccountId) {
-    const result = await getOrCreateDefaultSubAccount(winnerId);
-    finalSubAccountId = result.subAccountId;
-  }
+  // Sub-account is optional: if provided, credit it. Otherwise main wallet (journal only).
+  const finalSubAccountId = subAccountId || undefined;
 
   const potAccountId = potType === "daily" ? SystemAccounts.DAILY_POT : SystemAccounts.WEEKLY_POT;
 
@@ -321,7 +313,7 @@ export async function processPotWin(
     referenceType: "pot_draw",
     referenceId: potDrawId,
     initiatedBy: "system",
-    subAccountId: finalSubAccountId,
+    subAccountId: finalSubAccountId || null,
     metadata: {
       ...metadata,
       potType,
@@ -333,7 +325,7 @@ export async function processPotWin(
   try {
     const journalResult = await db.runTransaction(async (tx) => {
       const result = await postJournal(journalInput, tx);
-      if (result.success && !result.isDuplicate) {
+      if (result.success && !result.isDuplicate && finalSubAccountId) {
         await creditSubAccount(winnerId, finalSubAccountId, amount, tx);
       }
       return result;
@@ -418,7 +410,7 @@ export async function processPotResidual(
  * @param providerName - The service provider name
  * @param amount - Token amount for purchase
  * @param purchaseId - Reference to the purchase
- * @param subAccountId - The sub-account to debit (required)
+ * @param subAccountId - The sub-account to debit (optional, undefined = main wallet)
  * @param accountTypeId - The account type for audit (optional)
  * @param metadata - Additional metadata
  */
@@ -428,7 +420,7 @@ export async function processPurchaseTransaction(
   providerName: string,
   amount: number,
   purchaseId: string,
-  subAccountId: string,
+  subAccountId?: string,
   accountTypeId?: string | null,
   metadata?: Record<string, unknown>
 ): Promise<PostJournalResult> {
@@ -436,21 +428,36 @@ export async function processPurchaseTransaction(
   await getOrCreateUserAccount(userId);
   await createSupplierAccount(providerId, providerName);
 
-  // Validate sub-account has sufficient balance (fast pre-check — re-validated inside tx)
-  const subAccount = await getSubAccount(userId, subAccountId);
-  if (!subAccount) {
-    return {
-      success: false,
-      error: `Sub-account not found: ${subAccountId}`,
-      errorCode: "SUB_ACCOUNT_NOT_FOUND",
-    };
-  }
-  if (subAccount.balance < amount) {
-    return {
-      success: false,
-      error: `Insufficient balance: has ${subAccount.balance}, needs ${amount}`,
-      errorCode: "INSUFFICIENT_SUB_ACCOUNT_BALANCE",
-    };
+  // Validate balance
+  let resolvedAccountTypeId = accountTypeId || null;
+  if (subAccountId) {
+    // Purchase from specific sub-account
+    const subAccount = await getSubAccount(userId, subAccountId);
+    if (!subAccount) {
+      return {
+        success: false,
+        error: `Sub-account not found: ${subAccountId}`,
+        errorCode: "SUB_ACCOUNT_NOT_FOUND",
+      };
+    }
+    if (subAccount.balance < amount) {
+      return {
+        success: false,
+        error: `Insufficient balance: has ${subAccount.balance}, needs ${amount}`,
+        errorCode: "INSUFFICIENT_SUB_ACCOUNT_BALANCE",
+      };
+    }
+    resolvedAccountTypeId = accountTypeId || subAccount.accountTypeId;
+  } else {
+    // Purchase from main wallet
+    const { sufficient, available } = await validateMainWalletBalance(userId, amount);
+    if (!sufficient) {
+      return {
+        success: false,
+        error: `Insufficient main wallet balance: has ${available}, needs ${amount}`,
+        errorCode: "INSUFFICIENT_BALANCE",
+      };
+    }
   }
 
   const entries = createTransferEntries(
@@ -468,8 +475,8 @@ export async function processPurchaseTransaction(
     referenceType: "purchase",
     referenceId: purchaseId,
     initiatedBy: userId,
-    subAccountId,
-    accountTypeId: accountTypeId || subAccount.accountTypeId,
+    subAccountId: subAccountId || null,
+    accountTypeId: resolvedAccountTypeId,
     metadata: {
       ...metadata,
       userId,
@@ -482,7 +489,7 @@ export async function processPurchaseTransaction(
   try {
     const journalResult = await db.runTransaction(async (tx) => {
       const result = await postJournal(journalInput, tx);
-      if (result.success && !result.isDuplicate) {
+      if (result.success && !result.isDuplicate && subAccountId) {
         await debitSubAccount(userId, subAccountId, amount, tx);
       }
       return result;
@@ -527,18 +534,10 @@ export async function processReferralRewards(
   await getOrCreateUserAccount(referrerId);
   await getOrCreateUserAccount(refereeId);
 
-  // Get or create sub-accounts
-  let finalReferrerSubAccountId = referrerSubAccountId;
-  let finalRefereeSubAccountId = refereeSubAccountId;
-
-  if (!finalReferrerSubAccountId) {
-    const result = await getOrCreateDefaultSubAccount(referrerId);
-    finalReferrerSubAccountId = result.subAccountId;
-  }
-  if (!finalRefereeSubAccountId) {
-    const result = await getOrCreateDefaultSubAccount(refereeId);
-    finalRefereeSubAccountId = result.subAccountId;
-  }
+  // Sub-accounts are optional: if provided (e.g. brand), credit them.
+  // Otherwise tokens go to main wallet (journal only).
+  const finalReferrerSubAccountId = referrerSubAccountId || undefined;
+  const finalRefereeSubAccountId = refereeSubAccountId || undefined;
 
   const entries = createReferralEntries(referrerId, refereeId, SystemAccounts.IMALICHAT_CLIENT);
   const totalAmount = LedgerConfig.REFERRER_REWARD + LedgerConfig.REFEREE_REWARD;
@@ -566,8 +565,12 @@ export async function processReferralRewards(
     const journalResult = await db.runTransaction(async (tx) => {
       const result = await postJournal(journalInput, tx);
       if (result.success && !result.isDuplicate) {
-        await creditSubAccount(referrerId, finalReferrerSubAccountId, LedgerConfig.REFERRER_REWARD, tx);
-        await creditSubAccount(refereeId, finalRefereeSubAccountId, LedgerConfig.REFEREE_REWARD, tx);
+        if (finalReferrerSubAccountId) {
+          await creditSubAccount(referrerId, finalReferrerSubAccountId, LedgerConfig.REFERRER_REWARD, tx);
+        }
+        if (finalRefereeSubAccountId) {
+          await creditSubAccount(refereeId, finalRefereeSubAccountId, LedgerConfig.REFEREE_REWARD, tx);
+        }
       }
       return result;
     });
@@ -594,8 +597,8 @@ export async function processReferralRewards(
  * @param recipientId - The recipient's user ID
  * @param amount - Token amount to transfer
  * @param transferId - Reference to the transfer
- * @param senderSubAccountId - Sender's sub-account (required)
- * @param recipientSubAccountId - Recipient's sub-account (optional, uses default)
+ * @param senderSubAccountId - Sender's sub-account (optional, undefined = main wallet)
+ * @param recipientSubAccountId - Recipient's sub-account (optional, undefined = main wallet)
  * @param message - Optional message
  * @param metadata - Additional metadata
  */
@@ -604,7 +607,7 @@ export async function processP2PTransfer(
   recipientId: string,
   amount: number,
   transferId: string,
-  senderSubAccountId: string,
+  senderSubAccountId?: string,
   recipientSubAccountId?: string,
   message?: string,
   metadata?: Record<string, unknown>
@@ -613,29 +616,40 @@ export async function processP2PTransfer(
   await getOrCreateUserAccount(senderId);
   await getOrCreateUserAccount(recipientId);
 
-  // Get sender's sub-account to validate balance (fast pre-check — re-validated inside tx)
-  const senderSubAccount = await getSubAccount(senderId, senderSubAccountId);
-  if (!senderSubAccount) {
-    return {
-      success: false,
-      error: `Sender sub-account not found: ${senderSubAccountId}`,
-      errorCode: "SUB_ACCOUNT_NOT_FOUND",
-    };
-  }
-  if (senderSubAccount.balance < amount) {
-    return {
-      success: false,
-      error: `Insufficient balance: has ${senderSubAccount.balance}, needs ${amount}`,
-      errorCode: "INSUFFICIENT_SUB_ACCOUNT_BALANCE",
-    };
+  // Validate sender balance
+  let senderAccountTypeId: string | null = null;
+  if (senderSubAccountId) {
+    // Sending from a specific sub-account
+    const senderSubAccount = await getSubAccount(senderId, senderSubAccountId);
+    if (!senderSubAccount) {
+      return {
+        success: false,
+        error: `Sender sub-account not found: ${senderSubAccountId}`,
+        errorCode: "SUB_ACCOUNT_NOT_FOUND",
+      };
+    }
+    if (senderSubAccount.balance < amount) {
+      return {
+        success: false,
+        error: `Insufficient balance: has ${senderSubAccount.balance}, needs ${amount}`,
+        errorCode: "INSUFFICIENT_SUB_ACCOUNT_BALANCE",
+      };
+    }
+    senderAccountTypeId = senderSubAccount.accountTypeId;
+  } else {
+    // Sending from main wallet — validate main wallet available balance
+    const { sufficient, available } = await validateMainWalletBalance(senderId, amount);
+    if (!sufficient) {
+      return {
+        success: false,
+        error: `Insufficient main wallet balance: has ${available}, needs ${amount}`,
+        errorCode: "INSUFFICIENT_BALANCE",
+      };
+    }
   }
 
-  // Get or create recipient's sub-account
-  let finalRecipientSubAccountId = recipientSubAccountId;
-  if (!finalRecipientSubAccountId) {
-    const result = await getOrCreateDefaultSubAccount(recipientId);
-    finalRecipientSubAccountId = result.subAccountId;
-  }
+  // Recipient always receives to main wallet (no default sub-account creation)
+  const finalRecipientSubAccountId = recipientSubAccountId || undefined;
 
   const entries = createTransferEntries(
     AccountId.user(senderId),
@@ -652,8 +666,8 @@ export async function processP2PTransfer(
     referenceType: "transfer",
     referenceId: transferId,
     initiatedBy: senderId,
-    subAccountId: senderSubAccountId,
-    accountTypeId: senderSubAccount.accountTypeId,
+    subAccountId: senderSubAccountId || null,
+    accountTypeId: senderAccountTypeId,
     metadata: {
       ...metadata,
       senderId,
@@ -669,8 +683,12 @@ export async function processP2PTransfer(
     const journalResult = await db.runTransaction(async (tx) => {
       const result = await postJournal(journalInput, tx);
       if (result.success && !result.isDuplicate) {
-        await debitSubAccount(senderId, senderSubAccountId, amount, tx);
-        await creditSubAccount(recipientId, finalRecipientSubAccountId, amount, tx);
+        if (senderSubAccountId) {
+          await debitSubAccount(senderId, senderSubAccountId, amount, tx);
+        }
+        if (finalRecipientSubAccountId) {
+          await creditSubAccount(recipientId, finalRecipientSubAccountId, amount, tx);
+        }
       }
       return result;
     });
@@ -696,33 +714,48 @@ export async function processP2PTransfer(
  * @param userId - The user's ID
  * @param amount - Token amount to cash out
  * @param cashoutId - Reference to the cashout
- * @param subAccountId - The sub-account to debit (required)
+ * @param subAccountId - The sub-account to debit (optional, undefined = main wallet)
  * @param metadata - Additional metadata
  */
 export async function initiateCashout(
   userId: string,
   amount: number,
   cashoutId: string,
-  subAccountId: string,
+  subAccountId?: string,
   metadata?: Record<string, unknown>
 ): Promise<PostJournalResult> {
   await ensureSystemAccounts();
 
-  // Validate sub-account has sufficient balance (fast pre-check — re-validated inside tx)
-  const subAccount = await getSubAccount(userId, subAccountId);
-  if (!subAccount) {
-    return {
-      success: false,
-      error: `Sub-account not found: ${subAccountId}`,
-      errorCode: "SUB_ACCOUNT_NOT_FOUND",
-    };
-  }
-  if (subAccount.balance < amount) {
-    return {
-      success: false,
-      error: `Insufficient balance: has ${subAccount.balance}, needs ${amount}`,
-      errorCode: "INSUFFICIENT_SUB_ACCOUNT_BALANCE",
-    };
+  // Validate balance
+  let accountTypeId: string | null = null;
+  if (subAccountId) {
+    // Cashout from specific sub-account
+    const subAccount = await getSubAccount(userId, subAccountId);
+    if (!subAccount) {
+      return {
+        success: false,
+        error: `Sub-account not found: ${subAccountId}`,
+        errorCode: "SUB_ACCOUNT_NOT_FOUND",
+      };
+    }
+    if (subAccount.balance < amount) {
+      return {
+        success: false,
+        error: `Insufficient balance: has ${subAccount.balance}, needs ${amount}`,
+        errorCode: "INSUFFICIENT_SUB_ACCOUNT_BALANCE",
+      };
+    }
+    accountTypeId = subAccount.accountTypeId;
+  } else {
+    // Cashout from main wallet
+    const { sufficient, available } = await validateMainWalletBalance(userId, amount);
+    if (!sufficient) {
+      return {
+        success: false,
+        error: `Insufficient main wallet balance: has ${available}, needs ${amount}`,
+        errorCode: "INSUFFICIENT_BALANCE",
+      };
+    }
   }
 
   const entries: JournalEntryInput[] = [
@@ -748,20 +781,20 @@ export async function initiateCashout(
     referenceType: "cashout",
     referenceId: cashoutId,
     initiatedBy: userId,
-    subAccountId,
-    accountTypeId: subAccount.accountTypeId,
+    subAccountId: subAccountId || null,
+    accountTypeId,
     metadata: {
       ...metadata,
       userId,
       amount,
-      subAccountId,
+      subAccountId: subAccountId || "main",
     },
   };
 
   try {
     const journalResult = await db.runTransaction(async (tx) => {
       const result = await postJournal(journalInput, tx);
-      if (result.success && !result.isDuplicate) {
+      if (result.success && !result.isDuplicate && subAccountId) {
         await debitSubAccount(userId, subAccountId, amount, tx);
       }
       return result;
@@ -839,7 +872,7 @@ export async function completeCashout(
  * @param cashoutId - Reference to the cashout
  * @param amount - Token amount to refund
  * @param reason - Reason for failure
- * @param subAccountId - The sub-account to credit (required)
+ * @param subAccountId - The sub-account to credit (optional, undefined = main wallet)
  * @param metadata - Additional metadata
  */
 export async function failCashout(
@@ -847,7 +880,7 @@ export async function failCashout(
   cashoutId: string,
   amount: number,
   reason: string,
-  subAccountId: string,
+  subAccountId?: string,
   metadata?: Record<string, unknown>
 ): Promise<PostJournalResult> {
   await ensureSystemAccounts();
@@ -875,20 +908,20 @@ export async function failCashout(
     referenceType: "cashout",
     referenceId: cashoutId,
     initiatedBy: "system",
-    subAccountId,
+    subAccountId: subAccountId || null,
     metadata: {
       ...metadata,
       userId,
       amount,
       reason,
-      subAccountId,
+      subAccountId: subAccountId || "main",
     },
   };
 
   try {
     const journalResult = await db.runTransaction(async (tx) => {
       const result = await postJournal(journalInput, tx);
-      if (result.success && !result.isDuplicate) {
+      if (result.success && !result.isDuplicate && subAccountId) {
         await creditSubAccount(userId, subAccountId, amount, tx);
       }
       return result;
@@ -1075,8 +1108,8 @@ export function createEscrowCompletionEntries(
   escrowAmount: number,
   tokenSourceAccountId: string,
 ): JournalEntryInput[] {
-  const dailyPotAmount = actualReward * LedgerConfig.EARNING_DAILY_POT_SHARE;
-  const weeklyPotAmount = actualReward * LedgerConfig.EARNING_WEEKLY_POT_SHARE;
+  const dailyPotAmount = Math.floor(actualReward * LedgerConfig.EARNING_DAILY_POT_SHARE);
+  const weeklyPotAmount = Math.floor(actualReward * LedgerConfig.EARNING_WEEKLY_POT_SHARE);
   const userAmount = actualReward - dailyPotAmount - weeklyPotAmount;
   const excess = escrowAmount - actualReward;
 
@@ -1159,14 +1192,11 @@ export async function processEscrowCompletion(
   await ensureSystemAccounts();
   await getOrCreateUserAccount(userId);
 
-  let finalSubAccountId = userSubAccountId;
-  if (!finalSubAccountId) {
-    const result = await getOrCreateDefaultSubAccount(userId);
-    finalSubAccountId = result.subAccountId;
-  }
+  // Sub-account is optional: if provided (brand), credit it. Otherwise main wallet.
+  const finalSubAccountId = userSubAccountId || undefined;
 
-  const dailyPotShare = actualReward * LedgerConfig.EARNING_DAILY_POT_SHARE;
-  const weeklyPotShare = actualReward * LedgerConfig.EARNING_WEEKLY_POT_SHARE;
+  const dailyPotShare = Math.floor(actualReward * LedgerConfig.EARNING_DAILY_POT_SHARE);
+  const weeklyPotShare = Math.floor(actualReward * LedgerConfig.EARNING_WEEKLY_POT_SHARE);
   const userShare = actualReward - dailyPotShare - weeklyPotShare;
   const excess = escrowAmount - actualReward;
 
@@ -1185,7 +1215,7 @@ export async function processEscrowCompletion(
     referenceType: "engagement",
     referenceId: engagementId,
     initiatedBy: "system",
-    subAccountId: finalSubAccountId,
+    subAccountId: finalSubAccountId || null,
     accountTypeId: accountTypeId || null,
     metadata: {
       ...metadata,
@@ -1201,7 +1231,7 @@ export async function processEscrowCompletion(
   try {
     const journalResult = await db.runTransaction(async (tx) => {
       const result = await postJournal(journalInput, tx);
-      if (result.success && !result.isDuplicate && userShare > 0) {
+      if (result.success && !result.isDuplicate && userShare > 0 && finalSubAccountId) {
         await creditSubAccount(userId, finalSubAccountId, userShare, tx);
       }
       return result;

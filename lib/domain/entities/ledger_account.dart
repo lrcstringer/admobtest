@@ -37,6 +37,7 @@ class LedgerAccount with _$LedgerAccount {
     required String name,
     String? ownerId,
     required int balance,
+    @Default(0) int allocatedBalance,
     @Default('TOKEN') String currency,
     required LedgerAccountStatus status,
     @Default({}) Map<String, dynamic> metadata,
@@ -56,8 +57,14 @@ class LedgerAccount with _$LedgerAccount {
   /// Check if account is active
   bool get isActive => status == LedgerAccountStatus.active;
 
+  /// Main wallet available balance = total balance minus allocated to sub-accounts
+  int get mainWalletAvailable => balance - allocatedBalance;
+
   /// Get balance in ZAR (100 tokens = R1)
   double get balanceZar => AppConstants.tokensToZar(balance);
+
+  /// Get main wallet available in ZAR
+  double get mainWalletAvailableZar => AppConstants.tokensToZar(mainWalletAvailable);
 
   /// Extract user ID from account ID (format: "user:userId")
   String? get userId {

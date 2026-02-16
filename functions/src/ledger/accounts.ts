@@ -168,6 +168,7 @@ export async function createAccount(
     name: input.name,
     ownerId: input.ownerId,
     balance: input.initialBalance || 0,
+    allocatedBalance: 0,
     currency: "TOKEN",
     status: "active",
     metadata: input.metadata || {},
@@ -312,6 +313,7 @@ export async function initializeSystemAccounts(): Promise<void> {
       type: accountDef.type,
       name: accountDef.name,
       balance: 0,
+      allocatedBalance: 0,
       currency: "TOKEN",
       status: "active",
       metadata: {
@@ -352,6 +354,7 @@ export async function createSupplierAccount(
     name: providerName,
     ownerId: providerId,
     balance: 0,
+    allocatedBalance: 0,
     currency: "TOKEN",
     status: "active",
     metadata: {
@@ -407,6 +410,7 @@ export async function createClientAccount(
     name: clientName,
     ownerId: clientId,
     balance: 0,
+    allocatedBalance: 0,
     currency: "TOKEN",
     status: "active",
     metadata: {

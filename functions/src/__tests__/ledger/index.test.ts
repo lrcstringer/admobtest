@@ -17,15 +17,19 @@ jest.mock("firebase-admin", () => require("../mocks/admin.mock").mockFirebaseAdm
 jest.mock("../../ledger/accounts", () => ({
   getOrCreateUserAccount: jest.fn().mockResolvedValue({ id: "user:test_user" }),
   createSupplierAccount: jest.fn().mockResolvedValue({ id: "supplier:test_supplier" }),
+  initializeSystemAccounts: jest.fn().mockResolvedValue(undefined),
 }));
 
+// postJournal receives (journalInput, transaction?) — tests only care about journalInput
+const _postJournalSpy = jest.fn().mockResolvedValue({
+  success: true,
+  journalId: "journal_123",
+  isDuplicate: false,
+  data: { id: "journal_123" },
+});
+
 jest.mock("../../ledger/journals", () => ({
-  postJournal: jest.fn().mockResolvedValue({
-    success: true,
-    journalId: "journal_123",
-    isDuplicate: false,
-    data: { id: "journal_123" },
-  }),
+  postJournal: (...args: unknown[]) => _postJournalSpy(args[0]),
   createEarningEntries: jest.fn().mockReturnValue([
     { accountId: "system:treasury", entryType: "debit", amount: 100 },
     { accountId: "user:test_user", entryType: "credit", amount: 90 },
@@ -43,8 +47,13 @@ jest.mock("../../ledger/journals", () => ({
   ]),
 }));
 
+// creditSubAccount/debitSubAccount receive (userId, subId, amount, transaction?)
+// Tests only care about the first 3 args
+const _creditSubAccountSpy = jest.fn().mockResolvedValue({ success: true });
+const _debitSubAccountSpy = jest.fn().mockResolvedValue({ success: true });
+
 jest.mock("../../ledger/subAccounts", () => ({
-  getOrCreateDefaultSubAccount: jest.fn().mockResolvedValue({
+  getDefaultSubAccount: jest.fn().mockResolvedValue({
     subAccountId: "default_sub",
     isNew: false,
   }),
@@ -54,21 +63,21 @@ jest.mock("../../ledger/subAccounts", () => ({
     accountTypeId: "default",
     isActive: true,
   }),
-  creditSubAccount: jest.fn().mockResolvedValue({ success: true }),
-  debitSubAccount: jest.fn().mockResolvedValue({ success: true }),
+  creditSubAccount: (...args: unknown[]) => _creditSubAccountSpy(args[0], args[1], args[2]),
+  debitSubAccount: (...args: unknown[]) => _debitSubAccountSpy(args[0], args[1], args[2]),
 }));
 
 import * as ledger from "../../ledger/index";
 import { getOrCreateUserAccount, createSupplierAccount } from "../../ledger/accounts";
-import { postJournal, createEarningEntries } from "../../ledger/journals";
-import { getOrCreateDefaultSubAccount, getSubAccount, creditSubAccount, debitSubAccount } from "../../ledger/subAccounts";
+import { createEarningEntries } from "../../ledger/journals";
+import { getSubAccount } from "../../ledger/subAccounts";
 
 describe("Ledger Index - High-Level Transactions", () => {
   beforeEach(() => {
     resetMocks();
     jest.clearAllMocks();
     // Reset default mock implementations
-    (postJournal as jest.Mock).mockResolvedValue({
+    _postJournalSpy.mockResolvedValue({
       success: true,
       journalId: "journal_123",
       isDuplicate: false,
@@ -88,33 +97,37 @@ describe("Ledger Index - High-Level Transactions", () => {
         "user_001",
         100,
         "eng_001",
-        "Test earning"
+        "Test earning",
+        "system:treasury"
       );
 
       expect(getOrCreateUserAccount).toHaveBeenCalledWith("user_001");
     });
 
-    it("should get or create default sub-account when not provided", async () => {
-      await ledger.processEarningWithSplit(
-        "user_001",
-        100,
-        "eng_001",
-        "Test earning"
-      );
-
-      expect(getOrCreateDefaultSubAccount).toHaveBeenCalledWith("user_001");
-    });
-
-    it("should use provided sub-account when specified", async () => {
+    it("should not credit sub-account when userSubAccountId is not provided", async () => {
       await ledger.processEarningWithSplit(
         "user_001",
         100,
         "eng_001",
         "Test earning",
+        "system:treasury"
+      );
+
+      // No sub-account provided → tokens go to main wallet only (journal, no sub-account op)
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
+    });
+
+    it("should credit provided sub-account when specified", async () => {
+      await ledger.processEarningWithSplit(
+        "user_001",
+        100,
+        "eng_001",
+        "Test earning",
+        "system:treasury",
         "custom_sub"
       );
 
-      expect(getOrCreateDefaultSubAccount).not.toHaveBeenCalled();
+      expect(_creditSubAccountSpy).toHaveBeenCalledWith("user_001", "custom_sub", 90);
     });
 
     it("should calculate correct 90/5/5 split", async () => {
@@ -122,10 +135,11 @@ describe("Ledger Index - High-Level Transactions", () => {
         "user_001",
         100,
         "eng_001",
-        "Test earning"
+        "Test earning",
+        "system:treasury"
       );
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           metadata: expect.objectContaining({
             totalAmount: 100,
@@ -142,19 +156,19 @@ describe("Ledger Index - High-Level Transactions", () => {
         "user_001",
         101,
         "eng_001",
-        "Test earning"
+        "Test earning",
+        "system:treasury"
       );
 
-      // 90% of 101 = 90.9 -> 90
-      // 5% of 101 = 5.05 -> 5
-      // Remainder = 101 - 90 - 5 = 6
-      expect(postJournal).toHaveBeenCalledWith(
+      // Math.floor(101 * 0.05) = 5 for both pots
+      // userShare = 101 - 5 - 5 = 91
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           metadata: expect.objectContaining({
             totalAmount: 101,
-            userShare: 90,
             dailyPotShare: 5,
-            weeklyPotShare: 6,
+            weeklyPotShare: 5,
+            userShare: 91,
           }),
         })
       );
@@ -165,7 +179,8 @@ describe("Ledger Index - High-Level Transactions", () => {
         "user_001",
         100,
         "eng_001",
-        "Test earning"
+        "Test earning",
+        "system:treasury"
       );
 
       expect(createEarningEntries).toHaveBeenCalledWith(
@@ -181,11 +196,9 @@ describe("Ledger Index - High-Level Transactions", () => {
         100,
         "eng_001",
         "Test earning",
+        "client:client_001",
         undefined,
-        null,
-        undefined,
-        "client_001",
-        "sub_client_001"
+        null
       );
 
       expect(createEarningEntries).toHaveBeenCalledWith(
@@ -195,19 +208,21 @@ describe("Ledger Index - High-Level Transactions", () => {
       );
     });
 
-    it("should credit user sub-account with their share", async () => {
+    it("should credit user sub-account with their share when sub-account provided", async () => {
       await ledger.processEarningWithSplit(
         "user_001",
         100,
         "eng_001",
-        "Test earning"
+        "Test earning",
+        "system:treasury",
+        "brand_sub_001"
       );
 
-      expect(creditSubAccount).toHaveBeenCalledWith("user_001", "default_sub", 90);
+      expect(_creditSubAccountSpy).toHaveBeenCalledWith("user_001", "brand_sub_001", 90);
     });
 
     it("should not credit sub-account for duplicate journal", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: true,
         journalId: "journal_123",
         isDuplicate: true,
@@ -217,14 +232,15 @@ describe("Ledger Index - High-Level Transactions", () => {
         "user_001",
         100,
         "eng_001",
-        "Test earning"
+        "Test earning",
+        "system:treasury"
       );
 
-      expect(creditSubAccount).not.toHaveBeenCalled();
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
     });
 
     it("should return failure when journal posting fails", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: false,
         error: "Test error",
         errorCode: "TEST_ERROR",
@@ -234,11 +250,12 @@ describe("Ledger Index - High-Level Transactions", () => {
         "user_001",
         100,
         "eng_001",
-        "Test earning"
+        "Test earning",
+        "system:treasury"
       );
 
       expect(result.success).toBe(false);
-      expect(creditSubAccount).not.toHaveBeenCalled();
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
     });
 
     it("should include custom metadata", async () => {
@@ -247,12 +264,13 @@ describe("Ledger Index - High-Level Transactions", () => {
         100,
         "eng_001",
         "Test earning",
+        "system:treasury",
         undefined,
         null,
         { customField: "value" }
       );
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           metadata: expect.objectContaining({
             customField: "value",
@@ -266,10 +284,11 @@ describe("Ledger Index - High-Level Transactions", () => {
         "user_001",
         100,
         "eng_001",
-        "Test earning"
+        "Test earning",
+        "system:treasury"
       );
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           idempotencyKey: "earn:eng_001",
           type: "earn",
@@ -285,13 +304,14 @@ describe("Ledger Index - High-Level Transactions", () => {
       expect(getOrCreateUserAccount).toHaveBeenCalledWith("winner_001");
     });
 
-    it("should get or create default sub-account when not provided", async () => {
+    it("should not credit sub-account when not provided (main wallet)", async () => {
       await ledger.processPotWin("daily", "winner_001", 5000, "draw_001");
 
-      expect(getOrCreateDefaultSubAccount).toHaveBeenCalledWith("winner_001");
+      // No subAccountId → tokens go to main wallet (journal only)
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
     });
 
-    it("should use provided sub-account when specified", async () => {
+    it("should credit provided sub-account when specified", async () => {
       await ledger.processPotWin(
         "daily",
         "winner_001",
@@ -300,13 +320,13 @@ describe("Ledger Index - High-Level Transactions", () => {
         "custom_sub"
       );
 
-      expect(getOrCreateDefaultSubAccount).not.toHaveBeenCalled();
+      expect(_creditSubAccountSpy).toHaveBeenCalledWith("winner_001", "custom_sub", 5000);
     });
 
     it("should use daily pot account for daily wins", async () => {
       await ledger.processPotWin("daily", "winner_001", 5000, "draw_001");
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           entries: expect.arrayContaining([
             expect.objectContaining({
@@ -321,7 +341,7 @@ describe("Ledger Index - High-Level Transactions", () => {
     it("should use weekly pot account for weekly wins", async () => {
       await ledger.processPotWin("weekly", "winner_001", 10000, "draw_001");
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           entries: expect.arrayContaining([
             expect.objectContaining({
@@ -333,14 +353,14 @@ describe("Ledger Index - High-Level Transactions", () => {
       );
     });
 
-    it("should credit winner with full pot amount", async () => {
-      await ledger.processPotWin("daily", "winner_001", 5000, "draw_001");
+    it("should credit winner sub-account with full pot amount when provided", async () => {
+      await ledger.processPotWin("daily", "winner_001", 5000, "draw_001", "winner_sub");
 
-      expect(creditSubAccount).toHaveBeenCalledWith("winner_001", "default_sub", 5000);
+      expect(_creditSubAccountSpy).toHaveBeenCalledWith("winner_001", "winner_sub", 5000);
     });
 
     it("should not credit for duplicate journal", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: true,
         journalId: "journal_123",
         isDuplicate: true,
@@ -348,13 +368,13 @@ describe("Ledger Index - High-Level Transactions", () => {
 
       await ledger.processPotWin("daily", "winner_001", 5000, "draw_001");
 
-      expect(creditSubAccount).not.toHaveBeenCalled();
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
     });
 
     it("should use correct idempotency key format", async () => {
       await ledger.processPotWin("daily", "winner_001", 5000, "draw_001");
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           idempotencyKey: "pot_win:draw_001:winner_001",
           type: "pot_win",
@@ -438,11 +458,11 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sub_001"
       );
 
-      expect(debitSubAccount).toHaveBeenCalledWith("user_001", "sub_001", 100);
+      expect(_debitSubAccountSpy).toHaveBeenCalledWith("user_001", "sub_001", 100);
     });
 
     it("should not debit for duplicate journal", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: true,
         journalId: "journal_123",
         isDuplicate: true,
@@ -457,7 +477,7 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sub_001"
       );
 
-      expect(debitSubAccount).not.toHaveBeenCalled();
+      expect(_debitSubAccountSpy).not.toHaveBeenCalled();
     });
 
     it("should use correct idempotency key format", async () => {
@@ -470,7 +490,7 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sub_001"
       );
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           idempotencyKey: "purchase:purchase_001",
           type: "purchase",
@@ -491,18 +511,18 @@ describe("Ledger Index - High-Level Transactions", () => {
       expect(getOrCreateUserAccount).toHaveBeenCalledWith("referee_001");
     });
 
-    it("should get or create default sub-accounts for both users", async () => {
+    it("should not credit sub-accounts when not provided (main wallet)", async () => {
       await ledger.processReferralRewards(
         "referrer_001",
         "referee_001",
         "referral_001"
       );
 
-      expect(getOrCreateDefaultSubAccount).toHaveBeenCalledWith("referrer_001");
-      expect(getOrCreateDefaultSubAccount).toHaveBeenCalledWith("referee_001");
+      // No sub-account IDs → tokens go to main wallet (journal only)
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
     });
 
-    it("should use provided sub-accounts when specified", async () => {
+    it("should credit both sub-accounts when specified", async () => {
       await ledger.processReferralRewards(
         "referrer_001",
         "referee_001",
@@ -511,22 +531,11 @@ describe("Ledger Index - High-Level Transactions", () => {
         "referee_sub"
       );
 
-      expect(getOrCreateDefaultSubAccount).not.toHaveBeenCalledWith("referrer_001");
-      expect(getOrCreateDefaultSubAccount).not.toHaveBeenCalledWith("referee_001");
-    });
-
-    it("should credit both sub-accounts on success", async () => {
-      await ledger.processReferralRewards(
-        "referrer_001",
-        "referee_001",
-        "referral_001"
-      );
-
-      expect(creditSubAccount).toHaveBeenCalledTimes(2);
+      expect(_creditSubAccountSpy).toHaveBeenCalledTimes(2);
     });
 
     it("should not credit for duplicate journal", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: true,
         journalId: "journal_123",
         isDuplicate: true,
@@ -538,7 +547,7 @@ describe("Ledger Index - High-Level Transactions", () => {
         "referral_001"
       );
 
-      expect(creditSubAccount).not.toHaveBeenCalled();
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
     });
 
     it("should use correct idempotency key format", async () => {
@@ -548,7 +557,7 @@ describe("Ledger Index - High-Level Transactions", () => {
         "referral_001"
       );
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           idempotencyKey: "referral:referral_001",
           type: "referral_reward",
@@ -618,7 +627,7 @@ describe("Ledger Index - High-Level Transactions", () => {
       expect(result.errorCode).toBe("INSUFFICIENT_SUB_ACCOUNT_BALANCE");
     });
 
-    it("should get or create recipient default sub-account when not provided", async () => {
+    it("should not credit recipient sub-account when not provided (main wallet)", async () => {
       await ledger.processP2PTransfer(
         "sender_001",
         "recipient_001",
@@ -627,10 +636,11 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sender_sub"
       );
 
-      expect(getOrCreateDefaultSubAccount).toHaveBeenCalledWith("recipient_001");
+      // No recipientSubAccountId → recipient receives to main wallet (journal only)
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
     });
 
-    it("should use provided recipient sub-account when specified", async () => {
+    it("should credit recipient sub-account when specified", async () => {
       await ledger.processP2PTransfer(
         "sender_001",
         "recipient_001",
@@ -640,10 +650,10 @@ describe("Ledger Index - High-Level Transactions", () => {
         "recipient_sub"
       );
 
-      expect(getOrCreateDefaultSubAccount).not.toHaveBeenCalledWith("recipient_001");
+      expect(_creditSubAccountSpy).toHaveBeenCalledWith("recipient_001", "recipient_sub", 100);
     });
 
-    it("should debit sender and credit recipient on success", async () => {
+    it("should debit sender sub-account on success", async () => {
       await ledger.processP2PTransfer(
         "sender_001",
         "recipient_001",
@@ -652,12 +662,11 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sender_sub"
       );
 
-      expect(debitSubAccount).toHaveBeenCalledWith("sender_001", "sender_sub", 100);
-      expect(creditSubAccount).toHaveBeenCalledWith("recipient_001", "default_sub", 100);
+      expect(_debitSubAccountSpy).toHaveBeenCalledWith("sender_001", "sender_sub", 100);
     });
 
     it("should not transfer for duplicate journal", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: true,
         journalId: "journal_123",
         isDuplicate: true,
@@ -671,8 +680,8 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sender_sub"
       );
 
-      expect(debitSubAccount).not.toHaveBeenCalled();
-      expect(creditSubAccount).not.toHaveBeenCalled();
+      expect(_debitSubAccountSpy).not.toHaveBeenCalled();
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
     });
 
     it("should include message in metadata when provided", async () => {
@@ -686,7 +695,7 @@ describe("Ledger Index - High-Level Transactions", () => {
         "Thanks!"
       );
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           metadata: expect.objectContaining({
             message: "Thanks!",
@@ -704,7 +713,7 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sender_sub"
       );
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           idempotencyKey: "p2p:transfer_001",
           type: "p2p_transfer",
@@ -766,7 +775,7 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sub_001"
       );
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           entries: expect.arrayContaining([
             expect.objectContaining({
@@ -774,7 +783,7 @@ describe("Ledger Index - High-Level Transactions", () => {
               entryType: "debit",
             }),
             expect.objectContaining({
-              accountId: "cashout:pending",
+              accountId: "system:cashout_pending",
               entryType: "credit",
             }),
           ]),
@@ -790,11 +799,11 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sub_001"
       );
 
-      expect(debitSubAccount).toHaveBeenCalledWith("user_001", "sub_001", 500);
+      expect(_debitSubAccountSpy).toHaveBeenCalledWith("user_001", "sub_001", 500);
     });
 
     it("should not debit for duplicate journal", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: true,
         journalId: "journal_123",
         isDuplicate: true,
@@ -807,7 +816,7 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sub_001"
       );
 
-      expect(debitSubAccount).not.toHaveBeenCalled();
+      expect(_debitSubAccountSpy).not.toHaveBeenCalled();
     });
 
     it("should use correct idempotency key format", async () => {
@@ -818,7 +827,7 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sub_001"
       );
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           idempotencyKey: "cashout_init:cashout_001",
           type: "cashout_initiate",
@@ -828,18 +837,18 @@ describe("Ledger Index - High-Level Transactions", () => {
   });
 
   describe("completeCashout", () => {
-    it("should create journal entries for pending to treasury transfer", async () => {
-      await ledger.completeCashout("cashout_001", 500);
+    it("should create journal entries for pending to supplier transfer", async () => {
+      await ledger.completeCashout("cashout_001", 500, "bank_supplier");
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           entries: expect.arrayContaining([
             expect.objectContaining({
-              accountId: "cashout:pending",
+              accountId: "system:cashout_pending",
               entryType: "debit",
             }),
             expect.objectContaining({
-              accountId: "system:treasury",
+              accountId: "supplier:bank_supplier",
               entryType: "credit",
             }),
           ]),
@@ -848,9 +857,9 @@ describe("Ledger Index - High-Level Transactions", () => {
     });
 
     it("should use correct idempotency key format", async () => {
-      await ledger.completeCashout("cashout_001", 500);
+      await ledger.completeCashout("cashout_001", 500, "bank_supplier");
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           idempotencyKey: "cashout_complete:cashout_001",
           type: "cashout_complete",
@@ -859,9 +868,9 @@ describe("Ledger Index - High-Level Transactions", () => {
     });
 
     it("should include metadata when provided", async () => {
-      await ledger.completeCashout("cashout_001", 500, { bankRef: "ref_123" });
+      await ledger.completeCashout("cashout_001", 500, "bank_supplier", { bankRef: "ref_123" });
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           metadata: expect.objectContaining({
             bankRef: "ref_123",
@@ -882,11 +891,11 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sub_001"
       );
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           entries: expect.arrayContaining([
             expect.objectContaining({
-              accountId: "cashout:pending",
+              accountId: "system:cashout_pending",
               entryType: "debit",
             }),
             expect.objectContaining({
@@ -907,7 +916,7 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sub_001"
       );
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           description: expect.stringContaining("Bank error"),
         })
@@ -923,11 +932,11 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sub_001"
       );
 
-      expect(creditSubAccount).toHaveBeenCalledWith("user_001", "sub_001", 500);
+      expect(_creditSubAccountSpy).toHaveBeenCalledWith("user_001", "sub_001", 500);
     });
 
     it("should not credit for duplicate journal", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: true,
         journalId: "journal_123",
         isDuplicate: true,
@@ -941,7 +950,7 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sub_001"
       );
 
-      expect(creditSubAccount).not.toHaveBeenCalled();
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
     });
 
     it("should use correct idempotency key format", async () => {
@@ -953,7 +962,7 @@ describe("Ledger Index - High-Level Transactions", () => {
         "sub_001"
       );
 
-      expect(postJournal).toHaveBeenCalledWith(
+      expect(_postJournalSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           idempotencyKey: "cashout_failed:cashout_001",
           type: "cashout_failed",
@@ -962,22 +971,108 @@ describe("Ledger Index - High-Level Transactions", () => {
     });
   });
 
-  describe("seedTreasury", () => {
-    it("should return success without creating journal", async () => {
-      const result = await ledger.seedTreasury(
-        1000000,
-        "Initial seed",
-        "admin_001"
+  describe("Math.floor split verification", () => {
+    it("should use Math.floor for 90/5/5 split on odd amounts (107 tokens)", async () => {
+      await ledger.processEarningWithSplit(
+        "user_001",
+        107,
+        "eng_floor_001",
+        "Floor test",
+        "system:treasury"
       );
 
-      expect(result.success).toBe(true);
-      expect(result.journalId).toBe("seed_not_required");
+      // Math.floor(107 * 0.05) = Math.floor(5.35) = 5 for both pots
+      // userShare = 107 - 5 - 5 = 97
+      expect(_postJournalSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({
+            totalAmount: 107,
+            dailyPotShare: 5,
+            weeklyPotShare: 5,
+            userShare: 97,
+          }),
+        })
+      );
+    });
+
+    it("should use Math.floor for 90/5/5 split on 1 token (minimum)", async () => {
+      await ledger.processEarningWithSplit(
+        "user_001",
+        1,
+        "eng_floor_002",
+        "Floor test min",
+        "system:treasury"
+      );
+
+      // Math.floor(1 * 0.05) = Math.floor(0.05) = 0 for both pots
+      // userShare = 1 - 0 - 0 = 1
+      expect(_postJournalSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({
+            totalAmount: 1,
+            dailyPotShare: 0,
+            weeklyPotShare: 0,
+            userShare: 1,
+          }),
+        })
+      );
+    });
+
+    it("should use Math.floor for 90/5/5 split on 99 tokens", async () => {
+      await ledger.processEarningWithSplit(
+        "user_001",
+        99,
+        "eng_floor_003",
+        "Floor test 99",
+        "system:treasury"
+      );
+
+      // Math.floor(99 * 0.05) = Math.floor(4.95) = 4 for both pots
+      // userShare = 99 - 4 - 4 = 91
+      expect(_postJournalSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({
+            totalAmount: 99,
+            dailyPotShare: 4,
+            weeklyPotShare: 4,
+            userShare: 91,
+          }),
+        })
+      );
+    });
+
+    it("should ensure split sums to totalAmount (no tokens lost or created)", async () => {
+      // Test a range of amounts to verify no rounding errors
+      const testAmounts = [1, 10, 19, 50, 99, 100, 101, 107, 200, 999, 1000];
+
+      for (const amount of testAmounts) {
+        jest.clearAllMocks();
+        _postJournalSpy.mockResolvedValue({
+          success: true,
+          journalId: `journal_${amount}`,
+          isDuplicate: false,
+          data: { id: `journal_${amount}` },
+        });
+
+        await ledger.processEarningWithSplit(
+          "user_001",
+          amount,
+          `eng_sum_${amount}`,
+          `Sum test ${amount}`,
+          "system:treasury"
+        );
+
+        const callArgs = _postJournalSpy.mock.calls[0][0];
+        const meta = callArgs.metadata;
+        const total = meta.userShare + meta.dailyPotShare + meta.weeklyPotShare;
+        expect(total).toBe(amount);
+      }
     });
   });
 
   describe("Idempotency", () => {
     it("should handle duplicate earning gracefully", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: true,
         journalId: "journal_123",
         isDuplicate: true,
@@ -987,16 +1082,17 @@ describe("Ledger Index - High-Level Transactions", () => {
         "user_001",
         100,
         "eng_001",
-        "Test earning"
+        "Test earning",
+        "system:treasury"
       );
 
       expect(result.success).toBe(true);
       expect(result.isDuplicate).toBe(true);
-      expect(creditSubAccount).not.toHaveBeenCalled();
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
     });
 
     it("should handle duplicate pot win gracefully", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: true,
         journalId: "journal_123",
         isDuplicate: true,
@@ -1011,11 +1107,11 @@ describe("Ledger Index - High-Level Transactions", () => {
 
       expect(result.success).toBe(true);
       expect(result.isDuplicate).toBe(true);
-      expect(creditSubAccount).not.toHaveBeenCalled();
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
     });
 
     it("should handle duplicate P2P transfer gracefully", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: true,
         journalId: "journal_123",
         isDuplicate: true,
@@ -1031,14 +1127,14 @@ describe("Ledger Index - High-Level Transactions", () => {
 
       expect(result.success).toBe(true);
       expect(result.isDuplicate).toBe(true);
-      expect(debitSubAccount).not.toHaveBeenCalled();
-      expect(creditSubAccount).not.toHaveBeenCalled();
+      expect(_debitSubAccountSpy).not.toHaveBeenCalled();
+      expect(_creditSubAccountSpy).not.toHaveBeenCalled();
     });
   });
 
   describe("Error Handling", () => {
     it("should propagate journal posting errors for earning", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: false,
         error: "Database error",
         errorCode: "DB_ERROR",
@@ -1048,7 +1144,8 @@ describe("Ledger Index - High-Level Transactions", () => {
         "user_001",
         100,
         "eng_001",
-        "Test earning"
+        "Test earning",
+        "system:treasury"
       );
 
       expect(result.success).toBe(false);
@@ -1056,7 +1153,7 @@ describe("Ledger Index - High-Level Transactions", () => {
     });
 
     it("should propagate journal posting errors for pot win", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: false,
         error: "Database error",
         errorCode: "DB_ERROR",
@@ -1073,7 +1170,7 @@ describe("Ledger Index - High-Level Transactions", () => {
     });
 
     it("should propagate journal posting errors for referral", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: false,
         error: "Database error",
         errorCode: "DB_ERROR",
@@ -1089,7 +1186,7 @@ describe("Ledger Index - High-Level Transactions", () => {
     });
 
     it("should propagate journal posting errors for cashout initiate", async () => {
-      (postJournal as jest.Mock).mockResolvedValue({
+      _postJournalSpy.mockResolvedValue({
         success: false,
         error: "Database error",
         errorCode: "DB_ERROR",
