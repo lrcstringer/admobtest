@@ -2766,7 +2766,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     return Padding(
       padding: EdgeInsets.only(bottom: AppSpacing.md),
       child: BrandCard(
-        gradient: BrandGradient.cyanBlue,
+        gradient: BrandGradient.goldOrange,
         padding: EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2815,6 +2815,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                             height: 200,
                             icon: Icons.videocam_outlined,
                             label: 'Tap to record',
+                            accentColor: const Color(0xFFFF6429),
                             onTap: () => _openInlineCamera(
                                 _CameraOwner.video, maxSeconds),
                           ),
@@ -2923,12 +2924,17 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    Color? accentColor,
   }) {
+    final borderColor = accentColor?.withValues(alpha: 0.3) ??
+        AppColors.textHint.withValues(alpha: 0.4);
+    final iconColor = accentColor?.withValues(alpha: 0.6) ?? AppColors.textHint;
+
     return GestureDetector(
       onTap: onTap,
       child: CustomPaint(
         painter: _DashedBorderPainter(
-          color: AppColors.textHint.withValues(alpha: 0.4),
+          color: borderColor,
           radius: AppSpacing.radiusMd,
         ),
         child: Container(
@@ -2941,7 +2947,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 48, color: AppColors.textHint),
+              Icon(icon, size: 48, color: iconColor),
               SizedBox(height: AppSpacing.sm),
               Text(
                 label,
@@ -3393,7 +3399,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     return Padding(
       padding: EdgeInsets.only(bottom: AppSpacing.md),
       child: BrandCard(
-        gradient: BrandGradient.pinkPurple,
+        gradient: BrandGradient.cyanBlue,
         padding: EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -3437,6 +3443,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                                 height: 180,
                                 icon: Icons.photo_camera_outlined,
                                 label: 'Tap to capture',
+                                accentColor: const Color(0xFF0974FF),
                                 onTap: () => _openInlineCamera(
                                     _CameraOwner.photo, 0),
                               ),
