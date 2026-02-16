@@ -232,11 +232,24 @@ async function executeDailyPotDraw(potId?: string): Promise<{ winnersCount: numb
       100 // Build top 100 for the leaderboard
     );
 
+    // Get actual pot balance from the ledger (accumulated from unrounded 5% earnings split)
+    const ledgerPotBalance = await getBalance(SystemAccounts.DAILY_POT);
+
     if (leaderboardResult.total === 0) {
       console.log("No participants in daily pot");
+      // Sweep any leftover balance to pot:residual so tokens don't accumulate
+      if (ledgerPotBalance > 0) {
+        await processPotResidual("daily", ledgerPotBalance, potDoc.id, {
+          reason: "no_participants",
+          totalTokens: ledgerPotBalance,
+        });
+        console.log(`Swept ${ledgerPotBalance} leftover daily pot tokens to residual (no participants)`);
+      }
       await potDoc.ref.update({
         isActive: false,
         isDistributed: true,
+        totalTokens: ledgerPotBalance,
+        totalParticipants: 0,
         distributedAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
@@ -245,9 +258,6 @@ async function executeDailyPotDraw(potId?: string): Promise<{ winnersCount: numb
 
     // Get top 10 entries from the pot leaderboard
     const topEntries = await getPotLeaderboardEntries(potDoc.id, 10);
-
-    // Get actual pot balance from the ledger (accumulated from unrounded 5% earnings split)
-    const ledgerPotBalance = await getBalance(SystemAccounts.DAILY_POT);
     // Use ledger balance if available, otherwise use tracked total or base prize
     const totalTokens = ledgerPotBalance > 0 ? ledgerPotBalance : (potData.totalTokens || 10000);
 
@@ -452,11 +462,24 @@ async function executeWeeklyPotDraw(potId?: string): Promise<{ winnersCount: num
     const weekStartStr = getSASTDateString(potPeriodStart);
     const aggregatedScores = await aggregateWeeklyScoresFromDailyScores(weekStartStr);
 
+    // Get actual pot balance from the ledger (accumulated from unrounded 5% earnings split)
+    const ledgerPotBalance = await getBalance(SystemAccounts.WEEKLY_POT);
+
     if (aggregatedScores.length === 0) {
       console.log("No participants in weekly pot");
+      // Sweep any leftover balance to pot:residual so tokens don't accumulate
+      if (ledgerPotBalance > 0) {
+        await processPotResidual("weekly", ledgerPotBalance, potDoc.id, {
+          reason: "no_participants",
+          totalTokens: ledgerPotBalance,
+        });
+        console.log(`Swept ${ledgerPotBalance} leftover weekly pot tokens to residual (no participants)`);
+      }
       await potDoc.ref.update({
         isActive: false,
         isDistributed: true,
+        totalTokens: ledgerPotBalance,
+        totalParticipants: 0,
         distributedAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
@@ -494,8 +517,6 @@ async function executeWeeklyPotDraw(potId?: string): Promise<{ winnersCount: num
     }
     await leaderboardBatch.commit();
 
-    // Get actual pot balance from the ledger (accumulated from unrounded 5% earnings split)
-    const ledgerPotBalance = await getBalance(SystemAccounts.WEEKLY_POT);
     // Use ledger balance if available, otherwise use tracked total or base prize
     const totalTokens = ledgerPotBalance > 0 ? ledgerPotBalance : (potData.totalTokens || 50000);
 
