@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../../domain/entities/ledger_journal.dart';
 import '../../../domain/entities/reward_item.dart';
 import '../../../domain/entities/sub_account.dart';
 import '../../../domain/enums/reward_enums.dart';
@@ -12,7 +11,6 @@ import '../../blocs/reward/reward_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/common/brand_card.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
@@ -152,59 +150,11 @@ class _WalletScreenState extends State<WalletScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Portfolio total card
+                    // Portfolio balance card
                     _buildPortfolioCard(context, state, isLoading),
                     AppSpacing.verticalXl,
 
-                    // Quick actions row
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Opacity(
-                            opacity: state.canCashout ? 1.0 : 0.4,
-                            child: _buildActionCard(
-                              context,
-                              icon: Icons.arrow_upward,
-                              label: 'Cash Out',
-                              color: AppColors.success,
-                              gradient: BrandGradient.goldOrange,
-                              onTap: state.canCashout
-                                  ? () => context.go('/wallet/withdraw')
-                                  : () {},
-                            ),
-                          ),
-                        ),
-                        AppSpacing.horizontalMd,
-                        Expanded(
-                          child: _buildActionCard(
-                            context,
-                            icon: Icons.history,
-                            label: 'History',
-                            color: AppColors.secondary,
-                            gradient: BrandGradient.cyanBlue,
-                            onTap: () => context.go('/wallet/transactions'),
-                          ),
-                        ),
-                        if (_rewardsUiEnabled) ...[
-                          AppSpacing.horizontalMd,
-                          Expanded(
-                            child: _buildActionCard(
-                              context,
-                              icon: Icons.card_giftcard,
-                              label: 'Rewards',
-                              color: AppColors.accent,
-                              onTap: () => _navigateToRewards(context),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    AppSpacing.verticalXl,
-
-                    // My Rewards section (inline preview)
-                    _buildRewardsSection(context),
-
-                    // Wallets section header
+                    // My Wallets section
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -249,8 +199,8 @@ class _WalletScreenState extends State<WalletScreen> {
 
                     AppSpacing.verticalXl,
 
-                    // Recent Activity section
-                    _buildRecentActivity(context, state),
+                    // My Rewards section
+                    _buildRewardsSection(context),
                   ],
                 ),
               ),
@@ -271,10 +221,11 @@ class _WalletScreenState extends State<WalletScreen> {
     return BlocBuilder<RewardBloc, RewardState>(
       builder: (context, rewardState) {
         final activeRewards = rewardState.activeCount;
+        final walletCount = state.subAccounts.length + 1;
 
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: AppColors.logoGradient,
@@ -285,157 +236,67 @@ class _WalletScreenState extends State<WalletScreen> {
           ),
           child: Row(
             children: [
+              // Left: label + wallet/reward counts
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Portfolio Balance',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.8),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
                           ),
                     ),
                     const SizedBox(height: 4),
-                    if (isLoading)
-                      const SizedBox(
-                        height: 28,
-                        width: 28,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    else
-                      Text(
-                        '${state.balance}',
-                        style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                      ),
+                    Text(
+                      [
+                        '$walletCount wallet${walletCount == 1 ? '' : 's'}',
+                        if (_rewardsUiEnabled && activeRewards > 0)
+                          '$activeRewards reward${activeRewards == 1 ? '' : 's'}',
+                      ].join('  ·  '),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.7),
+                          ),
+                    ),
                   ],
                 ),
               ),
+              // Right: token count + ZAR
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
+                  if (isLoading)
+                    const SizedBox(
+                      height: 28,
+                      width: 28,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  else
+                    Text(
+                      '${state.balance} tokens',
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                    ),
+                  const SizedBox(height: 2),
                   Text(
                     'R${state.balanceZar.toStringAsFixed(2)}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.8),
                         ),
                   ),
-                  const SizedBox(height: 2),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.account_balance_wallet_outlined,
-                        color: Colors.white.withValues(alpha: 0.7),
-                        size: 14,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        () {
-                          final count = state.subAccounts.length + 1; // main wallet + sub-accounts
-                          return '$count wallet${count == 1 ? '' : 's'}';
-                        }(),
-                        style:
-                            Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                ),
-                      ),
-                    ],
-                  ),
-                  if (_rewardsUiEnabled && activeRewards > 0) ...[
-                    const SizedBox(height: 2),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.card_giftcard,
-                          color: Colors.white.withValues(alpha: 0.7),
-                          size: 14,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '$activeRewards reward${activeRewards == 1 ? '' : 's'}',
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.7),
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ],
                 ],
               ),
             ],
           ),
         );
       },
-    );
-  }
-
-  Widget _buildActionCard(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-    BrandGradient? gradient,
-  }) {
-    final gradientColors =
-        gradient != null ? BrandCard.colorsFor(gradient) : null;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: AppSpacing.borderRadiusMd,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          gradient: gradientColors != null
-              ? LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color.alphaBlend(
-                      gradientColors[0].withValues(alpha: 0.05),
-                      AppColors.surface,
-                    ),
-                    Color.alphaBlend(
-                      gradientColors[1].withValues(alpha: 0.025),
-                      AppColors.surface,
-                    ),
-                  ],
-                )
-              : null,
-          color: gradientColors == null ? AppColors.surface : null,
-          borderRadius: AppSpacing.borderRadiusMd,
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(icon, color: color, size: 24),
-                  ),
-                  AppSpacing.verticalSm,
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                  ),
-                ],
-              ),
-      ),
     );
   }
 
@@ -502,7 +363,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   ],
                 ),
               ),
-              AppSpacing.verticalXl,
+              AppSpacing.verticalLg,
             ],
           );
         }
@@ -646,7 +507,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
               ),
 
-            AppSpacing.verticalXl,
+            AppSpacing.verticalLg,
           ],
         );
       },
@@ -930,182 +791,6 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  Widget _buildRecentActivity(BuildContext context, WalletState walletState) {
-    return BlocBuilder<RewardBloc, RewardState>(
-      builder: (context, rewardState) {
-        // Build unified activity list from journals + reward items
-        final activities = <_ActivityEntry>[];
-
-        // Add latest 5 token journals
-        for (final journal in walletState.ledgerJournals.take(5)) {
-          activities.add(_ActivityEntry(
-            timestamp: journal.postedAt ?? journal.createdAt,
-            type: _ActivityType.token,
-            journal: journal,
-          ));
-        }
-
-        // Add latest 5 reward items (allocated or redeemed)
-        final rewardItems = [
-          ...rewardState.activeItems,
-          ...rewardState.redeemedItems,
-        ];
-        rewardItems.sort((a, b) {
-          final aDate = a.redeemedAt ?? a.allocatedAt ?? DateTime(2000);
-          final bDate = b.redeemedAt ?? b.allocatedAt ?? DateTime(2000);
-          return bDate.compareTo(aDate);
-        });
-        for (final item in rewardItems.take(5)) {
-          activities.add(_ActivityEntry(
-            timestamp: item.redeemedAt ?? item.allocatedAt ?? DateTime(2000),
-            type: _ActivityType.reward,
-            rewardItem: item,
-          ));
-        }
-
-        // Sort by timestamp descending, take top 5
-        activities.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-        final topActivities = activities.take(5).toList();
-
-        if (topActivities.isEmpty) return const SizedBox.shrink();
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Recent Activity',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                GestureDetector(
-                  onTap: () => context.go('/wallet/transactions'),
-                  child: Text(
-                    'See All',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            AppSpacing.verticalMd,
-            ...topActivities.map((a) => _buildActivityItem(context, a)),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildActivityItem(BuildContext context, _ActivityEntry entry) {
-    final IconData icon;
-    final Color color;
-    final String title;
-    final String subtitle;
-    final String trailing;
-
-    if (entry.type == _ActivityType.token && entry.journal != null) {
-      final j = entry.journal!;
-      switch (j.type) {
-        case LedgerJournalType.earn:
-          icon = Icons.monetization_on_outlined;
-          color = AppColors.success;
-          title = 'Tokens Earned';
-        case LedgerJournalType.potWin:
-          icon = Icons.emoji_events_outlined;
-          color = AppColors.accent;
-          title = 'Pot Win';
-        case LedgerJournalType.p2pTransfer:
-          icon = Icons.swap_horiz;
-          color = AppColors.primary;
-          title = 'Transfer';
-        case LedgerJournalType.cashoutInitiate:
-        case LedgerJournalType.cashoutComplete:
-          icon = Icons.arrow_upward;
-          color = AppColors.secondary;
-          title = 'Cash Out';
-        case LedgerJournalType.referralReward:
-          icon = Icons.people_outline;
-          color = AppColors.info;
-          title = 'Referral Reward';
-        default:
-          icon = Icons.receipt_long_outlined;
-          color = AppColors.textSecondary;
-          title = j.description;
-      }
-      subtitle = j.description;
-      trailing = '${j.totalCredits > 0 ? '+' : ''}${j.totalCredits} tokens';
-    } else if (entry.rewardItem != null) {
-      final r = entry.rewardItem!;
-      icon = Icons.card_giftcard;
-      color = AppColors.accent;
-      title = r.campaignName ?? 'Reward';
-      subtitle = r.clientName ?? '';
-      trailing = r.status.displayName;
-    } else {
-      return const SizedBox.shrink();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: AppSpacing.borderRadiusMd,
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 18),
-            ),
-            AppSpacing.horizontalMd,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: AppColors.textSecondary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              trailing,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildLoadingWallets() {
     return Column(
       children: List.generate(
@@ -1126,21 +811,4 @@ class _WalletScreenState extends State<WalletScreen> {
       ),
     );
   }
-
-}
-
-enum _ActivityType { token, reward }
-
-class _ActivityEntry {
-  final DateTime timestamp;
-  final _ActivityType type;
-  final LedgerJournal? journal;
-  final RewardItem? rewardItem;
-
-  _ActivityEntry({
-    required this.timestamp,
-    required this.type,
-    this.journal,
-    this.rewardItem,
-  });
 }

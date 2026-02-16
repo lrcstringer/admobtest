@@ -154,11 +154,12 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
     }
 
     try {
-      // Query journals where user's account appears in the entries
-      // Account ID format: user:{userId}
+      // Query journals where user's account appears in participantAccountIds
+      // This field is denormalized at journal creation time for efficient per-user queries
       final userAccountId = 'user:$userId';
 
       var query = _ledgerJournalsCollection
+          .where('participantAccountIds', arrayContains: userAccountId)
           .where('status', isEqualTo: 'posted')
           .orderBy('postedAt', descending: true);
 
@@ -172,22 +173,12 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
       final snapshot = await query.get();
 
-      // Filter journals that contain the user's account in entries
-      final journals = <LedgerJournalModel>[];
-      for (final doc in snapshot.docs) {
-        final data = sanitizeFirestoreData(doc.data());
-        final entries = data['entries'] as List<dynamic>? ?? [];
-
-        // Check if user's account is in any entry
-        final hasUserAccount = entries.any((entry) {
-          final e = entry as Map<String, dynamic>;
-          return e['accountId'] == userAccountId;
-        });
-
-        if (hasUserAccount) {
-          journals.add(LedgerJournalModel.fromJson({...data, 'id': doc.id}));
-        }
-      }
+      final journals = snapshot.docs
+          .map((doc) {
+            final data = sanitizeFirestoreData(doc.data());
+            return LedgerJournalModel.fromJson({...data, 'id': doc.id});
+          })
+          .toList();
 
       return journals;
     } catch (e) {
@@ -205,6 +196,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
     final userAccountId = 'user:$userId';
 
     var query = _ledgerJournalsCollection
+        .where('participantAccountIds', arrayContains: userAccountId)
         .where('status', isEqualTo: 'posted')
         .orderBy('postedAt', descending: true);
 
@@ -213,22 +205,10 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
     }
 
     return query.snapshots().map((snapshot) {
-      final journals = <LedgerJournalModel>[];
-      for (final doc in snapshot.docs) {
+      return snapshot.docs.map((doc) {
         final data = sanitizeFirestoreData(doc.data());
-        final entries = data['entries'] as List<dynamic>? ?? [];
-
-        // Check if user's account is in any entry
-        final hasUserAccount = entries.any((entry) {
-          final e = entry as Map<String, dynamic>;
-          return e['accountId'] == userAccountId;
-        });
-
-        if (hasUserAccount) {
-          journals.add(LedgerJournalModel.fromJson({...data, 'id': doc.id}));
-        }
-      }
-      return journals;
+        return LedgerJournalModel.fromJson({...data, 'id': doc.id});
+      }).toList();
     });
   }
 

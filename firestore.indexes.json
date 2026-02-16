@@ -190,7 +190,8 @@
       "collectionGroup": "ledgerJournals",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "entries.accountId", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "participantAccountIds", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "postedAt", "order": "DESCENDING" }
       ]
     },
