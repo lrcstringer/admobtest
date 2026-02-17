@@ -1,4 +1,4 @@
-package com.imalichat
+package com.imalichat.app
 
 import android.os.Bundle
 import android.view.WindowManager
@@ -9,7 +9,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterFragmentActivity() {
     private lateinit var keystoreChannel: KeystoreChannel
     private lateinit var playIntegrityChannel: PlayIntegrityChannel
-    private val SCREENSHOT_CHANNEL = "com.imalichat/screenshot"
+    private val SCREENSHOT_CHANNEL = "com.imalichat.app/screenshot"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -7,7 +7,7 @@ import 'package:injectable/injectable.dart';
 /// iOS: Uses secure text field overlay technique.
 @lazySingleton
 class ScreenshotPreventionService {
-  static const _channel = MethodChannel('com.imalichat/screenshot');
+  static const _channel = MethodChannel('com.imalichat.app/screenshot');
 
   Future<void> enable() async {
     try {
