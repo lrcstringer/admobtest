@@ -132,6 +132,9 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     _recordingTimer?.cancel();
     // Clean up compressed temp file
     _uploadService.cleanupTempFile(_compressedVideo);
+    // Reset BLoC engagement state so stale errors don't bleed into the next opportunity
+    context.read<EarnBloc>().add(const EarnEvent.clearError());
+    context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
     super.dispose();
   }
 
@@ -2428,7 +2431,11 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
             SizedBox(height: AppSpacing.sm),
             AppButton(
               text: 'Go Back',
-              onPressed: () => context.pop(),
+              onPressed: () {
+                context.read<EarnBloc>().add(const EarnEvent.clearError());
+                context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
+                context.pop();
+              },
               variant: AppButtonVariant.text,
             ),
           ],
@@ -2768,29 +2775,38 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
     return Padding(
       padding: EdgeInsets.only(bottom: AppSpacing.md),
-      child: BrandCard(
-        gradient: BrandGradient.goldOrange,
+      child: Container(
         padding: EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFF9900), Color(0xFFFF328C)],
+          ),
+          borderRadius: AppSpacing.borderRadiusLg,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Icon(Icons.videocam_outlined, size: 20),
+                const Icon(Icons.videocam_outlined,
+                    size: 20, color: Colors.white),
                 SizedBox(width: AppSpacing.sm),
                 Text(
                   'Video Recording',
-                  style: Theme.of(context).textTheme.titleSmall,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 const Spacer(),
-                _buildRequiredBadge(required),
+                _buildRequiredBadge(required, onGradient: true),
               ],
             ),
             SizedBox(height: AppSpacing.xs),
             Text(
               'Max ${maxSeconds}s',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Colors.white70,
                   ),
             ),
             SizedBox(height: AppSpacing.md),
@@ -2818,7 +2834,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                             height: 200,
                             icon: Icons.videocam_outlined,
                             label: 'Tap to record',
-                            accentColor: const Color(0xFFFF6429),
+                            accentColor: Colors.white,
                             onTap: () => _openInlineCamera(
                                 _CameraOwner.video, maxSeconds),
                           ),
@@ -2864,8 +2880,12 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: _clearRecordedVideo,
-                icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('Re-record'),
+                icon: const Icon(Icons.refresh, size: 18, color: Colors.black),
+                label: const Text('Re-record',
+                    style: TextStyle(color: Colors.black)),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.black),
+                ),
               ),
             ),
           ],
@@ -3401,22 +3421,31 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
     return Padding(
       padding: EdgeInsets.only(bottom: AppSpacing.md),
-      child: BrandCard(
-        gradient: BrandGradient.cyanBlue,
+      child: Container(
         padding: EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF08C2F4), Color(0xFF0974FF)],
+          ),
+          borderRadius: AppSpacing.borderRadiusLg,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Icon(Icons.photo_camera_outlined, size: 20),
+                const Icon(Icons.photo_camera_outlined,
+                    size: 20, color: Colors.white),
                 SizedBox(width: AppSpacing.sm),
                 Text(
                   'Photo',
-                  style: Theme.of(context).textTheme.titleSmall,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 const Spacer(),
-                _buildRequiredBadge(required),
+                _buildRequiredBadge(required, onGradient: true),
               ],
             ),
             SizedBox(height: AppSpacing.md),
@@ -3446,7 +3475,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                                 height: 180,
                                 icon: Icons.photo_camera_outlined,
                                 label: 'Tap to capture',
-                                accentColor: const Color(0xFF0974FF),
+                                accentColor: Colors.white,
                                 onTap: () => _openInlineCamera(
                                     _CameraOwner.photo, 0),
                               ),
@@ -3455,8 +3484,11 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                                 onPressed: () =>
                                     _pickImage(ImageSource.gallery),
                                 icon: const Icon(Icons.photo_library,
-                                    size: 16),
-                                label: const Text('Or pick from gallery'),
+                                    size: 16, color: Colors.white70),
+                                label: Text(
+                                  'Or pick from gallery',
+                                  style: TextStyle(color: Colors.white70),
+                                ),
                               ),
                             ],
                           ),
@@ -3488,8 +3520,12 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: _clearSelectedImage,
-                icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('Re-pick'),
+                icon: const Icon(Icons.refresh, size: 18, color: Colors.black),
+                label: const Text('Re-pick',
+                    style: TextStyle(color: Colors.black)),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.black),
+                ),
               ),
             ),
           ],
@@ -3547,22 +3583,33 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
     return Padding(
       padding: EdgeInsets.only(bottom: AppSpacing.md),
-      child: BrandCard(
-        gradient: BrandGradient.goldOrange,
+      child: Container(
         padding: EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF142978), Color(0xFF0C1124)],
+          ),
+          borderRadius: AppSpacing.borderRadiusLg,
+        ),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.text_fields_outlined, size: 20),
+                  const Icon(Icons.text_fields_outlined,
+                      size: 20, color: Colors.white),
                   SizedBox(width: AppSpacing.sm),
                   Text(
                     'Text Response',
-                    style: Theme.of(context).textTheme.titleSmall,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   const Spacer(),
-                  _buildRequiredBadge(required),
+                  _buildRequiredBadge(required, onGradient: true),
                 ],
               ),
               SizedBox(height: AppSpacing.md),
@@ -3571,14 +3618,25 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                 maxLength: maxChars,
                 maxLines: 5,
                 minLines: 3,
+                style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: 'Type your response here...',
-                  border: const OutlineInputBorder(),
+                  hintStyle: TextStyle(color: Colors.white38),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.3)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.3)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.6)),
+                  ),
                   counterText: '$currentLength / $maxChars',
                   counterStyle: TextStyle(
-                    color: meetsMinimum
-                        ? AppColors.textSecondary
-                        : AppColors.error,
+                    color: meetsMinimum ? Colors.white60 : AppColors.error,
                   ),
                 ),
                 onChanged: (_) {
@@ -3738,19 +3796,25 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
   // ── Helpers ──
 
-  Widget _buildRequiredBadge(bool required) {
+  Widget _buildRequiredBadge(bool required, {bool onGradient = false}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: required
-            ? AppColors.error.withValues(alpha: 0.1)
-            : AppColors.textHint.withValues(alpha: 0.1),
+        color: onGradient
+            ? Colors.white.withValues(alpha: 0.2)
+            : required
+                ? AppColors.error.withValues(alpha: 0.1)
+                : AppColors.textHint.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         required ? 'Required' : 'Optional',
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: required ? AppColors.error : AppColors.textHint,
+              color: onGradient
+                  ? Colors.white
+                  : required
+                      ? AppColors.error
+                      : AppColors.textHint,
             ),
       ),
     );
