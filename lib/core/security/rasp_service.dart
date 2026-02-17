@@ -21,11 +21,11 @@ class RaspService {
 
     final config = TalsecConfig(
       androidConfig: AndroidConfig(
-        packageName: 'com.example.imalichat',
+        packageName: 'com.imalichat',
         signingCertHashes: ['++ys+86Amp+pFhaBPLAwcISWowW/a5Msc1bntnILIBY='],
       ),
       iosConfig: IOSConfig(
-        bundleIds: ['com.example.imalichat'],
+        bundleIds: ['com.imalichat'],
         teamId: 'PLACEHOLDER_TEAM_ID',
       ),
       watcherMail: 'security@imalichat.com',

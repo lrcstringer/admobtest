@@ -1,4 +1,4 @@
-package com.example.imalichat
+package com.imalichat
 
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.integrity.IntegrityTokenRequest

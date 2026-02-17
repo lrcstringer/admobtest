@@ -17,7 +17,7 @@ import UIKit
 
       // Screenshot prevention method channel
       let screenshotChannel = FlutterMethodChannel(
-        name: "com.example.imalichat/screenshot",
+        name: "com.imalichat/screenshot",
         binaryMessenger: controller.binaryMessenger
       )
       screenshotChannel.setMethodCallHandler { [weak self] call, result in

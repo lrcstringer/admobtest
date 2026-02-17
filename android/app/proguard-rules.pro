@@ -15,8 +15,8 @@
 -dontwarn com.google.android.play.core.**
 
 # Native channels
--keep class com.example.imalichat.KeystoreChannel { *; }
--keep class com.example.imalichat.PlayIntegrityChannel { *; }
+-keep class com.imalichat.KeystoreChannel { *; }
+-keep class com.imalichat.PlayIntegrityChannel { *; }
 
 # Kotlin coroutines
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
@@ -45,7 +45,7 @@
 -keep class io.flutter.plugins.** { *; }
 
 # Keep all GeneratedPluginRegistrant (ensures plugin registration survives R8)
--keep class com.example.imalichat.GeneratedPluginRegistrant { *; }
+-keep class com.imalichat.GeneratedPluginRegistrant { *; }
 
 # Google Play Services (needed by Firebase, Ads, etc.)
 -keep class com.google.android.gms.** { *; }

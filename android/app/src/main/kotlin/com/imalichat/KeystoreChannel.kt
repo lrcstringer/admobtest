@@ -1,4 +1,4 @@
-package com.example.imalichat
+package com.imalichat
 
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
