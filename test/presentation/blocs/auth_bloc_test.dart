@@ -9,6 +9,7 @@ import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/core/security/device_binding_service.dart';
 import 'package:imalichat/core/services/biometric_login_service.dart';
 import 'package:imalichat/core/services/fcm_challenge_handler.dart';
+import 'package:imalichat/core/services/key_management_service.dart';
 import 'package:imalichat/domain/entities/trusted_device.dart';
 import 'package:imalichat/domain/entities/user.dart';
 import 'package:imalichat/domain/repositories/auth_repository.dart';
@@ -27,12 +28,15 @@ class MockBiometricLoginService extends Mock implements BiometricLoginService {}
 
 class MockFcmChallengeHandler extends Mock implements FcmChallengeHandler {}
 
+class MockKeyManagementService extends Mock implements KeyManagementService {}
+
 void main() {
   late MockAuthRepository mockAuthRepository;
   late MockUserRepository mockUserRepository;
   late MockDeviceBindingService mockDeviceBindingService;
   late MockBiometricLoginService mockBiometricLoginService;
   late MockFcmChallengeHandler mockFcmChallengeHandler;
+  late MockKeyManagementService mockKeyManagementService;
   late StreamController<User?> authStateController;
 
   AuthBloc createBloc() => AuthBloc(
@@ -41,6 +45,7 @@ void main() {
         mockDeviceBindingService,
         mockBiometricLoginService,
         mockFcmChallengeHandler,
+        mockKeyManagementService,
       );
 
   setUp(() {
@@ -49,6 +54,7 @@ void main() {
     mockDeviceBindingService = MockDeviceBindingService();
     mockBiometricLoginService = MockBiometricLoginService();
     mockFcmChallengeHandler = MockFcmChallengeHandler();
+    mockKeyManagementService = MockKeyManagementService();
     authStateController = StreamController<User?>.broadcast();
 
     when(() => mockAuthRepository.authStateChanges)
@@ -67,6 +73,9 @@ void main() {
               revoked: false,
               registeredAt: DateTime(2024, 1, 1),
             )));
+    // Stub E2EE key init (fire-and-forget in auth flow)
+    when(() => mockKeyManagementService.loadPrivateKeys())
+        .thenAnswer((_) async => null);
   });
 
   tearDown(() {

@@ -49,7 +49,7 @@ abstract class AdMobConstants {
 
   // Timeouts
   static const Duration adLoadTimeout = Duration(seconds: 30);
-  static const Duration adShowTimeout = Duration(seconds: 60);
+  static const Duration adShowTimeout = Duration(seconds: 120);
 
   // Retry Configuration
   static const int maxLoadRetries = 5;

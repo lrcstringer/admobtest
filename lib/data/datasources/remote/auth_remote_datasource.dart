@@ -104,7 +104,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
 
       // Sign in with the custom token from Cloud Function
-      return await _firebaseAuth.signInWithCustomToken(customToken);
+      final userCredential =
+          await _firebaseAuth.signInWithCustomToken(customToken);
+
+      // Force-refresh the ID token so the Firestore SDK picks up the new
+      // auth context immediately. Without this, a re-registering user
+      // (whose previous Auth account was deleted) may still have a stale
+      // cached token, causing the very next Firestore read/write to fail
+      // with permission-denied.
+      await userCredential.user?.getIdToken(true);
+
+      return userCredential;
     } on FirebaseFunctionsException catch (e) {
       throw _mapFunctionsError(e);
     } on firebase_auth.FirebaseAuthException catch (e) {
@@ -149,7 +159,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<firebase_auth.UserCredential> signInWithCustomToken(String token) async {
     try {
-      return await _firebaseAuth.signInWithCustomToken(token);
+      final userCredential = await _firebaseAuth.signInWithCustomToken(token);
+      // Force-refresh so Firestore SDK has the new auth context immediately
+      await userCredential.user?.getIdToken(true);
+      return userCredential;
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw AuthException(message: e.message ?? 'Custom token sign-in failed');
     }

@@ -52,7 +52,13 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return UserModel.fromJson({...sanitizeFirestoreData(doc.data()!), 'userId': doc.id});
+      final data = doc.data()!;
+      // Guard against incomplete documents (e.g. Cloud Function merge-wrote
+      // only lastLoginAt before the Flutter app created the full profile).
+      if (!data.containsKey('phoneNumber')) {
+        return null;
+      }
+      return UserModel.fromJson({...sanitizeFirestoreData(data), 'userId': doc.id});
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to get user');
     }

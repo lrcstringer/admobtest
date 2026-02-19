@@ -213,21 +213,9 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
       }
     }
 
-    // Check if user has already completed this opportunity
-    const existingEngagement = await db
-      .collection("engagements")
-      .where("userId", "==", userId)
-      .where("earnOpportunityId", "==", earnOpportunityId)
-      .where("status", "==", EngagementStatus.COMPLETED)
-      .limit(1)
-      .get();
-
-    if (!existingEngagement.empty) {
-      throw new functions.https.HttpsError(
-        "already-exists",
-        "Already completed this opportunity"
-      );
-    }
+    // Daily limit check at lines above already enforces per-day completion
+    // limits. When dailyLimitPerUser is null (unlimited), no cap is applied.
+    // No additional all-time blanket check needed.
   } else if (campaignId) {
     // Legacy flow: Get campaign from campaigns collection
     if (!type) {

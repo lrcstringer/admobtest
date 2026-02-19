@@ -1,0 +1,659 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../domain/entities/community.dart';
+import '../../../domain/entities/conversation.dart';
+import '../../blocs/auth/auth_bloc.dart';
+import '../../blocs/community/community_bloc.dart';
+import '../../blocs/conversation/conversation_bloc.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
+import '../../widgets/messaging/community_list_tile.dart';
+import '../../widgets/messaging/conversation_list_tile.dart';
+
+/// Unified inbox screen showing all P2P conversations and communities
+/// sorted by last message timestamp.
+///
+/// Replaces the old [ChatScreen] for the Chat tab (Tab 2).
+class MessagingScreen extends StatefulWidget {
+  const MessagingScreen({super.key});
+
+  @override
+  State<MessagingScreen> createState() => _MessagingScreenState();
+}
+
+class _MessagingScreenState extends State<MessagingScreen> {
+  bool _isSearching = false;
+  String _searchQuery = '';
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    context
+        .read<ConversationBloc>()
+        .add(const ConversationEvent.loadConversations());
+    context
+        .read<ConversationBloc>()
+        .add(const ConversationEvent.watchConversations());
+    context
+        .read<CommunityBloc>()
+        .add(const CommunityEvent.loadUserCommunities());
+    context
+        .read<CommunityBloc>()
+        .add(const CommunityEvent.watchUserCommunities());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentUserId =
+        context.read<AuthBloc>().state.user?.id ?? '';
+
+    return Scaffold(
+      appBar: _isSearching
+          ? AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  setState(() {
+                    _isSearching = false;
+                    _searchQuery = '';
+                    _searchController.clear();
+                  });
+                },
+              ),
+              title: TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Search conversations...',
+                  border: InputBorder.none,
+                ),
+                onChanged: (query) {
+                  setState(() => _searchQuery = query.toLowerCase());
+                },
+              ),
+              actions: [
+                if (_searchController.text.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      setState(() {
+                        _searchQuery = '';
+                        _searchController.clear();
+                      });
+                    },
+                  ),
+              ],
+            )
+          : IMaliAppBar(
+              title: 'Chat',
+              extraActions: [
+                IconButton(
+                  icon:
+                      const Icon(Icons.search, color: AppColors.textPrimary),
+                  onPressed: () => _showSearch(context),
+                ),
+              ],
+            ),
+      body: BlocConsumer<ConversationBloc, ConversationState>(
+        listener: (context, state) {
+          if (state.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                backgroundColor: AppColors.error,
+              ),
+            );
+            context
+                .read<ConversationBloc>()
+                .add(const ConversationEvent.clearError());
+          }
+        },
+        builder: (context, convState) {
+          return BlocBuilder<CommunityBloc, CommunityState>(
+            builder: (context, commState) {
+              return WaveBackground(
+                child: Column(
+                  children: [
+                    // Quick Actions Bar
+                    _buildQuickActions(context),
+                    const Divider(height: 1),
+                    // Unified inbox list
+                    Expanded(
+                      child: _buildInboxList(
+                        context,
+                        convState,
+                        commState,
+                        currentUserId,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+      floatingActionButton: _buildFAB(context),
+    );
+  }
+
+  Widget _buildQuickActions(BuildContext context) {
+    return Container(
+      padding: AppSpacing.cardPadding,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(
+              AppColors.logoGradient[0].withValues(alpha: 0.06),
+              AppColors.surface,
+            ),
+            Color.alphaBlend(
+              AppColors.logoGradient[1].withValues(alpha: 0.03),
+              AppColors.surface,
+            ),
+          ],
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildQuickAction(
+            context,
+            icon: Icons.send,
+            label: 'Send',
+            color: AppColors.primary,
+            onTap: () => context.push('/chat/send-wallet'),
+          ),
+          _buildQuickAction(
+            context,
+            icon: Icons.group_add,
+            label: 'Community',
+            color: AppColors.secondary,
+            onTap: () => context.push('/chat/create-community'),
+          ),
+          _buildQuickAction(
+            context,
+            icon: Icons.qr_code,
+            label: 'QR Code',
+            color: AppColors.tertiary,
+            onTap: () => _showQRCode(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickAction(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: AppSpacing.borderRadiusMd,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            AppSpacing.verticalXs,
+            Text(label, style: Theme.of(context).textTheme.labelMedium),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInboxList(
+    BuildContext context,
+    ConversationState convState,
+    CommunityState commState,
+    String currentUserId,
+  ) {
+    final isLoading = convState.status == ConversationStatus.loading &&
+        convState.conversations.isEmpty &&
+        commState.status == CommunityLoadingStatus.loading &&
+        commState.communities.isEmpty;
+
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // Build unified list items sorted by lastMessageAt
+    final items = _buildUnifiedItems(convState, commState, currentUserId);
+
+    if (items.isEmpty) {
+      return _buildEmptyState(context);
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context
+            .read<ConversationBloc>()
+            .add(const ConversationEvent.loadConversations());
+        context
+            .read<CommunityBloc>()
+            .add(const CommunityEvent.loadUserCommunities());
+      },
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: items.length,
+        itemBuilder: (context, index) => items[index],
+      ),
+    );
+  }
+
+  List<Widget> _buildUnifiedItems(
+    ConversationState convState,
+    CommunityState commState,
+    String currentUserId,
+  ) {
+    // Create sortable entries
+    final entries = <_InboxEntry>[];
+
+    for (final conv in convState.sortedConversations(currentUserId)) {
+      if (conv.isArchivedFor(currentUserId)) continue;
+      if (_searchQuery.isNotEmpty &&
+          !conv
+              .displayNameFor(currentUserId)
+              .toLowerCase()
+              .contains(_searchQuery)) {
+        continue;
+      }
+      entries.add(_InboxEntry(
+        sortTime: conv.lastMessageAt ?? conv.createdAt,
+        isPinned: conv.isPinnedFor(currentUserId),
+        widget: ConversationListTile(
+          conversation: conv,
+          currentUserId: currentUserId,
+          onTap: () {
+            context
+                .read<ConversationBloc>()
+                .add(ConversationEvent.selectConversation(conv.id));
+            context.push('/chat/conversation/${conv.id}');
+          },
+          onLongPress: () => _showConversationOptions(context, conv),
+        ),
+      ));
+    }
+
+    for (final comm in commState.activeCommunities) {
+      if (_searchQuery.isNotEmpty &&
+          !comm.name.toLowerCase().contains(_searchQuery)) {
+        continue;
+      }
+      entries.add(_InboxEntry(
+        sortTime: comm.lastMessageAt ?? comm.createdAt,
+        isPinned: false,
+        widget: CommunityListTile(
+          community: comm,
+          currentUserId: currentUserId,
+          onTap: () => context.push('/chat/community/${comm.id}'),
+          onLongPress: () => _showCommunityOptions(context, comm),
+        ),
+      ));
+    }
+
+    // Sort: pinned first, then by timestamp descending
+    entries.sort((a, b) {
+      if (a.isPinned != b.isPinned) return a.isPinned ? -1 : 1;
+      return b.sortTime.compareTo(a.sortTime);
+    });
+
+    return entries.map((e) => e.widget).toList();
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: AppSpacing.pagePadding,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.chat_bubble_outline, size: 80, color: AppColors.textHint),
+            AppSpacing.verticalLg,
+            Text(
+              'No conversations yet',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            AppSpacing.verticalSm,
+            Text(
+              'Start a chat or create a community to get started',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            AppSpacing.verticalXl,
+            ElevatedButton.icon(
+              onPressed: () => _showNewChatSheet(context),
+              icon: const Icon(Icons.person_add),
+              label: const Text('Start a Chat'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFAB(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () => _showNewChatSheet(context),
+      child: const Icon(Icons.edit),
+    );
+  }
+
+  void _showNewChatSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => _NewChatOrCommunitySheet(
+        onNewChat: () {
+          Navigator.pop(context);
+          context.push('/chat/new');
+        },
+        onNewCommunity: () {
+          Navigator.pop(context);
+          context.push('/chat/create-community');
+        },
+      ),
+    );
+  }
+
+  void _showSearch(BuildContext context) {
+    setState(() => _isSearching = true);
+  }
+
+  void _showQRCode(BuildContext context) {
+    final currentUser = context.read<AuthBloc>().state.user;
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textHint,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.qr_code),
+              title: const Text('My QR Code'),
+              subtitle: const Text('Let others scan to chat with you'),
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/home/qr-code', extra: {
+                  'userId': currentUser?.id ?? '',
+                  'displayName':
+                      currentUser?.displayName ?? 'My QR Code',
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.qr_code_scanner),
+              title: const Text('Scan QR Code'),
+              subtitle: const Text('Scan someone\'s code to start chatting'),
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/scan');
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showConversationOptions(BuildContext context, Conversation conv) {
+    final currentUserId =
+        context.read<AuthBloc>().state.user?.id ?? '';
+
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _dragHandle(),
+            ListTile(
+              leading: Icon(
+                conv.isPinnedFor(currentUserId)
+                    ? Icons.push_pin_outlined
+                    : Icons.push_pin,
+              ),
+              title: Text(
+                conv.isPinnedFor(currentUserId) ? 'Unpin Chat' : 'Pin Chat',
+              ),
+              onTap: () {
+                Navigator.pop(ctx);
+                context.read<ConversationBloc>().add(
+                      ConversationEvent.togglePin(
+                        conversationId: conv.id,
+                        pinned: !conv.isPinnedFor(currentUserId),
+                      ),
+                    );
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                conv.isMutedFor(currentUserId)
+                    ? Icons.volume_up
+                    : Icons.volume_off,
+              ),
+              title: Text(
+                conv.isMutedFor(currentUserId) ? 'Unmute' : 'Mute',
+              ),
+              onTap: () {
+                Navigator.pop(ctx);
+                context.read<ConversationBloc>().add(
+                      ConversationEvent.toggleMute(
+                        conversationId: conv.id,
+                        muted: !conv.isMutedFor(currentUserId),
+                      ),
+                    );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.archive_outlined),
+              title: const Text('Archive'),
+              onTap: () {
+                Navigator.pop(ctx);
+                context
+                    .read<ConversationBloc>()
+                    .add(ConversationEvent.archiveConversation(conv.id));
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCommunityOptions(BuildContext context, Community comm) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _dragHandle(),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('Community Info'),
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/chat/community/${comm.id}');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Leave Community'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _confirmLeaveCommunity(context, comm);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmLeaveCommunity(BuildContext context, Community comm) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Leave Community?'),
+        content: Text('Are you sure you want to leave "${comm.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context
+                  .read<CommunityBloc>()
+                  .add(CommunityEvent.leaveCommunity(communityId: comm.id));
+            },
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _dragHandle() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      width: 40,
+      height: 4,
+      decoration: BoxDecoration(
+        color: AppColors.textHint,
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+}
+
+/// Helper for sorting unified inbox items.
+class _InboxEntry {
+  final DateTime sortTime;
+  final bool isPinned;
+  final Widget widget;
+
+  _InboxEntry({
+    required this.sortTime,
+    required this.isPinned,
+    required this.widget,
+  });
+}
+
+/// Bottom sheet for creating a new chat or community.
+class _NewChatOrCommunitySheet extends StatelessWidget {
+  final VoidCallback onNewChat;
+  final VoidCallback onNewCommunity;
+
+  const _NewChatOrCommunitySheet({
+    required this.onNewChat,
+    required this.onNewCommunity,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textHint,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'New Conversation',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+            AppSpacing.verticalMd,
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.person, color: AppColors.primary),
+              ),
+              title: const Text('New Chat'),
+              subtitle: const Text('Send a message to a contact'),
+              onTap: onNewChat,
+            ),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.group_add, color: AppColors.secondary),
+              ),
+              title: const Text('Create Community'),
+              subtitle: const Text('Start a group or stokvel'),
+              onTap: onNewCommunity,
+            ),
+            AppSpacing.verticalLg,
+          ],
+        ),
+      ),
+    );
+  }
+}

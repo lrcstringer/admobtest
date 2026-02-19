@@ -158,6 +158,42 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
   }
 
+  /// Debug-only dialog: paste a custom auth token to sign in as any user.
+  void _showDebugTokenDialog() {
+    final tokenController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Debug Token Sign-In'),
+        content: TextField(
+          controller: tokenController,
+          maxLines: 3,
+          decoration: const InputDecoration(
+            hintText: 'Paste custom auth token here',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final token = tokenController.text.trim();
+              if (token.isEmpty) return;
+              Navigator.of(ctx).pop();
+              context.read<AuthBloc>().add(
+                    AuthEvent.authenticateWithPushToken(customToken: token),
+                  );
+            },
+            child: const Text('Sign In'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _disposeVideo();
@@ -232,7 +268,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 ),
               ),
 
-              // Debug mode badge
+              // Debug mode badge (tap = cycle auth mode, long-press = token sign-in)
               if (kDebugMode)
                 Positioned(
                   top: 50,
@@ -254,6 +290,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         ),
                       );
                     },
+                    onLongPress: _showDebugTokenDialog,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,

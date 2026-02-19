@@ -8,6 +8,7 @@ import '../../domain/entities/chat_card.dart';
 import '../../domain/repositories/chat_repository.dart';
 import '../datasources/remote/chat_remote_datasource.dart';
 
+// DEPRECATED: Use ConversationRepositoryImpl instead. Will be removed in a future cleanup PR.
 @LazySingleton(as: ChatRepository)
 class ChatRepositoryImpl implements ChatRepository {
   final ChatRemoteDataSource _remoteDataSource;

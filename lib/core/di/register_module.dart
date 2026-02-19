@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -13,6 +14,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Module for registering third-party dependencies
 @module
 abstract class RegisterModule {
+  @lazySingleton
+  FirebaseAnalytics get firebaseAnalytics => FirebaseAnalytics.instance;
+
   @lazySingleton
   FirebaseAuth get firebaseAuth => FirebaseAuth.instance;
 

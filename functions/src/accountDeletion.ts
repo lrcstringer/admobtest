@@ -92,9 +92,12 @@ export const deleteUserAccount = functions
         ["transactions", "userId"],
         ["cashouts", "userId"],
         ["earnings", "userId"],
+        ["p2pTransfers", "senderId"],
+        ["p2pTransfers", "recipientId"],
         // Earning & engagement
         ["earnThreads", "userId"],
         ["engagements", "userId"],
+        ["earnNotifications", "userId"],
         // Gamification
         ["potEntries", "userId"],
         ["potWinners", "userId"],
@@ -119,10 +122,23 @@ export const deleteUserAccount = functions
         ["auditLogs", "userId"],
         ["integrityChecks", "userId"],
         ["captchaVerifications", "userId"],
+        ["kycVerifications", "userId"],
         // Chat — sender side (delete messages the user sent)
         ["chatMessages", "senderId"],
         // Payment requests — requester side
         ["paymentRequests", "requesterId"],
+        // Gifts
+        ["gifts", "senderId"],
+        ["gifts", "recipientId"],
+        // Token sprays
+        ["tokenSprays", "creatorId"],
+        // Moderation reports filed by user
+        ["reports", "reporterId"],
+        // Notifications
+        ["notifications", "userId"],
+        // Rewards allocated to user
+        ["rewardItems", "allocatedToUserId"],
+        ["rewardActivityLog", "userId"],
       ];
 
       for (const [collection, field] of fieldQueryCollections) {
@@ -142,6 +158,21 @@ export const deleteUserAccount = functions
       // remaining participants, delete it entirely.
 
       await cleanupChatThreads(userId);
+
+      // ── Phase 3b: Clean up conversations ────────────────────────────
+      //
+      // Similar to chat threads: remove user from participantIds arrays,
+      // anonymize messages sent by user, delete empty conversations.
+
+      await cleanupConversations(userId);
+
+      // ── Phase 3c: Clean up communities ─────────────────────────────
+      //
+      // Remove user from memberIds/adminIds arrays, delete member
+      // subcollection doc, anonymize messages. If user is sole owner
+      // and no other members remain, delete the community entirely.
+
+      await cleanupCommunities(userId);
 
       // ── Phase 4: Delete payment requests where user is payer ────────
 
@@ -205,6 +236,26 @@ export const deleteUserAccount = functions
         await dailyScoresBatch.commit();
         console.log(`  Deleted ${dailyScoresSnap.size} dailyScores for user`);
       }
+
+      // ── Phase 5d: Delete leaderboard scores subcollections ───────────
+      //
+      // leaderboards/{daily|weekly|allTime}/scores/{userId}
+
+      const leaderboardTypes = ["daily", "weekly", "allTime"];
+      const lbBatch = db.batch();
+      for (const type of leaderboardTypes) {
+        lbBatch.delete(
+          db.collection("leaderboards").doc(type).collection("scores").doc(userId)
+        );
+      }
+      await lbBatch.commit();
+      console.log("  Deleted leaderboard scores for user");
+
+      // ── Phase 5e: Delete poll responses ─────────────────────────────
+      //
+      // polls/{pollId}/responses/{userId} — doc ID is userId
+
+      await deletePollResponses(userId);
 
       // ── Phase 6: Delete rate limit documents ────────────────────────
       //
@@ -342,6 +393,256 @@ async function cleanupChatThreads(userId: string): Promise<void> {
   console.log(
     `  Chat threads: ${deleted} deleted, ${updated} updated (removed participant)`
   );
+}
+
+/**
+ * Remove user from conversations (P2P messaging).
+ *
+ * - Remove from participantIds array
+ * - Anonymize messages sent by the user (senderId → "deleted_user")
+ * - Delete conversations with no remaining participants
+ * - Clean up per-user metadata (unreadCounts, archived, pinned, muted)
+ */
+async function cleanupConversations(userId: string): Promise<void> {
+  const conversations = await db.collection("conversations")
+    .where("participantIds", "array-contains", userId)
+    .get();
+
+  if (conversations.empty) return;
+
+  let deleted = 0;
+  let updated = 0;
+
+  for (const convDoc of conversations.docs) {
+    const data = convDoc.data();
+    const participants: string[] = data.participantIds || [];
+    const remaining = participants.filter((id: string) => id !== userId);
+
+    if (remaining.length === 0) {
+      // No participants left — delete the conversation and all messages
+      await deleteSubcollection(convDoc.ref.collection("messages"));
+      await convDoc.ref.delete();
+      deleted++;
+    } else {
+      // Remove user from arrays and per-user metadata maps
+      const updateData: Record<string, unknown> = {
+        participantIds: remaining,
+        [`unreadCounts.${userId}`]: admin.firestore.FieldValue.delete(),
+        [`archived.${userId}`]: admin.firestore.FieldValue.delete(),
+        [`pinned.${userId}`]: admin.firestore.FieldValue.delete(),
+        [`muted.${userId}`]: admin.firestore.FieldValue.delete(),
+      };
+      await convDoc.ref.update(updateData);
+
+      // Anonymize messages sent by this user
+      await anonymizeSubcollectionField(
+        convDoc.ref.collection("messages"), "senderId", userId
+      );
+      updated++;
+    }
+  }
+
+  console.log(
+    `  Conversations: ${deleted} deleted, ${updated} updated (removed participant)`
+  );
+}
+
+/**
+ * Remove user from communities.
+ *
+ * - Delete member subcollection doc
+ * - Remove from memberIds/adminIds arrays
+ * - Anonymize messages sent by user in community chat
+ * - If no members remain, delete the community and all subcollections
+ */
+async function cleanupCommunities(userId: string): Promise<void> {
+  const communities = await db.collection("communities")
+    .where("memberIds", "array-contains", userId)
+    .get();
+
+  if (communities.empty) return;
+
+  let deleted = 0;
+  let updated = 0;
+
+  for (const commDoc of communities.docs) {
+    const data = commDoc.data();
+    const members: string[] = data.memberIds || [];
+    const admins: string[] = data.adminIds || [];
+    const remaining = members.filter((id: string) => id !== userId);
+
+    if (remaining.length === 0) {
+      // No members left — delete entire community and all subcollections
+      const subcollections = ["members", "messages", "transactions",
+        "pendingApprovals", "keyDistribution"];
+      for (const sub of subcollections) {
+        await deleteSubcollection(commDoc.ref.collection(sub));
+      }
+      await commDoc.ref.delete();
+      deleted++;
+    } else {
+      // Remove user from arrays and per-user metadata
+      const updateData: Record<string, unknown> = {
+        memberIds: remaining,
+        adminIds: admins.filter((id: string) => id !== userId),
+        [`unreadCounts.${userId}`]: admin.firestore.FieldValue.delete(),
+        [`muted.${userId}`]: admin.firestore.FieldValue.delete(),
+      };
+
+      // If the deleted user was the ownerId, reassign to first admin or first member
+      if (data.ownerId === userId) {
+        const remainingAdmins = admins.filter((id: string) => id !== userId);
+        updateData.ownerId = remainingAdmins.length > 0
+          ? remainingAdmins[0]
+          : remaining[0];
+      }
+
+      await commDoc.ref.update(updateData);
+
+      // Delete the member subcollection doc for this user
+      await commDoc.ref.collection("members").doc(userId).delete();
+
+      // Anonymize messages sent by this user
+      await anonymizeSubcollectionField(
+        commDoc.ref.collection("messages"), "senderId", userId
+      );
+
+      // Clean up pending approvals where user is an approver
+      await removeFromArrayInSubcollection(
+        commDoc.ref.collection("pendingApprovals"),
+        "requiredApprovers", userId
+      );
+
+      // Delete key distribution entries for this user
+      await deleteByFieldQueryInSubcollection(
+        commDoc.ref.collection("keyDistribution"), "toUserId", userId
+      );
+
+      updated++;
+    }
+  }
+
+  console.log(
+    `  Communities: ${deleted} deleted, ${updated} updated (removed member)`
+  );
+}
+
+/**
+ * Delete all documents in a subcollection (batched).
+ */
+async function deleteSubcollection(
+  collectionRef: admin.firestore.CollectionReference
+): Promise<void> {
+  while (true) {
+    const snapshot = await collectionRef.limit(500).get();
+    if (snapshot.empty) break;
+
+    const batch = db.batch();
+    snapshot.docs.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+
+    if (snapshot.size < 500) break;
+  }
+}
+
+/**
+ * Anonymize a field in subcollection documents (set to "deleted_user").
+ */
+async function anonymizeSubcollectionField(
+  collectionRef: admin.firestore.CollectionReference,
+  field: string,
+  userId: string
+): Promise<void> {
+  while (true) {
+    const snapshot = await collectionRef
+      .where(field, "==", userId)
+      .limit(500)
+      .get();
+
+    if (snapshot.empty) break;
+
+    const batch = db.batch();
+    snapshot.docs.forEach((doc) => {
+      batch.update(doc.ref, { [field]: "deleted_user" });
+    });
+    await batch.commit();
+
+    if (snapshot.size < 500) break;
+  }
+}
+
+/**
+ * Remove a value from an array field in all matching subcollection docs.
+ */
+async function removeFromArrayInSubcollection(
+  collectionRef: admin.firestore.CollectionReference,
+  arrayField: string,
+  userId: string
+): Promise<void> {
+  const snapshot = await collectionRef
+    .where(arrayField, "array-contains", userId)
+    .get();
+
+  if (snapshot.empty) return;
+
+  const batch = db.batch();
+  snapshot.docs.forEach((doc) => {
+    batch.update(doc.ref, {
+      [arrayField]: admin.firestore.FieldValue.arrayRemove(userId),
+    });
+  });
+  await batch.commit();
+}
+
+/**
+ * Delete documents in a subcollection where field == value.
+ */
+async function deleteByFieldQueryInSubcollection(
+  collectionRef: admin.firestore.CollectionReference,
+  field: string,
+  value: string
+): Promise<void> {
+  while (true) {
+    const snapshot = await collectionRef
+      .where(field, "==", value)
+      .limit(500)
+      .get();
+
+    if (snapshot.empty) break;
+
+    const batch = db.batch();
+    snapshot.docs.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+
+    if (snapshot.size < 500) break;
+  }
+}
+
+/**
+ * Delete poll responses for a user across all polls.
+ * Poll responses stored as polls/{pollId}/responses/{userId}.
+ */
+async function deletePollResponses(userId: string): Promise<void> {
+  // Get all polls — we need to check each poll's responses subcollection
+  const polls = await db.collection("polls").get();
+  if (polls.empty) return;
+
+  let totalDeleted = 0;
+  const batch = db.batch();
+
+  for (const poll of polls.docs) {
+    const responseRef = poll.ref.collection("responses").doc(userId);
+    const responseDoc = await responseRef.get();
+    if (responseDoc.exists) {
+      batch.delete(responseRef);
+      totalDeleted++;
+    }
+  }
+
+  if (totalDeleted > 0) {
+    await batch.commit();
+    console.log(`  Deleted ${totalDeleted} poll responses for user`);
+  }
 }
 
 /**

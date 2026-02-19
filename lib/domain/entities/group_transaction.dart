@@ -4,6 +4,8 @@ import '../value_objects/token_amount.dart';
 part 'group_transaction.freezed.dart';
 part 'group_transaction.g.dart';
 
+// DEPRECATED: Use CommunityTransaction entity instead. Will be removed in a future cleanup PR.
+
 /// Group transaction types
 enum GroupTransactionType {
   @JsonValue('contribution')

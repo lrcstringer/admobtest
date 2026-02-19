@@ -3,7 +3,7 @@ import '../../core/error/failures.dart';
 import '../entities/chat_thread.dart';
 import '../entities/chat_card.dart';
 
-/// Chat repository interface
+/// @deprecated Use [ConversationRepository] instead. Will be removed in a future cleanup PR.
 abstract class ChatRepository {
   /// Get all chat threads
   Future<Either<Failure, List<ChatThread>>> getChatThreads();

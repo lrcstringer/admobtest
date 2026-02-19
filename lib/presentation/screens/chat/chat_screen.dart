@@ -9,6 +9,7 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
+@Deprecated('Use MessagingScreen instead. Will be removed in a future cleanup PR.')
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 

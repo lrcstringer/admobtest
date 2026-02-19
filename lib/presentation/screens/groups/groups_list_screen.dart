@@ -9,6 +9,7 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
+@Deprecated('Use MessagingScreen instead (communities in unified inbox). Will be removed in a future cleanup PR.')
 class GroupsListScreen extends StatefulWidget {
   const GroupsListScreen({super.key});
 

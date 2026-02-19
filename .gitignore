@@ -58,6 +58,7 @@ key.properties
 google-services.json
 GoogleService-Info.plist
 firebase_options.dart
+**/service-account-key.json
 
 # Generated files (optional - uncomment if you want to regenerate)
 # *.freezed.dart
@@ -80,3 +81,6 @@ local.properties
 # Claude Code
 .claude/
 Pasted-Assets/.local/
+logcat.txt
+nul
+.firebase/

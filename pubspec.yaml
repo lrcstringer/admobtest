@@ -1,7 +1,7 @@
 name: imalichat
 description: "iMaliChat - Earn rewards for your attention"
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.2+3
 
 environment:
   sdk: ^3.10.1
@@ -80,6 +80,7 @@ dependencies:
 
   # Misc
   pin_code_fields: ^8.0.1
+  sms_autofill: ^2.2.0
   flutter_animate: ^4.5.0
   confetti: ^0.7.0
 
@@ -111,6 +112,9 @@ dependencies:
   # Cryptography (HMAC-SHA256 for in-app PIN hashing)
   crypto: ^3.0.6
 
+  # E2EE: AES-GCM, X25519, HKDF, PBKDF2
+  cryptography: ^2.7.0
+
   # Phone number parsing & E.164 normalization
   phone_numbers_parser: ^8.3.0
 
@@ -120,6 +124,7 @@ dependencies:
   # Google AdMob for rewarded video ads
   google_mobile_ads: ^7.0.0
   qr_flutter: ^4.1.0
+  mobile_scanner: ^6.0.2
 
 dev_dependencies:
   flutter_test:

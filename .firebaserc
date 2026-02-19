@@ -10,6 +10,9 @@
         ],
         "client": [
           "imalichat-client"
+        ],
+        "site": [
+          "emalichat-d5a4c"
         ]
       }
     }

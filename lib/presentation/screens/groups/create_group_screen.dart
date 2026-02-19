@@ -10,6 +10,7 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
+@Deprecated('Use CreateCommunityScreen instead. Will be removed in a future cleanup PR.')
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({super.key});
 

@@ -1175,6 +1175,44 @@ export const getEligibleOpportunities = functions.https.onCall(
       }
     }
 
+    // Count today's completions per opportunity from already-fetched data
+    const todayStartForOpps = new Date();
+    todayStartForOpps.setHours(0, 0, 0, 0);
+    const todayStartMs = todayStartForOpps.getTime();
+
+    const todayOppCompletions = new Map<string, number>();
+    for (const engDoc of existingEngagements.docs) {
+      const eng = engDoc.data();
+      if (eng.status === "completed" && eng.earnOpportunityId) {
+        const completedAt = eng.completedAt?.toDate?.();
+        if (completedAt && completedAt.getTime() >= todayStartMs) {
+          const oppId = eng.earnOpportunityId;
+          todayOppCompletions.set(oppId, (todayOppCompletions.get(oppId) || 0) + 1);
+        }
+      }
+    }
+
+    // Clear "completed" status for opportunities that allow re-completion
+    // today. In-progress statuses (started, watching) are kept as-is.
+    for (const oppDoc of opportunitiesSnapshot.docs) {
+      const engStatus = engagementStatusMap.get(oppDoc.id);
+      if (engStatus?.status !== "completed") continue;
+
+      const opp = oppDoc.data();
+      const limit = opp.dailyLimitPerUser ?? null;
+
+      if (limit === null) {
+        // Unlimited — always available for re-completion
+        engagementStatusMap.delete(oppDoc.id);
+      } else {
+        const todayCount = todayOppCompletions.get(oppDoc.id) || 0;
+        if (todayCount < limit) {
+          // Daily limit not yet reached — show as available
+          engagementStatusMap.delete(oppDoc.id);
+        }
+      }
+    }
+
     // ========================================================================
     // 4. Filter opportunities by targeting
     // ========================================================================
@@ -2162,15 +2200,35 @@ export const getEligibleInbox = functions.https.onCall(
     }
 
     // ========================================================================
-    // 3b. Batch-query user's completed engagements for these opportunities
+    // 3b. Batch-query user's TODAY's completed engagements for these opps
+    //     Only mark an opportunity as "completed" if its dailyLimitPerUser
+    //     has been reached today. null limit = unlimited = never completed.
     // ========================================================================
     const allOppIds = Array.from(oppsByThread.values())
       .flat()
       .map((o) => (o as Record<string, unknown>)._id as string)
       .filter(Boolean);
 
-    const completedOppIds = new Set<string>();
+    // Build oppId → dailyLimitPerUser lookup from already-loaded opp data
+    const oppDailyLimits = new Map<string, number | null>();
+    for (const opps of oppsByThread.values()) {
+      for (const opp of opps) {
+        oppDailyLimits.set(
+          opp._id as string,
+          opp.dailyLimitPerUser ?? null
+        );
+      }
+    }
+
     const userId = context.auth!.uid;
+
+    // Start of today (midnight UTC)
+    const todayForInbox = new Date();
+    todayForInbox.setHours(0, 0, 0, 0);
+    const todayTimestamp = admin.firestore.Timestamp.fromDate(todayForInbox);
+
+    // Count today's completions per opportunity
+    const todayCompletionCounts = new Map<string, number>();
 
     for (let i = 0; i < allOppIds.length; i += 30) {
       const batch = allOppIds.slice(i, i + 30);
@@ -2179,10 +2237,22 @@ export const getEligibleInbox = functions.https.onCall(
         .where("userId", "==", userId)
         .where("earnOpportunityId", "in", batch)
         .where("status", "==", "completed")
+        .where("completedAt", ">=", todayTimestamp)
         .get();
 
       for (const doc of engSnap.docs) {
-        completedOppIds.add(doc.data().earnOpportunityId);
+        const oppId = doc.data().earnOpportunityId;
+        todayCompletionCounts.set(oppId, (todayCompletionCounts.get(oppId) || 0) + 1);
+      }
+    }
+
+    // Only mark as completed if daily limit is set AND reached today
+    const completedOppIds = new Set<string>();
+    for (const [oppId, todayCount] of todayCompletionCounts) {
+      const limit = oppDailyLimits.get(oppId);
+      // null/undefined limit = unlimited = never mark as completed
+      if (limit !== null && limit !== undefined && todayCount >= limit) {
+        completedOppIds.add(oppId);
       }
     }
 

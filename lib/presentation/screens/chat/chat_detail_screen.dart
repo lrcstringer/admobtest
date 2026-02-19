@@ -11,6 +11,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/wave_background.dart';
 
+@Deprecated('Use ConversationDetailScreen instead. Will be removed in a future cleanup PR.')
 class ChatDetailScreen extends StatefulWidget {
   final String threadId;
 

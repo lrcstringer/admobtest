@@ -12,6 +12,8 @@ import 'core/services/fcm_challenge_handler.dart';
 import 'presentation/blocs/auth/auth_bloc.dart';
 import 'presentation/blocs/cashout/cashout_bloc.dart';
 import 'presentation/blocs/chat/chat_bloc.dart';
+import 'presentation/blocs/community/community_bloc.dart';
+import 'presentation/blocs/conversation/conversation_bloc.dart';
 import 'presentation/blocs/earn/earn_bloc.dart';
 import 'presentation/blocs/earn_inbox/earn_inbox_bloc.dart';
 import 'presentation/blocs/pot/pot_bloc.dart';
@@ -38,6 +40,8 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   late final EarnBloc _earnBloc;
   late final CashoutBloc _cashoutBloc;
   late final ChatBloc _chatBloc;
+  late final ConversationBloc _conversationBloc;
+  late final CommunityBloc _communityBloc;
   late final PotBloc _potBloc;
   late final PurchaseBloc _purchaseBloc;
   late final ReferralBloc _referralBloc;
@@ -60,6 +64,8 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _earnBloc = getIt<EarnBloc>();
     _cashoutBloc = getIt<CashoutBloc>();
     _chatBloc = getIt<ChatBloc>();
+    _conversationBloc = getIt<ConversationBloc>();
+    _communityBloc = getIt<CommunityBloc>();
     _potBloc = getIt<PotBloc>();
     _purchaseBloc = getIt<PurchaseBloc>();
     _referralBloc = getIt<ReferralBloc>();
@@ -196,6 +202,8 @@ class _IMaliChatAppState extends State<IMaliChatApp>
         BlocProvider<EarnBloc>.value(value: _earnBloc),
         BlocProvider<CashoutBloc>.value(value: _cashoutBloc),
         BlocProvider<ChatBloc>.value(value: _chatBloc),
+        BlocProvider<ConversationBloc>.value(value: _conversationBloc),
+        BlocProvider<CommunityBloc>.value(value: _communityBloc),
         BlocProvider<PotBloc>.value(value: _potBloc),
         BlocProvider<PurchaseBloc>.value(value: _purchaseBloc),
         BlocProvider<ReferralBloc>.value(value: _referralBloc),

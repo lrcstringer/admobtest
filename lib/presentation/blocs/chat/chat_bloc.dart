@@ -12,6 +12,7 @@ part 'chat_event.dart';
 part 'chat_state.dart';
 part 'chat_bloc.freezed.dart';
 
+@Deprecated('Use ConversationBloc instead. Will be removed in a future cleanup PR.')
 @injectable
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final ChatRepository _chatRepository;

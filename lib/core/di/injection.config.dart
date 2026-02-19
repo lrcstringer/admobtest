@@ -11,6 +11,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:cloud_functions/cloud_functions.dart' as _i809;
+import 'package:firebase_analytics/firebase_analytics.dart' as _i398;
 import 'package:firebase_app_check/firebase_app_check.dart' as _i56;
 import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:firebase_messaging/firebase_messaging.dart' as _i892;
@@ -28,41 +29,61 @@ import '../../data/datasources/remote/admin_earn_remote_datasource.dart'
     as _i48;
 import '../../data/datasources/remote/auth_remote_datasource.dart' as _i1057;
 import '../../data/datasources/remote/chat_remote_datasource.dart' as _i224;
+import '../../data/datasources/remote/community_remote_datasource.dart'
+    as _i560;
+import '../../data/datasources/remote/conversation_remote_datasource.dart'
+    as _i425;
 import '../../data/datasources/remote/device_remote_datasource.dart' as _i433;
 import '../../data/datasources/remote/earn_remote_datasource.dart' as _i520;
 import '../../data/datasources/remote/gamification_remote_datasource.dart'
     as _i749;
+import '../../data/datasources/remote/gift_remote_datasource.dart' as _i108;
 import '../../data/datasources/remote/group_remote_datasource.dart' as _i42;
+import '../../data/datasources/remote/media_upload_datasource.dart' as _i654;
+import '../../data/datasources/remote/moderation_remote_datasource.dart'
+    as _i313;
 import '../../data/datasources/remote/poll_remote_datasource.dart' as _i909;
 import '../../data/datasources/remote/purchase_remote_datasource.dart' as _i267;
 import '../../data/datasources/remote/referral_remote_datasource.dart' as _i9;
 import '../../data/datasources/remote/reward_remote_datasource.dart' as _i366;
+import '../../data/datasources/remote/token_spray_remote_datasource.dart'
+    as _i1009;
 import '../../data/datasources/remote/user_remote_datasource.dart' as _i50;
 import '../../data/datasources/remote/wallet_remote_datasource.dart' as _i389;
 import '../../data/repositories/auth_repository_impl.dart' as _i895;
 import '../../data/repositories/chat_repository_impl.dart' as _i838;
+import '../../data/repositories/community_repository_impl.dart' as _i462;
+import '../../data/repositories/conversation_repository_impl.dart' as _i161;
 import '../../data/repositories/device_repository_impl.dart' as _i34;
 import '../../data/repositories/earn_repository_impl.dart' as _i965;
 import '../../data/repositories/gamification_repository_impl.dart' as _i500;
+import '../../data/repositories/gift_repository_impl.dart' as _i350;
 import '../../data/repositories/group_repository_impl.dart' as _i654;
+import '../../data/repositories/moderation_repository_impl.dart' as _i527;
 import '../../data/repositories/poll_repository_impl.dart' as _i570;
 import '../../data/repositories/purchase_repository_impl.dart' as _i1044;
 import '../../data/repositories/referral_repository_impl.dart' as _i904;
 import '../../data/repositories/reward_repository_impl.dart' as _i905;
+import '../../data/repositories/token_spray_repository_impl.dart' as _i895;
 import '../../data/repositories/user_repository_impl.dart' as _i790;
 import '../../data/repositories/wallet_repository_impl.dart' as _i520;
 import '../../data/services/admob_service.dart' as _i284;
 import '../../data/services/upload_service.dart' as _i434;
 import '../../domain/repositories/auth_repository.dart' as _i1073;
 import '../../domain/repositories/chat_repository.dart' as _i1072;
+import '../../domain/repositories/community_repository.dart' as _i936;
+import '../../domain/repositories/conversation_repository.dart' as _i973;
 import '../../domain/repositories/device_repository.dart' as _i454;
 import '../../domain/repositories/earn_repository.dart' as _i805;
 import '../../domain/repositories/gamification_repository.dart' as _i1010;
+import '../../domain/repositories/gift_repository.dart' as _i533;
 import '../../domain/repositories/group_repository.dart' as _i708;
+import '../../domain/repositories/moderation_repository.dart' as _i862;
 import '../../domain/repositories/poll_repository.dart' as _i731;
 import '../../domain/repositories/purchase_repository.dart' as _i742;
 import '../../domain/repositories/referral_repository.dart' as _i633;
 import '../../domain/repositories/reward_repository.dart' as _i191;
+import '../../domain/repositories/token_spray_repository.dart' as _i943;
 import '../../domain/repositories/user_repository.dart' as _i271;
 import '../../domain/repositories/wallet_repository.dart' as _i851;
 import '../../presentation/admin/blocs/admin_earn/admin_earn_bloc.dart'
@@ -70,8 +91,13 @@ import '../../presentation/admin/blocs/admin_earn/admin_earn_bloc.dart'
 import '../../presentation/blocs/auth/auth_bloc.dart' as _i141;
 import '../../presentation/blocs/cashout/cashout_bloc.dart' as _i772;
 import '../../presentation/blocs/chat/chat_bloc.dart' as _i142;
+import '../../presentation/blocs/community/community_bloc.dart' as _i856;
+import '../../presentation/blocs/community_messaging/community_messaging_bloc.dart'
+    as _i256;
+import '../../presentation/blocs/conversation/conversation_bloc.dart' as _i654;
 import '../../presentation/blocs/earn/earn_bloc.dart' as _i775;
 import '../../presentation/blocs/earn_inbox/earn_inbox_bloc.dart' as _i480;
+import '../../presentation/blocs/gift/gift_bloc.dart' as _i66;
 import '../../presentation/blocs/group/group_bloc.dart' as _i275;
 import '../../presentation/blocs/home/home_bloc.dart' as _i973;
 import '../../presentation/blocs/pot/pot_bloc.dart' as _i58;
@@ -79,6 +105,7 @@ import '../../presentation/blocs/profile/profile_bloc.dart' as _i344;
 import '../../presentation/blocs/purchase/purchase_bloc.dart' as _i936;
 import '../../presentation/blocs/referral/referral_bloc.dart' as _i595;
 import '../../presentation/blocs/reward/reward_bloc.dart' as _i206;
+import '../../presentation/blocs/token_spray/token_spray_bloc.dart' as _i609;
 import '../../presentation/blocs/wallet/wallet_bloc.dart' as _i1019;
 import '../network/network_info.dart' as _i932;
 import '../security/audit_logger.dart' as _i988;
@@ -94,7 +121,16 @@ import '../security/session_lock_service.dart' as _i942;
 import '../security/sim_change_detector.dart' as _i925;
 import '../security/step_up_auth_service.dart' as _i720;
 import '../services/biometric_login_service.dart' as _i290;
+import '../services/chat_analytics_service.dart' as _i550;
+import '../services/crypto_service.dart' as _i1024;
+import '../services/deep_link_service.dart' as _i391;
 import '../services/fcm_challenge_handler.dart' as _i830;
+import '../services/key_backup_service.dart' as _i946;
+import '../services/key_management_service.dart' as _i418;
+import '../services/notification_service.dart' as _i941;
+import '../services/sender_key_service.dart' as _i407;
+import '../services/share_service.dart' as _i474;
+import '../services/signal_protocol_service.dart' as _i161;
 import '../utils/error_handler.dart' as _i383;
 import 'register_module.dart' as _i291;
 
@@ -109,6 +145,9 @@ extension GetItInjectableX on _i174.GetIt {
     await gh.factoryAsync<_i460.SharedPreferences>(
       () => registerModule.sharedPreferences,
       preResolve: true,
+    );
+    gh.lazySingleton<_i398.FirebaseAnalytics>(
+      () => registerModule.firebaseAnalytics,
     );
     gh.lazySingleton<_i59.FirebaseAuth>(() => registerModule.firebaseAuth);
     gh.lazySingleton<_i974.FirebaseFirestore>(() => registerModule.firestore);
@@ -138,8 +177,16 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i921.ScreenshotPreventionService(),
     );
     gh.lazySingleton<_i383.SecurityService>(() => _i383.SecurityService());
+    gh.lazySingleton<_i1024.CryptoService>(() => _i1024.CryptoService());
+    gh.lazySingleton<_i391.DeepLinkService>(() => _i391.DeepLinkService());
+    gh.lazySingleton<_i941.NotificationService>(
+      () => _i941.NotificationService(),
+    );
     gh.lazySingleton<_i383.ErrorHandler>(() => _i383.ErrorHandler());
     gh.lazySingleton<_i483.AppDatabase>(() => _i483.AppDatabase());
+    gh.lazySingleton<_i654.MediaUploadDatasource>(
+      () => _i654.MediaUploadDatasource(gh<_i457.FirebaseStorage>()),
+    );
     gh.lazySingleton<_i434.UploadService>(
       () => _i434.UploadService(gh<_i457.FirebaseStorage>()),
     );
@@ -155,6 +202,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i366.RewardRemoteDataSource>(
       () => _i366.RewardRemoteDataSourceImpl(
         gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+      ),
+    );
+    gh.lazySingleton<_i418.KeyManagementService>(
+      () => _i418.KeyManagementService(
+        gh<_i1024.CryptoService>(),
+        gh<_i558.FlutterSecureStorage>(),
         gh<_i809.FirebaseFunctions>(),
       ),
     );
@@ -183,8 +237,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i59.FirebaseAuth>(),
       ),
     );
+    gh.lazySingleton<_i474.ShareService>(
+      () => _i474.ShareService(gh<_i59.FirebaseAuth>()),
+    );
     gh.lazySingleton<_i988.AuditLogger>(
       () => _i988.AuditLogger(gh<_i974.FirebaseFirestore>()),
+    );
+    gh.lazySingleton<_i313.ModerationRemoteDatasource>(
+      () => _i313.ModerationRemoteDatasourceImpl(gh<_i809.FirebaseFunctions>()),
     );
     gh.lazySingleton<_i309.DeviceCapabilityService>(
       () => _i309.DeviceCapabilityService(
@@ -202,6 +262,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i892.KeystoreService>(),
       ),
     );
+    gh.lazySingleton<_i550.ChatAnalyticsService>(
+      () => _i550.ChatAnalyticsService(gh<_i398.FirebaseAnalytics>()),
+    );
     gh.lazySingleton<_i925.SimChangeDetector>(
       () => _i925.SimChangeDetector(
         gh<_i892.KeystoreService>(),
@@ -210,11 +273,34 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i809.FirebaseFunctions>(),
       ),
     );
+    gh.lazySingleton<_i946.KeyBackupService>(
+      () => _i946.KeyBackupService(
+        gh<_i418.KeyManagementService>(),
+        gh<_i1024.CryptoService>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i558.FlutterSecureStorage>(),
+      ),
+    );
     gh.lazySingleton<_i351.PlayIntegrityService>(
       () => _i351.PlayIntegrityService(gh<_i809.FirebaseFunctions>()),
     );
     gh.lazySingleton<_i909.PollRemoteDataSource>(
       () => _i909.PollRemoteDataSource(gh<_i809.FirebaseFunctions>()),
+    );
+    gh.lazySingleton<_i425.ConversationRemoteDataSource>(
+      () => _i425.ConversationRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i351.PlayIntegrityService>(),
+      ),
+    );
+    gh.lazySingleton<_i161.SignalProtocolService>(
+      () => _i161.SignalProtocolService(
+        gh<_i418.KeyManagementService>(),
+        gh<_i1024.CryptoService>(),
+        gh<_i558.FlutterSecureStorage>(),
+      ),
     );
     gh.lazySingleton<_i454.DeviceRepository>(
       () => _i34.DeviceRepositoryImpl(
@@ -224,6 +310,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i206.RewardBloc>(
       () => _i206.RewardBloc(gh<_i191.RewardRepository>()),
+    );
+    gh.lazySingleton<_i973.ConversationRepository>(
+      () => _i161.ConversationRepositoryImpl(
+        gh<_i425.ConversationRemoteDataSource>(),
+        gh<_i161.SignalProtocolService>(),
+      ),
     );
     gh.lazySingleton<_i9.ReferralRemoteDataSource>(
       () => _i9.ReferralRemoteDataSourceImpl(
@@ -251,6 +343,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.PlayIntegrityService>(),
       ),
     );
+    gh.lazySingleton<_i862.ModerationRepository>(
+      () => _i527.ModerationRepositoryImpl(
+        gh<_i313.ModerationRemoteDatasource>(),
+      ),
+    );
     gh.lazySingleton<_i271.UserRepository>(
       () => _i790.UserRepositoryImpl(
         gh<_i50.UserRemoteDataSource>(),
@@ -276,6 +373,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i558.FlutterSecureStorage>(),
       ),
     );
+    gh.factory<_i654.ConversationBloc>(
+      () => _i654.ConversationBloc(gh<_i973.ConversationRepository>()),
+    );
     gh.factory<_i1026.AdminEarnBloc>(
       () => _i1026.AdminEarnBloc(gh<_i48.AdminEarnRemoteDataSource>()),
     );
@@ -294,6 +394,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i389.WalletRemoteDataSource>(
       () => _i389.WalletRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i351.PlayIntegrityService>(),
+      ),
+    );
+    gh.lazySingleton<_i560.CommunityRemoteDataSource>(
+      () => _i560.CommunityRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
@@ -322,10 +430,26 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.PlayIntegrityService>(),
       ),
     );
+    gh.lazySingleton<_i1009.TokenSprayRemoteDataSource>(
+      () => _i1009.TokenSprayRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i351.PlayIntegrityService>(),
+      ),
+    );
     gh.lazySingleton<_i731.PollRepository>(
       () => _i570.PollRepositoryImpl(
         gh<_i909.PollRemoteDataSource>(),
         gh<_i974.FirebaseFirestore>(),
+      ),
+    );
+    gh.lazySingleton<_i108.GiftRemoteDataSource>(
+      () => _i108.GiftRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i351.PlayIntegrityService>(),
       ),
     );
     gh.lazySingleton<_i720.StepUpAuthService>(
@@ -347,6 +471,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i633.ReferralRepository>(
       () => _i904.ReferralRepositoryImpl(gh<_i9.ReferralRemoteDataSource>()),
     );
+    gh.lazySingleton<_i407.SenderKeyService>(
+      () => _i407.SenderKeyService(
+        gh<_i1024.CryptoService>(),
+        gh<_i161.SignalProtocolService>(),
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i809.FirebaseFunctions>(),
+      ),
+    );
+    gh.lazySingleton<_i943.TokenSprayRepository>(
+      () => _i895.TokenSprayRepositoryImpl(
+        gh<_i1009.TokenSprayRemoteDataSource>(),
+      ),
+    );
     gh.factory<_i595.ReferralBloc>(
       () => _i595.ReferralBloc(gh<_i633.ReferralRepository>()),
     );
@@ -365,20 +502,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i275.GroupBloc>(
       () => _i275.GroupBloc(gh<_i708.GroupRepository>()),
     );
-    gh.factory<_i141.AuthBloc>(
-      () => _i141.AuthBloc(
-        gh<_i1073.AuthRepository>(),
-        gh<_i271.UserRepository>(),
-        gh<_i693.DeviceBindingService>(),
-        gh<_i290.BiometricLoginService>(),
-        gh<_i830.FcmChallengeHandler>(),
-      ),
-    );
     gh.lazySingleton<_i284.AdMobService>(
       () => _i284.AdMobService(gh<_i942.SessionLockService>()),
     );
-    gh.lazySingleton<_i727.RaspService>(
-      () => _i727.RaspService(gh<_i141.AuthBloc>()),
+    gh.lazySingleton<_i936.CommunityRepository>(
+      () => _i462.CommunityRepositoryImpl(
+        gh<_i560.CommunityRemoteDataSource>(),
+        gh<_i932.NetworkInfo>(),
+        gh<_i407.SenderKeyService>(),
+      ),
     );
     gh.lazySingleton<_i851.WalletRepository>(
       () => _i520.WalletRepositoryImpl(
@@ -389,11 +521,37 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i936.PurchaseBloc>(
       () => _i936.PurchaseBloc(gh<_i742.PurchaseRepository>()),
     );
+    gh.factory<_i141.AuthBloc>(
+      () => _i141.AuthBloc(
+        gh<_i1073.AuthRepository>(),
+        gh<_i271.UserRepository>(),
+        gh<_i693.DeviceBindingService>(),
+        gh<_i290.BiometricLoginService>(),
+        gh<_i830.FcmChallengeHandler>(),
+        gh<_i418.KeyManagementService>(),
+      ),
+    );
+    gh.factoryParam<_i256.CommunityMessagingBloc, String, dynamic>(
+      (communityId, _) => _i256.CommunityMessagingBloc(
+        gh<_i936.CommunityRepository>(),
+        communityId: communityId,
+      ),
+    );
     gh.factory<_i344.ProfileBloc>(
       () => _i344.ProfileBloc(
         gh<_i271.UserRepository>(),
         gh<_i851.WalletRepository>(),
       ),
+    );
+    gh.factoryParam<_i609.TokenSprayBloc, String, dynamic>(
+      (_communityId, _) =>
+          _i609.TokenSprayBloc(gh<_i943.TokenSprayRepository>(), _communityId),
+    );
+    gh.lazySingleton<_i533.GiftRepository>(
+      () => _i350.GiftRepositoryImpl(gh<_i108.GiftRemoteDataSource>()),
+    );
+    gh.factory<_i856.CommunityBloc>(
+      () => _i856.CommunityBloc(gh<_i936.CommunityRepository>()),
     );
     gh.factory<_i775.EarnBloc>(
       () =>
@@ -416,6 +574,10 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i805.EarnRepository>(),
         gh<_i1010.GamificationRepository>(),
       ),
+    );
+    gh.factory<_i66.GiftBloc>(() => _i66.GiftBloc(gh<_i533.GiftRepository>()));
+    gh.lazySingleton<_i727.RaspService>(
+      () => _i727.RaspService(gh<_i141.AuthBloc>()),
     );
     return this;
   }

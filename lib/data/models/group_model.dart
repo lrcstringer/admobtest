@@ -1,3 +1,4 @@
+// DEPRECATED: Use CommunityModel instead. Will be removed in a future cleanup PR.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/group.dart';

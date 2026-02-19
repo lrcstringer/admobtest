@@ -16,6 +16,7 @@ part 'group_bloc.freezed.dart';
 part 'group_event.dart';
 part 'group_state.dart';
 
+@Deprecated('Use CommunityBloc instead. Will be removed in a future cleanup PR.')
 @injectable
 class GroupBloc extends Bloc<GroupEvent, GroupState> {
   final GroupRepository _groupRepository;

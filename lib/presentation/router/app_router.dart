@@ -23,15 +23,41 @@ import '../screens/buy/buy_success_screen.dart';
 import '../screens/buy/buy_transactions_screen.dart';
 import '../screens/buy/buy_wallet_selection_screen.dart';
 
-// Chat screens
+// Chat screens (legacy — kept for backward compat until cleanup)
 import '../screens/chat/chat_bonus_network_invite_screen.dart';
 import '../screens/chat/chat_bonus_network_screen.dart';
-import '../screens/chat/chat_detail_screen.dart';
-import '../screens/chat/chat_screen.dart';
 import '../screens/chat/chat_send_amount_screen.dart';
 import '../screens/chat/chat_send_failure_screen.dart';
 import '../screens/chat/chat_send_success_screen.dart';
 import '../screens/chat/chat_send_wallet_selection_screen.dart';
+
+// New messaging screens (unified chat + community)
+import '../screens/messaging/messaging_screen.dart';
+import '../screens/messaging/contact_picker_screen.dart';
+import '../screens/messaging/conversation_detail_screen.dart';
+import '../screens/community/community_detail_screen.dart';
+import '../screens/community/create_community_screen.dart';
+import '../screens/community/community_settings_screen.dart';
+import '../screens/community/community_members_screen.dart';
+import '../screens/community/invite_member_screen.dart';
+import '../screens/community/community_transaction_screen.dart';
+import '../screens/community/pending_approvals_screen.dart';
+
+// Domain entities (for route extras)
+import '../../domain/entities/gift.dart';
+
+// Gift screens
+import '../screens/gift/gift_composer_screen.dart';
+import '../screens/gift/gift_history_screen.dart';
+import '../screens/gift/gift_opening_screen.dart';
+
+// Spray screens
+import '../screens/spray/create_spray_screen.dart';
+import '../screens/spray/spray_detail_screen.dart';
+
+// QR screens
+import '../screens/qr/qr_display_screen.dart';
+import '../screens/qr/qr_scanner_screen.dart';
 
 // Earn screens
 import '../screens/earn/earn_interaction_screen.dart';
@@ -99,12 +125,12 @@ import '../screens/wallet/wallet_send_success_screen.dart';
 import '../screens/wallet/reward_item_detail_screen.dart';
 import '../screens/wallet/rewards_list_screen.dart';
 
-// Groups screens
+// Groups screens (legacy — kept until cleanup)
 import '../screens/groups/groups_list_screen.dart';
 import '../screens/groups/group_detail_screen.dart';
 import '../screens/groups/create_group_screen.dart';
 import '../screens/groups/group_transaction_screen.dart';
-import '../screens/groups/pending_approvals_screen.dart';
+import '../screens/groups/pending_approvals_screen.dart' as groups;
 
 class AppRouter {
   final AuthBloc authBloc;
@@ -310,6 +336,13 @@ class AppRouter {
         builder: (context, state) => const PotsScreen(),
       ),
 
+      // QR Scanner (standalone, outside bottom nav)
+      GoRoute(
+        path: '/scan',
+        name: 'qrScanner',
+        builder: (context, state) => const QrScannerScreen(),
+      ),
+
       // Groups screens (standalone, outside bottom nav)
       GoRoute(
         path: '/groups',
@@ -361,7 +394,7 @@ class AppRouter {
                 name: 'groupApprovals',
                 builder: (context, state) {
                   final groupId = state.pathParameters['groupId'] ?? '';
-                  return PendingApprovalsScreen(groupId: groupId);
+                  return groups.PendingApprovalsScreen(groupId: groupId);
                 },
               ),
             ],
@@ -466,6 +499,29 @@ class AppRouter {
                         builder: (context, state) =>
                             const KycVerificationScreen(),
                       ),
+                      // Gift History
+                      GoRoute(
+                        path: 'gift-history',
+                        name: 'giftHistory',
+                        builder: (context, state) =>
+                            const GiftHistoryScreen(),
+                      ),
+                      // User QR Code
+                      GoRoute(
+                        path: 'qr-code',
+                        name: 'userQrCode',
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>? ?? {};
+                          return QrDisplayScreen(
+                            qrData:
+                                'imali://user/${extra['userId'] ?? ''}',
+                            title: extra['displayName'] as String? ??
+                                'My QR Code',
+                            subtitle: 'Scan to start a conversation',
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ],
@@ -517,47 +573,218 @@ class AppRouter {
             ],
           ),
 
-          // ---- Tab 2: Chat ----
+          // ---- Tab 2: Chat (Unified Messaging) ----
           StatefulShellBranch(
             navigatorKey: _chatNavKey,
             routes: [
               GoRoute(
                 path: '/chat',
                 name: 'chat',
-                builder: (context, state) => const ChatScreen(),
+                builder: (context, state) => const MessagingScreen(),
                 routes: [
-                  // 8.1) Chat Detail
+                  // 8.0) New Chat - Contact Picker
                   GoRoute(
-                    path: ':threadId',
-                    name: 'chatDetail',
-                    builder: (context, state) {
-                      final threadId =
-                          state.pathParameters['threadId'] ?? '';
-                      return ChatDetailScreen(threadId: threadId);
-                    },
+                    path: 'new',
+                    name: 'newChat',
+                    builder: (context, state) =>
+                        const ContactPickerScreen(),
                   ),
-                  // 8.2) Chat Send Wallet Selection
+                  // 8.1) P2P Conversation Detail
+                  GoRoute(
+                    path: 'conversation/:conversationId',
+                    name: 'conversationDetail',
+                    builder: (context, state) {
+                      final conversationId =
+                          state.pathParameters['conversationId'] ?? '';
+                      return ConversationDetailScreen(
+                          conversationId: conversationId);
+                    },
+                    routes: [
+                      // 8.1.1) Send Gift in Conversation
+                      GoRoute(
+                        path: 'send-gift',
+                        name: 'conversationSendGift',
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>? ?? {};
+                          return GiftComposerScreen(
+                            conversationId:
+                                state.pathParameters['conversationId'],
+                            recipientId:
+                                extra['recipientId'] as String? ?? '',
+                            recipientName:
+                                extra['recipientName'] as String? ??
+                                    'User',
+                          );
+                        },
+                      ),
+                      // 8.1.2) Open Gift (full-screen animated reveal)
+                      GoRoute(
+                        path: 'open-gift',
+                        name: 'conversationOpenGift',
+                        builder: (context, state) {
+                          final gift = state.extra as Gift;
+                          return GiftOpeningScreen(gift: gift);
+                        },
+                      ),
+                    ],
+                  ),
+                  // 8.2) Community Detail (tabbed: Chat/Members/Finances)
+                  GoRoute(
+                    path: 'community/:communityId',
+                    name: 'communityDetail',
+                    builder: (context, state) {
+                      final communityId =
+                          state.pathParameters['communityId'] ?? '';
+                      return CommunityDetailScreen(
+                          communityId: communityId);
+                    },
+                    routes: [
+                      // 8.2.1) Community Settings
+                      GoRoute(
+                        path: 'settings',
+                        name: 'communitySettings',
+                        builder: (context, state) {
+                          final communityId =
+                              state.pathParameters['communityId'] ?? '';
+                          return CommunitySettingsScreen(
+                              communityId: communityId);
+                        },
+                      ),
+                      // 8.2.2) Community Members
+                      GoRoute(
+                        path: 'members',
+                        name: 'communityMembers',
+                        builder: (context, state) {
+                          final communityId =
+                              state.pathParameters['communityId'] ?? '';
+                          return CommunityMembersScreen(
+                              communityId: communityId);
+                        },
+                      ),
+                      // 8.2.3) Invite Member
+                      GoRoute(
+                        path: 'invite',
+                        name: 'communityInvite',
+                        builder: (context, state) {
+                          final communityId =
+                              state.pathParameters['communityId'] ?? '';
+                          return InviteMemberScreen(
+                              communityId: communityId);
+                        },
+                      ),
+                      // 8.2.4) Contribute
+                      GoRoute(
+                        path: 'contribute',
+                        name: 'communityContribute',
+                        builder: (context, state) {
+                          final communityId =
+                              state.pathParameters['communityId'] ?? '';
+                          return CommunityTransactionScreen(
+                            communityId: communityId,
+                            type: CommunityTransactionType.contribute,
+                          );
+                        },
+                      ),
+                      // 8.2.5) Withdraw
+                      GoRoute(
+                        path: 'withdraw',
+                        name: 'communityWithdraw',
+                        builder: (context, state) {
+                          final communityId =
+                              state.pathParameters['communityId'] ?? '';
+                          return CommunityTransactionScreen(
+                            communityId: communityId,
+                            type: CommunityTransactionType.withdraw,
+                          );
+                        },
+                      ),
+                      // 8.2.6) Pending Approvals
+                      GoRoute(
+                        path: 'approvals',
+                        name: 'communityApprovals',
+                        builder: (context, state) {
+                          final communityId =
+                              state.pathParameters['communityId'] ?? '';
+                          return PendingApprovalsScreen(
+                              communityId: communityId);
+                        },
+                      ),
+                      // 8.2.7) Send Gift in Community
+                      GoRoute(
+                        path: 'send-gift',
+                        name: 'communitySendGift',
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>? ?? {};
+                          return GiftComposerScreen(
+                            communityId:
+                                state.pathParameters['communityId'],
+                            recipientId:
+                                extra['recipientId'] as String? ?? '',
+                            recipientName:
+                                extra['recipientName'] as String? ??
+                                    'User',
+                          );
+                        },
+                      ),
+                      // 8.2.8) Create Token Spray
+                      GoRoute(
+                        path: 'create-spray',
+                        name: 'createSpray',
+                        builder: (context, state) {
+                          final communityId =
+                              state.pathParameters['communityId'] ?? '';
+                          return CreateSprayScreen(
+                              communityId: communityId);
+                        },
+                      ),
+                      // 8.2.9) Spray Detail (live-updating progress + contribute)
+                      GoRoute(
+                        path: 'spray/:sprayId',
+                        name: 'sprayDetail',
+                        builder: (context, state) {
+                          final communityId =
+                              state.pathParameters['communityId'] ?? '';
+                          final sprayId =
+                              state.pathParameters['sprayId'] ?? '';
+                          return SprayDetailScreen(
+                            sprayId: sprayId,
+                            communityId: communityId,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  // 8.3) Create Community
+                  GoRoute(
+                    path: 'create-community',
+                    name: 'createCommunity',
+                    builder: (context, state) =>
+                        const CreateCommunityScreen(),
+                  ),
+                  // 8.4) Chat Send Wallet Selection (legacy token send flow)
                   GoRoute(
                     path: 'send-wallet',
                     name: 'chatSendWallet',
                     builder: (context, state) =>
                         const ChatSendWalletSelectionScreen(),
                   ),
-                  // 8.3) Chat Send Amount Selection
+                  // 8.5) Chat Send Amount Selection
                   GoRoute(
                     path: 'send-amount',
                     name: 'chatSendAmount',
                     builder: (context, state) =>
                         const ChatSendAmountScreen(),
                     routes: [
-                      // 8.3.1) Chat Send Success
+                      // 8.5.1) Chat Send Success
                       GoRoute(
                         path: 'success',
                         name: 'chatSendSuccess',
                         builder: (context, state) =>
                             const ChatSendSuccessScreen(),
                       ),
-                      // 8.3.2) Chat Send Failure
+                      // 8.5.2) Chat Send Failure
                       GoRoute(
                         path: 'failure',
                         name: 'chatSendFailure',
@@ -566,14 +793,14 @@ class AppRouter {
                       ),
                     ],
                   ),
-                  // 8.4) Bonus Network
+                  // 8.6) Bonus Network
                   GoRoute(
                     path: 'bonus-network',
                     name: 'chatBonusNetwork',
                     builder: (context, state) =>
                         const ChatBonusNetworkScreen(),
                     routes: [
-                      // 8.5) Bonus Network Invite
+                      // 8.6.1) Bonus Network Invite
                       GoRoute(
                         path: 'invite',
                         name: 'chatBonusNetworkInvite',

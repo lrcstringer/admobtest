@@ -42,6 +42,8 @@ export const SystemAccounts = {
   WEEKLY_POT: "pot:weekly", // Weekly pot accumulator
   CASHOUT_PENDING: "system:cashout_pending", // Pending cashout holding
   ENGAGEMENT_ESCROW: "system:escrow", // Engagement token reservation holding
+  GIFT_ESCROW: "system:gift_escrow", // Gift token holding until claimed
+  SPRAY_ESCROW: "system:spray_escrow", // Token spray accumulation until claimed
   IMALICHAT_CLIENT: "client:imalichat", // iMaliChat's own client account
   POT_RESIDUAL: "system:pot_residual", // Rounding residual from pot distributions
 } as const;
@@ -100,6 +102,12 @@ export type JournalType =
   | "pot_residual" // Rounding residual swept from pot at distribution time
   | "reversal" // Reversal of a previous journal
   | "adjustment" // Manual admin adjustment
+  // Gift & spray transactions
+  | "gift_debit" // Sender → gift escrow
+  | "gift_credit" // Gift escrow → recipient on claim
+  | "gift_refund" // Gift escrow → sender on expiry
+  | "spray_contribution" // Contributor → spray escrow
+  | "spray_payout" // Spray escrow → recipient on close/claim
   // Group transactions
   | "group_contribution" // Member contributes to group
   | "group_withdrawal" // Member withdraws from group
@@ -487,6 +495,12 @@ export const IdempotencyKey = {
   escrowRelease: (engagementId: string) => `escrow_release:${engagementId}`,
   reversal: (originalJournalId: string) => `reversal:${originalJournalId}`,
   adjustment: (adjustmentId: string) => `adjustment:${adjustmentId}`,
+  // Gift & spray keys
+  giftDebit: (giftId: string) => `gift_debit:${giftId}`,
+  giftCredit: (giftId: string) => `gift_credit:${giftId}`,
+  giftRefund: (giftId: string) => `gift_refund:${giftId}`,
+  sprayContribution: (sprayId: string, userId: string) => `spray_contrib:${sprayId}:${userId}`,
+  sprayPayout: (sprayId: string) => `spray_payout:${sprayId}`,
   // Group transaction keys
   groupContribution: (groupId: string, transactionId: string) => `group_contrib:${groupId}:${transactionId}`,
   groupWithdrawal: (groupId: string, transactionId: string) => `group_withdraw:${groupId}:${transactionId}`,

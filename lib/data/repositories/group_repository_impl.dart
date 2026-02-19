@@ -11,6 +11,7 @@ import '../../domain/entities/stokvel_analytics.dart';
 import '../../domain/repositories/group_repository.dart';
 import '../datasources/remote/group_remote_datasource.dart';
 
+// DEPRECATED: Use CommunityRepositoryImpl instead. Will be removed in a future cleanup PR.
 @LazySingleton(as: GroupRepository)
 class GroupRepositoryImpl implements GroupRepository {
   final GroupRemoteDataSource _remoteDataSource;

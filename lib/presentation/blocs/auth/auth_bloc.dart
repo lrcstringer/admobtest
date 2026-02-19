@@ -9,6 +9,7 @@ import '../../../core/error/failures.dart';
 import '../../../core/security/device_binding_service.dart';
 import '../../../core/services/biometric_login_service.dart';
 import '../../../core/services/fcm_challenge_handler.dart';
+import '../../../core/services/key_management_service.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/repositories/user_repository.dart';
@@ -24,6 +25,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final DeviceBindingService _deviceBindingService;
   final BiometricLoginService _biometricLoginService;
   final FcmChallengeHandler _fcmChallengeHandler;
+  final KeyManagementService _keyManagementService;
   StreamSubscription<User?>? _authStateSubscription;
   Timer? _resendTimer;
 
@@ -33,6 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     this._deviceBindingService,
     this._biometricLoginService,
     this._fcmChallengeHandler,
+    this._keyManagementService,
   ) : super(const AuthState()) {
     on<_CheckAuthStatus>(_onCheckAuthStatus);
     on<_SendOtp>(_onSendOtp);
@@ -116,6 +119,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             user: user,
             isLoading: false,
           ));
+          // Fire-and-forget E2EE key initialization
+          _initializeE2EEKeys();
         }
       },
     );
@@ -392,17 +397,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       return;
     }
 
-    // Success - clear all local data
-    await _deviceBindingService.clearBinding();
-    await _biometricLoginService.clearCachedDisplayName();
-    await _biometricLoginService.clearLastAuthTime();
-
-    // Clear local SQLite database (cached wallets, transactions, chats, etc.)
-    await _authRepository.clearLocalCache();
-
-    // Delete hardware-backed ECDSA keypair
-    if (userId != null) {
-      await _deviceBindingService.deleteKeypair(userId);
+    // Success - clear all local data.
+    // Wrap in try-catch so a cleanup failure never blocks the
+    // unauthenticated transition (leaving the dialog stuck).
+    try {
+      await _deviceBindingService.clearBinding();
+      await _biometricLoginService.clearCachedDisplayName();
+      await _biometricLoginService.clearLastAuthTime();
+      await _authRepository.clearLocalCache();
+      if (userId != null) {
+        await _deviceBindingService.deleteKeypair(userId);
+      }
+    } catch (e) {
+      debugPrint('Post-deletion cleanup error (non-fatal): $e');
     }
 
     emit(const AuthState(status: AuthStatus.unauthenticated));
@@ -475,6 +482,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       user: freshUser,
       isLoading: false,
     ));
+
+    // Fire-and-forget E2EE key initialization after onboarding
+    _initializeE2EEKeys();
   }
 
   Future<void> _onRequestPushLogin(
@@ -538,6 +548,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       pushLoginChallengeId: null,
       hasTrustedDevice: false,
     ));
+  }
+
+  // =========================================================================
+  // E2EE KEY INITIALIZATION
+  // =========================================================================
+
+  /// Generate and upload E2EE keys if not already present.
+  /// Fire-and-forget — E2EE failures are non-fatal.
+  Future<void> _initializeE2EEKeys() async {
+    try {
+      final existing = await _keyManagementService.loadPrivateKeys();
+      if (existing != null) {
+        // Keys exist — just replenish OTKs if running low
+        await _keyManagementService.replenishOneTimePreKeysIfNeeded();
+        return;
+      }
+      // First time — generate full key bundle
+      final bundle = await _keyManagementService.generateKeyBundle();
+      await _keyManagementService.storePrivateKeys(bundle);
+      await _keyManagementService.uploadKeyBundle(bundle);
+    } catch (e) {
+      debugPrint('E2EE key init failed (non-fatal): $e');
+    }
   }
 
   @override

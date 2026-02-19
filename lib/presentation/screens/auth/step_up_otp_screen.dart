@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -26,7 +27,8 @@ class StepUpOtpScreen extends StatefulWidget {
   State<StepUpOtpScreen> createState() => _StepUpOtpScreenState();
 }
 
-class _StepUpOtpScreenState extends State<StepUpOtpScreen> {
+class _StepUpOtpScreenState extends State<StepUpOtpScreen>
+    with CodeAutoFill {
   String _otpCode = '';
   String? _errorMessage;
   bool _isLoading = false;
@@ -37,13 +39,34 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen> {
   @override
   void initState() {
     super.initState();
+    listenForCode();
     _sendOtp();
   }
 
   @override
   void dispose() {
+    cancel();
     _countdownTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void codeUpdated() {
+    if (code != null && _otpSent) {
+      final digits = _extractOtp(code!);
+      if (digits != null && digits.length == 4) {
+        setState(() {
+          _otpCode = digits;
+          _errorMessage = null;
+        });
+        _verifyOtp();
+      }
+    }
+  }
+
+  String? _extractOtp(String sms) {
+    final match = RegExp(r'\b(\d{4})\b').firstMatch(sms);
+    return match?.group(1);
   }
 
   void _sendOtp() {

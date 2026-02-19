@@ -13,7 +13,7 @@ import '../../models/group_model.dart';
 import '../../models/group_member_model.dart';
 import '../../models/group_transaction_model.dart';
 
-/// Remote data source interface for group operations
+/// @deprecated Use CommunityRemoteDatasource instead. Will be removed in a future cleanup PR.
 abstract class GroupRemoteDataSource {
   String? get currentUserId;
 

@@ -7,6 +7,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
+@Deprecated('Use community/PendingApprovalsScreen instead. Will be removed in a future cleanup PR.')
 class PendingApprovalsScreen extends StatelessWidget {
   final String groupId;
 

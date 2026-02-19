@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -21,13 +22,47 @@ class OtpVerificationScreen extends StatefulWidget {
   State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
 }
 
-class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
+class _OtpVerificationScreenState extends State<OtpVerificationScreen>
+    with CodeAutoFill {
   String _otpDigits = '';
   String? _errorText;
 
   String get _otpCode => _otpDigits;
 
   bool get _isOtpComplete => _otpDigits.length == 4;
+
+  @override
+  void initState() {
+    super.initState();
+    listenForCode();
+    // TODO: Remove after retrieving the hash from debug console
+    SmsAutoFill().getAppSignature.then((sig) => debugPrint('SMS App Hash: $sig'));
+  }
+
+  @override
+  void dispose() {
+    cancel();
+    super.dispose();
+  }
+
+  @override
+  void codeUpdated() {
+    if (code != null) {
+      final digits = _extractOtp(code!);
+      if (digits != null && digits.length == 4) {
+        setState(() {
+          _otpDigits = digits;
+          _errorText = null;
+        });
+        _onVerify();
+      }
+    }
+  }
+
+  String? _extractOtp(String sms) {
+    final match = RegExp(r'\b(\d{4})\b').firstMatch(sms);
+    return match?.group(1);
+  }
 
   void _onKeyPressed(String key) {
     if (_otpDigits.length < 4) {

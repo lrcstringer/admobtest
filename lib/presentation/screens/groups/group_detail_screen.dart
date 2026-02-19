@@ -10,6 +10,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
+@Deprecated('Use CommunityDetailScreen instead. Will be removed in a future cleanup PR.')
 class GroupDetailScreen extends StatefulWidget {
   final String groupId;
 

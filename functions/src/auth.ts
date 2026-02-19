@@ -189,7 +189,8 @@ export const sendOtp = functions.https.onCall(async (data, context) => {
   });
 
   // Send SMS
-  const message = `Your iMali verification code is: ${code}. Valid for ${OTP_CONFIG.expiryMinutes} minutes. Do not share this code.`;
+  const appHash = process.env.SMS_APP_HASH || "";
+  const message = `Your iMali verification code is: ${code}. Valid for ${OTP_CONFIG.expiryMinutes} minutes. Do not share this code.${appHash ? `\n${appHash}` : ""}`;
   const smsResult = await sendSmsViaMyMobileApi(normalizedPhone, message);
 
   if (!smsResult.success) {
@@ -357,6 +358,28 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
   await docRef.delete();
 
   console.log(`User ${userId} verified successfully, isNewUser: ${isNewUser}`);
+
+  // Handle the user doc: stamp lastLoginAt if it's a complete doc,
+  // or delete it if it's a stale partial doc (e.g. from a previous
+  // merge-write that created only {lastLoginAt} without phoneNumber).
+  // A partial doc causes the client's .set() to be treated as UPDATE
+  // by Firestore, which fails the security rule that checks phoneNumber.
+  db.collection("users").doc(userId).get().then((userDoc) => {
+    if (!userDoc.exists) return null;
+
+    if (userDoc.data()?.phoneNumber) {
+      // Complete doc — stamp lastLoginAt
+      return db.collection("users").doc(userId).set(
+        { lastLoginAt: admin.firestore.FieldValue.serverTimestamp() },
+        { merge: true }
+      );
+    }
+
+    // Stale partial doc (no phoneNumber) — delete it so the client's
+    // .set() is treated as CREATE, not UPDATE.
+    console.warn(`Deleting stale partial user doc for ${userId} (no phoneNumber)`);
+    return db.collection("users").doc(userId).delete();
+  }).catch((err: unknown) => console.warn("Failed to handle user doc:", err));
 
   // Check if user has any trusted devices
   const trustedDevices = await db.collection("devices")
@@ -978,6 +1001,12 @@ export const approveLogin = functions.https.onCall(async (data, context) => {
   await db.collection("devices").doc(deviceId).update({
     lastUsedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
+
+  // Stamp lastLoginAt (fire-and-forget — non-blocking)
+  db.collection("users").doc(challengeData.userId).set(
+    { lastLoginAt: admin.firestore.FieldValue.serverTimestamp() },
+    { merge: true }
+  ).catch((err: unknown) => console.warn("Failed to stamp lastLoginAt:", err));
 
   console.log(`Challenge ${challengeId} approved by device ${deviceId}`);
 

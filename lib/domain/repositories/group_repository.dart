@@ -1,3 +1,4 @@
+// DEPRECATED: Use CommunityRepository instead. Will be removed in a future cleanup PR.
 import 'package:dartz/dartz.dart';
 import '../../core/error/failures.dart';
 import '../entities/group.dart';

@@ -4,6 +4,8 @@ import '../value_objects/token_amount.dart';
 part 'group.freezed.dart';
 part 'group.g.dart';
 
+// DEPRECATED: Use Community entities instead. Will be removed in a future cleanup PR.
+
 /// Group types supported by the platform
 enum GroupType {
   @JsonValue('stokvel')

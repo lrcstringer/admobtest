@@ -90,13 +90,11 @@ service cloud.firestore {
     match /chatThreads/{threadId} {
       // Users can read threads they participate in
       allow read: if isAuthenticated()
-        && (resource.data.participant1Id == request.auth.uid
-            || resource.data.participant2Id == request.auth.uid);
+        && request.auth.uid in resource.data.participantIds;
 
       // Users can create threads
       allow create: if isAuthenticated()
-        && (request.resource.data.participant1Id == request.auth.uid
-            || request.resource.data.participant2Id == request.auth.uid);
+        && request.auth.uid in request.resource.data.participantIds;
 
       // Threads are updated by Cloud Functions on new messages
       allow update: if false;
@@ -578,6 +576,112 @@ service cloud.firestore {
     match /platformSettings/{docId} {
       allow read: if isAdmin();
       allow write: if isAdmin();
+    }
+
+    // =========================================================================
+    // CONVERSATIONS (P2P Direct Messages)
+    // All writes via Cloud Functions — clients are read-only
+    // =========================================================================
+
+    function isConversationParticipant(convId) {
+      return request.auth.uid in get(/databases/$(database)/documents/conversations/$(convId)).data.participantIds;
+    }
+
+    match /conversations/{convId} {
+      allow read: if isAuthenticated() && request.auth.uid in resource.data.participantIds;
+      allow write: if false;
+
+      match /messages/{msgId} {
+        allow read: if isAuthenticated() && isConversationParticipant(convId);
+        allow write: if false;
+      }
+    }
+
+    // =========================================================================
+    // COMMUNITIES (Regular + Stokvel)
+    // All writes via Cloud Functions — clients are read-only
+    // =========================================================================
+
+    function isCommunityMember(commId) {
+      return request.auth.uid in get(/databases/$(database)/documents/communities/$(commId)).data.memberIds;
+    }
+
+    match /communities/{commId} {
+      allow read: if isAuthenticated() && isCommunityMember(commId);
+      allow write: if false;
+
+      match /messages/{msgId} {
+        allow read: if isAuthenticated() && isCommunityMember(commId);
+        allow write: if false;
+      }
+
+      match /members/{memberId} {
+        allow read: if isAuthenticated() && isCommunityMember(commId);
+        allow write: if false;
+      }
+
+      match /transactions/{txId} {
+        allow read: if isAuthenticated() && isCommunityMember(commId);
+        allow write: if false;
+      }
+
+      match /pendingApprovals/{approvalId} {
+        allow read: if isAuthenticated() && isCommunityMember(commId);
+        allow write: if false;
+      }
+
+      match /keyDistribution/{distId} {
+        allow read: if isAuthenticated() && resource.data.toUserId == request.auth.uid;
+        allow write: if false;
+      }
+    }
+
+    // =========================================================================
+    // GIFTS (P2P and Community)
+    // All writes via Cloud Functions — clients can read if sender or recipient
+    // =========================================================================
+
+    match /gifts/{giftId} {
+      allow read: if isAuthenticated() &&
+        (resource.data.senderId == request.auth.uid ||
+         resource.data.recipientId == request.auth.uid);
+      allow write: if false;
+    }
+
+    // =========================================================================
+    // TOKEN SPRAYS (Community celebrations)
+    // All writes via Cloud Functions — community members can read
+    // =========================================================================
+
+    match /tokenSprays/{sprayId} {
+      allow read: if isAuthenticated() &&
+        isCommunityMember(resource.data.communityId);
+      allow write: if false;
+    }
+
+    // =========================================================================
+    // REPORTS (Abuse reports)
+    // Users can read their own reports, writes via Cloud Functions
+    // =========================================================================
+
+    match /reports/{reportId} {
+      allow read: if isAuthenticated() &&
+        resource.data.reporterId == request.auth.uid;
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // =========================================================================
+    // USER KEY BUNDLES (E2EE)
+    // Users can read any public key bundle, but only write their own
+    // =========================================================================
+
+    match /users/{userId}/keys/{keyDoc} {
+      // Public key bundle: any authenticated user can read (needed for E2EE key exchange)
+      // Backup metadata: only the key owner can read
+      allow read: if isAuthenticated() &&
+        (keyDoc == 'bundle' || request.auth.uid == userId);
+      allow write: if false;
     }
 
     // =========================================================================

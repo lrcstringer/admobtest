@@ -123,8 +123,10 @@ class UserRepositoryImpl implements UserRepository {
       }
 
       // Update fields
+      final effectiveDisplayName = displayName ?? currentUserModel.displayName;
       final updatedUserModel = currentUserModel.copyWith(
-        displayName: displayName ?? currentUserModel.displayName,
+        displayName: effectiveDisplayName,
+        displayNameLower: effectiveDisplayName.toLowerCase(),
         username: username ?? currentUserModel.username,
         usernameLower: username?.toLowerCase() ?? currentUserModel.usernameLower,
         avatarUrl: avatarUrl ?? currentUserModel.avatarUrl,

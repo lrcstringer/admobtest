@@ -36,6 +36,11 @@
           "destination": "/index.html"
         }
       ]
+    },
+    {
+      "target": "site",
+      "public": "public",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     }
   ],
   "emulators": {

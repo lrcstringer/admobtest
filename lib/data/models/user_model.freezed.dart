@@ -24,6 +24,7 @@ mixin _$UserModel {
   String get userId => throw _privateConstructorUsedError;
   String get phoneNumber => throw _privateConstructorUsedError;
   String get displayName => throw _privateConstructorUsedError;
+  String? get displayNameLower => throw _privateConstructorUsedError;
   String? get username => throw _privateConstructorUsedError;
   String? get usernameLower => throw _privateConstructorUsedError;
   String? get avatarUrl => throw _privateConstructorUsedError;
@@ -73,6 +74,7 @@ abstract class $UserModelCopyWith<$Res> {
     String userId,
     String phoneNumber,
     String displayName,
+    String? displayNameLower,
     String? username,
     String? usernameLower,
     String? avatarUrl,
@@ -122,6 +124,7 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? userId = null,
     Object? phoneNumber = null,
     Object? displayName = null,
+    Object? displayNameLower = freezed,
     Object? username = freezed,
     Object? usernameLower = freezed,
     Object? avatarUrl = freezed,
@@ -165,6 +168,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
                 ? _value.displayName
                 : displayName // ignore: cast_nullable_to_non_nullable
                       as String,
+            displayNameLower: freezed == displayNameLower
+                ? _value.displayNameLower
+                : displayNameLower // ignore: cast_nullable_to_non_nullable
+                      as String?,
             username: freezed == username
                 ? _value.username
                 : username // ignore: cast_nullable_to_non_nullable
@@ -296,6 +303,7 @@ abstract class _$$UserModelImplCopyWith<$Res>
     String userId,
     String phoneNumber,
     String displayName,
+    String? displayNameLower,
     String? username,
     String? usernameLower,
     String? avatarUrl,
@@ -344,6 +352,7 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? userId = null,
     Object? phoneNumber = null,
     Object? displayName = null,
+    Object? displayNameLower = freezed,
     Object? username = freezed,
     Object? usernameLower = freezed,
     Object? avatarUrl = freezed,
@@ -387,6 +396,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
             ? _value.displayName
             : displayName // ignore: cast_nullable_to_non_nullable
                   as String,
+        displayNameLower: freezed == displayNameLower
+            ? _value.displayNameLower
+            : displayNameLower // ignore: cast_nullable_to_non_nullable
+                  as String?,
         username: freezed == username
             ? _value.username
             : username // ignore: cast_nullable_to_non_nullable
@@ -511,6 +524,7 @@ class _$UserModelImpl extends _UserModel {
     required this.userId,
     required this.phoneNumber,
     required this.displayName,
+    this.displayNameLower,
     this.username,
     this.usernameLower,
     this.avatarUrl,
@@ -552,6 +566,8 @@ class _$UserModelImpl extends _UserModel {
   final String phoneNumber;
   @override
   final String displayName;
+  @override
+  final String? displayNameLower;
   @override
   final String? username;
   @override
@@ -630,7 +646,7 @@ class _$UserModelImpl extends _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(userId: $userId, phoneNumber: $phoneNumber, displayName: $displayName, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, kycTier: $kycTier, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
+    return 'UserModel(userId: $userId, phoneNumber: $phoneNumber, displayName: $displayName, displayNameLower: $displayNameLower, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, kycTier: $kycTier, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
   }
 
   @override
@@ -643,6 +659,8 @@ class _$UserModelImpl extends _UserModel {
                 other.phoneNumber == phoneNumber) &&
             (identical(other.displayName, displayName) ||
                 other.displayName == displayName) &&
+            (identical(other.displayNameLower, displayNameLower) ||
+                other.displayNameLower == displayNameLower) &&
             (identical(other.username, username) ||
                 other.username == username) &&
             (identical(other.usernameLower, usernameLower) ||
@@ -708,6 +726,7 @@ class _$UserModelImpl extends _UserModel {
     userId,
     phoneNumber,
     displayName,
+    displayNameLower,
     username,
     usernameLower,
     avatarUrl,
@@ -757,6 +776,7 @@ abstract class _UserModel extends UserModel {
     required final String userId,
     required final String phoneNumber,
     required final String displayName,
+    final String? displayNameLower,
     final String? username,
     final String? usernameLower,
     final String? avatarUrl,
@@ -797,6 +817,8 @@ abstract class _UserModel extends UserModel {
   String get phoneNumber;
   @override
   String get displayName;
+  @override
+  String? get displayNameLower;
   @override
   String? get username;
   @override

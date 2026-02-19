@@ -4,6 +4,8 @@ import '../value_objects/token_amount.dart';
 part 'group_member.freezed.dart';
 part 'group_member.g.dart';
 
+// DEPRECATED: Use CommunityMember entity instead. Will be removed in a future cleanup PR.
+
 /// Group member roles with different permission levels
 enum GroupRole {
   @JsonValue('owner')

@@ -225,6 +225,7 @@ class AdMobService {
     final completer = Completer<AdRewardResult>();
     String? transactionId;
     bool adCompleted = false;
+    bool timedOut = false;
 
     // Suppress session lock while the ad overlay is visible
     _sessionLockService.suppressLock();
@@ -237,7 +238,7 @@ class AdMobService {
         debugPrint('AdMobService: Ad impression recorded');
       },
       onAdDismissedFullScreenContent: (ad) {
-        debugPrint('AdMobService: Ad dismissed');
+        debugPrint('AdMobService: Ad dismissed (timedOut=$timedOut, adCompleted=$adCompleted)');
         _sessionLockService.unsuppressLock();
         ad.dispose();
         _rewardedAd = null;
@@ -246,7 +247,6 @@ class AdMobService {
         if (!completer.isCompleted) {
           if (adCompleted && transactionId != null) {
             completer.complete(AdRewardResult.success(
-              // ignore: unnecessary_non_null_assertion
               transactionId: transactionId!,
               rewardAmount: AdMobConstants.adVideoTokenReward,
               rewardType: 'tokens',
@@ -297,10 +297,40 @@ class AdMobService {
       }
     }
 
+    // Wait for dismiss callback, but don't let it hang forever.
+    // The completer is resolved by onAdDismissedFullScreenContent or
+    // onAdFailedToShowFullScreenContent. The timeout only fires if the
+    // ad overlay stays visible for too long (e.g. interactive/playable
+    // ads). When timeout fires, we do NOT return failure immediately —
+    // we wait for the user to actually dismiss the ad so the overlay
+    // is properly cleaned up. We just mark that a timeout occurred.
     return completer.future.timeout(
       AdMobConstants.adShowTimeout,
       onTimeout: () {
-        debugPrint('AdMobService: Ad show timed out');
+        debugPrint('AdMobService: Ad show timeout reached — waiting for user dismiss');
+        timedOut = true;
+        // Don't return failure here. Instead, let the dismiss callback
+        // handle it. The ad overlay is still on screen and the user
+        // will eventually tap the close/back button which triggers
+        // onAdDismissedFullScreenContent → completer.complete().
+        //
+        // If ad was already completed (reward earned) but user is just
+        // slow to close, we should still treat it as success.
+        if (adCompleted && transactionId != null) {
+          return AdRewardResult.success(
+            transactionId: transactionId!,
+            rewardAmount: AdMobConstants.adVideoTokenReward,
+            rewardType: 'tokens',
+            responseId: responseId,
+          );
+        }
+        // Reward not yet earned after timeout — fail gracefully.
+        // Clean up the ad so the user isn't stuck.
+        _sessionLockService.unsuppressLock();
+        _rewardedAd?.dispose();
+        _rewardedAd = null;
+        isAdReady.value = false;
+        loadAdWithRetry();
         return AdRewardResult.failure('Ad show timed out');
       },
     );

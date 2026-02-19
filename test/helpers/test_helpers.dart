@@ -8,11 +8,15 @@ import 'package:imalichat/domain/entities/earn_opportunity.dart';
 import 'package:imalichat/domain/entities/engagement.dart';
 import 'package:imalichat/domain/entities/ledger_account.dart';
 import 'package:imalichat/domain/entities/ledger_journal.dart';
+import 'package:imalichat/domain/entities/sub_account.dart';
+import 'package:imalichat/domain/entities/cashout.dart';
+import 'package:imalichat/domain/entities/user_engagement_stats.dart';
 import 'package:imalichat/domain/enums/user_status.dart';
 import 'package:imalichat/domain/enums/engagement_status.dart';
 import 'package:imalichat/domain/enums/pot_type.dart';
 import 'package:imalichat/domain/enums/chat_card_type.dart';
 import 'package:imalichat/domain/enums/chat_card_status.dart';
+import 'package:imalichat/domain/enums/cashout_status.dart';
 import 'package:imalichat/domain/entities/user_score.dart';
 import 'package:imalichat/domain/repositories/earn_repository.dart';
 import 'package:imalichat/domain/value_objects/engagement_evidence.dart';
@@ -105,6 +109,166 @@ class TestData {
         status: LedgerAccountStatus.active,
         createdAt: DateTime(2024, 1, 1),
         updatedAt: DateTime(2024, 1, 1),
+      );
+
+  /// Frozen ledger account
+  static LedgerAccount get frozenLedgerAccount => LedgerAccount(
+        id: 'user:user_frozen',
+        type: LedgerAccountType.user,
+        name: 'Frozen User Account',
+        ownerId: 'user_frozen',
+        balance: 50000,
+        status: LedgerAccountStatus.frozen,
+        createdAt: DateTime(2024, 1, 1),
+        updatedAt: DateTime(2024, 1, 1),
+      );
+
+  /// System ledger account (e.g., earn pool)
+  static LedgerAccount get systemLedgerAccount => LedgerAccount(
+        id: 'system:earn',
+        type: LedgerAccountType.system,
+        name: 'Earn Pool',
+        balance: 1000000,
+        status: LedgerAccountStatus.active,
+        createdAt: DateTime(2024, 1, 1),
+        updatedAt: DateTime(2024, 1, 1),
+      );
+
+  /// Account with allocated balance (sub-accounts)
+  static LedgerAccount get accountWithAllocation => LedgerAccount(
+        id: 'user:user_alloc',
+        type: LedgerAccountType.user,
+        name: 'User With Allocation',
+        ownerId: 'user_alloc',
+        balance: 20000,
+        allocatedBalance: 5000,
+        status: LedgerAccountStatus.active,
+        createdAt: DateTime(2024, 1, 1),
+        updatedAt: DateTime(2024, 1, 1),
+      );
+
+  // ==================== SUB-ACCOUNTS ====================
+
+  /// Default (unrestricted) sub-account
+  static SubAccount get defaultSubAccount => SubAccount(
+        id: 'sub_default',
+        userId: 'user123',
+        name: 'My Savings',
+        balance: 3000,
+        lifetimeCredits: 5000,
+        lifetimeDebits: 2000,
+        isActive: true,
+        isDefault: true,
+        createdAt: DateTime(2024, 1, 1),
+        updatedAt: DateTime(2024, 1, 1),
+      );
+
+  /// Brand-restricted sub-account
+  static SubAccount get brandSubAccount => SubAccount(
+        id: 'sub_brand',
+        userId: 'user123',
+        accountTypeId: 'brand_cola',
+        name: 'Cola Rewards',
+        balance: 500,
+        lifetimeCredits: 500,
+        lifetimeDebits: 0,
+        isActive: true,
+        isDefault: false,
+        createdAt: DateTime(2024, 1, 1),
+        updatedAt: DateTime(2024, 1, 1),
+      );
+
+  /// List of sub-accounts
+  static List<SubAccount> get subAccountList => [
+        defaultSubAccount,
+        brandSubAccount,
+      ];
+
+  // ==================== ENGAGEMENT STATS ====================
+
+  /// No streak stats
+  static UserEngagementStats get noStreakStats => UserEngagementStats(
+        userId: 'user123',
+        currentStreak: 0,
+        longestStreak: 5,
+        totalEngagementsCompleted: 20,
+        totalTokensEarned: 2000,
+        updatedAt: DateTime(2024, 1, 1),
+      );
+
+  /// Starter streak (days 1-2, multiplier 1.0)
+  static UserEngagementStats get starterStreakStats => UserEngagementStats(
+        userId: 'user123',
+        currentStreak: 2,
+        longestStreak: 5,
+        totalEngagementsCompleted: 30,
+        totalTokensEarned: 3000,
+        updatedAt: DateTime(2024, 1, 1),
+      );
+
+  /// Growing streak (days 3-6, multiplier 1.2)
+  static UserEngagementStats get growingStreakStats => UserEngagementStats(
+        userId: 'user123',
+        currentStreak: 5,
+        longestStreak: 10,
+        totalEngagementsCompleted: 50,
+        totalTokensEarned: 5000,
+        updatedAt: DateTime(2024, 1, 1),
+      );
+
+  /// Strong streak (days 7-9, multiplier 1.35)
+  static UserEngagementStats get strongStreakStats => UserEngagementStats(
+        userId: 'user123',
+        currentStreak: 8,
+        longestStreak: 14,
+        totalEngagementsCompleted: 80,
+        totalTokensEarned: 8000,
+        updatedAt: DateTime(2024, 1, 1),
+      );
+
+  /// Master streak (days 10+, multiplier 1.5)
+  static UserEngagementStats get masterStreakStats => UserEngagementStats(
+        userId: 'user123',
+        currentStreak: 14,
+        longestStreak: 14,
+        totalEngagementsCompleted: 140,
+        totalTokensEarned: 14000,
+        updatedAt: DateTime(2024, 1, 1),
+      );
+
+  // ==================== CASHOUTS ====================
+
+  /// Pending cashout (bank transfer)
+  static Cashout get pendingCashout => Cashout(
+        id: 'cashout_pending',
+        walletId: 'user:user123',
+        userId: 'user123',
+        tokenAmount: 5000,
+        zarAmount: 50.0,
+        method: CashoutMethod.bankTransfer,
+        status: CashoutStatus.pending,
+        destinationDetails: 'FNB *****1234',
+        bankName: 'FNB',
+        accountNumber: '62000001234',
+        accountHolderName: 'Test User',
+        createdAt: DateTime(2024, 1, 1),
+      );
+
+  /// Completed cashout (e-wallet)
+  static Cashout get completedCashout => Cashout(
+        id: 'cashout_completed',
+        walletId: 'user:user123',
+        userId: 'user123',
+        tokenAmount: 10000,
+        zarAmount: 100.0,
+        method: CashoutMethod.ewallet,
+        status: CashoutStatus.completed,
+        destinationDetails: '+27612345678',
+        mobileNumber: '+27612345678',
+        reference: 'REF-12345',
+        createdAt: DateTime(2024, 1, 1),
+        processedAt: DateTime(2024, 1, 2),
+        completedAt: DateTime(2024, 1, 2),
       );
 
   // ==================== LEDGER JOURNALS ====================

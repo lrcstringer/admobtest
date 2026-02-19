@@ -10,6 +10,7 @@ import '../../widgets/common/imali_app_bar.dart';
 
 enum TransactionType { contribute, withdraw }
 
+@Deprecated('Use CommunityTransactionScreen instead. Will be removed in a future cleanup PR.')
 class GroupTransactionScreen extends StatefulWidget {
   final String groupId;
   final TransactionType type;

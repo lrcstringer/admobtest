@@ -247,6 +247,12 @@ export const verifyBiometricChallenge = functions.https.onCall(
       lastUsedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    // Stamp lastLoginAt (fire-and-forget — non-blocking)
+    db.collection("users").doc(challengeData.userId).set(
+      { lastLoginAt: admin.firestore.FieldValue.serverTimestamp() },
+      { merge: true }
+    ).catch((err: unknown) => console.warn("Failed to stamp lastLoginAt:", err));
+
     console.log(
       `Biometric challenge ${challengeId} verified for device ${deviceId}, user ${challengeData.userId}`
     );
