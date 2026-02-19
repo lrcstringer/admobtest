@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/community.dart';
@@ -76,7 +77,7 @@ class CommunityListTile extends StatelessWidget {
               child: Text(
                 unreadCount > 99 ? '99+' : '$unreadCount',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Colors.white,
+                      color: AppColors.textOnPrimary,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -117,26 +118,33 @@ class CommunityListTile extends StatelessWidget {
   Widget _buildAvatar(BuildContext context) {
     final color = community.isStokvel ? AppColors.secondary : AppColors.primary;
 
+    final initialsWidget = CircleAvatar(
+      radius: 24,
+      backgroundColor: color.withValues(alpha: 0.2),
+      child: Text(
+        community.displayInitials,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
+      ),
+    );
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
         if (community.avatarUrl != null)
-          CircleAvatar(
-            radius: 24,
-            backgroundImage: NetworkImage(community.avatarUrl!),
+          CachedNetworkImage(
+            imageUrl: community.avatarUrl!,
+            imageBuilder: (_, imageProvider) => CircleAvatar(
+              radius: 24,
+              backgroundImage: imageProvider,
+            ),
+            placeholder: (_, __) => initialsWidget,
+            errorWidget: (_, __, ___) => initialsWidget,
           )
         else
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: color.withValues(alpha: 0.2),
-            child: Text(
-              community.displayInitials,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-          ),
+          initialsWidget,
         // Group icon overlay
         Positioned(
           bottom: -2,
@@ -156,7 +164,7 @@ class CommunityListTile extends StatelessWidget {
               child: Icon(
                 community.isStokvel ? Icons.savings : Icons.group,
                 size: 10,
-                color: Colors.white,
+                color: AppColors.textOnPrimary,
               ),
             ),
           ),

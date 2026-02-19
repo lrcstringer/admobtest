@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 /// Displays a QR code for a user or community, allowing others to scan
 /// and start a conversation or join a community.
@@ -21,12 +24,10 @@ class QrDisplayScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('QR Code'),
-        actions: [
+      appBar: IMaliAppBar(
+        title: 'QR Code',
+        extraActions: [
           if (onShare != null)
             IconButton(
               icon: const Icon(Icons.share),
@@ -34,7 +35,8 @@ class QrDisplayScreen extends StatelessWidget {
             ),
         ],
       ),
-      body: Center(
+      body: WaveBackground(
+        child: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
@@ -49,7 +51,7 @@ class QrDisplayScreen extends StatelessWidget {
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.outline,
+                      color: AppColors.textHint,
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -86,12 +88,13 @@ class QrDisplayScreen extends StatelessWidget {
               Text(
                 'Scan this code to connect',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.outline,
+                      color: AppColors.textHint,
                     ),
               ),
             ],
           ),
         ),
+      ),
       ),
     );
   }

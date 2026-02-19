@@ -8,6 +8,8 @@ import '../../../domain/repositories/community_repository.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 /// Screen for creating a new community (regular or stokvel).
 ///
@@ -66,8 +68,9 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
             state.operationStatus == CommunityOperationStatus.processing;
 
         return Scaffold(
-          appBar: AppBar(title: const Text('Create Community')),
-          body: SingleChildScrollView(
+          appBar: const IMaliAppBar(title: 'Create Community'),
+          body: WaveBackground(
+            child: SingleChildScrollView(
             padding: AppSpacing.pagePadding,
             child: Form(
               key: _formKey,
@@ -159,7 +162,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: AppColors.textOnPrimary,
                               ),
                             )
                           : const Text(
@@ -172,6 +175,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
                 ],
               ),
             ),
+          ),
           ),
         );
       },

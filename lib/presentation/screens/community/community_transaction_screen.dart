@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 /// Reusable screen for community contribute / withdraw operations.
 ///
@@ -75,10 +77,9 @@ class _CommunityTransactionScreenState
             state.operationStatus == CommunityOperationStatus.processing;
 
         return Scaffold(
-          appBar: AppBar(
-            title: Text(isContribution ? 'Contribute' : 'Withdraw'),
-          ),
-          body: SingleChildScrollView(
+          appBar: IMaliAppBar(title: isContribution ? 'Contribute' : 'Withdraw'),
+          body: WaveBackground(
+            child: SingleChildScrollView(
             padding: AppSpacing.pagePadding,
             child: Form(
               key: _formKey,
@@ -167,7 +168,7 @@ class _CommunityTransactionScreenState
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: AppColors.textOnPrimary,
                               ),
                             )
                           : Text(
@@ -179,6 +180,7 @@ class _CommunityTransactionScreenState
                 ],
               ),
             ),
+          ),
           ),
         );
       },

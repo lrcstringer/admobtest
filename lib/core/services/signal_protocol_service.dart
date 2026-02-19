@@ -360,12 +360,27 @@ class SignalProtocolService {
     final rootKey = Uint8List.fromList(derived.sublist(0, 32));
     final recvChainKey = Uint8List.fromList(derived.sublist(32, 64));
 
-    // Generate our DH ratchet key pair
+    // Generate our DH ratchet key pair for send direction
     final dhSendKp = await _cryptoService.generateX25519KeyPair();
 
+    // Perform DH ratchet for send direction so sendChainKey is properly
+    // derived (not zeros). The initiator will perform the matching recv-side
+    // ratchet when it sees our new dhSendPublic in the first reply message.
+    final dhSendResult = await _cryptoService.diffieHellman(
+      dhSendKp['privateKey']!, peerDhPublic!,
+    );
+    final combinedSend = _concat(rootKey, dhSendResult);
+    final derivedSend = await _cryptoService.hkdf(
+      inputKeyMaterial: combinedSend,
+      length: 64,
+      info: utf8.encode('Ratchet'),
+    );
+    final sendRootKey = Uint8List.fromList(derivedSend.sublist(0, 32));
+    final sendChainKey = Uint8List.fromList(derivedSend.sublist(32, 64));
+
     final session = _DoubleRatchetSession(
-      rootKey: rootKey,
-      sendChainKey: Uint8List(32),
+      rootKey: sendRootKey,
+      sendChainKey: sendChainKey,
       recvChainKey: recvChainKey,
       dhSendPrivate: dhSendKp['privateKey']!,
       dhSendPublic: dhSendKp['publicKey']!,

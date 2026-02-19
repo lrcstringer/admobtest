@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -289,16 +290,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildAvatar(BuildContext context, ChatThread thread) {
-    if (thread.avatarUrl != null) {
-      return CircleAvatar(
-        radius: 24,
-        backgroundImage: NetworkImage(thread.avatarUrl!),
-      );
-    }
-
     final color = AppColors.parseHex(thread.avatarColor);
 
-    return CircleAvatar(
+    final initialsWidget = CircleAvatar(
       radius: 24,
       backgroundColor: color.withValues(alpha: 0.2),
       child: Text(
@@ -309,6 +303,20 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
       ),
     );
+
+    if (thread.avatarUrl != null) {
+      return CachedNetworkImage(
+        imageUrl: thread.avatarUrl!,
+        imageBuilder: (_, imageProvider) => CircleAvatar(
+          radius: 24,
+          backgroundImage: imageProvider,
+        ),
+        placeholder: (_, __) => initialsWidget,
+        errorWidget: (_, __, ___) => initialsWidget,
+      );
+    }
+
+    return initialsWidget;
   }
 
   Widget _buildQuickAction(

@@ -20,6 +20,16 @@ class ConversationRepositoryImpl implements ConversationRepository {
 
   ConversationRepositoryImpl(this._remoteDataSource, this._signalProtocolService);
 
+  /// Cache of sent encrypted messages: messageId → plaintext.
+  /// Allows the sender to see their own E2EE messages without decryption
+  /// (sender can't decrypt own messages — session is stored under recipient's ID).
+  final Map<String, String> _sentPlaintextCache = {};
+
+  /// Cache of received decrypted messages: messageId → plaintext.
+  /// Prevents re-decryption on subsequent stream emissions (which would
+  /// ratchet the chain key forward and corrupt the session state).
+  final Map<String, String> _receivedPlaintextCache = {};
+
   // =========================================================================
   // CONVERSATION LIST
   // =========================================================================
@@ -172,37 +182,40 @@ class ConversationRepositoryImpl implements ConversationRepository {
   }) async {
     try {
       // Try to encrypt via Signal Protocol
+      final currentUserId = _remoteDataSource.currentUserId;
       try {
-        // Get conversation to find recipient
-        final convModel = await _remoteDataSource.getConversationById(conversationId);
-        if (convModel != null) {
-          final conv = convModel.toEntity();
-          // Find the other participant
-          final recipientId = conv.participantIds.length > 1
-              ? conv.participantIds.firstWhere(
-                  (id) => id != conv.participantIds.first,
-                  orElse: () => '',
-                )
-              : '';
-          if (recipientId.isNotEmpty) {
-            final encrypted = await _signalProtocolService.encryptP2P(recipientId, text);
-            final messageId = await _remoteDataSource.sendEncryptedMessage(
-              conversationId: conversationId,
-              ciphertext: encrypted['ciphertext'] as String,
-              e2ee: encrypted['e2ee'] as Map<String, dynamic>,
-              x3dhHeader: encrypted['x3dhHeader'] as Map<String, dynamic>?,
-              replyToMessageId: replyToMessageId,
+        if (currentUserId != null) {
+          // Get conversation to find recipient
+          final convModel = await _remoteDataSource.getConversationById(conversationId);
+          if (convModel != null) {
+            final conv = convModel.toEntity();
+            // Find the other participant using actual current user ID
+            final recipientId = conv.participantIds.firstWhere(
+              (id) => id != currentUserId,
+              orElse: () => '',
             );
-            // Return optimistic message with original text for immediate UI
-            return Right(Message(
-              id: messageId,
-              senderId: conv.participantIds.first,
-              senderName: '',
-              type: MessageType.text,
-              status: MessageStatus.sent,
-              textContent: text,
-              createdAt: DateTime.now(),
-            ));
+            if (recipientId.isNotEmpty) {
+              final encrypted = await _signalProtocolService.encryptP2P(recipientId, text);
+              final messageId = await _remoteDataSource.sendEncryptedMessage(
+                conversationId: conversationId,
+                ciphertext: encrypted['ciphertext'] as String,
+                e2ee: encrypted['e2ee'] as Map<String, dynamic>,
+                x3dhHeader: encrypted['x3dhHeader'] as Map<String, dynamic>?,
+                replyToMessageId: replyToMessageId,
+              );
+              // Cache plaintext so sender can view their own E2EE message
+              _sentPlaintextCache[messageId] = text;
+              // Return optimistic message with original text for immediate UI
+              return Right(Message(
+                id: messageId,
+                senderId: currentUserId,
+                senderName: '',
+                type: MessageType.text,
+                status: MessageStatus.sent,
+                textContent: text,
+                createdAt: DateTime.now(),
+              ));
+            }
           }
         }
       } catch (e) {
@@ -508,6 +521,29 @@ class ConversationRepositoryImpl implements ConversationRepository {
 
   Future<Message> _decryptIfNeeded(Message msg) async {
     if (!msg.isEncrypted) return msg;
+
+    // Sender cannot decrypt their own outgoing E2EE messages because
+    // the Signal session is stored under the *recipient's* ID, not their own.
+    // Use the in-memory plaintext cache for messages sent this session.
+    final currentUserId = _remoteDataSource.currentUserId;
+    if (msg.senderId == currentUserId) {
+      final cached = _sentPlaintextCache[msg.id];
+      if (cached != null) {
+        return msg.copyWith(textContent: cached);
+      }
+      // Message was sent in a previous app session — plaintext is no longer
+      // available locally. Return as-is; the UI will show the encrypted
+      // indicator via the lock icon (isEncrypted == true, textContent == null).
+      return msg;
+    }
+
+    // Check received cache to avoid re-decrypting (which corrupts session state)
+    final cachedReceived = _receivedPlaintextCache[msg.id];
+    if (cachedReceived != null) {
+      return msg.copyWith(textContent: cachedReceived);
+    }
+
+    // Decrypt incoming message from the other participant
     try {
       final encryptedMap = {
         'ciphertext': msg.ciphertext,
@@ -528,6 +564,7 @@ class ConversationRepositoryImpl implements ConversationRepository {
         msg.senderId,
         encryptedMap,
       );
+      _receivedPlaintextCache[msg.id] = plaintext;
       return msg.copyWith(textContent: plaintext);
     } catch (e) {
       debugPrint('E2EE decrypt failed for msg ${msg.id}: $e');

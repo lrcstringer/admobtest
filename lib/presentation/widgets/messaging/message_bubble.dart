@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/message.dart';
@@ -42,6 +43,8 @@ class MessageBubble extends StatelessWidget {
     if (message.isSystem) return _buildSystemMessage(context);
     if (message.isTokenTransfer) return _buildTokenCard(context);
 
+    final showAvatar = showSenderName && !isMe;
+
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
@@ -51,90 +54,148 @@ class MessageBubble extends StatelessWidget {
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.75,
           ),
-          child: Column(
-            crossAxisAlignment:
-                isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              if (showSenderName && !isMe)
+              if (showAvatar)
                 Padding(
-                  padding: const EdgeInsets.only(left: 14, bottom: 2),
-                  child: Text(
-                    message.senderName,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
+                  padding: const EdgeInsets.only(right: 8),
+                  child: _buildSenderAvatar(),
                 ),
-              if (message.replyTo != null) _buildReplyContext(context),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: isMe ? AppColors.primary : AppColors.surface,
-                  borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(16),
-                    topRight: const Radius.circular(16),
-                    bottomLeft:
-                        isMe ? const Radius.circular(16) : Radius.zero,
-                    bottomRight:
-                        isMe ? Radius.zero : const Radius.circular(16),
-                  ),
-                ),
+              Flexible(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment:
+                      isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                   children: [
-                    if (message.hasMedia) _buildMedia(context),
-                    if (_isDecryptionFailed)
-                      _buildDecryptionFailed(context)
-                    else if (message.textContent?.isNotEmpty == true)
-                      Text(
-                        message.textContent!,
-                        style:
-                            Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: isMe
-                                      ? Colors.white
-                                      : AppColors.textPrimary,
-                                ),
-                      ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (message.isEncrypted) ...[
-                          Icon(
-                            Icons.lock,
-                            size: 10,
-                            color: isMe
-                                ? Colors.white.withValues(alpha: 0.7)
-                                : AppColors.textHint,
-                          ),
-                          const SizedBox(width: 2),
-                        ],
-                        Text(
-                          _formatTime(message.createdAt),
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: isMe
-                                        ? Colors.white
-                                            .withValues(alpha: 0.7)
-                                        : AppColors.textHint,
-                                    fontSize: 10,
-                                  ),
+                    if (showAvatar)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 14, bottom: 2),
+                        child: Text(
+                          message.senderName,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
-                        if (isMe) ...[
-                          const SizedBox(width: 4),
-                          _buildStatusIcon(),
+                      ),
+                    if (message.replyTo != null) _buildReplyContext(context),
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isMe ? AppColors.primary : AppColors.surface,
+                        borderRadius: BorderRadius.only(
+                          topLeft: const Radius.circular(16),
+                          topRight: const Radius.circular(16),
+                          bottomLeft:
+                              isMe ? const Radius.circular(16) : Radius.zero,
+                          bottomRight:
+                              isMe ? Radius.zero : const Radius.circular(16),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          if (message.hasMedia) _buildMedia(context),
+                          if (_isDecryptionFailed)
+                            _buildDecryptionFailed(context)
+                          else if (message.isEncrypted &&
+                              (message.textContent == null ||
+                                  message.textContent!.isEmpty))
+                            _buildEncryptedSentIndicator(context)
+                          else if (message.textContent?.isNotEmpty == true)
+                            Text(
+                              message.textContent!,
+                              style:
+                                  Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        color: isMe
+                                            ? AppColors.textOnPrimary
+                                            : AppColors.textPrimary,
+                                      ),
+                            ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (message.isEncrypted) ...[
+                                Icon(
+                                  Icons.lock,
+                                  size: 10,
+                                  color: isMe
+                                      ? AppColors.textOnPrimary.withValues(alpha: 0.7)
+                                      : AppColors.textHint,
+                                ),
+                                const SizedBox(width: 2),
+                              ],
+                              Text(
+                                _formatTime(message.createdAt),
+                                style:
+                                    Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: isMe
+                                              ? AppColors.textOnPrimary
+                                                  .withValues(alpha: 0.7)
+                                              : AppColors.textHint,
+                                          fontSize: 10,
+                                        ),
+                              ),
+                              if (isMe) ...[
+                                const SizedBox(width: 4),
+                                _buildStatusIcon(),
+                              ],
+                            ],
+                          ),
                         ],
-                      ],
+                      ),
                     ),
+                    if (message.totalReactions > 0)
+                      _buildReactionsBar(context),
                   ],
                 ),
               ),
-              if (message.totalReactions > 0)
-                _buildReactionsBar(context),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSenderAvatar() {
+    if (message.senderAvatarUrl != null) {
+      return CachedNetworkImage(
+        imageUrl: message.senderAvatarUrl!,
+        imageBuilder: (_, imageProvider) => CircleAvatar(
+          radius: 14,
+          backgroundImage: imageProvider,
+        ),
+        errorWidget: (_, __, ___) => _buildInitialsAvatar(),
+      );
+    }
+    return _buildInitialsAvatar();
+  }
+
+  Widget _buildInitialsAvatar() {
+    final name = message.senderName;
+    String initials;
+    if (name.isEmpty) {
+      initials = '??';
+    } else {
+      final words = name.split(' ');
+      if (words.length >= 2) {
+        initials = '${words[0][0]}${words[1][0]}'.toUpperCase();
+      } else {
+        initials = name.substring(0, name.length.clamp(0, 2)).toUpperCase();
+      }
+    }
+    return CircleAvatar(
+      radius: 14,
+      backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+      child: Text(
+        initials,
+        style: const TextStyle(
+          fontSize: 10,
+          color: AppColors.primary,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
@@ -173,7 +234,7 @@ class MessageBubble extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: isMe
-                        ? Colors.white.withValues(alpha: 0.7)
+                        ? AppColors.textOnPrimary.withValues(alpha: 0.7)
                         : AppColors.textSecondary,
                   ),
             ),
@@ -214,14 +275,14 @@ class MessageBubble extends StatelessWidget {
           children: [
             Icon(
               Icons.play_circle_filled,
-              color: isMe ? Colors.white : AppColors.primary,
+              color: isMe ? AppColors.textOnPrimary : AppColors.primary,
               size: 32,
             ),
             const SizedBox(width: 8),
             Text(
               '${(duration ~/ 60).toString().padLeft(2, '0')}:${(duration % 60).toString().padLeft(2, '0')}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: isMe ? Colors.white : AppColors.textPrimary,
+                    color: isMe ? AppColors.textOnPrimary : AppColors.textPrimary,
                   ),
             ),
           ],
@@ -234,7 +295,7 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildStatusIcon() {
     IconData icon;
-    Color color = Colors.white.withValues(alpha: 0.7);
+    Color color = AppColors.textOnPrimary.withValues(alpha: 0.7);
 
     switch (message.status) {
       case MessageStatus.sending:
@@ -439,7 +500,7 @@ class MessageBubble extends StatelessWidget {
           Icons.lock_outline,
           size: 16,
           color: isMe
-              ? Colors.white.withValues(alpha: 0.7)
+              ? AppColors.textOnPrimary.withValues(alpha: 0.7)
               : AppColors.textSecondary,
         ),
         const SizedBox(width: 6),
@@ -449,7 +510,34 @@ class MessageBubble extends StatelessWidget {
               : 'Message cannot be decrypted',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: isMe
-                    ? Colors.white.withValues(alpha: 0.7)
+                    ? AppColors.textOnPrimary.withValues(alpha: 0.7)
+                    : AppColors.textSecondary,
+                fontStyle: FontStyle.italic,
+              ),
+        ),
+      ],
+    );
+  }
+
+  /// Indicator for the sender's own encrypted message when plaintext
+  /// is no longer available locally (sent in a previous app session).
+  Widget _buildEncryptedSentIndicator(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.lock,
+          size: 16,
+          color: isMe
+              ? AppColors.textOnPrimary.withValues(alpha: 0.7)
+              : AppColors.textSecondary,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          'Encrypted message',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: isMe
+                    ? AppColors.textOnPrimary.withValues(alpha: 0.7)
                     : AppColors.textSecondary,
                 fontStyle: FontStyle.italic,
               ),

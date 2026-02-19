@@ -7,6 +7,8 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/spray/spray_countdown.dart';
 import '../../widgets/spray/spray_leaderboard.dart';
+import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 /// Detail screen for a token spray with live-updating progress,
 /// contributor list, leaderboard, countdown timer, and contribute button.
@@ -135,8 +137,8 @@ class _SprayDetailScreenState extends State<SprayDetailScreen> {
                               Navigator.pop(ctx);
                             },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.tertiary,
+                        foregroundColor: AppColors.textOnPrimary,
                       ),
                       icon: state.isContributing
                           ? const SizedBox(
@@ -163,10 +165,9 @@ class _SprayDetailScreenState extends State<SprayDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Token Spray'),
-      ),
-      body: BlocConsumer<TokenSprayBloc, TokenSprayState>(
+      appBar: const IMaliAppBar(title: 'Token Spray'),
+      body: WaveBackground(
+        child: BlocConsumer<TokenSprayBloc, TokenSprayState>(
         listener: (context, state) {
           if (state.errorMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -253,6 +254,7 @@ class _SprayDetailScreenState extends State<SprayDetailScreen> {
           );
         },
       ),
+      ),
       bottomNavigationBar: BlocBuilder<TokenSprayBloc, TokenSprayState>(
         builder: (context, state) {
           final spray = state.activeSpray;
@@ -279,8 +281,8 @@ class _SprayDetailScreenState extends State<SprayDetailScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => _showContributeSheet(context, spray),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.tertiary,
+                  foregroundColor: AppColors.textOnPrimary,
                 ),
                 icon: const Icon(Icons.celebration),
                 label: const Text('Contribute'),
@@ -306,7 +308,7 @@ class _SprayHeaderCard extends StatelessWidget {
         child: Column(
           children: [
             // Occasion icon
-            const Icon(Icons.celebration, color: Colors.orange, size: 40),
+            const Icon(Icons.celebration, color: AppColors.tertiary, size: 40),
             const SizedBox(height: AppSpacing.sm),
 
             // Recipient
@@ -347,14 +349,14 @@ class _SprayHeaderCard extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: spray.isClaimed
-                      ? Colors.green.withValues(alpha: 0.15)
-                      : Colors.grey.withValues(alpha: 0.15),
+                      ? AppColors.success.withValues(alpha: 0.15)
+                      : AppColors.textSecondary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   spray.isClaimed ? 'Claimed' : 'Closed',
                   style: TextStyle(
-                    color: spray.isClaimed ? Colors.green : Colors.grey,
+                    color: spray.isClaimed ? AppColors.success : AppColors.textSecondary,
                     fontSize: 12,
                   ),
                 ),
@@ -390,7 +392,7 @@ class _ProgressSection extends StatelessWidget {
                 Text(
                   '${(progress * 100).toStringAsFixed(0)}%',
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: Colors.orange,
+                        color: AppColors.tertiary,
                         fontWeight: FontWeight.bold,
                       ),
                 ),
@@ -401,8 +403,8 @@ class _ProgressSection extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: progress,
-                backgroundColor: Colors.orange.withValues(alpha: 0.15),
-                color: Colors.orange,
+                backgroundColor: AppColors.tertiary.withValues(alpha: 0.15),
+                color: AppColors.tertiary,
                 minHeight: 8,
               ),
             ),
@@ -468,7 +470,7 @@ class _StatCard extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.sm),
         child: Column(
           children: [
-            Icon(icon, size: 20, color: Colors.orange),
+            Icon(icon, size: 20, color: AppColors.tertiary),
             const SizedBox(height: 4),
             Text(
               value,

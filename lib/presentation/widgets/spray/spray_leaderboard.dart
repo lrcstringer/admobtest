@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/token_spray.dart';
+import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 
 /// Top 5 contributors leaderboard for a token spray.
@@ -47,10 +48,10 @@ class _ContributorTile extends StatelessWidget {
 
   Widget _buildRankBadge() {
     final (icon, color) = switch (contributor.rank) {
-      1 => (Icons.emoji_events, Colors.amber),
-      2 => (Icons.emoji_events, Colors.grey.shade400),
-      3 => (Icons.emoji_events, Colors.brown.shade300),
-      _ => (Icons.circle, Colors.grey),
+      1 => (Icons.emoji_events, AppColors.gold),
+      2 => (Icons.emoji_events, AppColors.tokenSilver),
+      3 => (Icons.emoji_events, AppColors.tokenBronze),
+      _ => (Icons.circle, AppColors.textSecondary),
     };
 
     return Icon(icon, color: color, size: contributor.rank <= 3 ? 24 : 16);
@@ -71,7 +72,7 @@ class _ContributorTile extends StatelessWidget {
         '${contributor.amount} tokens',
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           fontWeight: FontWeight.w600,
-          color: contributor.rank == 1 ? Colors.amber.shade800 : null,
+          color: contributor.rank == 1 ? AppColors.goldDark : null,
         ),
       ),
     );

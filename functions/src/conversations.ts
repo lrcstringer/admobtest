@@ -152,11 +152,11 @@ export const getOrCreateConversation = functions.https.onCall(async (data, conte
     participants: {
       [userId]: {
         displayName: currentUser.displayName || "Unknown",
-        avatarUrl: currentUser.profilePicThumbUrl || null,
+        avatarUrl: currentUser.avatarUrl || currentUser.profilePicThumbUrl || null,
       },
       [participantId]: {
         displayName: otherUser.displayName || "Unknown",
-        avatarUrl: otherUser.profilePicThumbUrl || null,
+        avatarUrl: otherUser.avatarUrl || otherUser.profilePicThumbUrl || null,
       },
     },
     lastMessageText: null,
@@ -225,7 +225,7 @@ export const sendConversationMessage = functions.https.onCall(async (data, conte
   // Get sender info
   const userProfile = await getUserProfile(userId);
   const senderName = userProfile.displayName || "Unknown";
-  const senderAvatarUrl = userProfile.profilePicThumbUrl || null;
+  const senderAvatarUrl = userProfile.avatarUrl || userProfile.profilePicThumbUrl || null;
 
   // Build reply context if replying
   let replyTo = null;
@@ -407,7 +407,7 @@ export const sendConversationTokens = functions.https.onCall(async (data, contex
     id: messageRef.id,
     senderId: userId,
     senderName: userProfile.displayName || "Unknown",
-    senderAvatarUrl: userProfile.profilePicThumbUrl || null,
+    senderAvatarUrl: userProfile.avatarUrl || userProfile.profilePicThumbUrl || null,
     type: "tokenSend",
     status: "sent",
     textContent: message || null,
@@ -491,7 +491,7 @@ export const requestConversationTokens = functions.https.onCall(async (data, con
     id: messageRef.id,
     senderId: userId,
     senderName: userProfile.displayName || "Unknown",
-    senderAvatarUrl: userProfile.profilePicThumbUrl || null,
+    senderAvatarUrl: userProfile.avatarUrl || userProfile.profilePicThumbUrl || null,
     type: "tokenRequest",
     status: "pending",
     textContent: message || null,

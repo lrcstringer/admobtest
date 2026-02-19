@@ -90,12 +90,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _CheckAuthStatus event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading, isLoading: true));
+    // Only show loading status during initial auth checks (startup/splash).
+    // If already authenticated, skip the loading transition to avoid the
+    // router redirecting the user to splash and back.
+    final alreadyAuthenticated =
+        state.status == AuthStatus.authenticated ||
+        state.status == AuthStatus.onboardingRequired;
+    if (!alreadyAuthenticated) {
+      emit(state.copyWith(status: AuthStatus.loading, isLoading: true));
+    }
 
     final result = await _authRepository.getCurrentUser();
 
     result.fold(
       (failure) {
+        if (alreadyAuthenticated) {
+          // A transient failure refreshing user data must NOT kick out an
+          // already-authenticated user. Keep the current auth state.
+          debugPrint('checkAuthStatus: getCurrentUser failed while already '
+              'authenticated, keeping current state: ${failure.displayMessage}');
+          return;
+        }
         emit(state.copyWith(
           status: AuthStatus.unauthenticated,
           isLoading: false,
@@ -103,6 +118,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       },
       (user) {
         if (user == null) {
+          if (alreadyAuthenticated) {
+            // Same guard: null user during a refresh should not sign out.
+            debugPrint('checkAuthStatus: getCurrentUser returned null while '
+                'already authenticated, keeping current state');
+            return;
+          }
           emit(state.copyWith(
             status: AuthStatus.unauthenticated,
             isLoading: false,

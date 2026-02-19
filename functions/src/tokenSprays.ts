@@ -158,7 +158,7 @@ export const createTokenSpray = functions.https.onCall(async (data, context) => 
     communityId,
     senderId: userId,
     senderName: creator.displayName || "Unknown",
-    senderAvatarUrl: creator.profilePicThumbUrl || null,
+    senderAvatarUrl: creator.avatarUrl || creator.profilePicThumbUrl || null,
     type: "tokenSpray",
     status: "sent",
     textContent: null,

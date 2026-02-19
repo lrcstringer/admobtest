@@ -5,6 +5,8 @@ import '../../../domain/entities/gift.dart';
 import '../../../domain/enums/gift_status.dart';
 import '../../blocs/gift/gift_bloc.dart';
 import '../../theme/app_spacing.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/common/wave_background.dart';
 
 /// Screen showing gift history — sent and received tabs.
 /// Reached via /profile/gift-history
@@ -37,6 +39,9 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
         title: const Text('Gift History'),
         bottom: TabBar(
           controller: _tabController,
@@ -46,20 +51,22 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen>
           ],
         ),
       ),
-      body: BlocBuilder<GiftBloc, GiftState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: WaveBackground(
+        child: BlocBuilder<GiftBloc, GiftState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              _GiftList(gifts: state.sentGifts, isSent: true),
-              _GiftList(gifts: state.receivedGifts, isSent: false),
-            ],
-          );
-        },
+            return TabBarView(
+              controller: _tabController,
+              children: [
+                _GiftList(gifts: state.sentGifts, isSent: true),
+                _GiftList(gifts: state.receivedGifts, isSent: false),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -81,13 +88,13 @@ class _GiftList extends StatelessWidget {
             Icon(
               Icons.card_giftcard,
               size: 64,
-              color: Theme.of(context).colorScheme.outline,
+              color: AppColors.textHint,
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
               isSent ? 'No gifts sent yet' : 'No gifts received yet',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.outline,
+                color: AppColors.textHint,
               ),
             ),
           ],
@@ -116,10 +123,10 @@ class _GiftTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final name = isSent ? gift.recipientName : gift.senderName;
     final statusColor = switch (gift.status) {
-      GiftStatus.pending => Colors.orange,
-      GiftStatus.opened => Colors.blue,
-      GiftStatus.claimed => Colors.green,
-      GiftStatus.expired => Colors.grey,
+      GiftStatus.pending => AppColors.tertiary,
+      GiftStatus.opened => AppColors.secondary,
+      GiftStatus.claimed => AppColors.success,
+      GiftStatus.expired => AppColors.textSecondary,
     };
 
     return Card(

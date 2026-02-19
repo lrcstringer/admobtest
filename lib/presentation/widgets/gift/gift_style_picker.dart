@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/enums/gift_style.dart';
 import '../../theme/app_spacing.dart';
+import '../../theme/app_colors.dart';
 
 /// Horizontal scroll picker for gift visual styles.
 class GiftStylePicker extends StatelessWidget {
@@ -14,12 +15,12 @@ class GiftStylePicker extends StatelessWidget {
     required this.onChanged,
   });
 
-  static const _styles = [
-    (GiftStyle.celebration, 'Celebration', Icons.celebration, Colors.amber),
-    (GiftStyle.birthday, 'Birthday', Icons.cake, Colors.pink),
-    (GiftStyle.love, 'Love', Icons.favorite, Colors.red),
-    (GiftStyle.ndlovukazi, 'Ndlovukazi', Icons.auto_awesome, Colors.purple),
-    (GiftStyle.professional, 'Professional', Icons.business_center, Colors.blueGrey),
+  static final _styles = [
+    (GiftStyle.celebration, 'Celebration', Icons.celebration, AppColors.gold),
+    (GiftStyle.birthday, 'Birthday', Icons.cake, AppColors.primary),
+    (GiftStyle.love, 'Love', Icons.favorite, AppColors.error),
+    (GiftStyle.ndlovukazi, 'Ndlovukazi', Icons.auto_awesome, AppColors.purple),
+    (GiftStyle.professional, 'Professional', Icons.business_center, AppColors.textTertiary),
   ];
 
   @override
@@ -41,7 +42,7 @@ class GiftStylePicker extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? color.withValues(alpha: 0.15)
-                    : Theme.of(context).colorScheme.surfaceContainerHighest,
+                    : AppColors.surfaceElevated,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isSelected ? color : Colors.transparent,

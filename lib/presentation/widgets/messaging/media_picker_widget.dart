@@ -90,13 +90,13 @@ class MediaPickerWidget extends StatelessWidget {
                 _MediaOption(
                   icon: Icons.camera_alt,
                   label: 'Camera',
-                  color: Colors.blue,
+                  color: AppColors.secondary,
                   onTap: () => _pickFromCamera(context),
                 ),
                 _MediaOption(
                   icon: Icons.photo_library,
                   label: 'Gallery',
-                  color: Colors.green,
+                  color: AppColors.success,
                   onTap: () => _pickFromGallery(context),
                 ),
               ],

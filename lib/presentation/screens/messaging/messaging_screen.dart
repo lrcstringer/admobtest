@@ -127,7 +127,6 @@ class _MessagingScreenState extends State<MessagingScreen> {
                   children: [
                     // Quick Actions Bar
                     _buildQuickActions(context),
-                    const Divider(height: 1),
                     // Unified inbox list
                     Expanded(
                       child: _buildInboxList(
@@ -151,22 +150,6 @@ class _MessagingScreenState extends State<MessagingScreen> {
   Widget _buildQuickActions(BuildContext context) {
     return Container(
       padding: AppSpacing.cardPadding,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color.alphaBlend(
-              AppColors.logoGradient[0].withValues(alpha: 0.06),
-              AppColors.surface,
-            ),
-            Color.alphaBlend(
-              AppColors.logoGradient[1].withValues(alpha: 0.03),
-              AppColors.surface,
-            ),
-          ],
-        ),
-      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [

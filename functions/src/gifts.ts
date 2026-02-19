@@ -150,7 +150,7 @@ export const sendGift = functions.https.onCall(async (data, context) => {
     id: msgRef.id,
     senderId: userId,
     senderName: sender.displayName || "Unknown",
-    senderAvatarUrl: sender.profilePicThumbUrl || null,
+    senderAvatarUrl: sender.avatarUrl || sender.profilePicThumbUrl || null,
     type: "gift",
     status: "sent",
     textContent: null,

@@ -13,6 +13,7 @@ import '../../blocs/community/community_bloc.dart';
 import '../../blocs/community_messaging/community_messaging_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/wave_background.dart';
 import '../../widgets/messaging/date_separator.dart';
 import '../../widgets/messaging/message_bubble.dart';
 import '../../widgets/messaging/message_input_bar.dart';
@@ -69,6 +70,9 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
             length: showFinances ? 3 : 2,
             child: Scaffold(
               appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                elevation: 0,
                 title: Text(community?.name ?? 'Community'),
                 actions: [
                   IconButton(
@@ -104,22 +108,24 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                   ],
                 ),
               ),
-              body: TabBarView(
-                children: [
-                  _ChatTab(
-                    communityId: widget.communityId,
-                    messageController: _messageController,
-                    currentUserId: currentUserId,
-                  ),
-                  _MembersTab(members: commState.selectedCommunityMembers),
-                  if (showFinances)
-                    _FinancesTab(
-                      community: community,
-                      transactions: commState.selectedCommunityTransactions,
+              body: WaveBackground(
+                child: TabBarView(
+                  children: [
+                    _ChatTab(
                       communityId: widget.communityId,
+                      messageController: _messageController,
                       currentUserId: currentUserId,
                     ),
-                ],
+                    _MembersTab(members: commState.selectedCommunityMembers),
+                    if (showFinances)
+                      _FinancesTab(
+                        community: community,
+                        transactions: commState.selectedCommunityTransactions,
+                        communityId: widget.communityId,
+                        currentUserId: currentUserId,
+                      ),
+                  ],
+                ),
               ),
             ),
           );
@@ -430,14 +436,14 @@ class _FinancesTab extends StatelessWidget {
           Text(
             'Community Balance',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: AppColors.textOnPrimary.withValues(alpha: 0.8),
                 ),
           ),
           AppSpacing.verticalSm,
           Text(
             'R${community?.balanceZar.toStringAsFixed(2) ?? '0.00'}',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
+                  color: AppColors.textOnPrimary,
                   fontWeight: FontWeight.bold,
                 ),
           ),
@@ -446,7 +452,7 @@ class _FinancesTab extends StatelessWidget {
             Text(
               '${community!.memberCount} members',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: AppColors.textOnPrimary.withValues(alpha: 0.7),
                   ),
             ),
           ],

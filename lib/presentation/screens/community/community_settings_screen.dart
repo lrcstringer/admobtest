@@ -8,6 +8,7 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/wave_background.dart';
 
 /// Settings screen for an existing community.
 ///
@@ -82,7 +83,12 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
         final community = state.selectedCommunity;
         if (community == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Settings')),
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              title: const Text('Settings'),
+            ),
             body: const Center(child: CircularProgressIndicator()),
           );
         }
@@ -96,6 +102,9 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
 
         return Scaffold(
           appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            elevation: 0,
             title: const Text('Community Settings'),
             actions: [
               if (isAdmin)
@@ -111,7 +120,8 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
                 ),
             ],
           ),
-          body: SingleChildScrollView(
+          body: WaveBackground(
+            child: SingleChildScrollView(
             padding: AppSpacing.pagePadding,
             child: Form(
               key: _formKey,
@@ -219,6 +229,7 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
                 ],
               ),
             ),
+          ),
           ),
         );
       },

@@ -6,6 +6,8 @@ import '../../../domain/enums/gift_style.dart';
 import '../../blocs/gift/gift_bloc.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/gift/gift_style_picker.dart';
+import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 /// Screen for composing and sending a gift.
 /// Reached via /chat/conversation/:id/send-gift or /chat/community/:id/send-gift
@@ -59,10 +61,9 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Send Gift to ${widget.recipientName}'),
-      ),
-      body: BlocConsumer<GiftBloc, GiftState>(
+      appBar: IMaliAppBar(title: 'Send Gift to ${widget.recipientName}'),
+      body: WaveBackground(
+        child: BlocConsumer<GiftBloc, GiftState>(
         listener: (context, state) {
           if (state.activeGift != null && !state.isSending) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -175,6 +176,7 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
             ),
           );
         },
+      ),
       ),
     );
   }

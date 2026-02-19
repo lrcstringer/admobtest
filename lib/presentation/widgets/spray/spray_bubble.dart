@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/enums/spray_status.dart';
+import '../../theme/app_colors.dart';
 
 /// A token spray card rendered inside a community message bubble.
 /// Shows occasion, progress, contributor count, countdown, and contribute button.
@@ -57,12 +58,12 @@ class SprayBubble extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.orange.withValues(alpha: 0.15),
-              Colors.amber.withValues(alpha: 0.05),
+              AppColors.tertiary.withValues(alpha: 0.15),
+              AppColors.gold.withValues(alpha: 0.05),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+          border: Border.all(color: AppColors.tertiary.withValues(alpha: 0.3)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -70,13 +71,13 @@ class SprayBubble extends StatelessWidget {
             // Header
             Row(
               children: [
-                const Icon(Icons.celebration, color: Colors.orange, size: 24),
+                const Icon(Icons.celebration, color: AppColors.tertiary, size: 24),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Token Spray',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: Colors.orange,
+                      color: AppColors.tertiary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -85,7 +86,7 @@ class SprayBubble extends StatelessWidget {
                   Text(
                     _remainingTime,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Colors.orange,
+                      color: AppColors.tertiary,
                     ),
                   ),
               ],
@@ -102,7 +103,7 @@ class SprayBubble extends StatelessWidget {
             Text(
               occasion,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.outline,
+                color: AppColors.textHint,
               ),
             ),
             const SizedBox(height: 8),
@@ -111,8 +112,8 @@ class SprayBubble extends StatelessWidget {
             if (targetAmount != null && targetAmount! > 0) ...[
               LinearProgressIndicator(
                 value: (currentTotal / targetAmount!).clamp(0.0, 1.0),
-                backgroundColor: Colors.orange.withValues(alpha: 0.15),
-                color: Colors.orange,
+                backgroundColor: AppColors.tertiary.withValues(alpha: 0.15),
+                color: AppColors.tertiary,
                 borderRadius: BorderRadius.circular(4),
               ),
               const SizedBox(height: 4),
@@ -134,7 +135,7 @@ class SprayBubble extends StatelessWidget {
             Text(
               '$contributorCount contributor${contributorCount == 1 ? '' : 's'}',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context).colorScheme.outline,
+                color: AppColors.textHint,
               ),
             ),
             const SizedBox(height: 8),
@@ -146,8 +147,8 @@ class SprayBubble extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: onContribute,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.tertiary,
+                    foregroundColor: AppColors.textOnPrimary,
                     minimumSize: const Size(100, 32),
                   ),
                   child: const Text('Contribute'),
@@ -157,12 +158,12 @@ class SprayBubble extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.grey.withValues(alpha: 0.15),
+                  color: AppColors.textSecondary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   status == SprayStatus.claimed ? 'Claimed' : 'Closed',
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
                 ),
               ),
           ],

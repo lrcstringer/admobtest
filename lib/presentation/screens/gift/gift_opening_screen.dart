@@ -68,11 +68,11 @@ class _GiftOpeningScreenState extends State<GiftOpeningScreen>
   }
 
   Color get _styleColor => switch (_gift.style) {
-        GiftStyle.ndlovukazi => Colors.purple,
-        GiftStyle.celebration => Colors.amber,
-        GiftStyle.love => Colors.red,
-        GiftStyle.birthday => Colors.pink,
-        GiftStyle.professional => Colors.blueGrey,
+        GiftStyle.ndlovukazi => AppColors.purple,
+        GiftStyle.celebration => AppColors.gold,
+        GiftStyle.love => AppColors.error,
+        GiftStyle.birthday => AppColors.primary,
+        GiftStyle.professional => AppColors.textTertiary,
       };
 
   IconData get _styleIcon => switch (_gift.style) {
@@ -104,14 +104,14 @@ class _GiftOpeningScreenState extends State<GiftOpeningScreen>
               content: Text(
                 '${_gift.amount} tokens claimed!',
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.success,
             ),
           );
           if (context.canPop()) context.pop();
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.black87,
+        backgroundColor: AppColors.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -119,7 +119,7 @@ class _GiftOpeningScreenState extends State<GiftOpeningScreen>
               Align(
                 alignment: Alignment.topRight,
                 child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white70),
+                  icon: Icon(Icons.close, color: AppColors.textPrimary.withValues(alpha: 0.7)),
                   onPressed: () => context.pop(),
                 ),
               ),
@@ -136,7 +136,7 @@ class _GiftOpeningScreenState extends State<GiftOpeningScreen>
                 Text(
                   'From ${_gift.senderName}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white70,
+                        color: AppColors.textPrimary.withValues(alpha: 0.7),
                       ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -177,8 +177,8 @@ class _GiftOpeningScreenState extends State<GiftOpeningScreen>
                         child: ElevatedButton.icon(
                           onPressed: state.isClaiming ? null : _claim,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            foregroundColor: Colors.white,
+                            backgroundColor: AppColors.success,
+                            foregroundColor: AppColors.textOnPrimary,
                           ),
                           icon: state.isClaiming
                               ? const SizedBox(
@@ -186,7 +186,7 @@ class _GiftOpeningScreenState extends State<GiftOpeningScreen>
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Colors.white,
+                                    color: AppColors.textOnPrimary,
                                   ),
                                 )
                               : const Icon(Icons.toll),
@@ -210,17 +210,17 @@ class _GiftOpeningScreenState extends State<GiftOpeningScreen>
                       vertical: AppSpacing.md,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.2),
+                      color: AppColors.success.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.check_circle, color: Colors.green),
+                        Icon(Icons.check_circle, color: AppColors.success),
                         SizedBox(width: 8),
                         Text(
                           'Already claimed',
-                          style: TextStyle(color: Colors.green, fontSize: 16),
+                          style: TextStyle(color: AppColors.success, fontSize: 16),
                         ),
                       ],
                     ),
@@ -313,14 +313,14 @@ class _RevealedGift extends StatelessWidget {
         Text(
           '${gift.amount}',
           style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                color: Colors.white,
+                color: AppColors.textOnPrimary,
                 fontWeight: FontWeight.bold,
               ),
         ),
         Text(
           'tokens',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.white54,
+                color: AppColors.textPrimary.withValues(alpha: 0.54),
               ),
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -338,13 +338,13 @@ class _RevealedGift extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
+              color: AppColors.textPrimary.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               '"${gift.message}"',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.white70,
+                    color: AppColors.textPrimary.withValues(alpha: 0.7),
                     fontStyle: FontStyle.italic,
                   ),
               textAlign: TextAlign.center,
@@ -356,7 +356,7 @@ class _RevealedGift extends StatelessWidget {
         Text(
           'From ${gift.senderName}',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.white54,
+                color: AppColors.textPrimary.withValues(alpha: 0.54),
               ),
         ),
       ],

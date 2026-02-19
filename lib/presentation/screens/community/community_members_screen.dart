@@ -8,6 +8,7 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/wave_background.dart';
 
 /// Full members list with admin actions (role change, remove).
 class CommunityMembersScreen extends StatelessWidget {
@@ -47,6 +48,9 @@ class CommunityMembersScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            elevation: 0,
             title: Text('Members (${members.length})'),
             actions: [
               if (isAdmin)
@@ -57,7 +61,8 @@ class CommunityMembersScreen extends StatelessWidget {
                 ),
             ],
           ),
-          body: members.isEmpty
+          body: WaveBackground(
+            child: members.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : ListView.builder(
                   padding: AppSpacing.pagePadding,
@@ -72,6 +77,7 @@ class CommunityMembersScreen extends StatelessWidget {
                     );
                   },
                 ),
+          ),
         );
       },
     );

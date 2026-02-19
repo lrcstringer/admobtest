@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/enums/gift_status.dart';
 import '../../../domain/enums/gift_style.dart';
+import '../../theme/app_colors.dart';
 
 /// A gift card rendered inside a message bubble.
 /// Shows gift style icon, amount, status, and tap-to-open for recipients.
@@ -36,11 +37,11 @@ class GiftBubble extends StatelessWidget {
   bool get _isRecipient => recipientId == currentUserId;
 
   Color get _styleColor => switch (style) {
-    GiftStyle.celebration => Colors.amber,
-    GiftStyle.birthday => Colors.pink,
-    GiftStyle.love => Colors.red,
-    GiftStyle.ndlovukazi => Colors.purple,
-    GiftStyle.professional => Colors.blueGrey,
+    GiftStyle.celebration => AppColors.gold,
+    GiftStyle.birthday => AppColors.primary,
+    GiftStyle.love => AppColors.error,
+    GiftStyle.ndlovukazi => AppColors.purple,
+    GiftStyle.professional => AppColors.textTertiary,
   };
 
   IconData get _styleIcon => switch (style) {
@@ -118,12 +119,12 @@ class GiftBubble extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.green.withValues(alpha: 0.15),
+          color: AppColors.success.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Text(
           'Claimed',
-          style: TextStyle(color: Colors.green, fontSize: 12),
+          style: TextStyle(color: AppColors.success, fontSize: 12),
         ),
       );
     }
@@ -132,12 +133,12 @@ class GiftBubble extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.grey.withValues(alpha: 0.15),
+          color: AppColors.textSecondary.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Text(
           'Expired',
-          style: TextStyle(color: Colors.grey, fontSize: 12),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
       );
     }
@@ -147,7 +148,7 @@ class GiftBubble extends StatelessWidget {
         onPressed: onOpen,
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.textOnPrimary,
           minimumSize: const Size(100, 32),
         ),
         child: const Text('Tap to Open'),
@@ -158,8 +159,8 @@ class GiftBubble extends StatelessWidget {
       return ElevatedButton(
         onPressed: onClaim,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.white,
+          backgroundColor: AppColors.success,
+          foregroundColor: AppColors.textOnPrimary,
           minimumSize: const Size(100, 32),
         ),
         child: const Text('Claim Tokens'),

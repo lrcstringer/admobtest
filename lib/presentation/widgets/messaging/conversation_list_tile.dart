@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/conversation.dart';
@@ -92,7 +93,7 @@ class ConversationListTile extends StatelessWidget {
               child: Text(
                 unreadCount > 99 ? '99+' : '$unreadCount',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Colors.white,
+                      color: AppColors.textOnPrimary,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -104,14 +105,7 @@ class ConversationListTile extends StatelessWidget {
   }
 
   Widget _buildAvatar(BuildContext context, ParticipantInfo other) {
-    if (other.avatarUrl != null) {
-      return CircleAvatar(
-        radius: 24,
-        backgroundImage: NetworkImage(other.avatarUrl!),
-      );
-    }
-
-    return CircleAvatar(
+    final initialsWidget = CircleAvatar(
       radius: 24,
       backgroundColor: AppColors.primary.withValues(alpha: 0.2),
       child: Text(
@@ -122,6 +116,20 @@ class ConversationListTile extends StatelessWidget {
             ),
       ),
     );
+
+    if (other.avatarUrl != null) {
+      return CachedNetworkImage(
+        imageUrl: other.avatarUrl!,
+        imageBuilder: (_, imageProvider) => CircleAvatar(
+          radius: 24,
+          backgroundImage: imageProvider,
+        ),
+        placeholder: (_, __) => initialsWidget,
+        errorWidget: (_, __, ___) => initialsWidget,
+      );
+    }
+
+    return initialsWidget;
   }
 
   String _initials(String name) {

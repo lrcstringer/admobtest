@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/app_colors.dart';
+
 /// Displays emoji reactions below a message bubble.
 ///
 /// Each emoji group shows the emoji + count. Tapping toggles the current
@@ -44,13 +46,9 @@ class MessageReactionsBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: hasReacted
-                    ? Theme.of(context)
-                        .colorScheme
-                        .primary
+                    ? AppColors.primary
                         .withValues(alpha: 0.15)
-                    : Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest
+                    : AppColors.surfaceElevated
                         .withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
                 border: hasReacted
@@ -74,7 +72,7 @@ class MessageReactionsBar extends StatelessWidget {
                             fontWeight:
                                 hasReacted ? FontWeight.bold : FontWeight.normal,
                             color: hasReacted
-                                ? Theme.of(context).colorScheme.primary
+                                ? AppColors.primary
                                 : null,
                           ),
                     ),

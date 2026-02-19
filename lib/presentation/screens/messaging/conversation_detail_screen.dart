@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -66,6 +67,9 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 
         return Scaffold(
           appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            elevation: 0,
             title: conv != null
                 ? Row(
                     children: [
@@ -117,13 +121,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     String currentUserId,
   ) {
     final other = conv.getOtherParticipant(currentUserId);
-    if (other.avatarUrl != null) {
-      return CircleAvatar(
-        radius: 18,
-        backgroundImage: NetworkImage(other.avatarUrl!),
-      );
-    }
-    return CircleAvatar(
+    final initialsWidget = CircleAvatar(
       radius: 18,
       backgroundColor: AppColors.primary.withValues(alpha: 0.2),
       child: Text(
@@ -134,6 +132,19 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
             ),
       ),
     );
+
+    if (other.avatarUrl != null) {
+      return CachedNetworkImage(
+        imageUrl: other.avatarUrl!,
+        imageBuilder: (_, imageProvider) => CircleAvatar(
+          radius: 18,
+          backgroundImage: imageProvider,
+        ),
+        placeholder: (_, __) => initialsWidget,
+        errorWidget: (_, __, ___) => initialsWidget,
+      );
+    }
+    return initialsWidget;
   }
 
   Widget _buildMessageList(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 
 /// Bottom sheet for contributing tokens to a spray.
@@ -63,7 +64,7 @@ class _SprayContributeSheetState extends State<SprayContributeSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                  color: AppColors.textHint.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -131,8 +132,8 @@ class _SprayContributeSheetState extends State<SprayContributeSheet> {
                       )
                     : const Icon(Icons.volunteer_activism),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.tertiary,
+                  foregroundColor: AppColors.textOnPrimary,
                 ),
                 label: Text(widget.isContributing ? 'Contributing...' : 'Contribute'),
               ),

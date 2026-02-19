@@ -5,6 +5,8 @@ import '../../../domain/entities/community_transaction.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 /// Screen showing pending transaction approvals for a community.
 ///
@@ -41,10 +43,9 @@ class PendingApprovalsScreen extends StatelessWidget {
         final approvals = state.selectedCommunityApprovals;
 
         return Scaffold(
-          appBar: AppBar(
-            title: Text('Pending Approvals (${approvals.length})'),
-          ),
-          body: approvals.isEmpty
+          appBar: IMaliAppBar(title: 'Approvals (${approvals.length})'),
+          body: WaveBackground(
+            child: approvals.isEmpty
               ? _buildEmptyState(context)
               : ListView.builder(
                   padding: AppSpacing.pagePadding,
@@ -54,6 +55,7 @@ class PendingApprovalsScreen extends StatelessWidget {
                     communityId: communityId,
                   ),
                 ),
+          ),
         );
       },
     );

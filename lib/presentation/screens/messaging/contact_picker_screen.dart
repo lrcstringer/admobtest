@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../blocs/conversation/conversation_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 /// Screen for searching and selecting a user to start a new P2P conversation.
 class ContactPickerScreen extends StatefulWidget {
@@ -48,10 +51,9 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('New Chat'),
-      ),
-      body: Column(
+      appBar: const IMaliAppBar(title: 'New Chat'),
+      body: WaveBackground(
+        child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -177,6 +179,7 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
           ),
         ],
       ),
+      ),
     );
   }
 
@@ -186,18 +189,11 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
     String? avatarUrl,
     String? avatarColor,
   ) {
-    if (avatarUrl != null) {
-      return CircleAvatar(
-        radius: 24,
-        backgroundImage: NetworkImage(avatarUrl),
-      );
-    }
-
     final bgColor = avatarColor != null
         ? Color(int.parse(avatarColor.replaceFirst('#', '0xFF')))
         : AppColors.primary.withValues(alpha: 0.2);
 
-    return CircleAvatar(
+    final initialsWidget = CircleAvatar(
       radius: 24,
       backgroundColor: bgColor,
       child: Text(
@@ -208,6 +204,20 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
             ),
       ),
     );
+
+    if (avatarUrl != null) {
+      return CachedNetworkImage(
+        imageUrl: avatarUrl,
+        imageBuilder: (_, imageProvider) => CircleAvatar(
+          radius: 24,
+          backgroundImage: imageProvider,
+        ),
+        placeholder: (_, __) => initialsWidget,
+        errorWidget: (_, __, ___) => initialsWidget,
+      );
+    }
+
+    return initialsWidget;
   }
 
   String _initials(String name) {

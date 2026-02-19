@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/enums/report_reason.dart';
+import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 
 /// Bottom sheet for reporting a user, message, or community.
@@ -54,10 +55,7 @@ class _ReportSheetState extends State<ReportSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .outline
-                    .withValues(alpha: 0.3),
+                color: AppColors.textHint.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -73,7 +71,7 @@ class _ReportSheetState extends State<ReportSheet> {
           Text(
             'Select a reason for your report:',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.outline,
+                  color: AppColors.textHint,
                 ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -114,8 +112,8 @@ class _ReportSheetState extends State<ReportSheet> {
             child: ElevatedButton(
               onPressed: _selectedReason != null ? _submit : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.error,
+                foregroundColor: AppColors.textOnPrimary,
               ),
               child: const Text('Submit Report'),
             ),

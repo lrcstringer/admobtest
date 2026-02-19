@@ -1,18 +1,19 @@
 import 'dart:async';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
-import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/numeric_keyboard.dart';
 
 /// Step-up OTP verification screen for high-risk operations.
 ///
-/// Reuses the existing OTP Cloud Functions but presents a focused
-/// "verify your identity" UI. Returns a result via [Navigator.pop].
+/// Calls the sendOtp / verifyOtp Cloud Functions directly so the global
+/// AuthBloc state is never mutated. This prevents the router from
+/// redirecting away while the user is verifying their identity.
 class StepUpOtpScreen extends StatefulWidget {
   final String phoneNumber;
   final String reason;
@@ -36,9 +37,12 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
   int _resendCountdown = 0;
   Timer? _countdownTimer;
 
+  late final FirebaseFunctions _functions;
+
   @override
   void initState() {
     super.initState();
+    _functions = GetIt.instance<FirebaseFunctions>();
     listenForCode();
     _sendOtp();
   }
@@ -69,18 +73,48 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
     return match?.group(1);
   }
 
-  void _sendOtp() {
+  Future<void> _sendOtp() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
-    context.read<AuthBloc>().add(
-          AuthEvent.sendOtp(phoneNumber: widget.phoneNumber),
-        );
+    try {
+      final callable = _functions.httpsCallable('sendOtp');
+      final result = await callable.call<Map<String, dynamic>>({
+        'phoneNumber': widget.phoneNumber,
+      });
+
+      final data = result.data;
+      debugPrint('StepUpOtp: sendOtp response: $data');
+
+      if (data['success'] != true) {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+          _errorMessage =
+              data['message'] as String? ?? 'Failed to send code';
+        });
+        return;
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _otpSent = true;
+      });
+      _startResendCountdown();
+    } catch (e) {
+      debugPrint('StepUpOtp: sendOtp error: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Failed to send verification code. Please try again.';
+      });
+    }
   }
 
-  void _verifyOtp() {
+  Future<void> _verifyOtp() async {
     if (_otpCode.length < 4) return;
 
     setState(() {
@@ -88,14 +122,38 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
       _errorMessage = null;
     });
 
-    // For step-up, we verify against the existing OTP flow
-    // The BlocListener below handles the result
-    context.read<AuthBloc>().add(
-          AuthEvent.verifyOtp(
-            verificationId: widget.phoneNumber,
-            otp: _otpCode,
-          ),
-        );
+    try {
+      final callable = _functions.httpsCallable('verifyOtp');
+      final result = await callable.call<Map<String, dynamic>>({
+        'phoneNumber': widget.phoneNumber,
+        'code': _otpCode,
+      });
+
+      final data = result.data;
+      if (data['success'] != true) {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+          _errorMessage =
+              data['message'] as String? ?? 'Verification failed';
+          _otpCode = '';
+        });
+        return;
+      }
+
+      // OTP verified — we do NOT sign in again (user is already authenticated).
+      // Just pop with true to indicate step-up succeeded.
+      if (!mounted) return;
+      context.pop(true);
+    } catch (e) {
+      debugPrint('StepUpOtp: verifyOtp error: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Verification failed. Please try again.';
+        _otpCode = '';
+      });
+    }
   }
 
   void _onKeyPressed(String key) {
@@ -134,175 +192,153 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
   }
 
   void _onCancel() {
-    // Return false to indicate step-up was not completed
     context.pop(false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state.status == AuthStatus.otpSent) {
-          setState(() {
-            _isLoading = false;
-            _otpSent = true;
-          });
-          _startResendCountdown();
-        } else if (state.status == AuthStatus.authenticated ||
-            state.status == AuthStatus.onboardingRequired) {
-          // Step-up succeeded — return true
-          context.pop(true);
-        } else if (state.status == AuthStatus.error) {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = state.errorMessage;
-            _otpCode = '';
-          });
-        }
-      },
-      child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: AppColors.backgroundGradient,
-            ),
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: AppColors.backgroundGradient,
           ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                const Spacer(flex: 1),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              const Spacer(flex: 1),
 
-                // Shield icon
-                const Icon(
-                  Icons.verified_user_outlined,
-                  size: 64,
-                  color: AppColors.primary,
+              // Shield icon
+              const Icon(
+                Icons.verified_user_outlined,
+                size: 64,
+                color: AppColors.primary,
+              ),
+
+              const SizedBox(height: 20),
+
+              Text(
+                'Verify Your Identity',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Text(
+                  widget.reason,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                 ),
+              ),
 
-                const SizedBox(height: 20),
+              const SizedBox(height: 8),
 
+              if (_otpSent)
                 Text(
-                  'Verify Your Identity',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.bold,
+                  'Code sent to ${_maskPhoneNumber(widget.phoneNumber)}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
                       ),
                 ),
 
-                const SizedBox(height: 8),
+              const SizedBox(height: 24),
 
+              // OTP dots
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  4,
+                  (index) => Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    width: 18,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: index < _otpCode.length
+                          ? AppColors.primary
+                          : AppColors.surface,
+                      border: Border.all(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              if (_errorMessage != null) ...[
+                const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 40),
                   child: Text(
-                    widget.reason,
+                    _errorMessage!,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                if (_otpSent)
-                  Text(
-                    'Code sent to ${_maskPhoneNumber(widget.phoneNumber)}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                  ),
-
-                const SizedBox(height: 24),
-
-                // OTP dots
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    4,
-                    (index) => Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      width: 18,
-                      height: 18,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: index < _otpCode.length
-                            ? AppColors.primary
-                            : AppColors.surface,
-                        border: Border.all(
-                          color: AppColors.primary,
-                          width: 1.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                if (_errorMessage != null) ...[
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Text(
-                      _errorMessage!,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.redAccent,
-                          ),
-                    ),
-                  ),
-                ],
-
-                if (_isLoading && !_otpSent)
-                  const Padding(
-                    padding: EdgeInsets.all(24),
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  ),
-
-                const SizedBox(height: 16),
-
-                // Resend button
-                if (_otpSent)
-                  TextButton(
-                    onPressed: _resendCountdown > 0 ? null : _sendOtp,
-                    child: Text(
-                      _resendCountdown > 0
-                          ? 'Resend in ${_resendCountdown}s'
-                          : 'Resend Code',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: _resendCountdown > 0
-                                ? AppColors.textSecondary
-                                : AppColors.primary,
-                          ),
-                    ),
-                  ),
-
-                const Spacer(flex: 1),
-
-                // Numeric keyboard
-                if (_otpSent)
-                  SizedBox(
-                    height: 280,
-                    child: NumericKeyboard(
-                      onKeyPressed: _onKeyPressed,
-                      onBackspace: _onBackspace,
-                    ),
-                  ),
-
-                // Cancel button
-                TextButton(
-                  onPressed: _onCancel,
-                  child: Text(
-                    'Cancel',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Colors.redAccent,
                         ),
                   ),
                 ),
-
-                const SizedBox(height: 16),
               ],
-            ),
+
+              if (_isLoading && !_otpSent)
+                const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+
+              const SizedBox(height: 16),
+
+              // Resend button
+              if (_otpSent)
+                TextButton(
+                  onPressed: _resendCountdown > 0 ? null : _sendOtp,
+                  child: Text(
+                    _resendCountdown > 0
+                        ? 'Resend in ${_resendCountdown}s'
+                        : 'Resend Code',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: _resendCountdown > 0
+                              ? AppColors.textSecondary
+                              : AppColors.primary,
+                        ),
+                  ),
+                ),
+
+              const Spacer(flex: 1),
+
+              // Numeric keyboard
+              if (_otpSent)
+                SizedBox(
+                  height: 280,
+                  child: NumericKeyboard(
+                    onKeyPressed: _onKeyPressed,
+                    onBackspace: _onBackspace,
+                  ),
+                ),
+
+              // Cancel button
+              TextButton(
+                onPressed: _onCancel,
+                child: Text(
+                  'Cancel',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+            ],
           ),
         ),
       ),

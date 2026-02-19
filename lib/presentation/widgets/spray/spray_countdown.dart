@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../theme/app_colors.dart';
+
 /// Animated countdown timer showing hours:minutes:seconds remaining
 /// until a token spray expires.
 class SprayCountdown extends StatefulWidget {
@@ -77,10 +79,10 @@ class _SprayCountdownState extends State<SprayCountdown> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: isExpired
-            ? Colors.grey.withValues(alpha: 0.15)
+            ? AppColors.textSecondary.withValues(alpha: 0.15)
             : isUrgent
-                ? Colors.red.withValues(alpha: 0.15)
-                : Colors.orange.withValues(alpha: 0.15),
+                ? AppColors.error.withValues(alpha: 0.15)
+                : AppColors.tertiary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -90,10 +92,10 @@ class _SprayCountdownState extends State<SprayCountdown> {
             isExpired ? Icons.timer_off : Icons.timer,
             size: 14,
             color: isExpired
-                ? Colors.grey
+                ? AppColors.textSecondary
                 : isUrgent
-                    ? Colors.red
-                    : Colors.orange,
+                    ? AppColors.error
+                    : AppColors.tertiary,
           ),
           const SizedBox(width: 4),
           Text(
@@ -103,10 +105,10 @@ class _SprayCountdownState extends State<SprayCountdown> {
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: isExpired
-                      ? Colors.grey
+                      ? AppColors.textSecondary
                       : isUrgent
-                          ? Colors.red
-                          : Colors.orange,
+                          ? AppColors.error
+                          : AppColors.tertiary,
                 ),
           ),
         ],

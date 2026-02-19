@@ -77,7 +77,7 @@ class MessageInputBar extends StatelessWidget {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: AppColors.textOnPrimary,
                     ),
                   )
                 : const Icon(Icons.send),

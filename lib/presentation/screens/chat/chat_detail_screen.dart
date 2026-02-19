@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -94,16 +95,9 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   }
 
   Widget _buildAppBarAvatar(BuildContext context, ChatThread thread) {
-    if (thread.avatarUrl != null) {
-      return CircleAvatar(
-        radius: 18,
-        backgroundImage: NetworkImage(thread.avatarUrl!),
-      );
-    }
-
     final color = AppColors.parseHex(thread.avatarColor);
 
-    return CircleAvatar(
+    final initialsWidget = CircleAvatar(
       radius: 18,
       backgroundColor: color.withValues(alpha: 0.2),
       child: Text(
@@ -114,6 +108,20 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
             ),
       ),
     );
+
+    if (thread.avatarUrl != null) {
+      return CachedNetworkImage(
+        imageUrl: thread.avatarUrl!,
+        imageBuilder: (_, imageProvider) => CircleAvatar(
+          radius: 18,
+          backgroundImage: imageProvider,
+        ),
+        placeholder: (_, __) => initialsWidget,
+        errorWidget: (_, __, ___) => initialsWidget,
+      );
+    }
+
+    return initialsWidget;
   }
 
   Widget _buildMessageList(
