@@ -28,6 +28,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final KeyManagementService _keyManagementService;
   StreamSubscription<User?>? _authStateSubscription;
   Timer? _resendTimer;
+  bool _e2eeInitInProgress = false;
 
   AuthBloc(
     this._authRepository,
@@ -71,6 +72,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               user: user,
               isLoading: false,
             ));
+            // Fire-and-forget E2EE key initialization
+            _initializeE2EEKeys();
           }
         }
       },
@@ -578,6 +581,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   /// Generate and upload E2EE keys if not already present.
   /// Fire-and-forget — E2EE failures are non-fatal.
   Future<void> _initializeE2EEKeys() async {
+    if (_e2eeInitInProgress) return;
+    _e2eeInitInProgress = true;
     try {
       final existing = await _keyManagementService.loadPrivateKeys();
       if (existing != null) {
@@ -591,6 +596,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _keyManagementService.uploadKeyBundle(bundle);
     } catch (e) {
       debugPrint('E2EE key init failed (non-fatal): $e');
+    } finally {
+      _e2eeInitInProgress = false;
     }
   }
 
