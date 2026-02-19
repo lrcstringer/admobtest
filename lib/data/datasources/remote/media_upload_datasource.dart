@@ -171,7 +171,7 @@ class MediaUploadDatasource {
       img.encodeJpg(resized, quality: _jpegQuality),
     );
 
-    final storagePath = 'avatars/$userId.jpg';
+    final storagePath = 'profiles/$userId/avatar.jpg';
     return _uploadBytes(jpeg, storagePath, 'image/jpeg');
   }
 
