@@ -180,7 +180,8 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
       });
 
       final data = deepConvertMap(result.data);
-      return ConversationModel.fromJson(data);
+      final conversation = data['conversation'] as Map<String, dynamic>? ?? data;
+      return ConversationModel.fromJson(Map<String, dynamic>.from(conversation));
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to get conversation');
     } catch (e) {
@@ -288,7 +289,7 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
     required String text,
     String? replyToMessageId,
   }) async {
-    _requireUserId();
+    final userId = _requireUserId();
     try {
       final callable = _functions.httpsCallable('sendConversationMessage');
       final result = await callable.call<Map<String, dynamic>>({
@@ -297,8 +298,17 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
         if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
       });
 
-      final data = deepConvertMap(result.data);
-      return MessageModel.fromJson(data);
+      // Cloud Function returns { success, messageId } — not a full message.
+      // Return a minimal optimistic model; the real message arrives via watchMessages.
+      final data = result.data;
+      final messageId = data['messageId'] as String? ?? '';
+      return MessageModel.optimistic(
+        localId: messageId,
+        senderId: userId,
+        senderName: '',
+        type: 'text',
+        textContent: text,
+      );
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to send message');
     } catch (e) {
@@ -344,7 +354,7 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
     required String mediaType,
     String? caption,
   }) async {
-    _requireUserId();
+    final userId = _requireUserId();
     try {
       final callable = _functions.httpsCallable('sendConversationMessage');
       final result = await callable.call<Map<String, dynamic>>({
@@ -354,8 +364,15 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
         if (caption != null) 'text': caption,
       });
 
-      final data = deepConvertMap(result.data);
-      return MessageModel.fromJson(data);
+      final data = result.data;
+      final messageId = data['messageId'] as String? ?? '';
+      return MessageModel.optimistic(
+        localId: messageId,
+        senderId: userId,
+        senderName: '',
+        type: mediaType.startsWith('audio') ? 'voice' : 'image',
+        media: {'url': mediaUrl, 'mimeType': mediaType},
+      );
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to send media');
     } catch (e) {

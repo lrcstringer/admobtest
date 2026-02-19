@@ -1,16 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/di/injection.dart';
 import '../../../core/error/failures.dart';
 import '../../../core/security/step_up_auth_service.dart';
+import '../../../data/datasources/remote/media_upload_datasource.dart';
 import '../../../domain/repositories/user_repository.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -23,12 +28,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
-  late final TextEditingController _usernameController;
+  late final TextEditingController _displayNameController;
   late final TextEditingController _cityController;
   String? _selectedGender;
   String? _selectedProvince;
   DateTime? _dateOfBirth;
   bool _isLoading = false;
+  bool _isUploadingAvatar = false;
+  String? _pendingAvatarUrl;
 
   final List<String> _genders = ['Male', 'Female', 'Other', 'Prefer not to say'];
   final List<String> _provinces = [
@@ -49,7 +56,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final user = context.read<AuthBloc>().state.user;
     _firstNameController = TextEditingController(text: user?.profile?.firstName);
     _lastNameController = TextEditingController(text: user?.profile?.lastName);
-    _usernameController = TextEditingController(text: user?.profile?.username);
+    _displayNameController = TextEditingController(text: user?.displayName ?? '');
     _cityController = TextEditingController(text: user?.profile?.city);
     _selectedGender = user?.profile?.gender;
     _selectedProvince = user?.profile?.province;
@@ -60,7 +67,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
-    _usernameController.dispose();
+    _displayNameController.dispose();
     _cityController.dispose();
     super.dispose();
   }
@@ -69,7 +76,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const IMaliAppBar(title: 'Edit Profile'),
-      body: SingleChildScrollView(
+      body: WaveBackground(
+        child: SingleChildScrollView(
         padding: AppSpacing.pagePadding,
         child: Form(
           key: _formKey,
@@ -78,50 +86,74 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               // Avatar section
               Center(
-                child: Stack(
-                  children: [
-                    BlocBuilder<AuthBloc, AuthState>(
-                      builder: (context, state) {
-                        final user = state.user;
-                        return CircleAvatar(
-                          radius: 50,
-                          backgroundColor: AppColors.primary,
-                          backgroundImage: user?.profile?.avatarUrl != null
-                              ? NetworkImage(user!.profile!.avatarUrl!)
-                              : null,
-                          child: user?.profile?.avatarUrl == null
-                              ? Text(
-                                  user?.initials ?? 'U',
-                                  style: const TextStyle(
-                                    fontSize: 32,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : null,
-                        );
-                      },
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt,
-                          size: 16,
-                          color: Colors.white,
+                child: GestureDetector(
+                  onTap: _pickAndUploadAvatar,
+                  child: Stack(
+                    children: [
+                      BlocBuilder<AuthBloc, AuthState>(
+                        builder: (context, state) {
+                          final user = state.user;
+                          final avatarUrl = _pendingAvatarUrl ?? user?.profile?.avatarUrl;
+                          return CircleAvatar(
+                            radius: 50,
+                            backgroundColor: AppColors.primary,
+                            backgroundImage: avatarUrl != null
+                                ? NetworkImage(avatarUrl)
+                                : null,
+                            child: _isUploadingAvatar
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2)
+                                : avatarUrl == null
+                                    ? Text(
+                                        user?.initials ?? 'U',
+                                        style: const TextStyle(
+                                          fontSize: 32,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : null,
+                          );
+                        },
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            size: 16,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               AppSpacing.verticalXl,
+
+              // Display Name
+              TextFormField(
+                controller: _displayNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Display Name',
+                  prefixIcon: Icon(Icons.badge_outlined),
+                ),
+                textCapitalization: TextCapitalization.words,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter a display name';
+                  }
+                  return null;
+                },
+              ),
+              AppSpacing.verticalMd,
 
               // First Name
               TextFormField(
@@ -151,29 +183,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your last name';
-                  }
-                  return null;
-                },
-              ),
-              AppSpacing.verticalMd,
-
-              // Username
-              TextFormField(
-                controller: _usernameController,
-                decoration: const InputDecoration(
-                  labelText: 'Username',
-                  prefixIcon: Icon(Icons.alternate_email),
-                  helperText: '3-20 characters, no spaces',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a username';
-                  }
-                  if (value.length < 3 || value.length > 20) {
-                    return 'Username must be 3-20 characters';
-                  }
-                  if (value.contains(' ')) {
-                    return 'Username cannot contain spaces';
                   }
                   return null;
                 },
@@ -265,6 +274,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
       ),
+      ),
     );
   }
 
@@ -278,6 +288,71 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
     if (picked != null) {
       setState(() => _dateOfBirth = picked);
+    }
+  }
+
+  Future<void> _pickAndUploadAvatar() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take Photo'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choose from Gallery'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null) return;
+
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: source,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 85,
+    );
+    if (picked == null) return;
+
+    final user = context.read<AuthBloc>().state.user;
+    if (user == null) return;
+
+    setState(() => _isUploadingAvatar = true);
+
+    try {
+      final file = File(picked.path);
+
+      final datasource = getIt<MediaUploadDatasource>();
+      final url = await datasource.uploadAvatar(
+        imageFile: file,
+        userId: user.id,
+      );
+
+      if (mounted) {
+        setState(() {
+          _pendingAvatarUrl = url;
+          _isUploadingAvatar = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isUploadingAvatar = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload avatar: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
@@ -319,14 +394,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final userRepository = getIt<UserRepository>();
       final result = await userRepository.updateProfile(
         userId: user.id,
-        displayName: '${_firstNameController.text} ${_lastNameController.text}',
-        username: _usernameController.text,
+        displayName: _displayNameController.text.trim(),
+        avatarUrl: _pendingAvatarUrl,
         gender: _selectedGender,
         dateOfBirth: _dateOfBirth,
         province: _selectedProvince,
         city: _cityController.text.isNotEmpty ? _cityController.text : null,
-        firstName: _firstNameController.text,
-        lastName: _lastNameController.text,
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
       );
 
       result.fold(

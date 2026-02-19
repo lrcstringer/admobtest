@@ -146,6 +146,35 @@ class MediaUploadDatasource {
     );
   }
 
+  /// Upload a user avatar image.
+  ///
+  /// Compresses to 512px square, uploads to `avatars/{userId}.jpg`.
+  /// Returns the download URL.
+  Future<String> uploadAvatar({
+    required File imageFile,
+    required String userId,
+  }) async {
+    final fileSize = await imageFile.length();
+    if (fileSize > _maxImageBytes) {
+      throw Exception('Image exceeds ${_maxImageBytes ~/ (1024 * 1024)} MB limit');
+    }
+
+    final rawBytes = await imageFile.readAsBytes();
+    final decoded = img.decodeImage(rawBytes);
+    if (decoded == null) {
+      throw Exception('Unable to decode image');
+    }
+
+    // Resize to max 512px and compress
+    final resized = _resizeToMax(decoded, 512);
+    final jpeg = Uint8List.fromList(
+      img.encodeJpg(resized, quality: _jpegQuality),
+    );
+
+    final storagePath = 'avatars/$userId.jpg';
+    return _uploadBytes(jpeg, storagePath, 'image/jpeg');
+  }
+
   // =========================================================================
   // PRIVATE HELPERS
   // =========================================================================

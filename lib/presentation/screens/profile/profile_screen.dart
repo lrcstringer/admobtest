@@ -13,6 +13,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/brand_card.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/common/wave_background.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -36,7 +37,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         return Scaffold(
           appBar: const IMaliAppBar(title: 'Profile'),
-          body: SingleChildScrollView(
+          body: WaveBackground(
+            child: SingleChildScrollView(
             child: Column(
               children: [
                 // Profile Header
@@ -119,18 +121,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                       ),
-                      if (user?.profile?.username != null) ...[
-                        AppSpacing.verticalXs,
-                        Text(
-                          '@${user!.profile!.username}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                        ),
-                      ],
                       AppSpacing.verticalMd,
                       // Stats row
                       BlocBuilder<WalletBloc, WalletState>(
@@ -195,7 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       context,
                       icon: Icons.person_outline,
                       title: 'Edit Profile',
-                      subtitle: 'Name, username, avatar',
+                      subtitle: 'Name, avatar, details',
                       onTap: () =>
                           context.push('/home/profile/edit'),
                     ),
@@ -324,6 +314,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 AppSpacing.verticalXl,
               ],
             ),
+          ),
           ),
         );
       },
