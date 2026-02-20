@@ -107,6 +107,13 @@ class SenderKeyService {
     }
   }
 
+  /// Check whether a sender key exists locally for [communityId].
+  Future<bool> hasSenderKey(String communityId) async {
+    final stateJson =
+        await _secureStorage.read(key: '$_ownKeyPrefix$communityId');
+    return stateJson != null;
+  }
+
   /// Encrypt a plaintext message for [communityId] using the sender key.
   ///
   /// Returns a map containing:
@@ -239,6 +246,23 @@ class SenderKeyService {
   /// Generates a new sender key — caller must distribute it.
   Future<void> rekeyAllSenderKeys(String communityId) async {
     await generateSenderKey(communityId);
+  }
+
+  /// Reset all sender keys for [communityId]: both own key and all peer keys.
+  ///
+  /// Called when the user wants to re-establish encryption from scratch
+  /// (e.g., after persistent decryption failures).
+  Future<void> resetAllKeysForCommunity(String communityId) async {
+    // Delete own sender key
+    await _secureStorage.delete(key: '$_ownKeyPrefix$communityId');
+
+    // Delete all peer sender keys for this community
+    final all = await _secureStorage.readAll();
+    for (final key in all.keys) {
+      if (key.startsWith('$_peerKeyPrefix${communityId}_')) {
+        await _secureStorage.delete(key: key);
+      }
+    }
   }
 
   /// Process a sender key received from [senderUserId] for [communityId].

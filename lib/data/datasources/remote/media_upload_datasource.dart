@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -5,6 +6,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image/image.dart' as img;
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
+
+import '../../../core/services/crypto_service.dart';
 
 /// Result of a media upload operation.
 class MediaUploadResult {
@@ -17,6 +20,14 @@ class MediaUploadResult {
   final int? width;
   final int? height;
 
+  /// AES-256-GCM key used to encrypt the full media file (base64).
+  /// Null when media is uploaded unencrypted.
+  final String? mediaKey;
+
+  /// AES-256-GCM key used to encrypt the thumbnail (base64).
+  /// Null when thumbnail is uploaded unencrypted.
+  final String? thumbKey;
+
   const MediaUploadResult({
     required this.url,
     this.thumbnailUrl,
@@ -26,6 +37,8 @@ class MediaUploadResult {
     this.duration,
     this.width,
     this.height,
+    this.mediaKey,
+    this.thumbKey,
   });
 
   /// Convert to a map suitable for embedding in a Firestore message document.
@@ -38,6 +51,8 @@ class MediaUploadResult {
         if (duration != null) 'duration': duration,
         if (width != null) 'width': width,
         if (height != null) 'height': height,
+        if (mediaKey != null) 'mediaKey': mediaKey,
+        if (thumbKey != null) 'thumbKey': thumbKey,
       };
 }
 
@@ -53,8 +68,9 @@ class MediaUploadResult {
 @lazySingleton
 class MediaUploadDatasource {
   final FirebaseStorage _storage;
+  final CryptoService _cryptoService;
 
-  MediaUploadDatasource(this._storage);
+  MediaUploadDatasource(this._storage, this._cryptoService);
 
   static const int _maxImageBytes = 10 * 1024 * 1024; // 10 MB
   static const int _maxVoiceBytes = 5 * 1024 * 1024; // 5 MB
@@ -173,6 +189,129 @@ class MediaUploadDatasource {
 
     final storagePath = 'profiles/$userId/avatar.jpg';
     return _uploadBytes(jpeg, storagePath, 'image/jpeg');
+  }
+
+  // =========================================================================
+  // ENCRYPTED UPLOADS (E2EE)
+  // =========================================================================
+
+  /// Upload an image encrypted with AES-256-GCM.
+  ///
+  /// Generates a random key, encrypts both full-size and thumbnail,
+  /// uploads ciphertext to Storage, and returns the keys in the result
+  /// so the caller can embed them in the E2EE message metadata.
+  Future<MediaUploadResult> uploadEncryptedImage({
+    required File imageFile,
+    required String parentCollection,
+    required String parentId,
+    required String messageId,
+  }) async {
+    final fileSize = await imageFile.length();
+    if (fileSize > _maxImageBytes) {
+      throw Exception('Image exceeds ${_maxImageBytes ~/ (1024 * 1024)} MB limit');
+    }
+
+    final rawBytes = await imageFile.readAsBytes();
+    final decoded = img.decodeImage(rawBytes);
+    if (decoded == null) {
+      throw Exception('Unable to decode image');
+    }
+
+    // Compress
+    final fullImage = _resizeToMax(decoded, _fullImageMaxDimension);
+    final fullJpeg = Uint8List.fromList(
+      img.encodeJpg(fullImage, quality: _jpegQuality),
+    );
+    final thumb = img.copyResizeCropSquare(decoded, size: _thumbSize);
+    final thumbJpeg = Uint8List.fromList(
+      img.encodeJpg(thumb, quality: _thumbJpegQuality),
+    );
+
+    // Encrypt each with a separate random key
+    final fullKey = _cryptoService.generateAesKey();
+    final thumbKey = _cryptoService.generateAesKey();
+    final encryptedFull = await _cryptoService.encrypt(fullJpeg, fullKey);
+    final encryptedThumb = await _cryptoService.encrypt(thumbJpeg, thumbKey);
+
+    // Upload encrypted bytes (use .enc extension to signal encrypted)
+    final fullPath = '$parentCollection/$parentId/images/${messageId}_full.enc';
+    final thumbPath = '$parentCollection/$parentId/images/${messageId}_thumb.enc';
+
+    final results = await Future.wait([
+      _uploadBytes(encryptedFull, fullPath, 'application/octet-stream'),
+      _uploadBytes(encryptedThumb, thumbPath, 'application/octet-stream'),
+    ]);
+
+    return MediaUploadResult(
+      url: results[0],
+      thumbnailUrl: results[1],
+      fileName: p.basename(imageFile.path),
+      fileSize: fullJpeg.length,
+      mimeType: 'image/jpeg',
+      width: fullImage.width,
+      height: fullImage.height,
+      mediaKey: base64Encode(fullKey),
+      thumbKey: base64Encode(thumbKey),
+    );
+  }
+
+  /// Upload a voice recording encrypted with AES-256-GCM.
+  Future<MediaUploadResult> uploadEncryptedVoice({
+    required File voiceFile,
+    required String parentCollection,
+    required String parentId,
+    required String messageId,
+    required int durationSeconds,
+  }) async {
+    final fileSize = await voiceFile.length();
+    if (fileSize > _maxVoiceBytes) {
+      throw Exception('Voice file exceeds ${_maxVoiceBytes ~/ (1024 * 1024)} MB limit');
+    }
+
+    final rawBytes = await voiceFile.readAsBytes();
+    final voiceKey = _cryptoService.generateAesKey();
+    final encryptedBytes = await _cryptoService.encrypt(rawBytes, voiceKey);
+
+    final storagePath =
+        '$parentCollection/$parentId/voice/$messageId.enc';
+    final url = await _uploadBytes(
+        encryptedBytes, storagePath, 'application/octet-stream');
+
+    return MediaUploadResult(
+      url: url,
+      fileName: p.basename(voiceFile.path),
+      fileSize: fileSize,
+      mimeType: 'audio/m4a',
+      duration: durationSeconds,
+      mediaKey: base64Encode(voiceKey),
+    );
+  }
+
+  // =========================================================================
+  // ENCRYPTED DOWNLOADS (E2EE)
+  // =========================================================================
+
+  /// Download and decrypt an encrypted media file from Firebase Storage.
+  ///
+  /// [url] is the Firebase Storage download URL of the encrypted file.
+  /// [mediaKeyBase64] is the AES-256-GCM key used to encrypt it.
+  /// Returns the decrypted bytes.
+  Future<Uint8List> downloadAndDecrypt({
+    required String url,
+    required String mediaKeyBase64,
+  }) async {
+    // Get storage reference from URL and download
+    final ref = _storage.refFromURL(url);
+    final encryptedBytes = await ref.getData();
+    if (encryptedBytes == null) {
+      throw Exception('Failed to download encrypted media');
+    }
+
+    // Decrypt: format is nonce(12) || ciphertext || mac(16)
+    final key = base64Decode(mediaKeyBase64);
+    final nonce = Uint8List.fromList(encryptedBytes.sublist(0, 12));
+    final ciphertextWithMac = Uint8List.fromList(encryptedBytes.sublist(12));
+    return _cryptoService.decrypt(ciphertextWithMac, key, nonce: nonce);
   }
 
   // =========================================================================

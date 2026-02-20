@@ -37,13 +37,19 @@ export const uploadKeyBundle = functions.https.onCall(
       signedPreKeySignature: string;
       oneTimePreKeys: string[];
       registrationId: number;
+      ed25519IdentityKey?: string;
+      ed25519Signature?: string;
     },
     context
   ) => {
     const userId = requireAuth(context);
     requireAppCheck(context, "uploadKeyBundle");
 
-    const { identityKey, signedPreKey, signedPreKeySignature, oneTimePreKeys, registrationId } = data;
+    const {
+      identityKey, signedPreKey, signedPreKeySignature,
+      oneTimePreKeys, registrationId,
+      ed25519IdentityKey, ed25519Signature,
+    } = data;
 
     if (!identityKey || !signedPreKey || !signedPreKeySignature) {
       throw new functions.https.HttpsError(
@@ -52,20 +58,30 @@ export const uploadKeyBundle = functions.https.onCall(
       );
     }
 
+    const bundleData: Record<string, unknown> = {
+      userId,
+      identityKey,
+      signedPreKey,
+      signedPreKeySignature,
+      oneTimePreKeys: oneTimePreKeys || [],
+      registrationId: registrationId || 0,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    // Store Ed25519 fields if provided (new clients)
+    if (ed25519IdentityKey) {
+      bundleData.ed25519IdentityKey = ed25519IdentityKey;
+    }
+    if (ed25519Signature) {
+      bundleData.ed25519Signature = ed25519Signature;
+    }
+
     await db
       .collection("users")
       .doc(userId)
       .collection("keys")
       .doc("bundle")
-      .set({
-        userId,
-        identityKey,
-        signedPreKey,
-        signedPreKeySignature,
-        oneTimePreKeys: oneTimePreKeys || [],
-        registrationId: registrationId || 0,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      .set(bundleData);
 
     return { success: true };
   }
@@ -120,6 +136,9 @@ export const fetchKeyBundle = functions.https.onCall(
       signedPreKeySignature: bundle.signedPreKeySignature,
       oneTimePreKey: consumedPreKey,
       registrationId: bundle.registrationId || 0,
+      // Ed25519 fields (null for legacy bundles without Ed25519 support)
+      ed25519IdentityKey: bundle.ed25519IdentityKey || null,
+      ed25519Signature: bundle.ed25519Signature || null,
     };
   }
 );
@@ -159,13 +178,17 @@ export const replenishOneTimePreKeys = functions.https.onCall(
  */
 export const rotateSignedPreKey = functions.https.onCall(
   async (
-    data: { newSignedPreKey: string; newSignedPreKeySignature: string },
+    data: {
+      newSignedPreKey: string;
+      newSignedPreKeySignature: string;
+      newEd25519Signature?: string;
+    },
     context
   ) => {
     const userId = requireAuth(context);
     requireAppCheck(context, "rotateSignedPreKey");
 
-    const { newSignedPreKey, newSignedPreKeySignature } = data;
+    const { newSignedPreKey, newSignedPreKeySignature, newEd25519Signature } = data;
     if (!newSignedPreKey || !newSignedPreKeySignature) {
       throw new functions.https.HttpsError(
         "invalid-argument",
@@ -173,16 +196,22 @@ export const rotateSignedPreKey = functions.https.onCall(
       );
     }
 
+    const updateData: Record<string, unknown> = {
+      signedPreKey: newSignedPreKey,
+      signedPreKeySignature: newSignedPreKeySignature,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (newEd25519Signature) {
+      updateData.ed25519Signature = newEd25519Signature;
+    }
+
     await db
       .collection("users")
       .doc(userId)
       .collection("keys")
       .doc("bundle")
-      .update({
-        signedPreKey: newSignedPreKey,
-        signedPreKeySignature: newSignedPreKeySignature,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      .update(updateData);
 
     return { success: true };
   }

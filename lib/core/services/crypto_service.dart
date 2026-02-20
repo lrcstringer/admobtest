@@ -13,6 +13,7 @@ import 'package:injectable/injectable.dart';
 class CryptoService {
   static final _aesGcm = AesGcm.with256bits();
   static final _x25519 = X25519();
+  static final _ed25519 = Ed25519();
   static final _rng = Random.secure();
 
   /// Generate cryptographically secure random bytes.
@@ -124,6 +125,42 @@ class CryptoService {
     );
     final bytes = await derived.extractBytes();
     return Uint8List.fromList(bytes);
+  }
+
+  /// Generate an Ed25519 key pair for digital signatures.
+  ///
+  /// Returns a map with `publicKey` and `privateKey` as [Uint8List] values.
+  /// Used for signing pre-keys so receivers can verify authenticity.
+  Future<Map<String, Uint8List>> generateEd25519KeyPair() async {
+    final keyPair = await _ed25519.newKeyPair();
+    final privateBytes = await keyPair.extractPrivateKeyBytes();
+    final publicKey = await keyPair.extractPublicKey();
+    return {
+      'privateKey': Uint8List.fromList(privateBytes),
+      'publicKey': Uint8List.fromList(publicKey.bytes),
+    };
+  }
+
+  /// Sign data with Ed25519.
+  ///
+  /// Returns the 64-byte signature.
+  Future<Uint8List> ed25519Sign(Uint8List data, Uint8List privateKey) async {
+    final keyPair = await _ed25519.newKeyPairFromSeed(privateKey);
+    final signature = await _ed25519.sign(data, keyPair: keyPair);
+    return Uint8List.fromList(signature.bytes);
+  }
+
+  /// Verify an Ed25519 signature.
+  ///
+  /// Returns `true` if the [signature] over [data] is valid for [publicKey].
+  Future<bool> ed25519Verify(
+    Uint8List data,
+    Uint8List signature,
+    Uint8List publicKey,
+  ) async {
+    final pk = SimplePublicKey(publicKey, type: KeyPairType.ed25519);
+    final sig = Signature(signature, publicKey: pk);
+    return _ed25519.verify(data, signature: sig);
   }
 
   /// PBKDF2-SHA256 key derivation from a user passphrase.

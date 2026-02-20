@@ -10,10 +10,10 @@ part 'e2ee_types.g.dart';
 @freezed
 class KeyBundle with _$KeyBundle {
   const factory KeyBundle({
-    /// The long-term identity key pair (Ed25519/X25519), base64-encoded.
+    /// The long-term identity key pair (X25519), base64-encoded as "priv|pub".
     required String identityKeyPair,
 
-    /// The signed pre-key (rotated periodically), base64-encoded.
+    /// The signed pre-key (rotated periodically), base64-encoded as "priv|pub".
     required String signedPreKey,
 
     /// Signature over the signed pre-key using the identity key.
@@ -24,6 +24,15 @@ class KeyBundle with _$KeyBundle {
 
     /// Local registration ID for this device.
     required int registrationId,
+
+    /// Ed25519 signing key pair, base64-encoded as "priv|pub".
+    /// Used for verifiable signatures on the signed pre-key.
+    /// Null for bundles generated before Ed25519 support was added.
+    String? ed25519IdentityKeyPair,
+
+    /// Ed25519 signature over the signed pre-key's public key bytes.
+    /// Verifiable by any party using the Ed25519 public key.
+    String? ed25519Signature,
   }) = _KeyBundle;
 
   factory KeyBundle.fromJson(Map<String, dynamic> json) =>
@@ -36,10 +45,10 @@ class KeyBundle with _$KeyBundle {
 @freezed
 class PublicKeyBundle with _$PublicKeyBundle {
   const factory PublicKeyBundle({
-    /// The recipient's public identity key, base64-encoded.
+    /// The recipient's public identity key (X25519), base64-encoded.
     required String identityKey,
 
-    /// The recipient's current signed pre-key, base64-encoded.
+    /// The recipient's current signed pre-key (X25519), base64-encoded.
     required String signedPreKey,
 
     /// Signature over the signed pre-key, base64-encoded.
@@ -53,6 +62,14 @@ class PublicKeyBundle with _$PublicKeyBundle {
 
     /// The user ID this bundle belongs to.
     required String userId,
+
+    /// Ed25519 public identity key for signature verification, base64-encoded.
+    /// Null for bundles generated before Ed25519 support.
+    String? ed25519IdentityKey,
+
+    /// Ed25519 signature over the signed pre-key public bytes, base64-encoded.
+    /// Verifiable using [ed25519IdentityKey].
+    String? ed25519Signature,
   }) = _PublicKeyBundle;
 
   factory PublicKeyBundle.fromJson(Map<String, dynamic> json) =>

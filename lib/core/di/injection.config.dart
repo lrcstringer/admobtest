@@ -184,9 +184,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i383.ErrorHandler>(() => _i383.ErrorHandler());
     gh.lazySingleton<_i483.AppDatabase>(() => _i483.AppDatabase());
-    gh.lazySingleton<_i654.MediaUploadDatasource>(
-      () => _i654.MediaUploadDatasource(gh<_i457.FirebaseStorage>()),
-    );
     gh.lazySingleton<_i434.UploadService>(
       () => _i434.UploadService(gh<_i457.FirebaseStorage>()),
     );
@@ -194,6 +191,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i1057.AuthRemoteDataSourceImpl(
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
+      ),
+    );
+    gh.lazySingleton<_i654.MediaUploadDatasource>(
+      () => _i654.MediaUploadDatasource(
+        gh<_i457.FirebaseStorage>(),
+        gh<_i1024.CryptoService>(),
       ),
     );
     gh.lazySingleton<_i932.NetworkInfo>(
@@ -505,13 +508,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i284.AdMobService>(
       () => _i284.AdMobService(gh<_i942.SessionLockService>()),
     );
-    gh.lazySingleton<_i936.CommunityRepository>(
-      () => _i462.CommunityRepositoryImpl(
-        gh<_i560.CommunityRemoteDataSource>(),
-        gh<_i932.NetworkInfo>(),
-        gh<_i407.SenderKeyService>(),
-      ),
-    );
     gh.lazySingleton<_i851.WalletRepository>(
       () => _i520.WalletRepositoryImpl(
         gh<_i389.WalletRemoteDataSource>(),
@@ -531,12 +527,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i418.KeyManagementService>(),
       ),
     );
-    gh.factoryParam<_i256.CommunityMessagingBloc, String, dynamic>(
-      (communityId, _) => _i256.CommunityMessagingBloc(
-        gh<_i936.CommunityRepository>(),
-        communityId: communityId,
-      ),
-    );
     gh.factory<_i344.ProfileBloc>(
       () => _i344.ProfileBloc(
         gh<_i271.UserRepository>(),
@@ -546,6 +536,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factoryParam<_i609.TokenSprayBloc, String, dynamic>(
       (_communityId, _) =>
           _i609.TokenSprayBloc(gh<_i943.TokenSprayRepository>(), _communityId),
+    );
+    gh.lazySingleton<_i936.CommunityRepository>(
+      () => _i462.CommunityRepositoryImpl(
+        gh<_i560.CommunityRemoteDataSource>(),
+        gh<_i932.NetworkInfo>(),
+        gh<_i407.SenderKeyService>(),
+        gh<_i161.SignalProtocolService>(),
+      ),
     );
     gh.lazySingleton<_i533.GiftRepository>(
       () => _i350.GiftRepositoryImpl(gh<_i108.GiftRemoteDataSource>()),
@@ -578,6 +576,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i66.GiftBloc>(() => _i66.GiftBloc(gh<_i533.GiftRepository>()));
     gh.lazySingleton<_i727.RaspService>(
       () => _i727.RaspService(gh<_i141.AuthBloc>()),
+    );
+    gh.factoryParam<_i256.CommunityMessagingBloc, String, dynamic>(
+      (communityId, _) => _i256.CommunityMessagingBloc(
+        gh<_i936.CommunityRepository>(),
+        communityId: communityId,
+      ),
     );
     return this;
   }

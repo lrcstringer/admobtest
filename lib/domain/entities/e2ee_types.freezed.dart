@@ -21,10 +21,10 @@ KeyBundle _$KeyBundleFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$KeyBundle {
-  /// The long-term identity key pair (Ed25519/X25519), base64-encoded.
+  /// The long-term identity key pair (X25519), base64-encoded as "priv|pub".
   String get identityKeyPair => throw _privateConstructorUsedError;
 
-  /// The signed pre-key (rotated periodically), base64-encoded.
+  /// The signed pre-key (rotated periodically), base64-encoded as "priv|pub".
   String get signedPreKey => throw _privateConstructorUsedError;
 
   /// Signature over the signed pre-key using the identity key.
@@ -35,6 +35,15 @@ mixin _$KeyBundle {
 
   /// Local registration ID for this device.
   int get registrationId => throw _privateConstructorUsedError;
+
+  /// Ed25519 signing key pair, base64-encoded as "priv|pub".
+  /// Used for verifiable signatures on the signed pre-key.
+  /// Null for bundles generated before Ed25519 support was added.
+  String? get ed25519IdentityKeyPair => throw _privateConstructorUsedError;
+
+  /// Ed25519 signature over the signed pre-key's public key bytes.
+  /// Verifiable by any party using the Ed25519 public key.
+  String? get ed25519Signature => throw _privateConstructorUsedError;
 
   /// Serializes this KeyBundle to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -57,6 +66,8 @@ abstract class $KeyBundleCopyWith<$Res> {
     String signedPreKeySignature,
     List<String> oneTimePreKeys,
     int registrationId,
+    String? ed25519IdentityKeyPair,
+    String? ed25519Signature,
   });
 }
 
@@ -80,6 +91,8 @@ class _$KeyBundleCopyWithImpl<$Res, $Val extends KeyBundle>
     Object? signedPreKeySignature = null,
     Object? oneTimePreKeys = null,
     Object? registrationId = null,
+    Object? ed25519IdentityKeyPair = freezed,
+    Object? ed25519Signature = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -103,6 +116,14 @@ class _$KeyBundleCopyWithImpl<$Res, $Val extends KeyBundle>
                 ? _value.registrationId
                 : registrationId // ignore: cast_nullable_to_non_nullable
                       as int,
+            ed25519IdentityKeyPair: freezed == ed25519IdentityKeyPair
+                ? _value.ed25519IdentityKeyPair
+                : ed25519IdentityKeyPair // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            ed25519Signature: freezed == ed25519Signature
+                ? _value.ed25519Signature
+                : ed25519Signature // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -124,6 +145,8 @@ abstract class _$$KeyBundleImplCopyWith<$Res>
     String signedPreKeySignature,
     List<String> oneTimePreKeys,
     int registrationId,
+    String? ed25519IdentityKeyPair,
+    String? ed25519Signature,
   });
 }
 
@@ -146,6 +169,8 @@ class __$$KeyBundleImplCopyWithImpl<$Res>
     Object? signedPreKeySignature = null,
     Object? oneTimePreKeys = null,
     Object? registrationId = null,
+    Object? ed25519IdentityKeyPair = freezed,
+    Object? ed25519Signature = freezed,
   }) {
     return _then(
       _$KeyBundleImpl(
@@ -169,6 +194,14 @@ class __$$KeyBundleImplCopyWithImpl<$Res>
             ? _value.registrationId
             : registrationId // ignore: cast_nullable_to_non_nullable
                   as int,
+        ed25519IdentityKeyPair: freezed == ed25519IdentityKeyPair
+            ? _value.ed25519IdentityKeyPair
+            : ed25519IdentityKeyPair // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        ed25519Signature: freezed == ed25519Signature
+            ? _value.ed25519Signature
+            : ed25519Signature // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -183,16 +216,18 @@ class _$KeyBundleImpl implements _KeyBundle {
     required this.signedPreKeySignature,
     required final List<String> oneTimePreKeys,
     required this.registrationId,
+    this.ed25519IdentityKeyPair,
+    this.ed25519Signature,
   }) : _oneTimePreKeys = oneTimePreKeys;
 
   factory _$KeyBundleImpl.fromJson(Map<String, dynamic> json) =>
       _$$KeyBundleImplFromJson(json);
 
-  /// The long-term identity key pair (Ed25519/X25519), base64-encoded.
+  /// The long-term identity key pair (X25519), base64-encoded as "priv|pub".
   @override
   final String identityKeyPair;
 
-  /// The signed pre-key (rotated periodically), base64-encoded.
+  /// The signed pre-key (rotated periodically), base64-encoded as "priv|pub".
   @override
   final String signedPreKey;
 
@@ -215,9 +250,20 @@ class _$KeyBundleImpl implements _KeyBundle {
   @override
   final int registrationId;
 
+  /// Ed25519 signing key pair, base64-encoded as "priv|pub".
+  /// Used for verifiable signatures on the signed pre-key.
+  /// Null for bundles generated before Ed25519 support was added.
+  @override
+  final String? ed25519IdentityKeyPair;
+
+  /// Ed25519 signature over the signed pre-key's public key bytes.
+  /// Verifiable by any party using the Ed25519 public key.
+  @override
+  final String? ed25519Signature;
+
   @override
   String toString() {
-    return 'KeyBundle(identityKeyPair: $identityKeyPair, signedPreKey: $signedPreKey, signedPreKeySignature: $signedPreKeySignature, oneTimePreKeys: $oneTimePreKeys, registrationId: $registrationId)';
+    return 'KeyBundle(identityKeyPair: $identityKeyPair, signedPreKey: $signedPreKey, signedPreKeySignature: $signedPreKeySignature, oneTimePreKeys: $oneTimePreKeys, registrationId: $registrationId, ed25519IdentityKeyPair: $ed25519IdentityKeyPair, ed25519Signature: $ed25519Signature)';
   }
 
   @override
@@ -236,7 +282,11 @@ class _$KeyBundleImpl implements _KeyBundle {
               _oneTimePreKeys,
             ) &&
             (identical(other.registrationId, registrationId) ||
-                other.registrationId == registrationId));
+                other.registrationId == registrationId) &&
+            (identical(other.ed25519IdentityKeyPair, ed25519IdentityKeyPair) ||
+                other.ed25519IdentityKeyPair == ed25519IdentityKeyPair) &&
+            (identical(other.ed25519Signature, ed25519Signature) ||
+                other.ed25519Signature == ed25519Signature));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -248,6 +298,8 @@ class _$KeyBundleImpl implements _KeyBundle {
     signedPreKeySignature,
     const DeepCollectionEquality().hash(_oneTimePreKeys),
     registrationId,
+    ed25519IdentityKeyPair,
+    ed25519Signature,
   );
 
   /// Create a copy of KeyBundle
@@ -271,16 +323,18 @@ abstract class _KeyBundle implements KeyBundle {
     required final String signedPreKeySignature,
     required final List<String> oneTimePreKeys,
     required final int registrationId,
+    final String? ed25519IdentityKeyPair,
+    final String? ed25519Signature,
   }) = _$KeyBundleImpl;
 
   factory _KeyBundle.fromJson(Map<String, dynamic> json) =
       _$KeyBundleImpl.fromJson;
 
-  /// The long-term identity key pair (Ed25519/X25519), base64-encoded.
+  /// The long-term identity key pair (X25519), base64-encoded as "priv|pub".
   @override
   String get identityKeyPair;
 
-  /// The signed pre-key (rotated periodically), base64-encoded.
+  /// The signed pre-key (rotated periodically), base64-encoded as "priv|pub".
   @override
   String get signedPreKey;
 
@@ -296,6 +350,17 @@ abstract class _KeyBundle implements KeyBundle {
   @override
   int get registrationId;
 
+  /// Ed25519 signing key pair, base64-encoded as "priv|pub".
+  /// Used for verifiable signatures on the signed pre-key.
+  /// Null for bundles generated before Ed25519 support was added.
+  @override
+  String? get ed25519IdentityKeyPair;
+
+  /// Ed25519 signature over the signed pre-key's public key bytes.
+  /// Verifiable by any party using the Ed25519 public key.
+  @override
+  String? get ed25519Signature;
+
   /// Create a copy of KeyBundle
   /// with the given fields replaced by the non-null parameter values.
   @override
@@ -310,10 +375,10 @@ PublicKeyBundle _$PublicKeyBundleFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$PublicKeyBundle {
-  /// The recipient's public identity key, base64-encoded.
+  /// The recipient's public identity key (X25519), base64-encoded.
   String get identityKey => throw _privateConstructorUsedError;
 
-  /// The recipient's current signed pre-key, base64-encoded.
+  /// The recipient's current signed pre-key (X25519), base64-encoded.
   String get signedPreKey => throw _privateConstructorUsedError;
 
   /// Signature over the signed pre-key, base64-encoded.
@@ -327,6 +392,14 @@ mixin _$PublicKeyBundle {
 
   /// The user ID this bundle belongs to.
   String get userId => throw _privateConstructorUsedError;
+
+  /// Ed25519 public identity key for signature verification, base64-encoded.
+  /// Null for bundles generated before Ed25519 support.
+  String? get ed25519IdentityKey => throw _privateConstructorUsedError;
+
+  /// Ed25519 signature over the signed pre-key public bytes, base64-encoded.
+  /// Verifiable using [ed25519IdentityKey].
+  String? get ed25519Signature => throw _privateConstructorUsedError;
 
   /// Serializes this PublicKeyBundle to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -352,6 +425,8 @@ abstract class $PublicKeyBundleCopyWith<$Res> {
     List<String> oneTimePreKeys,
     int registrationId,
     String userId,
+    String? ed25519IdentityKey,
+    String? ed25519Signature,
   });
 }
 
@@ -376,6 +451,8 @@ class _$PublicKeyBundleCopyWithImpl<$Res, $Val extends PublicKeyBundle>
     Object? oneTimePreKeys = null,
     Object? registrationId = null,
     Object? userId = null,
+    Object? ed25519IdentityKey = freezed,
+    Object? ed25519Signature = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -403,6 +480,14 @@ class _$PublicKeyBundleCopyWithImpl<$Res, $Val extends PublicKeyBundle>
                 ? _value.userId
                 : userId // ignore: cast_nullable_to_non_nullable
                       as String,
+            ed25519IdentityKey: freezed == ed25519IdentityKey
+                ? _value.ed25519IdentityKey
+                : ed25519IdentityKey // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            ed25519Signature: freezed == ed25519Signature
+                ? _value.ed25519Signature
+                : ed25519Signature // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -425,6 +510,8 @@ abstract class _$$PublicKeyBundleImplCopyWith<$Res>
     List<String> oneTimePreKeys,
     int registrationId,
     String userId,
+    String? ed25519IdentityKey,
+    String? ed25519Signature,
   });
 }
 
@@ -448,6 +535,8 @@ class __$$PublicKeyBundleImplCopyWithImpl<$Res>
     Object? oneTimePreKeys = null,
     Object? registrationId = null,
     Object? userId = null,
+    Object? ed25519IdentityKey = freezed,
+    Object? ed25519Signature = freezed,
   }) {
     return _then(
       _$PublicKeyBundleImpl(
@@ -475,6 +564,14 @@ class __$$PublicKeyBundleImplCopyWithImpl<$Res>
             ? _value.userId
             : userId // ignore: cast_nullable_to_non_nullable
                   as String,
+        ed25519IdentityKey: freezed == ed25519IdentityKey
+            ? _value.ed25519IdentityKey
+            : ed25519IdentityKey // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        ed25519Signature: freezed == ed25519Signature
+            ? _value.ed25519Signature
+            : ed25519Signature // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -490,16 +587,18 @@ class _$PublicKeyBundleImpl implements _PublicKeyBundle {
     required final List<String> oneTimePreKeys,
     required this.registrationId,
     required this.userId,
+    this.ed25519IdentityKey,
+    this.ed25519Signature,
   }) : _oneTimePreKeys = oneTimePreKeys;
 
   factory _$PublicKeyBundleImpl.fromJson(Map<String, dynamic> json) =>
       _$$PublicKeyBundleImplFromJson(json);
 
-  /// The recipient's public identity key, base64-encoded.
+  /// The recipient's public identity key (X25519), base64-encoded.
   @override
   final String identityKey;
 
-  /// The recipient's current signed pre-key, base64-encoded.
+  /// The recipient's current signed pre-key (X25519), base64-encoded.
   @override
   final String signedPreKey;
 
@@ -526,9 +625,19 @@ class _$PublicKeyBundleImpl implements _PublicKeyBundle {
   @override
   final String userId;
 
+  /// Ed25519 public identity key for signature verification, base64-encoded.
+  /// Null for bundles generated before Ed25519 support.
+  @override
+  final String? ed25519IdentityKey;
+
+  /// Ed25519 signature over the signed pre-key public bytes, base64-encoded.
+  /// Verifiable using [ed25519IdentityKey].
+  @override
+  final String? ed25519Signature;
+
   @override
   String toString() {
-    return 'PublicKeyBundle(identityKey: $identityKey, signedPreKey: $signedPreKey, signedPreKeySignature: $signedPreKeySignature, oneTimePreKeys: $oneTimePreKeys, registrationId: $registrationId, userId: $userId)';
+    return 'PublicKeyBundle(identityKey: $identityKey, signedPreKey: $signedPreKey, signedPreKeySignature: $signedPreKeySignature, oneTimePreKeys: $oneTimePreKeys, registrationId: $registrationId, userId: $userId, ed25519IdentityKey: $ed25519IdentityKey, ed25519Signature: $ed25519Signature)';
   }
 
   @override
@@ -548,7 +657,11 @@ class _$PublicKeyBundleImpl implements _PublicKeyBundle {
             ) &&
             (identical(other.registrationId, registrationId) ||
                 other.registrationId == registrationId) &&
-            (identical(other.userId, userId) || other.userId == userId));
+            (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.ed25519IdentityKey, ed25519IdentityKey) ||
+                other.ed25519IdentityKey == ed25519IdentityKey) &&
+            (identical(other.ed25519Signature, ed25519Signature) ||
+                other.ed25519Signature == ed25519Signature));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -561,6 +674,8 @@ class _$PublicKeyBundleImpl implements _PublicKeyBundle {
     const DeepCollectionEquality().hash(_oneTimePreKeys),
     registrationId,
     userId,
+    ed25519IdentityKey,
+    ed25519Signature,
   );
 
   /// Create a copy of PublicKeyBundle
@@ -588,16 +703,18 @@ abstract class _PublicKeyBundle implements PublicKeyBundle {
     required final List<String> oneTimePreKeys,
     required final int registrationId,
     required final String userId,
+    final String? ed25519IdentityKey,
+    final String? ed25519Signature,
   }) = _$PublicKeyBundleImpl;
 
   factory _PublicKeyBundle.fromJson(Map<String, dynamic> json) =
       _$PublicKeyBundleImpl.fromJson;
 
-  /// The recipient's public identity key, base64-encoded.
+  /// The recipient's public identity key (X25519), base64-encoded.
   @override
   String get identityKey;
 
-  /// The recipient's current signed pre-key, base64-encoded.
+  /// The recipient's current signed pre-key (X25519), base64-encoded.
   @override
   String get signedPreKey;
 
@@ -616,6 +733,16 @@ abstract class _PublicKeyBundle implements PublicKeyBundle {
   /// The user ID this bundle belongs to.
   @override
   String get userId;
+
+  /// Ed25519 public identity key for signature verification, base64-encoded.
+  /// Null for bundles generated before Ed25519 support.
+  @override
+  String? get ed25519IdentityKey;
+
+  /// Ed25519 signature over the signed pre-key public bytes, base64-encoded.
+  /// Verifiable using [ed25519IdentityKey].
+  @override
+  String? get ed25519Signature;
 
   /// Create a copy of PublicKeyBundle
   /// with the given fields replaced by the non-null parameter values.

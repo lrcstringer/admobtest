@@ -136,9 +136,12 @@ class ConversationRepositoryImpl implements ConversationRepository {
         before: before,
       );
       final messages = models.map((m) => m.toEntity()).toList();
-      final decrypted = await Future.wait(
-        messages.map((m) => _decryptIfNeeded(m)),
-      );
+      // Decrypt sequentially to avoid concurrent chain key ratcheting
+      // for messages from the same sender (corrupts session state).
+      final decrypted = <Message>[];
+      for (final m in messages) {
+        decrypted.add(await _decryptIfNeeded(m));
+      }
       return Right(decrypted);
     } on AuthException {
       return const Left(Failure.unauthenticated());
@@ -158,9 +161,11 @@ class ConversationRepositoryImpl implements ConversationRepository {
         .watchMessages(conversationId: conversationId, limit: limit)
         .asyncMap((models) async {
       final messages = models.map((m) => m.toEntity()).toList();
-      final decrypted = await Future.wait(
-        messages.map((m) => _decryptIfNeeded(m)),
-      );
+      // Decrypt sequentially to avoid concurrent chain key ratcheting
+      final decrypted = <Message>[];
+      for (final m in messages) {
+        decrypted.add(await _decryptIfNeeded(m));
+      }
       return Right<Failure, List<Message>>(decrypted);
     }).handleError((error) {
       if (error is AuthException) {

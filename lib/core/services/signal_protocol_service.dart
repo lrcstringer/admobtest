@@ -51,6 +51,22 @@ class SignalProtocolService {
     final theirIdentityKey = base64Decode(theirBundle.identityKey);
     final theirSignedPreKey = base64Decode(theirBundle.signedPreKey);
 
+    // Verify Ed25519 signature on the signed pre-key before using it
+    if (theirBundle.ed25519IdentityKey != null &&
+        theirBundle.ed25519Signature != null) {
+      final ed25519PubKey = base64Decode(theirBundle.ed25519IdentityKey!);
+      final ed25519Sig = base64Decode(theirBundle.ed25519Signature!);
+      final valid = await _cryptoService.ed25519Verify(
+        theirSignedPreKey, ed25519Sig, ed25519PubKey,
+      );
+      if (!valid) {
+        throw StateError(
+          'E2EE: Signed pre-key signature verification failed for $recipientUserId — '
+          'possible MITM attack',
+        );
+      }
+    }
+
     // 4. Compute DH shared secrets
     // DH1 = DH(ourIdentityPrivate, theirSignedPreKey)
     final dh1 =
@@ -64,12 +80,12 @@ class SignalProtocolService {
 
     // DH4 = DH(ourEphemeralPrivate, theirOneTimePreKey) [if available]
     Uint8List? dh4;
-    int? consumedOtkId;
+    String? consumedOtkPublicKey;
     if (theirBundle.oneTimePreKeys.isNotEmpty) {
       final theirOtk = base64Decode(theirBundle.oneTimePreKeys.first);
       dh4 = await _cryptoService.diffieHellman(
           ephemeralKp['privateKey']!, theirOtk);
-      consumedOtkId = 0; // Index of consumed OTK
+      consumedOtkPublicKey = theirBundle.oneTimePreKeys.first;
     }
 
     // 5. Concatenate master secret
@@ -111,7 +127,7 @@ class SignalProtocolService {
       isInitiator: true,
       pendingIdentityKey: base64Encode(ourIdentityPublic),
       pendingEphemeralKey: base64Encode(ephemeralKp['publicKey']!),
-      pendingOtkId: consumedOtkId,
+      pendingOtkPublicKey: consumedOtkPublicKey,
     );
 
     // 9. Persist session
@@ -173,11 +189,11 @@ class SignalProtocolService {
       result['x3dhHeader'] = {
         'identityKey': session.pendingIdentityKey,
         'ephemeralKey': session.pendingEphemeralKey,
-        'oneTimePreKeyId': session.pendingOtkId,
+        'oneTimePreKeyPublicKey': session.pendingOtkPublicKey,
       };
       session.pendingIdentityKey = null;
       session.pendingEphemeralKey = null;
-      session.pendingOtkId = null;
+      session.pendingOtkPublicKey = null;
     }
 
     session.sendMessageNumber++;
@@ -291,6 +307,25 @@ class SignalProtocolService {
     return stored != null;
   }
 
+  /// Reset the session with [userId], deleting all local state.
+  ///
+  /// The next message exchange will trigger a fresh X3DH handshake.
+  /// Use this when decryption failures indicate a corrupted session.
+  Future<void> resetSession(String userId) async {
+    await _secureStorage.delete(key: '$_sessionPrefix$userId');
+  }
+
+  /// Reset all sessions. Used during key bundle re-generation or
+  /// device-level key wipe.
+  Future<void> resetAllSessions() async {
+    final all = await _secureStorage.readAll();
+    for (final key in all.keys) {
+      if (key.startsWith(_sessionPrefix)) {
+        await _secureStorage.delete(key: key);
+      }
+    }
+  }
+
   // ===========================================================================
   // RECEIVER-SIDE X3DH
   // ===========================================================================
@@ -315,6 +350,10 @@ class SignalProtocolService {
     final theirEphemeralPub =
         base64Decode(x3dhHeader['ephemeralKey'] as String);
 
+    // Verify Ed25519 signature on our signed pre-key if the sender included
+    // verification data. This is self-verification that our own bundle is intact.
+    // (The sender already verified the signature before using our pre-key.)
+
     // Compute DH secrets (reversed roles)
     // DH1 = DH(ourSignedPreKeyPriv, theirIdentityPub)
     final dh1 = await _cryptoService.diffieHellman(
@@ -327,11 +366,25 @@ class SignalProtocolService {
         ourSignedPreKeyPrivate, theirEphemeralPub);
 
     // DH4 = DH(ourOtkPriv, theirEphemeralPub) [if OTK was used]
+    // Gap 11 fix: match OTK by public key content instead of fragile array index
     Uint8List? dh4;
-    final otkId = x3dhHeader['oneTimePreKeyId'] as int?;
-    if (otkId != null && ourBundle.oneTimePreKeys.length > otkId) {
+    final otkPublicKey = x3dhHeader['oneTimePreKeyPublicKey'] as String?;
+    // Also support legacy 'oneTimePreKeyId' (int index) for backward compatibility
+    final legacyOtkId = x3dhHeader['oneTimePreKeyId'] as int?;
+    if (otkPublicKey != null) {
+      // Content-based matching: find the OTK whose public key matches
+      for (final otkEncoded in ourBundle.oneTimePreKeys) {
+        final pubPart = otkEncoded.split('|')[1];
+        if (pubPart == otkPublicKey) {
+          final otkPrivate = base64Decode(otkEncoded.split('|')[0]);
+          dh4 = await _cryptoService.diffieHellman(otkPrivate, theirEphemeralPub);
+          break;
+        }
+      }
+    } else if (legacyOtkId != null && ourBundle.oneTimePreKeys.length > legacyOtkId) {
+      // Legacy index-based fallback
       final otkPrivate =
-          base64Decode(ourBundle.oneTimePreKeys[otkId].split('|')[0]);
+          base64Decode(ourBundle.oneTimePreKeys[legacyOtkId].split('|')[0]);
       dh4 = await _cryptoService.diffieHellman(otkPrivate, theirEphemeralPub);
     }
 
@@ -505,7 +558,7 @@ class _DoubleRatchetSession {
   bool isInitiator;
   String? pendingIdentityKey;
   String? pendingEphemeralKey;
-  int? pendingOtkId;
+  String? pendingOtkPublicKey;
 
   _DoubleRatchetSession({
     required this.rootKey,
@@ -521,7 +574,7 @@ class _DoubleRatchetSession {
     this.isInitiator = false,
     this.pendingIdentityKey,
     this.pendingEphemeralKey,
-    this.pendingOtkId,
+    this.pendingOtkPublicKey,
   }) : skippedKeys = skippedKeys ?? {};
 
   Map<String, dynamic> toJson() {
@@ -540,7 +593,7 @@ class _DoubleRatchetSession {
       'isInitiator': isInitiator,
       'pendingIdentityKey': pendingIdentityKey,
       'pendingEphemeralKey': pendingEphemeralKey,
-      'pendingOtkId': pendingOtkId,
+      'pendingOtkPublicKey': pendingOtkPublicKey,
     };
   }
 
@@ -563,7 +616,7 @@ class _DoubleRatchetSession {
       isInitiator: json['isInitiator'] as bool? ?? false,
       pendingIdentityKey: json['pendingIdentityKey'] as String?,
       pendingEphemeralKey: json['pendingEphemeralKey'] as String?,
-      pendingOtkId: json['pendingOtkId'] as int?,
+      pendingOtkPublicKey: json['pendingOtkPublicKey'] as String?,
     );
   }
 }

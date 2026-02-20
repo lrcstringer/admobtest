@@ -111,6 +111,12 @@ abstract class CommunityRemoteDataSource {
     required String emoji,
   });
 
+  // E2EE key distribution
+  Future<List<Map<String, dynamic>>> fetchPendingKeyDistributions(
+      String communityId);
+  Future<void> markKeyDistributionConsumed(
+      String communityId, String distributionId);
+
   // Unread
   Stream<int> watchTotalCommunityUnreadCount();
 }
@@ -886,6 +892,43 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       throw ServerException(
           message: data['error'] ?? 'Failed to remove reaction');
     }
+  }
+
+  // =========================================================================
+  // E2EE KEY DISTRIBUTION
+  // =========================================================================
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchPendingKeyDistributions(
+      String communityId) async {
+    final userId = _requireUserId();
+
+    final snapshot = await _communitiesCollection
+        .doc(communityId)
+        .collection('keyDistribution')
+        .where('toUserId', isEqualTo: userId)
+        .where('consumed', isEqualTo: false)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      return {
+        ...data,
+        'distributionId': doc.id,
+      };
+    }).toList();
+  }
+
+  @override
+  Future<void> markKeyDistributionConsumed(
+      String communityId, String distributionId) async {
+    _requireUserId();
+
+    final callable = _functions.httpsCallable('markKeyDistributionConsumed');
+    await callable.call<dynamic>({
+      'communityId': communityId,
+      'distributionId': distributionId,
+    });
   }
 
   // =========================================================================

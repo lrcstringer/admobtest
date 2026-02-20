@@ -2,10 +2,13 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
+import 'dart:convert';
+
 import '../../core/error/exceptions.dart';
 import '../../core/error/failures.dart';
 import '../../core/network/network_info.dart';
 import '../../core/services/sender_key_service.dart';
+import '../../core/services/signal_protocol_service.dart';
 import '../../domain/entities/community.dart';
 import '../../domain/entities/community_member.dart';
 import '../../domain/entities/community_transaction.dart';
@@ -22,12 +25,24 @@ class CommunityRepositoryImpl implements CommunityRepository {
   final CommunityRemoteDataSource _remoteDataSource;
   final NetworkInfo _networkInfo;
   final SenderKeyService _senderKeyService;
+  final SignalProtocolService _signalProtocolService;
 
   CommunityRepositoryImpl(
     this._remoteDataSource,
     this._networkInfo,
     this._senderKeyService,
+    this._signalProtocolService,
   );
+
+  /// Cache of sent encrypted messages: messageId → plaintext.
+  /// Allows the sender to see their own community E2EE messages without
+  /// decryption (sender key is stored under _ownKeyPrefix, not _peerKeyPrefix).
+  final Map<String, String> _sentPlaintextCache = {};
+
+  /// Cache of received decrypted messages: messageId → plaintext.
+  /// Prevents re-decryption on subsequent stream emissions (which would
+  /// ratchet the sender key chain forward and corrupt the state).
+  final Map<String, String> _receivedPlaintextCache = {};
 
   // =========================================================================
   // COMMUNITY CRUD
@@ -349,9 +364,12 @@ class CommunityRepositoryImpl implements CommunityRepository {
         before: before,
       );
       final messages = models.map((m) => m.toEntity()).toList();
-      final decrypted = await Future.wait(
-        messages.map((m) => _decryptIfNeeded(communityId, m)),
-      );
+      // Decrypt sequentially to avoid concurrent chain key ratcheting
+      // for messages from the same sender (corrupts session state).
+      final decrypted = <Message>[];
+      for (final m in messages) {
+        decrypted.add(await _decryptIfNeeded(communityId, m));
+      }
       return Right(decrypted);
     } on AuthException {
       return const Left(Failure.unauthenticated());
@@ -371,9 +389,11 @@ class CommunityRepositoryImpl implements CommunityRepository {
         .watchMessages(communityId: communityId, limit: limit)
         .asyncMap((models) async {
       final messages = models.map((m) => m.toEntity()).toList();
-      final decrypted = await Future.wait(
-        messages.map((m) => _decryptIfNeeded(communityId, m)),
-      );
+      // Decrypt sequentially to avoid concurrent chain key ratcheting
+      final decrypted = <Message>[];
+      for (final m in messages) {
+        decrypted.add(await _decryptIfNeeded(communityId, m));
+      }
       return Right<Failure, List<Message>>(decrypted);
     }).handleError((error) {
       if (error is AuthException) {
@@ -396,6 +416,9 @@ class CommunityRepositoryImpl implements CommunityRepository {
     try {
       // Try to encrypt via Sender Key protocol
       try {
+        // Ensure sender key is distributed to all members before encrypting
+        await _ensureSenderKeyDistributed(communityId);
+
         final encrypted = await _senderKeyService.encryptCommunity(
           communityId,
           text,
@@ -406,9 +429,11 @@ class CommunityRepositoryImpl implements CommunityRepository {
           e2ee: encrypted['e2ee'] as Map<String, dynamic>,
           replyToMessageId: replyToMessageId,
         );
+        // Cache plaintext so sender can view their own E2EE message
+        _sentPlaintextCache[messageId] = text;
         return Right(Message(
           id: messageId,
-          senderId: '',
+          senderId: _remoteDataSource.currentUserId ?? '',
           senderName: '',
           type: MessageType.text,
           status: MessageStatus.sent,
@@ -782,8 +807,111 @@ class CommunityRepositoryImpl implements CommunityRepository {
   // E2EE HELPERS
   // =========================================================================
 
+  /// Set of communityIds where sender key has already been distributed
+  /// this session, to avoid redundant re-distribution on every message.
+  final Set<String> _distributedCommunities = {};
+
+  /// Gap 1 fix: Ensure our sender key is generated and distributed to all
+  /// community members before sending an encrypted message.
+  Future<void> _ensureSenderKeyDistributed(String communityId) async {
+    if (_distributedCommunities.contains(communityId)) return;
+
+    final hasKey = await _senderKeyService.hasSenderKey(communityId);
+    if (!hasKey) {
+      await _senderKeyService.generateSenderKey(communityId);
+    }
+
+    // Fetch member list and distribute to all (excluding self)
+    final members = await _remoteDataSource.getMembers(communityId);
+    final currentUserId = _remoteDataSource.currentUserId;
+    final otherMemberIds = members
+        .map((m) => m.userId)
+        .where((id) => id != currentUserId)
+        .toList();
+
+    if (otherMemberIds.isNotEmpty) {
+      await _senderKeyService.distributeSenderKeyToAll(
+        communityId,
+        otherMemberIds,
+      );
+    }
+
+    _distributedCommunities.add(communityId);
+  }
+
+  /// Gap 2 fix: Fetch and process any pending sender key distributions
+  /// from other community members, so we can decrypt their messages.
+  Future<void> _processIncomingKeyDistributions(String communityId) async {
+    try {
+      final distributions =
+          await _remoteDataSource.fetchPendingKeyDistributions(communityId);
+
+      for (final dist in distributions) {
+        final fromUserId = dist['fromUserId'] as String;
+        final encryptedKeyData = dist['encryptedKeyData'] as String;
+        final e2ee = dist['e2ee'] as Map<String, dynamic>?;
+        final x3dhHeader = dist['x3dhHeader'] as Map<String, dynamic>?;
+        final distributionId = dist['distributionId'] as String;
+
+        try {
+          // Decrypt the sender key via P2P Signal Protocol channel
+          final decrypted = await _signalProtocolService.decryptP2P(
+            fromUserId,
+            {
+              'ciphertext': encryptedKeyData,
+              if (e2ee != null) 'e2ee': e2ee,
+              if (x3dhHeader != null) 'x3dhHeader': x3dhHeader,
+            },
+          );
+
+          // Parse and store the sender key
+          final keyData =
+              jsonDecode(decrypted) as Map<String, dynamic>;
+          await _senderKeyService.processReceivedSenderKey(
+            communityId,
+            fromUserId,
+            keyData,
+          );
+
+          // Mark as consumed on server
+          await _remoteDataSource.markKeyDistributionConsumed(
+            communityId,
+            distributionId,
+          );
+        } catch (e) {
+          debugPrint(
+            'Failed to process key distribution from $fromUserId: $e',
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch key distributions for $communityId: $e');
+    }
+  }
+
   Future<Message> _decryptIfNeeded(String communityId, Message msg) async {
     if (!msg.isEncrypted) return msg;
+
+    // Sender cannot decrypt their own outgoing community E2EE messages because
+    // the sender key is stored under _ownKeyPrefix, not _peerKeyPrefix.
+    // Use the in-memory plaintext cache for messages sent this session.
+    final currentUserId = _remoteDataSource.currentUserId;
+    if (msg.senderId == currentUserId) {
+      final cached = _sentPlaintextCache[msg.id];
+      if (cached != null) {
+        return msg.copyWith(textContent: cached);
+      }
+      // Message was sent in a previous app session — plaintext is no longer
+      // available locally. Return as-is; UI shows the encrypted indicator.
+      return msg;
+    }
+
+    // Check received cache to avoid re-decrypting (which corrupts sender key state)
+    final cachedReceived = _receivedPlaintextCache[msg.id];
+    if (cachedReceived != null) {
+      return msg.copyWith(textContent: cachedReceived);
+    }
+
     try {
       final encrypted = {
         'ciphertext': msg.ciphertext,
@@ -801,9 +929,37 @@ class CommunityRepositoryImpl implements CommunityRepository {
         msg.senderId,
         encrypted,
       );
+      _receivedPlaintextCache[msg.id] = plaintext;
       return msg.copyWith(textContent: plaintext);
     } on StateError {
-      debugPrint('Sender key missing for ${msg.senderId} in $communityId');
+      // Sender key missing — try fetching pending key distributions first
+      debugPrint('Sender key missing for ${msg.senderId} in $communityId, '
+          'checking for pending distributions...');
+      await _processIncomingKeyDistributions(communityId);
+
+      // Retry decryption after processing distributions
+      try {
+        final retryEncrypted = {
+          'ciphertext': msg.ciphertext,
+          if (msg.e2ee != null)
+            'e2ee': {
+              'protocol': msg.e2ee!.protocol,
+              if (msg.e2ee!.senderKeyChainId != null)
+                'senderKeyChainId': msg.e2ee!.senderKeyChainId,
+              if (msg.e2ee!.messageNumber != null)
+                'messageNumber': msg.e2ee!.messageNumber,
+            },
+        };
+        final plaintext = await _senderKeyService.decryptCommunity(
+          communityId,
+          msg.senderId,
+          retryEncrypted,
+        );
+        _receivedPlaintextCache[msg.id] = plaintext;
+        return msg.copyWith(textContent: plaintext);
+      } catch (_) {
+        // Still can't decrypt — show waiting indicator
+      }
       return msg.copyWith(textContent: '[Waiting for encryption key...]');
     } catch (e) {
       debugPrint('Sender Key decrypt failed for msg ${msg.id}: $e');
