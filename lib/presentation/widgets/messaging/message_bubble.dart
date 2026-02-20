@@ -7,13 +7,17 @@ import '../../../domain/enums/message_type.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 
-/// Reusable message bubble for both P2P conversations and community chat.
+/// WeChat-style message bubble with square avatars and speech triangles.
 ///
 /// Handles text, token send/request, image, voice, and system messages.
 class MessageBubble extends StatelessWidget {
   final Message message;
   final bool isMe;
   final String currentUserId;
+
+  /// Optional avatar URL override (from conversation participant info).
+  /// Falls back to [message.senderAvatarUrl] if null.
+  final String? avatarUrl;
 
   /// Whether to show the sender name above the bubble (community messages).
   final bool showSenderName;
@@ -32,18 +36,22 @@ class MessageBubble extends StatelessWidget {
     required this.message,
     required this.isMe,
     required this.currentUserId,
+    this.avatarUrl,
     this.showSenderName = false,
     this.onTokenRequestAction,
     this.onLongPress,
     this.onReplyTap,
   });
 
+  String? get _effectiveAvatarUrl => avatarUrl ?? message.senderAvatarUrl;
+
   @override
   Widget build(BuildContext context) {
     if (message.isSystem) return _buildSystemMessage(context);
     if (message.isTokenTransfer) return _buildTokenCard(context);
 
-    final showAvatar = showSenderName && !isMe;
+    final bubbleColor =
+        isMe ? AppColors.chatBubbleSent : AppColors.chatBubbleReceived;
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -55,104 +63,72 @@ class MessageBubble extends StatelessWidget {
             maxWidth: MediaQuery.of(context).size.width * 0.75,
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (showAvatar)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: _buildSenderAvatar(),
-                ),
+              // Left avatar (received messages)
+              if (!isMe) ...[
+                _buildSquareAvatar(),
+                const SizedBox(width: 4),
+              ],
+              // Bubble with triangle
               Flexible(
                 child: Column(
                   crossAxisAlignment:
                       isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                   children: [
-                    if (showAvatar)
+                    if (showSenderName && !isMe)
                       Padding(
-                        padding: const EdgeInsets.only(left: 14, bottom: 2),
+                        padding: const EdgeInsets.only(left: 10, bottom: 2),
                         child: Text(
                           message.senderName,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall
+                              ?.copyWith(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w600,
                               ),
                         ),
                       ),
                     if (message.replyTo != null) _buildReplyContext(context),
-                    Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: isMe ? AppColors.primary : AppColors.surface,
-                        borderRadius: BorderRadius.only(
-                          topLeft: const Radius.circular(16),
-                          topRight: const Radius.circular(16),
-                          bottomLeft:
-                              isMe ? const Radius.circular(16) : Radius.zero,
-                          bottomRight:
-                              isMe ? Radius.zero : const Radius.circular(16),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          if (message.hasMedia) _buildMedia(context),
-                          if (_isDecryptionFailed)
-                            _buildDecryptionFailed(context)
-                          else if (message.isEncrypted &&
-                              (message.textContent == null ||
-                                  message.textContent!.isEmpty))
-                            _buildEncryptedSentIndicator(context)
-                          else if (message.textContent?.isNotEmpty == true)
-                            Text(
-                              message.textContent!,
-                              style:
-                                  Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: isMe
-                                            ? AppColors.textOnPrimary
-                                            : AppColors.textPrimary,
-                                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Left triangle (received)
+                        if (!isMe)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: CustomPaint(
+                              size: const Size(6, 10),
+                              painter:
+                                  _TrianglePainter(isMe: false, color: bubbleColor),
                             ),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (message.isEncrypted) ...[
-                                Icon(
-                                  Icons.lock,
-                                  size: 10,
-                                  color: isMe
-                                      ? AppColors.textOnPrimary.withValues(alpha: 0.7)
-                                      : AppColors.textHint,
-                                ),
-                                const SizedBox(width: 2),
-                              ],
-                              Text(
-                                _formatTime(message.createdAt),
-                                style:
-                                    Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: isMe
-                                              ? AppColors.textOnPrimary
-                                                  .withValues(alpha: 0.7)
-                                              : AppColors.textHint,
-                                          fontSize: 10,
-                                        ),
-                              ),
-                              if (isMe) ...[
-                                const SizedBox(width: 4),
-                                _buildStatusIcon(),
-                              ],
-                            ],
                           ),
-                        ],
-                      ),
+                        // Bubble content
+                        Flexible(child: _buildBubbleContent(context, bubbleColor)),
+                        // Right triangle (sent)
+                        if (isMe)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: CustomPaint(
+                              size: const Size(6, 10),
+                              painter:
+                                  _TrianglePainter(isMe: true, color: bubbleColor),
+                            ),
+                          ),
+                      ],
                     ),
-                    if (message.totalReactions > 0)
-                      _buildReactionsBar(context),
+                    if (message.totalReactions > 0) _buildReactionsBar(context),
                   ],
                 ),
               ),
+              // Right avatar (sent messages)
+              if (isMe) ...[
+                const SizedBox(width: 4),
+                _buildSquareAvatar(),
+              ],
             ],
           ),
         ),
@@ -160,21 +136,29 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildSenderAvatar() {
-    if (message.senderAvatarUrl != null) {
+  Widget _buildSquareAvatar() {
+    const double size = 36;
+    const double radius = 4;
+
+    if (_effectiveAvatarUrl != null) {
       return CachedNetworkImage(
-        imageUrl: message.senderAvatarUrl!,
-        imageBuilder: (_, imageProvider) => CircleAvatar(
-          radius: 14,
-          backgroundImage: imageProvider,
+        imageUrl: _effectiveAvatarUrl!,
+        imageBuilder: (_, imageProvider) => Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(radius),
+            image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+          ),
         ),
-        errorWidget: (_, __, ___) => _buildInitialsAvatar(),
+        placeholder: (_, __) => _buildInitialsSquare(size, radius),
+        errorWidget: (_, __, ___) => _buildInitialsSquare(size, radius),
       );
     }
-    return _buildInitialsAvatar();
+    return _buildInitialsSquare(size, radius);
   }
 
-  Widget _buildInitialsAvatar() {
+  Widget _buildInitialsSquare(double size, double radius) {
     final name = message.senderName;
     String initials;
     if (name.isEmpty) {
@@ -187,16 +171,74 @@ class MessageBubble extends StatelessWidget {
         initials = name.substring(0, name.length.clamp(0, 2)).toUpperCase();
       }
     }
-    return CircleAvatar(
-      radius: 14,
-      backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(radius),
+      ),
+      alignment: Alignment.center,
       child: Text(
         initials,
         style: const TextStyle(
-          fontSize: 10,
+          fontSize: 12,
           color: AppColors.primary,
           fontWeight: FontWeight.bold,
         ),
+      ),
+    );
+  }
+
+  Widget _buildBubbleContent(BuildContext context, Color bubbleColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: bubbleColor,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (message.hasMedia) _buildMedia(context),
+          if (_isDecryptionFailed)
+            _buildDecryptionFailed(context)
+          else if (message.isEncrypted &&
+              (message.textContent == null || message.textContent!.isEmpty))
+            _buildEncryptedSentIndicator(context)
+          else if (message.textContent?.isNotEmpty == true)
+            Text(
+              message.textContent!,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.chatBubbleText,
+                  ),
+            ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (message.isEncrypted) ...[
+                Icon(
+                  Icons.lock,
+                  size: 10,
+                  color: AppColors.chatBubbleTimestamp,
+                ),
+                const SizedBox(width: 2),
+              ],
+              Text(
+                _formatTime(message.createdAt),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.chatBubbleTimestamp,
+                      fontSize: 10,
+                    ),
+              ),
+              if (isMe) ...[
+                const SizedBox(width: 4),
+                _buildStatusIcon(),
+              ],
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -208,12 +250,9 @@ class MessageBubble extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 2),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: (isMe ? AppColors.primary : AppColors.surface)
-              .withValues(alpha: 0.5),
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16),
-          ),
+          color: (isMe ? AppColors.chatBubbleSent : AppColors.chatBubbleReceived)
+              .withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(4),
           border: Border(
             left: BorderSide(color: AppColors.accent, width: 3),
           ),
@@ -233,9 +272,7 @@ class MessageBubble extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: isMe
-                        ? AppColors.textOnPrimary.withValues(alpha: 0.7)
-                        : AppColors.textSecondary,
+                    color: AppColors.chatBubbleTimestamp,
                   ),
             ),
           ],
@@ -275,14 +312,14 @@ class MessageBubble extends StatelessWidget {
           children: [
             Icon(
               Icons.play_circle_filled,
-              color: isMe ? AppColors.textOnPrimary : AppColors.primary,
+              color: AppColors.chatBubbleText,
               size: 32,
             ),
             const SizedBox(width: 8),
             Text(
               '${(duration ~/ 60).toString().padLeft(2, '0')}:${(duration % 60).toString().padLeft(2, '0')}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: isMe ? AppColors.textOnPrimary : AppColors.textPrimary,
+                    color: AppColors.chatBubbleText,
                   ),
             ),
           ],
@@ -295,7 +332,7 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildStatusIcon() {
     IconData icon;
-    Color color = AppColors.textOnPrimary.withValues(alpha: 0.7);
+    Color color = AppColors.chatBubbleTimestamp;
 
     switch (message.status) {
       case MessageStatus.sending:
@@ -307,7 +344,7 @@ class MessageBubble extends StatelessWidget {
         color = AppColors.error;
       case MessageStatus.paid:
         icon = Icons.check_circle;
-        color = AppColors.success;
+        color = const Color(0xFF006400); // Dark green on green bubble
       case MessageStatus.declined:
         icon = Icons.cancel_outlined;
         color = AppColors.error;
@@ -499,9 +536,7 @@ class MessageBubble extends StatelessWidget {
         Icon(
           Icons.lock_outline,
           size: 16,
-          color: isMe
-              ? AppColors.textOnPrimary.withValues(alpha: 0.7)
-              : AppColors.textSecondary,
+          color: AppColors.chatBubbleTimestamp,
         ),
         const SizedBox(width: 6),
         Text(
@@ -509,9 +544,7 @@ class MessageBubble extends StatelessWidget {
               ? 'Waiting for encryption key...'
               : 'Message cannot be decrypted',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: isMe
-                    ? AppColors.textOnPrimary.withValues(alpha: 0.7)
-                    : AppColors.textSecondary,
+                color: AppColors.chatBubbleTimestamp,
                 fontStyle: FontStyle.italic,
               ),
         ),
@@ -519,8 +552,6 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  /// Indicator for the sender's own encrypted message when plaintext
-  /// is no longer available locally (sent in a previous app session).
   Widget _buildEncryptedSentIndicator(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -528,17 +559,13 @@ class MessageBubble extends StatelessWidget {
         Icon(
           Icons.lock,
           size: 16,
-          color: isMe
-              ? AppColors.textOnPrimary.withValues(alpha: 0.7)
-              : AppColors.textSecondary,
+          color: AppColors.chatBubbleTimestamp,
         ),
         const SizedBox(width: 6),
         Text(
           'Encrypted message',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: isMe
-                    ? AppColors.textOnPrimary.withValues(alpha: 0.7)
-                    : AppColors.textSecondary,
+                color: AppColors.chatBubbleTimestamp,
                 fontStyle: FontStyle.italic,
               ),
         ),
@@ -551,4 +578,36 @@ class MessageBubble extends StatelessWidget {
     final minute = date.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
+}
+
+/// Paints a small triangle "speech notch" pointing toward the avatar.
+class _TrianglePainter extends CustomPainter {
+  final bool isMe;
+  final Color color;
+
+  _TrianglePainter({required this.isMe, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    final path = Path();
+
+    if (isMe) {
+      // Triangle pointing right → toward right-side avatar
+      path.moveTo(0, 0);
+      path.lineTo(size.width, size.height * 0.5);
+      path.lineTo(0, size.height);
+    } else {
+      // Triangle pointing left ← toward left-side avatar
+      path.moveTo(size.width, 0);
+      path.lineTo(0, size.height * 0.5);
+      path.lineTo(size.width, size.height);
+    }
+
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

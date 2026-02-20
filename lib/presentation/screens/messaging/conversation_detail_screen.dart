@@ -210,6 +210,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               message: message,
               isMe: isMe,
               currentUserId: currentUserId,
+              avatarUrl: state.selectedConversation?.participants[message.senderId]?.avatarUrl,
               onLongPress: () => _onMessageLongPress(context, message),
               onTokenRequestAction: message.isTokenTransfer
                   ? (accepted) => _handleTokenRequestAction(

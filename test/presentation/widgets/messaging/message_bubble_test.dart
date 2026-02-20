@@ -73,7 +73,7 @@ void main() {
 
       await pumpBubble(tester, message: msg, isMe: true);
 
-      final align = tester.widget<Align>(find.byType(Align));
+      final align = tester.widget<Align>(find.byType(Align).first);
       expect(align.alignment, Alignment.centerRight);
     });
 
@@ -84,7 +84,7 @@ void main() {
 
       await pumpBubble(tester, message: msg, isMe: false);
 
-      final align = tester.widget<Align>(find.byType(Align));
+      final align = tester.widget<Align>(find.byType(Align).first);
       expect(align.alignment, Alignment.centerLeft);
     });
 

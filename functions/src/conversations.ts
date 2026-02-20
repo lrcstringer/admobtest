@@ -834,3 +834,82 @@ export const toggleMessageReaction = functions.https.onCall(async (data, context
 
   return { success: true };
 });
+
+// ============================================================================
+// PROFILE SYNC TRIGGER
+// ============================================================================
+
+/**
+ * Firestore trigger: when a user's profile changes (avatarUrl or displayName),
+ * propagate the update to all conversation documents where that user
+ * is a participant. This keeps denormalized participant info fresh.
+ */
+export const syncUserProfileToConversations = functions.firestore
+  .document("users/{userId}")
+  .onUpdate(async (change, context) => {
+    const userId = context.params.userId;
+    const before = change.before.data();
+    const after = change.after.data();
+
+    const avatarChanged = before.avatarUrl !== after.avatarUrl;
+    const nameChanged = before.displayName !== after.displayName;
+
+    if (!avatarChanged && !nameChanged) return;
+
+    const batchSize = 500;
+    let totalUpdated = 0;
+
+    // 1. Update all P2P conversation participant info
+    const conversations = await db
+      .collection("conversations")
+      .where("participantIds", "array-contains", userId)
+      .get();
+
+    if (!conversations.empty) {
+      for (let i = 0; i < conversations.docs.length; i += batchSize) {
+        const batch = db.batch();
+        const chunk = conversations.docs.slice(i, i + batchSize);
+        for (const doc of chunk) {
+          const updates: Record<string, unknown> = {};
+          if (avatarChanged) {
+            updates[`participants.${userId}.avatarUrl`] = after.avatarUrl || null;
+          }
+          if (nameChanged) {
+            updates[`participants.${userId}.displayName`] = after.displayName || "Unknown";
+          }
+          batch.update(doc.ref, updates);
+        }
+        await batch.commit();
+      }
+      totalUpdated += conversations.docs.length;
+    }
+
+    // 2. Update all community member records for this user
+    const communities = await db.collectionGroup("members")
+      .where("userId", "==", userId)
+      .where("status", "==", "active")
+      .get();
+
+    if (!communities.empty) {
+      for (let i = 0; i < communities.docs.length; i += batchSize) {
+        const batch = db.batch();
+        const chunk = communities.docs.slice(i, i + batchSize);
+        for (const doc of chunk) {
+          const updates: Record<string, unknown> = {};
+          if (avatarChanged) {
+            updates.avatarUrl = after.avatarUrl || null;
+          }
+          if (nameChanged) {
+            updates.displayName = after.displayName || "Unknown";
+          }
+          batch.update(doc.ref, updates);
+        }
+        await batch.commit();
+      }
+      totalUpdated += communities.docs.length;
+    }
+
+    console.log(
+      `syncUserProfileToConversations: updated ${totalUpdated} docs (${conversations.docs.length} conversations, ${communities.docs.length} community memberships) for user ${userId}`
+    );
+  });

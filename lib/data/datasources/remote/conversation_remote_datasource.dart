@@ -137,6 +137,10 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
   // CONVERSATION LIST
   // =========================================================================
 
+  /// Track which conversations have already been healed this session
+  /// to avoid redundant writes.
+  final Set<String> _healedConversationIds = {};
+
   @override
   Future<List<ConversationModel>> getConversations() async {
     final userId = _requireUserId();
@@ -146,9 +150,14 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
           .orderBy('lastMessageAt', descending: true)
           .get();
 
-      return snapshot.docs
+      final conversations = snapshot.docs
           .map((doc) => ConversationModel.fromFirestore(doc))
           .toList();
+
+      // Self-heal stale participant data (fire-and-forget)
+      _healStaleParticipants(conversations);
+
+      return conversations;
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -162,10 +171,85 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
         .orderBy('lastMessageAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
+      final conversations = snapshot.docs
           .map((doc) => ConversationModel.fromFirestore(doc))
           .toList();
+
+      // Self-heal on first snapshot (fire-and-forget)
+      _healStaleParticipants(conversations);
+
+      return conversations;
     });
+  }
+
+  /// Check conversations for participants with null avatarUrl.
+  /// For any found, look up the user document and patch the conversation.
+  /// This self-heals stale denormalized data from before the
+  /// syncUserProfileToConversations trigger was deployed.
+  void _healStaleParticipants(List<ConversationModel> conversations) {
+    // Collect conversation+participant pairs that need healing
+    final staleEntries = <MapEntry<String, String>>[]; // convId -> userId
+    for (final conv in conversations) {
+      if (_healedConversationIds.contains(conv.id)) continue;
+      for (final entry in conv.participants.entries) {
+        if (entry.value['avatarUrl'] == null) {
+          staleEntries.add(MapEntry(conv.id, entry.key));
+        }
+      }
+    }
+
+    if (staleEntries.isEmpty) return;
+
+    // Dedupe user IDs to look up
+    final userIdsToLookup = staleEntries.map((e) => e.value).toSet();
+
+    // Fire-and-forget: look up users and patch conversations
+    _doHeal(userIdsToLookup, staleEntries);
+  }
+
+  Future<void> _doHeal(
+    Set<String> userIds,
+    List<MapEntry<String, String>> staleEntries,
+  ) async {
+    try {
+      // Batch-read user documents (Firestore getAll)
+      final userDocs = await Future.wait(
+        userIds.map((uid) => _firestore.collection('users').doc(uid).get()),
+      );
+
+      final userAvatars = <String, String?>{};
+      for (final doc in userDocs) {
+        if (doc.exists) {
+          userAvatars[doc.id] = doc.data()?['avatarUrl'] as String?;
+        }
+      }
+
+      // Group stale entries by conversation
+      final patchesByConv = <String, Map<String, String>>{};
+      for (final entry in staleEntries) {
+        final convId = entry.key;
+        final userId = entry.value;
+        final freshUrl = userAvatars[userId];
+        if (freshUrl != null && freshUrl.isNotEmpty) {
+          patchesByConv
+              .putIfAbsent(convId, () => {})['participants.$userId.avatarUrl'] =
+              freshUrl;
+        }
+      }
+
+      // Write patches to Firestore
+      for (final entry in patchesByConv.entries) {
+        await _conversationsCollection.doc(entry.key).update(entry.value);
+        _healedConversationIds.add(entry.key);
+      }
+
+      // Mark conversations with genuinely null avatars as healed too
+      for (final stale in staleEntries) {
+        _healedConversationIds.add(stale.key);
+      }
+    } catch (_) {
+      // Self-healing is best-effort; don't crash if it fails
+    }
   }
 
   @override
