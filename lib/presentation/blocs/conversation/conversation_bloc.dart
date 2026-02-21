@@ -169,7 +169,22 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
         (c) => c.id == event.id,
       );
     } catch (_) {
-      // Conversation not in list yet — ignore silently
+      // Not in cached list — will fetch from Firestore below
+    }
+
+    // If not found in the cached list (race condition, dedup, or timing),
+    // fetch directly from Firestore so the detail screen doesn't spin forever.
+    if (conversation == null) {
+      final result = await _conversationRepository.getConversationById(event.id);
+      result.fold(
+        (failure) {
+          emit(state.copyWith(
+            hasLoadedMessages: true, // Stop the spinner
+            errorMessage: failure.displayMessage,
+          ));
+        },
+        (conv) => conversation = conv,
+      );
     }
 
     if (conversation == null) return;
@@ -256,7 +271,10 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
         .listen(
       (result) {
         result.fold(
-          (failure) {},
+          (failure) {
+            // Emit empty messages with hasLoadedMessages=true so the spinner stops
+            add(ConversationEvent.messagesUpdated(const []));
+          },
           (messages) => add(ConversationEvent.messagesUpdated(messages)),
         );
       },

@@ -159,9 +159,12 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
           .orderBy('lastMessageAt', descending: true)
           .get();
 
-      final conversations = snapshot.docs
-          .map((doc) => ConversationModel.fromFirestore(doc))
-          .toList();
+      final conversations = _deduplicateConversations(
+        snapshot.docs
+            .map((doc) => ConversationModel.fromFirestore(doc))
+            .toList(),
+        userId,
+      );
 
       // Clear healed set on explicit refresh so stale data can be re-healed
       _healedConversationIds.clear();
@@ -183,15 +186,48 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
         .orderBy('lastMessageAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      final conversations = snapshot.docs
-          .map((doc) => ConversationModel.fromFirestore(doc))
-          .toList();
+      final conversations = _deduplicateConversations(
+        snapshot.docs
+            .map((doc) => ConversationModel.fromFirestore(doc))
+            .toList(),
+        userId,
+      );
 
       // Self-heal on first snapshot (fire-and-forget)
       _healStaleParticipants(conversations);
 
       return conversations;
     });
+  }
+
+  /// Deduplicate P2P conversations that share the same participant pair.
+  /// Keeps the one with the most recent message (or earliest creation as tiebreak).
+  List<ConversationModel> _deduplicateConversations(
+    List<ConversationModel> conversations,
+    String currentUserId,
+  ) {
+    final seen = <String, ConversationModel>{};
+    for (final conv in conversations) {
+      if (conv.type != 'p2p') {
+        // Non-P2P conversations can't be duplicated this way
+        seen[conv.id] = conv;
+        continue;
+      }
+      final otherIds = conv.participantIds.where((id) => id != currentUserId);
+      final key = otherIds.isNotEmpty ? otherIds.first : conv.id;
+      final existing = seen[key];
+      if (existing == null) {
+        seen[key] = conv;
+      } else {
+        // Keep the one with the most recent message
+        final existingTime = existing.lastMessageAt ?? existing.createdAt;
+        final convTime = conv.lastMessageAt ?? conv.createdAt;
+        if (convTime.isAfter(existingTime)) {
+          seen[key] = conv;
+        }
+      }
+    }
+    return seen.values.toList();
   }
 
   /// Check conversations for participants with null avatarUrl.
@@ -345,9 +381,18 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
       }
 
       final snapshot = await query.get();
-      return snapshot.docs
-          .map((doc) => MessageModel.fromFirestore(doc))
-          .toList();
+      final messages = <MessageModel>[];
+      for (final doc in snapshot.docs) {
+        try {
+          messages.add(MessageModel.fromFirestore(doc));
+        } catch (e) {
+          developer.log(
+            'Skipping malformed message ${doc.id}: $e',
+            name: 'ConversationDS',
+          );
+        }
+      }
+      return messages;
     } catch (e) {
       throw ServerException(message: e.toString());
     }
@@ -369,9 +414,19 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
     }
 
     return query.snapshots().map((snapshot) {
-      return snapshot.docs
-          .map((doc) => MessageModel.fromFirestore(doc))
-          .toList();
+      final messages = <MessageModel>[];
+      for (final doc in snapshot.docs) {
+        try {
+          messages.add(MessageModel.fromFirestore(doc));
+        } catch (e) {
+          // Skip individual malformed messages instead of failing the batch
+          developer.log(
+            'Skipping malformed message ${doc.id}: $e',
+            name: 'ConversationDS',
+          );
+        }
+      }
+      return messages;
     });
   }
 

@@ -124,18 +124,16 @@ export const getOrCreateConversation = onCall({ labels: { area: "social" } }, as
     throw new HttpsError("invalid-argument", "Cannot create conversation with yourself");
   }
 
-  // Check if conversation already exists between these two users
-  const existing = await db
-    .collection("conversations")
-    .where("participantIds", "array-contains", userId)
-    .where("type", "==", "p2p")
-    .get();
+  // Deterministic doc ID prevents duplicate conversations from race conditions
+  const sortedIds = [userId, participantId].sort();
+  const deterministicId = `p2p_${sortedIds[0]}_${sortedIds[1]}`;
+  const convRef = db.collection("conversations").doc(deterministicId);
 
-  for (const doc of existing.docs) {
-    const convData = doc.data();
-    if (convData.participantIds && convData.participantIds.includes(participantId)) {
-      return { success: true, conversation: { ...convData, id: doc.id } };
-    }
+  // Check if conversation already exists
+  const existingDoc = await convRef.get();
+  if (existingDoc.exists) {
+    const convData = existingDoc.data()!;
+    return { success: true, conversation: { ...convData, id: existingDoc.id } };
   }
 
   // Get both user profiles for denormalized data
@@ -145,7 +143,6 @@ export const getOrCreateConversation = onCall({ labels: { area: "social" } }, as
   ]);
 
   const now = admin.firestore.FieldValue.serverTimestamp();
-  const convRef = db.collection("conversations").doc();
 
   const conversation = {
     id: convRef.id,

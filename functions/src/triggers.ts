@@ -24,12 +24,21 @@ const db = admin.firestore();
  */
 export const onUserCreated = onDocumentCreated({ document: "users/{userId}", labels: { area: "lifecycle" } }, async (event) => {
   const userId = event.params.userId;
-  // const userData = event.data?.data();
+  const userData = event.data?.data();
 
-  // Ledger account (main wallet, no default sub-account) is created by generateReferralCode
-  // Engagement stats are created by generateReferralCode
-  // Referral code is created by generateReferralCode
+  // Backfill displayNameLower if missing (needed for user search)
+  if (userData && !userData.displayNameLower && userData.displayName) {
+    try {
+      await event.data?.ref.update({
+        displayNameLower: (userData.displayName as string).toLowerCase(),
+      });
+      logger.info(`Backfilled displayNameLower for ${userId}`);
+    } catch (err) {
+      logger.warn(`Failed to backfill displayNameLower for ${userId}`, err);
+    }
+  }
 
+  // Ledger account, engagement stats, and referral code are created by generateReferralCode trigger
   logger.info(`User ${userId} created. Ledger setup handled by generateReferralCode trigger.`);
 
   return null;

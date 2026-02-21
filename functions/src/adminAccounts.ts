@@ -1400,3 +1400,46 @@ export const adminSoftDeleteClient = onCall({ labels: { area: "admin" } }, async
     deletedOpportunities,
   };
 });
+
+// ============================================================================
+// ONE-TIME BACKFILL: displayNameLower
+// ============================================================================
+
+export const backfillDisplayNameLower = onCall({ labels: { area: "admin" } }, async (request) => {
+  const adminCtx = await requireAdminPermission(request, "platform:runMigration", "backfillDisplayNameLower");
+  const db = admin.firestore();
+
+  const snapshot = await db.collection("users").get();
+  let updated = 0;
+  let skipped = 0;
+  const batch = db.batch();
+
+  for (const doc of snapshot.docs) {
+    const data = doc.data();
+    if (data.displayNameLower) {
+      skipped++;
+      continue;
+    }
+    const displayName = data.displayName as string | undefined;
+    if (!displayName) {
+      skipped++;
+      continue;
+    }
+    batch.update(doc.ref, { displayNameLower: displayName.toLowerCase() });
+    updated++;
+
+    // Firestore batches limited to 500
+    if (updated % 500 === 0) {
+      await batch.commit();
+    }
+  }
+
+  if (updated % 500 !== 0) {
+    await batch.commit();
+  }
+
+  logAdminAction(adminCtx.uid, "backfillDisplayNameLower", "success", { updated, skipped }).catch(() => {});
+  logger.info(`backfillDisplayNameLower: updated=${updated}, skipped=${skipped}`);
+
+  return { success: true, updated, skipped };
+});

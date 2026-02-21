@@ -161,23 +161,21 @@ class ConversationRepositoryImpl implements ConversationRepository {
   }) {
     return _remoteDataSource
         .watchMessages(conversationId: conversationId, limit: limit)
-        .asyncMap((models) async {
-      final messages = models.map((m) => m.toEntity()).toList();
-      // Decrypt sequentially to avoid concurrent chain key ratcheting
-      final decrypted = <Message>[];
-      for (final m in messages) {
-        decrypted.add(await _decryptIfNeeded(m));
+        .asyncMap<Either<Failure, List<Message>>>((models) async {
+      try {
+        final messages = models.map((m) => m.toEntity()).toList();
+        // Decrypt sequentially to avoid concurrent chain key ratcheting
+        final decrypted = <Message>[];
+        for (final m in messages) {
+          decrypted.add(await _decryptIfNeeded(m));
+        }
+        return Right(decrypted);
+      } on AuthException {
+        return const Left(Failure.unauthenticated());
+      } catch (e) {
+        debugPrint('watchMessages parse/decrypt error: $e');
+        return Left(Failure.serverError(message: e.toString()));
       }
-      return Right<Failure, List<Message>>(decrypted);
-    }).handleError((error) {
-      if (error is AuthException) {
-        return const Left<Failure, List<Message>>(
-          Failure.unauthenticated(),
-        );
-      }
-      return Left<Failure, List<Message>>(
-        Failure.serverError(message: error.toString()),
-      );
     });
   }
 

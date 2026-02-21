@@ -82,6 +82,7 @@ class UserRepositoryImpl implements UserRepository {
         userId: userId,
         phoneNumber: phoneNumber,
         displayName: displayName,
+        displayNameLower: displayName.toLowerCase(),
         status: UserStatus.active,
         hasAcceptedTerms: false,
         hasCompletedOnboarding: false,
