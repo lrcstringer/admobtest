@@ -164,10 +164,16 @@ class ConversationRepositoryImpl implements ConversationRepository {
         .asyncMap<Either<Failure, List<Message>>>((models) async {
       try {
         final messages = models.map((m) => m.toEntity()).toList();
-        // Decrypt sequentially to avoid concurrent chain key ratcheting
+        // Decrypt sequentially to avoid concurrent chain key ratcheting.
+        // Catch per-message so one failure doesn't drop the whole batch.
         final decrypted = <Message>[];
         for (final m in messages) {
-          decrypted.add(await _decryptIfNeeded(m));
+          try {
+            decrypted.add(await _decryptIfNeeded(m));
+          } catch (e) {
+            debugPrint('Decrypt failed for msg ${m.id}, adding as-is: $e');
+            decrypted.add(m);
+          }
         }
         return Right(decrypted);
       } on AuthException {
@@ -579,10 +585,14 @@ class ConversationRepositoryImpl implements ConversationRepository {
         return msg.copyWith(textContent: cached);
       }
       // Fallback: check persistent DB (survives app restart)
-      final dbCached = await _appDatabase.getDecryptedPlaintext(msg.id);
-      if (dbCached != null) {
-        _sentPlaintextCache[msg.id] = dbCached; // re-hydrate in-memory
-        return msg.copyWith(textContent: dbCached);
+      try {
+        final dbCached = await _appDatabase.getDecryptedPlaintext(msg.id);
+        if (dbCached != null) {
+          _sentPlaintextCache[msg.id] = dbCached; // re-hydrate in-memory
+          return msg.copyWith(textContent: dbCached);
+        }
+      } catch (e) {
+        debugPrint('DB plaintext lookup failed for own msg ${msg.id}: $e');
       }
       // No cached plaintext available — UI shows lock icon
       return msg;
@@ -594,10 +604,14 @@ class ConversationRepositoryImpl implements ConversationRepository {
       return msg.copyWith(textContent: cachedReceived);
     }
     // Fallback: check persistent DB (survives app restart)
-    final dbCachedReceived = await _appDatabase.getDecryptedPlaintext(msg.id);
-    if (dbCachedReceived != null) {
-      _receivedPlaintextCache[msg.id] = dbCachedReceived; // re-hydrate in-memory
-      return msg.copyWith(textContent: dbCachedReceived);
+    try {
+      final dbCachedReceived = await _appDatabase.getDecryptedPlaintext(msg.id);
+      if (dbCachedReceived != null) {
+        _receivedPlaintextCache[msg.id] = dbCachedReceived; // re-hydrate in-memory
+        return msg.copyWith(textContent: dbCachedReceived);
+      }
+    } catch (e) {
+      debugPrint('DB plaintext lookup failed for msg ${msg.id}: $e');
     }
 
     // Decrypt incoming message from the other participant
