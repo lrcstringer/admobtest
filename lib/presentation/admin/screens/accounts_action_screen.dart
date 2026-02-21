@@ -13,7 +13,7 @@ class AccountsActionScreen extends StatefulWidget {
 }
 
 class _AccountsActionScreenState extends State<AccountsActionScreen> {
-  final _functions = FirebaseFunctions.instance;
+  final _functions = FirebaseFunctions.instanceFor(region: 'africa-south1');
   bool _isInitializing = false;
 
   // Clients list for funding dropdowns
@@ -399,7 +399,7 @@ class _FundClientDialogState extends State<_FundClientDialog> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminFundClientAccount')
           .call({
         'clientId': _selectedClientId,
@@ -602,7 +602,7 @@ class _FundSubAccountDialogState extends State<_FundSubAccountDialog> {
       _subAccounts = [];
     });
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminListClientSubAccounts')
           .call({'clientId': clientId});
       final list = (result.data['subAccounts'] as List?)
@@ -629,7 +629,7 @@ class _FundSubAccountDialogState extends State<_FundSubAccountDialog> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
-      await FirebaseFunctions.instance
+      await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminFundClientSubAccount')
           .call({
         'clientId': _selectedClientId,

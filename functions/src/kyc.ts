@@ -10,7 +10,8 @@
  * - verified: Full ID verification — full limits apply
  */
 
-import * as functions from "firebase-functions";
+import { onCall, onRequest, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
 
@@ -22,25 +23,25 @@ const db = admin.firestore();
  * Creates a verification session with the third-party provider and returns
  * the session URL/ID for the client to redirect to.
  */
-export const initiateKyc = functions
-  .runWith({ timeoutSeconds: 60, memory: "256MB" })
-  .https.onCall(async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const initiateKyc = onCall(
+  { timeoutSeconds: 60, memory: "256MiB", labels: { area: "auth" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated to initiate KYC."
       );
     }
-    requireAppCheck(context, "initiateKyc");
+    requireAppCheck(request, "initiateKyc");
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
 
     // Check current KYC status
     const userDoc = await db.collection("users").doc(userId).get();
     const userData = userDoc.data();
 
     if (userData?.kycTier === "verified") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "already-exists",
         "Account is already fully verified."
       );
@@ -59,7 +60,7 @@ export const initiateKyc = functions
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
-      console.log(`KYC verification initiated for user ${userId}`);
+      logger.info(`KYC verification initiated for user ${userId}`);
 
       return {
         success: true,
@@ -68,8 +69,8 @@ export const initiateKyc = functions
         // sessionUrl: providerSession.url,
       };
     } catch (error) {
-      console.error(`KYC initiation failed for user ${userId}:`, error);
-      throw new functions.https.HttpsError(
+      logger.error(`KYC initiation failed for user ${userId}:`, error);
+      throw new HttpsError(
         "internal",
         "Failed to initiate verification. Please try again."
       );
@@ -82,9 +83,9 @@ export const initiateKyc = functions
  * This is an HTTP function (not callable) because it receives
  * POST requests from the third-party KYC provider.
  */
-export const kycWebhook = functions
-  .runWith({ timeoutSeconds: 30, memory: "256MB" })
-  .https.onRequest(async (req, res) => {
+export const kycWebhook = onRequest(
+  { timeoutSeconds: 30, memory: "256MiB", cors: false, invoker: "public", labels: { area: "auth" } },
+  async (req, res) => {
     if (req.method !== "POST") {
       res.status(405).send("Method not allowed");
       return;
@@ -126,14 +127,14 @@ export const kycWebhook = functions
           kycVerifiedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
 
-        console.log(`KYC approved for user ${userId}: tier=${tier}`);
+        logger.info(`KYC approved for user ${userId}: tier=${tier}`);
       } else if (status === "rejected") {
-        console.log(`KYC rejected for user ${userId}`);
+        logger.info(`KYC rejected for user ${userId}`);
       }
 
       res.status(200).json({ success: true });
     } catch (error) {
-      console.error("KYC webhook processing error:", error);
+      logger.error("KYC webhook processing error:", error);
       res.status(500).send("Internal error");
     }
   });
@@ -141,18 +142,18 @@ export const kycWebhook = functions
 /**
  * Get current KYC status for the authenticated user.
  */
-export const getKycStatus = functions
-  .runWith({ timeoutSeconds: 10, memory: "128MB" })
-  .https.onCall(async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const getKycStatus = onCall(
+  { timeoutSeconds: 10, memory: "128MiB", labels: { area: "auth" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated."
       );
     }
-    requireAppCheck(context, "getKycStatus");
+    requireAppCheck(request, "getKycStatus");
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
     const userDoc = await db.collection("users").doc(userId).get();
     const userData = userDoc.data();
 

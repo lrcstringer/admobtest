@@ -98,7 +98,7 @@ class _PlatformManagementScreenState extends State<PlatformManagementScreen> {
     setState(() => _isRunningSetup = true);
 
     try {
-      await FirebaseFunctions.instance
+      await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminRunPlatformSetup')
           .call();
 

@@ -6,7 +6,7 @@
  */
 
 import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
+import { HttpsError } from "firebase-functions/v2/https";
 import { TargetingCriteria, calculateAge, calculateEngagementLevel } from "./constants/targeting";
 
 const db = admin.firestore();
@@ -212,11 +212,20 @@ export interface UserTargetingContext {
  * Build user targeting context from Firestore user doc + engagement stats.
  * Shared between getEligibleThreads, getEligibleInbox, etc.
  */
+/**
+ * Structural interface compatible with both Gen1 CallableContext and
+ * Gen2 CallableRequest for the targeting context builder.
+ */
+interface TargetingCallableContextCompat {
+  auth?: { uid: string; token?: Record<string, unknown> };
+  rawRequest?: { headers?: Record<string, string | string[] | undefined> };
+}
+
 export async function buildUserTargetingContext(
-  context: functions.https.CallableContext
+  context: TargetingCallableContextCompat
 ): Promise<UserTargetingContext> {
   if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
 
   const userId = context.auth.uid;
@@ -224,7 +233,7 @@ export async function buildUserTargetingContext(
   // 1. Get user profile
   const userDoc = await db.collection("users").doc(userId).get();
   if (!userDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "User profile not found");
+    throw new HttpsError("not-found", "User profile not found");
   }
 
   const userData = userDoc.data()!;
@@ -248,7 +257,8 @@ export async function buildUserTargetingContext(
   );
 
   // Device platform from user-agent
-  const userAgent = context.rawRequest?.headers?.["user-agent"] || "";
+  const rawUserAgent = context.rawRequest?.headers?.["user-agent"] || "";
+  const userAgent = Array.isArray(rawUserAgent) ? rawUserAgent[0] : rawUserAgent;
   let devicePlatform: string | null = null;
   if (userAgent.toLowerCase().includes("android")) {
     devicePlatform = "android";

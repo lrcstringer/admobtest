@@ -12,7 +12,9 @@
  *   communities/{communityId}/pendingApprovals/{approvalId}
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
@@ -58,27 +60,27 @@ const db = admin.firestore();
 /**
  * Create a new community (regular or stokvel).
  */
-export const createCommunity = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "createCommunity");
-  await requirePlayIntegrity(data, context, "createCommunity", "HIGH");
+export const createCommunity = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "createCommunity");
+  await requirePlayIntegrity(request.data, request, "createCommunity", "HIGH");
 
-  const { name, description, avatarUrl, type, settings, stokvelSettings } = data;
+  const { name, description, avatarUrl, type, settings, stokvelSettings } = request.data;
 
   // Validate input
   if (!name || name.trim().length === 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Community name is required");
+    throw new HttpsError("invalid-argument", "Community name is required");
   }
   if (name.length > CommunityConfig.MAX_NAME_LENGTH) {
-    throw new functions.https.HttpsError("invalid-argument", CommunityErrorCodes.NAME_TOO_LONG);
+    throw new HttpsError("invalid-argument", CommunityErrorCodes.NAME_TOO_LONG);
   }
   if (description && description.length > CommunityConfig.MAX_DESCRIPTION_LENGTH) {
-    throw new functions.https.HttpsError("invalid-argument", CommunityErrorCodes.DESCRIPTION_TOO_LONG);
+    throw new HttpsError("invalid-argument", CommunityErrorCodes.DESCRIPTION_TOO_LONG);
   }
 
   const validTypes: CommunityType[] = ["regular", "stokvel"];
   if (!validTypes.includes(type)) {
-    throw new functions.https.HttpsError("invalid-argument", "Invalid community type");
+    throw new HttpsError("invalid-argument", "Invalid community type");
   }
 
   // Get user info for owner member record
@@ -152,9 +154,9 @@ export const createCommunity = functions.https.onCall(async (data, context) => {
   // Create ledger account (uses same group:id format — ledger doesn't care about collection name)
   try {
     await getOrCreateGroupAccount(communityRef.id);
-    console.log(`Created ledger account for community ${communityRef.id}`);
+    logger.info(`Created ledger account for community ${communityRef.id}`);
   } catch (error) {
-    console.error(`Failed to create ledger account for community ${communityRef.id}:`, error);
+    logger.error(`Failed to create ledger account for community ${communityRef.id}:`, error);
   }
 
   return {
@@ -167,14 +169,14 @@ export const createCommunity = functions.https.onCall(async (data, context) => {
 /**
  * Update community settings.
  */
-export const updateCommunity = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "updateCommunity");
+export const updateCommunity = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "updateCommunity");
 
-  const { communityId, name, description, avatarUrl, settings, stokvelSettings } = data;
+  const { communityId, name, description, avatarUrl, settings, stokvelSettings } = request.data;
 
   if (!communityId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID is required");
+    throw new HttpsError("invalid-argument", "Community ID is required");
   }
 
   const community = await getCommunityOrThrow(communityId);
@@ -185,14 +187,14 @@ export const updateCommunity = functions.https.onCall(async (data, context) => {
   // Validate updates
   if (name !== undefined) {
     if (name.trim().length === 0) {
-      throw new functions.https.HttpsError("invalid-argument", "Community name cannot be empty");
+      throw new HttpsError("invalid-argument", "Community name cannot be empty");
     }
     if (name.length > CommunityConfig.MAX_NAME_LENGTH) {
-      throw new functions.https.HttpsError("invalid-argument", CommunityErrorCodes.NAME_TOO_LONG);
+      throw new HttpsError("invalid-argument", CommunityErrorCodes.NAME_TOO_LONG);
     }
   }
   if (description !== undefined && description.length > CommunityConfig.MAX_DESCRIPTION_LENGTH) {
-    throw new functions.https.HttpsError("invalid-argument", CommunityErrorCodes.DESCRIPTION_TOO_LONG);
+    throw new HttpsError("invalid-argument", CommunityErrorCodes.DESCRIPTION_TOO_LONG);
   }
 
   const updateData: Record<string, unknown> = {
@@ -220,27 +222,27 @@ export const updateCommunity = functions.https.onCall(async (data, context) => {
 /**
  * Delete/close a community (only owner can do this).
  */
-export const deleteCommunity = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "deleteCommunity");
-  await requirePlayIntegrity(data, context, "deleteCommunity", "HIGH");
+export const deleteCommunity = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "deleteCommunity");
+  await requirePlayIntegrity(request.data, request, "deleteCommunity", "HIGH");
 
-  const { communityId } = data;
+  const { communityId } = request.data;
 
   if (!communityId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID is required");
+    throw new HttpsError("invalid-argument", "Community ID is required");
   }
 
   const community = await getCommunityOrThrow(communityId);
 
   if (community.ownerId !== userId) {
-    throw new functions.https.HttpsError("permission-denied", CommunityErrorCodes.PERMISSION_DENIED);
+    throw new HttpsError("permission-denied", CommunityErrorCodes.PERMISSION_DENIED);
   }
 
   // Check if community has balance
   const balance = await getGroupBalance(communityId);
   if (balance > 0) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       "Cannot delete community with remaining balance. Distribute funds first."
     );
@@ -262,18 +264,18 @@ export const deleteCommunity = functions.https.onCall(async (data, context) => {
 /**
  * Invite a member to the community.
  */
-export const inviteCommunityMember = functions.https.onCall(async (data, context) => {
-  const inviterId = requireAuth(context);
-  requireAppCheck(context, "inviteCommunityMember");
+export const inviteCommunityMember = onCall({ labels: { area: "social" } }, async (request) => {
+  const inviterId = requireAuth(request);
+  requireAppCheck(request, "inviteCommunityMember");
 
-  const { communityId, userId, role } = data;
+  const { communityId, userId, role } = request.data;
 
   if (!communityId || !userId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID and user ID are required");
+    throw new HttpsError("invalid-argument", "Community ID and user ID are required");
   }
 
   if (userId === inviterId) {
-    throw new functions.https.HttpsError("invalid-argument", CommunityErrorCodes.CANNOT_INVITE_SELF);
+    throw new HttpsError("invalid-argument", CommunityErrorCodes.CANNOT_INVITE_SELF);
   }
 
   const community = await getCommunityOrThrow(communityId);
@@ -284,7 +286,7 @@ export const inviteCommunityMember = functions.https.onCall(async (data, context
 
   // Check if settings allow member invites, or if inviter is admin
   if (!community.settings.allowMemberInvites && !community.adminIds.includes(inviterId)) {
-    throw new functions.https.HttpsError("permission-denied", "Only admins can invite members");
+    throw new HttpsError("permission-denied", "Only admins can invite members");
   }
 
   if (community.adminIds.includes(inviterId)) {
@@ -298,14 +300,14 @@ export const inviteCommunityMember = functions.https.onCall(async (data, context
   const existingMember = await getCommunityMember(communityId, userId);
   if (existingMember) {
     if (existingMember.status === "blocked") {
-      throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.MEMBER_BLOCKED);
+      throw new HttpsError("failed-precondition", CommunityErrorCodes.MEMBER_BLOCKED);
     }
-    throw new functions.https.HttpsError("already-exists", CommunityErrorCodes.MEMBER_ALREADY_EXISTS);
+    throw new HttpsError("already-exists", CommunityErrorCodes.MEMBER_ALREADY_EXISTS);
   }
 
   // Check max members
   if (community.memberCount >= community.settings.maxMembers) {
-    throw new functions.https.HttpsError("resource-exhausted", CommunityErrorCodes.MAX_MEMBERS_REACHED);
+    throw new HttpsError("resource-exhausted", CommunityErrorCodes.MAX_MEMBERS_REACHED);
   }
 
   // Get invitee user info
@@ -344,14 +346,14 @@ export const inviteCommunityMember = functions.https.onCall(async (data, context
 /**
  * Accept a community invitation.
  */
-export const acceptCommunityInvitation = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "acceptCommunityInvitation");
+export const acceptCommunityInvitation = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "acceptCommunityInvitation");
 
-  const { communityId } = data;
+  const { communityId } = request.data;
 
   if (!communityId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID is required");
+    throw new HttpsError("invalid-argument", "Community ID is required");
   }
 
   const community = await getCommunityOrThrow(communityId);
@@ -359,20 +361,20 @@ export const acceptCommunityInvitation = functions.https.onCall(async (data, con
 
   const member = await getCommunityMember(communityId, userId);
   if (!member) {
-    throw new functions.https.HttpsError("not-found", CommunityErrorCodes.INVITATION_NOT_FOUND);
+    throw new HttpsError("not-found", CommunityErrorCodes.INVITATION_NOT_FOUND);
   }
   if (member.status === "active") {
-    throw new functions.https.HttpsError("already-exists", CommunityErrorCodes.INVITATION_ALREADY_ACCEPTED);
+    throw new HttpsError("already-exists", CommunityErrorCodes.INVITATION_ALREADY_ACCEPTED);
   }
   if (member.status === "blocked") {
-    throw new functions.https.HttpsError("permission-denied", CommunityErrorCodes.MEMBER_BLOCKED);
+    throw new HttpsError("permission-denied", CommunityErrorCodes.MEMBER_BLOCKED);
   }
 
   // Check invitation hasn't expired
   const invitedAt = member.invitedAt.toDate();
   const expiresAt = new Date(invitedAt.getTime() + CommunityConfig.INVITATION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
   if (new Date() > expiresAt) {
-    throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.INVITATION_EXPIRED);
+    throw new HttpsError("failed-precondition", CommunityErrorCodes.INVITATION_EXPIRED);
   }
 
   const now = admin.firestore.Timestamp.now();
@@ -413,14 +415,14 @@ export const acceptCommunityInvitation = functions.https.onCall(async (data, con
 /**
  * Remove a member from the community.
  */
-export const removeCommunityMember = functions.https.onCall(async (data, context) => {
-  const actorId = requireAuth(context);
-  requireAppCheck(context, "removeCommunityMember");
+export const removeCommunityMember = onCall({ labels: { area: "social" } }, async (request) => {
+  const actorId = requireAuth(request);
+  requireAppCheck(request, "removeCommunityMember");
 
-  const { communityId, memberId } = data;
+  const { communityId, memberId } = request.data;
 
   if (!communityId || !memberId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID and member ID are required");
+    throw new HttpsError("invalid-argument", "Community ID and member ID are required");
   }
 
   const community = await getCommunityOrThrow(communityId);
@@ -428,13 +430,13 @@ export const removeCommunityMember = functions.https.onCall(async (data, context
 
   // Can't remove the owner
   if (memberId === community.ownerId) {
-    throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.CANNOT_REMOVE_OWNER);
+    throw new HttpsError("failed-precondition", CommunityErrorCodes.CANNOT_REMOVE_OWNER);
   }
 
   // Check permissions (must be admin or removing self)
   const actor = await getCommunityMember(communityId, actorId);
   if (!actor || actor.status !== "active") {
-    throw new functions.https.HttpsError("permission-denied", CommunityErrorCodes.NOT_A_MEMBER);
+    throw new HttpsError("permission-denied", CommunityErrorCodes.NOT_A_MEMBER);
   }
 
   const isSelfRemoval = actorId === memberId;
@@ -445,7 +447,7 @@ export const removeCommunityMember = functions.https.onCall(async (data, context
   // Get member being removed
   const targetMember = await getCommunityMember(communityId, memberId);
   if (!targetMember) {
-    throw new functions.https.HttpsError("not-found", CommunityErrorCodes.MEMBER_NOT_FOUND);
+    throw new HttpsError("not-found", CommunityErrorCodes.MEMBER_NOT_FOUND);
   }
 
   const now = admin.firestore.Timestamp.now();
@@ -490,30 +492,30 @@ export const removeCommunityMember = functions.https.onCall(async (data, context
 /**
  * Update a member's role.
  */
-export const updateCommunityMemberRole = functions.https.onCall(async (data, context) => {
-  const actorId = requireAuth(context);
-  requireAppCheck(context, "updateCommunityMemberRole");
+export const updateCommunityMemberRole = onCall({ labels: { area: "social" } }, async (request) => {
+  const actorId = requireAuth(request);
+  requireAppCheck(request, "updateCommunityMemberRole");
 
-  const { communityId, memberId, role } = data;
+  const { communityId, memberId, role } = request.data;
 
   if (!communityId || !memberId || !role) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID, member ID, and role are required");
+    throw new HttpsError("invalid-argument", "Community ID, member ID, and role are required");
   }
 
   const validRoles: GroupRole[] = ["admin", "treasurer", "member", "viewer"];
   if (!validRoles.includes(role)) {
-    throw new functions.https.HttpsError("invalid-argument", "Invalid role");
+    throw new HttpsError("invalid-argument", "Invalid role");
   }
 
   const community = await getCommunityOrThrow(communityId);
   requireActiveCommunity(community);
 
   if (actorId === memberId) {
-    throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.CANNOT_CHANGE_OWN_ROLE);
+    throw new HttpsError("failed-precondition", CommunityErrorCodes.CANNOT_CHANGE_OWN_ROLE);
   }
 
   if (memberId === community.ownerId) {
-    throw new functions.https.HttpsError("failed-precondition", "Cannot change owner's role");
+    throw new HttpsError("failed-precondition", "Cannot change owner's role");
   }
 
   const actor = await requireCommunityMember(communityId, actorId);
@@ -521,12 +523,12 @@ export const updateCommunityMemberRole = functions.https.onCall(async (data, con
 
   // Only owner can make admins
   if (role === "admin" && actor.role !== "owner") {
-    throw new functions.https.HttpsError("permission-denied", "Only owner can assign admin role");
+    throw new HttpsError("permission-denied", "Only owner can assign admin role");
   }
 
   const targetMember = await getCommunityMember(communityId, memberId);
   if (!targetMember || targetMember.status !== "active") {
-    throw new functions.https.HttpsError("not-found", CommunityErrorCodes.MEMBER_NOT_FOUND);
+    throw new HttpsError("not-found", CommunityErrorCodes.MEMBER_NOT_FOUND);
   }
 
   const wasAdmin = targetMember.role === "admin" || targetMember.role === "treasurer";
@@ -559,27 +561,27 @@ export const updateCommunityMemberRole = functions.https.onCall(async (data, con
 /**
  * Leave a community.
  */
-export const leaveCommunity = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "leaveCommunity");
+export const leaveCommunity = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "leaveCommunity");
 
-  const { communityId } = data;
+  const { communityId } = request.data;
 
   if (!communityId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID is required");
+    throw new HttpsError("invalid-argument", "Community ID is required");
   }
 
   const community = await getCommunityOrThrow(communityId);
 
   if (userId === community.ownerId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       "Owner cannot leave. Transfer ownership or delete the community."
     );
   }
 
-  // Reuse removeMember logic
-  return removeCommunityMember.run({ communityId, memberId: userId }, context);
+  // Reuse removeMember logic — call the wrapped handler directly
+  return removeCommunityMember.run({ data: { communityId, memberId: userId }, auth: request.auth } as any);
 });
 
 // ============================================================================
@@ -636,17 +638,17 @@ async function postSystemMessage(
 /**
  * Send a message in a community chat.
  */
-export const sendCommunityMessage = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "sendCommunityMessage");
+export const sendCommunityMessage = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "sendCommunityMessage");
 
-  const { communityId, text, mediaUrl, mediaType, replyToMessageId, ciphertext, e2ee, encryptedPreviews } = data;
+  const { communityId, text, mediaUrl, mediaType, replyToMessageId, ciphertext, e2ee, encryptedPreviews } = request.data;
 
   if (!communityId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID is required");
+    throw new HttpsError("invalid-argument", "Community ID is required");
   }
   if (!text && !mediaUrl && !ciphertext) {
-    throw new functions.https.HttpsError("invalid-argument", "Message text, media, or ciphertext is required");
+    throw new HttpsError("invalid-argument", "Message text, media, or ciphertext is required");
   }
 
   const community = await getCommunityOrThrow(communityId);
@@ -655,12 +657,12 @@ export const sendCommunityMessage = functions.https.onCall(async (data, context)
 
   // Check onlyAdminsPost setting
   if (community.settings.onlyAdminsPost && !community.adminIds.includes(userId)) {
-    throw new functions.https.HttpsError("permission-denied", CommunityErrorCodes.ONLY_ADMINS_CAN_POST);
+    throw new HttpsError("permission-denied", CommunityErrorCodes.ONLY_ADMINS_CAN_POST);
   }
 
   // Check media sharing permission
   if (mediaUrl && !community.settings.membersCanShareMedia && !community.adminIds.includes(userId)) {
-    throw new functions.https.HttpsError("permission-denied", "Media sharing is disabled for members");
+    throw new HttpsError("permission-denied", "Media sharing is disabled for members");
   }
 
   // Build reply context if replying
@@ -756,14 +758,14 @@ export const sendCommunityMessage = functions.https.onCall(async (data, context)
 /**
  * Mark community as read for the current user.
  */
-export const markCommunityRead = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "markCommunityRead");
+export const markCommunityRead = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "markCommunityRead");
 
-  const { communityId } = data;
+  const { communityId } = request.data;
 
   if (!communityId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID is required");
+    throw new HttpsError("invalid-argument", "Community ID is required");
   }
 
   await requireCommunityMember(communityId, userId);
@@ -791,14 +793,14 @@ export const markCommunityRead = functions.https.onCall(async (data, context) =>
 /**
  * Toggle a reaction on a community message.
  */
-export const toggleCommunityMessageReaction = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "toggleCommunityMessageReaction");
+export const toggleCommunityMessageReaction = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "toggleCommunityMessageReaction");
 
-  const { communityId, messageId, emoji } = data;
+  const { communityId, messageId, emoji } = request.data;
 
   if (!communityId || !messageId || !emoji) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID, message ID, and emoji are required");
+    throw new HttpsError("invalid-argument", "Community ID, message ID, and emoji are required");
   }
 
   await requireCommunityMember(communityId, userId);
@@ -811,7 +813,7 @@ export const toggleCommunityMessageReaction = functions.https.onCall(async (data
 
   const msgDoc = await msgRef.get();
   if (!msgDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Message not found");
+    throw new HttpsError("not-found", "Message not found");
   }
 
   const reactions = msgDoc.data()?.reactions || {};
@@ -835,14 +837,14 @@ export const toggleCommunityMessageReaction = functions.https.onCall(async (data
 /**
  * Mute/unmute a community.
  */
-export const toggleCommunityMute = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "toggleCommunityMute");
+export const toggleCommunityMute = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "toggleCommunityMute");
 
-  const { communityId, muted } = data;
+  const { communityId, muted } = request.data;
 
   if (!communityId || muted === undefined) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID and muted flag are required");
+    throw new HttpsError("invalid-argument", "Community ID and muted flag are required");
   }
 
   await requireCommunityMember(communityId, userId);
@@ -861,26 +863,26 @@ export const toggleCommunityMute = functions.https.onCall(async (data, context) 
 /**
  * Contribute tokens to a community.
  */
-export const contributeToCommunity = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "contributeToCommunity");
-  await requirePlayIntegrity(data, context, "contributeToCommunity", "HIGH");
+export const contributeToCommunity = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "contributeToCommunity");
+  await requirePlayIntegrity(request.data, request, "contributeToCommunity", "HIGH");
 
-  const { communityId, amount, description } = data;
+  const { communityId, amount, description } = request.data;
 
   if (!communityId || !amount) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID and amount are required");
+    throw new HttpsError("invalid-argument", "Community ID and amount are required");
   }
 
   if (amount <= 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Amount must be positive");
+    throw new HttpsError("invalid-argument", "Amount must be positive");
   }
 
   const community = await getCommunityOrThrow(communityId);
   requireActiveCommunity(community);
 
   if (!community.settings.enableFinancials) {
-    throw new functions.https.HttpsError("failed-precondition", "Financials are not enabled for this community");
+    throw new HttpsError("failed-precondition", "Financials are not enabled for this community");
   }
 
   const member = await requireCommunityMember(communityId, userId);
@@ -927,7 +929,7 @@ export const contributeToCommunity = functions.https.onCall(async (data, context
         status: "rejected" as GroupTransactionStatus,
         description: result.error || "Failed to process contribution",
       });
-      throw new functions.https.HttpsError("internal", result.error || "Failed to process contribution");
+      throw new HttpsError("internal", result.error || "Failed to process contribution");
     }
 
     // Update transaction as completed
@@ -967,7 +969,7 @@ export const contributeToCommunity = functions.https.onCall(async (data, context
       journalId: result.journalId,
     };
   } catch (error) {
-    console.error("Contribution error:", error);
+    logger.error("Contribution error:", error);
     await transactionRef.update({
       status: "rejected" as GroupTransactionStatus,
     });
@@ -978,30 +980,30 @@ export const contributeToCommunity = functions.https.onCall(async (data, context
 /**
  * Withdraw tokens from a community.
  */
-export const withdrawFromCommunity = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "withdrawFromCommunity");
-  await requirePlayIntegrity(data, context, "withdrawFromCommunity", "HIGH");
+export const withdrawFromCommunity = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "withdrawFromCommunity");
+  await requirePlayIntegrity(request.data, request, "withdrawFromCommunity", "HIGH");
 
-  const { communityId, amount, description } = data;
+  const { communityId, amount, description } = request.data;
 
   if (!communityId || !amount) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID and amount are required");
+    throw new HttpsError("invalid-argument", "Community ID and amount are required");
   }
 
   if (amount <= 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Amount must be positive");
+    throw new HttpsError("invalid-argument", "Amount must be positive");
   }
 
   const community = await getCommunityOrThrow(communityId);
   requireActiveCommunity(community);
 
   if (!community.settings.enableFinancials) {
-    throw new functions.https.HttpsError("failed-precondition", "Financials are not enabled for this community");
+    throw new HttpsError("failed-precondition", "Financials are not enabled for this community");
   }
 
   if (!community.settings.allowMemberWithdrawals) {
-    throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.WITHDRAWALS_NOT_ALLOWED);
+    throw new HttpsError("failed-precondition", CommunityErrorCodes.WITHDRAWALS_NOT_ALLOWED);
   }
 
   const member = await requireCommunityMember(communityId, userId);
@@ -1010,7 +1012,7 @@ export const withdrawFromCommunity = functions.https.onCall(async (data, context
   // Check community has sufficient balance
   const communityBalance = await getGroupBalance(communityId);
   if (communityBalance < amount) {
-    throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.AMOUNT_EXCEEDS_BALANCE);
+    throw new HttpsError("failed-precondition", CommunityErrorCodes.AMOUNT_EXCEEDS_BALANCE);
   }
 
   const now = admin.firestore.Timestamp.now();
@@ -1111,7 +1113,7 @@ export const withdrawFromCommunity = functions.https.onCall(async (data, context
       await transactionRef.update({
         status: "rejected" as GroupTransactionStatus,
       });
-      throw new functions.https.HttpsError("internal", result.error || "Failed to process withdrawal");
+      throw new HttpsError("internal", result.error || "Failed to process withdrawal");
     }
 
     await transactionRef.update({
@@ -1141,7 +1143,7 @@ export const withdrawFromCommunity = functions.https.onCall(async (data, context
       approvalRequired: false,
     };
   } catch (error) {
-    console.error("Withdrawal error:", error);
+    logger.error("Withdrawal error:", error);
     await transactionRef.update({
       status: "rejected" as GroupTransactionStatus,
     });
@@ -1152,14 +1154,14 @@ export const withdrawFromCommunity = functions.https.onCall(async (data, context
 /**
  * Approve a pending community transaction.
  */
-export const approveCommunityTransaction = functions.https.onCall(async (data, context) => {
-  const approverId = requireAuth(context);
-  requireAppCheck(context, "approveCommunityTransaction");
+export const approveCommunityTransaction = onCall({ labels: { area: "social" } }, async (request) => {
+  const approverId = requireAuth(request);
+  requireAppCheck(request, "approveCommunityTransaction");
 
-  const { communityId, transactionId } = data;
+  const { communityId, transactionId } = request.data;
 
   if (!communityId || !transactionId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID and transaction ID are required");
+    throw new HttpsError("invalid-argument", "Community ID and transaction ID are required");
   }
 
   const community = await getCommunityOrThrow(communityId);
@@ -1177,16 +1179,16 @@ export const approveCommunityTransaction = functions.https.onCall(async (data, c
     .get();
 
   if (!transactionDoc.exists) {
-    throw new functions.https.HttpsError("not-found", CommunityErrorCodes.TRANSACTION_NOT_FOUND);
+    throw new HttpsError("not-found", CommunityErrorCodes.TRANSACTION_NOT_FOUND);
   }
 
   const transaction = transactionDoc.data() as GroupTransaction;
 
   if (transaction.status === "completed") {
-    throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_ALREADY_APPROVED);
+    throw new HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_ALREADY_APPROVED);
   }
   if (transaction.status === "rejected") {
-    throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_ALREADY_REJECTED);
+    throw new HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_ALREADY_REJECTED);
   }
 
   // Get pending approval
@@ -1200,7 +1202,7 @@ export const approveCommunityTransaction = functions.https.onCall(async (data, c
     .get();
 
   if (approvalsSnap.empty) {
-    throw new functions.https.HttpsError("not-found", "No pending approval found");
+    throw new HttpsError("not-found", "No pending approval found");
   }
 
   const approvalDoc = approvalsSnap.docs[0];
@@ -1210,12 +1212,12 @@ export const approveCommunityTransaction = functions.https.onCall(async (data, c
   if (approval.expiresAt.toDate() < new Date()) {
     await approvalDoc.ref.update({ status: "expired" });
     await transactionDoc.ref.update({ status: "rejected" as GroupTransactionStatus });
-    throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_EXPIRED);
+    throw new HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_EXPIRED);
   }
 
   // Check approver is authorized
   if (!approval.requiredApprovers.includes(approverId)) {
-    throw new functions.https.HttpsError("permission-denied", CommunityErrorCodes.NOT_AUTHORIZED_TO_APPROVE);
+    throw new HttpsError("permission-denied", CommunityErrorCodes.NOT_AUTHORIZED_TO_APPROVE);
   }
 
   // Add approval
@@ -1243,14 +1245,14 @@ export const approveCommunityTransaction = functions.https.onCall(async (data, c
       { memberId: transaction.toMemberId!, amount: transaction.amount },
     ], transactionId);
   } else {
-    throw new functions.https.HttpsError("invalid-argument", "Invalid transaction type for approval");
+    throw new HttpsError("invalid-argument", "Invalid transaction type for approval");
   }
 
   if (!result.success) {
     await transactionDoc.ref.update({
       status: "rejected" as GroupTransactionStatus,
     });
-    throw new functions.https.HttpsError("internal", result.error || "Failed to process transaction");
+    throw new HttpsError("internal", result.error || "Failed to process transaction");
   }
 
   await transactionDoc.ref.update({
@@ -1284,14 +1286,14 @@ export const approveCommunityTransaction = functions.https.onCall(async (data, c
 /**
  * Reject a pending community transaction.
  */
-export const rejectCommunityTransaction = functions.https.onCall(async (data, context) => {
-  const rejecterId = requireAuth(context);
-  requireAppCheck(context, "rejectCommunityTransaction");
+export const rejectCommunityTransaction = onCall({ labels: { area: "social" } }, async (request) => {
+  const rejecterId = requireAuth(request);
+  requireAppCheck(request, "rejectCommunityTransaction");
 
-  const { communityId, transactionId, reason } = data;
+  const { communityId, transactionId, reason } = request.data;
 
   if (!communityId || !transactionId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID and transaction ID are required");
+    throw new HttpsError("invalid-argument", "Community ID and transaction ID are required");
   }
 
   const community = await getCommunityOrThrow(communityId);
@@ -1309,16 +1311,16 @@ export const rejectCommunityTransaction = functions.https.onCall(async (data, co
     .get();
 
   if (!transactionDoc.exists) {
-    throw new functions.https.HttpsError("not-found", CommunityErrorCodes.TRANSACTION_NOT_FOUND);
+    throw new HttpsError("not-found", CommunityErrorCodes.TRANSACTION_NOT_FOUND);
   }
 
   const transaction = transactionDoc.data() as GroupTransaction;
 
   if (transaction.status === "completed") {
-    throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_ALREADY_APPROVED);
+    throw new HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_ALREADY_APPROVED);
   }
   if (transaction.status === "rejected") {
-    throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_ALREADY_REJECTED);
+    throw new HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_ALREADY_REJECTED);
   }
 
   // Update approval and transaction
@@ -1361,9 +1363,9 @@ export const rejectCommunityTransaction = functions.https.onCall(async (data, co
 /**
  * Get all communities for the current user.
  */
-export const getUserCommunities = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "getUserCommunities");
+export const getUserCommunities = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "getUserCommunities");
 
   const communitiesSnap = await db
     .collection(CommunityConfig.COLLECTION)
@@ -1371,6 +1373,7 @@ export const getUserCommunities = functions.https.onCall(async (data, context) =
     .where("status", "!=", "closed")
     .orderBy("status")
     .orderBy("lastMessageAt", "desc")
+    .limit(100)
     .get();
 
   const communities = communitiesSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
@@ -1381,14 +1384,14 @@ export const getUserCommunities = functions.https.onCall(async (data, context) =
 /**
  * Get community details with members.
  */
-export const getCommunityDetails = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "getCommunityDetails");
+export const getCommunityDetails = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "getCommunityDetails");
 
-  const { communityId } = data;
+  const { communityId } = request.data;
 
   if (!communityId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID is required");
+    throw new HttpsError("invalid-argument", "Community ID is required");
   }
 
   const community = await getCommunityOrThrow(communityId);
@@ -1400,6 +1403,7 @@ export const getCommunityDetails = functions.https.onCall(async (data, context) 
     .doc(communityId)
     .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
     .orderBy("role")
+    .limit(200)
     .get();
 
   const members = membersSnap.docs.map((doc) => doc.data());
@@ -1417,14 +1421,14 @@ export const getCommunityDetails = functions.https.onCall(async (data, context) 
 /**
  * Get community transactions.
  */
-export const getCommunityTransactions = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "getCommunityTransactions");
+export const getCommunityTransactions = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "getCommunityTransactions");
 
-  const { communityId, limit = 50 } = data;
+  const { communityId, limit = 50 } = request.data;
 
   if (!communityId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID is required");
+    throw new HttpsError("invalid-argument", "Community ID is required");
   }
 
   await getCommunityOrThrow(communityId);
@@ -1447,14 +1451,14 @@ export const getCommunityTransactions = functions.https.onCall(async (data, cont
 /**
  * Get pending approvals for a community.
  */
-export const getCommunityPendingApprovals = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "getCommunityPendingApprovals");
+export const getCommunityPendingApprovals = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "getCommunityPendingApprovals");
 
-  const { communityId } = data;
+  const { communityId } = request.data;
 
   if (!communityId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID is required");
+    throw new HttpsError("invalid-argument", "Community ID is required");
   }
 
   await getCommunityOrThrow(communityId);
@@ -1467,21 +1471,27 @@ export const getCommunityPendingApprovals = functions.https.onCall(async (data, 
     .collection(CommunityConfig.SUBCOLLECTION_APPROVALS)
     .where("status", "==", "pending")
     .orderBy("createdAt", "desc")
+    .limit(100)
     .get();
 
   const approvals = approvalsSnap.docs.map((doc) => doc.data());
 
-  // Get related transactions
+  // Get related transactions in parallel (was serial N+1)
+  const transactionIds = approvals.map((a) => (a as PendingApproval).transactionId);
   const transactions: Record<string, unknown> = {};
-  for (const approval of approvals) {
-    const txDoc = await db
-      .collection(CommunityConfig.COLLECTION)
-      .doc(communityId)
-      .collection(CommunityConfig.SUBCOLLECTION_TRANSACTIONS)
-      .doc((approval as PendingApproval).transactionId)
-      .get();
+  const txResults = await Promise.all(
+    transactionIds.map((txId) =>
+      db
+        .collection(CommunityConfig.COLLECTION)
+        .doc(communityId)
+        .collection(CommunityConfig.SUBCOLLECTION_TRANSACTIONS)
+        .doc(txId)
+        .get()
+    )
+  );
+  for (const txDoc of txResults) {
     if (txDoc.exists) {
-      transactions[(approval as PendingApproval).transactionId] = txDoc.data();
+      transactions[txDoc.id] = txDoc.data();
     }
   }
 
@@ -1496,11 +1506,10 @@ export const getCommunityPendingApprovals = functions.https.onCall(async (data, 
  * Send contribution reminders for community stokvels.
  * Runs every Monday at 9 AM South Africa time.
  */
-export const sendCommunityContributionReminders = functions.pubsub
-  .schedule("0 9 * * 1")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
-    console.log("Running community contribution reminders...");
+export const sendCommunityContributionReminders = onSchedule(
+  { schedule: "0 9 * * 1", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "social" } },
+  async () => {
+    logger.info("Running community contribution reminders...");
 
     const stokvelsSnap = await db
       .collection(CommunityConfig.COLLECTION)
@@ -1508,7 +1517,7 @@ export const sendCommunityContributionReminders = functions.pubsub
       .where("status", "==", "active")
       .get();
 
-    console.log(`Found ${stokvelsSnap.docs.length} stokvel communities to process`);
+    logger.info(`Found ${stokvelsSnap.docs.length} stokvel communities to process`);
 
     const now = new Date();
     const dayOfMonth = now.getDate();
@@ -1532,6 +1541,7 @@ export const sendCommunityContributionReminders = functions.pubsub
       const membersSnap = await stokvelDoc.ref
         .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
         .where("status", "==", "active")
+        .limit(50)
         .get();
 
       // Create notifications
@@ -1558,22 +1568,21 @@ export const sendCommunityContributionReminders = functions.pubsub
       }
 
       await batch.commit();
-      console.log(`Sent reminders to ${membersSnap.docs.length} members of ${stokvel.name}`);
+      logger.info(`Sent reminders to ${membersSnap.docs.length} members of ${stokvel.name}`);
     }
 
-    console.log("Community contribution reminders completed");
-    return null;
-  });
+    logger.info("Community contribution reminders completed");
+  }
+);
 
 /**
  * Calculate and apply stokvel penalties for missed contributions.
  * Runs on the 1st of every month at midnight South Africa time.
  */
-export const calculateCommunityPenalties = functions.pubsub
-  .schedule("0 0 1 * *")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
-    console.log("Running community penalty calculations...");
+export const calculateCommunityPenalties = onSchedule(
+  { schedule: "0 0 1 * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "social" } },
+  async () => {
+    logger.info("Running community penalty calculations...");
 
     const stokvelsSnap = await db
       .collection(CommunityConfig.COLLECTION)
@@ -1581,7 +1590,7 @@ export const calculateCommunityPenalties = functions.pubsub
       .where("status", "==", "active")
       .get();
 
-    console.log(`Found ${stokvelsSnap.docs.length} stokvel communities to process`);
+    logger.info(`Found ${stokvelsSnap.docs.length} stokvel communities to process`);
 
     const now = admin.firestore.Timestamp.now();
     const lastMonth = new Date();
@@ -1600,6 +1609,7 @@ export const calculateCommunityPenalties = functions.pubsub
       const membersSnap = await stokvelDoc.ref
         .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
         .where("status", "==", "active")
+        .limit(50)
         .get();
 
       // Get contributions from last month
@@ -1609,6 +1619,7 @@ export const calculateCommunityPenalties = functions.pubsub
         .where("status", "==", "completed")
         .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(lastMonthStart))
         .where("createdAt", "<=", admin.firestore.Timestamp.fromDate(lastMonthEnd))
+        .limit(50)
         .get();
 
       // Calculate total contributions per member
@@ -1622,6 +1633,9 @@ export const calculateCommunityPenalties = functions.pubsub
 
       // Check for members who didn't meet minimum contribution
       const { processGroupPenalty } = await import("./ledger/groupAccounts");
+      const penaltyBatch = db.batch();
+      let penaltyBatchCount = 0;
+      let totalPenaltyAmount = 0;
 
       for (const memberDoc of membersSnap.docs) {
         const memberData = memberDoc.data() as CommunityMember;
@@ -1634,11 +1648,12 @@ export const calculateCommunityPenalties = functions.pubsub
 
         if (penaltyAmount <= 0) continue;
 
-        console.log(`Applying penalty of ${penaltyAmount} to ${memberData.userId} in ${stokvel.name}`);
+        logger.info(`Applying penalty of ${penaltyAmount} to ${memberData.userId} in ${stokvel.name}`);
 
         const dateStr = `${lastMonth.getFullYear()}-${String(lastMonth.getMonth() + 1).padStart(2, "0")}`;
 
         try {
+          // Ledger call must remain sequential
           const result = await processGroupPenalty(
             stokvel.id,
             memberData.userId,
@@ -1648,9 +1663,9 @@ export const calculateCommunityPenalties = functions.pubsub
           );
 
           if (result.success) {
-            // Create penalty transaction record
+            // Batch the Firestore writes instead of individual awaits
             const txRef = stokvelDoc.ref.collection(CommunityConfig.SUBCOLLECTION_TRANSACTIONS).doc();
-            await txRef.set({
+            penaltyBatch.set(txRef, {
               id: txRef.id,
               groupId: stokvel.id,
               journalId: result.journalId,
@@ -1666,9 +1681,8 @@ export const calculateCommunityPenalties = functions.pubsub
               completedAt: now,
             } as GroupTransaction);
 
-            // Send notification
             const notificationRef = db.collection("notifications").doc();
-            await notificationRef.set({
+            penaltyBatch.set(notificationRef, {
               id: notificationRef.id,
               userId: memberData.userId,
               type: "stokvel_penalty",
@@ -1683,13 +1697,10 @@ export const calculateCommunityPenalties = functions.pubsub
               createdAt: now,
             });
 
-            // Update community balance
-            await stokvelDoc.ref.update({
-              totalBalance: admin.firestore.FieldValue.increment(penaltyAmount),
-              updatedAt: now,
-            });
+            totalPenaltyAmount += penaltyAmount;
+            penaltyBatchCount += 2;
 
-            // Post system message
+            // Post system message (writes its own docs, keep sequential)
             await postSystemMessage(
               stokvel.id,
               `Penalty of R${(penaltyAmount / 100).toFixed(2)} applied to ${memberData.displayName} for missed ${dateStr} contribution`,
@@ -1697,27 +1708,36 @@ export const calculateCommunityPenalties = functions.pubsub
               { userId: memberData.userId, amount: penaltyAmount, dateStr }
             );
           } else {
-            console.error(`Failed to apply penalty: ${result.error}`);
+            logger.error(`Failed to apply penalty: ${result.error}`);
           }
         } catch (error) {
-          console.error(`Error applying penalty to ${memberData.userId}:`, error);
+          logger.error(`Error applying penalty to ${memberData.userId}:`, error);
         }
+      }
+
+      // Commit all penalty Firestore writes for this stokvel in one batch
+      if (penaltyBatchCount > 0) {
+        // Update community balance once for all penalties
+        penaltyBatch.update(stokvelDoc.ref, {
+          totalBalance: admin.firestore.FieldValue.increment(totalPenaltyAmount),
+          updatedAt: now,
+        });
+        await penaltyBatch.commit();
       }
     }
 
-    console.log("Community penalty calculations completed");
-    return null;
-  });
+    logger.info("Community penalty calculations completed");
+  }
+);
 
 /**
  * Process community stokvel payouts according to schedule.
  * Runs on the 1st of every month at 10 AM South Africa time.
  */
-export const processCommunityPayouts = functions.pubsub
-  .schedule("0 10 1 * *")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
-    console.log("Running community payout processing...");
+export const processCommunityPayouts = onSchedule(
+  { schedule: "0 10 1 * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "social" } },
+  async () => {
+    logger.info("Running community payout processing...");
 
     const now = admin.firestore.Timestamp.now();
     const today = new Date();
@@ -1728,7 +1748,7 @@ export const processCommunityPayouts = functions.pubsub
       .where("status", "==", "active")
       .get();
 
-    console.log(`Found ${stokvelsSnap.docs.length} stokvel communities to check for payouts`);
+    logger.info(`Found ${stokvelsSnap.docs.length} stokvel communities to check for payouts`);
 
     for (const stokvelDoc of stokvelsSnap.docs) {
       const stokvel = stokvelDoc.data() as Community;
@@ -1743,7 +1763,7 @@ export const processCommunityPayouts = functions.pubsub
       // Get community balance
       const balance = await getGroupBalance(stokvel.id);
       if (balance <= 0) {
-        console.log(`${stokvel.name}: No balance to pay out`);
+        logger.info(`${stokvel.name}: No balance to pay out`);
         continue;
       }
 
@@ -1751,6 +1771,7 @@ export const processCommunityPayouts = functions.pubsub
       const membersSnap = await stokvelDoc.ref
         .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
         .where("status", "==", "active")
+        .limit(50)
         .get();
 
       if (membersSnap.empty) continue;
@@ -1794,10 +1815,13 @@ export const processCommunityPayouts = functions.pubsub
         const transactionRef = stokvelDoc.ref.collection(CommunityConfig.SUBCOLLECTION_TRANSACTIONS).doc();
 
         try {
+          // Ledger call must remain sequential
           const result = await processGroupPayout(stokvel.id, payouts, transactionRef.id);
 
           if (result.success) {
-            await transactionRef.set({
+            // Batch all Firestore writes together
+            const payoutBatch = db.batch();
+            payoutBatch.set(transactionRef, {
               id: transactionRef.id,
               groupId: stokvel.id,
               journalId: result.journalId,
@@ -1813,24 +1837,15 @@ export const processCommunityPayouts = functions.pubsub
               completedAt: now,
             } as GroupTransaction);
 
-            await stokvelDoc.ref.update({
+            payoutBatch.update(stokvelDoc.ref, {
               totalBalance: admin.firestore.FieldValue.increment(-(payoutAmount * members.length)),
               updatedAt: now,
             });
 
-            // Post system message
-            await postSystemMessage(
-              stokvel.id,
-              `Monthly payout of R${(payoutAmount / 100).toFixed(2)} sent to ${members.length} members`,
-              "payout_completed",
-              { amount: payoutAmount, recipientCount: members.length }
-            );
-
-            // Notify all members
-            const notifyBatch = db.batch();
+            // Include member notifications in the same batch
             for (const m of members) {
               const notificationRef = db.collection("notifications").doc();
-              notifyBatch.set(notificationRef, {
+              payoutBatch.set(notificationRef, {
                 id: notificationRef.id,
                 userId: m.userId,
                 type: "stokvel_payout",
@@ -1841,16 +1856,25 @@ export const processCommunityPayouts = functions.pubsub
                 createdAt: now,
               });
             }
-            await notifyBatch.commit();
+            await payoutBatch.commit();
+
+            // Post system message (writes its own docs, keep sequential)
+            await postSystemMessage(
+              stokvel.id,
+              `Monthly payout of R${(payoutAmount / 100).toFixed(2)} sent to ${members.length} members`,
+              "payout_completed",
+              { amount: payoutAmount, recipientCount: members.length }
+            );
           }
         } catch (error) {
-          console.error(`Error processing fixed_date payout for ${stokvel.name}:`, error);
+          logger.error(`Error processing fixed_date payout for ${stokvel.name}:`, error);
         }
       } else if (recipientId && payoutAmount > 0) {
         // Single recipient payout
         const transactionRef = stokvelDoc.ref.collection(CommunityConfig.SUBCOLLECTION_TRANSACTIONS).doc();
 
         try {
+          // Ledger call must remain sequential
           const result = await processGroupPayout(
             stokvel.id,
             [{ memberId: recipientId, amount: payoutAmount }],
@@ -1858,7 +1882,14 @@ export const processCommunityPayouts = functions.pubsub
           );
 
           if (result.success) {
-            await transactionRef.set({
+            // Update stokvel settings for next payout
+            const nextMonth = new Date(today);
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            nextMonth.setDate(1);
+
+            // Batch all Firestore writes together
+            const payoutBatch = db.batch();
+            payoutBatch.set(transactionRef, {
               id: transactionRef.id,
               groupId: stokvel.id,
               journalId: result.journalId,
@@ -1874,30 +1905,16 @@ export const processCommunityPayouts = functions.pubsub
               completedAt: now,
             } as GroupTransaction);
 
-            // Update stokvel settings for next payout
-            const nextMonth = new Date(today);
-            nextMonth.setMonth(nextMonth.getMonth() + 1);
-            nextMonth.setDate(1);
-
-            await stokvelDoc.ref.update({
+            payoutBatch.update(stokvelDoc.ref, {
               totalBalance: admin.firestore.FieldValue.increment(-payoutAmount),
               "stokvel.currentPayoutRecipient": recipientId,
               "stokvel.nextPayoutDate": admin.firestore.Timestamp.fromDate(nextMonth),
               updatedAt: now,
             });
 
-            // Post system message
-            const recipientMember = members.find((m) => m.userId === recipientId);
-            await postSystemMessage(
-              stokvel.id,
-              `${stokvelSettings.payoutType === "rotating" ? "Rotating" : "Lottery"} payout of R${(payoutAmount / 100).toFixed(2)} sent to ${recipientMember?.displayName || "member"}`,
-              "payout_completed",
-              { amount: payoutAmount, recipientId }
-            );
-
             // Notify recipient
             const notificationRef = db.collection("notifications").doc();
-            await notificationRef.set({
+            payoutBatch.set(notificationRef, {
               id: notificationRef.id,
               userId: recipientId,
               type: "stokvel_payout",
@@ -1910,10 +1927,9 @@ export const processCommunityPayouts = functions.pubsub
 
             // Notify other members
             const otherMembers = members.filter((m) => m.userId !== recipientId);
-            const notifyBatch = db.batch();
             for (const m of otherMembers) {
               const otherNotifRef = db.collection("notifications").doc();
-              notifyBatch.set(otherNotifRef, {
+              payoutBatch.set(otherNotifRef, {
                 id: otherNotifRef.id,
                 userId: m.userId,
                 type: "stokvel_payout_notification",
@@ -1924,49 +1940,58 @@ export const processCommunityPayouts = functions.pubsub
                 createdAt: now,
               });
             }
-            await notifyBatch.commit();
+            await payoutBatch.commit();
 
-            console.log(`Processed payout of ${payoutAmount} to ${recipientId} for ${stokvel.name}`);
+            // Post system message (writes its own docs, keep sequential)
+            const recipientMember = members.find((m) => m.userId === recipientId);
+            await postSystemMessage(
+              stokvel.id,
+              `${stokvelSettings.payoutType === "rotating" ? "Rotating" : "Lottery"} payout of R${(payoutAmount / 100).toFixed(2)} sent to ${recipientMember?.displayName || "member"}`,
+              "payout_completed",
+              { amount: payoutAmount, recipientId }
+            );
+
+            logger.info(`Processed payout of ${payoutAmount} to ${recipientId} for ${stokvel.name}`);
           }
         } catch (error) {
-          console.error(`Error processing payout for ${stokvel.name}:`, error);
+          logger.error(`Error processing payout for ${stokvel.name}:`, error);
         }
       }
     }
 
-    console.log("Community payout processing completed");
-    return null;
-  });
+    logger.info("Community payout processing completed");
+  }
+);
 
 /**
  * Manually trigger a community stokvel payout.
  */
-export const triggerCommunityPayout = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "triggerCommunityPayout");
-  await requirePlayIntegrity(data, context, "triggerCommunityPayout", "HIGH");
+export const triggerCommunityPayout = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "triggerCommunityPayout");
+  await requirePlayIntegrity(request.data, request, "triggerCommunityPayout", "HIGH");
 
-  const { communityId, recipientId } = data;
+  const { communityId, recipientId } = request.data;
 
   if (!communityId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID is required");
+    throw new HttpsError("invalid-argument", "Community ID is required");
   }
 
   const community = await getCommunityOrThrow(communityId);
   requireActiveCommunity(community);
 
   if (community.type !== "stokvel") {
-    throw new functions.https.HttpsError("failed-precondition", "This function is only for stokvel communities");
+    throw new HttpsError("failed-precondition", "This function is only for stokvel communities");
   }
 
   const member = await requireCommunityMember(communityId, userId);
   if (member.role !== "owner" && member.role !== "admin") {
-    throw new functions.https.HttpsError("permission-denied", "Only owner or admin can trigger payouts");
+    throw new HttpsError("permission-denied", "Only owner or admin can trigger payouts");
   }
 
   const balance = await getGroupBalance(communityId);
   if (balance <= 0) {
-    throw new functions.https.HttpsError("failed-precondition", "No balance available for payout");
+    throw new HttpsError("failed-precondition", "No balance available for payout");
   }
 
   // Determine recipient
@@ -1996,13 +2021,13 @@ export const triggerCommunityPayout = functions.https.onCall(async (data, contex
   }
 
   if (!finalRecipientId) {
-    throw new functions.https.HttpsError("invalid-argument", "Recipient ID is required for this payout type");
+    throw new HttpsError("invalid-argument", "Recipient ID is required for this payout type");
   }
 
   // Verify recipient is a member
   const recipientMember = await getCommunityMember(communityId, finalRecipientId);
   if (!recipientMember || recipientMember.status !== "active") {
-    throw new functions.https.HttpsError("not-found", "Recipient is not an active member");
+    throw new HttpsError("not-found", "Recipient is not an active member");
   }
 
   const now = admin.firestore.Timestamp.now();
@@ -2020,7 +2045,7 @@ export const triggerCommunityPayout = functions.https.onCall(async (data, contex
     );
 
     if (!result.success) {
-      throw new functions.https.HttpsError("internal", result.error || "Failed to process payout");
+      throw new HttpsError("internal", result.error || "Failed to process payout");
     }
 
     await transactionRef.set({
@@ -2080,7 +2105,7 @@ export const triggerCommunityPayout = functions.https.onCall(async (data, contex
       amount: balance,
     };
   } catch (error) {
-    console.error("Payout error:", error);
+    logger.error("Payout error:", error);
     throw error;
   }
 });
@@ -2088,19 +2113,19 @@ export const triggerCommunityPayout = functions.https.onCall(async (data, contex
 /**
  * Get stokvel analytics for a community.
  */
-export const getCommunityAnalytics = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "getCommunityAnalytics");
+export const getCommunityAnalytics = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "getCommunityAnalytics");
 
-  const { communityId, months = 6 } = data;
+  const { communityId, months = 6 } = request.data;
 
   if (!communityId) {
-    throw new functions.https.HttpsError("invalid-argument", "Community ID is required");
+    throw new HttpsError("invalid-argument", "Community ID is required");
   }
 
   const community = await getCommunityOrThrow(communityId);
   if (community.type !== "stokvel") {
-    throw new functions.https.HttpsError("failed-precondition", "Analytics are only for stokvel communities");
+    throw new HttpsError("failed-precondition", "Analytics are only for stokvel communities");
   }
 
   const member = await requireCommunityMember(communityId, userId);
@@ -2120,6 +2145,8 @@ export const getCommunityAnalytics = functions.https.onCall(async (data, context
     .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(startDate))
     .where("createdAt", "<=", admin.firestore.Timestamp.fromDate(endDate))
     .orderBy("createdAt", "desc")
+    .select("amount", "type", "createdAt", "fromMemberId")
+    .limit(1000)
     .get();
 
   const transactions = transactionsSnap.docs.map((d) => d.data() as GroupTransaction);
@@ -2170,6 +2197,8 @@ export const getCommunityAnalytics = functions.https.onCall(async (data, context
     .doc(communityId)
     .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
     .where("status", "==", "active")
+    .select("userId", "displayName", "avatarUrl")
+    .limit(500)
     .get();
 
   const memberInfo: Record<string, { displayName: string; avatarUrl: string | null }> = {};

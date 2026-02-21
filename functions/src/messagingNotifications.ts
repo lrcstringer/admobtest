@@ -5,7 +5,8 @@
  * in conversations (P2P) and communities.
  */
 
-import * as functions from "firebase-functions";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 
 const db = admin.firestore();
@@ -100,20 +101,23 @@ function getE2EENotificationBody(type: string): string {
  * Sends a push notification to the OTHER participant in the P2P conversation,
  * unless they have muted the conversation.
  */
-export const onConversationMessageCreated = functions.firestore
-  .document("conversations/{convId}/messages/{msgId}")
-  .onCreate(async (snap, context) => {
+export const onConversationMessageCreated = onDocumentCreated(
+  { document: "conversations/{convId}/messages/{msgId}", labels: { area: "notifications" } },
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+
     const message = snap.data();
-    const conversationId = context.params.convId;
+    const conversationId = event.params.convId;
 
     // System messages don't trigger notifications
-    if (message.type === "system") return null;
+    if (message.type === "system") return;
 
     // Get conversation document
     const convDoc = await db.collection("conversations").doc(conversationId).get();
     if (!convDoc.exists) {
-      console.warn(`Conversation ${conversationId} not found for notification`);
-      return null;
+      logger.warn(`Conversation ${conversationId} not found for notification`);
+      return;
     }
 
     const conv = convDoc.data()!;
@@ -121,14 +125,14 @@ export const onConversationMessageCreated = functions.firestore
 
     // Find recipient (the OTHER participant)
     const recipientId = participantIds.find((id: string) => id !== message.senderId);
-    if (!recipientId) return null;
+    if (!recipientId) return;
 
     // Check if recipient has muted this conversation
-    if (conv.muted?.[recipientId] === true) return null;
+    if (conv.muted?.[recipientId] === true) return;
 
     // Get recipient's FCM token
     const fcmToken = await getFcmToken(recipientId);
-    if (!fcmToken) return null;
+    if (!fcmToken) return;
 
     const senderName = message.senderName || "Someone";
     const body = getMessagePreview(message);
@@ -165,11 +169,10 @@ export const onConversationMessageCreated = functions.firestore
       });
     } catch (error) {
       // Non-fatal — log and move on
-      console.warn(`Failed to send conversation notification to ${recipientId}:`, error);
+      logger.warn(`Failed to send conversation notification to ${recipientId}:`, error);
     }
-
-    return null;
-  });
+  }
+);
 
 // ============================================================================
 // COMMUNITY MESSAGE NOTIFICATION
@@ -181,20 +184,23 @@ export const onConversationMessageCreated = functions.firestore
  * Sends a push notification to ALL members except the sender,
  * respecting individual mute preferences.
  */
-export const onCommunityMessageCreated = functions.firestore
-  .document("communities/{commId}/messages/{msgId}")
-  .onCreate(async (snap, context) => {
+export const onCommunityMessageCreated = onDocumentCreated(
+  { document: "communities/{commId}/messages/{msgId}", labels: { area: "notifications" } },
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+
     const message = snap.data();
-    const communityId = context.params.commId;
+    const communityId = event.params.commId;
 
     // System messages don't trigger push notifications
-    if (message.type === "system") return null;
+    if (message.type === "system") return;
 
     // Get community document
     const commDoc = await db.collection("communities").doc(communityId).get();
     if (!commDoc.exists) {
-      console.warn(`Community ${communityId} not found for notification`);
-      return null;
+      logger.warn(`Community ${communityId} not found for notification`);
+      return;
     }
 
     const community = commDoc.data()!;
@@ -206,11 +212,11 @@ export const onCommunityMessageCreated = functions.firestore
       (id: string) => id !== message.senderId && !mutedMap[id]
     );
 
-    if (recipientIds.length === 0) return null;
+    if (recipientIds.length === 0) return;
 
     // Get FCM tokens for all recipients
     const tokens = await getFcmTokens(recipientIds);
-    if (tokens.length === 0) return null;
+    if (tokens.length === 0) return;
 
     const senderName = message.senderName || "Someone";
     const communityName = community.name || "Community";
@@ -251,9 +257,8 @@ export const onCommunityMessageCreated = functions.firestore
           },
         });
       } catch (error) {
-        console.warn(`Failed to send community notification batch for ${communityId}:`, error);
+        logger.warn(`Failed to send community notification batch for ${communityId}:`, error);
       }
     }
-
-    return null;
-  });
+  }
+);

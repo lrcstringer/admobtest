@@ -6,9 +6,17 @@
  */
 
 import * as admin from "firebase-admin";
+import { setGlobalOptions, logger } from "firebase-functions/v2";
 
 // Initialize Firebase Admin
 admin.initializeApp();
+
+// Gen2 global defaults — applied to every function unless overridden
+setGlobalOptions({
+  region: "africa-south1",
+  maxInstances: 10,
+  labels: { app: "imalichat" },
+});
 
 // Allow undefined values in Firestore documents — they are stripped automatically.
 // Without this, any optional field (e.g. ipAddress, userAgent) that is undefined
@@ -58,7 +66,8 @@ export * from "./migrations/earnOverhaulMigration";
 export { runAdMobSystemMigration, runUpdateAdMobQuestion, adminRunPlatformSetup } from "./migrations/admobSystemThreadMigration";
 
 // Ledger initialization and reconciliation
-import * as functions from "firebase-functions";
+import { onCall } from "firebase-functions/v2/https";
+import { onSchedule } from "firebase-functions/v2/scheduler";
 import { cleanupRateLimits, requireAppCheck } from "./security";
 import { requireAdminPermission, cleanupExpiredPendingActions } from "./adminAuth";
 import { initializeLedger, reconcileAllAccounts, verifySystemBalance } from "./ledger";
@@ -68,9 +77,9 @@ import { initializeLedger, reconcileAllAccounts, verifySystemBalance } from "./l
  * Call this once during initial deployment to create all system accounts
  * (cbook:bus, cbook:trust, pot:daily, pot:weekly, system:cashout_pending, client:imalichat).
  */
-export const initializeTrustLedger = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "initializeTrustLedger");
-  await requireAdminPermission(context, "accounts:initializeLedger", "initializeTrustLedger");
+export const initializeTrustLedger = onCall({ concurrency: 1, labels: { area: "ledger" } }, async (request) => {
+  requireAppCheck(request, "initializeTrustLedger");
+  await requireAdminPermission(request, "accounts:initializeLedger", "initializeTrustLedger");
 
   await initializeLedger();
   return { success: true, message: "Trust Ledger initialized — system accounts created" };
@@ -80,36 +89,34 @@ export const initializeTrustLedger = functions.https.onCall(async (data, context
  * Run ledger reconciliation - daily scheduled job
  * Verifies all account balances match their journal entries
  */
-export const runLedgerReconciliation = functions.pubsub
-  .schedule("0 4 * * *") // 4 AM daily SAST
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
-    console.log("Starting daily ledger reconciliation...");
+export const runLedgerReconciliation = onSchedule(
+  { schedule: "0 4 * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", timeoutSeconds: 300, memory: "512MiB", cpu: 1, labels: { area: "ledger" } },
+  async () => {
+    logger.info("Starting daily ledger reconciliation...");
 
     // Reconcile all accounts
     const reconciliationResults = await reconcileAllAccounts();
     const failedAccounts = reconciliationResults.results.filter((r) => !r.isReconciled);
 
     if (failedAccounts.length > 0) {
-      console.error(`Reconciliation failed for ${failedAccounts.length} accounts:`, failedAccounts);
+      logger.error(`Reconciliation failed for ${failedAccounts.length} accounts:`, failedAccounts);
     }
 
     // Verify system balance (asset/liability invariant: cbook = all others)
     const systemBalance = await verifySystemBalance();
     if (!systemBalance.isValid) {
-      console.error("CRITICAL: System balance verification failed!", systemBalance);
+      logger.error("CRITICAL: System balance verification failed!", systemBalance);
     }
 
-    console.log(`Ledger reconciliation complete. ${reconciliationResults.total} accounts checked, ${reconciliationResults.failed} failures.`);
-    return null;
-  });
+    logger.info(`Ledger reconciliation complete. ${reconciliationResults.total} accounts checked, ${reconciliationResults.failed} failures.`);
+  }
+);
 
 // Security cleanup function
-export const cleanupSecurityData = functions.pubsub
-  .schedule("0 3 * * *") // 3 AM daily
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const cleanupSecurityData = onSchedule(
+  { schedule: "0 3 * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "auth" } },
+  async () => {
     await cleanupRateLimits();
     await cleanupExpiredPendingActions();
-    return null;
-  });
+  }
+);

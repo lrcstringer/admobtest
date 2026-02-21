@@ -22,21 +22,26 @@ import {
 
 jest.mock("firebase-admin", () => require("./mocks/admin.mock").mockFirebaseAdmin);
 
-jest.mock("firebase-functions", () => ({
-  https: {
-    onCall: jest.fn((handler) => handler),
-    HttpsError: class HttpsError extends Error {
-      constructor(
-        public code: string,
-        public message: string,
-        public details?: unknown
-      ) {
-        super(message);
-        this.name = "HttpsError";
-      }
-    },
-  },
-  logger: { log: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn() },
+const MockHttpsError = class HttpsError extends Error {
+  constructor(
+    public code: string,
+    public message: string,
+    public details?: unknown
+  ) {
+    super(message);
+    this.name = "HttpsError";
+  }
+};
+
+jest.mock("firebase-functions/v2/https", () => ({
+  onCall: jest.fn((...args: unknown[]) => {
+    // Support onCall(handler) and onCall(opts, handler)
+    const handler = typeof args[0] === "function" ? args[0] : args[1];
+    // Return adapter: tests call fn(data, context), handler expects request object
+    return (data: unknown, context: unknown) =>
+      (handler as Function)({ data, ...(context as object) });
+  }),
+  HttpsError: MockHttpsError,
 }));
 
 const mockRequireAppCheck = jest.fn();
@@ -229,7 +234,7 @@ describe("uploadKeyBundle", () => {
 
   it("calls requireAppCheck", async () => {
     await uploadKeyBundle(validKeyBundle, authContext);
-    expect(mockRequireAppCheck).toHaveBeenCalledWith(authContext, "uploadKeyBundle");
+    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "uploadKeyBundle");
   });
 });
 
@@ -348,7 +353,7 @@ describe("fetchKeyBundle", () => {
     });
 
     await fetchKeyBundle({ targetUserId: "user_002" }, authContext);
-    expect(mockRequireAppCheck).toHaveBeenCalledWith(authContext, "fetchKeyBundle");
+    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "fetchKeyBundle");
   });
 });
 
@@ -401,7 +406,7 @@ describe("replenishOneTimePreKeys", () => {
 
   it("calls requireAppCheck", async () => {
     await replenishOneTimePreKeys({ newPreKeys: ["otk"] }, authContext);
-    expect(mockRequireAppCheck).toHaveBeenCalledWith(authContext, "replenishOneTimePreKeys");
+    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "replenishOneTimePreKeys");
   });
 });
 
@@ -466,7 +471,7 @@ describe("rotateSignedPreKey", () => {
       { newSignedPreKey: "spk", newSignedPreKeySignature: "sig" },
       authContext
     );
-    expect(mockRequireAppCheck).toHaveBeenCalledWith(authContext, "rotateSignedPreKey");
+    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "rotateSignedPreKey");
   });
 });
 
@@ -539,7 +544,7 @@ describe("saveBackupMetadata", () => {
       { backupVersion: 1, encryptedKeysHash: "hash" },
       authContext
     );
-    expect(mockRequireAppCheck).toHaveBeenCalledWith(authContext, "saveBackupMetadata");
+    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "saveBackupMetadata");
   });
 });
 
@@ -616,7 +621,7 @@ describe("getBackupMetadata", () => {
 
   it("calls requireAppCheck", async () => {
     await getBackupMetadata({}, authContext);
-    expect(mockRequireAppCheck).toHaveBeenCalledWith(authContext, "getBackupMetadata");
+    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "getBackupMetadata");
   });
 });
 
@@ -801,7 +806,7 @@ describe("distributeSenderKey", () => {
       },
       authContext
     );
-    expect(mockRequireAppCheck).toHaveBeenCalledWith(authContext, "distributeSenderKey");
+    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "distributeSenderKey");
   });
 });
 
@@ -925,7 +930,7 @@ describe("markKeyDistributionConsumed", () => {
       authContext
     );
     expect(mockRequireAppCheck).toHaveBeenCalledWith(
-      authContext,
+      expect.objectContaining(authContext),
       "markKeyDistributionConsumed"
     );
   });

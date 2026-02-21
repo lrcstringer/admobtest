@@ -6,7 +6,7 @@
  */
 
 import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { requireAdminPermission, logAdminAction } from "./adminAuth";
 
 const db = admin.firestore();
@@ -18,9 +18,11 @@ const db = admin.firestore();
  * Creates both the poll document and the opportunity document atomically.
  * The poll starts in "draft" status — call openPoll to activate it.
  */
-export const createPoll = functions.https.onCall(
-  async (data, context) => {
-    const adminCtx = await requireAdminPermission(context, "poll:create", "createPoll");
+export const createPoll = onCall(
+  { labels: { area: "polls" } },
+  async (request) => {
+    const data = request.data;
+    const adminCtx = await requireAdminPermission(request, "poll:create", "createPoll");
 
     const {
       threadId,
@@ -39,7 +41,7 @@ export const createPoll = functions.https.onCall(
 
     // Validate required fields
     if (!threadId || !question || !options) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "threadId, question, and options are required"
       );
@@ -47,7 +49,7 @@ export const createPoll = functions.https.onCall(
 
     // Validate options
     if (!Array.isArray(options) || options.length < 2 || options.length > 6) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "Must provide 2-6 options"
       );
@@ -56,7 +58,7 @@ export const createPoll = functions.https.onCall(
     // Verify thread exists
     const threadDoc = await db.collection("earnThreads").doc(threadId).get();
     if (!threadDoc.exists) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "not-found",
         "Thread not found. Create the thread first."
       );
@@ -102,7 +104,7 @@ export const createPoll = functions.https.onCall(
       optionCounts,
       createdAt: now,
       updatedAt: now,
-      createdBy: context.auth!.uid,
+      createdBy: request.auth!.uid,
     });
 
     // Create linked EarnOpportunity (inactive until poll is opened)
@@ -160,13 +162,15 @@ export const createPoll = functions.https.onCall(
  * Config fields (showResultsAfterVote, allowChangeVote, etc.) can be
  * changed while draft or open.
  */
-export const updatePoll = functions.https.onCall(
-  async (data, context) => {
-    const adminCtx = await requireAdminPermission(context, "poll:update", "updatePoll");
+export const updatePoll = onCall(
+  { labels: { area: "polls" } },
+  async (request) => {
+    const data = request.data;
+    const adminCtx = await requireAdminPermission(request, "poll:update", "updatePoll");
 
     const { pollId, ...updates } = data;
     if (!pollId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "pollId is required"
       );
@@ -175,14 +179,14 @@ export const updatePoll = functions.https.onCall(
     const pollRef = db.collection("polls").doc(pollId);
     const pollDoc = await pollRef.get();
     if (!pollDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Poll not found");
+      throw new HttpsError("not-found", "Poll not found");
     }
 
     const poll = pollDoc.data()!;
 
     // Only allow updates in draft or open status
     if (poll.status !== "draft" && poll.status !== "open") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Can only update polls in draft or open status"
       );
@@ -195,7 +199,7 @@ export const updatePoll = functions.https.onCall(
     // Question and options only editable in draft
     if (updates.question !== undefined || updates.options !== undefined) {
       if (poll.status !== "draft") {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "Question and options can only be changed while poll is in draft status"
         );
@@ -206,7 +210,7 @@ export const updatePoll = functions.https.onCall(
       if (updates.options !== undefined) {
         const opts = updates.options as { text: string }[];
         if (opts.length < 2 || opts.length > 6) {
-          throw new functions.https.HttpsError(
+          throw new HttpsError(
             "invalid-argument",
             "Must provide 2-6 options"
           );
@@ -253,13 +257,15 @@ export const updatePoll = functions.https.onCall(
  * Open a poll (transition draft → open).
  * Activates the linked EarnOpportunity.
  */
-export const openPoll = functions.https.onCall(
-  async (data, context) => {
-    const adminCtx = await requireAdminPermission(context, "poll:open", "openPoll");
+export const openPoll = onCall(
+  { labels: { area: "polls" } },
+  async (request) => {
+    const data = request.data;
+    const adminCtx = await requireAdminPermission(request, "poll:open", "openPoll");
 
     const { pollId } = data;
     if (!pollId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "pollId is required"
       );
@@ -268,12 +274,12 @@ export const openPoll = functions.https.onCall(
     const pollRef = db.collection("polls").doc(pollId);
     const pollDoc = await pollRef.get();
     if (!pollDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Poll not found");
+      throw new HttpsError("not-found", "Poll not found");
     }
 
     const poll = pollDoc.data()!;
     if (poll.status !== "draft") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Cannot open poll in "${poll.status}" status. Must be "draft".`
       );
@@ -317,13 +323,15 @@ export const openPoll = functions.https.onCall(
  * Close a poll (transition open → closed).
  * Deactivates the linked EarnOpportunity.
  */
-export const closePoll = functions.https.onCall(
-  async (data, context) => {
-    const adminCtx = await requireAdminPermission(context, "poll:close", "closePoll");
+export const closePoll = onCall(
+  { labels: { area: "polls" } },
+  async (request) => {
+    const data = request.data;
+    const adminCtx = await requireAdminPermission(request, "poll:close", "closePoll");
 
     const { pollId } = data;
     if (!pollId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "pollId is required"
       );
@@ -332,12 +340,12 @@ export const closePoll = functions.https.onCall(
     const pollRef = db.collection("polls").doc(pollId);
     const pollDoc = await pollRef.get();
     if (!pollDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Poll not found");
+      throw new HttpsError("not-found", "Poll not found");
     }
 
     const poll = pollDoc.data()!;
     if (poll.status !== "open") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Cannot close poll in "${poll.status}" status. Must be "open".`
       );
@@ -380,13 +388,15 @@ export const closePoll = functions.https.onCall(
 /**
  * Get poll admin details including all responses and segmented counts.
  */
-export const getPollAdminDetails = functions.https.onCall(
-  async (data, context) => {
-    await requireAdminPermission(context, "poll:getDetails", "getPollAdminDetails");
+export const getPollAdminDetails = onCall(
+  { labels: { area: "polls" } },
+  async (request) => {
+    const data = request.data;
+    await requireAdminPermission(request, "poll:getDetails", "getPollAdminDetails");
 
     const { pollId } = data;
     if (!pollId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "pollId is required"
       );
@@ -395,7 +405,7 @@ export const getPollAdminDetails = functions.https.onCall(
     const pollRef = db.collection("polls").doc(pollId);
     const pollDoc = await pollRef.get();
     if (!pollDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Poll not found");
+      throw new HttpsError("not-found", "Poll not found");
     }
 
     const poll = pollDoc.data()!;

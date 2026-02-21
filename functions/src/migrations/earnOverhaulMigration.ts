@@ -11,7 +11,8 @@
  */
 
 import * as admin from 'firebase-admin';
-import * as functions from 'firebase-functions';
+import { onRequest } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 
 const db = admin.firestore();
 
@@ -26,7 +27,7 @@ interface MigrationStats {
 /**
  * Migration function to update existing data for the earn overhaul
  */
-export const runEarnOverhaulMigration = functions.https.onRequest(async (req, res) => {
+export const runEarnOverhaulMigration = onRequest({ labels: { area: "migrations" } }, async (req, res) => {
   // Verify admin token
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
@@ -57,7 +58,7 @@ export const runEarnOverhaulMigration = functions.https.onRequest(async (req, re
 
   try {
     // Step 1: Collect unique brandIds from earnThreads
-    console.log('Step 1: Collecting unique brands from threads...');
+    logger.info('Step 1: Collecting unique brands from threads...');
     const threadsSnapshot = await db.collection('earnThreads').get();
     const brandMap = new Map<string, { name: string; avatarImage?: string; avatarColor?: string }>();
 
@@ -75,10 +76,10 @@ export const runEarnOverhaulMigration = functions.https.onRequest(async (req, re
       }
     }
 
-    console.log(`Found ${brandMap.size} unique brands`);
+    logger.info(`Found ${brandMap.size} unique brands`);
 
     // Step 2: Create clients for each unique brand
-    console.log('Step 2: Creating clients from brands...');
+    logger.info('Step 2: Creating clients from brands...');
     const brandToClientMap = new Map<string, string>();
 
     for (const [brandId, brandData] of brandMap) {
@@ -90,7 +91,7 @@ export const runEarnOverhaulMigration = functions.https.onRequest(async (req, re
 
       if (!existingClient.empty) {
         brandToClientMap.set(brandId, existingClient.docs[0].id);
-        console.log(`Client already exists for brand ${brandId}`);
+        logger.info(`Client already exists for brand ${brandId}`);
         continue;
       }
 
@@ -112,11 +113,11 @@ export const runEarnOverhaulMigration = functions.https.onRequest(async (req, re
 
       brandToClientMap.set(brandId, clientRef.id);
       stats.clientsCreated++;
-      console.log(`Created client ${clientRef.id} for brand ${brandId}`);
+      logger.info(`Created client ${clientRef.id} for brand ${brandId}`);
     }
 
     // Step 3: Update earnThreads with clientId
-    console.log('Step 3: Updating earnThreads with clientId...');
+    logger.info('Step 3: Updating earnThreads with clientId...');
     const threadBatch = db.batch();
     let threadBatchCount = 0;
 
@@ -161,7 +162,7 @@ export const runEarnOverhaulMigration = functions.https.onRequest(async (req, re
     }
 
     // Step 4: Update earnOpportunities with earningType
-    console.log('Step 4: Updating earnOpportunities with earningType...');
+    logger.info('Step 4: Updating earnOpportunities with earningType...');
     const opportunitiesSnapshot = await db.collection('earnOpportunities').get();
     const oppBatch = db.batch();
     let oppBatchCount = 0;
@@ -201,7 +202,7 @@ export const runEarnOverhaulMigration = functions.https.onRequest(async (req, re
     }
 
     // Step 5: Update engagements with threadId and clientId
-    console.log('Step 5: Updating engagements with threadId and clientId...');
+    logger.info('Step 5: Updating engagements with threadId and clientId...');
     const engagementsSnapshot = await db.collection('engagements').get();
 
     // Build opportunity to thread/client map
@@ -263,14 +264,14 @@ export const runEarnOverhaulMigration = functions.https.onRequest(async (req, re
       await engBatch.commit();
     }
 
-    console.log('Migration complete!', stats);
+    logger.info('Migration complete!', stats);
     res.status(200).json({
       success: true,
       message: 'Earn overhaul migration completed successfully',
       stats,
     });
   } catch (error) {
-    console.error('Migration failed:', error);
+    logger.error('Migration failed:', error);
     stats.errors.push(String(error));
     res.status(500).json({
       success: false,
@@ -285,7 +286,7 @@ export const runEarnOverhaulMigration = functions.https.onRequest(async (req, re
  * Rollback function (for emergencies)
  * This restores brandId fields from clientId mappings
  */
-export const rollbackEarnOverhaulMigration = functions.https.onRequest(async (req, res) => {
+export const rollbackEarnOverhaulMigration = onRequest({ labels: { area: "migrations" } }, async (req, res) => {
   // Verify admin token
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {

@@ -13,7 +13,7 @@ class LedgerReconScreen extends StatefulWidget {
 }
 
 class _LedgerReconScreenState extends State<LedgerReconScreen> {
-  final _functions = FirebaseFunctions.instance;
+  final _functions = FirebaseFunctions.instanceFor(region: 'africa-south1');
   final _numberFormat = NumberFormat('#,###');
   final _dateFormat = DateFormat('dd MMM yyyy HH:mm');
 

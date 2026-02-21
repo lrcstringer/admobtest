@@ -6,6 +6,7 @@
  */
 
 import * as crypto from "crypto";
+import { REWARD_CODE_ENCRYPTION_KEY } from "./secrets";
 
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 12; // 96 bits recommended for GCM
@@ -16,7 +17,7 @@ const AUTH_TAG_LENGTH = 16; // 128 bits
  * Key must be a 64-character hex string (32 bytes).
  */
 function getEncryptionKey(): Buffer {
-  const keyHex = process.env.REWARD_CODE_ENCRYPTION_KEY;
+  const keyHex = REWARD_CODE_ENCRYPTION_KEY.value();
   if (!keyHex) {
     throw new Error("REWARD_CODE_ENCRYPTION_KEY environment variable is not set");
   }

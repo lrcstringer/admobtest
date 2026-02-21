@@ -9,7 +9,9 @@
  * - leaderboards/{type}/scores: User scores for daily/weekly/allTime
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import {
   processPotWin,
@@ -27,22 +29,22 @@ const db = admin.firestore();
 /**
  * Initialize daily pot at midnight SAST
  */
-export const initializeDailyPot = functions.pubsub
-  .schedule("0 0 * * *")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
-    return executeInitializeDailyPot();
-  });
+export const initializeDailyPot = onSchedule(
+  { schedule: "0 0 * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "pots" } },
+  async () => {
+    await executeInitializeDailyPot();
+  }
+);
 
 /**
  * Initialize weekly pot on Monday at midnight SAST
  */
-export const initializeWeeklyPot = functions.pubsub
-  .schedule("0 0 * * 1") // Monday at midnight
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
-    return executeInitializeWeeklyPot();
-  });
+export const initializeWeeklyPot = onSchedule(
+  { schedule: "0 0 * * 1", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "pots" } },
+  async () => {
+    await executeInitializeWeeklyPot();
+  }
+);
 
 /**
  * Core daily pot initialization logic, shared by the scheduled job and the admin manual trigger.
@@ -58,7 +60,7 @@ async function executeInitializeDailyPot(): Promise<string> {
   // Check if pot already exists
   const existing = await potRef.get();
   if (existing.exists) {
-    console.log(`Daily pot ${potId} already exists`);
+    logger.info(`Daily pot ${potId} already exists`);
     return "exists";
   }
 
@@ -76,7 +78,7 @@ async function executeInitializeDailyPot(): Promise<string> {
       });
     }
     await batch.commit();
-    console.log(`Deactivated ${stalePots.size} stale daily pot(s)`);
+    logger.info(`Deactivated ${stalePots.size} stale daily pot(s)`);
   }
 
   // Create new daily pot with Flutter-compatible structure
@@ -98,7 +100,7 @@ async function executeInitializeDailyPot(): Promise<string> {
   // Reset daily leaderboard scores
   await resetDailyLeaderboard(today, tomorrow);
 
-  console.log(`Created daily pot: ${potId}`);
+  logger.info(`Created daily pot: ${potId}`);
   return "created";
 }
 
@@ -116,7 +118,7 @@ async function executeInitializeWeeklyPot(): Promise<string> {
   // Check if pot already exists
   const existing = await potRef.get();
   if (existing.exists) {
-    console.log(`Weekly pot ${potId} already exists`);
+    logger.info(`Weekly pot ${potId} already exists`);
     return "exists";
   }
 
@@ -134,7 +136,7 @@ async function executeInitializeWeeklyPot(): Promise<string> {
       });
     }
     await batch.commit();
-    console.log(`Deactivated ${stalePots.size} stale weekly pot(s)`);
+    logger.info(`Deactivated ${stalePots.size} stale weekly pot(s)`);
   }
 
   // Create new weekly pot with Flutter-compatible structure
@@ -156,7 +158,7 @@ async function executeInitializeWeeklyPot(): Promise<string> {
   // Reset weekly leaderboard scores
   await resetWeeklyLeaderboard(weekStart, weekEnd);
 
-  console.log(`Created weekly pot: ${potId}`);
+  logger.info(`Created weekly pot: ${potId}`);
   return "created";
 }
 
@@ -168,17 +170,17 @@ async function executeInitializeWeeklyPot(): Promise<string> {
  * 2. Get top 10 entries from the leaderboard
  * 3. Credit winner's default sub-accounts through the ledger
  */
-export const runDailyPotDraw = functions.pubsub
-  .schedule("0 20 * * *")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const runDailyPotDraw = onSchedule(
+  { schedule: "0 20 * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", timeoutSeconds: 300, memory: "512MiB", cpu: 1, labels: { area: "pots" } },
+  async () => {
     const flagDoc = await db.collection("platformSettings").doc("pots").get();
     if (flagDoc.exists && flagDoc.data()?.dailyPotAutoDistribute === false) {
-      console.log("Daily pot auto-distribute disabled — skipping scheduled draw");
-      return null;
+      logger.info("Daily pot auto-distribute disabled — skipping scheduled draw");
+      return;
     }
-    return executeDailyPotDraw();
-  });
+    await executeDailyPotDraw();
+  }
+);
 
 /**
  * Core daily pot draw logic, shared by the scheduled job and the admin manual trigger.
@@ -192,7 +194,7 @@ async function executeDailyPotDraw(potId?: string): Promise<{ winnersCount: numb
       // Admin manual trigger: target a specific pot
       const doc = await db.collection("pots").doc(potId).get();
       if (!doc.exists || doc.data()?.type !== "daily" || doc.data()?.isActive !== true) {
-        console.log(`Pot ${potId} not found, not daily, or not active`);
+        logger.info(`Pot ${potId} not found, not daily, or not active`);
         return null;
       }
       potDoc = doc;
@@ -210,7 +212,7 @@ async function executeDailyPotDraw(potId?: string): Promise<{ winnersCount: numb
         .get();
 
       if (potQuery.empty) {
-        console.log("No active daily pot found for today");
+        logger.info("No active daily pot found for today");
         return null;
       }
       potDoc = potQuery.docs[0];
@@ -235,14 +237,14 @@ async function executeDailyPotDraw(potId?: string): Promise<{ winnersCount: numb
     const ledgerPotBalance = await getBalance(SystemAccounts.DAILY_POT);
 
     if (leaderboardResult.total === 0) {
-      console.log("No participants in daily pot");
+      logger.info("No participants in daily pot");
       // Sweep any leftover balance to pot:residual so tokens don't accumulate
       if (ledgerPotBalance > 0) {
         await processPotResidual("daily", ledgerPotBalance, potDoc.id, {
           reason: "no_participants",
           totalTokens: ledgerPotBalance,
         });
-        console.log(`Swept ${ledgerPotBalance} leftover daily pot tokens to residual (no participants)`);
+        logger.info(`Swept ${ledgerPotBalance} leftover daily pot tokens to residual (no participants)`);
       }
       await potDoc.ref.update({
         isActive: false,
@@ -306,7 +308,7 @@ async function executeDailyPotDraw(potId?: string): Promise<{ winnersCount: numb
       );
 
       if (!ledgerResult.success) {
-        console.error(`Failed to process pot win for user ${entry.userId}:`, ledgerResult.error);
+        logger.error(`Failed to process pot win for user ${entry.userId}:`, ledgerResult.error);
         totalDistributed -= tokensWon; // Undo count for failed payout
         continue;
       }
@@ -338,9 +340,9 @@ async function executeDailyPotDraw(potId?: string): Promise<{ winnersCount: numb
         winnersCount: winners.length,
       });
       if (!residualResult.success) {
-        console.error(`Failed to sweep daily pot residual: ${residualResult.error}`);
+        logger.error(`Failed to sweep daily pot residual: ${residualResult.error}`);
       } else {
-        console.log(`Daily pot residual swept: ${residual} tokens`);
+        logger.info(`Daily pot residual swept: ${residual} tokens`);
       }
     }
 
@@ -358,7 +360,7 @@ async function executeDailyPotDraw(potId?: string): Promise<{ winnersCount: numb
 
     await batch.commit();
 
-    console.log(`Daily pot draw completed. ${winners.length} winners, ${totalDistributed} tokens distributed, ${residual} residual`);
+    logger.info(`Daily pot draw completed. ${winners.length} winners, ${totalDistributed} tokens distributed, ${residual} residual`);
     return { winnersCount: winners.length, totalTokens: totalDistributed };
 }
 
@@ -366,12 +368,13 @@ async function executeDailyPotDraw(potId?: string): Promise<{ winnersCount: numb
  * Admin-triggered manual daily pot distribution.
  * Uses the same logic as the scheduled runDailyPotDraw.
  */
-export const adminDistributeDailyPot = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "adminDistributeDailyPot");
-    await requireAdminPermission(context, "pots:distribute", "adminDistributeDailyPot");
+export const adminDistributeDailyPot = onCall(
+  { labels: { area: "pots" } },
+  async (request) => {
+    requireAppCheck(request, "adminDistributeDailyPot");
+    await requireAdminPermission(request, "pots:distribute", "adminDistributeDailyPot");
 
-    const { potId } = (data || {}) as { potId?: string };
+    const { potId } = (request.data || {}) as { potId?: string };
     const result = await executeDailyPotDraw(potId);
 
     if (!result) {
@@ -380,7 +383,7 @@ export const adminDistributeDailyPot = functions.https.onCall(
 
     // Auto-initialize a new daily pot for the current period after distribution
     const initResult = await executeInitializeDailyPot();
-    console.log(`Post-distribution daily pot init: ${initResult}`);
+    logger.info(`Post-distribution daily pot init: ${initResult}`);
 
     return {
       success: true,
@@ -399,17 +402,17 @@ export const adminDistributeDailyPot = functions.https.onCall(
  * 2. Build pot leaderboard
  * 3. Credit winner's default sub-accounts through the ledger
  */
-export const runWeeklyPotDraw = functions.pubsub
-  .schedule("0 20 * * 0")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const runWeeklyPotDraw = onSchedule(
+  { schedule: "0 20 * * 0", timeZone: "Africa/Johannesburg", region: "europe-west1", timeoutSeconds: 300, memory: "512MiB", cpu: 1, labels: { area: "pots" } },
+  async () => {
     const flagDoc = await db.collection("platformSettings").doc("pots").get();
     if (flagDoc.exists && flagDoc.data()?.weeklyPotAutoDistribute === false) {
-      console.log("Weekly pot auto-distribute disabled — skipping scheduled draw");
-      return null;
+      logger.info("Weekly pot auto-distribute disabled — skipping scheduled draw");
+      return;
     }
-    return executeWeeklyPotDraw();
-  });
+    await executeWeeklyPotDraw();
+  }
+);
 
 /**
  * Core weekly pot draw logic, shared by the scheduled job and the admin manual trigger.
@@ -423,7 +426,7 @@ async function executeWeeklyPotDraw(potId?: string): Promise<{ winnersCount: num
       // Admin manual trigger: target a specific pot
       const doc = await db.collection("pots").doc(potId).get();
       if (!doc.exists || doc.data()?.type !== "weekly" || doc.data()?.isActive !== true) {
-        console.log(`Pot ${potId} not found, not weekly, or not active`);
+        logger.info(`Pot ${potId} not found, not weekly, or not active`);
         return null;
       }
       potDoc = doc;
@@ -441,7 +444,7 @@ async function executeWeeklyPotDraw(potId?: string): Promise<{ winnersCount: num
         .get();
 
       if (potQuery.empty) {
-        console.log("No active weekly pot found");
+        logger.info("No active weekly pot found");
         return null;
       }
       potDoc = potQuery.docs[0];
@@ -462,14 +465,14 @@ async function executeWeeklyPotDraw(potId?: string): Promise<{ winnersCount: num
     const ledgerPotBalance = await getBalance(SystemAccounts.WEEKLY_POT);
 
     if (aggregatedScores.length === 0) {
-      console.log("No participants in weekly pot");
+      logger.info("No participants in weekly pot");
       // Sweep any leftover balance to pot:residual so tokens don't accumulate
       if (ledgerPotBalance > 0) {
         await processPotResidual("weekly", ledgerPotBalance, potDoc.id, {
           reason: "no_participants",
           totalTokens: ledgerPotBalance,
         });
-        console.log(`Swept ${ledgerPotBalance} leftover weekly pot tokens to residual (no participants)`);
+        logger.info(`Swept ${ledgerPotBalance} leftover weekly pot tokens to residual (no participants)`);
       }
       await potDoc.ref.update({
         isActive: false,
@@ -563,7 +566,7 @@ async function executeWeeklyPotDraw(potId?: string): Promise<{ winnersCount: num
       );
 
       if (!ledgerResult.success) {
-        console.error(`Failed to process pot win for user ${entry.userId}:`, ledgerResult.error);
+        logger.error(`Failed to process pot win for user ${entry.userId}:`, ledgerResult.error);
         totalDistributed -= tokensWon; // Undo count for failed payout
         continue;
       }
@@ -595,9 +598,9 @@ async function executeWeeklyPotDraw(potId?: string): Promise<{ winnersCount: num
         winnersCount: winners.length,
       });
       if (!residualResult.success) {
-        console.error(`Failed to sweep weekly pot residual: ${residualResult.error}`);
+        logger.error(`Failed to sweep weekly pot residual: ${residualResult.error}`);
       } else {
-        console.log(`Weekly pot residual swept: ${residual} tokens`);
+        logger.info(`Weekly pot residual swept: ${residual} tokens`);
       }
     }
 
@@ -615,7 +618,7 @@ async function executeWeeklyPotDraw(potId?: string): Promise<{ winnersCount: num
 
     await batch.commit();
 
-    console.log(`Weekly pot draw completed. ${winners.length} winners, ${totalDistributed} tokens distributed, ${residual} residual`);
+    logger.info(`Weekly pot draw completed. ${winners.length} winners, ${totalDistributed} tokens distributed, ${residual} residual`);
     return { winnersCount: winners.length, totalTokens: totalDistributed };
 }
 
@@ -623,12 +626,13 @@ async function executeWeeklyPotDraw(potId?: string): Promise<{ winnersCount: num
  * Admin-triggered manual weekly pot distribution.
  * Uses the same logic as the scheduled runWeeklyPotDraw.
  */
-export const adminDistributeWeeklyPot = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "adminDistributeWeeklyPot");
-    await requireAdminPermission(context, "pots:distribute", "adminDistributeWeeklyPot");
+export const adminDistributeWeeklyPot = onCall(
+  { labels: { area: "pots" } },
+  async (request) => {
+    requireAppCheck(request, "adminDistributeWeeklyPot");
+    await requireAdminPermission(request, "pots:distribute", "adminDistributeWeeklyPot");
 
-    const { potId } = (data || {}) as { potId?: string };
+    const { potId } = (request.data || {}) as { potId?: string };
     const result = await executeWeeklyPotDraw(potId);
 
     if (!result) {
@@ -637,7 +641,7 @@ export const adminDistributeWeeklyPot = functions.https.onCall(
 
     // Auto-initialize a new weekly pot for the current period after distribution
     const initResult = await executeInitializeWeeklyPot();
-    console.log(`Post-distribution weekly pot init: ${initResult}`);
+    logger.info(`Post-distribution weekly pot init: ${initResult}`);
 
     return {
       success: true,
@@ -652,10 +656,11 @@ export const adminDistributeWeeklyPot = functions.https.onCall(
  * Admin callable: Initialize pots for the current day/week if they don't exist.
  * Safe to call multiple times — skips if pots already exist.
  */
-export const adminInitializePots = functions.https.onCall(
-  async (_data, context) => {
-    requireAppCheck(context, "adminInitializePots");
-    await requireAdminPermission(context, "pots:distribute", "adminInitializePots");
+export const adminInitializePots = onCall(
+  { labels: { area: "pots" } },
+  async (request) => {
+    requireAppCheck(request, "adminInitializePots");
+    await requireAdminPermission(request, "pots:distribute", "adminInitializePots");
 
     const dailyResult = await executeInitializeDailyPot();
     const weeklyResult = await executeInitializeWeeklyPot();
@@ -688,7 +693,7 @@ async function resetDailyLeaderboard(periodStart: Date, periodEnd: Date): Promis
     const batch = db.batch();
     oldScores.docs.forEach((doc) => batch.delete(doc.ref));
     await batch.commit();
-    console.log(`Cleared ${oldScores.size} daily leaderboard scores`);
+    logger.info(`Cleared ${oldScores.size} daily leaderboard scores`);
   }
 
   await dailyRef.set({
@@ -712,7 +717,7 @@ async function resetWeeklyLeaderboard(periodStart: Date, periodEnd: Date): Promi
     const batch = db.batch();
     oldScores.docs.forEach((doc) => batch.delete(doc.ref));
     await batch.commit();
-    console.log(`Cleared ${oldScores.size} weekly leaderboard scores`);
+    logger.info(`Cleared ${oldScores.size} weekly leaderboard scores`);
   }
 
   await weeklyRef.set({
@@ -796,16 +801,18 @@ async function aggregateWeeklyScoresFromDailyScores(
     dates.push(d.toISOString().split("T")[0]);
   }
 
-  // Query each day and aggregate
-  // Uses the same composite index as adminGetPotEntries: date + finalScore (COLLECTION_GROUP)
-  for (const date of dates) {
-    const snapshot = await db
-      .collectionGroup("dailyScores")
-      .where("date", "==", date)
-      .where("finalScore", ">", 0)
-      .orderBy("finalScore", "desc")
-      .get();
+  // Query all 7 days in parallel (was serial — saves ~2-5s)
+  const snapshots = await Promise.all(
+    dates.map((date) =>
+      db.collectionGroup("dailyScores")
+        .where("date", "==", date)
+        .where("finalScore", ">", 0)
+        .orderBy("finalScore", "desc")
+        .get()
+    )
+  );
 
+  for (const snapshot of snapshots) {
     for (const doc of snapshot.docs) {
       const userId = doc.ref.parent.parent?.id;
       if (!userId) continue;
@@ -847,18 +854,19 @@ async function aggregateWeeklyScoresFromDailyScores(
  * Daily pot  → flat list for the single date.
  * Weekly pot → entries grouped per day (client does the grouping/UI).
  */
-export const adminGetPotEntries = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "adminGetPotEntries");
+export const adminGetPotEntries = onCall(
+  { labels: { area: "pots" } },
+  async (request) => {
+    requireAppCheck(request, "adminGetPotEntries");
     await requireAdminPermission(
-      context,
+      request,
       "pots:viewEntries",
       "adminGetPotEntries",
     );
 
-    const { potId } = data as { potId?: string };
+    const { potId } = request.data as { potId?: string };
     if (!potId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "potId is required",
       );
@@ -867,7 +875,7 @@ export const adminGetPotEntries = functions.https.onCall(
     // 1. Read the pot document
     const potDoc = await db.collection("pots").doc(potId).get();
     if (!potDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Pot not found");
+      throw new HttpsError("not-found", "Pot not found");
     }
 
     const potData = potDoc.data()!;

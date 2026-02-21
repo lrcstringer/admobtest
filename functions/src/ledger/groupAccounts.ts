@@ -7,6 +7,7 @@
  */
 
 import * as admin from "firebase-admin";
+import { logger } from "firebase-functions/v2";
 import {
   LedgerAccount,
   PostJournalResult,
@@ -97,7 +98,7 @@ export async function getOrCreateGroupAccount(
 
   await subAccountRef.set(subAccountData);
 
-  console.log(`Created ledger account ${accountId} with treasury ${subAccountRef.id} for group ${groupId}`);
+  logger.info(`Created ledger account ${accountId} with treasury ${subAccountRef.id} for group ${groupId}`);
 
   return {
     accountId,
@@ -577,5 +578,5 @@ export async function deleteGroupAccount(groupId: string): Promise<void> {
   batch.delete(accountRef);
 
   await batch.commit();
-  console.log(`Deleted ledger account for group ${groupId}`);
+  logger.info(`Deleted ledger account for group ${groupId}`);
 }

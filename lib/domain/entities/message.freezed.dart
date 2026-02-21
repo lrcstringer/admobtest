@@ -1495,6 +1495,7 @@ mixin _$X3dhHeader {
   String get identityKey => throw _privateConstructorUsedError;
   String get ephemeralKey => throw _privateConstructorUsedError;
   int? get oneTimePreKeyId => throw _privateConstructorUsedError;
+  String? get oneTimePreKeyPublicKey => throw _privateConstructorUsedError;
 
   /// Serializes this X3dhHeader to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1513,7 +1514,12 @@ abstract class $X3dhHeaderCopyWith<$Res> {
     $Res Function(X3dhHeader) then,
   ) = _$X3dhHeaderCopyWithImpl<$Res, X3dhHeader>;
   @useResult
-  $Res call({String identityKey, String ephemeralKey, int? oneTimePreKeyId});
+  $Res call({
+    String identityKey,
+    String ephemeralKey,
+    int? oneTimePreKeyId,
+    String? oneTimePreKeyPublicKey,
+  });
 }
 
 /// @nodoc
@@ -1534,6 +1540,7 @@ class _$X3dhHeaderCopyWithImpl<$Res, $Val extends X3dhHeader>
     Object? identityKey = null,
     Object? ephemeralKey = null,
     Object? oneTimePreKeyId = freezed,
+    Object? oneTimePreKeyPublicKey = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1549,6 +1556,10 @@ class _$X3dhHeaderCopyWithImpl<$Res, $Val extends X3dhHeader>
                 ? _value.oneTimePreKeyId
                 : oneTimePreKeyId // ignore: cast_nullable_to_non_nullable
                       as int?,
+            oneTimePreKeyPublicKey: freezed == oneTimePreKeyPublicKey
+                ? _value.oneTimePreKeyPublicKey
+                : oneTimePreKeyPublicKey // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -1564,7 +1575,12 @@ abstract class _$$X3dhHeaderImplCopyWith<$Res>
   ) = __$$X3dhHeaderImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String identityKey, String ephemeralKey, int? oneTimePreKeyId});
+  $Res call({
+    String identityKey,
+    String ephemeralKey,
+    int? oneTimePreKeyId,
+    String? oneTimePreKeyPublicKey,
+  });
 }
 
 /// @nodoc
@@ -1584,6 +1600,7 @@ class __$$X3dhHeaderImplCopyWithImpl<$Res>
     Object? identityKey = null,
     Object? ephemeralKey = null,
     Object? oneTimePreKeyId = freezed,
+    Object? oneTimePreKeyPublicKey = freezed,
   }) {
     return _then(
       _$X3dhHeaderImpl(
@@ -1599,6 +1616,10 @@ class __$$X3dhHeaderImplCopyWithImpl<$Res>
             ? _value.oneTimePreKeyId
             : oneTimePreKeyId // ignore: cast_nullable_to_non_nullable
                   as int?,
+        oneTimePreKeyPublicKey: freezed == oneTimePreKeyPublicKey
+            ? _value.oneTimePreKeyPublicKey
+            : oneTimePreKeyPublicKey // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -1611,6 +1632,7 @@ class _$X3dhHeaderImpl implements _X3dhHeader {
     required this.identityKey,
     required this.ephemeralKey,
     this.oneTimePreKeyId,
+    this.oneTimePreKeyPublicKey,
   });
 
   factory _$X3dhHeaderImpl.fromJson(Map<String, dynamic> json) =>
@@ -1622,10 +1644,12 @@ class _$X3dhHeaderImpl implements _X3dhHeader {
   final String ephemeralKey;
   @override
   final int? oneTimePreKeyId;
+  @override
+  final String? oneTimePreKeyPublicKey;
 
   @override
   String toString() {
-    return 'X3dhHeader(identityKey: $identityKey, ephemeralKey: $ephemeralKey, oneTimePreKeyId: $oneTimePreKeyId)';
+    return 'X3dhHeader(identityKey: $identityKey, ephemeralKey: $ephemeralKey, oneTimePreKeyId: $oneTimePreKeyId, oneTimePreKeyPublicKey: $oneTimePreKeyPublicKey)';
   }
 
   @override
@@ -1638,13 +1662,20 @@ class _$X3dhHeaderImpl implements _X3dhHeader {
             (identical(other.ephemeralKey, ephemeralKey) ||
                 other.ephemeralKey == ephemeralKey) &&
             (identical(other.oneTimePreKeyId, oneTimePreKeyId) ||
-                other.oneTimePreKeyId == oneTimePreKeyId));
+                other.oneTimePreKeyId == oneTimePreKeyId) &&
+            (identical(other.oneTimePreKeyPublicKey, oneTimePreKeyPublicKey) ||
+                other.oneTimePreKeyPublicKey == oneTimePreKeyPublicKey));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, identityKey, ephemeralKey, oneTimePreKeyId);
+  int get hashCode => Object.hash(
+    runtimeType,
+    identityKey,
+    ephemeralKey,
+    oneTimePreKeyId,
+    oneTimePreKeyPublicKey,
+  );
 
   /// Create a copy of X3dhHeader
   /// with the given fields replaced by the non-null parameter values.
@@ -1665,6 +1696,7 @@ abstract class _X3dhHeader implements X3dhHeader {
     required final String identityKey,
     required final String ephemeralKey,
     final int? oneTimePreKeyId,
+    final String? oneTimePreKeyPublicKey,
   }) = _$X3dhHeaderImpl;
 
   factory _X3dhHeader.fromJson(Map<String, dynamic> json) =
@@ -1676,6 +1708,8 @@ abstract class _X3dhHeader implements X3dhHeader {
   String get ephemeralKey;
   @override
   int? get oneTimePreKeyId;
+  @override
+  String? get oneTimePreKeyPublicKey;
 
   /// Create a copy of X3dhHeader
   /// with the given fields replaced by the non-null parameter values.

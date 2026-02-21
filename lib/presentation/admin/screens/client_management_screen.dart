@@ -53,7 +53,7 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
     try {
       // Load clients via Cloud Function (includes ledger balance) + live thread counts
       final results = await Future.wait([
-        FirebaseFunctions.instance.httpsCallable('adminListClients').call(),
+        FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('adminListClients').call(),
         FirebaseFirestore.instance.collection('earnThreads').get(),
       ]);
 
@@ -250,7 +250,7 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
     if (confirmed != true || !mounted) return;
 
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminSoftDeleteClient')
           .call({'clientId': client['id']});
       final data = result.data as Map<String, dynamic>;
@@ -1065,7 +1065,7 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
       }
       setState(() => _isUploading = false);
 
-      await FirebaseFunctions.instance.httpsCallable('adminCreateClient').call({
+      await FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('adminCreateClient').call({
         'clientId': clientId,
         'companyName': _companyNameController.text.trim(),
         'contactName': _contactNameController.text.trim(),
@@ -1678,7 +1678,7 @@ class _EditClientDialogState extends State<_EditClientDialog> {
       }
       setState(() => _isUploading = false);
 
-      await FirebaseFunctions.instance
+      await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminUpdateClient')
           .call({
         'clientId': widget.client['id'],
@@ -2147,7 +2147,7 @@ class _ToggleStatusDialogState extends State<_ToggleStatusDialog> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
-      await FirebaseFunctions.instance
+      await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminUpdateClientStatus')
           .call({
         'clientId': widget.client['id'],
@@ -2270,7 +2270,7 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
   Future<void> _loadSubAccounts() async {
     setState(() => _isLoading = true);
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminListClientSubAccounts')
           .call({'clientId': widget.clientId});
       final list = (result.data['subAccounts'] as List?)
@@ -2348,7 +2348,7 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
                         if (!formKey.currentState!.validate()) return;
                         setInnerState(() => saving = true);
                         try {
-                          await FirebaseFunctions.instance
+                          await FirebaseFunctions.instanceFor(region: 'africa-south1')
                               .httpsCallable('adminCreateClientSubAccount')
                               .call({
                             'clientId': widget.clientId,
@@ -2454,7 +2454,7 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
                         if (!formKey.currentState!.validate()) return;
                         setInnerState(() => saving = true);
                         try {
-                          await FirebaseFunctions.instance
+                          await FirebaseFunctions.instanceFor(region: 'africa-south1')
                               .httpsCallable('adminFundClientSubAccount')
                               .call({
                             'clientId': widget.clientId,

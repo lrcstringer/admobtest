@@ -7,7 +7,8 @@
  * approve (awarding tokens) or reject submissions.
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import { requireAdminPermission, logAdminAction } from "./adminAuth";
 import * as admin from "firebase-admin";
 import {
@@ -31,21 +32,23 @@ const db = admin.firestore();
  * approve: Runs the normal reward flow (ledger split, stats, scores).
  * reject: Marks engagement as rejected with reason.
  */
-export const adminReviewUpload = functions.https.onCall(
-  async (data, context) => {
-    const adminCtx = await requireAdminPermission(context, "review:reviewUpload", "adminReviewUpload");
+export const adminReviewUpload = onCall(
+  { labels: { area: "moderation" } },
+  async (request) => {
+    const data = request.data;
+    const adminCtx = await requireAdminPermission(request, "review:reviewUpload", "adminReviewUpload");
 
     const { engagementId, action, reason } = data;
 
     if (!engagementId || !action) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "engagementId and action are required"
       );
     }
 
     if (!["approve", "reject"].includes(action)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "action must be 'approve' or 'reject'"
       );
@@ -56,19 +59,19 @@ export const adminReviewUpload = functions.https.onCall(
     const engagementDoc = await engagementRef.get();
 
     if (!engagementDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Engagement not found");
+      throw new HttpsError("not-found", "Engagement not found");
     }
 
     const engagement = engagementDoc.data()!;
 
     if (engagement.status !== "pending_review") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Engagement is not pending review (current status: ${engagement.status})`
       );
     }
 
-    const adminUid = context.auth!.uid;
+    const adminUid = request.auth!.uid;
     const now = admin.firestore.FieldValue.serverTimestamp();
 
     // ── REJECT ──
@@ -88,7 +91,7 @@ export const adminReviewUpload = functions.https.onCall(
           engagement.reservedRewardItemId,
           engagementId
         ).catch((e: unknown) =>
-          console.error("Failed to release reward reservation on rejection:", e)
+          logger.error("Failed to release reward reservation on rejection:", e)
         );
       }
 
@@ -199,7 +202,7 @@ export const adminReviewUpload = functions.https.onCall(
     }
 
     if (!ledgerResult.success) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "internal",
         `Failed to process earning: ${ledgerResult.error}`
       );
@@ -252,7 +255,7 @@ export const adminReviewUpload = functions.https.onCall(
         await updateReferrerAssistScore(userData.referredBy, userShare);
       }
     } catch (statsError) {
-      console.warn("Non-critical: stats update failed after upload approval", statsError);
+      logger.warn("Non-critical: stats update failed after upload approval", statsError);
     }
 
     logAdminAction(adminCtx.uid, "adminReviewUpload", "success", { engagementId, action: "approved", userId, tokensAwarded: userShare }).catch(() => {});
@@ -269,9 +272,11 @@ export const adminReviewUpload = functions.https.onCall(
 /**
  * Get the queue of upload engagements pending admin review.
  */
-export const getUploadReviewQueue = functions.https.onCall(
-  async (data, context) => {
-    await requireAdminPermission(context, "review:getQueue", "getUploadReviewQueue");
+export const getUploadReviewQueue = onCall(
+  { labels: { area: "moderation" } },
+  async (request) => {
+    const data = request.data;
+    await requireAdminPermission(request, "review:getQueue", "getUploadReviewQueue");
 
     const { threadId, limit: queryLimit = 50 } = data || {};
 
@@ -292,59 +297,84 @@ export const getUploadReviewQueue = functions.https.onCall(
 
     const snapshot = await query.get();
 
-    const items = await Promise.all(
-      snapshot.docs.map(async (doc) => {
-        const engagement = doc.data();
+    // Batch-fetch unique users and opportunities to avoid N+1 queries
+    const uniqueUserIds = new Set<string>();
+    const uniqueOppIds = new Set<string>();
 
-        // Fetch user display info
-        let userDisplayName: string | null = null;
-        let userPhotoUrl: string | null = null;
-        try {
-          const userDoc = await db.collection("users").doc(engagement.userId).get();
+    for (const doc of snapshot.docs) {
+      const engagement = doc.data();
+      if (engagement.userId) uniqueUserIds.add(engagement.userId);
+      if (engagement.earnOpportunityId) uniqueOppIds.add(engagement.earnOpportunityId);
+    }
+
+    // Batch-fetch all user docs
+    const userMap = new Map<string, FirebaseFirestore.DocumentData>();
+    if (uniqueUserIds.size > 0) {
+      try {
+        const userRefs = Array.from(uniqueUserIds).map((uid) =>
+          db.collection("users").doc(uid)
+        );
+        const userDocs = await db.getAll(...userRefs);
+        for (const userDoc of userDocs) {
           if (userDoc.exists) {
-            const userData = userDoc.data()!;
-            userDisplayName = userData.displayName || userData.username || null;
-            userPhotoUrl = userData.photoUrl || null;
+            userMap.set(userDoc.id, userDoc.data()!);
           }
-        } catch {
-          // Non-critical
         }
+      } catch {
+        // Non-critical
+      }
+    }
 
-        // Fetch opportunity info
-        let opportunityTitle: string | null = null;
-        let uploadPrompt: string | null = null;
-        try {
-          if (engagement.earnOpportunityId) {
-            const oppDoc = await db
-              .collection("earnOpportunities")
-              .doc(engagement.earnOpportunityId)
-              .get();
-            if (oppDoc.exists) {
-              const oppData = oppDoc.data()!;
-              opportunityTitle = oppData.title || null;
-              uploadPrompt = oppData.uploadPrompt || null;
-            }
+    // Batch-fetch all opportunity docs
+    const oppMap = new Map<string, FirebaseFirestore.DocumentData>();
+    if (uniqueOppIds.size > 0) {
+      try {
+        const oppRefs = Array.from(uniqueOppIds).map((oppId) =>
+          db.collection("earnOpportunities").doc(oppId)
+        );
+        const oppDocs = await db.getAll(...oppRefs);
+        for (const oppDoc of oppDocs) {
+          if (oppDoc.exists) {
+            oppMap.set(oppDoc.id, oppDoc.data()!);
           }
-        } catch {
-          // Non-critical
         }
+      } catch {
+        // Non-critical
+      }
+    }
 
-        return {
-          engagementId: doc.id,
-          userId: engagement.userId,
-          userDisplayName,
-          userPhotoUrl,
-          threadId: engagement.threadId,
-          earnOpportunityId: engagement.earnOpportunityId,
-          opportunityTitle,
-          uploadPrompt,
-          evidence: engagement.evidence || {},
-          rewardAmount: engagement.rewardAmount,
-          submittedAt: engagement.submittedAt,
-          createdAt: engagement.createdAt,
-        };
-      })
-    );
+    const items = snapshot.docs.map((doc) => {
+      const engagement = doc.data();
+
+      // Look up user from pre-fetched map
+      const userData = userMap.get(engagement.userId);
+      const userDisplayName = userData
+        ? (userData.displayName || userData.username || null)
+        : null;
+      const userPhotoUrl = userData?.photoUrl || null;
+
+      // Look up opportunity from pre-fetched map
+      const oppData = engagement.earnOpportunityId
+        ? oppMap.get(engagement.earnOpportunityId)
+        : undefined;
+      const opportunityTitle = oppData?.title || null;
+      const uploadPrompt = oppData?.uploadPrompt || null;
+
+      return {
+        engagementId: doc.id,
+        userId: engagement.userId,
+        userDisplayName,
+        userPhotoUrl,
+        threadId: engagement.threadId,
+        earnOpportunityId: engagement.earnOpportunityId,
+        opportunityTitle,
+        uploadPrompt,
+        evidence: engagement.evidence || {},
+        rewardAmount: engagement.rewardAmount,
+        submittedAt: engagement.submittedAt,
+        createdAt: engagement.createdAt,
+      };
+    });
 
     return {
       success: true,

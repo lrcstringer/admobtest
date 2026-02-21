@@ -11,7 +11,8 @@
  * At completion, confirming a reserved item is a simple status change — guaranteed.
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
 import { requireAdminPermission } from "./adminAuth";
@@ -43,7 +44,7 @@ export async function reserveRewardItem(
   engagementId: string,
   quantity: number = 1
 ): Promise<ReservationResult> {
-  functions.logger.info("Reserving reward item", {
+  logger.info("Reserving reward item", {
     userId,
     campaignId,
     engagementId,
@@ -59,7 +60,7 @@ export async function reserveRewardItem(
     .get();
 
   if (!existingReserved.empty && existingReserved.size >= quantity) {
-    functions.logger.info("Reward already reserved for this engagement", {
+    logger.info("Reward already reserved for this engagement", {
       engagementId,
       itemId: existingReserved.docs[0].id,
     });
@@ -82,7 +83,7 @@ export async function reserveRewardItem(
     .get();
 
   if (!campaignDoc.exists) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "not-found",
       "Reward campaign not found"
     );
@@ -91,14 +92,14 @@ export async function reserveRewardItem(
   const campaign = campaignDoc.data()!;
 
   if (campaign.isDeleted === true) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       `Reward campaign ${campaignId} is deleted`
     );
   }
 
   if (campaign.status !== "active") {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       `Reward campaign ${campaignId} status is '${campaign.status}', expected 'active'`
     );
@@ -109,14 +110,14 @@ export async function reserveRewardItem(
   const endsAt = campaign.endsAt?.toDate?.() || null;
 
   if (startsAt && now < startsAt) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       `Reward campaign ${campaignId} has not started yet (starts ${startsAt.toISOString()})`
     );
   }
 
   if (endsAt && now > endsAt) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       `Reward campaign ${campaignId} has ended (ended ${endsAt.toISOString()})`
     );
@@ -129,7 +130,7 @@ export async function reserveRewardItem(
     campaign.remainingQuantity !== null &&
     campaign.remainingQuantity < quantity
   ) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       `Reward campaign ${campaignId} has insufficient items (remaining: ${campaign.remainingQuantity}, needed: ${quantity})`
     );
@@ -142,17 +143,19 @@ export async function reserveRewardItem(
       .collection("rewardItems")
       .where("allocatedToUserId", "==", userId)
       .where("campaignId", "==", campaignId)
+      .limit(100)
       .get(),
     db
       .collection("rewardItems")
       .where("reservedForUserId", "==", userId)
       .where("campaignId", "==", campaignId)
+      .limit(100)
       .get(),
   ]);
 
   const totalClaimed = allocatedItems.size + reservedItems.size;
   if (totalClaimed + quantity > maxPerUser) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       `User ${userId} has already claimed ${totalClaimed}/${maxPerUser} items from campaign ${campaignId}`
     );
@@ -199,7 +202,7 @@ export async function reserveRewardItem(
       for (const alreadyReservedId of reservedItemIds) {
         await releaseRewardReservation(alreadyReservedId, engagementId);
       }
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `No available reward items found for campaign ${campaignId} (all items reserved/allocated/exhausted)`
       );
@@ -243,7 +246,7 @@ export async function reserveRewardItem(
         reservedItemId = candidate.id;
         break;
       } catch (txnError) {
-        functions.logger.warn(
+        logger.warn(
           `Reservation attempt ${attempt + 1} failed, retrying`,
           { itemId: candidate.id, error: txnError }
         );
@@ -252,7 +255,7 @@ export async function reserveRewardItem(
           for (const alreadyReservedId of reservedItemIds) {
             await releaseRewardReservation(alreadyReservedId, engagementId);
           }
-          throw new functions.https.HttpsError(
+          throw new HttpsError(
             "failed-precondition",
             `Failed to reserve reward item after ${maxRetries} attempts for campaign ${campaignId} (contention)`
           );
@@ -285,14 +288,14 @@ export async function reserveRewardItem(
       for (const id of reservedItemIds) {
         await releaseRewardReservation(id, engagementId);
       }
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `User ${userId} exceeded per-user limit (${finalTotal}/${maxPerUser}) for campaign ${campaignId} (concurrent request)`
       );
     }
   }
 
-  functions.logger.info("Reward item(s) reserved successfully", {
+  logger.info("Reward item(s) reserved successfully", {
     userId,
     campaignId,
     engagementId,
@@ -374,7 +377,7 @@ export async function confirmRewardReservation(
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     })
     .catch((e) =>
-      functions.logger.warn("Failed to write allocation activity log", {
+      logger.warn("Failed to write allocation activity log", {
         error: e,
       })
     );
@@ -409,13 +412,13 @@ export async function confirmRewardReservation(
         }
       })
       .catch((e) =>
-        functions.logger.warn("Failed to send allocation notification", {
+        logger.warn("Failed to send allocation notification", {
           error: e,
         })
       );
   }
 
-  functions.logger.info("Reward reservation confirmed", {
+  logger.info("Reward reservation confirmed", {
     itemId,
     userId,
     engagementId,
@@ -480,12 +483,12 @@ export async function releaseRewardReservation(
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     })
     .catch((e) =>
-      functions.logger.warn("Failed to write release activity log", {
+      logger.warn("Failed to write release activity log", {
         error: e,
       })
     );
 
-  functions.logger.info("Reward reservation released", {
+  logger.info("Reward reservation released", {
     itemId,
     engagementId,
   });
@@ -499,18 +502,17 @@ export async function releaseRewardReservation(
  * Admin-only callable for manually triggering reward allocation.
  * Useful for edge-case recovery. Requires admin permission.
  */
-export const processRewardAllocation = functions.https.onCall(
-  async (
-    data: {
+export const processRewardAllocation = onCall(
+  { labels: { area: "rewards" } },
+  async (request) => {
+    const data = request.data as {
       userId: string;
       campaignId: string;
       engagementId: string;
-    },
-    context
-  ) => {
-    requireAppCheck(context, "processRewardAllocation");
+    };
+    requireAppCheck(request, "processRewardAllocation");
     await requireAdminPermission(
-      context,
+      request,
       "rewards:processAllocation",
       "processRewardAllocation"
     );
@@ -518,7 +520,7 @@ export const processRewardAllocation = functions.https.onCall(
     const { userId, campaignId, engagementId } = data;
 
     if (!userId || !campaignId || !engagementId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "userId, campaignId, and engagementId are required"
       );

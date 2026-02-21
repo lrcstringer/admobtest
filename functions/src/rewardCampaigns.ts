@@ -5,7 +5,8 @@
  * Admin functions require admin auth; getActiveRewardCampaigns is user-facing.
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import { requireAdminPermission, logAdminAction } from "./adminAuth";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
@@ -38,33 +39,13 @@ type CampaignStatus = (typeof VALID_STATUSES)[number];
 // CREATE REWARD CAMPAIGN
 // ============================================================================
 
-export const createRewardCampaign = functions.https.onCall(
+export const createRewardCampaign = onCall(
+  { labels: { area: "rewards" } },
   async (
-    data: {
-      clientId: string;
-      name: string;
-      description?: string;
-      rewardType: string;
-      startsAt: string; // ISO date string
-      endsAt: string;
-      itemExpiresAt?: string;
-      maxPerUser?: number;
-      displayImageUrl?: string;
-      displayPriority?: number;
-      metadata?: Record<string, unknown>;
-      abTest?: {
-        enabled: boolean;
-        variants: Array<{
-          id: string;
-          weight: number;
-          metadata?: Record<string, unknown>;
-        }>;
-      };
-    },
-    context
+    request
   ) => {
-    requireAppCheck(context, "createRewardCampaign");
-    const adminCtx = await requireAdminPermission(context, "rewards:createCampaign", "createRewardCampaign");
+    requireAppCheck(request, "createRewardCampaign");
+    const adminCtx = await requireAdminPermission(request, "rewards:createCampaign", "createRewardCampaign");
 
     const {
       clientId,
@@ -79,11 +60,11 @@ export const createRewardCampaign = functions.https.onCall(
       displayPriority,
       metadata,
       abTest,
-    } = data;
+    } = request.data;
 
     // Validate required fields
     if (!clientId || !name || !rewardType || !startsAt || !endsAt) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "clientId, name, rewardType, startsAt, and endsAt are required"
       );
@@ -91,7 +72,7 @@ export const createRewardCampaign = functions.https.onCall(
 
     // Validate reward type
     if (!VALID_REWARD_TYPES.includes(rewardType as RewardType)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         `Invalid rewardType. Must be one of: ${VALID_REWARD_TYPES.join(", ")}`
       );
@@ -101,13 +82,13 @@ export const createRewardCampaign = functions.https.onCall(
     const startsAtDate = new Date(startsAt);
     const endsAtDate = new Date(endsAt);
     if (isNaN(startsAtDate.getTime()) || isNaN(endsAtDate.getTime())) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "Invalid date format for startsAt or endsAt"
       );
     }
     if (endsAtDate <= startsAtDate) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "endsAt must be after startsAt"
       );
@@ -116,11 +97,11 @@ export const createRewardCampaign = functions.https.onCall(
     // Validate client exists and is not deleted
     const clientDoc = await db.collection("clients").doc(clientId).get();
     if (!clientDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Client not found");
+      throw new HttpsError("not-found", "Client not found");
     }
     const clientData = clientDoc.data()!;
     if (clientData.isDeleted === true) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Cannot create campaign for a deleted client"
       );
@@ -129,25 +110,25 @@ export const createRewardCampaign = functions.https.onCall(
     // Validate A/B test if provided
     if (abTest?.enabled && Array.isArray(abTest.variants)) {
       if (abTest.variants.length < 2 || abTest.variants.length > 4) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "A/B test must have 2-4 variants"
         );
       }
       // #12 — Variant IDs must be unique
-      const variantIds = abTest.variants.map((v) => v.id);
+      const variantIds = abTest.variants.map((v: { id: string }) => v.id);
       if (new Set(variantIds).size !== variantIds.length) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "A/B test variant IDs must be unique"
         );
       }
       const totalWeight = abTest.variants.reduce(
-        (sum, v) => sum + (v.weight || 0),
+        (sum: number, v: { weight?: number }) => sum + (v.weight || 0),
         0
       );
       if (totalWeight !== 100) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "A/B test variant weights must sum to 100"
         );
@@ -157,7 +138,7 @@ export const createRewardCampaign = functions.https.onCall(
     // #9 — Validate maxPerUser if provided
     if (maxPerUser !== undefined && maxPerUser !== null) {
       if (typeof maxPerUser !== 'number' || maxPerUser < 1 || !Number.isInteger(maxPerUser)) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "maxPerUser must be a positive integer (minimum 1)"
         );
@@ -167,7 +148,7 @@ export const createRewardCampaign = functions.https.onCall(
     // #13 — Validate displayPriority bounds if provided
     if (displayPriority !== undefined && displayPriority !== null) {
       if (typeof displayPriority !== 'number' || displayPriority < -1000 || displayPriority > 1000) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "displayPriority must be between -1000 and 1000"
         );
@@ -210,7 +191,7 @@ export const createRewardCampaign = functions.https.onCall(
       isDeleted: false,
       createdAt: now,
       updatedAt: now,
-      createdBy: context.auth!.uid,
+      createdBy: request.auth!.uid,
     };
 
     await campaignRef.set(campaignData);
@@ -228,40 +209,18 @@ export const createRewardCampaign = functions.https.onCall(
 // UPDATE REWARD CAMPAIGN
 // ============================================================================
 
-export const updateRewardCampaign = functions.https.onCall(
+export const updateRewardCampaign = onCall(
+  { labels: { area: "rewards" } },
   async (
-    data: {
-      campaignId: string;
-      updates: {
-        name?: string;
-        description?: string;
-        startsAt?: string;
-        endsAt?: string;
-        itemExpiresAt?: string;
-        maxPerUser?: number;
-        displayImageUrl?: string;
-        displayPriority?: number;
-        status?: string;
-        metadata?: Record<string, unknown>;
-        abTest?: {
-          enabled: boolean;
-          variants: Array<{
-            id: string;
-            weight: number;
-            metadata?: Record<string, unknown>;
-          }>;
-        };
-      };
-    },
-    context
+    request
   ) => {
-    requireAppCheck(context, "updateRewardCampaign");
-    const adminCtx = await requireAdminPermission(context, "rewards:updateCampaign", "updateRewardCampaign");
+    requireAppCheck(request, "updateRewardCampaign");
+    const adminCtx = await requireAdminPermission(request, "rewards:updateCampaign", "updateRewardCampaign");
 
-    const { campaignId, updates } = data;
+    const { campaignId, updates } = request.data;
 
     if (!campaignId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "campaignId is required"
       );
@@ -271,12 +230,12 @@ export const updateRewardCampaign = functions.https.onCall(
     const campaignDoc = await campaignRef.get();
 
     if (!campaignDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Campaign not found");
+      throw new HttpsError("not-found", "Campaign not found");
     }
 
     const campaign = campaignDoc.data()!;
     if (campaign.isDeleted === true) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Cannot update a deleted campaign"
       );
@@ -284,7 +243,7 @@ export const updateRewardCampaign = functions.https.onCall(
 
     // #6 — rewardType is immutable after creation
     if ((updates as Record<string, unknown>).rewardType !== undefined) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "rewardType cannot be changed after campaign creation"
       );
@@ -293,7 +252,7 @@ export const updateRewardCampaign = functions.https.onCall(
     // Validate status transition (#5 — state machine enforcement)
     if (updates.status) {
       if (!VALID_STATUSES.includes(updates.status as CampaignStatus)) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}`
         );
@@ -311,7 +270,7 @@ export const updateRewardCampaign = functions.https.onCall(
       const currentStatus = campaign.status as string;
       const allowed = VALID_TRANSITIONS[currentStatus] || [];
       if (!allowed.includes(updates.status)) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           `Cannot transition from '${currentStatus}' to '${updates.status}'`
         );
@@ -319,7 +278,7 @@ export const updateRewardCampaign = functions.https.onCall(
 
       // #18 — Guard against activating campaign with 0 items
       if (updates.status === "active" && (campaign.totalQuantity ?? 0) === 0) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "Cannot activate campaign with 0 items. Import items first."
         );
@@ -337,7 +296,7 @@ export const updateRewardCampaign = functions.https.onCall(
     if (updates.maxPerUser !== undefined) {
       // #9 — Validate maxPerUser >= 1
       if (typeof updates.maxPerUser !== 'number' || updates.maxPerUser < 1 || !Number.isInteger(updates.maxPerUser)) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "maxPerUser must be a positive integer (minimum 1)"
         );
@@ -349,7 +308,7 @@ export const updateRewardCampaign = functions.https.onCall(
     if (updates.displayPriority !== undefined) {
       // #13 — Enforce displayPriority bounds
       if (typeof updates.displayPriority !== 'number' || updates.displayPriority < -1000 || updates.displayPriority > 1000) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "displayPriority must be between -1000 and 1000"
         );
@@ -374,32 +333,32 @@ export const updateRewardCampaign = functions.https.onCall(
     if (updates.abTest !== undefined) {
       // #11 — Block A/B test modification on active campaigns
       if (campaign.status === "active") {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "Cannot modify A/B test configuration on an active campaign. Pause the campaign first."
         );
       }
       if (updates.abTest.enabled && Array.isArray(updates.abTest.variants)) {
         if (updates.abTest.variants.length < 2 || updates.abTest.variants.length > 4) {
-          throw new functions.https.HttpsError(
+          throw new HttpsError(
             "invalid-argument",
             "A/B test requires 2-4 variants"
           );
         }
         // #12 — Variant IDs must be unique
-        const variantIds = updates.abTest.variants.map((v) => v.id);
+        const variantIds = updates.abTest.variants.map((v: { id: string }) => v.id);
         if (new Set(variantIds).size !== variantIds.length) {
-          throw new functions.https.HttpsError(
+          throw new HttpsError(
             "invalid-argument",
             "A/B test variant IDs must be unique"
           );
         }
         const totalWeight = updates.abTest.variants.reduce(
-          (sum, v) => sum + (v.weight || 0),
+          (sum: number, v: { weight?: number }) => sum + (v.weight || 0),
           0
         );
         if (totalWeight !== 100) {
-          throw new functions.https.HttpsError(
+          throw new HttpsError(
             "invalid-argument",
             "A/B test variant weights must sum to 100"
           );
@@ -411,7 +370,7 @@ export const updateRewardCampaign = functions.https.onCall(
     if (updates.startsAt) {
       const d = new Date(updates.startsAt);
       if (isNaN(d.getTime())) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "Invalid startsAt date"
         );
@@ -421,7 +380,7 @@ export const updateRewardCampaign = functions.https.onCall(
     if (updates.endsAt) {
       const d = new Date(updates.endsAt);
       if (isNaN(d.getTime())) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "Invalid endsAt date"
         );
@@ -431,7 +390,7 @@ export const updateRewardCampaign = functions.https.onCall(
     if (updates.itemExpiresAt) {
       const d = new Date(updates.itemExpiresAt);
       if (isNaN(d.getTime())) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "Invalid itemExpiresAt date"
         );
@@ -453,7 +412,7 @@ export const updateRewardCampaign = functions.https.onCall(
           campaign.clientName
         );
       } catch (notifErr) {
-        functions.logger.warn("Failed to send new campaign notifications", {
+        logger.warn("Failed to send new campaign notifications", {
           campaignId,
           error: notifErr,
         });
@@ -508,14 +467,14 @@ async function notifyNewCampaign(
         },
       });
     } catch (batchErr) {
-      functions.logger.warn("FCM batch send failed", {
+      logger.warn("FCM batch send failed", {
         batchStart: i,
         error: batchErr,
       });
     }
   }
 
-  functions.logger.info("New campaign notifications sent", {
+  logger.info("New campaign notifications sent", {
     campaignId,
     totalTokens: tokens.length,
   });
@@ -525,17 +484,15 @@ async function notifyNewCampaign(
 // GET ADMIN REWARD CAMPAIGNS (with filters)
 // ============================================================================
 
-export const getAdminRewardCampaigns = functions.https.onCall(
+export const getAdminRewardCampaigns = onCall(
+  { labels: { area: "rewards" } },
   async (
-    data: {
-      clientId?: string;
-      status?: string;
-      limit?: number;
-    },
-    context
+    request
   ) => {
-    requireAppCheck(context, "getAdminRewardCampaigns");
-    await requireAdminPermission(context, "rewards:getCampaigns", "getAdminRewardCampaigns");
+    requireAppCheck(request, "getAdminRewardCampaigns");
+    await requireAdminPermission(request, "rewards:getCampaigns", "getAdminRewardCampaigns");
+
+    const data = request.data;
 
     let query: FirebaseFirestore.Query = db
       .collection("rewardCampaigns")
@@ -571,18 +528,19 @@ export const getAdminRewardCampaigns = functions.https.onCall(
 // GET ACTIVE REWARD CAMPAIGNS (user-facing)
 // ============================================================================
 
-export const getActiveRewardCampaigns = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "getActiveRewardCampaigns");
+export const getActiveRewardCampaigns = onCall(
+  { labels: { area: "rewards" } },
+  async (request) => {
+    requireAppCheck(request, "getActiveRewardCampaigns");
 
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "Must be authenticated"
       );
     }
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
     const now = admin.firestore.Timestamp.now();
 
     // Get active campaigns with remaining items
@@ -590,6 +548,7 @@ export const getActiveRewardCampaigns = functions.https.onCall(
       .collection("rewardCampaigns")
       .where("status", "==", "active")
       .where("isDeleted", "==", false)
+      .limit(200)
       .get();
 
     // Filter by date range client-side (Firestore can't do range on two fields with equality)
@@ -602,16 +561,22 @@ export const getActiveRewardCampaigns = functions.https.onCall(
         return starts <= nowDate && ends > nowDate && c.remainingQuantity > 0;
       });
 
-    // Check per-user limits
-    const result = [];
-    for (const campaign of activeCampaigns) {
-      const userItemsSnapshot = await db
-        .collection("rewardItems")
-        .where("campaignId", "==", campaign.id)
-        .where("allocatedToUserId", "==", userId)
-        .get();
+    // Check per-user limits (parallelized)
+    const userItemCounts = await Promise.all(
+      activeCampaigns.map((campaign) =>
+        db
+          .collection("rewardItems")
+          .where("campaignId", "==", campaign.id)
+          .where("allocatedToUserId", "==", userId)
+          .count()
+          .get()
+      )
+    );
 
-      const userItemCount = userItemsSnapshot.size;
+    const result = [];
+    for (let i = 0; i < activeCampaigns.length; i++) {
+      const campaign = activeCampaigns[i];
+      const userItemCount = userItemCounts[i].data().count;
       if (userItemCount < (campaign.maxPerUser || 1)) {
         result.push({
           id: campaign.id,
@@ -648,14 +613,15 @@ export const getActiveRewardCampaigns = functions.https.onCall(
 // SOFT-DELETE REWARD CAMPAIGN
 // ============================================================================
 
-export const deleteRewardCampaign = functions.https.onCall(
-  async (data: { campaignId: string; reason?: string }, context) => {
-    requireAppCheck(context, "deleteRewardCampaign");
-    const adminCtx = await requireAdminPermission(context, "rewards:deleteCampaign", "deleteRewardCampaign");
+export const deleteRewardCampaign = onCall(
+  { labels: { area: "rewards" } },
+  async (request) => {
+    requireAppCheck(request, "deleteRewardCampaign");
+    const adminCtx = await requireAdminPermission(request, "rewards:deleteCampaign", "deleteRewardCampaign");
 
-    const { campaignId, reason } = data;
+    const { campaignId, reason } = request.data;
     if (!campaignId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "campaignId is required"
       );
@@ -665,10 +631,10 @@ export const deleteRewardCampaign = functions.https.onCall(
     const campaignDoc = await campaignRef.get();
 
     if (!campaignDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Campaign not found");
+      throw new HttpsError("not-found", "Campaign not found");
     }
     if (campaignDoc.data()?.isDeleted === true) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Campaign is already deleted"
       );
@@ -678,7 +644,7 @@ export const deleteRewardCampaign = functions.https.onCall(
       isDeleted: true,
       status: "cancelled",
       deletedAt: admin.firestore.FieldValue.serverTimestamp(),
-      deletedBy: context.auth!.uid,
+      deletedBy: request.auth!.uid,
       deletionReason: reason || null,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
@@ -697,14 +663,15 @@ export const deleteRewardCampaign = functions.https.onCall(
  * Get A/B test results for a campaign.
  * Returns per-variant allocation and redemption counts with rates.
  */
-export const getRewardCampaignAbResults = functions.https.onCall(
-  async (data: { campaignId: string }, context) => {
-    requireAppCheck(context, "getRewardCampaignAbResults");
-    await requireAdminPermission(context, "rewards:getAbResults", "getRewardCampaignAbResults");
+export const getRewardCampaignAbResults = onCall(
+  { labels: { area: "rewards" } },
+  async (request) => {
+    requireAppCheck(request, "getRewardCampaignAbResults");
+    await requireAdminPermission(request, "rewards:getAbResults", "getRewardCampaignAbResults");
 
-    const { campaignId } = data;
+    const { campaignId } = request.data;
     if (!campaignId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "campaignId is required"
       );
@@ -716,7 +683,7 @@ export const getRewardCampaignAbResults = functions.https.onCall(
       .get();
 
     if (!campaignDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Campaign not found");
+      throw new HttpsError("not-found", "Campaign not found");
     }
 
     const campaign = campaignDoc.data()!;
@@ -732,6 +699,7 @@ export const getRewardCampaignAbResults = functions.https.onCall(
       .collection("rewardItems")
       .where("campaignId", "==", campaignId)
       .where("status", "in", ["allocated", "redeemed", "expired"])
+      .limit(500)
       .get();
 
     // Count per variant

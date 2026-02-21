@@ -10,7 +10,9 @@
  * Lifecycle: active → closed → claimed | expired
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
@@ -25,17 +27,17 @@ const db = admin.firestore();
 // HELPERS
 // ============================================================================
 
-function requireAuth(context: functions.https.CallableContext): string {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+function requireAuth(request: { auth?: { uid: string } }): string {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  return context.auth.uid;
+  return request.auth.uid;
 }
 
 async function getUserProfile(userId: string) {
   const doc = await db.collection("users").doc(userId).get();
   if (!doc.exists) {
-    throw new functions.https.HttpsError("not-found", `User ${userId} not found`);
+    throw new HttpsError("not-found", `User ${userId} not found`);
   }
   return doc.data()!;
 }
@@ -43,12 +45,12 @@ async function getUserProfile(userId: string) {
 async function requireCommunityMember(communityId: string, userId: string) {
   const communityDoc = await db.collection("communities").doc(communityId).get();
   if (!communityDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Community not found");
+    throw new HttpsError("not-found", "Community not found");
   }
   const community = communityDoc.data()!;
   const memberIds: string[] = community.memberIds || [];
   if (!memberIds.includes(userId)) {
-    throw new functions.https.HttpsError("permission-denied", "You are not a member of this community");
+    throw new HttpsError("permission-denied", "You are not a member of this community");
   }
   return community;
 }
@@ -79,34 +81,34 @@ function getOccasionDisplayText(occasion: string): string {
  * The creator chooses a recipient and occasion. No upfront payment —
  * contributions come from community members.
  */
-export const createTokenSpray = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "createTokenSpray");
+export const createTokenSpray = onCall({ labels: { area: "gifts" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "createTokenSpray");
 
-  const { communityId, recipientId, occasion, message, targetAmount } = data;
+  const { communityId, recipientId, occasion, message, targetAmount } = request.data;
 
   // Validate inputs
   if (!communityId || typeof communityId !== "string") {
-    throw new functions.https.HttpsError("invalid-argument", "communityId is required");
+    throw new HttpsError("invalid-argument", "communityId is required");
   }
   if (!recipientId || typeof recipientId !== "string") {
-    throw new functions.https.HttpsError("invalid-argument", "recipientId is required");
+    throw new HttpsError("invalid-argument", "recipientId is required");
   }
   if (!occasion || !VALID_OCCASIONS.includes(occasion)) {
-    throw new functions.https.HttpsError("invalid-argument", `Invalid occasion. Must be one of: ${VALID_OCCASIONS.join(", ")}`);
+    throw new HttpsError("invalid-argument", `Invalid occasion. Must be one of: ${VALID_OCCASIONS.join(", ")}`);
   }
   if (!message || typeof message !== "string" || message.trim().length === 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Celebration message is required");
+    throw new HttpsError("invalid-argument", "Celebration message is required");
   }
   if (targetAmount !== undefined && targetAmount !== null && (typeof targetAmount !== "number" || targetAmount < MIN_CONTRIBUTION)) {
-    throw new functions.https.HttpsError("invalid-argument", `Target amount must be at least ${MIN_CONTRIBUTION} tokens`);
+    throw new HttpsError("invalid-argument", `Target amount must be at least ${MIN_CONTRIBUTION} tokens`);
   }
 
   // Validate community membership for both creator and recipient
   const community = await requireCommunityMember(communityId, userId);
   const memberIds: string[] = community.memberIds || [];
   if (!memberIds.includes(recipientId)) {
-    throw new functions.https.HttpsError("invalid-argument", "Recipient must be a member of the community");
+    throw new HttpsError("invalid-argument", "Recipient must be a member of the community");
   }
 
   // Get user profiles
@@ -237,38 +239,38 @@ export const createTokenSpray = functions.https.onCall(async (data, context) => 
  * Debits the contributor and credits the recipient directly.
  * Updates spray totals and leaderboard.
  */
-export const contributeToSpray = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "contributeToSpray");
-  await requirePlayIntegrity(data, context, "contributeToSpray", "HIGHEST");
+export const contributeToSpray = onCall({ labels: { area: "gifts" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "contributeToSpray");
+  await requirePlayIntegrity(request.data, request, "contributeToSpray", "HIGHEST");
 
-  const { sprayId, amount, message } = data;
+  const { sprayId, amount, message } = request.data;
 
   if (!sprayId || typeof sprayId !== "string") {
-    throw new functions.https.HttpsError("invalid-argument", "sprayId is required");
+    throw new HttpsError("invalid-argument", "sprayId is required");
   }
   if (!amount || typeof amount !== "number" || amount < MIN_CONTRIBUTION) {
-    throw new functions.https.HttpsError("invalid-argument", `Minimum contribution is ${MIN_CONTRIBUTION} tokens`);
+    throw new HttpsError("invalid-argument", `Minimum contribution is ${MIN_CONTRIBUTION} tokens`);
   }
 
   // Get spray
   const sprayRef = db.collection("tokenSprays").doc(sprayId);
   const sprayDoc = await sprayRef.get();
   if (!sprayDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Spray not found");
+    throw new HttpsError("not-found", "Spray not found");
   }
   const spray = sprayDoc.data()!;
 
   // Validate spray state
   if (spray.status !== "active") {
-    throw new functions.https.HttpsError("failed-precondition", "Spray is not active");
+    throw new HttpsError("failed-precondition", "Spray is not active");
   }
   const expiresAt = spray.expiresAt?.toDate ? spray.expiresAt.toDate() : new Date(spray.expiresAt);
   if (new Date() > expiresAt) {
-    throw new functions.https.HttpsError("failed-precondition", "Spray has expired");
+    throw new HttpsError("failed-precondition", "Spray has expired");
   }
   if (userId === spray.recipientId) {
-    throw new functions.https.HttpsError("permission-denied", "The recipient cannot contribute to their own spray");
+    throw new HttpsError("permission-denied", "The recipient cannot contribute to their own spray");
   }
 
   // Verify community membership
@@ -277,7 +279,7 @@ export const contributeToSpray = functions.https.onCall(async (data, context) =>
   // Validate contributor balance
   const contributorSubAccount = await getDefaultSubAccount(userId);
   if (!contributorSubAccount) {
-    throw new functions.https.HttpsError("failed-precondition", "You have no wallet");
+    throw new HttpsError("failed-precondition", "You have no wallet");
   }
   await validateMainWalletBalance(userId, amount);
 
@@ -348,7 +350,7 @@ export const contributeToSpray = functions.https.onCall(async (data, context) =>
         "tokenSpray.contributorCount": newContributorCount,
       });
   } catch (e) {
-    console.warn("Failed to update spray message:", e);
+    logger.warn("Failed to update spray message:", e);
   }
 
   // Return updated spray data
@@ -371,31 +373,31 @@ export const contributeToSpray = functions.https.onCall(async (data, context) =>
  * Manually close a spray. Only the creator or community admin can close.
  * Tokens have already been transferred to the recipient on each contribution.
  */
-export const closeTokenSpray = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "closeTokenSpray");
+export const closeTokenSpray = onCall({ labels: { area: "gifts" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "closeTokenSpray");
 
-  const { sprayId } = data;
+  const { sprayId } = request.data;
   if (!sprayId || typeof sprayId !== "string") {
-    throw new functions.https.HttpsError("invalid-argument", "sprayId is required");
+    throw new HttpsError("invalid-argument", "sprayId is required");
   }
 
   const sprayRef = db.collection("tokenSprays").doc(sprayId);
   const sprayDoc = await sprayRef.get();
   if (!sprayDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Spray not found");
+    throw new HttpsError("not-found", "Spray not found");
   }
   const spray = sprayDoc.data()!;
 
   if (spray.status !== "active") {
-    throw new functions.https.HttpsError("failed-precondition", `Spray is already ${spray.status}`);
+    throw new HttpsError("failed-precondition", `Spray is already ${spray.status}`);
   }
 
   // Only creator or community admin can close
   const community = await requireCommunityMember(spray.communityId, userId);
   const adminIds: string[] = community.adminIds || [];
   if (spray.creatorId !== userId && !adminIds.includes(userId)) {
-    throw new functions.https.HttpsError("permission-denied", "Only the creator or community admin can close this spray");
+    throw new HttpsError("permission-denied", "Only the creator or community admin can close this spray");
   }
 
   // Update spray status
@@ -410,7 +412,7 @@ export const closeTokenSpray = functions.https.onCall(async (data, context) => {
       .collection("messages").doc(spray.messageId)
       .update({ "tokenSpray.status": "closed" });
   } catch (e) {
-    console.warn("Failed to update spray message:", e);
+    logger.warn("Failed to update spray message:", e);
   }
 
   // Post system message
@@ -448,28 +450,28 @@ export const closeTokenSpray = functions.https.onCall(async (data, context) => {
  * Recipient acknowledges the spray. Tokens were already transferred
  * on each contribution, so this is just a status update.
  */
-export const claimTokenSpray = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "claimTokenSpray");
+export const claimTokenSpray = onCall({ labels: { area: "gifts" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "claimTokenSpray");
 
-  const { sprayId } = data;
+  const { sprayId } = request.data;
   if (!sprayId || typeof sprayId !== "string") {
-    throw new functions.https.HttpsError("invalid-argument", "sprayId is required");
+    throw new HttpsError("invalid-argument", "sprayId is required");
   }
 
   const sprayRef = db.collection("tokenSprays").doc(sprayId);
   const sprayDoc = await sprayRef.get();
   if (!sprayDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Spray not found");
+    throw new HttpsError("not-found", "Spray not found");
   }
   const spray = sprayDoc.data()!;
 
   if (spray.recipientId !== userId) {
-    throw new functions.https.HttpsError("permission-denied", "Only the recipient can claim this spray");
+    throw new HttpsError("permission-denied", "Only the recipient can claim this spray");
   }
 
   if (spray.status !== "closed" && spray.status !== "active") {
-    throw new functions.https.HttpsError("failed-precondition", `Spray cannot be claimed — status is ${spray.status}`);
+    throw new HttpsError("failed-precondition", `Spray cannot be claimed — status is ${spray.status}`);
   }
 
   await sprayRef.update({
@@ -483,7 +485,7 @@ export const claimTokenSpray = functions.https.onCall(async (data, context) => {
       .collection("messages").doc(spray.messageId)
       .update({ "tokenSpray.status": "claimed" });
   } catch (e) {
-    console.warn("Failed to update spray message:", e);
+    logger.warn("Failed to update spray message:", e);
   }
 
   return {
@@ -504,10 +506,9 @@ export const claimTokenSpray = functions.https.onCall(async (data, context) => {
  * Hourly job: find active sprays past their expiresAt and auto-close them.
  * Tokens have already been transferred to the recipient, so just update status.
  */
-export const closeExpiredSprays = functions.pubsub
-  .schedule("0 * * * *") // Every hour
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const closeExpiredSprays = onSchedule(
+  { schedule: "0 * * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "gifts" } },
+  async () => {
     const now = admin.firestore.Timestamp.now();
 
     const expiredSprays = await db.collection("tokenSprays")
@@ -517,11 +518,11 @@ export const closeExpiredSprays = functions.pubsub
       .get();
 
     if (expiredSprays.empty) {
-      console.log("No sprays to auto-close");
-      return null;
+      logger.info("No sprays to auto-close");
+      return;
     }
 
-    console.log(`Auto-closing ${expiredSprays.size} expired sprays`);
+    logger.info(`Auto-closing ${expiredSprays.size} expired sprays`);
 
     for (const doc of expiredSprays.docs) {
       const spray = doc.data();
@@ -561,6 +562,6 @@ export const closeExpiredSprays = functions.pubsub
       await batch.commit();
     }
 
-    console.log(`Auto-closed ${expiredSprays.size} sprays`);
-    return null;
-  });
+    logger.info(`Auto-closed ${expiredSprays.size} sprays`);
+  }
+);

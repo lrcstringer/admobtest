@@ -2,7 +2,9 @@
  * Referral-related Cloud Functions
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
@@ -21,18 +23,18 @@ const REFEREE_REWARD = LedgerConfig.REFEREE_REWARD; // Tokens for the new user
 /**
  * Process referral code application
  */
-export const applyReferralCode = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const applyReferralCode = onCall({ labels: { area: "lifecycle" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "applyReferralCode");
-  await requirePlayIntegrity(data, context, "applyReferralCode", "HIGH");
+  requireAppCheck(request, "applyReferralCode");
+  await requirePlayIntegrity(request.data, request, "applyReferralCode", "HIGH");
 
-  const refereeUserId = context.auth.uid;
-  const { code } = data;
+  const refereeUserId = request.auth.uid;
+  const { code } = request.data;
 
   if (!code) {
-    throw new functions.https.HttpsError("invalid-argument", "Referral code is required");
+    throw new HttpsError("invalid-argument", "Referral code is required");
   }
 
   // Check if user has already applied a referral code (use Flutter-compatible field name)
@@ -42,7 +44,7 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
     .get();
 
   if (!existingReferral.empty) {
-    throw new functions.https.HttpsError("already-exists", "You have already used a referral code");
+    throw new HttpsError("already-exists", "You have already used a referral code");
   }
 
   // Find the referrer by code
@@ -52,7 +54,7 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
     .get();
 
   if (referrerQuery.empty) {
-    throw new functions.https.HttpsError("not-found", "Invalid referral code");
+    throw new HttpsError("not-found", "Invalid referral code");
   }
 
   const referrerDoc = referrerQuery.docs[0];
@@ -60,7 +62,7 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
 
   // Can't refer yourself
   if (referrerUserId === refereeUserId) {
-    throw new functions.https.HttpsError("invalid-argument", "You cannot use your own referral code");
+    throw new HttpsError("invalid-argument", "You cannot use your own referral code");
   }
 
   // Get referee profile info for display in referral list
@@ -115,7 +117,7 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
       status: "failed",
       failureReason: ledgerResult.error,
     });
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "internal",
       `Failed to process referral rewards: ${ledgerResult.error}`
     );
@@ -163,10 +165,8 @@ export const applyReferralCode = functions.https.onCall(async (data, context) =>
  * - Ledger account with default sub-account
  * - Engagement stats document
  */
-export const generateReferralCode = functions.firestore
-  .document("users/{userId}")
-  .onCreate(async (snap, context) => {
-    const userId = context.params.userId;
+export const generateReferralCode = onDocumentCreated({ document: "users/{userId}", labels: { area: "lifecycle" } }, async (event) => {
+  const userId = event.params.userId;
 
     // Generate unique code
     let code = generateCode();
@@ -210,17 +210,17 @@ export const generateReferralCode = functions.firestore
     // No default sub-account — the ledger account IS the main wallet.
     try {
       await getOrCreateUserAccount(userId);
-      console.log(`Created ledger account for user ${userId}`);
+      logger.info(`Created ledger account for user ${userId}`);
     } catch (error) {
-      console.error(`Failed to create ledger account for user ${userId}:`, error);
+      logger.error(`Failed to create ledger account for user ${userId}:`, error);
     }
 
     // Create engagement stats document
     try {
       await createEngagementStats(userId);
-      console.log(`Created engagement stats for user ${userId}`);
+      logger.info(`Created engagement stats for user ${userId}`);
     } catch (error) {
-      console.error(`Failed to create engagement stats for user ${userId}:`, error);
+      logger.error(`Failed to create engagement stats for user ${userId}:`, error);
     }
 
     // Sync referral code to users collection for Flutter to read
@@ -228,7 +228,7 @@ export const generateReferralCode = functions.firestore
       referralCode: code,
     });
 
-    console.log(`Generated referral code ${code} for user ${userId}`);
+    logger.info(`Generated referral code ${code} for user ${userId}`);
     return null;
   });
 

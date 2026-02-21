@@ -43,10 +43,14 @@ class MessageBubble extends StatelessWidget {
     this.onReplyTap,
   });
 
-  String? get _effectiveAvatarUrl => avatarUrl ?? message.senderAvatarUrl;
+  String? get _effectiveAvatarUrl {
+    final url = avatarUrl ?? message.senderAvatarUrl;
+    return (url != null && url.isNotEmpty) ? url : null;
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (message.deletedForEveryone) return _buildDeletedMessage(context);
     if (message.isSystem) return _buildSystemMessage(context);
     if (message.isTokenTransfer) return _buildTokenCard(context);
 
@@ -185,6 +189,64 @@ class MessageBubble extends StatelessWidget {
           fontSize: 12,
           color: AppColors.primary,
           fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeletedMessage(BuildContext context) {
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!isMe) ...[
+              _buildSquareAvatar(),
+              const SizedBox(width: 4),
+            ],
+            Flexible(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: (isMe
+                          ? AppColors.chatBubbleSent
+                          : AppColors.chatBubbleReceived)
+                      .withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: AppColors.border.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.block, size: 14, color: AppColors.textHint),
+                    const SizedBox(width: 6),
+                    Text(
+                      isMe
+                          ? 'You deleted this message'
+                          : 'This message was deleted',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.textHint,
+                            fontStyle: FontStyle.italic,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (isMe) ...[
+              const SizedBox(width: 4),
+              _buildSquareAvatar(),
+            ],
+          ],
         ),
       ),
     );

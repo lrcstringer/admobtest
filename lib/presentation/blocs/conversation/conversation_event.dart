@@ -151,6 +151,19 @@ class ConversationEvent with _$ConversationEvent {
       _UnreadCountUpdated;
 
   // =========================================================================
+  // MESSAGE DELETION
+  // =========================================================================
+
+  /// Delete a single message for everyone
+  const factory ConversationEvent.deleteMessageForEveryone({
+    required String conversationId,
+    required String messageId,
+  }) = _DeleteMessageForEveryone;
+
+  /// Clear all messages from a conversation (for current user only)
+  const factory ConversationEvent.clearChat(String conversationId) = _ClearChat;
+
+  // =========================================================================
   // RETRY
   // =========================================================================
 

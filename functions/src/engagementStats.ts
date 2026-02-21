@@ -18,6 +18,7 @@
  */
 
 import * as admin from "firebase-admin";
+import { logger } from "firebase-functions/v2";
 import {
   UserEngagementStats,
   StreakInfo,
@@ -262,7 +263,7 @@ export async function createEngagementStats(userId: string): Promise<void> {
   };
 
   await statsRef.set(stats);
-  console.log(`Created engagement stats for user ${userId}`);
+  logger.info(`Created engagement stats for user ${userId}`);
 }
 
 /**
@@ -274,7 +275,7 @@ export async function deleteEngagementStats(userId: string): Promise<void> {
     .doc(userId)
     .delete();
 
-  console.log(`Deleted engagement stats for user ${userId}`);
+  logger.info(`Deleted engagement stats for user ${userId}`);
 }
 
 /**
@@ -294,7 +295,7 @@ export async function resetUserStreak(
     updatedAt: admin.firestore.Timestamp.now(),
   });
 
-  console.log(`Reset streak for user ${userId}: ${reason}`);
+  logger.info(`Reset streak for user ${userId}: ${reason}`);
 }
 
 /**

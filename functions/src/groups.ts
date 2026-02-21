@@ -8,7 +8,9 @@
  * - Club/Community accounts (shared funds with member roles)
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
@@ -51,7 +53,7 @@ const db = admin.firestore();
 async function getGroupOrThrow(groupId: string): Promise<Group> {
   const doc = await db.collection(GroupConfig.COLLECTION_GROUPS).doc(groupId).get();
   if (!doc.exists) {
-    throw new functions.https.HttpsError("not-found", GroupErrorCodes.GROUP_NOT_FOUND);
+    throw new HttpsError("not-found", GroupErrorCodes.GROUP_NOT_FOUND);
   }
   return doc.data() as Group;
 }
@@ -75,7 +77,7 @@ async function getGroupMember(groupId: string, userId: string): Promise<GroupMem
 async function requireGroupMember(groupId: string, userId: string): Promise<GroupMember> {
   const member = await getGroupMember(groupId, userId);
   if (!member || member.status !== "active") {
-    throw new functions.https.HttpsError("permission-denied", GroupErrorCodes.NOT_A_MEMBER);
+    throw new HttpsError("permission-denied", GroupErrorCodes.NOT_A_MEMBER);
   }
   return member;
 }
@@ -97,7 +99,7 @@ function requirePermission(
 ): void {
   const perms = getMemberPermissions(member);
   if (!perms[permission]) {
-    throw new functions.https.HttpsError("permission-denied", errorCode);
+    throw new HttpsError("permission-denied", errorCode);
   }
 }
 
@@ -106,10 +108,10 @@ function requirePermission(
  */
 function requireActiveGroup(group: Group): void {
   if (group.status === "suspended") {
-    throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.GROUP_SUSPENDED);
+    throw new HttpsError("failed-precondition", GroupErrorCodes.GROUP_SUSPENDED);
   }
   if (group.status === "closed") {
-    throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.GROUP_CLOSED);
+    throw new HttpsError("failed-precondition", GroupErrorCodes.GROUP_CLOSED);
   }
 }
 
@@ -156,30 +158,30 @@ function getDefaultStokvelSettings(): StokvelSettings {
 /**
  * Create a new group
  */
-export const createGroup = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const createGroup = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "createGroup");
-  await requirePlayIntegrity(data, context, "createGroup", "HIGH");
+  requireAppCheck(request, "createGroup");
+  await requirePlayIntegrity(request.data, request, "createGroup", "HIGH");
 
-  const userId = context.auth.uid;
-  const input: CreateGroupInput = data;
+  const userId = request.auth.uid;
+  const input: CreateGroupInput = request.data;
 
   // Validate input
   if (!input.name || input.name.trim().length === 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Group name is required");
+    throw new HttpsError("invalid-argument", "Group name is required");
   }
   if (input.name.length > GroupConfig.MAX_GROUP_NAME_LENGTH) {
-    throw new functions.https.HttpsError("invalid-argument", GroupErrorCodes.GROUP_NAME_TOO_LONG);
+    throw new HttpsError("invalid-argument", GroupErrorCodes.GROUP_NAME_TOO_LONG);
   }
   if (input.description && input.description.length > GroupConfig.MAX_GROUP_DESCRIPTION_LENGTH) {
-    throw new functions.https.HttpsError("invalid-argument", GroupErrorCodes.GROUP_DESCRIPTION_TOO_LONG);
+    throw new HttpsError("invalid-argument", GroupErrorCodes.GROUP_DESCRIPTION_TOO_LONG);
   }
 
   const validTypes: GroupType[] = ["stokvel", "family", "organization", "club"];
   if (!validTypes.includes(input.type)) {
-    throw new functions.https.HttpsError("invalid-argument", "Invalid group type");
+    throw new HttpsError("invalid-argument", "Invalid group type");
   }
 
   // Get user info for member record
@@ -249,9 +251,9 @@ export const createGroup = functions.https.onCall(async (data, context) => {
   // Create ledger account for the group (done outside transaction as it has its own transaction)
   try {
     await getOrCreateGroupAccount(groupRef.id);
-    console.log(`Created ledger account for group ${groupRef.id}`);
+    logger.info(`Created ledger account for group ${groupRef.id}`);
   } catch (error) {
-    console.error(`Failed to create ledger account for group ${groupRef.id}:`, error);
+    logger.error(`Failed to create ledger account for group ${groupRef.id}:`, error);
     // Don't fail the whole operation - the trigger will retry
   }
 
@@ -265,17 +267,17 @@ export const createGroup = functions.https.onCall(async (data, context) => {
 /**
  * Update group settings
  */
-export const updateGroup = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const updateGroup = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "updateGroup");
+  requireAppCheck(request, "updateGroup");
 
-  const userId = context.auth.uid;
-  const { groupId, ...updates }: { groupId: string } & UpdateGroupInput = data;
+  const userId = request.auth.uid;
+  const { groupId, ...updates }: { groupId: string } & UpdateGroupInput = request.data;
 
   if (!groupId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID is required");
+    throw new HttpsError("invalid-argument", "Group ID is required");
   }
 
   const group = await getGroupOrThrow(groupId);
@@ -286,14 +288,14 @@ export const updateGroup = functions.https.onCall(async (data, context) => {
   // Validate updates
   if (updates.name !== undefined) {
     if (updates.name.trim().length === 0) {
-      throw new functions.https.HttpsError("invalid-argument", "Group name cannot be empty");
+      throw new HttpsError("invalid-argument", "Group name cannot be empty");
     }
     if (updates.name.length > GroupConfig.MAX_GROUP_NAME_LENGTH) {
-      throw new functions.https.HttpsError("invalid-argument", GroupErrorCodes.GROUP_NAME_TOO_LONG);
+      throw new HttpsError("invalid-argument", GroupErrorCodes.GROUP_NAME_TOO_LONG);
     }
   }
   if (updates.description !== undefined && updates.description.length > GroupConfig.MAX_GROUP_DESCRIPTION_LENGTH) {
-    throw new functions.https.HttpsError("invalid-argument", GroupErrorCodes.GROUP_DESCRIPTION_TOO_LONG);
+    throw new HttpsError("invalid-argument", GroupErrorCodes.GROUP_DESCRIPTION_TOO_LONG);
   }
 
   const updateData: Partial<Group> = {
@@ -321,30 +323,30 @@ export const updateGroup = functions.https.onCall(async (data, context) => {
 /**
  * Delete/close a group (only owner can do this)
  */
-export const deleteGroup = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const deleteGroup = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "deleteGroup");
-  await requirePlayIntegrity(data, context, "deleteGroup", "HIGH");
+  requireAppCheck(request, "deleteGroup");
+  await requirePlayIntegrity(request.data, request, "deleteGroup", "HIGH");
 
-  const userId = context.auth.uid;
-  const { groupId } = data;
+  const userId = request.auth.uid;
+  const { groupId } = request.data;
 
   if (!groupId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID is required");
+    throw new HttpsError("invalid-argument", "Group ID is required");
   }
 
   const group = await getGroupOrThrow(groupId);
 
   if (group.ownerId !== userId) {
-    throw new functions.https.HttpsError("permission-denied", GroupErrorCodes.PERMISSION_DENIED);
+    throw new HttpsError("permission-denied", GroupErrorCodes.PERMISSION_DENIED);
   }
 
   // Check if group has balance - can't delete with funds
   const balance = await getGroupBalance(groupId);
   if (balance > 0) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       "Cannot delete group with remaining balance. Distribute funds first."
     );
@@ -366,21 +368,21 @@ export const deleteGroup = functions.https.onCall(async (data, context) => {
 /**
  * Invite a member to the group
  */
-export const inviteMember = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const inviteMember = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "inviteMember");
+  requireAppCheck(request, "inviteMember");
 
-  const inviterId = context.auth.uid;
-  const input: InviteMemberInput = data;
+  const inviterId = request.auth.uid;
+  const input: InviteMemberInput = request.data;
 
   if (!input.groupId || !input.userId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID and user ID are required");
+    throw new HttpsError("invalid-argument", "Group ID and user ID are required");
   }
 
   if (input.userId === inviterId) {
-    throw new functions.https.HttpsError("invalid-argument", GroupErrorCodes.CANNOT_INVITE_SELF);
+    throw new HttpsError("invalid-argument", GroupErrorCodes.CANNOT_INVITE_SELF);
   }
 
   const group = await getGroupOrThrow(input.groupId);
@@ -394,20 +396,20 @@ export const inviteMember = functions.https.onCall(async (data, context) => {
   const existingMember = await getGroupMember(input.groupId, input.userId);
   if (existingMember) {
     if (existingMember.status === "blocked") {
-      throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.MEMBER_BLOCKED);
+      throw new HttpsError("failed-precondition", GroupErrorCodes.MEMBER_BLOCKED);
     }
-    throw new functions.https.HttpsError("already-exists", GroupErrorCodes.MEMBER_ALREADY_EXISTS);
+    throw new HttpsError("already-exists", GroupErrorCodes.MEMBER_ALREADY_EXISTS);
   }
 
   // Check max members
   if (group.memberCount >= GroupConfig.MAX_MEMBERS_PER_GROUP) {
-    throw new functions.https.HttpsError("resource-exhausted", GroupErrorCodes.MAX_MEMBERS_REACHED);
+    throw new HttpsError("resource-exhausted", GroupErrorCodes.MAX_MEMBERS_REACHED);
   }
 
   // Get invitee user info
   const inviteeDoc = await db.collection("users").doc(input.userId).get();
   if (!inviteeDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "User not found");
+    throw new HttpsError("not-found", "User not found");
   }
   const inviteeData = inviteeDoc.data() || {};
 
@@ -446,17 +448,17 @@ export const inviteMember = functions.https.onCall(async (data, context) => {
 /**
  * Accept a group invitation
  */
-export const acceptInvitation = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const acceptInvitation = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "acceptInvitation");
+  requireAppCheck(request, "acceptInvitation");
 
-  const userId = context.auth.uid;
-  const { groupId } = data;
+  const userId = request.auth.uid;
+  const { groupId } = request.data;
 
   if (!groupId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID is required");
+    throw new HttpsError("invalid-argument", "Group ID is required");
   }
 
   const group = await getGroupOrThrow(groupId);
@@ -464,20 +466,20 @@ export const acceptInvitation = functions.https.onCall(async (data, context) => 
 
   const member = await getGroupMember(groupId, userId);
   if (!member) {
-    throw new functions.https.HttpsError("not-found", GroupErrorCodes.INVITATION_NOT_FOUND);
+    throw new HttpsError("not-found", GroupErrorCodes.INVITATION_NOT_FOUND);
   }
   if (member.status === "active") {
-    throw new functions.https.HttpsError("already-exists", GroupErrorCodes.INVITATION_ALREADY_ACCEPTED);
+    throw new HttpsError("already-exists", GroupErrorCodes.INVITATION_ALREADY_ACCEPTED);
   }
   if (member.status === "blocked") {
-    throw new functions.https.HttpsError("permission-denied", GroupErrorCodes.MEMBER_BLOCKED);
+    throw new HttpsError("permission-denied", GroupErrorCodes.MEMBER_BLOCKED);
   }
 
   // Check invitation hasn't expired
   const invitedAt = member.invitedAt.toDate();
   const expiresAt = new Date(invitedAt.getTime() + GroupConfig.INVITATION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
   if (new Date() > expiresAt) {
-    throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.INVITATION_EXPIRED);
+    throw new HttpsError("failed-precondition", GroupErrorCodes.INVITATION_EXPIRED);
   }
 
   const now = admin.firestore.Timestamp.now();
@@ -505,17 +507,17 @@ export const acceptInvitation = functions.https.onCall(async (data, context) => 
 /**
  * Remove a member from the group
  */
-export const removeMember = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const removeMember = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "removeMember");
+  requireAppCheck(request, "removeMember");
 
-  const actorId = context.auth.uid;
-  const { groupId, memberId } = data;
+  const actorId = request.auth.uid;
+  const { groupId, memberId } = request.data;
 
   if (!groupId || !memberId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID and member ID are required");
+    throw new HttpsError("invalid-argument", "Group ID and member ID are required");
   }
 
   const group = await getGroupOrThrow(groupId);
@@ -523,13 +525,13 @@ export const removeMember = functions.https.onCall(async (data, context) => {
 
   // Can't remove the owner
   if (memberId === group.ownerId) {
-    throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.CANNOT_REMOVE_OWNER);
+    throw new HttpsError("failed-precondition", GroupErrorCodes.CANNOT_REMOVE_OWNER);
   }
 
   // Check permissions (must be admin or removing self)
   const actor = await getGroupMember(groupId, actorId);
   if (!actor || actor.status !== "active") {
-    throw new functions.https.HttpsError("permission-denied", GroupErrorCodes.NOT_A_MEMBER);
+    throw new HttpsError("permission-denied", GroupErrorCodes.NOT_A_MEMBER);
   }
 
   const isSelfRemoval = actorId === memberId;
@@ -540,7 +542,7 @@ export const removeMember = functions.https.onCall(async (data, context) => {
   // Get member being removed
   const targetMember = await getGroupMember(groupId, memberId);
   if (!targetMember) {
-    throw new functions.https.HttpsError("not-found", GroupErrorCodes.MEMBER_NOT_FOUND);
+    throw new HttpsError("not-found", GroupErrorCodes.MEMBER_NOT_FOUND);
   }
 
   const now = admin.firestore.Timestamp.now();
@@ -569,22 +571,22 @@ export const removeMember = functions.https.onCall(async (data, context) => {
 /**
  * Update a member's role
  */
-export const updateMemberRole = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const updateMemberRole = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "updateMemberRole");
+  requireAppCheck(request, "updateMemberRole");
 
-  const actorId = context.auth.uid;
-  const { groupId, memberId, role } = data;
+  const actorId = request.auth.uid;
+  const { groupId, memberId, role } = request.data;
 
   if (!groupId || !memberId || !role) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID, member ID, and role are required");
+    throw new HttpsError("invalid-argument", "Group ID, member ID, and role are required");
   }
 
   const validRoles: GroupRole[] = ["admin", "treasurer", "member", "viewer"];
   if (!validRoles.includes(role)) {
-    throw new functions.https.HttpsError("invalid-argument", "Invalid role");
+    throw new HttpsError("invalid-argument", "Invalid role");
   }
 
   const group = await getGroupOrThrow(groupId);
@@ -592,12 +594,12 @@ export const updateMemberRole = functions.https.onCall(async (data, context) => 
 
   // Can't change own role
   if (actorId === memberId) {
-    throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.CANNOT_CHANGE_OWN_ROLE);
+    throw new HttpsError("failed-precondition", GroupErrorCodes.CANNOT_CHANGE_OWN_ROLE);
   }
 
   // Can't change owner's role
   if (memberId === group.ownerId) {
-    throw new functions.https.HttpsError("failed-precondition", "Cannot change owner's role");
+    throw new HttpsError("failed-precondition", "Cannot change owner's role");
   }
 
   // Check actor has permission
@@ -606,13 +608,13 @@ export const updateMemberRole = functions.https.onCall(async (data, context) => 
 
   // Only owner can make admins
   if (role === "admin" && actor.role !== "owner") {
-    throw new functions.https.HttpsError("permission-denied", "Only owner can assign admin role");
+    throw new HttpsError("permission-denied", "Only owner can assign admin role");
   }
 
   // Get target member
   const targetMember = await getGroupMember(groupId, memberId);
   if (!targetMember || targetMember.status !== "active") {
-    throw new functions.https.HttpsError("not-found", GroupErrorCodes.MEMBER_NOT_FOUND);
+    throw new HttpsError("not-found", GroupErrorCodes.MEMBER_NOT_FOUND);
   }
 
   await db
@@ -628,31 +630,31 @@ export const updateMemberRole = functions.https.onCall(async (data, context) => 
 /**
  * Leave a group (convenience function that calls removeMember for self)
  */
-export const leaveGroup = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const leaveGroup = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "leaveGroup");
+  requireAppCheck(request, "leaveGroup");
 
-  const userId = context.auth.uid;
-  const { groupId } = data;
+  const userId = request.auth.uid;
+  const { groupId } = request.data;
 
   if (!groupId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID is required");
+    throw new HttpsError("invalid-argument", "Group ID is required");
   }
 
   const group = await getGroupOrThrow(groupId);
 
   // Owner can't leave - must transfer ownership first or delete group
   if (userId === group.ownerId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       "Owner cannot leave. Transfer ownership or delete the group."
     );
   }
 
-  // Use removeMember logic
-  return removeMember.run({ groupId, memberId: userId }, context);
+  // Use removeMember logic — call the wrapped handler directly
+  return removeMember.run({ data: { groupId, memberId: userId }, auth: request.auth } as any);
 });
 
 // ============================================================================
@@ -662,22 +664,22 @@ export const leaveGroup = functions.https.onCall(async (data, context) => {
 /**
  * Contribute tokens to a group
  */
-export const contributeToGroup = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const contributeToGroup = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "contributeToGroup");
-  await requirePlayIntegrity(data, context, "contributeToGroup", "HIGH");
+  requireAppCheck(request, "contributeToGroup");
+  await requirePlayIntegrity(request.data, request, "contributeToGroup", "HIGH");
 
-  const userId = context.auth.uid;
-  const { groupId, amount, description } = data;
+  const userId = request.auth.uid;
+  const { groupId, amount, description } = request.data;
 
   if (!groupId || !amount) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID and amount are required");
+    throw new HttpsError("invalid-argument", "Group ID and amount are required");
   }
 
   if (amount <= 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Amount must be positive");
+    throw new HttpsError("invalid-argument", "Amount must be positive");
   }
 
   const group = await getGroupOrThrow(groupId);
@@ -727,7 +729,7 @@ export const contributeToGroup = functions.https.onCall(async (data, context) =>
         status: "rejected" as GroupTransactionStatus,
         description: result.error || "Failed to process contribution",
       });
-      throw new functions.https.HttpsError("internal", result.error || "Failed to process contribution");
+      throw new HttpsError("internal", result.error || "Failed to process contribution");
     }
 
     // Update transaction as completed
@@ -759,7 +761,7 @@ export const contributeToGroup = functions.https.onCall(async (data, context) =>
       journalId: result.journalId,
     };
   } catch (error) {
-    console.error("Contribution error:", error);
+    logger.error("Contribution error:", error);
     await transactionRef.update({
       status: "rejected" as GroupTransactionStatus,
     });
@@ -770,22 +772,22 @@ export const contributeToGroup = functions.https.onCall(async (data, context) =>
 /**
  * Withdraw tokens from a group
  */
-export const withdrawFromGroup = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const withdrawFromGroup = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "withdrawFromGroup");
-  await requirePlayIntegrity(data, context, "withdrawFromGroup", "HIGH");
+  requireAppCheck(request, "withdrawFromGroup");
+  await requirePlayIntegrity(request.data, request, "withdrawFromGroup", "HIGH");
 
-  const userId = context.auth.uid;
-  const { groupId, amount, description } = data;
+  const userId = request.auth.uid;
+  const { groupId, amount, description } = request.data;
 
   if (!groupId || !amount) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID and amount are required");
+    throw new HttpsError("invalid-argument", "Group ID and amount are required");
   }
 
   if (amount <= 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Amount must be positive");
+    throw new HttpsError("invalid-argument", "Amount must be positive");
   }
 
   const group = await getGroupOrThrow(groupId);
@@ -793,7 +795,7 @@ export const withdrawFromGroup = functions.https.onCall(async (data, context) =>
 
   // Check if withdrawals are allowed
   if (!group.settings.allowMemberWithdrawals) {
-    throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.WITHDRAWALS_NOT_ALLOWED);
+    throw new HttpsError("failed-precondition", GroupErrorCodes.WITHDRAWALS_NOT_ALLOWED);
   }
 
   const member = await requireGroupMember(groupId, userId);
@@ -802,7 +804,7 @@ export const withdrawFromGroup = functions.https.onCall(async (data, context) =>
   // Check group has sufficient balance
   const groupBalance = await getGroupBalance(groupId);
   if (groupBalance < amount) {
-    throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.AMOUNT_EXCEEDS_BALANCE);
+    throw new HttpsError("failed-precondition", GroupErrorCodes.AMOUNT_EXCEEDS_BALANCE);
   }
 
   const now = admin.firestore.Timestamp.now();
@@ -895,7 +897,7 @@ export const withdrawFromGroup = functions.https.onCall(async (data, context) =>
       await transactionRef.update({
         status: "rejected" as GroupTransactionStatus,
       });
-      throw new functions.https.HttpsError("internal", result.error || "Failed to process withdrawal");
+      throw new HttpsError("internal", result.error || "Failed to process withdrawal");
     }
 
     await transactionRef.update({
@@ -917,7 +919,7 @@ export const withdrawFromGroup = functions.https.onCall(async (data, context) =>
       approvalRequired: false,
     };
   } catch (error) {
-    console.error("Withdrawal error:", error);
+    logger.error("Withdrawal error:", error);
     await transactionRef.update({
       status: "rejected" as GroupTransactionStatus,
     });
@@ -928,17 +930,17 @@ export const withdrawFromGroup = functions.https.onCall(async (data, context) =>
 /**
  * Approve a pending transaction
  */
-export const approveTransaction = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const approveTransaction = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "approveTransaction");
+  requireAppCheck(request, "approveTransaction");
 
-  const approverId = context.auth.uid;
-  const { groupId, transactionId } = data;
+  const approverId = request.auth.uid;
+  const { groupId, transactionId } = request.data;
 
   if (!groupId || !transactionId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID and transaction ID are required");
+    throw new HttpsError("invalid-argument", "Group ID and transaction ID are required");
   }
 
   const group = await getGroupOrThrow(groupId);
@@ -956,16 +958,16 @@ export const approveTransaction = functions.https.onCall(async (data, context) =
     .get();
 
   if (!transactionDoc.exists) {
-    throw new functions.https.HttpsError("not-found", GroupErrorCodes.TRANSACTION_NOT_FOUND);
+    throw new HttpsError("not-found", GroupErrorCodes.TRANSACTION_NOT_FOUND);
   }
 
   const transaction = transactionDoc.data() as GroupTransaction;
 
   if (transaction.status === "completed") {
-    throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.TRANSACTION_ALREADY_APPROVED);
+    throw new HttpsError("failed-precondition", GroupErrorCodes.TRANSACTION_ALREADY_APPROVED);
   }
   if (transaction.status === "rejected") {
-    throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.TRANSACTION_ALREADY_REJECTED);
+    throw new HttpsError("failed-precondition", GroupErrorCodes.TRANSACTION_ALREADY_REJECTED);
   }
 
   // Get pending approval
@@ -979,7 +981,7 @@ export const approveTransaction = functions.https.onCall(async (data, context) =
     .get();
 
   if (approvalsSnap.empty) {
-    throw new functions.https.HttpsError("not-found", "No pending approval found");
+    throw new HttpsError("not-found", "No pending approval found");
   }
 
   const approvalDoc = approvalsSnap.docs[0];
@@ -989,12 +991,12 @@ export const approveTransaction = functions.https.onCall(async (data, context) =
   if (approval.expiresAt.toDate() < new Date()) {
     await approvalDoc.ref.update({ status: "expired" });
     await transactionDoc.ref.update({ status: "rejected" as GroupTransactionStatus });
-    throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.TRANSACTION_EXPIRED);
+    throw new HttpsError("failed-precondition", GroupErrorCodes.TRANSACTION_EXPIRED);
   }
 
   // Check approver is authorized
   if (!approval.requiredApprovers.includes(approverId)) {
-    throw new functions.https.HttpsError("permission-denied", GroupErrorCodes.NOT_AUTHORIZED_TO_APPROVE);
+    throw new HttpsError("permission-denied", GroupErrorCodes.NOT_AUTHORIZED_TO_APPROVE);
   }
 
   // Add approval
@@ -1025,14 +1027,14 @@ export const approveTransaction = functions.https.onCall(async (data, context) =
       },
     ], transactionId);
   } else {
-    throw new functions.https.HttpsError("invalid-argument", "Invalid transaction type for approval");
+    throw new HttpsError("invalid-argument", "Invalid transaction type for approval");
   }
 
   if (!result.success) {
     await transactionDoc.ref.update({
       status: "rejected" as GroupTransactionStatus,
     });
-    throw new functions.https.HttpsError("internal", result.error || "Failed to process transaction");
+    throw new HttpsError("internal", result.error || "Failed to process transaction");
   }
 
   await transactionDoc.ref.update({
@@ -1058,17 +1060,17 @@ export const approveTransaction = functions.https.onCall(async (data, context) =
 /**
  * Reject a pending transaction
  */
-export const rejectTransaction = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const rejectTransaction = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "rejectTransaction");
+  requireAppCheck(request, "rejectTransaction");
 
-  const rejecterId = context.auth.uid;
-  const { groupId, transactionId, reason } = data;
+  const rejecterId = request.auth.uid;
+  const { groupId, transactionId, reason } = request.data;
 
   if (!groupId || !transactionId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID and transaction ID are required");
+    throw new HttpsError("invalid-argument", "Group ID and transaction ID are required");
   }
 
   const group = await getGroupOrThrow(groupId);
@@ -1086,16 +1088,16 @@ export const rejectTransaction = functions.https.onCall(async (data, context) =>
     .get();
 
   if (!transactionDoc.exists) {
-    throw new functions.https.HttpsError("not-found", GroupErrorCodes.TRANSACTION_NOT_FOUND);
+    throw new HttpsError("not-found", GroupErrorCodes.TRANSACTION_NOT_FOUND);
   }
 
   const transaction = transactionDoc.data() as GroupTransaction;
 
   if (transaction.status === "completed") {
-    throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.TRANSACTION_ALREADY_APPROVED);
+    throw new HttpsError("failed-precondition", GroupErrorCodes.TRANSACTION_ALREADY_APPROVED);
   }
   if (transaction.status === "rejected") {
-    throw new functions.https.HttpsError("failed-precondition", GroupErrorCodes.TRANSACTION_ALREADY_REJECTED);
+    throw new HttpsError("failed-precondition", GroupErrorCodes.TRANSACTION_ALREADY_REJECTED);
   }
 
   // Update approval and transaction
@@ -1130,13 +1132,13 @@ export const rejectTransaction = functions.https.onCall(async (data, context) =>
 /**
  * Get all groups for the current user
  */
-export const getUserGroups = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const getUserGroups = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "getUserGroups");
+  requireAppCheck(request, "getUserGroups");
 
-  const userId = context.auth.uid;
+  const userId = request.auth.uid;
 
   const groupsSnap = await db
     .collection(GroupConfig.COLLECTION_GROUPS)
@@ -1144,6 +1146,7 @@ export const getUserGroups = functions.https.onCall(async (data, context) => {
     .where("status", "!=", "closed")
     .orderBy("status")
     .orderBy("updatedAt", "desc")
+    .limit(100)
     .get();
 
   const groups = groupsSnap.docs.map((doc) => doc.data() as Group);
@@ -1154,17 +1157,17 @@ export const getUserGroups = functions.https.onCall(async (data, context) => {
 /**
  * Get group details with members
  */
-export const getGroupDetails = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const getGroupDetails = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "getGroupDetails");
+  requireAppCheck(request, "getGroupDetails");
 
-  const userId = context.auth.uid;
-  const { groupId } = data;
+  const userId = request.auth.uid;
+  const { groupId } = request.data;
 
   if (!groupId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID is required");
+    throw new HttpsError("invalid-argument", "Group ID is required");
   }
 
   const group = await getGroupOrThrow(groupId);
@@ -1176,6 +1179,7 @@ export const getGroupDetails = functions.https.onCall(async (data, context) => {
     .doc(groupId)
     .collection(GroupConfig.SUBCOLLECTION_MEMBERS)
     .orderBy("role")
+    .limit(200)
     .get();
 
   const members = membersSnap.docs.map((doc) => doc.data() as GroupMember);
@@ -1193,17 +1197,17 @@ export const getGroupDetails = functions.https.onCall(async (data, context) => {
 /**
  * Get group transactions
  */
-export const getGroupTransactions = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const getGroupTransactions = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "getGroupTransactions");
+  requireAppCheck(request, "getGroupTransactions");
 
-  const userId = context.auth.uid;
-  const { groupId, limit = 50 } = data;
+  const userId = request.auth.uid;
+  const { groupId, limit = 50 } = request.data;
 
   if (!groupId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID is required");
+    throw new HttpsError("invalid-argument", "Group ID is required");
   }
 
   await getGroupOrThrow(groupId);
@@ -1226,17 +1230,17 @@ export const getGroupTransactions = functions.https.onCall(async (data, context)
 /**
  * Get pending approvals for a group
  */
-export const getPendingApprovals = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const getPendingApprovals = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "getPendingApprovals");
+  requireAppCheck(request, "getPendingApprovals");
 
-  const userId = context.auth.uid;
-  const { groupId } = data;
+  const userId = request.auth.uid;
+  const { groupId } = request.data;
 
   if (!groupId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID is required");
+    throw new HttpsError("invalid-argument", "Group ID is required");
   }
 
   await getGroupOrThrow(groupId);
@@ -1249,6 +1253,7 @@ export const getPendingApprovals = functions.https.onCall(async (data, context) 
     .collection(GroupConfig.SUBCOLLECTION_APPROVALS)
     .where("status", "==", "pending")
     .orderBy("createdAt", "desc")
+    .limit(100)
     .get();
 
   const approvals = approvalsSnap.docs.map((doc) => doc.data() as PendingApproval);
@@ -1257,15 +1262,19 @@ export const getPendingApprovals = functions.https.onCall(async (data, context) 
   const transactionIds = approvals.map((a) => a.transactionId);
   const transactions: Record<string, GroupTransaction> = {};
 
-  for (const txId of transactionIds) {
-    const txDoc = await db
-      .collection(GroupConfig.COLLECTION_GROUPS)
-      .doc(groupId)
-      .collection(GroupConfig.SUBCOLLECTION_TRANSACTIONS)
-      .doc(txId)
-      .get();
+  // Fetch all related transactions in parallel (was serial)
+  const txResults = await Promise.all(
+    transactionIds.map((txId) =>
+      db.collection(GroupConfig.COLLECTION_GROUPS)
+        .doc(groupId)
+        .collection(GroupConfig.SUBCOLLECTION_TRANSACTIONS)
+        .doc(txId)
+        .get()
+    )
+  );
+  for (const txDoc of txResults) {
     if (txDoc.exists) {
-      transactions[txId] = txDoc.data() as GroupTransaction;
+      transactions[txDoc.id] = txDoc.data() as GroupTransaction;
     }
   }
 
@@ -1280,11 +1289,10 @@ export const getPendingApprovals = functions.https.onCall(async (data, context) 
  * Send contribution reminders for stokvels
  * Runs every Monday at 9 AM South Africa time
  */
-export const sendStokvelContributionReminders = functions.pubsub
-  .schedule("0 9 * * 1")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
-    console.log("Running stokvel contribution reminders...");
+export const sendStokvelContributionReminders = onSchedule(
+  { schedule: "0 9 * * 1", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "social" } },
+  async () => {
+    logger.info("Running stokvel contribution reminders...");
 
     // Get all active stokvels with contribution cycles
     const stokvelsSnap = await db
@@ -1294,7 +1302,7 @@ export const sendStokvelContributionReminders = functions.pubsub
       .where("settings.contributionCycle", "in", ["weekly", "monthly"])
       .get();
 
-    console.log(`Found ${stokvelsSnap.docs.length} stokvels to process`);
+    logger.info(`Found ${stokvelsSnap.docs.length} stokvels to process`);
 
     const now = new Date();
     const dayOfMonth = now.getDate();
@@ -1313,6 +1321,7 @@ export const sendStokvelContributionReminders = functions.pubsub
       const membersSnap = await stokvelDoc.ref
         .collection(GroupConfig.SUBCOLLECTION_MEMBERS)
         .where("status", "==", "active")
+        .limit(50)
         .get();
 
       // Create notifications for each member
@@ -1340,22 +1349,21 @@ export const sendStokvelContributionReminders = functions.pubsub
       }
 
       await batch.commit();
-      console.log(`Sent reminders to ${membersSnap.docs.length} members of ${stokvel.name}`);
+      logger.info(`Sent reminders to ${membersSnap.docs.length} members of ${stokvel.name}`);
     }
 
-    console.log("Stokvel contribution reminders completed");
-    return null;
-  });
+    logger.info("Stokvel contribution reminders completed");
+  }
+);
 
 /**
  * Calculate and apply stokvel penalties for missed contributions
  * Runs on the 1st of every month at midnight South Africa time
  */
-export const calculateStokvelPenalties = functions.pubsub
-  .schedule("0 0 1 * *")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
-    console.log("Running stokvel penalty calculations...");
+export const calculateStokvelPenalties = onSchedule(
+  { schedule: "0 0 1 * *", timeZone: "Africa/Johannesburg", region: "europe-west1", timeoutSeconds: 300, labels: { area: "social" } },
+  async () => {
+    logger.info("Running stokvel penalty calculations...");
 
     // Get all active stokvels
     const stokvelsSnap = await db
@@ -1364,7 +1372,7 @@ export const calculateStokvelPenalties = functions.pubsub
       .where("status", "==", "active")
       .get();
 
-    console.log(`Found ${stokvelsSnap.docs.length} stokvels to process`);
+    logger.info(`Found ${stokvelsSnap.docs.length} stokvels to process`);
 
     const now = admin.firestore.Timestamp.now();
     const lastMonth = new Date();
@@ -1390,6 +1398,7 @@ export const calculateStokvelPenalties = functions.pubsub
       const membersSnap = await stokvelDoc.ref
         .collection(GroupConfig.SUBCOLLECTION_MEMBERS)
         .where("status", "==", "active")
+        .limit(50)
         .get();
 
       // Get contributions from last month
@@ -1399,6 +1408,7 @@ export const calculateStokvelPenalties = functions.pubsub
         .where("status", "==", "completed")
         .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(lastMonthStart))
         .where("createdAt", "<=", admin.firestore.Timestamp.fromDate(lastMonthEnd))
+        .limit(50)
         .get();
 
       // Calculate total contributions per member
@@ -1412,6 +1422,9 @@ export const calculateStokvelPenalties = functions.pubsub
 
       // Check for members who didn't meet minimum contribution
       const { processGroupPenalty } = await import("./ledger/groupAccounts");
+      const penaltyBatch = db.batch();
+      let penaltyBatchCount = 0;
+      let totalPenaltyAmount = 0;
 
       for (const memberDoc of membersSnap.docs) {
         const member = memberDoc.data() as GroupMember;
@@ -1430,11 +1443,12 @@ export const calculateStokvelPenalties = functions.pubsub
           continue;
         }
 
-        console.log(`Applying penalty of ${penaltyAmount} to ${member.userId} in ${stokvel.name}`);
+        logger.info(`Applying penalty of ${penaltyAmount} to ${member.userId} in ${stokvel.name}`);
 
         const dateStr = `${lastMonth.getFullYear()}-${String(lastMonth.getMonth() + 1).padStart(2, "0")}`;
 
         try {
+          // Ledger call must remain sequential
           const result = await processGroupPenalty(
             stokvel.id,
             member.userId,
@@ -1444,9 +1458,9 @@ export const calculateStokvelPenalties = functions.pubsub
           );
 
           if (result.success) {
-            // Create penalty transaction record
+            // Batch the Firestore writes instead of individual awaits
             const txRef = stokvelDoc.ref.collection(GroupConfig.SUBCOLLECTION_TRANSACTIONS).doc();
-            await txRef.set({
+            penaltyBatch.set(txRef, {
               id: txRef.id,
               groupId: stokvel.id,
               journalId: result.journalId,
@@ -1462,9 +1476,8 @@ export const calculateStokvelPenalties = functions.pubsub
               completedAt: now,
             } as GroupTransaction);
 
-            // Send notification
             const notificationRef = db.collection("notifications").doc();
-            await notificationRef.set({
+            penaltyBatch.set(notificationRef, {
               id: notificationRef.id,
               userId: member.userId,
               type: "stokvel_penalty",
@@ -1479,33 +1492,39 @@ export const calculateStokvelPenalties = functions.pubsub
               createdAt: now,
             });
 
-            // Update group balance
-            await stokvelDoc.ref.update({
-              totalBalance: admin.firestore.FieldValue.increment(penaltyAmount),
-              updatedAt: now,
-            });
+            totalPenaltyAmount += penaltyAmount;
+            penaltyBatchCount += 2;
           } else {
-            console.error(`Failed to apply penalty: ${result.error}`);
+            logger.error(`Failed to apply penalty: ${result.error}`);
           }
         } catch (error) {
-          console.error(`Error applying penalty to ${member.userId}:`, error);
+          logger.error(`Error applying penalty to ${member.userId}:`, error);
         }
+      }
+
+      // Commit all penalty Firestore writes for this stokvel in one batch
+      if (penaltyBatchCount > 0) {
+        // Update group balance once for all penalties
+        penaltyBatch.update(stokvelDoc.ref, {
+          totalBalance: admin.firestore.FieldValue.increment(totalPenaltyAmount),
+          updatedAt: now,
+        });
+        await penaltyBatch.commit();
       }
     }
 
-    console.log("Stokvel penalty calculations completed");
-    return null;
-  });
+    logger.info("Stokvel penalty calculations completed");
+  }
+);
 
 /**
  * Process stokvel payouts according to schedule
  * Runs on the 1st of every month at 10 AM South Africa time
  */
-export const processStokvelPayouts = functions.pubsub
-  .schedule("0 10 1 * *")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
-    console.log("Running stokvel payout processing...");
+export const processStokvelPayouts = onSchedule(
+  { schedule: "0 10 1 * *", timeZone: "Africa/Johannesburg", region: "europe-west1", timeoutSeconds: 300, labels: { area: "social" } },
+  async () => {
+    logger.info("Running stokvel payout processing...");
 
     const now = admin.firestore.Timestamp.now();
     const today = new Date();
@@ -1517,7 +1536,7 @@ export const processStokvelPayouts = functions.pubsub
       .where("status", "==", "active")
       .get();
 
-    console.log(`Found ${stokvelsSnap.docs.length} stokvels to check for payouts`);
+    logger.info(`Found ${stokvelsSnap.docs.length} stokvels to check for payouts`);
 
     for (const stokvelDoc of stokvelsSnap.docs) {
       const stokvel = stokvelDoc.data() as Group;
@@ -1536,7 +1555,7 @@ export const processStokvelPayouts = functions.pubsub
       // Get group balance
       const balance = await getGroupBalance(stokvel.id);
       if (balance <= 0) {
-        console.log(`${stokvel.name}: No balance to pay out`);
+        logger.info(`${stokvel.name}: No balance to pay out`);
         continue;
       }
 
@@ -1544,6 +1563,7 @@ export const processStokvelPayouts = functions.pubsub
       const membersSnap = await stokvelDoc.ref
         .collection(GroupConfig.SUBCOLLECTION_MEMBERS)
         .where("status", "==", "active")
+        .limit(50)
         .get();
 
       if (membersSnap.empty) {
@@ -1596,10 +1616,13 @@ export const processStokvelPayouts = functions.pubsub
         const transactionRef = stokvelDoc.ref.collection(GroupConfig.SUBCOLLECTION_TRANSACTIONS).doc();
 
         try {
+          // Ledger call must remain sequential
           const result = await processGroupPayout(stokvel.id, payouts, transactionRef.id);
 
           if (result.success) {
-            await transactionRef.set({
+            // Batch all Firestore writes together
+            const payoutBatch = db.batch();
+            payoutBatch.set(transactionRef, {
               id: transactionRef.id,
               groupId: stokvel.id,
               journalId: result.journalId,
@@ -1615,17 +1638,15 @@ export const processStokvelPayouts = functions.pubsub
               completedAt: now,
             } as GroupTransaction);
 
-            // Update group balance
-            await stokvelDoc.ref.update({
+            payoutBatch.update(stokvelDoc.ref, {
               totalBalance: admin.firestore.FieldValue.increment(-(payoutAmount * members.length)),
               updatedAt: now,
             });
 
-            // Notify all members
-            const notifyBatch = db.batch();
+            // Include member notifications in the same batch
             for (const member of members) {
               const notificationRef = db.collection("notifications").doc();
-              notifyBatch.set(notificationRef, {
+              payoutBatch.set(notificationRef, {
                 id: notificationRef.id,
                 userId: member.userId,
                 type: "stokvel_payout",
@@ -1640,16 +1661,17 @@ export const processStokvelPayouts = functions.pubsub
                 createdAt: now,
               });
             }
-            await notifyBatch.commit();
+            await payoutBatch.commit();
           }
         } catch (error) {
-          console.error(`Error processing fixed_date payout for ${stokvel.name}:`, error);
+          logger.error(`Error processing fixed_date payout for ${stokvel.name}:`, error);
         }
       } else if (recipientId && payoutAmount > 0) {
         // Single recipient payout
         const transactionRef = stokvelDoc.ref.collection(GroupConfig.SUBCOLLECTION_TRANSACTIONS).doc();
 
         try {
+          // Ledger call must remain sequential
           const result = await processGroupPayout(
             stokvel.id,
             [{ memberId: recipientId, amount: payoutAmount }],
@@ -1657,7 +1679,14 @@ export const processStokvelPayouts = functions.pubsub
           );
 
           if (result.success) {
-            await transactionRef.set({
+            // Update stokvel settings for next payout
+            const nextMonth = new Date(today);
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            nextMonth.setDate(1);
+
+            // Batch all Firestore writes together
+            const payoutBatch = db.batch();
+            payoutBatch.set(transactionRef, {
               id: transactionRef.id,
               groupId: stokvel.id,
               journalId: result.journalId,
@@ -1673,12 +1702,7 @@ export const processStokvelPayouts = functions.pubsub
               completedAt: now,
             } as GroupTransaction);
 
-            // Update stokvel settings for next payout
-            const nextMonth = new Date(today);
-            nextMonth.setMonth(nextMonth.getMonth() + 1);
-            nextMonth.setDate(1);
-
-            await stokvelDoc.ref.update({
+            payoutBatch.update(stokvelDoc.ref, {
               totalBalance: admin.firestore.FieldValue.increment(-payoutAmount),
               "stokvelSettings.currentPayoutRecipient": recipientId,
               "stokvelSettings.nextPayoutDate": admin.firestore.Timestamp.fromDate(nextMonth),
@@ -1687,7 +1711,7 @@ export const processStokvelPayouts = functions.pubsub
 
             // Notify recipient
             const notificationRef = db.collection("notifications").doc();
-            await notificationRef.set({
+            payoutBatch.set(notificationRef, {
               id: notificationRef.id,
               userId: recipientId,
               type: "stokvel_payout",
@@ -1704,10 +1728,9 @@ export const processStokvelPayouts = functions.pubsub
 
             // Notify other members
             const otherMembers = members.filter((m) => m.userId !== recipientId);
-            const notifyBatch = db.batch();
             for (const member of otherMembers) {
               const otherNotifRef = db.collection("notifications").doc();
-              notifyBatch.set(otherNotifRef, {
+              payoutBatch.set(otherNotifRef, {
                 id: otherNotifRef.id,
                 userId: member.userId,
                 type: "stokvel_payout_notification",
@@ -1722,54 +1745,54 @@ export const processStokvelPayouts = functions.pubsub
                 createdAt: now,
               });
             }
-            await notifyBatch.commit();
+            await payoutBatch.commit();
 
-            console.log(`Processed payout of ${payoutAmount} to ${recipientId} for ${stokvel.name}`);
+            logger.info(`Processed payout of ${payoutAmount} to ${recipientId} for ${stokvel.name}`);
           }
         } catch (error) {
-          console.error(`Error processing payout for ${stokvel.name}:`, error);
+          logger.error(`Error processing payout for ${stokvel.name}:`, error);
         }
       }
     }
 
-    console.log("Stokvel payout processing completed");
-    return null;
-  });
+    logger.info("Stokvel payout processing completed");
+  }
+);
 
 /**
  * Manually trigger a stokvel payout (for admins)
  */
-export const triggerStokvelPayout = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const triggerStokvelPayout = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "triggerStokvelPayout");
-  await requirePlayIntegrity(data, context, "triggerStokvelPayout", "HIGH");
+  requireAppCheck(request, "triggerStokvelPayout");
+  await requirePlayIntegrity(request.data, request, "triggerStokvelPayout", "HIGH");
 
-  const userId = context.auth.uid;
-  const { groupId, recipientId } = data;
+  const userId = request.auth.uid;
+  const { groupId, recipientId } = request.data;
 
   if (!groupId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID is required");
+    throw new HttpsError("invalid-argument", "Group ID is required");
   }
 
   const group = await getGroupOrThrow(groupId);
   requireActiveGroup(group);
 
   if (group.type !== "stokvel") {
-    throw new functions.https.HttpsError("failed-precondition", "This function is only for stokvels");
+    throw new HttpsError("failed-precondition", "This function is only for stokvels");
   }
 
   // Check user is owner or admin
   const member = await requireGroupMember(groupId, userId);
   if (member.role !== "owner" && member.role !== "admin") {
-    throw new functions.https.HttpsError("permission-denied", "Only owner or admin can trigger payouts");
+    throw new HttpsError("permission-denied", "Only owner or admin can trigger payouts");
   }
 
   // Get group balance
   const balance = await getGroupBalance(groupId);
   if (balance <= 0) {
-    throw new functions.https.HttpsError("failed-precondition", "No balance available for payout");
+    throw new HttpsError("failed-precondition", "No balance available for payout");
   }
 
   // Determine recipient
@@ -1800,13 +1823,13 @@ export const triggerStokvelPayout = functions.https.onCall(async (data, context)
   }
 
   if (!finalRecipientId) {
-    throw new functions.https.HttpsError("invalid-argument", "Recipient ID is required for this payout type");
+    throw new HttpsError("invalid-argument", "Recipient ID is required for this payout type");
   }
 
   // Verify recipient is a member
   const recipientMember = await getGroupMember(groupId, finalRecipientId);
   if (!recipientMember || recipientMember.status !== "active") {
-    throw new functions.https.HttpsError("not-found", "Recipient is not an active member");
+    throw new HttpsError("not-found", "Recipient is not an active member");
   }
 
   const now = admin.firestore.Timestamp.now();
@@ -1824,7 +1847,7 @@ export const triggerStokvelPayout = functions.https.onCall(async (data, context)
     );
 
     if (!result.success) {
-      throw new functions.https.HttpsError("internal", result.error || "Failed to process payout");
+      throw new HttpsError("internal", result.error || "Failed to process payout");
     }
 
     await transactionRef.set({
@@ -1880,7 +1903,7 @@ export const triggerStokvelPayout = functions.https.onCall(async (data, context)
       amount: balance,
     };
   } catch (error) {
-    console.error("Payout error:", error);
+    logger.error("Payout error:", error);
     throw error;
   }
 });
@@ -1888,22 +1911,22 @@ export const triggerStokvelPayout = functions.https.onCall(async (data, context)
 /**
  * Get stokvel contribution history for analytics
  */
-export const getStokvelAnalytics = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const getStokvelAnalytics = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "getStokvelAnalytics");
+  requireAppCheck(request, "getStokvelAnalytics");
 
-  const userId = context.auth.uid;
-  const { groupId, months = 6 } = data;
+  const userId = request.auth.uid;
+  const { groupId, months = 6 } = request.data;
 
   if (!groupId) {
-    throw new functions.https.HttpsError("invalid-argument", "Group ID is required");
+    throw new HttpsError("invalid-argument", "Group ID is required");
   }
 
   const group = await getGroupOrThrow(groupId);
   if (group.type !== "stokvel") {
-    throw new functions.https.HttpsError("failed-precondition", "This function is only for stokvels");
+    throw new HttpsError("failed-precondition", "This function is only for stokvels");
   }
 
   const member = await requireGroupMember(groupId, userId);
@@ -1923,6 +1946,8 @@ export const getStokvelAnalytics = functions.https.onCall(async (data, context) 
     .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(startDate))
     .where("createdAt", "<=", admin.firestore.Timestamp.fromDate(endDate))
     .orderBy("createdAt", "desc")
+    .select("amount", "type", "createdAt", "fromMemberId")
+    .limit(1000)
     .get();
 
   const transactions = transactionsSnap.docs.map((d) => d.data() as GroupTransaction);
@@ -1973,6 +1998,8 @@ export const getStokvelAnalytics = functions.https.onCall(async (data, context) 
     .doc(groupId)
     .collection(GroupConfig.SUBCOLLECTION_MEMBERS)
     .where("status", "==", "active")
+    .select("userId", "displayName", "avatarUrl")
+    .limit(500)
     .get();
 
   const memberInfo: Record<string, { displayName: string; avatarUrl: string | null }> = {};

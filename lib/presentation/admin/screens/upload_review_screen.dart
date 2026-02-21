@@ -34,7 +34,7 @@ class _UploadReviewScreenState extends State<UploadReviewScreen> {
 
     try {
       final callable =
-          FirebaseFunctions.instance.httpsCallable('getUploadReviewQueue');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('getUploadReviewQueue');
       final result = await callable.call<dynamic>({'limit': 50});
 
       final list = (result.data['items'] as List<dynamic>?) ?? [];
@@ -59,7 +59,7 @@ class _UploadReviewScreenState extends State<UploadReviewScreen> {
   }) async {
     try {
       final callable =
-          FirebaseFunctions.instance.httpsCallable('adminReviewUpload');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('adminReviewUpload');
       await callable.call<dynamic>({
         'engagementId': engagementId,
         'action': action,

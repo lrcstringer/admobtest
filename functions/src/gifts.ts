@@ -10,7 +10,9 @@
  * Lifecycle: pending → opened → claimed | expired
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
@@ -25,17 +27,17 @@ const db = admin.firestore();
 // HELPERS
 // ============================================================================
 
-function requireAuth(context: functions.https.CallableContext): string {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+function requireAuth(request: { auth?: { uid: string } }): string {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  return context.auth.uid;
+  return request.auth.uid;
 }
 
 async function getUserProfile(userId: string) {
   const doc = await db.collection("users").doc(userId).get();
   if (!doc.exists) {
-    throw new functions.https.HttpsError("not-found", `User ${userId} not found`);
+    throw new HttpsError("not-found", `User ${userId} not found`);
   }
   return doc.data()!;
 }
@@ -57,31 +59,31 @@ const GIFT_EXPIRY_DAYS = 7;
  * 4. Writes a "gift" type message into conversation or community
  * 5. Returns the created gift
  */
-export const sendGift = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "sendGift");
-  await requirePlayIntegrity(data, context, "sendGift", "HIGHEST");
+export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "sendGift");
+  await requirePlayIntegrity(request.data, request, "sendGift", "HIGHEST");
 
-  const { recipientId, amount, message, style, conversationId, communityId } = data;
+  const { recipientId, amount, message, style, conversationId, communityId } = request.data;
 
   // Validate inputs
   if (!recipientId || typeof recipientId !== "string") {
-    throw new functions.https.HttpsError("invalid-argument", "recipientId is required");
+    throw new HttpsError("invalid-argument", "recipientId is required");
   }
   if (!amount || typeof amount !== "number" || amount < MIN_GIFT_AMOUNT) {
-    throw new functions.https.HttpsError("invalid-argument", `Minimum gift is ${MIN_GIFT_AMOUNT} tokens`);
+    throw new HttpsError("invalid-argument", `Minimum gift is ${MIN_GIFT_AMOUNT} tokens`);
   }
   if (!message || typeof message !== "string" || message.trim().length === 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Gift message is required");
+    throw new HttpsError("invalid-argument", "Gift message is required");
   }
   if (!style || !VALID_STYLES.includes(style)) {
-    throw new functions.https.HttpsError("invalid-argument", `Invalid style. Must be one of: ${VALID_STYLES.join(", ")}`);
+    throw new HttpsError("invalid-argument", `Invalid style. Must be one of: ${VALID_STYLES.join(", ")}`);
   }
   if (!conversationId && !communityId) {
-    throw new functions.https.HttpsError("invalid-argument", "Must specify conversationId or communityId");
+    throw new HttpsError("invalid-argument", "Must specify conversationId or communityId");
   }
   if (recipientId === userId) {
-    throw new functions.https.HttpsError("invalid-argument", "Cannot send a gift to yourself");
+    throw new HttpsError("invalid-argument", "Cannot send a gift to yourself");
   }
 
   // Get user profiles
@@ -93,7 +95,7 @@ export const sendGift = functions.https.onCall(async (data, context) => {
   // Validate sender balance
   const senderSubAccount = await getDefaultSubAccount(userId);
   if (!senderSubAccount) {
-    throw new functions.https.HttpsError("failed-precondition", "Sender has no wallet");
+    throw new HttpsError("failed-precondition", "Sender has no wallet");
   }
   await validateMainWalletBalance(userId, amount);
 
@@ -243,38 +245,38 @@ export const sendGift = functions.https.onCall(async (data, context) => {
  * Mark a gift as opened (recipient saw it).
  * Only the recipient can open a gift.
  */
-export const openGift = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "openGift");
+export const openGift = onCall({ labels: { area: "gifts" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "openGift");
 
-  const { giftId } = data;
+  const { giftId } = request.data;
   if (!giftId || typeof giftId !== "string") {
-    throw new functions.https.HttpsError("invalid-argument", "giftId is required");
+    throw new HttpsError("invalid-argument", "giftId is required");
   }
 
   const giftRef = db.collection("gifts").doc(giftId);
   const giftDoc = await giftRef.get();
 
   if (!giftDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Gift not found");
+    throw new HttpsError("not-found", "Gift not found");
   }
 
   const gift = giftDoc.data()!;
 
   // Only recipient can open
   if (gift.recipientId !== userId) {
-    throw new functions.https.HttpsError("permission-denied", "Only the recipient can open this gift");
+    throw new HttpsError("permission-denied", "Only the recipient can open this gift");
   }
 
   // Check status
   if (gift.status !== "pending") {
-    throw new functions.https.HttpsError("failed-precondition", `Gift is already ${gift.status}`);
+    throw new HttpsError("failed-precondition", `Gift is already ${gift.status}`);
   }
 
   // Check expiry
   const expiresAt = gift.expiresAt?.toDate ? gift.expiresAt.toDate() : new Date(gift.expiresAt);
   if (new Date() > expiresAt) {
-    throw new functions.https.HttpsError("failed-precondition", "Gift has expired");
+    throw new HttpsError("failed-precondition", "Gift has expired");
   }
 
   // Update gift status
@@ -293,7 +295,7 @@ export const openGift = functions.https.onCall(async (data, context) => {
           "gift.status": "opened",
         });
       } catch (e) {
-        console.warn("Failed to update gift message status:", e);
+        logger.warn("Failed to update gift message status:", e);
       }
     }
   }
@@ -316,39 +318,39 @@ export const openGift = functions.https.onCall(async (data, context) => {
  * Claim a gift — transfers tokens to recipient's wallet.
  * Only the recipient can claim. Gift must be "opened" and not expired.
  */
-export const claimGift = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "claimGift");
-  await requirePlayIntegrity(data, context, "claimGift", "HIGHEST");
+export const claimGift = onCall({ labels: { area: "gifts" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "claimGift");
+  await requirePlayIntegrity(request.data, request, "claimGift", "HIGHEST");
 
-  const { giftId } = data;
+  const { giftId } = request.data;
   if (!giftId || typeof giftId !== "string") {
-    throw new functions.https.HttpsError("invalid-argument", "giftId is required");
+    throw new HttpsError("invalid-argument", "giftId is required");
   }
 
   const giftRef = db.collection("gifts").doc(giftId);
   const giftDoc = await giftRef.get();
 
   if (!giftDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Gift not found");
+    throw new HttpsError("not-found", "Gift not found");
   }
 
   const gift = giftDoc.data()!;
 
   // Only recipient can claim
   if (gift.recipientId !== userId) {
-    throw new functions.https.HttpsError("permission-denied", "Only the recipient can claim this gift");
+    throw new HttpsError("permission-denied", "Only the recipient can claim this gift");
   }
 
   // Must be opened (not pending or already claimed)
   if (gift.status !== "opened") {
-    throw new functions.https.HttpsError("failed-precondition", `Gift cannot be claimed — status is ${gift.status}`);
+    throw new HttpsError("failed-precondition", `Gift cannot be claimed — status is ${gift.status}`);
   }
 
   // Check expiry
   const expiresAt = gift.expiresAt?.toDate ? gift.expiresAt.toDate() : new Date(gift.expiresAt);
   if (new Date() > expiresAt) {
-    throw new functions.https.HttpsError("failed-precondition", "Gift has expired");
+    throw new HttpsError("failed-precondition", "Gift has expired");
   }
 
   // Tokens were already transferred via processP2PTransfer in sendGift.
@@ -370,7 +372,7 @@ export const claimGift = functions.https.onCall(async (data, context) => {
           "gift.status": "claimed",
         });
       } catch (e) {
-        console.warn("Failed to update gift message status:", e);
+        logger.warn("Failed to update gift message status:", e);
       }
     }
   }
@@ -394,10 +396,9 @@ export const claimGift = functions.https.onCall(async (data, context) => {
  * Since tokens were already transferred via P2P, expired gifts don't need a refund —
  * the recipient simply has the tokens. The gift wrapper is just a presentation layer.
  */
-export const expireGifts = functions.pubsub
-  .schedule("0 * * * *") // Every hour
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const expireGifts = onSchedule(
+  { schedule: "0 * * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "gifts" } },
+  async () => {
     const now = admin.firestore.Timestamp.now();
 
     const expiredGifts = await db.collection("gifts")
@@ -407,11 +408,11 @@ export const expireGifts = functions.pubsub
       .get();
 
     if (expiredGifts.empty) {
-      console.log("No gifts to expire");
-      return null;
+      logger.info("No gifts to expire");
+      return;
     }
 
-    console.log(`Expiring ${expiredGifts.size} gifts`);
+    logger.info(`Expiring ${expiredGifts.size} gifts`);
 
     const batch = db.batch();
     for (const doc of expiredGifts.docs) {
@@ -430,9 +431,9 @@ export const expireGifts = functions.pubsub
     }
 
     await batch.commit();
-    console.log(`Expired ${expiredGifts.size} gifts`);
-    return null;
-  });
+    logger.info(`Expired ${expiredGifts.size} gifts`);
+  }
+);
 
 // ============================================================================
 // SCHEDULED: GIFT EXPIRY REMINDERS
@@ -442,10 +443,9 @@ export const expireGifts = functions.pubsub
  * Daily job: find gifts expiring within 2 days and send a push notification
  * to the recipient reminding them to claim.
  */
-export const sendGiftExpiryReminders = functions.pubsub
-  .schedule("0 10 * * *") // 10 AM daily SAST
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const sendGiftExpiryReminders = onSchedule(
+  { schedule: "0 10 * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "gifts" } },
+  async () => {
     const now = new Date();
     const twoDaysFromNow = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
 
@@ -458,11 +458,13 @@ export const sendGiftExpiryReminders = functions.pubsub
       .get();
 
     if (soonExpiring.empty) {
-      console.log("No gift expiry reminders to send");
-      return null;
+      logger.info("No gift expiry reminders to send");
+      return;
     }
 
-    console.log(`Sending ${soonExpiring.size} gift expiry reminders`);
+    logger.info(`Sending ${soonExpiring.size} gift expiry reminders`);
+
+    const reminderBatch = db.batch();
 
     for (const doc of soonExpiring.docs) {
       const gift = doc.data();
@@ -491,13 +493,14 @@ export const sendGiftExpiryReminders = functions.pubsub
             },
           });
         } catch (e) {
-          console.warn(`Failed to send gift reminder to ${gift.recipientId}:`, e);
+          logger.warn(`Failed to send gift reminder to ${gift.recipientId}:`, e);
         }
       }
 
-      await doc.ref.update({ reminderSent: true });
+      reminderBatch.update(doc.ref, { reminderSent: true });
     }
 
-    console.log(`Sent ${soonExpiring.size} gift expiry reminders`);
-    return null;
-  });
+    await reminderBatch.commit();
+    logger.info(`Sent ${soonExpiring.size} gift expiry reminders`);
+  }
+);

@@ -103,6 +103,7 @@ class X3dhHeader with _$X3dhHeader {
     required String identityKey,
     required String ephemeralKey,
     int? oneTimePreKeyId,
+    String? oneTimePreKeyPublicKey,
   }) = _X3dhHeader;
 
   factory X3dhHeader.fromJson(Map<String, dynamic> json) =>

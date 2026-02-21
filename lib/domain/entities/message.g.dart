@@ -145,6 +145,7 @@ _$X3dhHeaderImpl _$$X3dhHeaderImplFromJson(Map<String, dynamic> json) =>
       identityKey: json['identityKey'] as String,
       ephemeralKey: json['ephemeralKey'] as String,
       oneTimePreKeyId: (json['oneTimePreKeyId'] as num?)?.toInt(),
+      oneTimePreKeyPublicKey: json['oneTimePreKeyPublicKey'] as String?,
     );
 
 Map<String, dynamic> _$$X3dhHeaderImplToJson(_$X3dhHeaderImpl instance) =>
@@ -152,6 +153,7 @@ Map<String, dynamic> _$$X3dhHeaderImplToJson(_$X3dhHeaderImpl instance) =>
       'identityKey': instance.identityKey,
       'ephemeralKey': instance.ephemeralKey,
       'oneTimePreKeyId': instance.oneTimePreKeyId,
+      'oneTimePreKeyPublicKey': instance.oneTimePreKeyPublicKey,
     };
 
 _$MessageImpl _$$MessageImplFromJson(Map<String, dynamic> json) =>

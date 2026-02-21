@@ -40,7 +40,7 @@ class _RewardConsentDialogState extends State<RewardConsentDialog> {
   Future<void> _submitConsent() async {
     setState(() => _isSubmitting = true);
     try {
-      await FirebaseFunctions.instance
+      await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('updateRewardConsent')
           .call({'consent': true});
 

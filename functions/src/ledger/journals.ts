@@ -6,6 +6,7 @@
  */
 
 import * as admin from "firebase-admin";
+import { logger } from "firebase-functions/v2";
 import {
   LedgerJournal,
   LedgerEntry,
@@ -57,7 +58,7 @@ export async function postJournal(
   // Check for existing journal with same idempotency key (prevent duplicates)
   const existingJournal = await getJournalByIdempotencyKey(input.idempotencyKey);
   if (existingJournal) {
-    console.log(
+    logger.info(
       `Journal with idempotency key ${input.idempotencyKey} already exists: ${existingJournal.id}`
     );
     return {
@@ -176,7 +177,7 @@ export async function postJournal(
       isDuplicate: false,
     };
   } catch (error) {
-    console.error("Failed to post journal:", error);
+    logger.error("Failed to post journal:", error);
 
     // Log failed attempt
     await logAuditEvent({
@@ -345,7 +346,7 @@ export function logJournalPostedAudit(
       referenceType: input.referenceType,
       referenceId: input.referenceId,
     },
-  }).catch((err) => console.error("Audit log failed:", err));
+  }).catch((err) => logger.error("Audit log failed:", err));
 }
 
 // ============================================================================
@@ -502,15 +503,10 @@ export async function getAccountJournals(
     status?: JournalStatus;
   } = {}
 ): Promise<LedgerJournal[]> {
-  // We need to find journals where the account appears in entries
-  // Since entries are embedded, we can't query directly
-  // This requires a different approach - we'll use a secondary index or scan
-
-  // For now, scan all journals and filter (not efficient for large datasets)
-  // In production, consider adding a subcollection or separate index
-
-  let query = db
+  // Use the denormalized participantAccountIds field for efficient Firestore query
+  let query: admin.firestore.Query = db
     .collection(LedgerConfig.COLLECTION_JOURNALS)
+    .where("participantAccountIds", "array-contains", accountId)
     .orderBy("postedAt", "desc");
 
   if (options.status) {
@@ -521,26 +517,12 @@ export async function getAccountJournals(
     query = query.startAfter(options.startAfter);
   }
 
-  if (options.limit) {
-    // Get more than needed since we'll filter
-    query = query.limit(options.limit * 3);
-  }
+  // Apply limit (default 1000 safety cap)
+  query = query.limit(options.limit || 1000);
 
   const snapshot = await query.get();
 
-  const journals: LedgerJournal[] = [];
-  for (const doc of snapshot.docs) {
-    const journal = doc.data() as LedgerJournal;
-    // Check if this account is in the entries
-    if (journal.entries.some((e) => e.accountId === accountId)) {
-      journals.push(journal);
-      if (options.limit && journals.length >= options.limit) {
-        break;
-      }
-    }
-  }
-
-  return journals;
+  return snapshot.docs.map((doc) => doc.data() as LedgerJournal);
 }
 
 /**
@@ -554,6 +536,7 @@ export async function getJournalsByReference(
     .collection(LedgerConfig.COLLECTION_JOURNALS)
     .where("referenceType", "==", referenceType)
     .where("referenceId", "==", referenceId)
+    .limit(100)
     .get();
 
   return snapshot.docs.map((doc) => doc.data() as LedgerJournal);

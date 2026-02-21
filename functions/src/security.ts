@@ -4,10 +4,20 @@
  */
 
 import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
+import { HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import { decodeIntegrityToken, evaluateVerdict, IntegrityTier } from "./integrity";
 
 const db = admin.firestore();
+
+/**
+ * Structural interface compatible with both Gen1 CallableContext and
+ * Gen2 CallableRequest, so helpers work during the migration period.
+ */
+interface CallableContextCompat {
+  auth?: { uid: string; token?: Record<string, unknown> };
+  app?: unknown;
+}
 
 /**
  * Check App Check token on a callable context.
@@ -15,19 +25,19 @@ const db = admin.firestore();
  * In enforcement mode (enforce=true), throws unauthenticated.
  */
 export function requireAppCheck(
-  context: functions.https.CallableContext,
+  context: CallableContextCompat,
   functionName: string,
   // TODO: Set to true once app is published to Google Play with Play Integrity
   enforce: boolean = false
 ): void {
   if (!context.app) {
-    console.warn(
+    logger.warn(
       `[AppCheck] Missing app token on ${functionName} ` +
       `from user ${context.auth?.uid || "unauthenticated"}`
     );
 
     if (enforce) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "unauthenticated",
         "App verification failed. Please update the app."
       );
@@ -52,7 +62,7 @@ export function requireAppCheck(
  */
 export async function requirePlayIntegrity(
   data: Record<string, unknown>,
-  context: functions.https.CallableContext,
+  context: CallableContextCompat,
   functionName: string,
   tier: IntegrityTier,
   // TODO: Set to true once app is published to Google Play with Play Integrity
@@ -64,7 +74,7 @@ export async function requirePlayIntegrity(
 
   // If no token provided, log and optionally block
   if (!integrityToken || !integrityNonce) {
-    console.warn(
+    logger.warn(
       `[PlayIntegrity] Missing integrity token/nonce on ${functionName} from user ${userId}`
     );
 
@@ -78,7 +88,7 @@ export async function requirePlayIntegrity(
     });
 
     if (enforce) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Device integrity verification required."
       );
@@ -105,18 +115,18 @@ export async function requirePlayIntegrity(
     });
 
     if (evaluation.warn) {
-      console.warn(
+      logger.warn(
         `[PlayIntegrity] Warning on ${functionName} from user ${userId}: ${evaluation.reason}`
       );
     }
 
     if (!evaluation.allowed) {
-      console.warn(
+      logger.warn(
         `[PlayIntegrity] Blocked on ${functionName} from user ${userId}: ${evaluation.reason}`
       );
 
       if (enforce) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "Device integrity check failed. This operation requires a verified device."
         );
@@ -129,7 +139,7 @@ export async function requirePlayIntegrity(
       throw error;
     }
 
-    console.error(
+    logger.error(
       `[PlayIntegrity] Error decoding token on ${functionName} from user ${userId}:`,
       error
     );
@@ -145,7 +155,7 @@ export async function requirePlayIntegrity(
     });
 
     if (enforce) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "internal",
         "Device integrity verification failed."
       );
@@ -529,7 +539,7 @@ async function recordFraudAlert(
       reviewed: false,
     }, { merge: true });
 
-    console.log(`User ${userId} blocked due to multiple fraud alerts`);
+    logger.info(`User ${userId} blocked due to multiple fraud alerts`);
   }
 }
 
@@ -557,7 +567,7 @@ export async function isUserBlocked(userId: string): Promise<boolean> {
 export const validators = {
   phoneNumber: (phone: string): boolean => {
     const regex = /^(\+27|0)[6-8][0-9]{8}$/;
-    return regex.test(phone.replace(/[\s\-()]/g, ""));
+    return regex.test(phone.replaceAll(/[\s\-()]/g, ""));
   },
 
   email: (email: string): boolean => {
@@ -583,7 +593,7 @@ export const validators = {
     return input
       .trim()
       .replace(/<script|javascript:|on\w+\s*=/gi, "")
-      .replace(/[\x00-\x1F\x7F]/g, "");
+      .replaceAll(/[\x00-\x1F\x7F]/g, "");
   },
 };
 
@@ -605,6 +615,6 @@ export async function cleanupRateLimits(): Promise<void> {
 
   if (!oldRecords.empty) {
     await batch.commit();
-    console.log(`Cleaned up ${oldRecords.size} old rate limit records`);
+    logger.info(`Cleaned up ${oldRecords.size} old rate limit records`);
   }
 }

@@ -10,6 +10,7 @@
  */
 
 import * as admin from "firebase-admin";
+import { logger } from "firebase-functions/v2";
 import {
   AccountId,
   SubAccount,
@@ -144,7 +145,7 @@ export async function getOrCreateBrandSubAccount(
 
   await subAccountRef.set(subAccount);
 
-  console.log(`Created brand sub-account for user ${userId}: ${subAccountRef.id} (${accountTypeId})`);
+  logger.info(`Created brand sub-account for user ${userId}: ${subAccountRef.id} (${accountTypeId})`);
 
   return { subAccountId: subAccountRef.id, isNew: true };
 }
@@ -197,7 +198,7 @@ export async function getAccountTypeRules(
   const accountType = await getAccountType(accountTypeId);
   if (!accountType) {
     // If account type not found, return default rules (shouldn't happen)
-    console.warn(`Account type not found: ${accountTypeId}, using default rules`);
+    logger.warn(`Account type not found: ${accountTypeId}, using default rules`);
     return getDefaultAccountTypeRules();
   }
 
@@ -593,7 +594,7 @@ export async function deleteAllSubAccounts(userId: string): Promise<void> {
     .doc(AccountId.user(userId))
     .delete();
 
-  console.log(`Deleted all sub-accounts for user ${userId}`);
+  logger.info(`Deleted all sub-accounts for user ${userId}`);
 }
 
 // ============================================================================

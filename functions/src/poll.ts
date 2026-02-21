@@ -9,7 +9,8 @@
  */
 
 import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import { requireAppCheck } from "./security";
 
 const db = admin.firestore();
@@ -21,22 +22,24 @@ const db = admin.firestore();
  * without modifying counters. If they voted for a different option, returns
  * ALREADY_VOTED_DIFFERENT so the client can call changePollVote instead.
  */
-export const submitPollVote = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "submitPollVote");
+export const submitPollVote = onCall(
+  { labels: { area: "polls" } },
+  async (request) => {
+    const data = request.data;
+    requireAppCheck(request, "submitPollVote");
 
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "Must be authenticated"
       );
     }
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
     const { pollId, selectedOption } = data;
 
     if (!pollId || !selectedOption) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "pollId and selectedOption are required"
       );
@@ -46,12 +49,12 @@ export const submitPollVote = functions.https.onCall(
     const pollRef = db.collection("polls").doc(pollId);
     const pollDoc = await pollRef.get();
     if (!pollDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Poll not found");
+      throw new HttpsError("not-found", "Poll not found");
     }
 
     const poll = pollDoc.data()!;
     if (poll.status !== "open") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Poll is not open for voting"
       );
@@ -62,7 +65,7 @@ export const submitPollVote = functions.https.onCall(
       (o) => o.id
     );
     if (!validOptionIds.includes(selectedOption)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         `Invalid option: ${selectedOption}`
       );
@@ -80,7 +83,7 @@ export const submitPollVote = functions.https.onCall(
           return { success: true, alreadyVoted: true, tokensEarned: 0 };
         }
         // Different option — client must use changePollVote
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "already-exists",
           "ALREADY_VOTED_DIFFERENT"
         );
@@ -101,7 +104,7 @@ export const submitPollVote = functions.https.onCall(
         };
       }
     } catch (e) {
-      console.warn("Failed to fetch user demographics for poll:", e);
+      logger.warn("Failed to fetch user demographics for poll:", e);
     }
 
     // Atomic transaction: increment counters + create response
@@ -109,7 +112,7 @@ export const submitPollVote = functions.https.onCall(
       // Re-read poll inside transaction for consistency
       const pollInTx = await tx.get(pollRef);
       if (!pollInTx.exists || pollInTx.data()!.status !== "open") {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "Poll is no longer open"
         );
@@ -163,22 +166,24 @@ export const submitPollVote = functions.https.onCall(
  * totalRespondents stays unchanged (user is still one respondent).
  * No additional tokens are awarded for vote changes.
  */
-export const changePollVote = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "changePollVote");
+export const changePollVote = onCall(
+  { labels: { area: "polls" } },
+  async (request) => {
+    const data = request.data;
+    requireAppCheck(request, "changePollVote");
 
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "Must be authenticated"
       );
     }
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
     const { pollId, newOption } = data;
 
     if (!pollId || !newOption) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "pollId and newOption are required"
       );
@@ -188,18 +193,18 @@ export const changePollVote = functions.https.onCall(
     const pollRef = db.collection("polls").doc(pollId);
     const pollDoc = await pollRef.get();
     if (!pollDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Poll not found");
+      throw new HttpsError("not-found", "Poll not found");
     }
 
     const poll = pollDoc.data()!;
     if (poll.status !== "open") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Poll is not open for voting"
       );
     }
     if (!poll.allowChangeVote) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Vote changes are not allowed for this poll"
       );
@@ -210,7 +215,7 @@ export const changePollVote = functions.https.onCall(
       (o) => o.id
     );
     if (!validOptionIds.includes(newOption)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         `Invalid option: ${newOption}`
       );
@@ -221,7 +226,7 @@ export const changePollVote = functions.https.onCall(
     await db.runTransaction(async (tx) => {
       const responseDoc = await tx.get(responseRef);
       if (!responseDoc.exists || responseDoc.data()!.status !== "valid") {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "No valid vote to change"
         );
@@ -263,22 +268,24 @@ export const changePollVote = functions.https.onCall(
  * Results are visible if: poll is closed/archived, OR showResultsAfterVote
  * is true and user has voted, OR caller is admin.
  */
-export const getPollResults = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "getPollResults");
+export const getPollResults = onCall(
+  { labels: { area: "polls" } },
+  async (request) => {
+    const data = request.data;
+    requireAppCheck(request, "getPollResults");
 
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "Must be authenticated"
       );
     }
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
     const { pollId } = data;
 
     if (!pollId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "pollId is required"
       );
@@ -287,7 +294,7 @@ export const getPollResults = functions.https.onCall(
     const pollRef = db.collection("polls").doc(pollId);
     const pollDoc = await pollRef.get();
     if (!pollDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Poll not found");
+      throw new HttpsError("not-found", "Poll not found");
     }
 
     const poll = pollDoc.data()!;
@@ -303,8 +310,8 @@ export const getPollResults = functions.https.onCall(
 
     // Determine if results should be visible
     const isAdmin =
-      context.auth.token.admin === true ||
-      context.auth.token.superAdmin === true;
+      request.auth.token.admin === true ||
+      request.auth.token.superAdmin === true;
     const canSeeResults =
       isAdmin ||
       poll.status === "closed" ||
@@ -343,18 +350,20 @@ export const getPollResults = functions.https.onCall(
  * Decrements counters and marks the response as invalidated.
  * Keeps the document for audit trail.
  */
-export const invalidatePollResponse = functions.https.onCall(
-  async (data, context) => {
+export const invalidatePollResponse = onCall(
+  { labels: { area: "polls" } },
+  async (request) => {
+    const data = request.data;
     // Admin-only
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "Must be authenticated"
       );
     }
-    const token = context.auth.token;
+    const token = request.auth.token;
     if (!token.admin && !token.superAdmin) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "Admin access required"
       );
@@ -362,7 +371,7 @@ export const invalidatePollResponse = functions.https.onCall(
 
     const { pollId, userId, reason } = data;
     if (!pollId || !userId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "pollId and userId are required"
       );
@@ -374,7 +383,7 @@ export const invalidatePollResponse = functions.https.onCall(
     await db.runTransaction(async (tx) => {
       const responseDoc = await tx.get(responseRef);
       if (!responseDoc.exists) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "not-found",
           "Response not found"
         );
@@ -382,7 +391,7 @@ export const invalidatePollResponse = functions.https.onCall(
 
       const response = responseDoc.data()!;
       if (response.status === "invalidated") {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "Response already invalidated"
         );
@@ -402,7 +411,7 @@ export const invalidatePollResponse = functions.https.onCall(
       tx.update(responseRef, {
         status: "invalidated",
         invalidatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        invalidatedBy: context.auth!.uid,
+        invalidatedBy: request.auth!.uid,
         invalidationReason: reason || "Fraud",
       });
     });

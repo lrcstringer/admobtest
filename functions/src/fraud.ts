@@ -3,7 +3,8 @@
  * Handle security verifications and fraud detection
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
 import { decodeIntegrityToken, evaluateVerdict } from "./integrity";
@@ -13,20 +14,21 @@ const db = admin.firestore();
 /**
  * Verify Play Integrity token
  */
-export const verifyPlayIntegrity = functions.https.onCall(
-  async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const verifyPlayIntegrity = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated"
       );
     }
-    requireAppCheck(context, "verifyPlayIntegrity");
+    requireAppCheck(request, "verifyPlayIntegrity");
 
-    const {token, nonce} = data;
+    const {token, nonce} = request.data;
 
     if (!token || !nonce) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "Token and nonce required"
       );
@@ -49,7 +51,7 @@ export const verifyPlayIntegrity = functions.https.onCall(
 
       // Log the verification attempt
       await db.collection("integrityChecks").add({
-        userId: context.auth.uid,
+        userId: request.auth!.uid,
         nonce: nonce,
         result: result,
         deviceRecognition: evaluation.deviceRecognition,
@@ -62,8 +64,8 @@ export const verifyPlayIntegrity = functions.https.onCall(
 
       return result;
     } catch (error) {
-      console.error("Play Integrity verification failed:", error);
-      throw new functions.https.HttpsError("internal", "Verification failed");
+      logger.error("Play Integrity verification failed:", error);
+      throw new HttpsError("internal", "Verification failed");
     }
   }
 );
@@ -71,13 +73,13 @@ export const verifyPlayIntegrity = functions.https.onCall(
 /**
  * Verify reCAPTCHA token
  */
-export const verifyCaptcha = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "verifyCaptcha");
+export const verifyCaptcha = onCall({ labels: { area: "auth" } }, async (request) => {
+  requireAppCheck(request, "verifyCaptcha");
 
-  const {token, action, userId} = data;
+  const {token, action, userId} = request.data;
 
   if (!token) {
-    throw new functions.https.HttpsError("invalid-argument", "Token required");
+    throw new HttpsError("invalid-argument", "Token required");
   }
 
   try {
@@ -105,31 +107,32 @@ export const verifyCaptcha = functions.https.onCall(async (data, context) => {
 
     return result;
   } catch (error) {
-    console.error("CAPTCHA verification failed:", error);
-    throw new functions.https.HttpsError("internal", "Verification failed");
+    logger.error("CAPTCHA verification failed:", error);
+    throw new HttpsError("internal", "Verification failed");
   }
 });
 
 /**
  * Check user fraud risk before high-value operation
  */
-export const checkFraudRisk = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const checkFraudRisk = onCall({ labels: { area: "auth" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated"
     );
   }
-  requireAppCheck(context, "checkFraudRisk");
+  requireAppCheck(request, "checkFraudRisk");
 
-  const userId = context.auth.uid;
-  const {action, amount} = data;
+  const userId = request.auth.uid;
+  const {action, amount} = request.data;
 
   // Get user's fraud history
   const fraudFlags = await db
     .collection("fraudFlags")
     .where("userId", "==", userId)
     .where("active", "==", true)
+    .limit(200)
     .get();
 
   if (!fraudFlags.empty) {
@@ -150,6 +153,7 @@ export const checkFraudRisk = functions.https.onCall(async (data, context) => {
     .where("userId", "==", userId)
     .where("riskLevel", "in", ["high", "critical"])
     .where("timestamp", ">=", admin.firestore.Timestamp.fromDate(oneDayAgo))
+    .limit(500)
     .get();
 
   let riskScore = 0;
@@ -182,30 +186,31 @@ export const checkFraudRisk = functions.https.onCall(async (data, context) => {
 /**
  * Flag a user for fraud
  */
-export const flagUserForFraud = functions.https.onCall(
-  async (data, context) => {
+export const flagUserForFraud = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
     // Only allow admin or system calls
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated"
       );
     }
-    requireAppCheck(context, "flagUserForFraud");
+    requireAppCheck(request, "flagUserForFraud");
 
     // In production, check for admin role
     // const isAdmin = context.auth.token.admin === true;
     // if (!isAdmin) {
-    //   throw new functions.https.HttpsError(
+    //   throw new HttpsError(
     //     "permission-denied",
     //     "Admin access required"
     //   );
     // }
 
-    const {userId, reason, indicators} = data;
+    const {userId, reason, indicators} = request.data;
 
     if (!userId || !reason) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "UserId and reason required"
       );
@@ -218,7 +223,7 @@ export const flagUserForFraud = functions.https.onCall(
       reason: reason,
       indicators: indicators || {},
       active: true,
-      createdBy: context.auth.uid,
+      createdBy: request.auth!.uid,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -235,31 +240,31 @@ export const flagUserForFraud = functions.https.onCall(
 /**
  * Remove fraud flag from user
  */
-export const removeFraudFlag = functions.https.onCall(async (data, context) => {
+export const removeFraudFlag = onCall({ labels: { area: "auth" } }, async (request) => {
   // Only allow admin or system calls
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated"
     );
   }
-  requireAppCheck(context, "removeFraudFlag");
+  requireAppCheck(request, "removeFraudFlag");
 
-  const {flagId, reason} = data;
+  const {flagId, reason} = request.data;
 
   if (!flagId) {
-    throw new functions.https.HttpsError("invalid-argument", "FlagId required");
+    throw new HttpsError("invalid-argument", "FlagId required");
   }
 
   const flagDoc = await db.collection("fraudFlags").doc(flagId).get();
 
   if (!flagDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Flag not found");
+    throw new HttpsError("not-found", "Flag not found");
   }
 
   await flagDoc.ref.update({
     active: false,
-    resolvedBy: context.auth.uid,
+    resolvedBy: request.auth!.uid,
     resolvedAt: admin.firestore.FieldValue.serverTimestamp(),
     resolutionReason: reason || null,
   });
@@ -285,20 +290,21 @@ export const removeFraudFlag = functions.https.onCall(async (data, context) => {
 /**
  * Log security event for audit trail
  */
-export const logSecurityEvent = functions.https.onCall(
-  async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const logSecurityEvent = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated"
       );
     }
-    requireAppCheck(context, "logSecurityEvent");
+    requireAppCheck(request, "logSecurityEvent");
 
-    const {eventType, action, metadata, riskLevel} = data;
+    const {eventType, action, metadata, riskLevel} = request.data;
 
     if (!eventType || !action) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "EventType and action required"
       );
@@ -307,13 +313,13 @@ export const logSecurityEvent = functions.https.onCall(
     const logRef = db.collection("auditLogs").doc();
     await logRef.set({
       id: logRef.id,
-      userId: context.auth.uid,
+      userId: request.auth.uid,
       eventType: eventType,
       action: action,
       metadata: metadata || {},
       riskLevel: riskLevel || "low",
-      ipAddress: context.rawRequest.ip || null,
-      userAgent: context.rawRequest.headers["user-agent"] || null,
+      ipAddress: request.rawRequest.ip || null,
+      userAgent: request.rawRequest.headers["user-agent"] || null,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
 

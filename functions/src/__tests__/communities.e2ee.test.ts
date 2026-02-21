@@ -17,27 +17,34 @@ import { createMockCallContext } from "./mocks/firestore.mock";
 
 jest.mock("firebase-admin", () => require("./mocks/admin.mock").mockFirebaseAdmin);
 
+const MockHttpsError = class HttpsError extends Error {
+  constructor(
+    public code: string,
+    public message: string,
+    public details?: unknown
+  ) {
+    super(message);
+    this.name = "HttpsError";
+  }
+};
+
+jest.mock("firebase-functions/v2/https", () => ({
+  onCall: jest.fn((...args: unknown[]) => {
+    const handler = typeof args[0] === "function" ? args[0] : args[1];
+    return (data: unknown, context: unknown) =>
+      (handler as Function)({ data, ...(context as object) });
+  }),
+  HttpsError: MockHttpsError,
+}));
+
+jest.mock("firebase-functions/v2/scheduler", () => ({
+  onSchedule: jest.fn((...args: unknown[]) => {
+    const handler = args.length === 2 ? args[1] : args[0];
+    return handler;
+  }),
+}));
+
 jest.mock("firebase-functions", () => ({
-  https: {
-    onCall: jest.fn((handler) => handler),
-    HttpsError: class HttpsError extends Error {
-      constructor(
-        public code: string,
-        public message: string,
-        public details?: unknown
-      ) {
-        super(message);
-        this.name = "HttpsError";
-      }
-    },
-  },
-  pubsub: {
-    schedule: jest.fn(() => ({
-      timeZone: jest.fn(() => ({
-        onRun: jest.fn((handler) => handler),
-      })),
-    })),
-  },
   logger: { log: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn() },
 }));
 

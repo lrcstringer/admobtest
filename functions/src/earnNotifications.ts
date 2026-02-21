@@ -11,7 +11,9 @@
  * support read/unread, and auto-expire after 30 days.
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
 import { TargetingCriteria } from "./constants/targeting";
@@ -93,7 +95,7 @@ async function createEarnNotifications(
   try {
     await sendFcmToUsers(targetUserIds, payload);
   } catch (err) {
-    functions.logger.warn("FCM send failed (non-fatal)", { error: err });
+    logger.warn("FCM send failed (non-fatal)", { error: err });
   }
 
   return written;
@@ -145,7 +147,7 @@ async function sendFcmToUsers(
         },
       });
     } catch (err) {
-      functions.logger.warn("FCM batch send error", {
+      logger.warn("FCM batch send error", {
         batchStart: i,
         error: err,
       });
@@ -320,267 +322,270 @@ export async function notifyNewOpportunity(
 // CALLABLE: Get user's earn notifications
 // ============================================================================
 
-export const getEarnNotifications = functions.https.onCall(
-  async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
-        "unauthenticated",
-        "Must be authenticated"
-      );
-    }
-    requireAppCheck(context, "getEarnNotifications");
-
-    const userId = context.auth.uid;
-    const now = admin.firestore.Timestamp.now();
-
-    const snapshot = await db
-      .collection("earnNotifications")
-      .where("userId", "==", userId)
-      .where("expiresAt", ">", now)
-      .orderBy("expiresAt")
-      .orderBy("createdAt", "desc")
-      .limit(20)
-      .get();
-
-    const notifications = snapshot.docs.map((doc) => {
-      const d = doc.data();
-      return {
-        id: d.id || doc.id,
-        type: d.type,
-        title: d.title,
-        body: d.body,
-        data: d.data || {},
-        read: d.read === true,
-        createdAt: d.createdAt,
-      };
-    });
-
-    // Count unread
-    const unreadSnapshot = await db
-      .collection("earnNotifications")
-      .where("userId", "==", userId)
-      .where("read", "==", false)
-      .where("expiresAt", ">", now)
-      .count()
-      .get();
-
-    return {
-      success: true,
-      notifications,
-      unreadCount: unreadSnapshot.data().count,
-    };
+export const getEarnNotifications = onCall({ labels: { area: "earn" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
+      "unauthenticated",
+      "Must be authenticated"
+    );
   }
-);
+  requireAppCheck(request as any, "getEarnNotifications");
+
+  const userId = request.auth.uid;
+  const now = admin.firestore.Timestamp.now();
+
+  const snapshot = await db
+    .collection("earnNotifications")
+    .where("userId", "==", userId)
+    .where("expiresAt", ">", now)
+    .orderBy("expiresAt")
+    .orderBy("createdAt", "desc")
+    .limit(20)
+    .get();
+
+  const notifications = snapshot.docs.map((doc) => {
+    const d = doc.data();
+    return {
+      id: d.id || doc.id,
+      type: d.type,
+      title: d.title,
+      body: d.body,
+      data: d.data || {},
+      read: d.read === true,
+      createdAt: d.createdAt,
+    };
+  });
+
+  // Count unread
+  const unreadSnapshot = await db
+    .collection("earnNotifications")
+    .where("userId", "==", userId)
+    .where("read", "==", false)
+    .where("expiresAt", ">", now)
+    .count()
+    .get();
+
+  return {
+    success: true,
+    notifications,
+    unreadCount: unreadSnapshot.data().count,
+  };
+});
 
 // ============================================================================
 // CALLABLE: Mark notification(s) as read
 // ============================================================================
 
-export const markEarnNotificationRead = functions.https.onCall(
-  async (
-    data: { notificationId?: string; markAllRead?: boolean },
-    context
-  ) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
-        "unauthenticated",
-        "Must be authenticated"
-      );
-    }
-    requireAppCheck(context, "markEarnNotificationRead");
-
-    const userId = context.auth.uid;
-
-    if (data.markAllRead) {
-      // Mark all unread notifications as read
-      const unreadSnapshot = await db
-        .collection("earnNotifications")
-        .where("userId", "==", userId)
-        .where("read", "==", false)
-        .get();
-
-      if (unreadSnapshot.empty) {
-        return { success: true, updated: 0 };
-      }
-
-      const batch = db.batch();
-      for (const doc of unreadSnapshot.docs) {
-        batch.update(doc.ref, { read: true });
-      }
-      await batch.commit();
-
-      return { success: true, updated: unreadSnapshot.size };
-    }
-
-    if (data.notificationId) {
-      const ref = db
-        .collection("earnNotifications")
-        .doc(data.notificationId);
-      const doc = await ref.get();
-
-      if (!doc.exists || doc.data()?.userId !== userId) {
-        throw new functions.https.HttpsError(
-          "not-found",
-          "Notification not found"
-        );
-      }
-
-      await ref.update({ read: true });
-      return { success: true, updated: 1 };
-    }
-
-    throw new functions.https.HttpsError(
-      "invalid-argument",
-      "Provide notificationId or markAllRead"
+export const markEarnNotificationRead = onCall({ labels: { area: "earn" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
+      "unauthenticated",
+      "Must be authenticated"
     );
   }
-);
+  requireAppCheck(request as any, "markEarnNotificationRead");
+
+  const userId = request.auth.uid;
+  const data = request.data as { notificationId?: string; markAllRead?: boolean };
+
+  if (data.markAllRead) {
+    // Mark all unread notifications as read
+    const unreadSnapshot = await db
+      .collection("earnNotifications")
+      .where("userId", "==", userId)
+      .where("read", "==", false)
+      .get();
+
+    if (unreadSnapshot.empty) {
+      return { success: true, updated: 0 };
+    }
+
+    const batch = db.batch();
+    for (const doc of unreadSnapshot.docs) {
+      batch.update(doc.ref, { read: true });
+    }
+    await batch.commit();
+
+    return { success: true, updated: unreadSnapshot.size };
+  }
+
+  if (data.notificationId) {
+    const ref = db
+      .collection("earnNotifications")
+      .doc(data.notificationId);
+    const doc = await ref.get();
+
+    if (!doc.exists || doc.data()?.userId !== userId) {
+      throw new HttpsError(
+        "not-found",
+        "Notification not found"
+      );
+    }
+
+    await ref.update({ read: true });
+    return { success: true, updated: 1 };
+  }
+
+  throw new HttpsError(
+    "invalid-argument",
+    "Provide notificationId or markAllRead"
+  );
+});
 
 // ============================================================================
 // SCHEDULED: Check for expiring threads/opportunities (hourly)
 // ============================================================================
 
-export const checkExpiryNotifications = functions.pubsub
-  .schedule("every 1 hours")
-  .onRun(async () => {
-    const now = new Date();
-    const in25Hours = new Date(now.getTime() + 25 * 60 * 60 * 1000);
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+export const checkExpiryNotifications = onSchedule({ schedule: "every 1 hours", region: "europe-west1", labels: { area: "earn" } }, async () => {
+  const now = new Date();
+  const in25Hours = new Date(now.getTime() + 25 * 60 * 60 * 1000);
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-    const nowTs = admin.firestore.Timestamp.fromDate(now);
-    const in25HoursTs = admin.firestore.Timestamp.fromDate(in25Hours);
-    const oneDayAgoTs = admin.firestore.Timestamp.fromDate(oneDayAgo);
+  const nowTs = admin.firestore.Timestamp.fromDate(now);
+  const in25HoursTs = admin.firestore.Timestamp.fromDate(in25Hours);
+  const oneDayAgoTs = admin.firestore.Timestamp.fromDate(oneDayAgo);
 
-    // ---- Threads expiring within ~24h ----
-    const expiringThreads = await db
-      .collection("earnThreads")
-      .where("isActive", "==", true)
-      .where("activeTo", ">=", nowTs)
-      .where("activeTo", "<=", in25HoursTs)
+  // ---- Threads expiring within ~24h ----
+  const expiringThreads = await db
+    .collection("earnThreads")
+    .where("isActive", "==", true)
+    .where("activeTo", ">=", nowTs)
+    .where("activeTo", "<=", in25HoursTs)
+    .get();
+
+  for (const threadDoc of expiringThreads.docs) {
+    const thread = threadDoc.data();
+    if (thread.isDeleted === true) continue;
+
+    // Check if we already sent an expiry notification for this thread recently
+    const existing = await db
+      .collection("earnNotifications")
+      .where("type", "==", "expiry_warning")
+      .where("data.threadId", "==", threadDoc.id)
+      .where("createdAt", ">=", oneDayAgoTs)
+      .limit(1)
       .get();
 
-    for (const threadDoc of expiringThreads.docs) {
-      const thread = threadDoc.data();
-      if (thread.isDeleted === true) continue;
+    if (!existing.empty) continue; // Already notified
 
-      // Check if we already sent an expiry notification for this thread recently
-      const existing = await db
-        .collection("earnNotifications")
-        .where("type", "==", "expiry_warning")
-        .where("data.threadId", "==", threadDoc.id)
-        .where("createdAt", ">=", oneDayAgoTs)
-        .limit(1)
-        .get();
+    const targeting: TargetingCriteria | null = thread.targeting || null;
+    const eligibleUserIds = await getEligibleUserIds(
+      targeting,
+      thread.clientId,
+      thread.completedUniqueUsers || 0
+    );
 
-      if (!existing.empty) continue; // Already notified
-
-      const targeting: TargetingCriteria | null = thread.targeting || null;
-      const eligibleUserIds = await getEligibleUserIds(
-        targeting,
-        thread.clientId,
-        thread.completedUniqueUsers || 0
-      );
-
-      await createEarnNotifications(
-        {
-          type: "expiry_warning",
-          title: `Expiring soon: ${thread.title}`,
-          body: "This campaign expires in 24 hours \u2014 don\u2019t miss out!",
-          data: {
-            clientId: thread.clientId,
-            clientName: thread.clientName || "Unknown",
-            threadId: threadDoc.id,
-          },
+    await createEarnNotifications(
+      {
+        type: "expiry_warning",
+        title: `Expiring soon: ${thread.title}`,
+        body: "This campaign expires in 24 hours \u2014 don\u2019t miss out!",
+        data: {
+          clientId: thread.clientId,
+          clientName: thread.clientName || "Unknown",
+          threadId: threadDoc.id,
         },
-        eligibleUserIds
-      );
-    }
+      },
+      eligibleUserIds
+    );
+  }
 
-    // ---- Opportunities expiring within ~24h ----
-    const expiringOpps = await db
-      .collection("earnOpportunities")
-      .where("isActive", "==", true)
-      .where("expiresAt", ">=", nowTs)
-      .where("expiresAt", "<=", in25HoursTs)
+  // ---- Opportunities expiring within ~24h ----
+  const expiringOpps = await db
+    .collection("earnOpportunities")
+    .where("isActive", "==", true)
+    .where("expiresAt", ">=", nowTs)
+    .where("expiresAt", "<=", in25HoursTs)
+    .get();
+
+  // Batch-fetch unique thread docs for expiring opportunities
+  const uniqueThreadIds = new Set<string>();
+  for (const oppDoc of expiringOpps.docs) {
+    const opp = oppDoc.data();
+    if (opp.isDeleted !== true && opp.threadId) {
+      uniqueThreadIds.add(opp.threadId);
+    }
+  }
+
+  const threadDataMap = new Map<string, admin.firestore.DocumentData | undefined>();
+  if (uniqueThreadIds.size > 0) {
+    const threadRefs = Array.from(uniqueThreadIds).map((id) =>
+      db.collection("earnThreads").doc(id)
+    );
+    const threadDocs = await db.getAll(...threadRefs);
+    for (const tDoc of threadDocs) {
+      threadDataMap.set(tDoc.id, tDoc.exists ? tDoc.data() : undefined);
+    }
+  }
+
+  for (const oppDoc of expiringOpps.docs) {
+    const opp = oppDoc.data();
+    if (opp.isDeleted === true) continue;
+
+    const existing = await db
+      .collection("earnNotifications")
+      .where("type", "==", "expiry_warning")
+      .where("data.opportunityId", "==", oppDoc.id)
+      .where("createdAt", ">=", oneDayAgoTs)
+      .limit(1)
       .get();
 
-    for (const oppDoc of expiringOpps.docs) {
-      const opp = oppDoc.data();
-      if (opp.isDeleted === true) continue;
+    if (!existing.empty) continue;
 
-      const existing = await db
-        .collection("earnNotifications")
-        .where("type", "==", "expiry_warning")
-        .where("data.opportunityId", "==", oppDoc.id)
-        .where("createdAt", ">=", oneDayAgoTs)
-        .limit(1)
-        .get();
+    // Get thread info from batch-fetched map
+    const thread = threadDataMap.get(opp.threadId);
 
-      if (!existing.empty) continue;
+    const targeting: TargetingCriteria | null = opp.targeting || null;
+    const eligibleUserIds = await getEligibleUserIds(
+      targeting,
+      opp.clientId || thread?.clientId
+    );
 
-      // Get thread info for the notification
-      const threadDoc = await db
-        .collection("earnThreads")
-        .doc(opp.threadId)
-        .get();
-      const thread = threadDoc.data();
-
-      const targeting: TargetingCriteria | null = opp.targeting || null;
-      const eligibleUserIds = await getEligibleUserIds(
-        targeting,
-        opp.clientId || thread?.clientId
-      );
-
-      await createEarnNotifications(
-        {
-          type: "expiry_warning",
-          title: `Expiring soon: ${opp.title || thread?.title || "Opportunity"}`,
-          body: "This opportunity expires in 24 hours \u2014 don\u2019t miss out!",
-          data: {
-            clientId: opp.clientId || thread?.clientId || "",
-            clientName: opp.clientName || thread?.clientName || "Unknown",
-            threadId: opp.threadId,
-            opportunityId: oppDoc.id,
-          },
+    await createEarnNotifications(
+      {
+        type: "expiry_warning",
+        title: `Expiring soon: ${opp.title || thread?.title || "Opportunity"}`,
+        body: "This opportunity expires in 24 hours \u2014 don\u2019t miss out!",
+        data: {
+          clientId: opp.clientId || thread?.clientId || "",
+          clientName: opp.clientName || thread?.clientName || "Unknown",
+          threadId: opp.threadId,
+          opportunityId: oppDoc.id,
         },
-        eligibleUserIds
-      );
-    }
+      },
+      eligibleUserIds
+    );
+  }
 
-    functions.logger.info("Expiry notification check complete", {
-      threads: expiringThreads.size,
-      opportunities: expiringOpps.size,
-    });
-
-    return null;
+  logger.info("Expiry notification check complete", {
+    threads: expiringThreads.size,
+    opportunities: expiringOpps.size,
   });
+});
 
 // ============================================================================
 // SCHEDULED: Cleanup expired notifications (daily)
 // ============================================================================
 
-export const cleanupExpiredEarnNotifications = functions.pubsub
-  .schedule("every 24 hours")
-  .onRun(async () => {
-    const now = admin.firestore.Timestamp.now();
+export const cleanupExpiredEarnNotifications = onSchedule({ schedule: "every 24 hours", region: "europe-west1", labels: { area: "earn" } }, async () => {
+  const now = admin.firestore.Timestamp.now();
 
-    const expired = await db
-      .collection("earnNotifications")
-      .where("expiresAt", "<", now)
-      .limit(500) // Process in chunks to avoid timeout
-      .get();
+  const expired = await db
+    .collection("earnNotifications")
+    .where("expiresAt", "<", now)
+    .limit(500) // Process in chunks to avoid timeout
+    .get();
 
-    if (expired.empty) {
-      functions.logger.info("No expired earn notifications to clean up");
-      return null;
-    }
+  if (expired.empty) {
+    logger.info("No expired earn notifications to clean up");
+    return;
+  }
 
-    const batch = db.batch();
-    for (const doc of expired.docs) {
-      batch.delete(doc.ref);
-    }
-    await batch.commit();
+  const batch = db.batch();
+  for (const doc of expired.docs) {
+    batch.delete(doc.ref);
+  }
+  await batch.commit();
 
-    functions.logger.info(`Cleaned up ${expired.size} expired earn notifications`);
-    return null;
-  });
+  logger.info(`Cleaned up ${expired.size} expired earn notifications`);
+});

@@ -5,7 +5,7 @@
  * to query their own campaign performance without admin access.
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
 
@@ -15,23 +15,24 @@ const db = admin.firestore();
  * Get campaign performance report for the sponsor's own client account.
  * Auth: requires authenticated user with `sponsorClientId` custom claim.
  */
-export const getSponsorCampaignReport = functions.https.onCall(
-  async (_data, context) => {
-    requireAppCheck(context, "getSponsorCampaignReport");
+export const getSponsorCampaignReport = onCall(
+  { labels: { area: "rewards" } },
+  async (request) => {
+    requireAppCheck(request, "getSponsorCampaignReport");
 
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "Must be authenticated"
       );
     }
 
-    const sponsorClientId = context.auth.token.sponsorClientId as
+    const sponsorClientId = request.auth.token.sponsorClientId as
       | string
       | undefined;
 
     if (!sponsorClientId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "No sponsor access configured. Contact your admin."
       );
@@ -43,6 +44,7 @@ export const getSponsorCampaignReport = functions.https.onCall(
       .where("clientId", "==", sponsorClientId)
       .where("isDeleted", "==", false)
       .orderBy("createdAt", "desc")
+      .limit(200)
       .get();
 
     if (campaignsSnapshot.empty) {
@@ -108,6 +110,7 @@ export const getSponsorCampaignReport = functions.https.onCall(
         .where("campaignId", "==", campaignId)
         .where("action", "in", ["allocated", "redeemed"])
         .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(thirtyDaysAgo))
+        .limit(1000)
         .get();
 
       const dailyMap = new Map<string, { allocations: number; redemptions: number }>();

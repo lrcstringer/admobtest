@@ -133,7 +133,7 @@ class CommunityListTile extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        if (community.avatarUrl != null)
+        if (community.avatarUrl != null && community.avatarUrl!.isNotEmpty)
           CachedNetworkImage(
             imageUrl: community.avatarUrl!,
             imageBuilder: (_, imageProvider) => CircleAvatar(

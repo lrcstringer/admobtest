@@ -55,7 +55,7 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
     });
 
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminGetAuditLogs')
           .call({'limit': 50});
 
@@ -90,7 +90,7 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
 
     try {
       final lastId = _logs.last['id'] as String?;
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminGetAuditLogs')
           .call({'limit': 50, 'startAfterId': lastId});
 

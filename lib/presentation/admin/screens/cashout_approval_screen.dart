@@ -15,7 +15,7 @@ class CashoutApprovalScreen extends StatefulWidget {
 
 class _CashoutApprovalScreenState extends State<CashoutApprovalScreen> {
   final _db = FirebaseFirestore.instance;
-  final _functions = FirebaseFunctions.instance;
+  final _functions = FirebaseFunctions.instanceFor(region: 'africa-south1');
   final _numberFormat = NumberFormat('#,###');
   final _zarFormat = NumberFormat.currency(symbol: 'R', decimalDigits: 2);
 

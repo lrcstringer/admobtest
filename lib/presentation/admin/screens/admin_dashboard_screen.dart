@@ -13,7 +13,7 @@ class AdminDashboardScreen extends StatefulWidget {
 }
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
-  final _functions = FirebaseFunctions.instance;
+  final _functions = FirebaseFunctions.instanceFor(region: 'africa-south1');
   final _numberFormat = NumberFormat('#,###');
 
   // Ledger balances

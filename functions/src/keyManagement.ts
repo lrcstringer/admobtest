@@ -10,15 +10,15 @@
  *   users/{userId}/keys/backup — encrypted backup metadata
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
 
 const db = admin.firestore();
 
-function requireAuth(context: functions.https.CallableContext): string {
+function requireAuth(context: { auth?: { uid: string; token: Record<string, unknown> } }): string {
   if (!context.auth) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "unauthenticated",
       "Authentication required."
     );
@@ -29,9 +29,10 @@ function requireAuth(context: functions.https.CallableContext): string {
 /**
  * Upload or update the user's public key bundle.
  */
-export const uploadKeyBundle = functions.https.onCall(
-  async (
-    data: {
+export const uploadKeyBundle = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    const data = request.data as {
       identityKey: string;
       signedPreKey: string;
       signedPreKeySignature: string;
@@ -39,11 +40,9 @@ export const uploadKeyBundle = functions.https.onCall(
       registrationId: number;
       ed25519IdentityKey?: string;
       ed25519Signature?: string;
-    },
-    context
-  ) => {
-    const userId = requireAuth(context);
-    requireAppCheck(context, "uploadKeyBundle");
+    };
+    const userId = requireAuth(request);
+    requireAppCheck(request, "uploadKeyBundle");
 
     const {
       identityKey, signedPreKey, signedPreKeySignature,
@@ -52,7 +51,7 @@ export const uploadKeyBundle = functions.https.onCall(
     } = data;
 
     if (!identityKey || !signedPreKey || !signedPreKeySignature) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "identityKey, signedPreKey, and signedPreKeySignature are required."
       );
@@ -90,14 +89,16 @@ export const uploadKeyBundle = functions.https.onCall(
 /**
  * Fetch another user's public key bundle (consuming one one-time pre-key).
  */
-export const fetchKeyBundle = functions.https.onCall(
-  async (data: { targetUserId: string }, context) => {
-    requireAuth(context);
-    requireAppCheck(context, "fetchKeyBundle");
+export const fetchKeyBundle = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    const data = request.data as { targetUserId: string };
+    requireAuth(request);
+    requireAppCheck(request, "fetchKeyBundle");
 
     const { targetUserId } = data;
     if (!targetUserId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "targetUserId is required."
       );
@@ -111,7 +112,7 @@ export const fetchKeyBundle = functions.https.onCall(
 
     const bundleDoc = await bundleRef.get();
     if (!bundleDoc.exists) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "not-found",
         "Key bundle not found for user."
       );
@@ -146,14 +147,16 @@ export const fetchKeyBundle = functions.https.onCall(
 /**
  * Replenish one-time pre-keys when count gets low.
  */
-export const replenishOneTimePreKeys = functions.https.onCall(
-  async (data: { newPreKeys: string[] }, context) => {
-    const userId = requireAuth(context);
-    requireAppCheck(context, "replenishOneTimePreKeys");
+export const replenishOneTimePreKeys = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    const data = request.data as { newPreKeys: string[] };
+    const userId = requireAuth(request);
+    requireAppCheck(request, "replenishOneTimePreKeys");
 
     const { newPreKeys } = data;
     if (!newPreKeys || !Array.isArray(newPreKeys) || newPreKeys.length === 0) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "newPreKeys array is required."
       );
@@ -176,21 +179,20 @@ export const replenishOneTimePreKeys = functions.https.onCall(
 /**
  * Rotate the signed pre-key.
  */
-export const rotateSignedPreKey = functions.https.onCall(
-  async (
-    data: {
+export const rotateSignedPreKey = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    const data = request.data as {
       newSignedPreKey: string;
       newSignedPreKeySignature: string;
       newEd25519Signature?: string;
-    },
-    context
-  ) => {
-    const userId = requireAuth(context);
-    requireAppCheck(context, "rotateSignedPreKey");
+    };
+    const userId = requireAuth(request);
+    requireAppCheck(request, "rotateSignedPreKey");
 
     const { newSignedPreKey, newSignedPreKeySignature, newEd25519Signature } = data;
     if (!newSignedPreKey || !newSignedPreKeySignature) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "newSignedPreKey and newSignedPreKeySignature are required."
       );
@@ -220,13 +222,12 @@ export const rotateSignedPreKey = functions.https.onCall(
 /**
  * Save encrypted key backup metadata.
  */
-export const saveBackupMetadata = functions.https.onCall(
-  async (
-    data: { backupVersion: number; encryptedKeysHash: string },
-    context
-  ) => {
-    const userId = requireAuth(context);
-    requireAppCheck(context, "saveBackupMetadata");
+export const saveBackupMetadata = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    const data = request.data as { backupVersion: number; encryptedKeysHash: string };
+    const userId = requireAuth(request);
+    requireAppCheck(request, "saveBackupMetadata");
 
     await db
       .collection("users")
@@ -249,10 +250,11 @@ export const saveBackupMetadata = functions.https.onCall(
 /**
  * Get backup metadata for the current user.
  */
-export const getBackupMetadata = functions.https.onCall(
-  async (_data, context) => {
-    const userId = requireAuth(context);
-    requireAppCheck(context, "getBackupMetadata");
+export const getBackupMetadata = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    const userId = requireAuth(request);
+    requireAppCheck(request, "getBackupMetadata");
 
     const backupDoc = await db
       .collection("users")
@@ -278,23 +280,22 @@ export const getBackupMetadata = functions.https.onCall(
  * Distribute a sender key to a community member via encrypted P2P channel.
  * The key data is pre-encrypted by the sender using Signal Protocol.
  */
-export const distributeSenderKey = functions.https.onCall(
-  async (
-    data: {
+export const distributeSenderKey = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    const data = request.data as {
       communityId: string;
       recipientUserId: string;
       encryptedKeyData: string;
       e2ee: Record<string, unknown>;
       x3dhHeader?: Record<string, unknown>;
-    },
-    context
-  ) => {
-    const userId = requireAuth(context);
-    requireAppCheck(context, "distributeSenderKey");
+    };
+    const userId = requireAuth(request);
+    requireAppCheck(request, "distributeSenderKey");
 
     const { communityId, recipientUserId, encryptedKeyData, e2ee, x3dhHeader } = data;
     if (!communityId || !recipientUserId || !encryptedKeyData) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "communityId, recipientUserId, and encryptedKeyData are required."
       );
@@ -321,17 +322,16 @@ export const distributeSenderKey = functions.https.onCall(
 /**
  * Mark a sender key distribution as consumed.
  */
-export const markKeyDistributionConsumed = functions.https.onCall(
-  async (
-    data: { communityId: string; distributionId: string },
-    context
-  ) => {
-    const userId = requireAuth(context);
-    requireAppCheck(context, "markKeyDistributionConsumed");
+export const markKeyDistributionConsumed = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    const data = request.data as { communityId: string; distributionId: string };
+    const userId = requireAuth(request);
+    requireAppCheck(request, "markKeyDistributionConsumed");
 
     const { communityId, distributionId } = data;
     if (!communityId || !distributionId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "communityId and distributionId are required."
       );
@@ -345,12 +345,12 @@ export const markKeyDistributionConsumed = functions.https.onCall(
 
     const doc = await ref.get();
     if (!doc.exists) {
-      throw new functions.https.HttpsError("not-found", "Distribution not found.");
+      throw new HttpsError("not-found", "Distribution not found.");
     }
 
     const docData = doc.data()!;
     if (docData.toUserId !== userId) {
-      throw new functions.https.HttpsError("permission-denied", "Not your key distribution.");
+      throw new HttpsError("permission-denied", "Not your key distribution.");
     }
 
     await ref.update({

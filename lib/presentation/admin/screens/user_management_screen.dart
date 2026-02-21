@@ -48,7 +48,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
     try {
       final callable =
-          FirebaseFunctions.instance.httpsCallable('adminListUsers');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('adminListUsers');
       final result = await callable.call<dynamic>();
       final data = result.data as Map<String, dynamic>;
       final usersList = (data['users'] as List<dynamic>?) ?? [];
@@ -189,7 +189,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     );
 
     try {
-      final callable = FirebaseFunctions.instance
+      final callable = FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminListUserSubAccounts');
       final result = await callable.call<dynamic>({'userId': userId});
       final data = result.data as Map<String, dynamic>;

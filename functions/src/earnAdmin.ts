@@ -8,7 +8,9 @@
  * These should be called from admin panel or via Firebase console
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
 import { requireAdminPermission, logAdminAction } from "./adminAuth";
@@ -46,9 +48,9 @@ const db = admin.firestore();
  *
  * Updated signature: uses clientId instead of brandId, supports targeting
  */
-export const createEarnThread = functions.https.onCall(async (data, context) => {
+export const createEarnThread = onCall({ labels: { area: "earn" } }, async (request) => {
   try {
-  const adminCtx = await requireAdminPermission(context, "earn:createThread", "createEarnThread");
+  const adminCtx = await requireAdminPermission(request, "earn:createThread", "createEarnThread");
 
   const {
     // Thread ID (optional - auto-generates if not provided)
@@ -77,17 +79,17 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     targeting,
     // Optional thread image URL (uploaded by admin client-side)
     threadImage,
-  } = data;
+  } = request.data;
 
   // Validate required fields
   if (!clientId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "clientId is required"
     );
   }
   if (!title) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "title is required"
     );
@@ -96,7 +98,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
   // Fetch client document for denormalization
   const clientDoc = await db.collection("clients").doc(clientId).get();
   if (!clientDoc.exists) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "not-found",
       `Client not found: ${clientId}`
     );
@@ -104,7 +106,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
   const clientData = clientDoc.data()!;
 
   if (!clientData.isActive) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       "Client is not active"
     );
@@ -125,7 +127,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       !AccountId.isClientAccount(resolvedTokenSourceAccountId) &&
       !AccountId.isClientSubAccount(resolvedTokenSourceAccountId)
     ) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "tokenSourceAccountId must be a client or client_subacc ledger account ID"
       );
@@ -179,11 +181,11 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
       depletedAt: null,
       createdAt: tsNow,
       updatedAt: tsNow,
-      createdBy: context.auth!.uid,
+      createdBy: request.auth!.uid,
     });
 
     resolvedTokenSourceAccountId = ledgerAccountId;
-    console.log(`Auto-created sub-account "${subAccountRef.id}" (ledger: ${ledgerAccountId}) for client ${clientId}`);
+    logger.info(`Auto-created sub-account "${subAccountRef.id}" (ledger: ${ledgerAccountId}) for client ${clientId}`);
   }
 
   // Resolve token dest account type — use existing or create inline
@@ -193,13 +195,13 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     // Validate inline account type data
     const rules = inlineAccountType.rules;
     if (!rules || typeof rules !== "object") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "inlineAccountType.rules is required and must be an object"
       );
     }
     if (!Array.isArray(rules.allowedOfframps)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "inlineAccountType.rules.allowedOfframps must be an array"
       );
@@ -228,7 +230,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
     );
 
     resolvedTokenDestAccountTypeId = accountTypeRef.id;
-    console.log(
+    logger.info(
       `Auto-created account type "${accountTypeRef.id}" for campaign "${title}"`
     );
   }
@@ -237,7 +239,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
   if (targeting) {
     const validationResult = validateTargetingCriteria(targeting);
     if (!validationResult.valid) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         `Invalid targeting criteria: ${validationResult.errors.join("; ")}`
       );
@@ -317,7 +319,7 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
   if (isActive) {
     const clientName = clientData.displayName || clientData.companyName || "Unknown";
     notifyNewThread(threadRef.id, title, clientId, clientName, targeting || null)
-      .catch((err) => console.warn("notifyNewThread failed (non-fatal):", err));
+      .catch((err) => logger.warn("notifyNewThread failed (non-fatal):", err));
   }
 
   logAdminAction(adminCtx.uid, "createEarnThread", "success", { threadId: threadRef.id, clientId, title, tokenSourceAccountId: resolvedTokenSourceAccountId }).catch(() => {});
@@ -330,11 +332,11 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
   };
   } catch (error: unknown) {
     // Log the actual error for debugging
-    console.error("createEarnThread FAILED:", error);
-    if (error instanceof functions.https.HttpsError) {
+    logger.error("createEarnThread FAILED:", error);
+    if (error instanceof HttpsError) {
       throw error; // re-throw known errors as-is
     }
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "internal",
       `createEarnThread failed: ${error instanceof Error ? error.message : String(error)}`
     );
@@ -347,9 +349,10 @@ export const createEarnThread = functions.https.onCall(async (data, context) => 
  *
  * Updated: requires earningType, supports targeting
  */
-export const createEarnOpportunity = functions.https.onCall(
-  async (data, context) => {
-    const adminCtx = await requireAdminPermission(context, "earn:createOpportunity", "createEarnOpportunity");
+export const createEarnOpportunity = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    const adminCtx = await requireAdminPermission(request, "earn:createOpportunity", "createEarnOpportunity");
 
     const {
       id,
@@ -403,11 +406,11 @@ export const createEarnOpportunity = functions.https.onCall(
       // Pin/feature flags for ordering
       isPinned = false,
       isFeatured = false,
-    } = data;
+    } = request.data;
 
     // Validate required fields
     if (!threadId || !title || !tokenReward || !durationSeconds) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "threadId, title, tokenReward, and durationSeconds are required"
       );
@@ -415,13 +418,13 @@ export const createEarnOpportunity = functions.https.onCall(
 
     // Validate earningType
     if (!earningType) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "earningType is required"
       );
     }
     if (!validateEarningType(earningType)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         `Invalid earningType: ${earningType}. Valid values: ${EARNING_TYPES.join(", ")}`
       );
@@ -430,7 +433,7 @@ export const createEarnOpportunity = functions.https.onCall(
     // Verify thread exists
     const threadDoc = await db.collection("earnThreads").doc(threadId).get();
     if (!threadDoc.exists) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "not-found",
         "Thread not found. Create the thread first."
       );
@@ -446,7 +449,7 @@ export const createEarnOpportunity = functions.https.onCall(
         || AccountId.client(threadData.clientId);
       const sourceBalance = await getBalance(tokenSource);
       if (sourceBalance <= 0) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "Cannot activate opportunity: token source account has zero balance"
         );
@@ -457,7 +460,7 @@ export const createEarnOpportunity = functions.https.onCall(
     if (targeting) {
       const validationResult = validateTargetingCriteria(targeting);
       if (!validationResult.valid) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           `Invalid targeting criteria: ${validationResult.errors.join("; ")}`
         );
@@ -467,14 +470,14 @@ export const createEarnOpportunity = functions.https.onCall(
     // Validate bonus reward configuration
     if (bonusReward) {
       if (typeof bonusRewardMultiplier !== "number" || bonusRewardMultiplier < 1) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "bonusRewardMultiplier must be a number >= 1"
         );
       }
 
       if (!bonusIntervalType) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "bonusIntervalType is required when bonusReward is true"
         );
@@ -482,7 +485,7 @@ export const createEarnOpportunity = functions.https.onCall(
 
       const validIntervalTypes = ["random", "every_x"];
       if (!validIntervalTypes.includes(bonusIntervalType)) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           `Invalid bonusIntervalType: ${bonusIntervalType}. Valid values: ${validIntervalTypes.join(", ")}`
         );
@@ -494,7 +497,7 @@ export const createEarnOpportunity = functions.https.onCall(
           bonusIntervalX < 1 ||
           !Number.isInteger(bonusIntervalX)
         ) {
-          throw new functions.https.HttpsError(
+          throw new HttpsError(
             "invalid-argument",
             "bonusIntervalX must be a positive integer when bonusIntervalType is 'every_x'"
           );
@@ -512,7 +515,7 @@ export const createEarnOpportunity = functions.https.onCall(
         .get();
 
       if (!rewardCampaignDoc.exists) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "not-found",
           `Reward campaign not found: ${rewardCampaignId}`
         );
@@ -521,7 +524,7 @@ export const createEarnOpportunity = functions.https.onCall(
       const rewardCampaign = rewardCampaignDoc.data()!;
 
       if (rewardCampaign.isDeleted === true) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "Reward campaign has been deleted"
         );
@@ -529,7 +532,7 @@ export const createEarnOpportunity = functions.https.onCall(
 
       // Verify campaign belongs to the same client as the thread
       if (rewardCampaign.clientId !== threadData.clientId) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "Reward campaign must belong to the same client as the thread"
         );
@@ -542,13 +545,13 @@ export const createEarnOpportunity = functions.https.onCall(
     // Validate upload configuration
     if (earningType === "upload") {
       if (!uploadVideoEnabled && !uploadImageEnabled && !uploadTextEnabled) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "At least one upload type (video, image, or text) must be enabled"
         );
       }
       if (!uploadPrompt) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "invalid-argument",
           "uploadPrompt is required for upload opportunities"
         );
@@ -669,7 +672,7 @@ export const createEarnOpportunity = functions.https.onCall(
         earningType,
         targeting || null
       ).catch((err) =>
-        console.warn("notifyNewOpportunity failed (non-fatal):", err)
+        logger.warn("notifyNewOpportunity failed (non-fatal):", err)
       );
     }
 
@@ -684,14 +687,15 @@ export const createEarnOpportunity = functions.https.onCall(
  * Resets tokenSpent to 0, optionally sets a new tokenBudget, and clears budgetExhausted.
  * Admin-only function.
  */
-export const adminResetOpportunityBudget = functions.https.onCall(
-  async (data: { opportunityId: string; newBudget?: number | null }, context) => {
-    const adminCtx = await requireAdminPermission(context, "earn:resetBudget", "adminResetOpportunityBudget");
+export const adminResetOpportunityBudget = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    const adminCtx = await requireAdminPermission(request, "earn:resetBudget", "adminResetOpportunityBudget");
 
-    const { opportunityId, newBudget } = data;
+    const { opportunityId, newBudget } = request.data as { opportunityId: string; newBudget?: number | null };
 
     if (!opportunityId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "opportunityId is required"
       );
@@ -701,7 +705,7 @@ export const adminResetOpportunityBudget = functions.https.onCall(
     const oppDoc = await oppRef.get();
 
     if (!oppDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Opportunity not found");
+      throw new HttpsError("not-found", "Opportunity not found");
     }
 
     const updates: Record<string, unknown> = {
@@ -728,14 +732,15 @@ export const adminResetOpportunityBudget = functions.https.onCall(
  * Converts campaigns collection entries to earnOpportunities format
  * Admin-only function (legacy migration helper)
  */
-export const syncCampaignsToOpportunities = functions.https.onCall(
-  async (data, context) => {
-    const adminCtx = await requireAdminPermission(context, "earn:syncCampaigns", "syncCampaignsToOpportunities");
+export const syncCampaignsToOpportunities = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    const adminCtx = await requireAdminPermission(request, "earn:syncCampaigns", "syncCampaignsToOpportunities");
 
-    const { defaultThreadId } = data;
+    const { defaultThreadId } = request.data;
 
     if (!defaultThreadId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "defaultThreadId is required"
       );
@@ -818,10 +823,9 @@ export const syncCampaignsToOpportunities = functions.https.onCall(
  *
  * Extended to also handle thread scheduling (activeFrom/activeTo)
  */
-export const deactivateExpiredOpportunities = functions.pubsub
-  .schedule("0 1 * * *") // 1 AM daily
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const deactivateExpiredOpportunities = onSchedule(
+  { schedule: "0 1 * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "earn" } },
+  async () => {
     const now = admin.firestore.Timestamp.now();
 
     // ========================================================================
@@ -862,7 +866,7 @@ export const deactivateExpiredOpportunities = functions.pubsub
           });
       }
 
-      console.log(
+      logger.info(
         `Deactivated ${expiredOpportunities.size} expired opportunities`
       );
     }
@@ -887,7 +891,7 @@ export const deactivateExpiredOpportunities = functions.pubsub
       }
 
       await batch.commit();
-      console.log(`Deactivated ${expiredThreads.size} expired threads`);
+      logger.info(`Deactivated ${expiredThreads.size} expired threads`);
     }
 
     // ========================================================================
@@ -911,13 +915,13 @@ export const deactivateExpiredOpportunities = functions.pubsub
       }
 
       await batch.commit();
-      console.log(
+      logger.info(
         `Deactivated ${prematureThreads.size} prematurely activated threads`
       );
     }
 
-    return null;
-  });
+  },
+);
 
 // ============================================================================
 // USER-FACING ELIGIBILITY FUNCTIONS
@@ -955,11 +959,12 @@ function slimThread(id: string, t: admin.firestore.DocumentData) {
  * This Cloud Function replaces direct Firestore reads for earnThreads.
  * It applies server-side targeting filters based on user profile.
  */
-export const getEligibleThreads = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "getEligibleThreads");
+export const getEligibleThreads = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    requireAppCheck(request, "getEligibleThreads");
 
-    const userCtx = await buildUserTargetingContext(context);
+    const userCtx = await buildUserTargetingContext(request);
     const { profile: userProfile } = userCtx;
 
     // ========================================================================
@@ -970,6 +975,7 @@ export const getEligibleThreads = functions.https.onCall(
     const threadsSnapshot = await db
       .collection("earnThreads")
       .where("isActive", "==", true)
+      .limit(200)
       .get();
 
     const eligibleThreads: admin.firestore.DocumentData[] = [];
@@ -1034,21 +1040,22 @@ export const getEligibleThreads = functions.https.onCall(
  * This Cloud Function replaces direct Firestore reads for earnOpportunities.
  * It applies server-side targeting filters and returns engagement status.
  */
-export const getEligibleOpportunities = functions.https.onCall(
-  async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const getEligibleOpportunities = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated"
       );
     }
-    requireAppCheck(context, "getEligibleOpportunities");
+    requireAppCheck(request, "getEligibleOpportunities");
 
-    const userId = context.auth.uid;
-    const { threadId } = data;
+    const userId = request.auth.uid;
+    const { threadId } = request.data;
 
     if (!threadId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "threadId is required"
       );
@@ -1114,7 +1121,7 @@ export const getEligibleOpportunities = functions.https.onCall(
     }
 
     if (!userDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "User profile not found");
+      throw new HttpsError("not-found", "User profile not found");
     }
 
     const userData = userDoc.data()!;
@@ -1138,7 +1145,7 @@ export const getEligibleOpportunities = functions.https.onCall(
     );
 
     // Get device platform from context
-    const userAgent = context.rawRequest?.headers?.["user-agent"] || "";
+    const userAgent = request.rawRequest?.headers?.["user-agent"] || "";
     let devicePlatform: string | null = null;
     if (userAgent.toLowerCase().includes("android")) {
       devicePlatform = "android";
@@ -1382,9 +1389,10 @@ export const getEligibleOpportunities = functions.https.onCall(
  * Get targeting options for admin UI dropdowns
  * Returns available values for each targeting field
  */
-export const getTargetingOptions = functions.https.onCall(
-  async (data, context) => {
-    await requireAdminPermission(context, "earn:getTargeting", "getTargetingOptions");
+export const getTargetingOptions = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    await requireAdminPermission(request, "earn:getTargeting", "getTargetingOptions");
 
     // South African provinces
     const provinces = [
@@ -1481,14 +1489,15 @@ export const getTargetingOptions = functions.https.onCall(
  * Get detailed statistics for a specific client
  * Admin-only function
  */
-export const getClientStats = functions.https.onCall(
-  async (data, context) => {
-    await requireAdminPermission(context, "earn:getClientStats", "getClientStats");
+export const getClientStats = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    await requireAdminPermission(request, "earn:getClientStats", "getClientStats");
 
-    const { clientId } = data;
+    const { clientId } = request.data;
 
     if (!clientId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "clientId is required"
       );
@@ -1497,7 +1506,7 @@ export const getClientStats = functions.https.onCall(
     // Verify client exists
     const clientDoc = await db.collection("clients").doc(clientId).get();
     if (!clientDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Client not found");
+      throw new HttpsError("not-found", "Client not found");
     }
     const clientData = clientDoc.data()!;
 
@@ -1633,14 +1642,15 @@ export const getClientStats = functions.https.onCall(
  * Get engagement analytics for a specific thread
  * Admin-only function
  */
-export const getThreadAnalytics = functions.https.onCall(
-  async (data, context) => {
-    await requireAdminPermission(context, "earn:getThreadAnalytics", "getThreadAnalytics");
+export const getThreadAnalytics = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    await requireAdminPermission(request, "earn:getThreadAnalytics", "getThreadAnalytics");
 
-    const { threadId, startDate, endDate } = data;
+    const { threadId, startDate, endDate } = request.data;
 
     if (!threadId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "threadId is required"
       );
@@ -1649,7 +1659,7 @@ export const getThreadAnalytics = functions.https.onCall(
     // Verify thread exists
     const threadDoc = await db.collection("earnThreads").doc(threadId).get();
     if (!threadDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Thread not found");
+      throw new HttpsError("not-found", "Thread not found");
     }
     const threadData = threadDoc.data()!;
 
@@ -1680,41 +1690,38 @@ export const getThreadAnalytics = functions.https.onCall(
       completionRate: number;
     }> = [];
 
-    // Get engagements for each opportunity
-    for (const oppDoc of opportunitiesSnapshot.docs) {
-      const opp = oppDoc.data();
-
-      const engagementsQuery = await db
-        .collection("engagements")
-        .where("earnOpportunityId", "==", oppDoc.id)
-        .where("createdAt", ">=", startTimestamp)
-        .where("createdAt", "<=", endTimestamp)
-        .count()
-        .get();
-
-      const completedQuery = await db
-        .collection("engagements")
-        .where("earnOpportunityId", "==", oppDoc.id)
-        .where("status", "==", "completed")
-        .where("completedAt", ">=", startTimestamp)
-        .where("completedAt", "<=", endTimestamp)
-        .count()
-        .get();
-
-      const total = engagementsQuery.data().count;
-      const completed = completedQuery.data().count;
-
-      opportunityStats.push({
-        id: oppDoc.id,
-        title: opp.title,
-        earningType: opp.earningType,
-        tokenReward: opp.tokenReward,
-        isActive: opp.isActive,
-        engagements: total,
-        completed,
-        completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
-      });
-    }
+    // Get engagements for all opportunities in parallel (was serial — 2 queries × N opportunities)
+    const oppStatsResults = await Promise.all(
+      opportunitiesSnapshot.docs.map(async (oppDoc) => {
+        const opp = oppDoc.data();
+        const [engagementsQuery, completedQuery] = await Promise.all([
+          db.collection("engagements")
+            .where("earnOpportunityId", "==", oppDoc.id)
+            .where("createdAt", ">=", startTimestamp)
+            .where("createdAt", "<=", endTimestamp)
+            .count().get(),
+          db.collection("engagements")
+            .where("earnOpportunityId", "==", oppDoc.id)
+            .where("status", "==", "completed")
+            .where("completedAt", ">=", startTimestamp)
+            .where("completedAt", "<=", endTimestamp)
+            .count().get(),
+        ]);
+        const total = engagementsQuery.data().count;
+        const completed = completedQuery.data().count;
+        return {
+          id: oppDoc.id,
+          title: opp.title,
+          earningType: opp.earningType,
+          tokenReward: opp.tokenReward,
+          isActive: opp.isActive,
+          engagements: total,
+          completed,
+          completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
+        };
+      })
+    );
+    opportunityStats.push(...oppStatsResults);
 
     // Get overall thread stats
     const threadEngagementsQuery = await db
@@ -1815,15 +1822,16 @@ export const getThreadAnalytics = functions.https.onCall(
  * Get earn statistics
  * Returns counts and stats for admin dashboard
  */
-export const getEarnStatistics = functions.https.onCall(
-  async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const getEarnStatistics = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "Must be authenticated"
       );
     }
-    requireAppCheck(context, "getEarnStatistics");
+    requireAppCheck(request, "getEarnStatistics");
 
     // Get total threads
     const threadsCount = await db
@@ -1882,26 +1890,27 @@ export const getEarnStatistics = functions.https.onCall(
  * Soft-delete a single earn opportunity.
  * Sets isDeleted: true and decrements parent thread's availableOpportunities if active.
  */
-export const adminSoftDeleteOpportunity = functions.https.onCall(
-  async (data: { opportunityId: string }, context) => {
-    requireAppCheck(context, "adminSoftDeleteOpportunity");
-    const adminCtx = await requireAdminPermission(context, "earn:deleteOpportunity", "adminSoftDeleteOpportunity");
+export const adminSoftDeleteOpportunity = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    requireAppCheck(request, "adminSoftDeleteOpportunity");
+    const adminCtx = await requireAdminPermission(request, "earn:deleteOpportunity", "adminSoftDeleteOpportunity");
 
-    const { opportunityId } = data;
+    const { opportunityId } = request.data as { opportunityId: string };
     if (!opportunityId) {
-      throw new functions.https.HttpsError("invalid-argument", "opportunityId is required");
+      throw new HttpsError("invalid-argument", "opportunityId is required");
     }
 
     const oppRef = db.collection("earnOpportunities").doc(opportunityId);
     const oppDoc = await oppRef.get();
 
     if (!oppDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Opportunity not found");
+      throw new HttpsError("not-found", "Opportunity not found");
     }
 
     const opp = oppDoc.data()!;
     if (opp.isDeleted === true) {
-      throw new functions.https.HttpsError("failed-precondition", "Opportunity is already deleted");
+      throw new HttpsError("failed-precondition", "Opportunity is already deleted");
     }
 
     const now = admin.firestore.FieldValue.serverTimestamp();
@@ -1911,7 +1920,7 @@ export const adminSoftDeleteOpportunity = functions.https.onCall(
       isDeleted: true,
       isActive: false,
       deletedAt: now,
-      deletedBy: context.auth!.uid,
+      deletedBy: request.auth!.uid,
       updatedAt: now,
     });
 
@@ -1933,30 +1942,31 @@ export const adminSoftDeleteOpportunity = functions.https.onCall(
  * Soft-delete an earn thread and all its opportunities.
  * Cascades deletion to all child opportunities.
  */
-export const adminSoftDeleteThread = functions.https.onCall(
-  async (data: { threadId: string }, context) => {
-    requireAppCheck(context, "adminSoftDeleteThread");
-    const adminCtx = await requireAdminPermission(context, "earn:deleteThread", "adminSoftDeleteThread");
+export const adminSoftDeleteThread = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    requireAppCheck(request, "adminSoftDeleteThread");
+    const adminCtx = await requireAdminPermission(request, "earn:deleteThread", "adminSoftDeleteThread");
 
-    const { threadId } = data;
+    const { threadId } = request.data as { threadId: string };
     if (!threadId) {
-      throw new functions.https.HttpsError("invalid-argument", "threadId is required");
+      throw new HttpsError("invalid-argument", "threadId is required");
     }
 
     const threadRef = db.collection("earnThreads").doc(threadId);
     const threadDoc = await threadRef.get();
 
     if (!threadDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Thread not found");
+      throw new HttpsError("not-found", "Thread not found");
     }
 
     const thread = threadDoc.data()!;
     if (thread.isDeleted === true) {
-      throw new functions.https.HttpsError("failed-precondition", "Thread is already deleted");
+      throw new HttpsError("failed-precondition", "Thread is already deleted");
     }
 
     const now = admin.firestore.FieldValue.serverTimestamp();
-    const uid = context.auth!.uid;
+    const uid = request.auth!.uid;
 
     // Cascade: soft-delete all opportunities in this thread
     const oppsSnapshot = await db
@@ -2013,13 +2023,14 @@ export const adminSoftDeleteThread = functions.https.onCall(
  * One-off admin cleanup: find threads whose parent client is deleted/missing
  * and cascade soft-delete to them and their opportunities.
  */
-export const adminCleanupOrphanedThreads = functions.https.onCall(
-  async (_data: unknown, context) => {
-    requireAppCheck(context, "adminCleanupOrphanedThreads");
-    const adminCtx = await requireAdminPermission(context, "earn:cleanupOrphaned", "adminCleanupOrphanedThreads");
+export const adminCleanupOrphanedThreads = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    requireAppCheck(request, "adminCleanupOrphanedThreads");
+    const adminCtx = await requireAdminPermission(request, "earn:cleanupOrphaned", "adminCleanupOrphanedThreads");
 
     const now = admin.firestore.FieldValue.serverTimestamp();
-    const uid = context.auth!.uid;
+    const uid = request.auth!.uid;
 
     // Get all non-deleted threads
     const threadsSnapshot = await db
@@ -2030,13 +2041,32 @@ export const adminCleanupOrphanedThreads = functions.https.onCall(
     let orphanedThreads = 0;
     let orphanedOpportunities = 0;
 
+    // Collect unique clientIds and batch-fetch client docs
+    const uniqueClientIds = new Set<string>();
+    for (const threadDoc of threadsSnapshot.docs) {
+      const thread = threadDoc.data();
+      if (thread.clientId) uniqueClientIds.add(thread.clientId);
+    }
+
+    const clientDataMap = new Map<string, { exists: boolean; isDeleted: boolean }>();
+    if (uniqueClientIds.size > 0) {
+      const clientRefs = Array.from(uniqueClientIds).map((id) => db.collection("clients").doc(id));
+      const clientDocs = await db.getAll(...clientRefs);
+      for (const clientDoc of clientDocs) {
+        clientDataMap.set(clientDoc.id, {
+          exists: clientDoc.exists,
+          isDeleted: clientDoc.exists ? clientDoc.data()?.isDeleted === true : false,
+        });
+      }
+    }
+
     for (const threadDoc of threadsSnapshot.docs) {
       const thread = threadDoc.data();
       if (!thread.clientId) continue;
 
-      // Check if parent client exists and is not deleted
-      const clientDoc = await db.collection("clients").doc(thread.clientId).get();
-      const clientDeleted = !clientDoc.exists || clientDoc.data()?.isDeleted === true;
+      // Check if parent client exists and is not deleted (using batch-fetched data)
+      const clientInfo = clientDataMap.get(thread.clientId);
+      const clientDeleted = !clientInfo?.exists || clientInfo.isDeleted;
 
       if (!clientDeleted) continue;
 
@@ -2092,11 +2122,12 @@ export const adminCleanupOrphanedThreads = functions.https.onCall(
  * Returns clients sorted by pinned → featured → alphabetical, each containing
  * their eligible threads with aggregated opportunity data.
  */
-export const getEligibleInbox = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "getEligibleInbox");
+export const getEligibleInbox = onCall(
+  { labels: { area: "earn" } },
+  async (request) => {
+    requireAppCheck(request, "getEligibleInbox");
 
-    const userCtx = await buildUserTargetingContext(context);
+    const userCtx = await buildUserTargetingContext(request);
     const { profile: userProfile } = userCtx;
 
     // ========================================================================
@@ -2220,7 +2251,7 @@ export const getEligibleInbox = functions.https.onCall(
       }
     }
 
-    const userId = context.auth!.uid;
+    const userId = request.auth!.uid;
 
     // Start of today (midnight UTC)
     const todayForInbox = new Date();

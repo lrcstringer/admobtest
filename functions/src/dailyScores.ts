@@ -18,6 +18,7 @@
  */
 
 import * as admin from "firebase-admin";
+import { logger } from "firebase-functions/v2";
 import {
   DailyScore,
   PotLeaderboardEntry,
@@ -215,7 +216,7 @@ export async function updateReferrerAssistScore(
     });
   });
 
-  console.log(
+  logger.info(
     `Added ${assistBonus} assist score to referrer ${referrerId} for today`
   );
 }
@@ -272,7 +273,7 @@ export async function buildPotLeaderboard(
     const userId = doc.ref.parent.parent?.id;
 
     if (!userId) {
-      console.warn(`Could not extract userId from path: ${doc.ref.path}`);
+      logger.warn(`Could not extract userId from path: ${doc.ref.path}`);
       continue;
     }
 
@@ -312,7 +313,7 @@ export async function buildPotLeaderboard(
 
   await batch.commit();
 
-  console.log(
+  logger.info(
     `Built pot leaderboard ${potId}: ${entries.length} entries for ${dateKey}`
   );
 
@@ -376,7 +377,7 @@ export async function deleteAllDailyScores(userId: string): Promise<void> {
   }
   await batch.commit();
 
-  console.log(`Deleted all daily scores for user ${userId}`);
+  logger.info(`Deleted all daily scores for user ${userId}`);
 }
 
 /**
@@ -588,7 +589,7 @@ export async function updateLeaderboardScores(
       { merge: true }
     );
 
-  console.log(
+  logger.info(
     `Updated leaderboard scores for ${userId}: daily=${dailyScore.finalScore}, weekly=${weeklyTotalScore}`
   );
 }

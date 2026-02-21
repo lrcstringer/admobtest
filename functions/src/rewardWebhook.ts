@@ -8,7 +8,8 @@
  * Idempotent: re-posting the same redemption is a no-op.
  */
 
-import * as functions from "firebase-functions";
+import { onRequest } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
 
@@ -50,7 +51,7 @@ function verifySignature(
  * Body (JSON):
  *   { codeHash, redeemedAt?, location?, posTransactionId? }
  */
-export const rewardWebhook = functions.https.onRequest(async (req, res) => {
+export const rewardWebhook = onRequest({ cors: false, invoker: "public", labels: { area: "rewards" } }, async (req, res) => {
   // Only accept POST
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
@@ -152,7 +153,7 @@ export const rewardWebhook = functions.https.onRequest(async (req, res) => {
       return;
     }
     // Non-rate-limit transaction errors — continue (don't block webhook for rate limit infra failure)
-    functions.logger.warn("Rate limit transaction error", { error: rlError });
+    logger.warn("Rate limit transaction error", { error: rlError });
   }
 
   // Find item by codeHash
@@ -253,7 +254,7 @@ export const rewardWebhook = functions.https.onRequest(async (req, res) => {
       res.status(409).json({ error: `Item status is '${errMsg.split(":")[1]}', cannot redeem` });
       return;
     }
-    functions.logger.error("Webhook redemption transaction failed", { error: txnError });
+    logger.error("Webhook redemption transaction failed", { error: txnError });
     res.status(500).json({ error: "Internal error processing redemption" });
     return;
   }
@@ -275,9 +276,9 @@ export const rewardWebhook = functions.https.onRequest(async (req, res) => {
     },
     ipAddress: req.ip || req.headers["x-forwarded-for"] || null,
     createdAt: now,
-  }).catch((e) => functions.logger.warn("Failed to write webhook activity log", { error: e }));
+  }).catch((e) => logger.warn("Failed to write webhook activity log", { error: e }));
 
-  functions.logger.info("Reward redeemed via webhook", {
+  logger.info("Reward redeemed via webhook", {
     itemId: itemDoc.id,
     campaignId,
     clientId,

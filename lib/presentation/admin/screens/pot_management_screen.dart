@@ -15,7 +15,7 @@ class PotManagementScreen extends StatefulWidget {
 }
 
 class _PotManagementScreenState extends State<PotManagementScreen> {
-  final _functions = FirebaseFunctions.instance;
+  final _functions = FirebaseFunctions.instanceFor(region: 'africa-south1');
   final _db = FirebaseFirestore.instance;
   final _numberFormat = NumberFormat('#,###');
 

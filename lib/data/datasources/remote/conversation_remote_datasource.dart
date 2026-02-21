@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
@@ -88,6 +90,13 @@ abstract class ConversationRemoteDataSource {
   });
   Future<void> archiveConversation(String conversationId);
 
+  // Message deletion (via Cloud Functions)
+  Future<void> deleteMessageForEveryone({
+    required String conversationId,
+    required String messageId,
+  });
+  Future<void> clearChat({required String conversationId});
+
   // Reactions (via Cloud Functions)
   Future<void> addReaction({
     required String conversationId,
@@ -154,6 +163,9 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
           .map((doc) => ConversationModel.fromFirestore(doc))
           .toList();
 
+      // Clear healed set on explicit refresh so stale data can be re-healed
+      _healedConversationIds.clear();
+
       // Self-heal stale participant data (fire-and-forget)
       _healStaleParticipants(conversations);
 
@@ -192,7 +204,8 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
     for (final conv in conversations) {
       if (_healedConversationIds.contains(conv.id)) continue;
       for (final entry in conv.participants.entries) {
-        if (entry.value['avatarUrl'] == null) {
+        final url = entry.value['avatarUrl'];
+        if (url == null || (url is String && url.isEmpty)) {
           staleEntries.add(MapEntry(conv.id, entry.key));
         }
       }
@@ -212,43 +225,38 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
     List<MapEntry<String, String>> staleEntries,
   ) async {
     try {
-      // Batch-read user documents (Firestore getAll)
-      final userDocs = await Future.wait(
-        userIds.map((uid) => _firestore.collection('users').doc(uid).get()),
-      );
+      // Build patches list for the Cloud Function
+      // (client can't write to conversations — security rules block it)
+      final patches = staleEntries
+          .map((e) => {
+                'conversationId': e.key,
+                'participantId': e.value,
+              })
+          .toList();
 
-      final userAvatars = <String, String?>{};
-      for (final doc in userDocs) {
-        if (doc.exists) {
-          userAvatars[doc.id] = doc.data()?['avatarUrl'] as String?;
-        }
-      }
+      final result = await _functions
+          .httpsCallable('healConversationAvatars')
+          .call({'patches': patches});
 
-      // Group stale entries by conversation
-      final patchesByConv = <String, Map<String, String>>{};
-      for (final entry in staleEntries) {
-        final convId = entry.key;
-        final userId = entry.value;
-        final freshUrl = userAvatars[userId];
-        if (freshUrl != null && freshUrl.isNotEmpty) {
-          patchesByConv
-              .putIfAbsent(convId, () => {})['participants.$userId.avatarUrl'] =
-              freshUrl;
-        }
-      }
+      final healed = result.data['healed'] as int? ?? 0;
 
-      // Write patches to Firestore
-      for (final entry in patchesByConv.entries) {
-        await _conversationsCollection.doc(entry.key).update(entry.value);
-        _healedConversationIds.add(entry.key);
-      }
-
-      // Mark conversations with genuinely null avatars as healed too
+      // Mark all as healed so we don't retry this session
       for (final stale in staleEntries) {
         _healedConversationIds.add(stale.key);
       }
-    } catch (_) {
-      // Self-healing is best-effort; don't crash if it fails
+
+      if (healed > 0) {
+        developer.log(
+          'Healed $healed conversation avatar(s) via Cloud Function',
+          name: 'ConversationDS',
+        );
+      }
+    } catch (e) {
+      // Self-healing is best-effort; log but don't crash
+      developer.log(
+        'Avatar self-healing failed: $e',
+        name: 'ConversationDS',
+      );
     }
   }
 
@@ -678,6 +686,50 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
       });
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to archive');
+    } catch (e) {
+      if (e is AuthException) rethrow;
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  // =========================================================================
+  // MESSAGE DELETION
+  // =========================================================================
+
+  @override
+  Future<void> deleteMessageForEveryone({
+    required String conversationId,
+    required String messageId,
+  }) async {
+    _requireUserId();
+    try {
+      final callable =
+          _functions.httpsCallable('deleteConversationMessage');
+      await callable.call<Map<String, dynamic>>({
+        'conversationId': conversationId,
+        'messageId': messageId,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(
+          message: e.message ?? 'Failed to delete message');
+    } catch (e) {
+      if (e is AuthException) rethrow;
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> clearChat({required String conversationId}) async {
+    _requireUserId();
+    try {
+      final callable =
+          _functions.httpsCallable('clearConversationChat');
+      await callable.call<Map<String, dynamic>>({
+        'conversationId': conversationId,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(
+          message: e.message ?? 'Failed to clear chat');
     } catch (e) {
       if (e is AuthException) rethrow;
       throw ServerException(message: e.toString());

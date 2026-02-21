@@ -21,6 +21,21 @@ jest.mock("../security", () => ({
   requireAppCheck: jest.fn(),
 }));
 
+// Mock ledger modules (used by createEarnThread auto-creation + createEarnOpportunity budget check)
+jest.mock("../ledger/accounts", () => ({
+  getBalance: jest.fn().mockResolvedValue(10000),
+  createAccount: jest.fn().mockResolvedValue({ success: true }),
+}));
+jest.mock("../ledger/subAccounts", () => ({
+  createAccountType: jest.fn().mockResolvedValue({ success: true, accountTypeId: "mock_type_001" }),
+}));
+
+// Mock notification modules (used by createEarnThread / createEarnOpportunity)
+jest.mock("../earnNotifications", () => ({
+  notifyNewThread: jest.fn().mockResolvedValue(undefined),
+  notifyNewOpportunity: jest.fn().mockResolvedValue(undefined),
+}));
+
 // Mock targeting module (use actual implementation for validation tests)
 jest.mock("../constants/targeting", () => {
   const actual = jest.requireActual("../constants/targeting");
@@ -50,7 +65,7 @@ describe("EarnAdmin Functions", () => {
       clientId: "client_001",
       title: "Test Thread",
       description: "Test description",
-      tokenSourceSubAccountId: "sub_001",
+      tokenSourceAccountId: "client_subacc:sub_001",
     };
 
     const mockClient = {
@@ -81,7 +96,7 @@ describe("EarnAdmin Functions", () => {
 
         const handler = (earnAdmin.createEarnThread as any).run || earnAdmin.createEarnThread;
         await expect(handler(validThreadData, context)).rejects.toThrow(
-          "Must be an admin"
+          "Admin access required"
         );
       });
 
@@ -116,13 +131,14 @@ describe("EarnAdmin Functions", () => {
         );
       });
 
-      it("should reject missing tokenSourceSubAccountId", async () => {
+      it("should reject invalid tokenSourceAccountId format", async () => {
         const context = createMockCallContext({ uid: "admin_001", admin: true });
+        setMockDoc("clients", "client_001", mockClient);
 
         const handler = (earnAdmin.createEarnThread as any).run || earnAdmin.createEarnThread;
         await expect(
-          handler({ ...validThreadData, tokenSourceSubAccountId: null }, context)
-        ).rejects.toThrow("tokenSourceSubAccountId is required");
+          handler({ ...validThreadData, tokenSourceAccountId: "invalid_format" }, context)
+        ).rejects.toThrow("tokenSourceAccountId must be a client or client_subacc ledger account ID");
       });
 
       it("should reject non-existent client", async () => {
@@ -144,25 +160,28 @@ describe("EarnAdmin Functions", () => {
         );
       });
 
-      it("should reject non-existent sub-account", async () => {
+      it("should accept valid client_subacc token source format", async () => {
         const context = createMockCallContext({ uid: "admin_001", admin: true });
         setMockDoc("clients", "client_001", mockClient);
 
         const handler = (earnAdmin.createEarnThread as any).run || earnAdmin.createEarnThread;
-        await expect(handler(validThreadData, context)).rejects.toThrow(
-          "Sub-account not found"
+        const result = await handler(
+          { ...validThreadData, tokenSourceAccountId: "client_subacc:sub_001" },
+          context
         );
+        expect(result.success).toBe(true);
       });
 
-      it("should reject inactive sub-account", async () => {
+      it("should accept valid client token source format", async () => {
         const context = createMockCallContext({ uid: "admin_001", admin: true });
         setMockDoc("clients", "client_001", mockClient);
-        setMockDoc("clients/client_001/subAccounts", "sub_001", { ...mockSubAccount, isActive: false });
 
         const handler = (earnAdmin.createEarnThread as any).run || earnAdmin.createEarnThread;
-        await expect(handler(validThreadData, context)).rejects.toThrow(
-          "Sub-account is not active"
+        const result = await handler(
+          { ...validThreadData, tokenSourceAccountId: "client:client_001" },
+          context
         );
+        expect(result.success).toBe(true);
       });
 
       it("should reject invalid targeting criteria", async () => {
@@ -259,7 +278,7 @@ describe("EarnAdmin Functions", () => {
 
         const handler = (earnAdmin.createEarnOpportunity as any).run || earnAdmin.createEarnOpportunity;
         await expect(handler(validOpportunityData, context)).rejects.toThrow(
-          "Must be an admin"
+          "Admin access required"
         );
       });
     });
@@ -612,7 +631,7 @@ describe("EarnAdmin Functions", () => {
 
       const handler = (earnAdmin.getTargetingOptions as any).run || earnAdmin.getTargetingOptions;
       await expect(handler({}, context)).rejects.toThrow(
-        "Must be an admin"
+        "Admin access required"
       );
     });
 
@@ -640,7 +659,7 @@ describe("EarnAdmin Functions", () => {
 
       const handler = (earnAdmin.getClientStats as any).run || earnAdmin.getClientStats;
       await expect(handler({ clientId: "client_001" }, context)).rejects.toThrow(
-        "Must be an admin"
+        "Admin access required"
       );
     });
 
@@ -690,7 +709,7 @@ describe("EarnAdmin Functions", () => {
 
       const handler = (earnAdmin.getThreadAnalytics as any).run || earnAdmin.getThreadAnalytics;
       await expect(handler({ threadId: "thread_001" }, context)).rejects.toThrow(
-        "Must be an admin"
+        "Admin access required"
       );
     });
 
@@ -793,7 +812,7 @@ describe("EarnAdmin Functions", () => {
       const handler = (earnAdmin.syncCampaignsToOpportunities as any).run ||
         earnAdmin.syncCampaignsToOpportunities;
       await expect(handler({ defaultThreadId: "thread_001" }, context)).rejects.toThrow(
-        "Must be an admin"
+        "Admin access required"
       );
     });
 

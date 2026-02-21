@@ -19,7 +19,7 @@ class PotEntriesScreen extends StatefulWidget {
 }
 
 class _PotEntriesScreenState extends State<PotEntriesScreen> {
-  final _functions = FirebaseFunctions.instance;
+  final _functions = FirebaseFunctions.instanceFor(region: 'africa-south1');
   final _numberFormat = NumberFormat('#,###');
   final _dateFormat = DateFormat('EEE, d MMM yyyy');
 

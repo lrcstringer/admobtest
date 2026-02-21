@@ -6,6 +6,7 @@
  */
 
 import * as admin from "firebase-admin";
+import { logger } from "firebase-functions/v2";
 import {
   LedgerAccount,
   CreateAccountInput,
@@ -199,7 +200,7 @@ export async function createAccount(
       data: account,
     };
   } catch (error) {
-    console.error("Failed to create account:", error);
+    logger.error("Failed to create account:", error);
     return {
       success: false,
       error: `Failed to create account: ${error}`,
@@ -304,7 +305,7 @@ export async function initializeSystemAccounts(): Promise<void> {
     // Check if exists
     const existing = await accountRef.get();
     if (existing.exists) {
-      console.log(`System account ${accountDef.id} already exists, skipping`);
+      logger.info(`System account ${accountDef.id} already exists, skipping`);
       continue;
     }
 
@@ -326,11 +327,11 @@ export async function initializeSystemAccounts(): Promise<void> {
     };
 
     batch.set(accountRef, account);
-    console.log(`Creating system account: ${accountDef.id}`);
+    logger.info(`Creating system account: ${accountDef.id}`);
   }
 
   await batch.commit();
-  console.log("System accounts initialization complete");
+  logger.info("System accounts initialization complete");
 }
 
 /**
@@ -566,7 +567,7 @@ async function updateAccountStatus(
       data: result,
     };
   } catch (error) {
-    console.error("Failed to update account status:", error);
+    logger.error("Failed to update account status:", error);
     return {
       success: false,
       error: `Failed to update account status: ${error}`,
@@ -664,13 +665,11 @@ export async function logAuditEvent(
   };
 
   // Strip undefined values — Firestore rejects them
-  for (const key of Object.keys(entry)) {
-    if (entry[key] === undefined) {
-      delete entry[key];
-    }
-  }
+  const cleaned = Object.fromEntries(
+    Object.entries(entry).filter(([, v]) => v !== undefined)
+  );
 
-  await auditRef.set(entry);
+  await auditRef.set(cleaned);
 }
 
 // ============================================================================
@@ -716,6 +715,7 @@ export async function getTotalUserBalance(): Promise<number> {
     .collection(LedgerConfig.COLLECTION_ACCOUNTS)
     .where("type", "==", "user")
     .where("status", "==", "active")
+    .select("balance", "status")
     .get();
 
   let total = 0;

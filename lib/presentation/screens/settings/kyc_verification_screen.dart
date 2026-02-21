@@ -207,7 +207,7 @@ class _KycVerificationScreenState extends State<KycVerificationScreen> {
     });
 
     try {
-      final functions = FirebaseFunctions.instance;
+      final functions = FirebaseFunctions.instanceFor(region: 'africa-south1');
       await functions.httpsCallable('initiateKyc').call();
 
       if (mounted) {

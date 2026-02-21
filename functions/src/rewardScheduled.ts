@@ -7,7 +7,8 @@
  * 3. sendExpiryWarnings — Push notifications for items expiring soon
  */
 
-import * as functions from "firebase-functions";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { releaseRewardReservation } from "./rewardAllocation";
 
@@ -22,10 +23,9 @@ const db = admin.firestore();
  * Also expire campaigns past their endsAt date.
  * Runs every 15 minutes.
  */
-export const processRewardExpiries = functions.pubsub
-  .schedule("*/15 * * * *") // Every 15 minutes
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const processRewardExpiries = onSchedule(
+  { schedule: "*/15 * * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "rewards" } },
+  async () => {
     const now = admin.firestore.Timestamp.now();
     let expiredItems = 0;
     let expiredCampaigns = 0;
@@ -112,7 +112,7 @@ export const processRewardExpiries = functions.pubsub
           }
           await itemBatch.commit();
 
-          functions.logger.info(
+          logger.info(
             `Expired ${unclaimedItems.size} unclaimed items from campaign ${campaignDoc.id}`
           );
         }
@@ -120,14 +120,14 @@ export const processRewardExpiries = functions.pubsub
     }
 
     if (expiredItems > 0 || expiredCampaigns > 0) {
-      functions.logger.info("Reward expiry processing complete", {
+      logger.info("Reward expiry processing complete", {
         expiredItems,
         expiredCampaigns,
       });
     }
 
-    return null;
-  });
+  }
+);
 
 // ============================================================================
 // 2. RECONCILE REWARD COUNTS (daily at 5 AM)
@@ -139,16 +139,16 @@ export const processRewardExpiries = functions.pubsub
  * Reconciles all 7 counter fields: totalQuantity, remainingQuantity,
  * reservedCount, allocatedQuantity, redeemedQuantity, expiredCount, revokedCount.
  */
-export const reconcileRewardCounts = functions.pubsub
-  .schedule("0 5 * * 1") // 5 AM every Monday
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const reconcileRewardCounts = onSchedule(
+  { schedule: "0 5 * * 1", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "rewards" } },
+  async () => {
     // Only reconcile campaigns with recent activity (updated in the last 7 days)
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const campaigns = await db
       .collection("rewardCampaigns")
       .where("isDeleted", "==", false)
       .where("updatedAt", ">=", admin.firestore.Timestamp.fromDate(oneWeekAgo))
+      .limit(500)
       .get();
 
     let checkedCampaigns = 0;
@@ -255,7 +255,7 @@ export const reconcileRewardCounts = functions.pubsub
 
         fixedCampaigns++;
 
-        functions.logger.warn("Campaign counter mismatch fixed", {
+        logger.warn("Campaign counter mismatch fixed", {
           campaignId: campaignDoc.id,
           campaignName: campaign.name,
           stored: {
@@ -286,13 +286,13 @@ export const reconcileRewardCounts = functions.pubsub
       }
     }
 
-    functions.logger.info("Reward count reconciliation complete", {
+    logger.info("Reward count reconciliation complete", {
       checkedCampaigns,
       fixedCampaigns,
     });
 
-    return null;
-  });
+  }
+);
 
 // ============================================================================
 // 3. SEND EXPIRY WARNINGS (hourly)
@@ -302,10 +302,9 @@ export const reconcileRewardCounts = functions.pubsub
  * Find allocated items expiring within 48h and 4h.
  * Send push notifications and track sent warnings in item metadata.
  */
-export const sendExpiryWarnings = functions.pubsub
-  .schedule("0 * * * *") // Every hour
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const sendExpiryWarnings = onSchedule(
+  { schedule: "0 * * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "rewards" } },
+  async () => {
     const now = new Date();
 
     // 48-hour window
@@ -330,6 +329,35 @@ export const sendExpiryWarnings = functions.pubsub
       .limit(200)
       .get();
 
+    // Batch-fetch unique campaignIds and userIds for 48h items
+    const campaignIds48h = new Set<string>();
+    const userIds48h = new Set<string>();
+    for (const doc of items48h.docs) {
+      const data = doc.data();
+      if (data.metadata?.warning48hSent) continue;
+      if (!data.allocatedToUserId) continue;
+      if (data.campaignId) campaignIds48h.add(data.campaignId);
+      userIds48h.add(data.allocatedToUserId);
+    }
+
+    const campaignMap48h = new Map<string, admin.firestore.DocumentData | undefined>();
+    if (campaignIds48h.size > 0) {
+      const campaignRefs = Array.from(campaignIds48h).map((id) => db.collection("rewardCampaigns").doc(id));
+      const campaignDocs = await db.getAll(...campaignRefs);
+      for (const cDoc of campaignDocs) {
+        campaignMap48h.set(cDoc.id, cDoc.exists ? cDoc.data() : undefined);
+      }
+    }
+
+    const userMap48h = new Map<string, admin.firestore.DocumentData | undefined>();
+    if (userIds48h.size > 0) {
+      const userRefs = Array.from(userIds48h).map((id) => db.collection("users").doc(id));
+      const userDocs = await db.getAll(...userRefs);
+      for (const uDoc of userDocs) {
+        userMap48h.set(uDoc.id, uDoc.exists ? uDoc.data() : undefined);
+      }
+    }
+
     for (const doc of items48h.docs) {
       const data = doc.data();
 
@@ -340,16 +368,13 @@ export const sendExpiryWarnings = functions.pubsub
       if (!userId) continue;
 
       try {
-        // Get campaign name for the notification
-        const campaignDoc = await db
-          .collection("rewardCampaigns")
-          .doc(data.campaignId)
-          .get();
-        const campaignName = campaignDoc.data()?.name || "your reward";
+        // Get campaign name from batch-fetched map
+        const campaignData = campaignMap48h.get(data.campaignId);
+        const campaignName = campaignData?.name || "your reward";
 
-        // Send push notification
-        const userDoc = await db.collection("users").doc(userId).get();
-        const fcmToken = userDoc.data()?.fcmToken;
+        // Get FCM token from batch-fetched map
+        const userData = userMap48h.get(userId);
+        const fcmToken = userData?.fcmToken;
 
         if (fcmToken) {
           await admin.messaging().send({
@@ -374,7 +399,7 @@ export const sendExpiryWarnings = functions.pubsub
 
         sent48h++;
       } catch (err) {
-        functions.logger.warn("Failed to send 48h expiry warning", {
+        logger.warn("Failed to send 48h expiry warning", {
           itemId: doc.id,
           error: err,
         });
@@ -392,6 +417,35 @@ export const sendExpiryWarnings = functions.pubsub
       .limit(200)
       .get();
 
+    // Batch-fetch unique campaignIds and userIds for 4h items
+    const campaignIds4h = new Set<string>();
+    const userIds4h = new Set<string>();
+    for (const doc of items4h.docs) {
+      const data = doc.data();
+      if (data.metadata?.warning4hSent) continue;
+      if (!data.allocatedToUserId) continue;
+      if (data.campaignId) campaignIds4h.add(data.campaignId);
+      userIds4h.add(data.allocatedToUserId);
+    }
+
+    const campaignMap4h = new Map<string, admin.firestore.DocumentData | undefined>();
+    if (campaignIds4h.size > 0) {
+      const campaignRefs = Array.from(campaignIds4h).map((id) => db.collection("rewardCampaigns").doc(id));
+      const campaignDocs = await db.getAll(...campaignRefs);
+      for (const cDoc of campaignDocs) {
+        campaignMap4h.set(cDoc.id, cDoc.exists ? cDoc.data() : undefined);
+      }
+    }
+
+    const userMap4h = new Map<string, admin.firestore.DocumentData | undefined>();
+    if (userIds4h.size > 0) {
+      const userRefs = Array.from(userIds4h).map((id) => db.collection("users").doc(id));
+      const userDocs = await db.getAll(...userRefs);
+      for (const uDoc of userDocs) {
+        userMap4h.set(uDoc.id, uDoc.exists ? uDoc.data() : undefined);
+      }
+    }
+
     for (const doc of items4h.docs) {
       const data = doc.data();
 
@@ -402,14 +456,13 @@ export const sendExpiryWarnings = functions.pubsub
       if (!userId) continue;
 
       try {
-        const campaignDoc = await db
-          .collection("rewardCampaigns")
-          .doc(data.campaignId)
-          .get();
-        const campaignName = campaignDoc.data()?.name || "your reward";
+        // Get campaign name from batch-fetched map
+        const campaignData = campaignMap4h.get(data.campaignId);
+        const campaignName = campaignData?.name || "your reward";
 
-        const userDoc = await db.collection("users").doc(userId).get();
-        const fcmToken = userDoc.data()?.fcmToken;
+        // Get FCM token from batch-fetched map
+        const userData = userMap4h.get(userId);
+        const fcmToken = userData?.fcmToken;
 
         if (fcmToken) {
           await admin.messaging().send({
@@ -433,7 +486,7 @@ export const sendExpiryWarnings = functions.pubsub
 
         sent4h++;
       } catch (err) {
-        functions.logger.warn("Failed to send 4h expiry warning", {
+        logger.warn("Failed to send 4h expiry warning", {
           itemId: doc.id,
           error: err,
         });
@@ -441,11 +494,11 @@ export const sendExpiryWarnings = functions.pubsub
     }
 
     if (sent48h > 0 || sent4h > 0) {
-      functions.logger.info("Expiry warnings sent", { sent48h, sent4h });
+      logger.info("Expiry warnings sent", { sent48h, sent4h });
     }
 
-    return null;
-  });
+  }
+);
 
 // ============================================================================
 // 4. RELEASE STALE RESERVATIONS (every 15 minutes)
@@ -456,10 +509,9 @@ export const sendExpiryWarnings = functions.pubsub
  * Handles edge cases: user starts engagement, app crashes, reservation sits forever.
  * Same concept as escrow timeout for tokens.
  */
-export const releaseStaleRewardReservations = functions.pubsub
-  .schedule("*/15 * * * *")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const releaseStaleRewardReservations = onSchedule(
+  { schedule: "*/15 * * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "rewards" } },
+  async () => {
     const staleThreshold = new Date(Date.now() - 30 * 60 * 1000);
     let releasedCount = 0;
 
@@ -479,7 +531,7 @@ export const releaseStaleRewardReservations = functions.pubsub
         );
         releasedCount++;
       } catch (err) {
-        functions.logger.warn("Failed to release stale reservation", {
+        logger.warn("Failed to release stale reservation", {
           itemId: doc.id,
           error: err,
         });
@@ -487,10 +539,10 @@ export const releaseStaleRewardReservations = functions.pubsub
     }
 
     if (releasedCount > 0) {
-      functions.logger.info("Released stale reward reservations", {
+      logger.info("Released stale reward reservations", {
         releasedCount,
       });
     }
 
-    return null;
-  });
+  }
+);

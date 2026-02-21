@@ -13,7 +13,8 @@
  * - leaderboards/{type}/scores: Leaderboard scores
  */
 
-import * as functions from "firebase-functions";
+import { onCall, onRequest, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
 import * as https from "https";
@@ -71,16 +72,16 @@ const DAILY_EARN_CAP = 30;
  * - earnOpportunityId: References earnOpportunities collection (preferred)
  * - campaignId + type: Legacy format for campaigns collection
  */
-export const startEngagement = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", concurrency: 10, labels: { area: "earn" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated"
     );
   }
-  requireAppCheck(context, "startEngagement");
+  requireAppCheck(request, "startEngagement");
 
-  const userId = context.auth.uid;
+  const userId = request.auth.uid;
 
   // Check daily completion limit (resets at midnight SAST)
   const today = getSASTDayStart();
@@ -96,13 +97,13 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
   const dailyCompletions = todayCompletionsSnapshot.data().count;
 
   if (dailyCompletions >= DAILY_EARN_CAP) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "resource-exhausted",
       "DAILY_LIMIT_REACHED"
     );
   }
 
-  const { earnOpportunityId, campaignId, type, threadId } = data;
+  const { earnOpportunityId, campaignId, type, threadId } = request.data;
 
   // Support both earnOpportunityId (preferred) and campaignId (legacy)
   let rewardAmount: number;
@@ -126,20 +127,20 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
       .get();
 
     if (!opportunityDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Opportunity not found");
+      throw new HttpsError("not-found", "Opportunity not found");
     }
 
     const opportunity = opportunityDoc.data()!;
 
     if (!opportunity.isActive) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Opportunity is not active"
       );
     }
 
     if (opportunity.isDeleted === true) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Opportunity is no longer available"
       );
@@ -147,7 +148,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
 
     // Check expiry
     if (opportunity.expiresAt && opportunity.expiresAt.toDate() < new Date()) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Opportunity has expired"
       );
@@ -155,7 +156,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
 
     rewardAmount = opportunity.tokenReward;
     if (!Number.isFinite(rewardAmount) || rewardAmount <= 0) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Opportunity ${earnOpportunityId} has invalid tokenReward: ${rewardAmount}`
       );
@@ -184,7 +185,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
 
       const todayOpportunityCompletions = todayOpportunityCompletionsSnapshot.data().count;
       if (todayOpportunityCompletions >= dailyLimitPerUser) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "resource-exhausted",
           "OPPORTUNITY_DAILY_LIMIT_REACHED"
         );
@@ -207,9 +208,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
         const threadData = threadDoc.data()!;
         resolvedClientId = threadData.clientId || null;
         // Only use thread-level token source if opportunity didn't specify one
-        if (!resolvedTokenSourceAccountId) {
-          resolvedTokenSourceAccountId = threadData.tokenSourceAccountId || null;
-        }
+        resolvedTokenSourceAccountId ??= threadData.tokenSourceAccountId || null;
       }
     }
 
@@ -219,7 +218,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
   } else if (campaignId) {
     // Legacy flow: Get campaign from campaigns collection
     if (!type) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "Missing required fields: type is required when using campaignId"
       );
@@ -228,13 +227,13 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     const campaignDoc = await db.collection("campaigns").doc(campaignId).get();
 
     if (!campaignDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Campaign not found");
+      throw new HttpsError("not-found", "Campaign not found");
     }
 
     const campaign = campaignDoc.data()!;
 
     if (campaign.status !== "active") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Campaign is not active"
       );
@@ -254,13 +253,13 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
       .get();
 
     if (!existingEngagement.empty && campaign.maxEngagementsPerUser === 1) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "already-exists",
         "Already completed this campaign"
       );
     }
   } else {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Missing required fields: either earnOpportunityId or campaignId is required"
     );
@@ -278,7 +277,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     // Reserve maximum possible payout (base × bonus multiplier)
     escrowAmount = Math.floor(rewardAmount * bonusRewardMultiplier);
     if (!Number.isFinite(escrowAmount) || escrowAmount <= 0) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Invalid escrow amount (${escrowAmount}) from rewardAmount=${rewardAmount}, multiplier=${bonusRewardMultiplier}`
       );
@@ -299,12 +298,12 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
     );
 
     if (!escrowResult.success) {
-      functions.logger.error(
+      logger.error(
         `Escrow reservation failed for engagement ${engagementId}. ` +
         `Source: ${resolvedTokenSourceAccountId}, amount: ${escrowAmount}, ` +
         `error: ${escrowResult.error}, code: ${escrowResult.errorCode}`
       );
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Escrow failed: ${escrowResult.errorCode} — ${escrowResult.error}`
       );
@@ -346,7 +345,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
       } catch (rewardError: unknown) {
         // Log the specific reward reservation failure
         const rewardErrorMsg = rewardError instanceof Error ? rewardError.message : String(rewardError);
-        functions.logger.error(
+        logger.error(
           `Reward reservation failed for engagement ${engagementId}. ` +
           `campaignId: ${opportunityForReward.rewardCampaignId}, ` +
           `error: ${rewardErrorMsg}`
@@ -360,9 +359,9 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
               "system"
             );
           } catch (reverseErr) {
-            console.error(
-              `Failed to reverse escrow after reward reservation failure:`,
-              reverseErr
+            logger.error(
+              `Failed to reverse escrow after reward reservation failure`,
+              { cause: reverseErr, engagementId, escrowJournalId }
             );
           }
         }
@@ -414,7 +413,7 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
       });
     } catch (e) {
       // Thread might not exist, ignore
-      console.log(`Could not update earnThread ${resolvedThreadId}:`, e);
+      logger.info(`Could not update earnThread ${resolvedThreadId}:`, e);
     }
   }
 
@@ -432,19 +431,20 @@ export const startEngagement = functions.https.onCall(async (data, context) => {
 /**
  * Process engagement completion and reward user
  */
-export const processEngagement = functions.https.onCall(
-  async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const processEngagement = onCall(
+  { timeoutSeconds: 120, memory: "512MiB", cpu: 1, minInstances: 1, concurrency: 10, labels: { area: "earn" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated"
       );
     }
-    requireAppCheck(context, "processEngagement");
-    await requirePlayIntegrity(data, context, "processEngagement", "HIGHEST");
+    requireAppCheck(request, "processEngagement");
+    await requirePlayIntegrity(request.data, request, "processEngagement", "HIGHEST");
 
-    const userId = context.auth.uid;
-    const { engagementId, evidence } = data;
+    const userId = request.auth.uid;
+    const { engagementId, evidence } = request.data;
 
     // Get engagement
     const engagementDoc = await db
@@ -453,7 +453,7 @@ export const processEngagement = functions.https.onCall(
       .get();
 
     if (!engagementDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Engagement not found");
+      throw new HttpsError("not-found", "Engagement not found");
     }
 
     const engagement = engagementDoc.data()!;
@@ -465,7 +465,7 @@ export const processEngagement = functions.https.onCall(
 
     // Validate ownership
     if (engagement.userId !== userId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "Not authorized"
       );
@@ -477,7 +477,7 @@ export const processEngagement = functions.https.onCall(
       EngagementStatus.REWARDED,
     ];
     if (completedStatuses.includes(engagement.status)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "already-exists",
         "Engagement already completed"
       );
@@ -489,7 +489,7 @@ export const processEngagement = functions.https.onCall(
       EngagementStatus.ABANDONED,
     ];
     if (failedStatuses.includes(engagement.status)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Engagement has failed or was abandoned"
       );
@@ -505,7 +505,7 @@ export const processEngagement = functions.https.onCall(
           engagement.reservedRewardItemId,
           engagementId
         ).catch((e) =>
-          console.error("Failed to release reward reservation on evidence failure:", e)
+          logger.error("Failed to release reward reservation on evidence failure:", e)
         );
       }
       // Reverse escrow if tokens were reserved — return them to the source immediately
@@ -515,7 +515,7 @@ export const processEngagement = functions.https.onCall(
           "Evidence validation failed",
           "system"
         ).catch((e) =>
-          console.error("Failed to reverse escrow on evidence failure:", e)
+          logger.error("Failed to reverse escrow on evidence failure:", e)
         );
       }
       await engagementDoc.ref.update({
@@ -523,7 +523,7 @@ export const processEngagement = functions.https.onCall(
         failedAt: admin.firestore.FieldValue.serverTimestamp(),
         failureReason: "Invalid evidence",
       });
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "Invalid engagement evidence"
       );
@@ -636,7 +636,7 @@ export const processEngagement = functions.https.onCall(
           }
         }
       } catch (bonusError) {
-        console.error("Failed to process bonus reward:", bonusError);
+        logger.error("Failed to process bonus reward", { cause: bonusError, engagementId });
         // Continue without bonus - don't fail the engagement
       }
     }
@@ -672,7 +672,7 @@ export const processEngagement = functions.https.onCall(
         const threadData = threadDoc.data()!;
 
         if (threadData.isDeleted === true) {
-          throw new functions.https.HttpsError(
+          throw new HttpsError(
             "failed-precondition",
             "Campaign is no longer available"
           );
@@ -680,9 +680,7 @@ export const processEngagement = functions.https.onCall(
 
         clientId = threadData.clientId || null;
         // Only use thread-level token source if opportunity didn't specify one
-        if (!tokenSourceAccountId) {
-          tokenSourceAccountId = threadData.tokenSourceAccountId || null;
-        }
+        tokenSourceAccountId ??= threadData.tokenSourceAccountId || null;
         tokenDestAccountTypeId = threadData.tokenDestAccountTypeId || null;
         clientName = threadData.clientName || null;
 
@@ -691,7 +689,7 @@ export const processEngagement = functions.https.onCall(
         if (tokenSourceAccountId && !hasEscrow) {
           const sourceBalance = await getBalance(tokenSourceAccountId);
           if (sourceBalance < rewardAmount) {
-            throw new functions.https.HttpsError(
+            throw new HttpsError(
               "failed-precondition",
               "Insufficient budget for this offer"
             );
@@ -749,7 +747,7 @@ export const processEngagement = functions.https.onCall(
         || (clientId ? AccountId.client(clientId) : null);
 
       if (!resolvedTokenSource) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "No token source configured for this engagement"
         );
@@ -774,7 +772,7 @@ export const processEngagement = functions.https.onCall(
     }
 
     if (!ledgerResult.success) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "internal",
         `Failed to process earning: ${ledgerResult.error}`
       );
@@ -794,7 +792,7 @@ export const processEngagement = functions.https.onCall(
           engagementId
         );
       } catch (rewardConfirmError) {
-        functions.logger.error(
+        logger.error(
           `Failed to confirm reward reservation for engagement ${engagementId}. ` +
             `Tokens credited but reward not allocated. ` +
             `Stale reservation cleanup will release item ${engagement.reservedRewardItemId}.`,
@@ -1026,13 +1024,13 @@ export const processEngagement = functions.https.onCall(
     // Run all parallel batch 1 operations concurrently
     const [streakInfo] = await Promise.all([
       updateEngagementStats(userId, userShare, engagementStreakPoints)
-        .catch((e) => { console.error("Streak stats error:", e); return defaultStreak; }),
+        .catch((e) => { logger.error("Streak stats error:", e); return defaultStreak; }),
       doBudgetMonitoring()
-        .catch((e) => console.error("Budget monitoring error:", e)),
+        .catch((e) => logger.error("Budget monitoring error:", e)),
       doTargetingTracking()
-        .catch((e) => console.error("Targeting tracking error:", e)),
+        .catch((e) => logger.error("Targeting tracking error:", e)),
       doOpportunityBudgetTracking()
-        .catch((e) => console.error("Opportunity budget tracking error:", e)),
+        .catch((e) => logger.error("Opportunity budget tracking error:", e)),
     ]);
 
     // =========================================================================
@@ -1069,8 +1067,8 @@ export const processEngagement = functions.https.onCall(
     // Fire-and-forget: leaderboard + streak audit are non-critical for the
     // user response. Skipping the await saves ~1s (7 sequential daily score reads).
     Promise.all([
-      doLeaderboardUpdates().catch((e) => console.error("Leaderboard error:", e)),
-      doStreakAudit().catch((e) => console.error("Streak audit error:", e)),
+      doLeaderboardUpdates().catch((e) => logger.error("Leaderboard error:", e)),
+      doStreakAudit().catch((e) => logger.error("Streak audit error:", e)),
     ]);
 
     return {
@@ -1096,19 +1094,20 @@ export const processEngagement = functions.https.onCall(
 /**
  * Update engagement progress (for multi-step engagements like surveys)
  */
-export const updateEngagementProgress = functions.https.onCall(
-  async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const updateEngagementProgress = onCall(
+  { concurrency: 80, labels: { area: "earn" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated"
       );
     }
-    requireAppCheck(context, "updateEngagementProgress");
+    requireAppCheck(request, "updateEngagementProgress");
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
     const { engagementId, progress, stepData, watchDurationSeconds, status } =
-      data;
+      request.data;
 
     const engagementDoc = await db
       .collection("engagements")
@@ -1116,13 +1115,13 @@ export const updateEngagementProgress = functions.https.onCall(
       .get();
 
     if (!engagementDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Engagement not found");
+      throw new HttpsError("not-found", "Engagement not found");
     }
 
     const engagement = engagementDoc.data()!;
 
     if (engagement.userId !== userId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "Not authorized"
       );
@@ -1136,7 +1135,7 @@ export const updateEngagementProgress = functions.https.onCall(
       EngagementStatus.IN_PROGRESS,
     ];
     if (!activeStatuses.includes(engagement.status)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Engagement not in progress"
       );
@@ -1172,18 +1171,19 @@ export const updateEngagementProgress = functions.https.onCall(
 /**
  * Abandon an engagement
  */
-export const abandonEngagement = functions.https.onCall(
-  async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const abandonEngagement = onCall(
+  { concurrency: 10, labels: { area: "earn" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated"
       );
     }
-    requireAppCheck(context, "abandonEngagement");
+    requireAppCheck(request, "abandonEngagement");
 
-    const userId = context.auth.uid;
-    const { engagementId } = data;
+    const userId = request.auth.uid;
+    const { engagementId } = request.data;
 
     const engagementDoc = await db
       .collection("engagements")
@@ -1191,13 +1191,13 @@ export const abandonEngagement = functions.https.onCall(
       .get();
 
     if (!engagementDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Engagement not found");
+      throw new HttpsError("not-found", "Engagement not found");
     }
 
     const engagement = engagementDoc.data()!;
 
     if (engagement.userId !== userId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "Not authorized"
       );
@@ -1211,7 +1211,7 @@ export const abandonEngagement = functions.https.onCall(
       EngagementStatus.IN_PROGRESS,
     ];
     if (!activeStatuses.includes(engagement.status)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Engagement cannot be abandoned"
       );
@@ -1229,14 +1229,14 @@ export const abandonEngagement = functions.https.onCall(
           "system"
         );
         escrowReversalJournalId = reversalResult.journalId || null;
-        console.log(
+        logger.info(
           `Escrow reversed for engagement ${engagementId}: ` +
           `journalId=${escrowReversalJournalId}`
         );
       } catch (error) {
         // Still abandon the engagement even if reversal fails;
         // the cleanup function will retry later
-        console.error(
+        logger.error(
           `Failed to reverse escrow for engagement ${engagementId}:`,
           error
         );
@@ -1251,13 +1251,13 @@ export const abandonEngagement = functions.https.onCall(
           engagement.reservedRewardItemId,
           engagementId
         );
-        console.log(
+        logger.info(
           `Reward reservation released for engagement ${engagementId}: ` +
             `itemId=${engagement.reservedRewardItemId}`
         );
       } catch (rewardReleaseError) {
         // Still abandon — stale reservation cleanup will handle it
-        console.error(
+        logger.error(
           `Failed to release reward reservation for engagement ${engagementId}:`,
           rewardReleaseError
         );
@@ -1446,7 +1446,7 @@ async function getAdMobPublicKeys(): Promise<Map<string, crypto.KeyObject>> {
                 });
                 keys.set(key.keyId.toString(), publicKey);
               } catch (keyError) {
-                console.warn(`Failed to parse AdMob key ${key.keyId}:`, keyError);
+                logger.warn(`Failed to parse AdMob key ${key.keyId}:`, keyError);
               }
             }
           }
@@ -1455,15 +1455,15 @@ async function getAdMobPublicKeys(): Promise<Map<string, crypto.KeyObject>> {
           cachedPublicKeys = keys;
           keysCacheExpiry = now + KEYS_CACHE_TTL_MS;
 
-          console.log(`AdMob SSV: Cached ${keys.size} public keys`);
+          logger.info(`AdMob SSV: Cached ${keys.size} public keys`);
           resolve(keys);
         } catch (parseError) {
-          console.error("AdMob SSV: Failed to parse keys JSON:", parseError);
+          logger.error("AdMob SSV: Failed to parse keys JSON:", parseError);
           reject(parseError);
         }
       });
     }).on("error", (error) => {
-      console.error("AdMob SSV: Failed to fetch keys:", error);
+      logger.error("AdMob SSV: Failed to fetch keys:", error);
       reject(error);
     });
   });
@@ -1486,7 +1486,7 @@ async function verifyAdMobSignature(
     const publicKey = keys.get(keyId);
 
     if (!publicKey) {
-      console.error(`AdMob SSV: Unknown key ID: ${keyId}`);
+      logger.error(`AdMob SSV: Unknown key ID: ${keyId}`);
       return false;
     }
 
@@ -1502,7 +1502,7 @@ async function verifyAdMobSignature(
 
     // Decode the base64 signature (URL-safe base64)
     const signatureBuffer = Buffer.from(
-      signature.replace(/-/g, "+").replace(/_/g, "/"),
+      signature.replaceAll("-", "+").replaceAll("_", "/"),
       "base64"
     );
 
@@ -1512,7 +1512,7 @@ async function verifyAdMobSignature(
 
     return verifier.verify(publicKey, signatureBuffer);
   } catch (error) {
-    console.error("AdMob SSV: Signature verification error:", error);
+    logger.error("AdMob SSV: Signature verification error:", error);
     return false;
   }
 }
@@ -1538,10 +1538,10 @@ async function verifyAdMobSignature(
  *
  * @see https://developers.google.com/admob/android/ssv
  */
-export const admobSSVCallback = functions.https.onRequest(async (req, res) => {
+export const admobSSVCallback = onRequest({ timeoutSeconds: 10, cors: false, concurrency: 200, invoker: "public", labels: { area: "earn" } }, async (req, res) => {
   try {
     // Log the callback for debugging
-    console.log("AdMob SSV Callback received:", {
+    logger.info("AdMob SSV Callback received:", {
       query: req.query,
       method: req.method,
       url: req.url,
@@ -1568,7 +1568,7 @@ export const admobSSVCallback = functions.https.onRequest(async (req, res) => {
 
     // Validate required parameters
     if (!transactionId || !customData) {
-      console.error("AdMob SSV: Missing required parameters");
+      logger.error("AdMob SSV: Missing required parameters");
       res.status(400).send("Missing required parameters");
       return;
     }
@@ -1582,7 +1582,7 @@ export const admobSSVCallback = functions.https.onRequest(async (req, res) => {
 
     // Validate the user ID matches
     if (userId && ssv_userId !== userId) {
-      console.warn("AdMob SSV: User ID mismatch", { ssv_userId, userId });
+      logger.warn("AdMob SSV: User ID mismatch", { ssv_userId, userId });
     }
 
     // Verify the signature using Google's public keys
@@ -1593,7 +1593,7 @@ export const admobSSVCallback = functions.https.onRequest(async (req, res) => {
       signatureValid = await verifyAdMobSignature(queryString, signature, keyId);
 
       if (!signatureValid) {
-        console.error("AdMob SSV: Invalid signature", {
+        logger.error("AdMob SSV: Invalid signature", {
           transactionId,
           keyId,
           userId: ssv_userId,
@@ -1601,10 +1601,10 @@ export const admobSSVCallback = functions.https.onRequest(async (req, res) => {
         // Still store the record but mark as unverified
         // This allows investigation of potential fraud
       } else {
-        console.log("AdMob SSV: Signature verified successfully", { transactionId });
+        logger.info("AdMob SSV: Signature verified successfully", { transactionId });
       }
     } else {
-      console.warn("AdMob SSV: Missing signature or key_id", { transactionId });
+      logger.warn("AdMob SSV: Missing signature or key_id", { transactionId });
     }
 
     // Store the SSV verification record
@@ -1613,7 +1613,7 @@ export const admobSSVCallback = functions.https.onRequest(async (req, res) => {
 
     if (existingDoc.exists) {
       // Duplicate callback - this is normal for retries
-      console.log("AdMob SSV: Duplicate callback for transaction", transactionId);
+      logger.info("AdMob SSV: Duplicate callback for transaction", transactionId);
       res.status(200).send("OK - Already processed");
       return;
     }
@@ -1634,7 +1634,7 @@ export const admobSSVCallback = functions.https.onRequest(async (req, res) => {
       rawQuery: req.query,
     });
 
-    console.log("AdMob SSV: Verification stored successfully", {
+    logger.info("AdMob SSV: Verification stored successfully", {
       transactionId,
       userId: ssv_userId,
       adUnit,
@@ -1645,7 +1645,7 @@ export const admobSSVCallback = functions.https.onRequest(async (req, res) => {
     // AdMob expects a 200 response to confirm the callback was received
     res.status(200).send("OK");
   } catch (error) {
-    console.error("AdMob SSV: Error processing callback", error);
+    logger.error("AdMob SSV: Error processing callback", error);
     // Return 200 anyway to prevent AdMob from retrying indefinitely
     // We log the error for investigation
     res.status(200).send("OK - Error logged");
@@ -1656,18 +1656,18 @@ export const admobSSVCallback = functions.https.onRequest(async (req, res) => {
  * Verify an AdMob SSV transaction
  * Called by the client to check if a transaction was verified via SSV
  */
-export const verifyAdMobTransaction = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const verifyAdMobTransaction = onCall({ concurrency: 80, labels: { area: "earn" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated"
     );
   }
 
-  const { transactionId } = data;
+  const { transactionId } = request.data;
 
   if (!transactionId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Transaction ID is required"
     );
@@ -1686,9 +1686,9 @@ export const verifyAdMobTransaction = functions.https.onCall(async (data, contex
   const ssvData = ssvDoc.data();
 
   // Verify the user matches
-  if (ssvData?.userId !== context.auth.uid) {
-    console.warn("AdMob SSV verification: User ID mismatch", {
-      expected: context.auth.uid,
+  if (ssvData?.userId !== request.auth.uid) {
+    logger.warn("AdMob SSV verification: User ID mismatch", {
+      expected: request.auth.uid,
       actual: ssvData?.userId,
     });
     return {

@@ -37,7 +37,7 @@ class _PendingActionsScreenState extends State<PendingActionsScreen> {
     });
 
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminListPendingActions')
           .call({'status': 'all'});
 
@@ -211,7 +211,7 @@ class _PendingActionsScreenState extends State<PendingActionsScreen> {
     setState(() => _isProcessing = true);
 
     try {
-      await FirebaseFunctions.instance
+      await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminApproveAction')
           .call({'pendingActionId': action['id']});
 
@@ -310,7 +310,7 @@ class _PendingActionsScreenState extends State<PendingActionsScreen> {
     setState(() => _isProcessing = true);
 
     try {
-      await FirebaseFunctions.instance
+      await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminRejectAction')
           .call({
         'pendingActionId': action['id'],

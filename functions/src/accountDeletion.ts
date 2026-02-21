@@ -10,7 +10,8 @@
  * - Left the onUserDeleted trigger as the only cleanup (which only covered 4 collections)
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
 
@@ -25,21 +26,21 @@ const db = admin.firestore();
  *
  * @returns {{ success: boolean }}
  */
-export const deleteUserAccount = functions
-  .runWith({ timeoutSeconds: 540, memory: "512MB" })
-  .https.onCall(async (data, context) => {
+export const deleteUserAccount = onCall(
+  { timeoutSeconds: 540, memory: "512MiB", labels: { area: "lifecycle" } },
+  async (request) => {
     // Require authentication — only the user themselves can delete
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated to delete their account."
       );
     }
-    requireAppCheck(context, "deleteUserAccount");
+    requireAppCheck(request, "deleteUserAccount");
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
 
-    console.log(`Account deletion requested by user ${userId}`);
+    logger.info(`Account deletion requested by user ${userId}`);
 
     // ── Pre-check: reject if there are pending cashouts ───────────────
     const pendingCashouts = await db.collection("cashouts")
@@ -49,7 +50,7 @@ export const deleteUserAccount = functions
       .get();
 
     if (!pendingCashouts.empty) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Cannot delete account while cashouts are being processed. " +
         "Please wait for pending cashouts to complete."
@@ -141,8 +142,10 @@ export const deleteUserAccount = functions
         ["rewardActivityLog", "userId"],
       ];
 
-      for (const [collection, field] of fieldQueryCollections) {
-        await deleteByFieldQuery(collection, field, userId);
+      // Process in batches of 5 collections at a time for controlled concurrency
+      for (let i = 0; i < fieldQueryCollections.length; i += 5) {
+        const batch = fieldQueryCollections.slice(i, i + 5);
+        await Promise.all(batch.map(([collection, field]) => deleteByFieldQuery(collection, field, userId)));
       }
 
       // ── Phase 2: Anonymize chat messages where user is recipient ────
@@ -212,11 +215,11 @@ export const deleteUserAccount = functions
           subAccountBatch.delete(doc.ref);
         });
         await subAccountBatch.commit();
-        console.log(`  Deleted ${subAccountsSnap.size} subAccounts for user`);
+        logger.info(`  Deleted ${subAccountsSnap.size} subAccounts for user`);
       }
 
       await db.collection("ledgerAccounts").doc(userId).delete();
-      console.log("  Deleted ledgerAccount document");
+      logger.info("  Deleted ledgerAccount document");
 
       // ── Phase 5c: Delete dailyScores subcollection ────────────────────
       //
@@ -234,7 +237,7 @@ export const deleteUserAccount = functions
           dailyScoresBatch.delete(doc.ref);
         });
         await dailyScoresBatch.commit();
-        console.log(`  Deleted ${dailyScoresSnap.size} dailyScores for user`);
+        logger.info(`  Deleted ${dailyScoresSnap.size} dailyScores for user`);
       }
 
       // ── Phase 5d: Delete leaderboard scores subcollections ───────────
@@ -249,7 +252,7 @@ export const deleteUserAccount = functions
         );
       }
       await lbBatch.commit();
-      console.log("  Deleted leaderboard scores for user");
+      logger.info("  Deleted leaderboard scores for user");
 
       // ── Phase 5e: Delete poll responses ─────────────────────────────
       //
@@ -272,20 +275,21 @@ export const deleteUserAccount = functions
 
       await admin.auth().deleteUser(userId);
 
-      console.log(
+      logger.info(
         `Account deletion complete for user ${userId}: ` +
         `all Firestore data and Auth account removed.`
       );
 
       return { success: true };
     } catch (error) {
-      console.error(`Account deletion failed for user ${userId}:`, error);
-      throw new functions.https.HttpsError(
+      logger.error(`Account deletion failed for user ${userId}:`, error);
+      throw new HttpsError(
         "internal",
         "Account deletion failed. Please try again or contact support."
       );
     }
-  });
+  }
+);
 
 // ── Helper Functions ──────────────────────────────────────────────────────
 
@@ -318,7 +322,7 @@ async function deleteByFieldQuery(
   }
 
   if (deleted > 0) {
-    console.log(
+    logger.info(
       `  Deleted ${deleted} docs from ${collectionName} (${field}=${value})`
     );
   }
@@ -354,7 +358,7 @@ async function anonymizeChatRecipient(userId: string): Promise<void> {
   }
 
   if (updated > 0) {
-    console.log(`  Anonymized ${updated} chat messages (recipient)`);
+    logger.info(`  Anonymized ${updated} chat messages (recipient)`);
   }
 }
 
@@ -390,7 +394,7 @@ async function cleanupChatThreads(userId: string): Promise<void> {
   }
 
   await batch.commit();
-  console.log(
+  logger.info(
     `  Chat threads: ${deleted} deleted, ${updated} updated (removed participant)`
   );
 }
@@ -413,36 +417,64 @@ async function cleanupConversations(userId: string): Promise<void> {
   let deleted = 0;
   let updated = 0;
 
+  // Separate docs into delete vs update groups
+  const toDelete: FirebaseFirestore.QueryDocumentSnapshot[] = [];
+  const toUpdate: { doc: FirebaseFirestore.QueryDocumentSnapshot; updateData: Record<string, unknown> }[] = [];
+
   for (const convDoc of conversations.docs) {
     const data = convDoc.data();
     const participants: string[] = data.participantIds || [];
     const remaining = participants.filter((id: string) => id !== userId);
 
     if (remaining.length === 0) {
-      // No participants left — delete the conversation and all messages
-      await deleteSubcollection(convDoc.ref.collection("messages"));
-      await convDoc.ref.delete();
-      deleted++;
+      toDelete.push(convDoc);
     } else {
-      // Remove user from arrays and per-user metadata maps
-      const updateData: Record<string, unknown> = {
-        participantIds: remaining,
-        [`unreadCounts.${userId}`]: admin.firestore.FieldValue.delete(),
-        [`archived.${userId}`]: admin.firestore.FieldValue.delete(),
-        [`pinned.${userId}`]: admin.firestore.FieldValue.delete(),
-        [`muted.${userId}`]: admin.firestore.FieldValue.delete(),
-      };
-      await convDoc.ref.update(updateData);
-
-      // Anonymize messages sent by this user
-      await anonymizeSubcollectionField(
-        convDoc.ref.collection("messages"), "senderId", userId
-      );
-      updated++;
+      toUpdate.push({
+        doc: convDoc,
+        updateData: {
+          participantIds: remaining,
+          [`unreadCounts.${userId}`]: admin.firestore.FieldValue.delete(),
+          [`archived.${userId}`]: admin.firestore.FieldValue.delete(),
+          [`pinned.${userId}`]: admin.firestore.FieldValue.delete(),
+          [`muted.${userId}`]: admin.firestore.FieldValue.delete(),
+        },
+      });
     }
   }
 
-  console.log(
+  // Batch delete: clean subcollections first, then batch-delete docs
+  for (const convDoc of toDelete) {
+    await deleteSubcollection(convDoc.ref.collection("messages"));
+  }
+  for (let i = 0; i < toDelete.length; i += 500) {
+    const chunk = toDelete.slice(i, i + 500);
+    const batch = db.batch();
+    for (const convDoc of chunk) {
+      batch.delete(convDoc.ref);
+    }
+    await batch.commit();
+  }
+  deleted = toDelete.length;
+
+  // Batch update conversation docs (up to 500 per batch)
+  for (let i = 0; i < toUpdate.length; i += 500) {
+    const chunk = toUpdate.slice(i, i + 500);
+    const batch = db.batch();
+    for (const { doc, updateData } of chunk) {
+      batch.update(doc.ref, updateData);
+    }
+    await batch.commit();
+  }
+
+  // Anonymize messages sent by this user (each call is internally batched)
+  for (const { doc } of toUpdate) {
+    await anonymizeSubcollectionField(
+      doc.ref.collection("messages"), "senderId", userId
+    );
+  }
+  updated = toUpdate.length;
+
+  logger.info(
     `  Conversations: ${deleted} deleted, ${updated} updated (removed participant)`
   );
 }
@@ -465,6 +497,10 @@ async function cleanupCommunities(userId: string): Promise<void> {
   let deleted = 0;
   let updated = 0;
 
+  // Separate into delete vs update groups
+  const toDelete: FirebaseFirestore.QueryDocumentSnapshot[] = [];
+  const toUpdate: { doc: FirebaseFirestore.QueryDocumentSnapshot; updateData: Record<string, unknown> }[] = [];
+
   for (const commDoc of communities.docs) {
     const data = commDoc.data();
     const members: string[] = data.memberIds || [];
@@ -472,16 +508,8 @@ async function cleanupCommunities(userId: string): Promise<void> {
     const remaining = members.filter((id: string) => id !== userId);
 
     if (remaining.length === 0) {
-      // No members left — delete entire community and all subcollections
-      const subcollections = ["members", "messages", "transactions",
-        "pendingApprovals", "keyDistribution"];
-      for (const sub of subcollections) {
-        await deleteSubcollection(commDoc.ref.collection(sub));
-      }
-      await commDoc.ref.delete();
-      deleted++;
+      toDelete.push(commDoc);
     } else {
-      // Remove user from arrays and per-user metadata
       const updateData: Record<string, unknown> = {
         memberIds: remaining,
         adminIds: admins.filter((id: string) => id !== userId),
@@ -497,32 +525,56 @@ async function cleanupCommunities(userId: string): Promise<void> {
           : remaining[0];
       }
 
-      await commDoc.ref.update(updateData);
-
-      // Delete the member subcollection doc for this user
-      await commDoc.ref.collection("members").doc(userId).delete();
-
-      // Anonymize messages sent by this user
-      await anonymizeSubcollectionField(
-        commDoc.ref.collection("messages"), "senderId", userId
-      );
-
-      // Clean up pending approvals where user is an approver
-      await removeFromArrayInSubcollection(
-        commDoc.ref.collection("pendingApprovals"),
-        "requiredApprovers", userId
-      );
-
-      // Delete key distribution entries for this user
-      await deleteByFieldQueryInSubcollection(
-        commDoc.ref.collection("keyDistribution"), "toUserId", userId
-      );
-
-      updated++;
+      toUpdate.push({ doc: commDoc, updateData });
     }
   }
 
-  console.log(
+  // Batch delete: clean subcollections first, then batch-delete community docs
+  const subcollections = ["members", "messages", "transactions",
+    "pendingApprovals", "keyDistribution"];
+  for (const commDoc of toDelete) {
+    for (const sub of subcollections) {
+      await deleteSubcollection(commDoc.ref.collection(sub));
+    }
+  }
+  for (let i = 0; i < toDelete.length; i += 500) {
+    const chunk = toDelete.slice(i, i + 500);
+    const batch = db.batch();
+    for (const commDoc of chunk) {
+      batch.delete(commDoc.ref);
+    }
+    await batch.commit();
+  }
+  deleted = toDelete.length;
+
+  // Batch update community docs + member subdoc deletes (up to 500 per batch)
+  for (let i = 0; i < toUpdate.length; i += 250) {
+    // 250 updates + 250 member deletes = 500 max writes per batch
+    const chunk = toUpdate.slice(i, i + 250);
+    const batch = db.batch();
+    for (const { doc, updateData } of chunk) {
+      batch.update(doc.ref, updateData);
+      batch.delete(doc.ref.collection("members").doc(userId));
+    }
+    await batch.commit();
+  }
+
+  // Subcollection cleanup (each is internally batched)
+  for (const { doc } of toUpdate) {
+    await anonymizeSubcollectionField(
+      doc.ref.collection("messages"), "senderId", userId
+    );
+    await removeFromArrayInSubcollection(
+      doc.ref.collection("pendingApprovals"),
+      "requiredApprovers", userId
+    );
+    await deleteByFieldQueryInSubcollection(
+      doc.ref.collection("keyDistribution"), "toUserId", userId
+    );
+  }
+  updated = toUpdate.length;
+
+  logger.info(
     `  Communities: ${deleted} deleted, ${updated} updated (removed member)`
   );
 }
@@ -627,22 +679,31 @@ async function deletePollResponses(userId: string): Promise<void> {
   const polls = await db.collection("polls").get();
   if (polls.empty) return;
 
-  let totalDeleted = 0;
-  const batch = db.batch();
+  // Batch-fetch all response docs at once instead of N+1 individual gets
+  const responseRefs = polls.docs.map(
+    (poll) => poll.ref.collection("responses").doc(userId)
+  );
 
-  for (const poll of polls.docs) {
-    const responseRef = poll.ref.collection("responses").doc(userId);
-    const responseDoc = await responseRef.get();
-    if (responseDoc.exists) {
-      batch.delete(responseRef);
-      totalDeleted++;
+  // db.getAll() fetches up to 500 docs in a single round-trip
+  const responseDocs = await db.getAll(...responseRefs);
+
+  // Filter to only those that exist and batch-delete
+  const existingRefs = responseDocs
+    .filter((doc) => doc.exists)
+    .map((doc) => doc.ref);
+
+  if (existingRefs.length === 0) return;
+
+  for (let i = 0; i < existingRefs.length; i += 500) {
+    const chunk = existingRefs.slice(i, i + 500);
+    const batch = db.batch();
+    for (const ref of chunk) {
+      batch.delete(ref);
     }
+    await batch.commit();
   }
 
-  if (totalDeleted > 0) {
-    await batch.commit();
-    console.log(`  Deleted ${totalDeleted} poll responses for user`);
-  }
+  logger.info(`  Deleted ${existingRefs.length} poll responses for user`);
 }
 
 /**
@@ -673,6 +734,6 @@ async function deleteRateLimits(identifiers: string[]): Promise<void> {
   }
 
   if (totalDeleted > 0) {
-    console.log(`  Deleted ${totalDeleted} rate limit docs for user`);
+    logger.info(`  Deleted ${totalDeleted} rate limit docs for user`);
   }
 }

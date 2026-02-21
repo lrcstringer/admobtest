@@ -17,21 +17,24 @@ import {
 
 jest.mock("firebase-admin", () => require("./mocks/admin.mock").mockFirebaseAdmin);
 
-jest.mock("firebase-functions", () => ({
-  https: {
-    onCall: jest.fn((handler) => handler),
-    HttpsError: class HttpsError extends Error {
-      constructor(
-        public code: string,
-        public message: string,
-        public details?: unknown
-      ) {
-        super(message);
-        this.name = "HttpsError";
-      }
-    },
-  },
-  logger: { log: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn() },
+const MockHttpsError = class HttpsError extends Error {
+  constructor(
+    public code: string,
+    public message: string,
+    public details?: unknown
+  ) {
+    super(message);
+    this.name = "HttpsError";
+  }
+};
+
+jest.mock("firebase-functions/v2/https", () => ({
+  onCall: jest.fn((...args: unknown[]) => {
+    const handler = typeof args[0] === "function" ? args[0] : args[1];
+    return (data: unknown, context: unknown) =>
+      (handler as Function)({ data, ...(context as object) });
+  }),
+  HttpsError: MockHttpsError,
 }));
 
 // Mock ledger functions
@@ -239,7 +242,7 @@ describe("cancelCashout", () => {
 
     await cancelCashout({ cashoutId: "co_001" }, authContext);
 
-    expect(mockRequireAppCheck).toHaveBeenCalledWith(authContext, "cancelCashout");
+    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "cancelCashout");
   });
 });
 
@@ -365,6 +368,6 @@ describe("transferBetweenWallets", () => {
       authContext
     );
 
-    expect(mockRequireAppCheck).toHaveBeenCalledWith(authContext, "transferBetweenWallets");
+    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "transferBetweenWallets");
   });
 });

@@ -86,7 +86,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
 
     try {
       final callable =
-          FirebaseFunctions.instance.httpsCallable('adminListAdmins');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('adminListAdmins');
       final result = await callable.call<dynamic>();
       final data = result.data as Map<String, dynamic>;
       final adminsList = (data['admins'] as List<dynamic>?) ?? [];
@@ -230,7 +230,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
 
     try {
       final callable =
-          FirebaseFunctions.instance.httpsCallable('adminSetRole');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('adminSetRole');
       await callable.call<dynamic>({
         'targetUid': uid,
         'roles': selectedRoles.toList(),
@@ -296,7 +296,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
 
     try {
       final callable =
-          FirebaseFunctions.instance.httpsCallable('adminForceSignOut');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('adminForceSignOut');
       await callable.call<dynamic>({'targetUid': uid});
 
       if (!mounted) return;
@@ -390,7 +390,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
 
     try {
       final callable =
-          FirebaseFunctions.instance.httpsCallable('adminRevokeRole');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('adminRevokeRole');
       await callable.call<dynamic>({'targetUid': uid});
 
       if (!mounted) return;
@@ -1018,7 +1018,7 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
 
     try {
       final callable =
-          FirebaseFunctions.instance.httpsCallable('adminCreateAdmin');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('adminCreateAdmin');
       final result = await callable.call<dynamic>({
         'email': _emailController.text.trim(),
         'displayName': _displayNameController.text.trim(),

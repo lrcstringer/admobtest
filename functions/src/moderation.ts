@@ -10,7 +10,7 @@
  *   communities/...              — message deletion
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
 
@@ -20,9 +20,9 @@ const db = admin.firestore();
 // HELPERS
 // ============================================================================
 
-function requireAuth(context: functions.https.CallableContext): string {
+function requireAuth(context: { auth?: { uid: string; token: Record<string, unknown> } }): string {
   if (!context.auth) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "unauthenticated",
       "Authentication required."
     );
@@ -37,20 +37,22 @@ function requireAuth(context: functions.https.CallableContext): string {
 /**
  * Block a user — adds them to the caller's blockedUserIds array.
  */
-export const blockUser = functions.https.onCall(
-  async (data: { targetUserId: string }, context) => {
-    const userId = requireAuth(context);
-    requireAppCheck(context, "blockUser");
+export const blockUser = onCall(
+  { labels: { area: "moderation" } },
+  async (request) => {
+    const data = request.data as { targetUserId: string };
+    const userId = requireAuth(request);
+    requireAppCheck(request, "blockUser");
 
     const { targetUserId } = data;
     if (!targetUserId || typeof targetUserId !== "string") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "targetUserId is required."
       );
     }
     if (targetUserId === userId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "You cannot block yourself."
       );
@@ -70,14 +72,16 @@ export const blockUser = functions.https.onCall(
 /**
  * Unblock a user — removes them from the caller's blockedUserIds array.
  */
-export const unblockUser = functions.https.onCall(
-  async (data: { targetUserId: string }, context) => {
-    const userId = requireAuth(context);
-    requireAppCheck(context, "unblockUser");
+export const unblockUser = onCall(
+  { labels: { area: "moderation" } },
+  async (request) => {
+    const data = request.data as { targetUserId: string };
+    const userId = requireAuth(request);
+    requireAppCheck(request, "unblockUser");
 
     const { targetUserId } = data;
     if (!targetUserId || typeof targetUserId !== "string") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "targetUserId is required."
       );
@@ -96,9 +100,9 @@ export const unblockUser = functions.https.onCall(
 /**
  * Get the current user's list of blocked user IDs.
  */
-export const getBlockedUsers = functions.https.onCall(async (_data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "getBlockedUsers");
+export const getBlockedUsers = onCall({ labels: { area: "moderation" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "getBlockedUsers");
 
   const userDoc = await db.collection("users").doc(userId).get();
   const userData = userDoc.data();
@@ -115,25 +119,24 @@ export const getBlockedUsers = functions.https.onCall(async (_data, context) => 
 /**
  * Submit an abuse report against a user, message, or community.
  */
-export const submitReport = functions.https.onCall(
-  async (
-    data: {
+export const submitReport = onCall(
+  { labels: { area: "moderation" } },
+  async (request) => {
+    const data = request.data as {
       type: string;
       targetId: string;
       reason: string;
       additionalInfo?: string;
-    },
-    context
-  ) => {
-    const userId = requireAuth(context);
-    requireAppCheck(context, "submitReport");
+    };
+    const userId = requireAuth(request);
+    requireAppCheck(request, "submitReport");
 
     const { type, targetId, reason, additionalInfo } = data;
 
     // Validate type
     const validTypes = ["message", "user", "community"];
     if (!validTypes.includes(type)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         `Invalid report type. Must be one of: ${validTypes.join(", ")}`
       );
@@ -148,14 +151,14 @@ export const submitReport = functions.https.onCall(
       "other",
     ];
     if (!validReasons.includes(reason)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         `Invalid reason. Must be one of: ${validReasons.join(", ")}`
       );
     }
 
     if (!targetId || typeof targetId !== "string") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "targetId is required."
       );
@@ -184,22 +187,21 @@ export const submitReport = functions.https.onCall(
 /**
  * Delete a message for the current user only (adds userId to deletedFor[]).
  */
-export const deleteMessageForMe = functions.https.onCall(
-  async (
-    data: {
+export const deleteMessageForMe = onCall(
+  { labels: { area: "moderation" } },
+  async (request) => {
+    const data = request.data as {
       parentCollection: string;
       parentId: string;
       messageId: string;
-    },
-    context
-  ) => {
-    const userId = requireAuth(context);
-    requireAppCheck(context, "deleteMessageForMe");
+    };
+    const userId = requireAuth(request);
+    requireAppCheck(request, "deleteMessageForMe");
 
     const { parentCollection, parentId, messageId } = data;
 
     if (!["conversations", "communities"].includes(parentCollection)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "parentCollection must be 'conversations' or 'communities'."
       );
@@ -213,7 +215,7 @@ export const deleteMessageForMe = functions.https.onCall(
 
     const msgDoc = await msgRef.get();
     if (!msgDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Message not found.");
+      throw new HttpsError("not-found", "Message not found.");
     }
 
     await msgRef.update({
@@ -228,22 +230,21 @@ export const deleteMessageForMe = functions.https.onCall(
  * Delete a message for everyone — only the sender can do this, within 1 hour.
  * Community admins can also delete any message in their community.
  */
-export const deleteMessageForEveryone = functions.https.onCall(
-  async (
-    data: {
+export const deleteMessageForEveryone = onCall(
+  { labels: { area: "moderation" } },
+  async (request) => {
+    const data = request.data as {
       parentCollection: string;
       parentId: string;
       messageId: string;
-    },
-    context
-  ) => {
-    const userId = requireAuth(context);
-    requireAppCheck(context, "deleteMessageForEveryone");
+    };
+    const userId = requireAuth(request);
+    requireAppCheck(request, "deleteMessageForEveryone");
 
     const { parentCollection, parentId, messageId } = data;
 
     if (!["conversations", "communities"].includes(parentCollection)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "parentCollection must be 'conversations' or 'communities'."
       );
@@ -257,7 +258,7 @@ export const deleteMessageForEveryone = functions.https.onCall(
 
     const msgDoc = await msgRef.get();
     if (!msgDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Message not found.");
+      throw new HttpsError("not-found", "Message not found.");
     }
 
     const msgData = msgDoc.data()!;
@@ -279,7 +280,7 @@ export const deleteMessageForEveryone = functions.https.onCall(
     }
 
     if (!isSender && !isAdmin) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "Only the sender or a community admin can delete messages for everyone."
       );
@@ -290,7 +291,7 @@ export const deleteMessageForEveryone = functions.https.onCall(
       const createdAt = msgData.createdAt?.toDate?.() || new Date(0);
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
       if (createdAt < oneHourAgo) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "Messages can only be deleted for everyone within 1 hour of sending."
         );

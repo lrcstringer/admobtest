@@ -3,7 +3,8 @@
  * Regular maintenance and cleanup tasks
  */
 
-import * as functions from "firebase-functions";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { reverseJournal } from "./ledger";
 import { EscrowConfig } from "./ledger/types";
@@ -14,10 +15,9 @@ const db = admin.firestore();
  * Update all-time leaderboard rankings daily at midnight
  * Uses leaderboards/allTime/scores subcollection for Flutter compatibility
  */
-export const updateLeaderboard = functions.pubsub
-  .schedule("0 0 * * *")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const updateLeaderboard = onSchedule(
+  { schedule: "0 0 * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", timeoutSeconds: 180, labels: { area: "lifecycle" } },
+  async () => {
     // Get all users with their lifetime earnings
     const walletsSnapshot = await db.collection("wallets")
       .orderBy("lifetimeEarned", "desc")
@@ -34,27 +34,27 @@ export const updateLeaderboard = functions.pubsub
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
 
+    // Fetch all user profiles in parallel (was serial — saves ~2-5s for 100 users)
+    const userRefs = walletsSnapshot.docs.map((doc) =>
+      db.collection("users").doc(doc.data().userId)
+    );
+    const userDocs = userRefs.length > 0 ? await db.getAll(...userRefs) : [];
+    const userDataMap = new Map<string, FirebaseFirestore.DocumentData>();
+    for (const userDoc of userDocs) {
+      if (userDoc.exists) {
+        userDataMap.set(userDoc.id, userDoc.data()!);
+      }
+    }
+
     // Update scores in the subcollection
     for (let index = 0; index < walletsSnapshot.docs.length; index++) {
       const doc = walletsSnapshot.docs[index];
       const data = doc.data();
+      const userData = userDataMap.get(data.userId);
 
-      // Get user profile for display name
-      let displayName = "User";
-      let username: string | null = null;
-      let avatarUrl: string | null = null;
-
-      try {
-        const userDoc = await db.collection("users").doc(data.userId).get();
-        if (userDoc.exists) {
-          const userData = userDoc.data();
-          displayName = userData?.profile?.displayName || userData?.displayName || "User";
-          username = userData?.profile?.username || userData?.username || null;
-          avatarUrl = userData?.profile?.avatarUrl || userData?.avatarUrl || null;
-        }
-      } catch (e) {
-        console.log(`Could not fetch user profile for ${data.userId}`);
-      }
+      const displayName = userData?.profile?.displayName || userData?.displayName || "User";
+      const username = userData?.profile?.username || userData?.username || null;
+      const avatarUrl = userData?.profile?.avatarUrl || userData?.avatarUrl || null;
 
       const scoreRef = db.collection("leaderboards")
         .doc("allTime")
@@ -78,17 +78,16 @@ export const updateLeaderboard = functions.pubsub
     }
 
     await batch.commit();
-    console.log(`Updated allTime leaderboard with ${walletsSnapshot.size} entries`);
-    return null;
-  });
+    logger.info(`Updated allTime leaderboard with ${walletsSnapshot.size} entries`);
+  }
+);
 
 /**
  * Cleanup old pot entries (older than 30 days)
  */
-export const cleanupOldPotEntries = functions.pubsub
-  .schedule("0 2 * * *")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const cleanupOldPotEntries = onSchedule(
+  { schedule: "0 2 * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "lifecycle" } },
+  async () => {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const cutoffDate = thirtyDaysAgo.toISOString().split("T")[0];
@@ -99,8 +98,8 @@ export const cleanupOldPotEntries = functions.pubsub
       .get();
 
     if (oldEntries.empty) {
-      console.log("No old pot entries to clean up");
-      return null;
+      logger.info("No old pot entries to clean up");
+      return;
     }
 
     const batch = db.batch();
@@ -109,26 +108,25 @@ export const cleanupOldPotEntries = functions.pubsub
     });
 
     await batch.commit();
-    console.log(`Cleaned up ${oldEntries.size} old pot entries`);
-    return null;
-  });
+    logger.info(`Cleaned up ${oldEntries.size} old pot entries`);
+  }
+);
 
 /**
  * Process pending cashouts (run every hour)
  * In production, this would integrate with a payment provider
  */
-export const processPendingCashouts = functions.pubsub
-  .schedule("0 * * * *")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const processPendingCashouts = onSchedule(
+  { schedule: "0 * * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "lifecycle" } },
+  async () => {
     const pendingCashouts = await db.collection("cashouts")
       .where("status", "==", "pending")
       .limit(50)
       .get();
 
     if (pendingCashouts.empty) {
-      console.log("No pending cashouts to process");
-      return null;
+      logger.info("No pending cashouts to process");
+      return;
     }
 
     for (const doc of pendingCashouts.docs) {
@@ -139,12 +137,11 @@ export const processPendingCashouts = functions.pubsub
         // For now, we'll simulate processing
         await simulateCashoutProcessing(doc.ref, cashout);
       } catch (error) {
-        console.error(`Failed to process cashout ${doc.id}:`, error);
+        logger.error(`Failed to process cashout ${doc.id}:`, error);
       }
     }
-
-    return null;
-  });
+  }
+);
 
 async function simulateCashoutProcessing(
   cashoutRef: FirebaseFirestore.DocumentReference,
@@ -189,16 +186,15 @@ async function simulateCashoutProcessing(
     }
   });
 
-  console.log(`Processed cashout ${cashoutRef.id} for ${cashout.zarAmount} ZAR`);
+  logger.info(`Processed cashout ${cashoutRef.id} for ${cashout.zarAmount} ZAR`);
 }
 
 /**
  * Send daily earning reminder at 6 PM
  */
-export const sendEarningReminder = functions.pubsub
-  .schedule("0 18 * * *")
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const sendEarningReminder = onSchedule(
+  { schedule: "0 18 * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "lifecycle" } },
+  async () => {
     // Get users who haven't earned today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -210,20 +206,18 @@ export const sendEarningReminder = functions.pubsub
 
     // In production, send push notifications
     // For now, just log
-    console.log(`${walletsWithoutEarnings.size} users haven't earned today`);
+    logger.info(`${walletsWithoutEarnings.size} users haven't earned today`);
 
     // TODO: Integrate with FCM to send push notifications
-
-    return null;
-  });
+  }
+);
 
 /**
  * Generate weekly statistics report
  */
-export const generateWeeklyStats = functions.pubsub
-  .schedule("0 0 * * 1") // Monday at midnight
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const generateWeeklyStats = onSchedule(
+  { schedule: "0 0 * * 1", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "lifecycle" } }, // Monday at midnight
+  async () => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
 
@@ -258,9 +252,9 @@ export const generateWeeklyStats = functions.pubsub
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    console.log(`Weekly stats generated: ${transactionsSnapshot.size} transactions`);
-    return null;
-  });
+    logger.info(`Weekly stats generated: ${transactionsSnapshot.size} transactions`);
+  }
+);
 
 /**
  * Cleanup abandoned escrows — auto-abandon stale engagements and reverse
@@ -269,10 +263,9 @@ export const generateWeeklyStats = functions.pubsub
  * Runs every 15 minutes. Processes engagements that have been in an active
  * status for longer than the escrow TTL (2 hours).
  */
-export const cleanupAbandonedEscrows = functions.pubsub
-  .schedule(EscrowConfig.CLEANUP_INTERVAL_CRON)
-  .timeZone("Africa/Johannesburg")
-  .onRun(async () => {
+export const cleanupAbandonedEscrows = onSchedule(
+  { schedule: EscrowConfig.CLEANUP_INTERVAL_CRON, timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "lifecycle" } },
+  async () => {
     const cutoff = admin.firestore.Timestamp.fromMillis(
       Date.now() - EscrowConfig.ESCROW_TTL_MS
     );
@@ -290,6 +283,10 @@ export const cleanupAbandonedEscrows = functions.pubsub
         .limit(EscrowConfig.CLEANUP_BATCH_SIZE)
         .get();
 
+      // Accumulate batch writes for status updates (up to 500 per batch)
+      let batch = db.batch();
+      let batchCount = 0;
+
       for (const doc of staleEngagements.docs) {
         const engagement = doc.data();
         totalProcessed++;
@@ -303,7 +300,7 @@ export const cleanupAbandonedEscrows = functions.pubsub
               "system"
             );
 
-            await doc.ref.update({
+            batch.update(doc.ref, {
               status: "abandoned",
               updatedAt: admin.firestore.FieldValue.serverTimestamp(),
               escrowReversedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -316,18 +313,18 @@ export const cleanupAbandonedEscrows = functions.pubsub
               totalReversed++;
             } else {
               totalFailed++;
-              console.warn(
+              logger.warn(
                 `Escrow reversal returned failure for engagement ${doc.id}: ${reversalResult.error}`
               );
             }
           } catch (error) {
             totalFailed++;
-            console.error(
+            logger.error(
               `Failed to reverse escrow for engagement ${doc.id}:`,
               error
             );
             // Still mark as abandoned so it doesn't keep retrying forever
-            await doc.ref.update({
+            batch.update(doc.ref, {
               status: "abandoned",
               updatedAt: admin.firestore.FieldValue.serverTimestamp(),
               escrowReversalFailed: true,
@@ -336,7 +333,7 @@ export const cleanupAbandonedEscrows = functions.pubsub
           }
         } else {
           // No escrow or already reversed — just abandon
-          await doc.ref.update({
+          batch.update(doc.ref, {
             status: "abandoned",
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             escrowReversalReason: engagement.escrowJournalId
@@ -344,11 +341,22 @@ export const cleanupAbandonedEscrows = functions.pubsub
               : "ttl_expired_no_escrow",
           });
         }
+
+        batchCount++;
+        if (batchCount >= 500) {
+          await batch.commit();
+          batch = db.batch();
+          batchCount = 0;
+        }
+      }
+
+      if (batchCount > 0) {
+        await batch.commit();
       }
     }
 
-    console.log(
+    logger.info(
       `Escrow cleanup: processed=${totalProcessed}, reversed=${totalReversed}, failed=${totalFailed}`
     );
-    return null;
-  });
+  }
+);

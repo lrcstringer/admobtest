@@ -5,11 +5,13 @@
  * of non-fungible reward items (QR codes, voucher codes, etc.).
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import { requireAdminPermission, logAdminAction } from "./adminAuth";
 import * as admin from "firebase-admin";
 import { requireAppCheck, checkRateLimit } from "./security";
 import { encryptCode, decryptCode, hashCode } from "./encryption";
+import { REWARD_CODE_ENCRYPTION_KEY } from "./secrets";
 
 const db = admin.firestore();
 
@@ -23,31 +25,25 @@ const db = admin.firestore();
  * Encrypts each code, hashes for uniqueness, and creates rewardItem docs.
  * Max 500 codes per call.
  */
-export const importRewardItems = functions.https.onCall(
+export const importRewardItems = onCall(
+  { labels: { area: "rewards" }, secrets: [REWARD_CODE_ENCRYPTION_KEY] },
   async (
-    data: {
-      campaignId: string;
-      codes: Array<{
-        code: string;
-        metadata?: Record<string, unknown>;
-      }>;
-    },
-    context
+    request
   ) => {
-    requireAppCheck(context, "importRewardItems");
-    const adminCtx = await requireAdminPermission(context, "rewards:importItems", "importRewardItems");
+    requireAppCheck(request, "importRewardItems");
+    const adminCtx = await requireAdminPermission(request, "rewards:importItems", "importRewardItems");
 
-    const { campaignId, codes } = data;
+    const { campaignId, codes } = request.data;
 
     if (!campaignId || !codes || !Array.isArray(codes) || codes.length === 0) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "campaignId and a non-empty codes array are required"
       );
     }
 
     if (codes.length > 500) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "Maximum 500 codes per import call"
       );
@@ -58,11 +54,11 @@ export const importRewardItems = functions.https.onCall(
     const campaignDoc = await campaignRef.get();
 
     if (!campaignDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Campaign not found");
+      throw new HttpsError("not-found", "Campaign not found");
     }
     const campaign = campaignDoc.data()!;
     if (campaign.isDeleted === true) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Cannot import items into a deleted campaign"
       );
@@ -70,7 +66,7 @@ export const importRewardItems = functions.https.onCall(
 
     // #19 — Check campaign status (not just isDeleted)
     if (!["draft", "active", "paused"].includes(campaign.status)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Cannot import items into a ${campaign.status} campaign`
       );
@@ -93,7 +89,7 @@ export const importRewardItems = functions.https.onCall(
       hashSet.add(item.hash);
     }
     if (batchDuplicates.length > 0) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         `Duplicate codes found within import batch: ${batchDuplicates.length} duplicates`
       );
@@ -165,7 +161,7 @@ export const importRewardItems = functions.https.onCall(
         action: "imported",
         previousStatus: null,
         newStatus: "available",
-        performedBy: `admin:${context.auth!.uid}`,
+        performedBy: `admin:${request.auth!.uid}`,
         notes: null,
         metadata: item.metadata,
         createdAt: now,
@@ -195,18 +191,20 @@ export const importRewardItems = functions.https.onCall(
  * Get all reward items allocated to the calling user.
  * Returns items WITHOUT decrypted code values (use getRewardItemDetail for that).
  */
-export const getUserRewardItems = functions.https.onCall(
-  async (data: { status?: string; limit?: number; startAfter?: number; startAfterId?: string }, context) => {
-    requireAppCheck(context, "getUserRewardItems");
+export const getUserRewardItems = onCall(
+  { labels: { area: "rewards" } },
+  async (request) => {
+    requireAppCheck(request, "getUserRewardItems");
 
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "Must be authenticated"
       );
     }
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
+    const data = request.data;
     // #7 — Add pagination (max 50 per page)
     const pageLimit = Math.min(data.limit || 20, 50);
 
@@ -277,7 +275,7 @@ export const getUserRewardItems = functions.https.onCall(
     });
 
     // Return lastDocId for composite cursor pagination
-    const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+    const lastDoc = snapshot.docs.at(-1);
     return {
       items,
       hasMore: snapshot.size === pageLimit,
@@ -296,26 +294,27 @@ export const getUserRewardItems = functions.https.onCall(
  * Only accessible by the item's allocated user.
  * Rate-limited to 10 calls per minute per user.
  */
-export const getRewardItemDetail = functions.https.onCall(
-  async (data: { itemId: string }, context) => {
-    requireAppCheck(context, "getRewardItemDetail");
+export const getRewardItemDetail = onCall(
+  { labels: { area: "rewards" }, secrets: [REWARD_CODE_ENCRYPTION_KEY] },
+  async (request) => {
+    requireAppCheck(request, "getRewardItemDetail");
 
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "Must be authenticated"
       );
     }
 
-    const { itemId } = data;
+    const { itemId } = request.data;
     if (!itemId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "itemId is required"
       );
     }
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
 
     // Rate limiting: max 10 per minute
     const rateLimitRef = db
@@ -330,7 +329,7 @@ export const getRewardItemDetail = functions.https.onCall(
       const count = rlData.count || 0;
 
       if (now - windowStart < 60000 && count >= 10) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "resource-exhausted",
           "Rate limit exceeded. Try again in a minute."
         );
@@ -351,14 +350,14 @@ export const getRewardItemDetail = functions.https.onCall(
     // Fetch item
     const itemDoc = await db.collection("rewardItems").doc(itemId).get();
     if (!itemDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Reward item not found");
+      throw new HttpsError("not-found", "Reward item not found");
     }
 
     const item = itemDoc.data()!;
 
     // Verify ownership
     if (item.allocatedToUserId !== userId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "You do not own this reward item"
       );
@@ -370,11 +369,11 @@ export const getRewardItemDetail = functions.https.onCall(
       try {
         codeValue = decryptCode(item.codeValueEncrypted, item.codeIv);
       } catch (err) {
-        functions.logger.error("Failed to decrypt reward code", {
+        logger.error("Failed to decrypt reward code", {
           itemId,
           error: err,
         });
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "internal",
           "Failed to decrypt code"
         );
@@ -418,34 +417,34 @@ export const getRewardItemDetail = functions.https.onCall(
  * Mark a reward item as redeemed (used) by the user.
  * Transitions: allocated → redeemed.
  */
-export const redeemRewardItem = functions.https.onCall(
+export const redeemRewardItem = onCall(
+  { labels: { area: "rewards" }, secrets: [REWARD_CODE_ENCRYPTION_KEY] },
   async (
-    data: { itemId: string; location?: string },
-    context
+    request
   ) => {
-    requireAppCheck(context, "redeemRewardItem");
+    requireAppCheck(request, "redeemRewardItem");
 
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "Must be authenticated"
       );
     }
 
-    const { itemId, location } = data;
+    const { itemId, location } = request.data;
     if (!itemId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "itemId is required"
       );
     }
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
 
     // Rate limit check before transaction
     const rateCheck = await checkRateLimit(userId, "reward_redeem");
     if (!rateCheck.allowed) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "resource-exhausted",
         rateCheck.message || "Rate limit exceeded. Try again later."
       );
@@ -456,7 +455,7 @@ export const redeemRewardItem = functions.https.onCall(
     const result = await db.runTransaction(async (txn) => {
       const itemDoc = await txn.get(itemRef);
       if (!itemDoc.exists) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "not-found",
           "Reward item not found"
         );
@@ -465,14 +464,14 @@ export const redeemRewardItem = functions.https.onCall(
       const item = itemDoc.data()!;
 
       if (item.allocatedToUserId !== userId) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "permission-denied",
           "You do not own this reward item"
         );
       }
 
       if (item.status !== "allocated") {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           `Item cannot be redeemed (current status: ${item.status})`
         );
@@ -483,7 +482,7 @@ export const redeemRewardItem = functions.https.onCall(
         db.collection("rewardCampaigns").doc(item.campaignId)
       );
       if (!campaignDoc.exists || campaignDoc.data()?.isDeleted === true) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "This reward campaign is no longer available"
         );
@@ -496,7 +495,7 @@ export const redeemRewardItem = functions.https.onCall(
           status: "expired",
           updatedAt: expireNow,
         });
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           "This reward has expired"
         );
@@ -542,17 +541,17 @@ export const redeemRewardItem = functions.https.onCall(
  * Revoke a reward item from a user. Admin-only.
  * Transitions: allocated → revoked. Increments campaign remainingQuantity.
  */
-export const revokeRewardItem = functions.https.onCall(
+export const revokeRewardItem = onCall(
+  { labels: { area: "rewards" } },
   async (
-    data: { itemId: string; reason: string },
-    context
+    request
   ) => {
-    requireAppCheck(context, "revokeRewardItem");
-    const adminCtx = await requireAdminPermission(context, "rewards:revokeItem", "revokeRewardItem");
+    requireAppCheck(request, "revokeRewardItem");
+    const adminCtx = await requireAdminPermission(request, "rewards:revokeItem", "revokeRewardItem");
 
-    const { itemId, reason } = data;
+    const { itemId, reason } = request.data;
     if (!itemId || !reason) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "itemId and reason are required"
       );
@@ -563,7 +562,7 @@ export const revokeRewardItem = functions.https.onCall(
     const result = await db.runTransaction(async (txn) => {
       const itemDoc = await txn.get(itemRef);
       if (!itemDoc.exists) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "not-found",
           "Reward item not found"
         );
@@ -572,7 +571,7 @@ export const revokeRewardItem = functions.https.onCall(
       const item = itemDoc.data()!;
 
       if (item.status !== "allocated") {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           `Item cannot be revoked (current status: ${item.status})`
         );
@@ -601,7 +600,7 @@ export const revokeRewardItem = functions.https.onCall(
       action: "revoked",
       previousStatus: "allocated",
       newStatus: "revoked",
-      performedBy: `admin:${context.auth!.uid}`,
+      performedBy: `admin:${request.auth!.uid}`,
       notes: reason,
       metadata: {},
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -620,22 +619,18 @@ export const revokeRewardItem = functions.https.onCall(
 /**
  * List reward items for a specific campaign. Admin-only.
  */
-export const getAdminRewardItems = functions.https.onCall(
+export const getAdminRewardItems = onCall(
+  { labels: { area: "rewards" } },
   async (
-    data: {
-      campaignId: string;
-      status?: string;
-      limit?: number;
-    },
-    context
+    request
   ) => {
-    requireAppCheck(context, "getAdminRewardItems");
-    await requireAdminPermission(context, "rewards:getItems", "getAdminRewardItems");
+    requireAppCheck(request, "getAdminRewardItems");
+    await requireAdminPermission(request, "rewards:getItems", "getAdminRewardItems");
 
-    const { campaignId, status, limit: queryLimit } = data;
+    const { campaignId, status, limit: queryLimit } = request.data;
 
     if (!campaignId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "campaignId is required"
       );

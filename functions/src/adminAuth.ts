@@ -6,7 +6,8 @@
  * a single `requireAdminPermission()` that enforces role-based access.
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
 
@@ -289,11 +290,19 @@ export async function logAdminAction(
     });
   } catch (err) {
     // Never fail the main operation due to audit logging
-    console.error("Failed to write audit log:", err);
+    logger.error("Failed to write audit log:", err);
   }
 }
 
 // ─── Core Permission Check ───────────────────────────────────────────
+
+/**
+ * Structural interface compatible with both Gen1 CallableContext and
+ * Gen2 CallableRequest, so requireAdminPermission works during migration.
+ */
+interface AdminCallableContextCompat {
+  auth?: { uid: string; token?: Record<string, unknown> };
+}
 
 /**
  * Centralized admin permission check. Replaces all per-file `requireAdmin()`.
@@ -304,18 +313,18 @@ export async function logAdminAction(
  * 4. Returns AdminContext for downstream use
  */
 export async function requireAdminPermission(
-  context: functions.https.CallableContext,
+  context: AdminCallableContextCompat,
   permission: AdminPermission,
   functionName: string,
 ): Promise<AdminContext> {
   if (!context.auth) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "unauthenticated",
       "Must be authenticated",
     );
   }
 
-  const token = context.auth.token;
+  const token = context.auth.token || {};
   const uid = context.auth.uid;
 
   // Determine roles — new array claim first, then single claim, then legacy
@@ -331,14 +340,14 @@ export async function requireAdminPermission(
   } else if (token.admin === true) {
     roles = ["campaignAdmin"]; // Conservative default for legacy admin claims
   } else {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "permission-denied",
       "Admin access required",
     );
   }
 
   if (roles.length === 0) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "permission-denied",
       "Admin access required",
     );
@@ -357,7 +366,7 @@ export async function requireAdminPermission(
         requiredPermission: permission,
       }).catch(() => {});
 
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         `Roles [${roles.join(", ")}] do not have permission '${permission}'`,
       );
@@ -383,14 +392,23 @@ export async function requireAdminPermission(
 // ─── Admin User Management Functions ─────────────────────────────────
 
 /** List all admin users from the adminUsers collection. */
-export const adminListAdmins = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "adminListAdmins");
-  await requireAdminPermission(context, "admin:listAdmins", "adminListAdmins");
+export const adminListAdmins = onCall({ labels: { area: "admin" } }, async (request) => {
+  requireAppCheck(request, "adminListAdmins");
+  await requireAdminPermission(request, "admin:listAdmins", "adminListAdmins");
 
-  const snapshot = await db
+  const { pageSize = 100, startAfterId } = request.data || {};
+
+  let query = db
     .collection("adminUsers")
     .orderBy("email")
-    .get();
+    .limit(pageSize);
+  if (startAfterId) {
+    const startAfterDoc = await db.collection("adminUsers").doc(startAfterId).get();
+    if (startAfterDoc.exists) {
+      query = query.startAfter(startAfterDoc);
+    }
+  }
+  const snapshot = await query.get();
 
   const admins = snapshot.docs.map((doc) => {
     const d = doc.data();
@@ -407,15 +425,15 @@ export const adminListAdmins = functions.https.onCall(async (data, context) => {
 });
 
 /** Set or change an admin user's roles. SuperAdmin only. */
-export const adminSetRole = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "adminSetRole");
+export const adminSetRole = onCall({ labels: { area: "admin" } }, async (request) => {
+  requireAppCheck(request, "adminSetRole");
   const adminCtx = await requireAdminPermission(
-    context,
+    request,
     "admin:updateRole",
     "adminSetRole",
   );
 
-  const { targetUid, roles: inputRoles, role: inputRole } = data as {
+  const { targetUid, roles: inputRoles, role: inputRole } = request.data as {
     targetUid: string;
     roles?: AdminRole[];
     role?: AdminRole;     // backwards compat: single role
@@ -425,7 +443,7 @@ export const adminSetRole = functions.https.onCall(async (data, context) => {
   const roles: AdminRole[] = inputRoles || (inputRole ? [inputRole] : []);
 
   if (!targetUid || roles.length === 0) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "targetUid and at least one role are required",
     );
@@ -433,7 +451,7 @@ export const adminSetRole = functions.https.onCall(async (data, context) => {
 
   for (const r of roles) {
     if (!ADMIN_ROLES.includes(r)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         `Invalid role: ${r}`,
       );
@@ -442,7 +460,7 @@ export const adminSetRole = functions.https.onCall(async (data, context) => {
 
   // No self-elevation
   if (targetUid === adminCtx.uid) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       "Cannot change your own roles",
     );
@@ -450,7 +468,7 @@ export const adminSetRole = functions.https.onCall(async (data, context) => {
 
   // Only superAdmin can grant superAdmin
   if (roles.includes("superAdmin") && !adminCtx.roles.includes("superAdmin")) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "permission-denied",
       "Only superAdmin can grant superAdmin role",
     );
@@ -461,7 +479,7 @@ export const adminSetRole = functions.https.onCall(async (data, context) => {
   try {
     targetUser = await admin.auth().getUser(targetUid);
   } catch {
-    throw new functions.https.HttpsError("not-found", "User not found");
+    throw new HttpsError("not-found", "User not found");
   }
 
   // Set custom claims (preserve existing non-admin claims)
@@ -511,15 +529,15 @@ export const adminSetRole = functions.https.onCall(async (data, context) => {
 });
 
 /** Create a new admin user by email. Creates Firebase Auth user if needed. */
-export const adminCreateAdmin = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "adminCreateAdmin");
+export const adminCreateAdmin = onCall({ labels: { area: "admin" } }, async (request) => {
+  requireAppCheck(request, "adminCreateAdmin");
   const adminCtx = await requireAdminPermission(
-    context,
+    request,
     "admin:createAdmin",
     "adminCreateAdmin",
   );
 
-  const { email, displayName, roles: inputRoles, role: inputRole } = data as {
+  const { email, displayName, roles: inputRoles, role: inputRole } = request.data as {
     email: string;
     displayName: string;
     roles?: AdminRole[];
@@ -527,7 +545,7 @@ export const adminCreateAdmin = functions.https.onCall(async (data, context) => 
   };
 
   if (!email || !displayName) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "email and displayName are required",
     );
@@ -535,7 +553,7 @@ export const adminCreateAdmin = functions.https.onCall(async (data, context) => 
 
   const roles: AdminRole[] = inputRoles || (inputRole ? [inputRole] : []);
   if (roles.length === 0) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "At least one role is required",
     );
@@ -543,7 +561,7 @@ export const adminCreateAdmin = functions.https.onCall(async (data, context) => 
 
   for (const r of roles) {
     if (!ADMIN_ROLES.includes(r)) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         `Invalid role: ${r}`,
       );
@@ -552,7 +570,7 @@ export const adminCreateAdmin = functions.https.onCall(async (data, context) => 
 
   // Only superAdmin can grant superAdmin
   if (roles.includes("superAdmin") && !adminCtx.roles.includes("superAdmin")) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "permission-denied",
       "Only superAdmin can grant superAdmin role",
     );
@@ -608,7 +626,7 @@ export const adminCreateAdmin = functions.https.onCall(async (data, context) => 
     try {
       passwordResetLink = await admin.auth().generatePasswordResetLink(email);
     } catch (err) {
-      console.error("Failed to generate password reset link:", err);
+      logger.error("Failed to generate password reset link:", err);
     }
   }
 
@@ -633,24 +651,24 @@ export const adminCreateAdmin = functions.https.onCall(async (data, context) => 
 });
 
 /** Remove admin access from a user entirely. */
-export const adminRevokeRole = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "adminRevokeRole");
+export const adminRevokeRole = onCall({ labels: { area: "admin" } }, async (request) => {
+  requireAppCheck(request, "adminRevokeRole");
   const adminCtx = await requireAdminPermission(
-    context,
+    request,
     "admin:updateRole",
     "adminRevokeRole",
   );
 
-  const { targetUid } = data as { targetUid: string };
+  const { targetUid } = request.data as { targetUid: string };
   if (!targetUid) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "targetUid is required",
     );
   }
 
   if (targetUid === adminCtx.uid) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       "Cannot revoke your own admin access",
     );
@@ -679,354 +697,357 @@ export const adminRevokeRole = functions.https.onCall(async (data, context) => {
 });
 
 /** Force sign out a specific admin by revoking their refresh tokens. */
-export const adminForceSignOut = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "adminForceSignOut");
-    const adminCtx = await requireAdminPermission(
-      context,
-      "admin:revokeSession",
-      "adminForceSignOut",
+export const adminForceSignOut = onCall({ labels: { area: "admin" } }, async (request) => {
+  requireAppCheck(request, "adminForceSignOut");
+  const adminCtx = await requireAdminPermission(
+    request,
+    "admin:revokeSession",
+    "adminForceSignOut",
+  );
+
+  const { targetUid } = request.data as { targetUid: string };
+  if (!targetUid) {
+    throw new HttpsError(
+      "invalid-argument",
+      "targetUid is required",
     );
+  }
 
-    const { targetUid } = data as { targetUid: string };
-    if (!targetUid) {
-      throw new functions.https.HttpsError(
-        "invalid-argument",
-        "targetUid is required",
-      );
-    }
+  await admin.auth().revokeRefreshTokens(targetUid);
 
-    await admin.auth().revokeRefreshTokens(targetUid);
+  await logAdminAction(adminCtx.uid, "adminForceSignOut", "success", {
+    targetUid,
+    actorEmail: adminCtx.email,
+    actorRoles: adminCtx.roles,
+  });
 
-    await logAdminAction(adminCtx.uid, "adminForceSignOut", "success", {
-      targetUid,
-      actorEmail: adminCtx.email,
-      actorRoles: adminCtx.roles,
-    });
-
-    return { success: true };
-  },
-);
+  return { success: true };
+});
 
 // ─── Audit Log Query ─────────────────────────────────────────────────
 
 /** Query the admin audit log with pagination and filters. */
-export const adminGetAuditLogs = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "adminGetAuditLogs");
-    await requireAdminPermission(
-      context,
-      "audit:viewLogs",
-      "adminGetAuditLogs",
-    );
+export const adminGetAuditLogs = onCall({ labels: { area: "admin" } }, async (request) => {
+  requireAppCheck(request, "adminGetAuditLogs");
+  await requireAdminPermission(
+    request,
+    "audit:viewLogs",
+    "adminGetAuditLogs",
+  );
 
-    const {
-      limit: reqLimit = 50,
-      startAfterTimestamp,
-      actorUid,
-      action,
-      outcome,
-    } = (data || {}) as {
-      limit?: number;
-      startAfterTimestamp?: string;
-      actorUid?: string;
-      action?: string;
-      outcome?: string;
+  const {
+    limit: reqLimit = 50,
+    startAfterTimestamp,
+    actorUid,
+    action,
+    outcome,
+  } = (request.data || {}) as {
+    limit?: number;
+    startAfterTimestamp?: string;
+    actorUid?: string;
+    action?: string;
+    outcome?: string;
+  };
+
+  const safeLimit = Math.min(Math.max(reqLimit, 1), 200);
+
+  let ref: admin.firestore.Query = db.collection("adminAuditLog");
+
+  if (actorUid) ref = ref.where("actorUid", "==", actorUid);
+  if (action) ref = ref.where("action", "==", action);
+  if (outcome) ref = ref.where("outcome", "==", outcome);
+
+  let query = ref.orderBy("timestamp", "desc").limit(safeLimit);
+
+  if (startAfterTimestamp) {
+    const startDate = new Date(startAfterTimestamp);
+    query = query.startAfter(admin.firestore.Timestamp.fromDate(startDate));
+  }
+
+  const snapshot = await query.get();
+  const logs = snapshot.docs.map((doc) => {
+    const d = doc.data();
+    return {
+      id: doc.id,
+      ...d,
+      timestamp: d.timestamp?.toDate?.()?.toISOString?.() || null,
     };
+  });
 
-    const safeLimit = Math.min(Math.max(reqLimit, 1), 200);
-
-    let ref: admin.firestore.Query = db.collection("adminAuditLog");
-
-    if (actorUid) ref = ref.where("actorUid", "==", actorUid);
-    if (action) ref = ref.where("action", "==", action);
-    if (outcome) ref = ref.where("outcome", "==", outcome);
-
-    let query = ref.orderBy("timestamp", "desc").limit(safeLimit);
-
-    if (startAfterTimestamp) {
-      const startDate = new Date(startAfterTimestamp);
-      query = query.startAfter(admin.firestore.Timestamp.fromDate(startDate));
-    }
-
-    const snapshot = await query.get();
-    const logs = snapshot.docs.map((doc) => {
-      const d = doc.data();
-      return {
-        id: doc.id,
-        ...d,
-        timestamp: d.timestamp?.toDate?.()?.toISOString?.() || null,
-      };
-    });
-
-    return { logs, hasMore: logs.length === safeLimit };
-  },
-);
+  return { logs, hasMore: logs.length === safeLimit };
+});
 
 // ─── Maker-Checker Functions ─────────────────────────────────────────
 
 /** List pending actions awaiting approval. */
-export const adminListPendingActions = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "adminListPendingActions");
-    await requireAdminPermission(
-      context,
-      "pending:list",
-      "adminListPendingActions",
-    );
+export const adminListPendingActions = onCall({ labels: { area: "admin" } }, async (request) => {
+  requireAppCheck(request, "adminListPendingActions");
+  await requireAdminPermission(
+    request,
+    "pending:list",
+    "adminListPendingActions",
+  );
 
-    const { status = "pending" } = (data || {}) as { status?: string };
+  const { status = "pending" } = (request.data || {}) as { status?: string };
 
-    let query: admin.firestore.Query;
+  let query: admin.firestore.Query;
 
-    if (status && status !== "all") {
-      query = db
-        .collection("adminPendingActions")
-        .where("status", "==", status)
-        .orderBy("createdAt", "desc")
-        .limit(100);
-    } else {
-      query = db
-        .collection("adminPendingActions")
-        .orderBy("createdAt", "desc")
-        .limit(100);
-    }
+  if (status && status !== "all") {
+    query = db
+      .collection("adminPendingActions")
+      .where("status", "==", status)
+      .orderBy("createdAt", "desc")
+      .limit(100);
+  } else {
+    query = db
+      .collection("adminPendingActions")
+      .orderBy("createdAt", "desc")
+      .limit(100);
+  }
 
-    const snapshot = await query.get();
-    const actions = snapshot.docs.map((doc) => {
-      const d = doc.data();
-      return {
-        id: doc.id,
-        ...d,
-        createdAt: d.createdAt?.toDate?.()?.toISOString?.() || null,
-        expiresAt: d.expiresAt?.toDate?.()?.toISOString?.() || null,
-        completedAt: d.completedAt?.toDate?.()?.toISOString?.() || null,
-      };
-    });
+  const snapshot = await query.get();
+  const actions = snapshot.docs.map((doc) => {
+    const d = doc.data();
+    return {
+      id: doc.id,
+      ...d,
+      createdAt: d.createdAt?.toDate?.()?.toISOString?.() || null,
+      expiresAt: d.expiresAt?.toDate?.()?.toISOString?.() || null,
+      completedAt: d.completedAt?.toDate?.()?.toISOString?.() || null,
+    };
+  });
 
-    return { actions };
-  },
-);
+  return { actions };
+});
 
 /** Approve a pending action. Checker must be different from maker. */
-export const adminApproveAction = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "adminApproveAction");
-    const adminCtx = await requireAdminPermission(
-      context,
-      "pending:approve",
-      "adminApproveAction",
+export const adminApproveAction = onCall({ labels: { area: "admin" } }, async (request) => {
+  requireAppCheck(request, "adminApproveAction");
+  const adminCtx = await requireAdminPermission(
+    request,
+    "pending:approve",
+    "adminApproveAction",
+  );
+
+  const { pendingActionId } = request.data as { pendingActionId: string };
+  if (!pendingActionId) {
+    throw new HttpsError(
+      "invalid-argument",
+      "pendingActionId is required",
     );
+  }
 
-    const { pendingActionId } = data as { pendingActionId: string };
-    if (!pendingActionId) {
-      throw new functions.https.HttpsError(
-        "invalid-argument",
-        "pendingActionId is required",
-      );
-    }
+  const actionRef = db.collection("adminPendingActions").doc(pendingActionId);
+  const actionDoc = await actionRef.get();
+  if (!actionDoc.exists) {
+    throw new HttpsError("not-found", "Pending action not found");
+  }
 
-    const actionRef = db.collection("adminPendingActions").doc(pendingActionId);
-    const actionDoc = await actionRef.get();
-    if (!actionDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Pending action not found");
-    }
+  const action = actionDoc.data() as AdminPendingAction;
 
-    const action = actionDoc.data() as AdminPendingAction;
-
-    if (action.status !== "pending") {
-      throw new functions.https.HttpsError(
-        "failed-precondition",
-        `Action is ${action.status}, not pending`,
-      );
-    }
-
-    // Check expiry
-    const expiresAt = action.expiresAt as admin.firestore.Timestamp;
-    if (expiresAt.toDate() < new Date()) {
-      await actionRef.update({ status: "expired" });
-      throw new functions.https.HttpsError(
-        "failed-precondition",
-        "Action has expired",
-      );
-    }
-
-    // Maker !== checker
-    if (action.makerUid === adminCtx.uid) {
-      throw new functions.https.HttpsError(
-        "failed-precondition",
-        "Maker and checker must be different admins",
-      );
-    }
-
-    // Execute the original action
-    let result: Record<string, unknown>;
-    try {
-      result = await executePendingAction(action);
-    } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      await actionRef.update({
-        status: "rejected",
-        rejectionReason: `Execution failed: ${errorMsg}`,
-        checkerUid: adminCtx.uid,
-        checkerRole: adminCtx.role,
-        checkerRoles: adminCtx.roles,
-        checkerEmail: adminCtx.email,
-        completedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      throw new functions.https.HttpsError(
-        "internal",
-        `Failed to execute action: ${errorMsg}`,
-      );
-    }
-
-    // Mark approved
-    await actionRef.update({
-      status: "approved",
-      checkerUid: adminCtx.uid,
-      checkerRole: adminCtx.role,
-      checkerRoles: adminCtx.roles,
-      checkerEmail: adminCtx.email,
-      completedAt: admin.firestore.FieldValue.serverTimestamp(),
-      result,
-    });
-
-    await logAdminAction(adminCtx.uid, "adminApproveAction", "checker_approved", {
-      pendingActionId,
-      originalAction: action.functionName,
-      makerUid: action.makerUid,
-      actorEmail: adminCtx.email,
-      actorRoles: adminCtx.roles,
-    });
-
-    return { success: true, result };
-  },
-);
-
-/** Reject a pending action with a reason. */
-export const adminRejectAction = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "adminRejectAction");
-    const adminCtx = await requireAdminPermission(
-      context,
-      "pending:reject",
-      "adminRejectAction",
+  if (action.status !== "pending") {
+    throw new HttpsError(
+      "failed-precondition",
+      `Action is ${action.status}, not pending`,
     );
+  }
 
-    const { pendingActionId, reason } = data as {
-      pendingActionId: string;
-      reason: string;
-    };
-    if (!pendingActionId || !reason) {
-      throw new functions.https.HttpsError(
-        "invalid-argument",
-        "pendingActionId and reason are required",
-      );
-    }
+  // Check expiry
+  const expiresAt = action.expiresAt as admin.firestore.Timestamp;
+  if (expiresAt.toDate() < new Date()) {
+    await actionRef.update({ status: "expired" });
+    throw new HttpsError(
+      "failed-precondition",
+      "Action has expired",
+    );
+  }
 
-    const actionRef = db.collection("adminPendingActions").doc(pendingActionId);
-    const actionDoc = await actionRef.get();
-    if (!actionDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Pending action not found");
-    }
+  // Maker !== checker
+  if (action.makerUid === adminCtx.uid) {
+    throw new HttpsError(
+      "failed-precondition",
+      "Maker and checker must be different admins",
+    );
+  }
 
-    const action = actionDoc.data() as AdminPendingAction;
-    if (action.status !== "pending") {
-      throw new functions.https.HttpsError(
-        "failed-precondition",
-        `Action is ${action.status}, not pending`,
-      );
-    }
-
+  // Execute the original action
+  let result: Record<string, unknown>;
+  try {
+    result = await executePendingAction(action);
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
     await actionRef.update({
       status: "rejected",
+      rejectionReason: `Execution failed: ${errorMsg}`,
       checkerUid: adminCtx.uid,
       checkerRole: adminCtx.role,
       checkerRoles: adminCtx.roles,
       checkerEmail: adminCtx.email,
-      rejectionReason: reason,
       completedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+    throw new HttpsError(
+      "internal",
+      `Failed to execute action: ${errorMsg}`,
+    );
+  }
 
-    await logAdminAction(adminCtx.uid, "adminRejectAction", "checker_rejected", {
-      pendingActionId,
-      originalAction: action.functionName,
-      reason,
-      makerUid: action.makerUid,
-      actorEmail: adminCtx.email,
-      actorRoles: adminCtx.roles,
-    });
+  // Mark approved
+  await actionRef.update({
+    status: "approved",
+    checkerUid: adminCtx.uid,
+    checkerRole: adminCtx.role,
+    checkerRoles: adminCtx.roles,
+    checkerEmail: adminCtx.email,
+    completedAt: admin.firestore.FieldValue.serverTimestamp(),
+    result,
+  });
 
-    return { success: true };
-  },
-);
+  await logAdminAction(adminCtx.uid, "adminApproveAction", "checker_approved", {
+    pendingActionId,
+    originalAction: action.functionName,
+    makerUid: action.makerUid,
+    actorEmail: adminCtx.email,
+    actorRoles: adminCtx.roles,
+  });
+
+  return { success: true, result };
+});
+
+/** Reject a pending action with a reason. */
+export const adminRejectAction = onCall({ labels: { area: "admin" } }, async (request) => {
+  requireAppCheck(request, "adminRejectAction");
+  const adminCtx = await requireAdminPermission(
+    request,
+    "pending:reject",
+    "adminRejectAction",
+  );
+
+  const { pendingActionId, reason } = request.data as {
+    pendingActionId: string;
+    reason: string;
+  };
+  if (!pendingActionId || !reason) {
+    throw new HttpsError(
+      "invalid-argument",
+      "pendingActionId and reason are required",
+    );
+  }
+
+  const actionRef = db.collection("adminPendingActions").doc(pendingActionId);
+  const actionDoc = await actionRef.get();
+  if (!actionDoc.exists) {
+    throw new HttpsError("not-found", "Pending action not found");
+  }
+
+  const action = actionDoc.data() as AdminPendingAction;
+  if (action.status !== "pending") {
+    throw new HttpsError(
+      "failed-precondition",
+      `Action is ${action.status}, not pending`,
+    );
+  }
+
+  await actionRef.update({
+    status: "rejected",
+    checkerUid: adminCtx.uid,
+    checkerRole: adminCtx.role,
+    checkerRoles: adminCtx.roles,
+    checkerEmail: adminCtx.email,
+    rejectionReason: reason,
+    completedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  await logAdminAction(adminCtx.uid, "adminRejectAction", "checker_rejected", {
+    pendingActionId,
+    originalAction: action.functionName,
+    reason,
+    makerUid: action.makerUid,
+    actorEmail: adminCtx.email,
+    actorRoles: adminCtx.roles,
+  });
+
+  return { success: true };
+});
 
 // ─── Migration ───────────────────────────────────────────────────────
 
 /** One-time migration: backfill adminRole claims and create adminUsers docs. */
-export const adminMigrateExistingClaims = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "adminMigrateExistingClaims");
-    const adminCtx = await requireAdminPermission(
-      context,
-      "admin:updateRole",
-      "adminMigrateExistingClaims",
-    );
+export const adminMigrateExistingClaims = onCall({ labels: { area: "admin" } }, async (request) => {
+  requireAppCheck(request, "adminMigrateExistingClaims");
+  const adminCtx = await requireAdminPermission(
+    request,
+    "admin:updateRole",
+    "adminMigrateExistingClaims",
+  );
 
-    const migrated: string[] = [];
-    let nextPageToken: string | undefined;
+  const migrated: string[] = [];
+  let nextPageToken: string | undefined;
 
-    do {
-      const listResult = await admin.auth().listUsers(1000, nextPageToken);
+  do {
+    const listResult = await admin.auth().listUsers(1000, nextPageToken);
 
-      for (const user of listResult.users) {
-        const claims = user.customClaims || {};
-        if ((claims.admin === true || claims.superAdmin === true) && !claims.adminRole) {
-          const role: AdminRole =
-            claims.superAdmin === true ? "superAdmin" : "campaignAdmin";
-
-          await admin.auth().setCustomUserClaims(user.uid, {
-            ...claims,
-            adminRole: role,
-            adminRoles: [role],
-          });
-
-          const now = admin.firestore.FieldValue.serverTimestamp();
-          await db
-            .collection("adminUsers")
-            .doc(user.uid)
-            .set(
-              {
-                uid: user.uid,
-                email: user.email || "",
-                displayName: user.displayName || "",
-                role,
-                roles: [role],
-                createdAt: now,
-                createdBy: adminCtx.uid,
-                updatedAt: now,
-                updatedBy: adminCtx.uid,
-              },
-              { merge: true },
-            );
-
-          migrated.push(user.uid);
-        }
+    // Collect users that need migration in this page
+    const usersToMigrate: { user: admin.auth.UserRecord; role: AdminRole }[] = [];
+    for (const user of listResult.users) {
+      const claims = user.customClaims || {};
+      if ((claims.admin === true || claims.superAdmin === true) && !claims.adminRole) {
+        const role: AdminRole =
+          claims.superAdmin === true ? "superAdmin" : "campaignAdmin";
+        usersToMigrate.push({ user, role });
       }
+    }
 
-      nextPageToken = listResult.pageToken;
-    } while (nextPageToken);
+    // setCustomUserClaims must be sequential (Firebase Auth API)
+    for (const { user, role } of usersToMigrate) {
+      const claims = user.customClaims || {};
+      await admin.auth().setCustomUserClaims(user.uid, {
+        ...claims,
+        adminRole: role,
+        adminRoles: [role],
+      });
+    }
 
-    await logAdminAction(adminCtx.uid, "adminMigrateExistingClaims", "success", {
-      migratedCount: migrated.length,
-      migratedUids: migrated,
-      actorEmail: adminCtx.email,
-      actorRoles: adminCtx.roles,
-    });
+    // Batch Firestore doc writes (up to 500 per batch)
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    for (let i = 0; i < usersToMigrate.length; i += 500) {
+      const chunk = usersToMigrate.slice(i, i + 500);
+      const batch = db.batch();
+      for (const { user, role } of chunk) {
+        batch.set(
+          db.collection("adminUsers").doc(user.uid),
+          {
+            uid: user.uid,
+            email: user.email || "",
+            displayName: user.displayName || "",
+            role,
+            roles: [role],
+            createdAt: now,
+            createdBy: adminCtx.uid,
+            updatedAt: now,
+            updatedBy: adminCtx.uid,
+          },
+          { merge: true },
+        );
+      }
+      await batch.commit();
+    }
 
-    return { success: true, migratedCount: migrated.length, migratedUids: migrated };
-  },
-);
+    for (const { user } of usersToMigrate) {
+      migrated.push(user.uid);
+    }
+
+    nextPageToken = listResult.pageToken;
+  } while (nextPageToken);
+
+  await logAdminAction(adminCtx.uid, "adminMigrateExistingClaims", "success", {
+    migratedCount: migrated.length,
+    migratedUids: migrated,
+    actorEmail: adminCtx.email,
+    actorRoles: adminCtx.roles,
+  });
+
+  return { success: true, migratedCount: migrated.length, migratedUids: migrated };
+});
 
 // ─── Pending Action Expiry Cleanup ───────────────────────────────────
 

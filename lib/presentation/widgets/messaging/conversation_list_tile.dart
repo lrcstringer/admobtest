@@ -117,7 +117,7 @@ class ConversationListTile extends StatelessWidget {
       ),
     );
 
-    if (other.avatarUrl != null) {
+    if (other.avatarUrl != null && other.avatarUrl!.isNotEmpty) {
       return CachedNetworkImage(
         imageUrl: other.avatarUrl!,
         imageBuilder: (_, imageProvider) => CircleAvatar(

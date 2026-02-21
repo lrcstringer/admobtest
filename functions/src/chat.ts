@@ -9,7 +9,7 @@
  * - status: pending, paid, declined, expired, cancelled
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
@@ -25,22 +25,22 @@ const db = admin.firestore();
 /**
  * Send tokens to another user via chat
  */
-export const sendTokens = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const sendTokens = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated"
     );
   }
-  requireAppCheck(context, "sendTokens");
-  await requirePlayIntegrity(data, context, "sendTokens", "HIGHEST");
+  requireAppCheck(request, "sendTokens");
+  await requirePlayIntegrity(request.data, request, "sendTokens", "HIGHEST");
 
-  const senderId = context.auth.uid;
-  const { recipientId, amount, message, threadId } = data;
+  const senderId = request.auth.uid;
+  const { recipientId, amount, message, threadId } = request.data;
 
   // Validate input
   if (!recipientId || !amount || amount <= 0) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Invalid transfer data"
     );
@@ -48,7 +48,7 @@ export const sendTokens = functions.https.onCall(async (data, context) => {
 
   // Prevent self-transfer
   if (senderId === recipientId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Cannot send tokens to yourself"
     );
@@ -65,7 +65,7 @@ export const sendTokens = functions.https.onCall(async (data, context) => {
       "p2p_send"
     );
     if (!p2pAllowed.allowed) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         p2pAllowed.reason || "This account cannot send P2P transfers"
       );
@@ -78,7 +78,7 @@ export const sendTokens = functions.https.onCall(async (data, context) => {
       amount
     );
     if (!balanceCheck.allowed) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         balanceCheck.reason || "Insufficient balance"
       );
@@ -88,7 +88,7 @@ export const sendTokens = functions.https.onCall(async (data, context) => {
     // No sub-account — validate main wallet balance
     const mainCheck = await validateMainWalletBalance(senderId, amount);
     if (!mainCheck.sufficient) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Insufficient balance: has ${mainCheck.available}, needs ${amount}`
       );
@@ -115,7 +115,7 @@ export const sendTokens = functions.https.onCall(async (data, context) => {
   );
 
   if (!ledgerResult.success) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "internal",
       `Failed to process transfer: ${ledgerResult.error}`
     );
@@ -170,35 +170,35 @@ export const sendTokens = functions.https.onCall(async (data, context) => {
  * Create a token request in chat
  * Creates message in chatMessages with type: tokenRequest
  */
-export const requestTokens = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const requestTokens = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated"
     );
   }
-  requireAppCheck(context, "requestTokens");
+  requireAppCheck(request, "requestTokens");
 
-  const requesterId = context.auth.uid;
-  const { recipientId, amount, message, threadId } = data;
+  const requesterId = request.auth.uid;
+  const { recipientId, amount, message, threadId } = request.data;
 
   // Validate
   if (!recipientId || !amount || amount <= 0) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Invalid request data"
     );
   }
 
   if (requesterId === recipientId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Cannot request from yourself"
     );
   }
 
   if (!threadId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Thread ID is required"
     );
@@ -248,22 +248,23 @@ export const requestTokens = functions.https.onCall(async (data, context) => {
  * Accept a token request from chat
  * Reads from chatMessages, performs token transfer
  */
-export const acceptChatTokenRequest = functions.https.onCall(
-  async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const acceptChatTokenRequest = onCall(
+  { labels: { area: "social" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated"
       );
     }
-    requireAppCheck(context, "acceptChatTokenRequest");
-    await requirePlayIntegrity(data, context, "acceptChatTokenRequest", "HIGHEST");
+    requireAppCheck(request, "acceptChatTokenRequest");
+    await requirePlayIntegrity(request.data, request, "acceptChatTokenRequest", "HIGHEST");
 
-    const payerId = context.auth.uid;
-    const { messageId } = data;
+    const payerId = request.auth.uid;
+    const { messageId } = request.data;
 
     if (!messageId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "Message ID is required"
       );
@@ -273,14 +274,14 @@ export const acceptChatTokenRequest = functions.https.onCall(
     const messageDoc = await db.collection("chatMessages").doc(messageId).get();
 
     if (!messageDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Message not found");
+      throw new HttpsError("not-found", "Message not found");
     }
 
     const messageData = messageDoc.data()!;
 
     // Validate this is a token request
     if (messageData.type !== "tokenRequest") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "Message is not a token request"
       );
@@ -288,7 +289,7 @@ export const acceptChatTokenRequest = functions.https.onCall(
 
     // Validate the current user is the recipient (the one who should pay)
     if (messageData.recipientId !== payerId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "Not authorized to accept this request"
       );
@@ -296,7 +297,7 @@ export const acceptChatTokenRequest = functions.https.onCall(
 
     // Check if already processed
     if (messageData.status !== "pending") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Request is no longer pending (status: ${messageData.status})`
       );
@@ -308,7 +309,7 @@ export const acceptChatTokenRequest = functions.https.onCall(
         status: "expired",
         actionedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Request has expired"
       );
@@ -329,7 +330,7 @@ export const acceptChatTokenRequest = functions.https.onCall(
         "p2p_send"
       );
       if (!p2pAllowed.allowed) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           p2pAllowed.reason || "This account cannot send P2P transfers"
         );
@@ -342,7 +343,7 @@ export const acceptChatTokenRequest = functions.https.onCall(
         amount
       );
       if (!balanceCheck.allowed) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           balanceCheck.reason || "Insufficient balance"
         );
@@ -352,7 +353,7 @@ export const acceptChatTokenRequest = functions.https.onCall(
       // No sub-account — validate main wallet balance
       const mainCheck = await validateMainWalletBalance(payerId, amount);
       if (!mainCheck.sufficient) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           `Insufficient balance: has ${mainCheck.available}, needs ${amount}`
         );
@@ -380,7 +381,7 @@ export const acceptChatTokenRequest = functions.https.onCall(
     );
 
     if (!ledgerResult.success) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "internal",
         `Failed to process payment: ${ledgerResult.error}`
       );
@@ -418,21 +419,22 @@ export const acceptChatTokenRequest = functions.https.onCall(
 /**
  * Decline a token request from chat
  */
-export const declineChatTokenRequest = functions.https.onCall(
-  async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const declineChatTokenRequest = onCall(
+  { labels: { area: "social" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated"
       );
     }
-    requireAppCheck(context, "declineChatTokenRequest");
+    requireAppCheck(request, "declineChatTokenRequest");
 
-    const userId = context.auth.uid;
-    const { messageId, reason } = data;
+    const userId = request.auth.uid;
+    const { messageId, reason } = request.data;
 
     if (!messageId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "Message ID is required"
       );
@@ -441,14 +443,14 @@ export const declineChatTokenRequest = functions.https.onCall(
     const messageDoc = await db.collection("chatMessages").doc(messageId).get();
 
     if (!messageDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Message not found");
+      throw new HttpsError("not-found", "Message not found");
     }
 
     const messageData = messageDoc.data()!;
 
     // Validate this is a token request
     if (messageData.type !== "tokenRequest") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "Message is not a token request"
       );
@@ -456,14 +458,14 @@ export const declineChatTokenRequest = functions.https.onCall(
 
     // Validate the current user is the recipient (the one who should decline)
     if (messageData.recipientId !== userId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "Not authorized to decline this request"
       );
     }
 
     if (messageData.status !== "pending") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Request is no longer pending"
       );
@@ -497,29 +499,30 @@ export const declineChatTokenRequest = functions.https.onCall(
  * Create a payment request in paymentRequests collection (legacy)
  * @deprecated Use requestTokens instead which creates in chatMessages
  */
-export const createPaymentRequest = functions.https.onCall(
-  async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const createPaymentRequest = onCall(
+  { labels: { area: "social" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated"
       );
     }
-    requireAppCheck(context, "createPaymentRequest");
+    requireAppCheck(request, "createPaymentRequest");
 
-    const requesterId = context.auth.uid;
-    const { recipientId, amount, message, threadId } = data;
+    const requesterId = request.auth.uid;
+    const { recipientId, amount, message, threadId } = request.data;
 
     // Validate
     if (!recipientId || !amount || amount <= 0) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "Invalid request data"
       );
     }
 
     if (requesterId === recipientId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "Cannot request from yourself"
       );
@@ -582,49 +585,49 @@ export const createPaymentRequest = functions.https.onCall(
  * Pay a payment request from legacy paymentRequests collection
  * @deprecated Use acceptChatTokenRequest for chatMessages-based requests
  */
-export const payRequest = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const payRequest = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated"
     );
   }
-  requireAppCheck(context, "payRequest");
+  requireAppCheck(request, "payRequest");
 
-  const payerId = context.auth.uid;
-  const { requestId } = data;
+  const payerId = request.auth.uid;
+  const { requestId } = request.data;
 
   // Get the request
   const requestDoc = await db.collection("paymentRequests").doc(requestId).get();
 
   if (!requestDoc.exists) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "not-found",
       "Payment request not found"
     );
   }
 
-  const request = requestDoc.data()!;
+  const paymentRequest = requestDoc.data()!;
 
   // Validate
-  if (request.payerId !== payerId) {
-    throw new functions.https.HttpsError(
+  if (paymentRequest.payerId !== payerId) {
+    throw new HttpsError(
       "permission-denied",
       "Not authorized to pay this request"
     );
   }
 
-  if (request.status !== "pending") {
-    throw new functions.https.HttpsError(
+  if (paymentRequest.status !== "pending") {
+    throw new HttpsError(
       "failed-precondition",
       "Request is no longer pending"
     );
   }
 
   // Check if expired
-  if (request.expiresAt.toDate() < new Date()) {
+  if (paymentRequest.expiresAt.toDate() < new Date()) {
     await requestDoc.ref.update({ status: "expired" });
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       "Request has expired"
     );
@@ -641,7 +644,7 @@ export const payRequest = functions.https.onCall(async (data, context) => {
       "p2p_send"
     );
     if (!p2pAllowed.allowed) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         p2pAllowed.reason || "This account cannot send P2P transfers"
       );
@@ -651,10 +654,10 @@ export const payRequest = functions.https.onCall(async (data, context) => {
     const balanceCheck = await validateSubAccountBalance(
       payerId,
       payerSubAccount.id,
-      request.amount
+      paymentRequest.amount
     );
     if (!balanceCheck.allowed) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         balanceCheck.reason || "Insufficient balance"
       );
@@ -662,11 +665,11 @@ export const payRequest = functions.https.onCall(async (data, context) => {
     payerSubAccountId = payerSubAccount.id;
   } else {
     // No sub-account — validate main wallet balance
-    const mainCheck = await validateMainWalletBalance(payerId, request.amount);
+    const mainCheck = await validateMainWalletBalance(payerId, paymentRequest.amount);
     if (!mainCheck.sufficient) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
-        `Insufficient balance: has ${mainCheck.available}, needs ${request.amount}`
+        `Insufficient balance: has ${mainCheck.available}, needs ${paymentRequest.amount}`
       );
     }
   }
@@ -678,21 +681,21 @@ export const payRequest = functions.https.onCall(async (data, context) => {
   // Requester tokens go to main wallet (no sub-account)
   const ledgerResult = await processP2PTransfer(
     payerId,
-    request.requesterId,
-    request.amount,
+    paymentRequest.requesterId,
+    paymentRequest.amount,
     transferId,
     payerSubAccountId, // Payer's sub-account or undefined for main wallet
     undefined, // Requester main wallet
     "Paid payment request",
     {
       requestId,
-      threadId: request.threadId,
+      threadId: paymentRequest.threadId,
       source: "legacyPaymentRequest",
     }
   );
 
   if (!ledgerResult.success) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "internal",
       `Failed to process payment: ${ledgerResult.error}`
     );
@@ -710,12 +713,12 @@ export const payRequest = functions.https.onCall(async (data, context) => {
     });
 
     // Update linked chatMessage if exists
-    if (request.threadId) {
-      const chatMsgQuery = await db
-        .collection("chatMessages")
-        .where("actionData", "==", requestId)
-        .limit(1)
-        .get();
+    if (paymentRequest.threadId) {
+      const chatMsgQuery = await transaction.get(
+        db.collection("chatMessages")
+          .where("actionData", "==", requestId)
+          .limit(1)
+      );
 
       if (!chatMsgQuery.empty) {
         transaction.update(chatMsgQuery.docs[0].ref, {
@@ -725,8 +728,8 @@ export const payRequest = functions.https.onCall(async (data, context) => {
         });
       }
 
-      transaction.update(db.collection("chatThreads").doc(request.threadId), {
-        lastMessagePreview: `Request for ${request.amount} tokens paid`,
+      transaction.update(db.collection("chatThreads").doc(paymentRequest.threadId), {
+        lastMessagePreview: `Request for ${paymentRequest.amount} tokens paid`,
         lastMessageAt: now,
         updatedAt: now,
       });
@@ -735,7 +738,7 @@ export const payRequest = functions.https.onCall(async (data, context) => {
 
   return {
     success: true,
-    amount: request.amount,
+    amount: paymentRequest.amount,
     ledgerJournalId: ledgerResult.journalId,
   };
 });
@@ -744,35 +747,35 @@ export const payRequest = functions.https.onCall(async (data, context) => {
  * Decline a payment request from legacy paymentRequests collection
  * @deprecated Use declineChatTokenRequest for chatMessages-based requests
  */
-export const declineRequest = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const declineRequest = onCall({ labels: { area: "social" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated"
     );
   }
-  requireAppCheck(context, "declineRequest");
+  requireAppCheck(request, "declineRequest");
 
-  const userId = context.auth.uid;
-  const { requestId, reason } = data;
+  const userId = request.auth.uid;
+  const { requestId, reason } = request.data;
 
   const requestDoc = await db.collection("paymentRequests").doc(requestId).get();
 
   if (!requestDoc.exists) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "not-found",
       "Payment request not found"
     );
   }
 
-  const request = requestDoc.data()!;
+  const paymentRequest = requestDoc.data()!;
 
-  if (request.payerId !== userId) {
-    throw new functions.https.HttpsError("permission-denied", "Not authorized");
+  if (paymentRequest.payerId !== userId) {
+    throw new HttpsError("permission-denied", "Not authorized");
   }
 
-  if (request.status !== "pending") {
-    throw new functions.https.HttpsError(
+  if (paymentRequest.status !== "pending") {
+    throw new HttpsError(
       "failed-precondition",
       "Request is no longer pending"
     );
@@ -787,7 +790,7 @@ export const declineRequest = functions.https.onCall(async (data, context) => {
   });
 
   // Update linked chatMessage if exists
-  if (request.threadId) {
+  if (paymentRequest.threadId) {
     const chatMsgQuery = await db
       .collection("chatMessages")
       .where("actionData", "==", requestId)
@@ -802,8 +805,8 @@ export const declineRequest = functions.https.onCall(async (data, context) => {
       });
     }
 
-    await db.collection("chatThreads").doc(request.threadId).update({
-      lastMessagePreview: `Request for ${request.amount} tokens declined`,
+    await db.collection("chatThreads").doc(paymentRequest.threadId).update({
+      lastMessagePreview: `Request for ${paymentRequest.amount} tokens declined`,
       lastMessageAt: now,
       updatedAt: now,
     });

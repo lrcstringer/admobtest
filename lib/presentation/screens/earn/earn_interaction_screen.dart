@@ -2145,7 +2145,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     _pollOptionsLoading = true;
     try {
       final callable =
-          FirebaseFunctions.instance.httpsCallable('getPollResults');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('getPollResults');
       final result = await callable.call(<String, dynamic>{
         'pollId': pollId,
       });
@@ -2172,7 +2172,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     try {
       // 1. Submit vote to poll system
       final callable =
-          FirebaseFunctions.instance.httpsCallable('submitPollVote');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('submitPollVote');
       await callable.call(<String, dynamic>{
         'pollId': pollId,
         'selectedOption': selectedOption,
@@ -2180,7 +2180,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
       // 2. Load results for animated display
       final resultsCallable =
-          FirebaseFunctions.instance.httpsCallable('getPollResults');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('getPollResults');
       final resultsResult = await resultsCallable.call(<String, dynamic>{
         'pollId': pollId,
       });

@@ -130,6 +130,7 @@ export {
 // ============================================================================
 
 import * as admin from "firebase-admin";
+import { logger } from "firebase-functions/v2";
 import {
   SystemAccounts,
   LedgerConfig,
@@ -157,7 +158,7 @@ let _systemAccountsInitPromise: Promise<void> | null = null;
 
 async function ensureSystemAccounts(): Promise<void> {
   if (!_systemAccountsInitPromise) {
-    console.warn(
+    logger.warn(
       "ensureSystemAccounts: auto-initializing system accounts (safety net). " +
       "Admins should call initializeTrustLedger explicitly before launch."
     );
@@ -253,7 +254,7 @@ export async function processEarningWithSplit(
 
     return journalResult;
   } catch (error) {
-    console.error("processEarningWithSplit failed:", error);
+    logger.error("processEarningWithSplit failed:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -337,7 +338,7 @@ export async function processPotWin(
 
     return journalResult;
   } catch (error) {
-    console.error("processPotWin failed:", error);
+    logger.error("processPotWin failed:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -501,7 +502,7 @@ export async function processPurchaseTransaction(
 
     return journalResult;
   } catch (error) {
-    console.error("processPurchaseTransaction failed:", error);
+    logger.error("processPurchaseTransaction failed:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -581,7 +582,7 @@ export async function processReferralRewards(
 
     return journalResult;
   } catch (error) {
-    console.error("processReferralRewards failed:", error);
+    logger.error("processReferralRewards failed:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -699,7 +700,7 @@ export async function processP2PTransfer(
 
     return journalResult;
   } catch (error) {
-    console.error("processP2PTransfer failed:", error);
+    logger.error("processP2PTransfer failed:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -806,7 +807,7 @@ export async function initiateCashout(
 
     return journalResult;
   } catch (error) {
-    console.error("initiateCashout failed:", error);
+    logger.error("initiateCashout failed:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -933,7 +934,7 @@ export async function failCashout(
 
     return journalResult;
   } catch (error) {
-    console.error("failCashout failed:", error);
+    logger.error("failCashout failed:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -1012,14 +1013,14 @@ export async function processClientSubAccountFunding(
  * Creates all system accounts if they don't exist.
  */
 export async function initializeLedger(): Promise<void> {
-  console.log("Initializing Trust Ledger System...");
+  logger.info("Initializing Trust Ledger System...");
 
   // Import here to avoid circular dependency
   const { initializeSystemAccounts } = await import("./accounts");
 
   await initializeSystemAccounts();
 
-  console.log("Trust Ledger System initialized successfully");
+  logger.info("Trust Ledger System initialized successfully");
 }
 
 // ============================================================================
@@ -1243,7 +1244,7 @@ export async function processEscrowCompletion(
 
     return journalResult;
   } catch (error) {
-    console.error("processEscrowCompletion failed:", error);
+    logger.error("processEscrowCompletion failed:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),

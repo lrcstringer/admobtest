@@ -3,7 +3,8 @@
  * Handles airtime, data, electricity purchases
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
@@ -22,35 +23,35 @@ const db = admin.firestore();
  * Process a service purchase (airtime, data, electricity)
  * Creates purchase document, deducts wallet balance, calls VAS provider
  */
-export const processPurchase = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const processPurchase = onCall({ labels: { area: "wallet" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "processPurchase");
-  await requirePlayIntegrity(data, context, "processPurchase", "HIGH");
+  requireAppCheck(request, "processPurchase");
+  await requirePlayIntegrity(request.data, request, "processPurchase", "HIGH");
 
-  const userId = context.auth.uid;
-  const { productId, recipientNumber } = data;
+  const userId = request.auth.uid;
+  const { productId, recipientNumber } = request.data;
 
   if (!productId) {
-    throw new functions.https.HttpsError("invalid-argument", "Product ID is required");
+    throw new HttpsError("invalid-argument", "Product ID is required");
   }
 
   if (!recipientNumber) {
-    throw new functions.https.HttpsError("invalid-argument", "Recipient number is required");
+    throw new HttpsError("invalid-argument", "Recipient number is required");
   }
 
   // Get product details
   const productDoc = await db.collection("serviceProducts").doc(productId).get();
   if (!productDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Product not found");
+    throw new HttpsError("not-found", "Product not found");
   }
   const product = productDoc.data()!;
 
   // Get provider details
   const providerDoc = await db.collection("serviceProviders").doc(product.providerId).get();
   if (!providerDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Provider not found");
+    throw new HttpsError("not-found", "Provider not found");
   }
   const provider = providerDoc.data()!;
 
@@ -70,7 +71,7 @@ export const processPurchase = functions.https.onCall(async (data, context) => {
       purchaseCategory
     );
     if (!purchaseAllowed.allowed) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         purchaseAllowed.reason || `This account cannot purchase ${purchaseCategory}`
       );
@@ -83,7 +84,7 @@ export const processPurchase = functions.https.onCall(async (data, context) => {
       tokenAmount
     );
     if (!balanceCheck.allowed) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         balanceCheck.reason || "Insufficient balance"
       );
@@ -94,7 +95,7 @@ export const processPurchase = functions.https.onCall(async (data, context) => {
     // No sub-account — validate main wallet balance
     const mainCheck = await validateMainWalletBalance(userId, tokenAmount);
     if (!mainCheck.sufficient) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Insufficient balance: has ${mainCheck.available}, needs ${tokenAmount}`
       );
@@ -214,7 +215,7 @@ export const processPurchase = functions.https.onCall(async (data, context) => {
         // Restore sub-account balance if purchase was from a sub-account
         if (purchaseData.subAccountId) {
           await creditSubAccount(userId, purchaseData.subAccountId, tokenAmount).catch(
-            (e: unknown) => console.error("Failed to restore sub-account balance on purchase reversal:", e)
+            (e: unknown) => logger.error("Failed to restore sub-account balance on purchase reversal:", e)
           );
         }
       }
@@ -228,36 +229,36 @@ export const processPurchase = functions.https.onCall(async (data, context) => {
     }
 
     const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new functions.https.HttpsError("internal", `Purchase failed: ${errorMessage}`);
+    throw new HttpsError("internal", `Purchase failed: ${errorMessage}`);
   }
 });
 
 /**
  * Get purchase details by ID
  */
-export const getPurchaseDetails = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const getPurchaseDetails = onCall({ labels: { area: "wallet" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "getPurchaseDetails");
+  requireAppCheck(request, "getPurchaseDetails");
 
-  const userId = context.auth.uid;
-  const { purchaseId } = data;
+  const userId = request.auth.uid;
+  const { purchaseId } = request.data;
 
   if (!purchaseId) {
-    throw new functions.https.HttpsError("invalid-argument", "Purchase ID is required");
+    throw new HttpsError("invalid-argument", "Purchase ID is required");
   }
 
   const purchaseDoc = await db.collection("purchases").doc(purchaseId).get();
 
   if (!purchaseDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Purchase not found");
+    throw new HttpsError("not-found", "Purchase not found");
   }
 
   const purchase = purchaseDoc.data()!;
 
   if (purchase.userId !== userId) {
-    throw new functions.https.HttpsError("permission-denied", "Not authorized to view this purchase");
+    throw new HttpsError("permission-denied", "Not authorized to view this purchase");
   }
 
   return {

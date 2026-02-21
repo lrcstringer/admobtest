@@ -5,7 +5,8 @@
  * for group accounts (stokvels, family, organizations, clubs).
  */
 
-import * as functions from "firebase-functions";
+import { onDocumentCreated, onDocumentUpdated, onDocumentDeleted } from "firebase-functions/v2/firestore";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import {
   Group,
@@ -27,74 +28,78 @@ const db = admin.firestore();
 /**
  * When a group is created, create its ledger account
  */
-export const onGroupCreated = functions.firestore
-  .document(`${GroupConfig.COLLECTION_GROUPS}/{groupId}`)
-  .onCreate(async (snap, context) => {
-    const groupId = context.params.groupId;
-    const group = snap.data() as Group;
+export const onGroupCreated = onDocumentCreated(
+  { document: `${GroupConfig.COLLECTION_GROUPS}/{groupId}`, labels: { area: "social" } },
+  async (event) => {
+    const groupId = event.params.groupId;
+    const group = event.data?.data() as Group;
 
-    console.log(`Group created: ${groupId} (${group.type})`);
+    logger.info(`Group created: ${groupId} (${group?.type})`);
+
+    if (!event.data) return;
 
     try {
       // Create ledger account with treasury sub-account
       const { accountId, subAccountId } = await getOrCreateGroupAccount(groupId);
-      console.log(`Created ledger account ${accountId} with treasury ${subAccountId} for group ${groupId}`);
+      logger.info(`Created ledger account ${accountId} with treasury ${subAccountId} for group ${groupId}`);
 
       // Update group with ledger reference (for debugging)
-      await snap.ref.update({
+      await event.data.ref.update({
         "metadata.ledgerAccountId": accountId,
         "metadata.treasurySubAccountId": subAccountId,
       });
     } catch (error) {
-      console.error(`Failed to create ledger account for group ${groupId}:`, error);
+      logger.error(`Failed to create ledger account for group ${groupId}:`, error);
     }
-
-    return null;
-  });
+  }
+);
 
 /**
  * When a group is deleted (closed), cleanup its ledger account
  */
-export const onGroupDeleted = functions.firestore
-  .document(`${GroupConfig.COLLECTION_GROUPS}/{groupId}`)
-  .onDelete(async (snap, context) => {
-    const groupId = context.params.groupId;
-    const group = snap.data() as Group;
+export const onGroupDeleted = onDocumentDeleted(
+  { document: `${GroupConfig.COLLECTION_GROUPS}/{groupId}`, labels: { area: "social" } },
+  async (event) => {
+    const groupId = event.params.groupId;
+    const group = event.data?.data() as Group;
 
-    console.log(`Group deleted: ${groupId}`);
+    logger.info(`Group deleted: ${groupId}`);
+
+    if (!event.data) return;
 
     // Only delete ledger account if balance is zero
     // (should have been checked before allowing deletion)
     if (group.totalBalance === 0) {
       try {
         await deleteGroupAccount(groupId);
-        console.log(`Deleted ledger account for group ${groupId}`);
+        logger.info(`Deleted ledger account for group ${groupId}`);
       } catch (error) {
-        console.error(`Failed to delete ledger account for group ${groupId}:`, error);
+        logger.error(`Failed to delete ledger account for group ${groupId}:`, error);
       }
     } else {
-      console.warn(`Group ${groupId} deleted with non-zero balance: ${group.totalBalance}`);
+      logger.warn(`Group ${groupId} deleted with non-zero balance: ${group.totalBalance}`);
     }
-
-    return null;
-  });
+  }
+);
 
 /**
  * When group status changes to closed, notify members
  */
-export const onGroupStatusChanged = functions.firestore
-  .document(`${GroupConfig.COLLECTION_GROUPS}/{groupId}`)
-  .onUpdate(async (change, context) => {
-    const before = change.before.data() as Group;
-    const after = change.after.data() as Group;
-    const groupId = context.params.groupId;
+export const onGroupStatusChanged = onDocumentUpdated(
+  { document: `${GroupConfig.COLLECTION_GROUPS}/{groupId}`, labels: { area: "social" } },
+  async (event) => {
+    const before = event.data?.before.data() as Group;
+    const after = event.data?.after.data() as Group;
+    const groupId = event.params.groupId;
+
+    if (!event.data) return;
 
     // Check if status changed
     if (before.status === after.status) {
-      return null;
+      return;
     }
 
-    console.log(`Group ${groupId} status changed: ${before.status} -> ${after.status}`);
+    logger.info(`Group ${groupId} status changed: ${before.status} -> ${after.status}`);
 
     // Notify members when group is suspended or closed
     if (after.status === "suspended" || after.status === "closed") {
@@ -129,15 +134,14 @@ export const onGroupStatusChanged = functions.firestore
           return db.collection("notifications").add(notificationData);
         });
 
-        await Promise.all(notifications);
-        console.log(`Notified ${membersSnap.size} members about group ${groupId} status change`);
+        await Promise.allSettled(notifications);
+        logger.info(`Notified ${membersSnap.size} members about group ${groupId} status change`);
       } catch (error) {
-        console.error(`Failed to notify members about group ${groupId} status change:`, error);
+        logger.error(`Failed to notify members about group ${groupId} status change:`, error);
       }
     }
-
-    return null;
-  });
+  }
+);
 
 // ============================================================================
 // MEMBER TRIGGERS
@@ -146,14 +150,16 @@ export const onGroupStatusChanged = functions.firestore
 /**
  * When a member is added/invited, send notification
  */
-export const onMemberAdded = functions.firestore
-  .document(`${GroupConfig.COLLECTION_GROUPS}/{groupId}/${GroupConfig.SUBCOLLECTION_MEMBERS}/{memberId}`)
-  .onCreate(async (snap, context) => {
-    const groupId = context.params.groupId;
-    const memberId = context.params.memberId;
-    const member = snap.data() as GroupMember;
+export const onMemberAdded = onDocumentCreated(
+  { document: `${GroupConfig.COLLECTION_GROUPS}/{groupId}/${GroupConfig.SUBCOLLECTION_MEMBERS}/{memberId}`, labels: { area: "social" } },
+  async (event) => {
+    const groupId = event.params.groupId;
+    const memberId = event.params.memberId;
+    const member = event.data?.data() as GroupMember;
 
-    console.log(`Member added to group ${groupId}: ${memberId} (status: ${member.status})`);
+    if (!event.data) return;
+
+    logger.info(`Member added to group ${groupId}: ${memberId} (status: ${member.status})`);
 
     // Only notify if this is an invitation (not the owner joining on creation)
     if (member.status === "invited") {
@@ -185,29 +191,30 @@ export const onMemberAdded = functions.firestore
           read: false,
         });
 
-        console.log(`Sent invitation notification to ${memberId} for group ${groupId}`);
+        logger.info(`Sent invitation notification to ${memberId} for group ${groupId}`);
       } catch (error) {
-        console.error(`Failed to send invitation notification:`, error);
+        logger.error(`Failed to send invitation notification:`, error);
       }
     }
-
-    return null;
-  });
+  }
+);
 
 /**
  * When a member accepts invitation, notify the group
  */
-export const onMemberJoined = functions.firestore
-  .document(`${GroupConfig.COLLECTION_GROUPS}/{groupId}/${GroupConfig.SUBCOLLECTION_MEMBERS}/{memberId}`)
-  .onUpdate(async (change, context) => {
-    const before = change.before.data() as GroupMember;
-    const after = change.after.data() as GroupMember;
-    const groupId = context.params.groupId;
-    const memberId = context.params.memberId;
+export const onMemberJoined = onDocumentUpdated(
+  { document: `${GroupConfig.COLLECTION_GROUPS}/{groupId}/${GroupConfig.SUBCOLLECTION_MEMBERS}/{memberId}`, labels: { area: "social" } },
+  async (event) => {
+    const before = event.data?.before.data() as GroupMember;
+    const after = event.data?.after.data() as GroupMember;
+    const groupId = event.params.groupId;
+    const memberId = event.params.memberId;
+
+    if (!event.data) return;
 
     // Check if member just accepted invitation
     if (before.status === "invited" && after.status === "active") {
-      console.log(`Member ${memberId} joined group ${groupId}`);
+      logger.info(`Member ${memberId} joined group ${groupId}`);
 
       try {
         // Get group details
@@ -242,15 +249,14 @@ export const onMemberJoined = functions.firestore
             });
           });
 
-        await Promise.all(notifications);
-        console.log(`Notified admins about new member ${memberId} in group ${groupId}`);
+        await Promise.allSettled(notifications);
+        logger.info(`Notified admins about new member ${memberId} in group ${groupId}`);
       } catch (error) {
-        console.error(`Failed to notify admins about new member:`, error);
+        logger.error(`Failed to notify admins about new member:`, error);
       }
     }
-
-    return null;
-  });
+  }
+);
 
 // ============================================================================
 // TRANSACTION TRIGGERS
@@ -259,17 +265,19 @@ export const onMemberJoined = functions.firestore
 /**
  * When a transaction is completed, notify relevant members
  */
-export const onGroupTransactionCompleted = functions.firestore
-  .document(`${GroupConfig.COLLECTION_GROUPS}/{groupId}/${GroupConfig.SUBCOLLECTION_TRANSACTIONS}/{transactionId}`)
-  .onUpdate(async (change, context) => {
-    const before = change.before.data() as GroupTransaction;
-    const after = change.after.data() as GroupTransaction;
-    const groupId = context.params.groupId;
-    const transactionId = context.params.transactionId;
+export const onGroupTransactionCompleted = onDocumentUpdated(
+  { document: `${GroupConfig.COLLECTION_GROUPS}/{groupId}/${GroupConfig.SUBCOLLECTION_TRANSACTIONS}/{transactionId}`, labels: { area: "social" } },
+  async (event) => {
+    const before = event.data?.before.data() as GroupTransaction;
+    const after = event.data?.after.data() as GroupTransaction;
+    const groupId = event.params.groupId;
+    const transactionId = event.params.transactionId;
+
+    if (!event.data) return null;
 
     // Check if transaction just completed
     if (before.status !== "completed" && after.status === "completed") {
-      console.log(`Transaction ${transactionId} completed in group ${groupId}`);
+      logger.info(`Transaction ${transactionId} completed in group ${groupId}`);
 
       try {
         // Get group details
@@ -341,27 +349,29 @@ export const onGroupTransactionCompleted = functions.firestore
           });
         });
 
-        await Promise.all(notifications);
-        console.log(`Sent ${notifications.length} notifications for transaction ${transactionId}`);
+        await Promise.allSettled(notifications);
+        logger.info(`Sent ${notifications.length} notifications for transaction ${transactionId}`);
       } catch (error) {
-        console.error(`Failed to send transaction notifications:`, error);
+        logger.error(`Failed to send transaction notifications:`, error);
       }
     }
-
     return null;
-  });
+  }
+);
 
 /**
  * When a transaction needs approval, notify approvers
  */
-export const onApprovalNeeded = functions.firestore
-  .document(`${GroupConfig.COLLECTION_GROUPS}/{groupId}/${GroupConfig.SUBCOLLECTION_APPROVALS}/{approvalId}`)
-  .onCreate(async (snap, context) => {
-    const groupId = context.params.groupId;
-    const approvalId = context.params.approvalId;
-    const approval = snap.data();
+export const onApprovalNeeded = onDocumentCreated(
+  { document: `${GroupConfig.COLLECTION_GROUPS}/{groupId}/${GroupConfig.SUBCOLLECTION_APPROVALS}/{approvalId}`, labels: { area: "social" } },
+  async (event) => {
+    const groupId = event.params.groupId;
+    const approvalId = event.params.approvalId;
+    const approval = event.data?.data();
 
-    console.log(`Approval needed for transaction in group ${groupId}: ${approvalId}`);
+    if (!event.data || !approval) return;
+
+    logger.info(`Approval needed for transaction in group ${groupId}: ${approvalId}`);
 
     try {
       // Get group details
@@ -408,11 +418,10 @@ export const onApprovalNeeded = functions.firestore
         });
       });
 
-      await Promise.all(notifications);
-      console.log(`Notified ${notifications.length} approvers for approval ${approvalId}`);
+      await Promise.allSettled(notifications);
+      logger.info(`Notified ${notifications.length} approvers for approval ${approvalId}`);
     } catch (error) {
-      console.error(`Failed to send approval notifications:`, error);
+      logger.error(`Failed to send approval notifications:`, error);
     }
-
-    return null;
-  });
+  }
+);

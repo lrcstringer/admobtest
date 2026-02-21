@@ -3,10 +3,12 @@
  * Custom OTP verification using MyMobileAPI
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
 import { checkRateLimit, requireAppCheck, validators } from "./security";
+import { MYMOBILEAPI_CLIENT_ID, MYMOBILEAPI_API_KEY, MYMOBILEAPI_SENDER_ID, SMS_APP_HASH } from "./secrets";
 
 const db = admin.firestore();
 
@@ -44,7 +46,7 @@ function hashCode(code: string, salt: string): string {
  */
 function normalizePhoneNumber(phone: string): string {
   // Remove spaces, dashes, parentheses
-  let cleaned = phone.replace(/[\s\-()]/g, "");
+  let cleaned = phone.replaceAll(/[\s\-()]/g, "");
 
   // Convert 0 prefix to +27
   if (cleaned.startsWith("0")) {
@@ -66,12 +68,12 @@ async function sendSmsViaMyMobileApi(
   phoneNumber: string,
   message: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  const clientId = process.env.MYMOBILEAPI_CLIENT_ID;
-  const apiKey = process.env.MYMOBILEAPI_API_KEY;
-  const senderId = process.env.MYMOBILEAPI_SENDER_ID || "iMali";
+  const clientId = MYMOBILEAPI_CLIENT_ID.value();
+  const apiKey = MYMOBILEAPI_API_KEY.value();
+  const senderId = MYMOBILEAPI_SENDER_ID.value() || "iMali";
 
   if (!clientId || !apiKey) {
-    console.error("MyMobileAPI credentials not configured");
+    logger.error("MyMobileAPI credentials not configured");
     return { success: false, error: "SMS service not configured" };
   }
 
@@ -100,15 +102,15 @@ async function sendSmsViaMyMobileApi(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("MyMobileAPI error:", response.status, errorText);
+      logger.error("MyMobileAPI error:", response.status, errorText);
       return { success: false, error: `SMS API error: ${response.status}` };
     }
 
     const data = await response.json();
-    console.log("SMS sent successfully:", data);
+    logger.info("SMS sent successfully:", data);
     return { success: true, messageId: data.eventId?.toString() };
   } catch (error) {
-    console.error("SMS send error:", error);
+    logger.error("SMS send error:", error);
     return { success: false, error: String(error) };
   }
 }
@@ -119,14 +121,14 @@ async function sendSmsViaMyMobileApi(
  * @param phoneNumber - South African phone number
  * @returns { success: boolean, message: string }
  */
-export const sendOtp = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "sendOtp");
+export const sendOtp = onCall({ labels: { area: "auth" }, secrets: [MYMOBILEAPI_CLIENT_ID, MYMOBILEAPI_API_KEY, MYMOBILEAPI_SENDER_ID, SMS_APP_HASH] }, async (request) => {
+  requireAppCheck(request, "sendOtp");
 
-  const { phoneNumber } = data;
+  const { phoneNumber } = request.data;
 
   // Validate phone number
   if (!phoneNumber || !validators.phoneNumber(phoneNumber)) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Invalid South African phone number. Use format: 0612345678 or +27612345678"
     );
@@ -138,7 +140,7 @@ export const sendOtp = functions.https.onCall(async (data, context) => {
   // Check rate limit (prevent OTP spam)
   const rateLimitResult = await checkRateLimit(normalizedPhone, "otp_send");
   if (!rateLimitResult.allowed) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "resource-exhausted",
       rateLimitResult.message || "Too many OTP requests. Please try again later."
     );
@@ -159,7 +161,7 @@ export const sendOtp = functions.https.onCall(async (data, context) => {
         const waitTime = Math.ceil(
           OTP_CONFIG.resendCooldownSeconds - secondsSinceCreated
         );
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "resource-exhausted",
           `Please wait ${waitTime} seconds before requesting a new code.`
         );
@@ -189,20 +191,20 @@ export const sendOtp = functions.https.onCall(async (data, context) => {
   });
 
   // Send SMS
-  const appHash = process.env.SMS_APP_HASH || "";
+  const appHash = SMS_APP_HASH.value() || "";
   const message = `Your iMali verification code is: ${code}. Valid for ${OTP_CONFIG.expiryMinutes} minutes. Do not share this code.${appHash ? `\n${appHash}` : ""}`;
   const smsResult = await sendSmsViaMyMobileApi(normalizedPhone, message);
 
   if (!smsResult.success) {
     // Delete the verification document if SMS failed
     await db.collection("verification_codes").doc(normalizedPhone).delete();
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "internal",
       "Failed to send SMS. Please try again."
     );
   }
 
-  console.log(
+  logger.info(
     `OTP sent to ${normalizedPhone}, messageId: ${smsResult.messageId}`
   );
 
@@ -219,14 +221,14 @@ export const sendOtp = functions.https.onCall(async (data, context) => {
  * @param code - 4-digit verification code
  * @returns { success: boolean, customToken: string, userId: string, isNewUser: boolean }
  */
-export const verifyOtp = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "verifyOtp");
+export const verifyOtp = onCall({ labels: { area: "auth" } }, async (request) => {
+  requireAppCheck(request, "verifyOtp");
 
-  const { phoneNumber, code } = data;
+  const { phoneNumber, code } = request.data;
 
   // Validate phone number
   if (!phoneNumber || !validators.phoneNumber(phoneNumber)) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Invalid phone number"
     );
@@ -234,7 +236,7 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
 
   // Validate code format
   if (!code || !/^\d{4}$/.test(code)) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Invalid verification code format. Must be 4 digits."
     );
@@ -245,7 +247,7 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
   // Check rate limit for verification attempts
   const rateLimitResult = await checkRateLimit(normalizedPhone, "otp_verify");
   if (!rateLimitResult.allowed) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "resource-exhausted",
       "Too many verification attempts. Please request a new code."
     );
@@ -256,7 +258,7 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
   const doc = await docRef.get();
 
   if (!doc.exists) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "not-found",
       "No verification in progress. Please request a new code."
     );
@@ -266,14 +268,14 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
 
   // Check if already verified or locked
   if (verificationData.status === "verified") {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       "Code already used. Please request a new one."
     );
   }
 
   if (verificationData.status === "locked") {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "resource-exhausted",
       "Too many failed attempts. Please request a new code."
     );
@@ -283,7 +285,7 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
   const expiresAt = verificationData.expiresAt?.toDate();
   if (!expiresAt || Date.now() > expiresAt.getTime()) {
     await docRef.update({ status: "expired" });
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "deadline-exceeded",
       "Verification code has expired. Please request a new one."
     );
@@ -293,7 +295,7 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
   const attempts = verificationData.attempts || 0;
   if (attempts >= OTP_CONFIG.maxAttempts) {
     await docRef.update({ status: "locked" });
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "resource-exhausted",
       "Maximum attempts exceeded. Please request a new code."
     );
@@ -313,13 +315,13 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
     const remainingAttempts = OTP_CONFIG.maxAttempts - newAttempts;
     if (remainingAttempts <= 0) {
       await docRef.update({ status: "locked" });
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "resource-exhausted",
         "Maximum attempts exceeded. Please request a new code."
       );
     }
 
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       `Invalid code. ${remainingAttempts} attempt${remainingAttempts === 1 ? "" : "s"} remaining.`
     );
@@ -327,7 +329,7 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
 
   // Create or get Firebase Auth user BEFORE marking as verified,
   // so that if user creation fails the code can be retried.
-  const userId = `phone_${normalizedPhone.replace(/\+/g, "")}`;
+  const userId = `phone_${normalizedPhone.replaceAll("+", "")}`;
   let isNewUser = false;
 
   try {
@@ -357,7 +359,7 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
   });
   await docRef.delete();
 
-  console.log(`User ${userId} verified successfully, isNewUser: ${isNewUser}`);
+  logger.info(`User ${userId} verified successfully, isNewUser: ${isNewUser}`);
 
   // Handle the user doc: stamp lastLoginAt if it's a complete doc,
   // or delete it if it's a stale partial doc (e.g. from a previous
@@ -377,9 +379,9 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
 
     // Stale partial doc (no phoneNumber) — delete it so the client's
     // .set() is treated as CREATE, not UPDATE.
-    console.warn(`Deleting stale partial user doc for ${userId} (no phoneNumber)`);
+    logger.warn(`Deleting stale partial user doc for ${userId} (no phoneNumber)`);
     return db.collection("users").doc(userId).delete();
-  }).catch((err: unknown) => console.warn("Failed to handle user doc:", err));
+  }).catch((err: unknown) => logger.warn("Failed to handle user doc:", err));
 
   // Check if user has any trusted devices
   const trustedDevices = await db.collection("devices")
@@ -417,17 +419,17 @@ export const verifyOtp = functions.https.onCall(async (data, context) => {
  * @param hardwareBacked - Whether key is hardware-backed
  * @param strongBox - Whether StrongBox/Secure Enclave is used
  */
-export const registerDevice = functions.https.onCall(async (data, context) => {
+export const registerDevice = onCall({ labels: { area: "auth" } }, async (request) => {
   // Require authentication
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated to register a device."
     );
   }
-  requireAppCheck(context, "registerDevice");
+  requireAppCheck(request, "registerDevice");
 
-  const userId = context.auth.uid;
+  const userId = request.auth.uid;
   const {
     publicKeyPem,
     fcmToken,
@@ -438,11 +440,11 @@ export const registerDevice = functions.https.onCall(async (data, context) => {
     manufacturer,
     hardwareBacked,
     strongBox,
-  } = data;
+  } = request.data;
 
   // Validate required fields
   if (!publicKeyPem || !fcmToken || !platform) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "publicKeyPem, fcmToken, and platform are required."
     );
@@ -450,7 +452,7 @@ export const registerDevice = functions.https.onCall(async (data, context) => {
 
   // Validate public key format
   if (!publicKeyPem.startsWith("-----BEGIN PUBLIC KEY-----")) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Invalid public key format. Must be PEM encoded."
     );
@@ -459,7 +461,7 @@ export const registerDevice = functions.https.onCall(async (data, context) => {
   // Rate limit device registration (5 per day)
   const rateLimitResult = await checkRateLimit(userId, "device_register");
   if (!rateLimitResult.allowed) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "resource-exhausted",
       rateLimitResult.message || "Too many device registrations. Try again later."
     );
@@ -509,10 +511,10 @@ export const registerDevice = functions.https.onCall(async (data, context) => {
     });
     if (cleaned > 0) {
       await batch.commit();
-      console.log(`Cleaned up ${cleaned} duplicate device record(s) for ${userId}`);
+      logger.info(`Cleaned up ${cleaned} duplicate device record(s) for ${userId}`);
     }
 
-    console.log(`Device ${deviceRef.id} updated for user ${userId}`);
+    logger.info(`Device ${deviceRef.id} updated for user ${userId}`);
   } else {
     // Create new device document
     deviceRef = db.collection("devices").doc();
@@ -535,7 +537,7 @@ export const registerDevice = functions.https.onCall(async (data, context) => {
     };
 
     await deviceRef.set(deviceData);
-    console.log(`Device ${deviceRef.id} registered for user ${userId}`);
+    logger.info(`Device ${deviceRef.id} registered for user ${userId}`);
   }
 
   // Update user's primary device if they don't have one
@@ -573,18 +575,18 @@ export const registerDevice = functions.https.onCall(async (data, context) => {
  *
  * @param deviceId - The device document ID to revoke
  */
-export const revokeDevice = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const revokeDevice = onCall({ labels: { area: "auth" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated."
     );
   }
-  requireAppCheck(context, "revokeDevice");
+  requireAppCheck(request, "revokeDevice");
 
-  const { deviceId } = data;
+  const { deviceId } = request.data;
   if (!deviceId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "deviceId is required."
     );
@@ -592,12 +594,12 @@ export const revokeDevice = functions.https.onCall(async (data, context) => {
 
   const deviceDoc = await db.collection("devices").doc(deviceId).get();
   if (!deviceDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Device not found.");
+    throw new HttpsError("not-found", "Device not found.");
   }
 
   const deviceData = deviceDoc.data()!;
-  if (deviceData.userId !== context.auth.uid) {
-    throw new functions.https.HttpsError(
+  if (deviceData.userId !== request.auth!.uid) {
+    throw new HttpsError(
       "permission-denied",
       "You can only revoke your own devices."
     );
@@ -609,7 +611,7 @@ export const revokeDevice = functions.https.onCall(async (data, context) => {
     revokedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  console.log(`Device ${deviceId} revoked by user ${context.auth.uid}`);
+  logger.info(`Device ${deviceId} revoked by user ${request.auth!.uid}`);
 
   return { success: true };
 });
@@ -620,18 +622,18 @@ export const revokeDevice = functions.https.onCall(async (data, context) => {
  * @param deviceId - The device document ID
  * @param fcmToken - The new FCM token
  */
-export const updateDeviceFcmToken = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const updateDeviceFcmToken = onCall({ labels: { area: "auth" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated."
     );
   }
-  requireAppCheck(context, "updateDeviceFcmToken");
+  requireAppCheck(request, "updateDeviceFcmToken");
 
-  const { deviceId, fcmToken } = data;
+  const { deviceId, fcmToken } = request.data;
   if (!deviceId || !fcmToken) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "deviceId and fcmToken are required."
     );
@@ -639,12 +641,12 @@ export const updateDeviceFcmToken = functions.https.onCall(async (data, context)
 
   const deviceDoc = await db.collection("devices").doc(deviceId).get();
   if (!deviceDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Device not found.");
+    throw new HttpsError("not-found", "Device not found.");
   }
 
   const deviceData = deviceDoc.data()!;
-  if (deviceData.userId !== context.auth.uid) {
-    throw new functions.https.HttpsError(
+  if (deviceData.userId !== request.auth!.uid) {
+    throw new HttpsError(
       "permission-denied",
       "You can only update your own devices."
     );
@@ -671,13 +673,13 @@ export const updateDeviceFcmToken = functions.https.onCall(async (data, context)
  * @param phoneNumber - South African phone number
  * @returns { challengeId, hasTrustedDevice }
  */
-export const loginRequest = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "loginRequest");
+export const loginRequest = onCall({ labels: { area: "auth" } }, async (request) => {
+  requireAppCheck(request, "loginRequest");
 
-  const { phoneNumber } = data;
+  const { phoneNumber } = request.data;
 
   if (!phoneNumber || !validators.phoneNumber(phoneNumber)) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Invalid South African phone number."
     );
@@ -688,14 +690,14 @@ export const loginRequest = functions.https.onCall(async (data, context) => {
   // Rate limit login requests
   const rateLimitResult = await checkRateLimit(normalizedPhone, "login_request");
   if (!rateLimitResult.allowed) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "resource-exhausted",
       rateLimitResult.message || "Too many login requests. Please try again later."
     );
   }
 
   // Find the user by phone number
-  const userId = `phone_${normalizedPhone.replace(/\+/g, "")}`;
+  const userId = `phone_${normalizedPhone.replaceAll("+", "")}`;
 
   let userExists = false;
   try {
@@ -799,14 +801,14 @@ export const loginRequest = functions.https.onCall(async (data, context) => {
             errCode === "messaging/invalid-argument"
           ) {
             staleTokenIndices.push(idx);
-            console.log(`Stale FCM token detected at index ${idx}: ${errCode}`);
+            logger.info(`Stale FCM token detected at index ${idx}: ${errCode}`);
           }
         }
       });
 
       // If ALL tokens were stale, clean up and fall back to OTP
       if (staleTokenIndices.length === fcmTokens.length) {
-        console.log(
+        logger.info(
           `All ${fcmTokens.length} FCM token(s) are stale for ${userId}. ` +
           `Cleaning up and falling back to OTP.`
         );
@@ -854,11 +856,11 @@ export const loginRequest = functions.https.onCall(async (data, context) => {
       }
 
       const delivered = sendResult.successCount;
-      console.log(
+      logger.info(
         `Push challenge sent: ${delivered}/${fcmTokens.length} delivered for ${userId}`
       );
     } catch (error) {
-      console.error("FCM send error:", error);
+      logger.error("FCM send error:", error);
       // Don't fail the request — user can still use OTP
     }
   }
@@ -880,13 +882,13 @@ export const loginRequest = functions.https.onCall(async (data, context) => {
  * @param deviceId - The device document ID that signed the nonce
  * @returns { customToken, userId }
  */
-export const approveLogin = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "approveLogin");
+export const approveLogin = onCall({ labels: { area: "auth" } }, async (request) => {
+  requireAppCheck(request, "approveLogin");
 
-  const { challengeId, signedNonce, deviceId } = data;
+  const { challengeId, signedNonce, deviceId } = request.data;
 
   if (!challengeId || !signedNonce || !deviceId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "challengeId, signedNonce, and deviceId are required."
     );
@@ -895,7 +897,7 @@ export const approveLogin = functions.https.onCall(async (data, context) => {
   // Rate limit challenge approvals
   const rateLimitResult = await checkRateLimit(deviceId, "challenge_approve");
   if (!rateLimitResult.allowed) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "resource-exhausted",
       rateLimitResult.message || "Too many approval attempts."
     );
@@ -906,14 +908,14 @@ export const approveLogin = functions.https.onCall(async (data, context) => {
   const challengeDoc = await challengeRef.get();
 
   if (!challengeDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Challenge not found.");
+    throw new HttpsError("not-found", "Challenge not found.");
   }
 
   const challengeData = challengeDoc.data()!;
 
   // Check challenge status
   if (challengeData.status !== "pending") {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       `Challenge is ${challengeData.status}, not pending.`
     );
@@ -923,7 +925,7 @@ export const approveLogin = functions.https.onCall(async (data, context) => {
   const expiresAt = challengeData.expiresAt?.toDate();
   if (!expiresAt || Date.now() > expiresAt.getTime()) {
     await challengeRef.update({ status: "expired" });
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "deadline-exceeded",
       "Challenge has expired."
     );
@@ -932,19 +934,19 @@ export const approveLogin = functions.https.onCall(async (data, context) => {
   // Get device and verify ownership
   const deviceDoc = await db.collection("devices").doc(deviceId).get();
   if (!deviceDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Device not found.");
+    throw new HttpsError("not-found", "Device not found.");
   }
 
   const deviceData = deviceDoc.data()!;
   if (deviceData.userId !== challengeData.userId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "permission-denied",
       "Device does not belong to the challenge user."
     );
   }
 
   if (!deviceData.trusted || deviceData.revoked) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "permission-denied",
       "Device is not trusted."
     );
@@ -968,7 +970,7 @@ export const approveLogin = functions.https.onCall(async (data, context) => {
         status: "denied",
         respondedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "Invalid signature."
       );
@@ -978,8 +980,8 @@ export const approveLogin = functions.https.onCall(async (data, context) => {
     if (err.code) {
       throw error; // Re-throw HttpsError
     }
-    console.error("Signature verification error:", error);
-    throw new functions.https.HttpsError(
+    logger.error("Signature verification error:", error);
+    throw new HttpsError(
       "internal",
       "Signature verification failed."
     );
@@ -1006,9 +1008,9 @@ export const approveLogin = functions.https.onCall(async (data, context) => {
   db.collection("users").doc(challengeData.userId).set(
     { lastLoginAt: admin.firestore.FieldValue.serverTimestamp() },
     { merge: true }
-  ).catch((err: unknown) => console.warn("Failed to stamp lastLoginAt:", err));
+  ).catch((err: unknown) => logger.warn("Failed to stamp lastLoginAt:", err));
 
-  console.log(`Challenge ${challengeId} approved by device ${deviceId}`);
+  logger.info(`Challenge ${challengeId} approved by device ${deviceId}`);
 
   return {
     customToken,
@@ -1021,18 +1023,18 @@ export const approveLogin = functions.https.onCall(async (data, context) => {
  *
  * @param challengeId - The challenge document ID
  */
-export const denyLogin = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const denyLogin = onCall({ labels: { area: "auth" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated."
     );
   }
-  requireAppCheck(context, "denyLogin");
+  requireAppCheck(request, "denyLogin");
 
-  const { challengeId } = data;
+  const { challengeId } = request.data;
   if (!challengeId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "challengeId is required."
     );
@@ -1042,19 +1044,19 @@ export const denyLogin = functions.https.onCall(async (data, context) => {
   const challengeDoc = await challengeRef.get();
 
   if (!challengeDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Challenge not found.");
+    throw new HttpsError("not-found", "Challenge not found.");
   }
 
   const challengeData = challengeDoc.data()!;
-  if (challengeData.userId !== context.auth.uid) {
-    throw new functions.https.HttpsError(
+  if (challengeData.userId !== request.auth!.uid) {
+    throw new HttpsError(
       "permission-denied",
       "You can only deny your own challenges."
     );
   }
 
   if (challengeData.status !== "pending") {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       "Challenge is no longer pending."
     );
@@ -1065,7 +1067,7 @@ export const denyLogin = functions.https.onCall(async (data, context) => {
     respondedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  console.log(`Challenge ${challengeId} denied by user ${context.auth.uid}`);
+  logger.info(`Challenge ${challengeId} denied by user ${request.auth!.uid}`);
 
   return { success: true };
 });
@@ -1080,13 +1082,13 @@ export const denyLogin = functions.https.onCall(async (data, context) => {
  * @param challengeId - The challenge document ID
  * @returns { status, customToken? }
  */
-export const checkChallengeStatus = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "checkChallengeStatus");
+export const checkChallengeStatus = onCall({ labels: { area: "auth" } }, async (request) => {
+  requireAppCheck(request, "checkChallengeStatus");
 
-  const { challengeId } = data;
+  const { challengeId } = request.data;
 
   if (!challengeId || typeof challengeId !== "string") {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "challengeId is required."
     );
@@ -1095,7 +1097,7 @@ export const checkChallengeStatus = functions.https.onCall(async (data, context)
   // Rate limit polling (generous limit per challengeId)
   const rateLimitResult = await checkRateLimit(challengeId, "challenge_poll");
   if (!rateLimitResult.allowed) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "resource-exhausted",
       rateLimitResult.message || "Too many status checks."
     );
@@ -1143,20 +1145,20 @@ export const checkChallengeStatus = functions.https.onCall(async (data, context)
  * @param details - Optional description
  * @param deviceId - Optional device that triggered the event
  */
-export const createRiskEvent = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const createRiskEvent = onCall({ labels: { area: "auth" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated."
     );
   }
-  requireAppCheck(context, "createRiskEvent");
+  requireAppCheck(request, "createRiskEvent");
 
-  const userId = context.auth.uid;
-  const { type, severity, details, deviceId } = data;
+  const userId = request.auth.uid;
+  const { type, severity, details, deviceId } = request.data;
 
   if (!type || !severity) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "type and severity are required."
     );
@@ -1166,14 +1168,14 @@ export const createRiskEvent = functions.https.onCall(async (data, context) => {
   const validSeverities = ["low", "medium", "high", "critical"];
 
   if (!validTypes.includes(type)) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       `Invalid risk event type: ${type}`
     );
   }
 
   if (!validSeverities.includes(severity)) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       `Invalid severity: ${severity}`
     );
@@ -1193,7 +1195,7 @@ export const createRiskEvent = functions.https.onCall(async (data, context) => {
     resolvedAt: null,
   });
 
-  console.log(`Risk event ${eventRef.id} created for user ${userId}: ${type} (${severity})`);
+  logger.info(`Risk event ${eventRef.id} created for user ${userId}: ${type} (${severity})`);
 
   // For high/critical events, send push notification to user's devices
   if (severity === "high" || severity === "critical") {
@@ -1227,7 +1229,7 @@ export const createRiskEvent = functions.https.onCall(async (data, context) => {
           },
         });
       } catch (error) {
-        console.error("FCM notification error:", error);
+        logger.error("FCM notification error:", error);
       }
     }
   }
@@ -1245,18 +1247,18 @@ export const createRiskEvent = functions.https.onCall(async (data, context) => {
  *
  * @param eventId - The risk event document ID
  */
-export const resolveRiskEvent = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const resolveRiskEvent = onCall({ labels: { area: "auth" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated."
     );
   }
-  requireAppCheck(context, "resolveRiskEvent");
+  requireAppCheck(request, "resolveRiskEvent");
 
-  const { eventId } = data;
+  const { eventId } = request.data;
   if (!eventId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "eventId is required."
     );
@@ -1266,19 +1268,19 @@ export const resolveRiskEvent = functions.https.onCall(async (data, context) => 
   const eventDoc = await eventRef.get();
 
   if (!eventDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Risk event not found.");
+    throw new HttpsError("not-found", "Risk event not found.");
   }
 
   const eventData = eventDoc.data()!;
-  if (eventData.userId !== context.auth.uid) {
-    throw new functions.https.HttpsError(
+  if (eventData.userId !== request.auth!.uid) {
+    throw new HttpsError(
       "permission-denied",
       "You can only resolve your own risk events."
     );
   }
 
   if (eventData.status !== "pending") {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       "Risk event is not pending."
     );
@@ -1289,7 +1291,7 @@ export const resolveRiskEvent = functions.https.onCall(async (data, context) => 
     resolvedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  console.log(`Risk event ${eventId} resolved by user ${context.auth.uid}`);
+  logger.info(`Risk event ${eventId} resolved by user ${request.auth!.uid}`);
 
   return { success: true };
 });
@@ -1304,17 +1306,17 @@ export const resolveRiskEvent = functions.https.onCall(async (data, context) => 
  * @param newDevicePlatform - Platform of the new device (android/ios)
  * @param excludeDeviceId - The new device ID (don't notify it)
  */
-export const notifyNewDeviceLogin = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const notifyNewDeviceLogin = onCall({ labels: { area: "auth" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "User must be authenticated."
     );
   }
-  requireAppCheck(context, "notifyNewDeviceLogin");
+  requireAppCheck(request, "notifyNewDeviceLogin");
 
-  const userId = context.auth.uid;
-  const { newDeviceModel, newDevicePlatform, excludeDeviceId } = data;
+  const userId = request.auth.uid;
+  const { newDeviceModel, newDevicePlatform, excludeDeviceId } = request.data;
 
   // Get all trusted devices except the new one
   const trustedDevices = await db.collection("devices")
@@ -1355,10 +1357,73 @@ export const notifyNewDeviceLogin = functions.https.onCall(async (data, context)
       },
     });
 
-    console.log(`New device notification sent to ${fcmTokens.length} device(s) for user ${userId}`);
+    logger.info(`New device notification sent to ${fcmTokens.length} device(s) for user ${userId}`);
     return { notified: fcmTokens.length };
   } catch (error) {
-    console.error("New device notification error:", error);
+    logger.error("New device notification error:", error);
     return { notified: 0 };
   }
+});
+
+// ============================================
+// Blocking Auth Gate — beforeUserSignedIn
+// ============================================
+
+import { beforeUserSignedIn } from "firebase-functions/v2/identity";
+
+/**
+ * Blocking function that runs before every sign-in.
+ *
+ * Checks the user's Firestore document for:
+ *  1. Fraud flag  (`fraudFlagged: true`)  → block sign-in
+ *  2. Soft-delete (`isDeleted: true`)     → block sign-in
+ *  3. Inactive    (`isActive: false`)     → block sign-in
+ *
+ * If the user document does not exist (e.g. brand-new user), sign-in is allowed.
+ */
+export const onUserSignedIn = beforeUserSignedIn({ labels: { area: "auth" } }, async (event) => {
+  const uid = event.data?.uid;
+  if (!uid) {
+    // No user data in the event — allow sign-in (shouldn't happen in practice)
+    return;
+  }
+
+  const userDoc = await db.collection("users").doc(uid).get();
+
+  // New users won't have a document yet — allow sign-in
+  if (!userDoc.exists) {
+    logger.info(`Sign-in allowed for ${uid} (no user document — new user)`);
+    return;
+  }
+
+  const data = userDoc.data()!;
+
+  // 1. Fraud-flagged users are blocked
+  if (data.fraudFlagged === true) {
+    logger.warn(`Sign-in BLOCKED for ${uid}: account fraud-flagged`);
+    throw new HttpsError(
+      "permission-denied",
+      "Account suspended due to suspicious activity"
+    );
+  }
+
+  // 2. Soft-deleted users are blocked
+  if (data.isDeleted === true) {
+    logger.warn(`Sign-in BLOCKED for ${uid}: account deleted`);
+    throw new HttpsError(
+      "permission-denied",
+      "This account has been deleted"
+    );
+  }
+
+  // 3. Inactive users are blocked
+  if (data.isActive === false) {
+    logger.warn(`Sign-in BLOCKED for ${uid}: account inactive`);
+    throw new HttpsError(
+      "permission-denied",
+      "This account has been deactivated"
+    );
+  }
+
+  logger.info(`Sign-in allowed for ${uid}`);
 });

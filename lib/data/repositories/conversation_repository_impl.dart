@@ -441,6 +441,46 @@ class ConversationRepositoryImpl implements ConversationRepository {
   }
 
   // =========================================================================
+  // MESSAGE DELETION
+  // =========================================================================
+
+  @override
+  Future<Either<Failure, void>> deleteMessageForEveryone({
+    required String conversationId,
+    required String messageId,
+  }) async {
+    try {
+      await _remoteDataSource.deleteMessageForEveryone(
+        conversationId: conversationId,
+        messageId: messageId,
+      );
+      return const Right(null);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> clearChat({
+    required String conversationId,
+  }) async {
+    try {
+      await _remoteDataSource.clearChat(conversationId: conversationId);
+      return const Right(null);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  // =========================================================================
   // REACTIONS
   // =========================================================================
 
@@ -562,7 +602,10 @@ class ConversationRepositoryImpl implements ConversationRepository {
           'x3dhHeader': {
             'identityKey': msg.x3dhHeader!.identityKey,
             'ephemeralKey': msg.x3dhHeader!.ephemeralKey,
-            'oneTimePreKeyId': msg.x3dhHeader!.oneTimePreKeyId,
+            if (msg.x3dhHeader!.oneTimePreKeyPublicKey != null)
+              'oneTimePreKeyPublicKey': msg.x3dhHeader!.oneTimePreKeyPublicKey,
+            if (msg.x3dhHeader!.oneTimePreKeyId != null)
+              'oneTimePreKeyId': msg.x3dhHeader!.oneTimePreKeyId,
           },
       };
       final plaintext = await _signalProtocolService.decryptP2P(

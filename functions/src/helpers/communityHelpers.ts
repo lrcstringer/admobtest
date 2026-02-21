@@ -9,7 +9,7 @@
  * the same role/permission system as groups.
  */
 
-import * as functions from "firebase-functions";
+import { HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import {
   GroupRole,
@@ -156,10 +156,11 @@ export interface CommunitySettings extends GroupSettings {
 
 /**
  * Require authenticated user; returns userId.
+ * Accepts a structural type compatible with both Gen1 CallableContext and Gen2 CallableRequest.
  */
-export function requireAuth(context: functions.https.CallableContext): string {
+export function requireAuth(context: { auth?: { uid: string } }): string {
   if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
   return context.auth.uid;
 }
@@ -170,7 +171,7 @@ export function requireAuth(context: functions.https.CallableContext): string {
 export async function getCommunityOrThrow(communityId: string): Promise<Community> {
   const doc = await db.collection(CommunityConfig.COLLECTION).doc(communityId).get();
   if (!doc.exists) {
-    throw new functions.https.HttpsError("not-found", CommunityErrorCodes.NOT_FOUND);
+    throw new HttpsError("not-found", CommunityErrorCodes.NOT_FOUND);
   }
   return { id: doc.id, ...doc.data() } as Community;
 }
@@ -200,7 +201,7 @@ export async function requireCommunityMember(
 ): Promise<CommunityMember> {
   const member = await getCommunityMember(communityId, userId);
   if (!member || member.status !== "active") {
-    throw new functions.https.HttpsError("permission-denied", CommunityErrorCodes.NOT_A_MEMBER);
+    throw new HttpsError("permission-denied", CommunityErrorCodes.NOT_A_MEMBER);
   }
   return member;
 }
@@ -222,7 +223,7 @@ export function requirePermission(
 ): void {
   const perms = getMemberPermissions(member);
   if (!perms[permission]) {
-    throw new functions.https.HttpsError("permission-denied", errorCode);
+    throw new HttpsError("permission-denied", errorCode);
   }
 }
 
@@ -231,10 +232,10 @@ export function requirePermission(
  */
 export function requireActiveCommunity(community: Community): void {
   if (community.status === "suspended") {
-    throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.SUSPENDED);
+    throw new HttpsError("failed-precondition", CommunityErrorCodes.SUSPENDED);
   }
   if (community.status === "closed") {
-    throw new functions.https.HttpsError("failed-precondition", CommunityErrorCodes.CLOSED);
+    throw new HttpsError("failed-precondition", CommunityErrorCodes.CLOSED);
   }
 }
 
@@ -244,7 +245,7 @@ export function requireActiveCommunity(community: Community): void {
 export async function getUserProfile(userId: string) {
   const doc = await db.collection("users").doc(userId).get();
   if (!doc.exists) {
-    throw new functions.https.HttpsError("not-found", "User not found");
+    throw new HttpsError("not-found", "User not found");
   }
   return doc.data()!;
 }

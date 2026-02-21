@@ -9,7 +9,9 @@
  *   conversations/{conversationId}/messages/{messageId}
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onDocumentUpdated } from "firebase-functions/v2/firestore";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
@@ -26,17 +28,17 @@ const db = admin.firestore();
 // HELPERS
 // ============================================================================
 
-function requireAuth(context: functions.https.CallableContext): string {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+function requireAuth(request: { auth?: { uid: string } }): string {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  return context.auth.uid;
+  return request.auth.uid;
 }
 
 async function getUserProfile(userId: string) {
   const doc = await db.collection("users").doc(userId).get();
   if (!doc.exists) {
-    throw new functions.https.HttpsError("not-found", "User not found");
+    throw new HttpsError("not-found", "User not found");
   }
   return doc.data()!;
 }
@@ -55,13 +57,13 @@ function truncate(text: string, maxLen: number): string {
  * Returns only public profile fields (no phone, FCM token, etc.).
  * Used by the contact picker when starting a new conversation.
  */
-export const searchUsers = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
+export const searchUsers = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
 
-  const { query } = data;
+  const { query } = request.data;
 
   if (!query || typeof query !== "string" || query.length < 2 || query.length > 50) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "query must be a string between 2 and 50 characters"
     );
@@ -108,18 +110,18 @@ export const searchUsers = functions.https.onCall(async (data, context) => {
  * If a conversation already exists between the two users, returns it.
  * Otherwise, creates a new one with denormalized participant info.
  */
-export const getOrCreateConversation = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "getOrCreateConversation");
+export const getOrCreateConversation = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "getOrCreateConversation");
 
-  const { participantId } = data;
+  const { participantId } = request.data;
 
   if (!participantId) {
-    throw new functions.https.HttpsError("invalid-argument", "participantId is required");
+    throw new HttpsError("invalid-argument", "participantId is required");
   }
 
   if (userId === participantId) {
-    throw new functions.https.HttpsError("invalid-argument", "Cannot create conversation with yourself");
+    throw new HttpsError("invalid-argument", "Cannot create conversation with yourself");
   }
 
   // Check if conversation already exists between these two users
@@ -197,29 +199,29 @@ export const getOrCreateConversation = functions.https.onCall(async (data, conte
  * Send a text or media message in a conversation.
  * Writes message to subcollection and updates parent lastMessage + unreadCounts.
  */
-export const sendConversationMessage = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "sendConversationMessage");
+export const sendConversationMessage = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "sendConversationMessage");
 
-  const { conversationId, text, mediaUrl, mediaType, replyToMessageId, ciphertext, e2ee, x3dhHeader, encryptedPreviews } = data;
+  const { conversationId, text, mediaUrl, mediaType, replyToMessageId, ciphertext, e2ee, x3dhHeader, encryptedPreviews } = request.data;
 
   if (!conversationId) {
-    throw new functions.https.HttpsError("invalid-argument", "conversationId is required");
+    throw new HttpsError("invalid-argument", "conversationId is required");
   }
 
   if (!text && !mediaUrl && !ciphertext) {
-    throw new functions.https.HttpsError("invalid-argument", "Either text, mediaUrl, or ciphertext is required");
+    throw new HttpsError("invalid-argument", "Either text, mediaUrl, or ciphertext is required");
   }
 
   // Verify conversation exists and user is a participant
   const convDoc = await db.collection("conversations").doc(conversationId).get();
   if (!convDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Conversation not found");
+    throw new HttpsError("not-found", "Conversation not found");
   }
 
   const conv = convDoc.data()!;
   if (!conv.participantIds || !conv.participantIds.includes(userId)) {
-    throw new functions.https.HttpsError("permission-denied", "Not a participant in this conversation");
+    throw new HttpsError("permission-denied", "Not a participant in this conversation");
   }
 
   // Get sender info
@@ -331,29 +333,29 @@ export const sendConversationMessage = functions.https.onCall(async (data, conte
  * Send tokens to another user via conversation.
  * Creates a tokenSend message and processes through the ledger.
  */
-export const sendConversationTokens = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "sendConversationTokens");
-  await requirePlayIntegrity(data, context, "sendConversationTokens", "HIGHEST");
+export const sendConversationTokens = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "sendConversationTokens");
+  await requirePlayIntegrity(request.data, request, "sendConversationTokens", "HIGHEST");
 
-  const { conversationId, recipientId, amount, message } = data;
+  const { conversationId, recipientId, amount, message } = request.data;
 
   if (!conversationId || !recipientId || !amount || amount <= 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Invalid transfer data");
+    throw new HttpsError("invalid-argument", "Invalid transfer data");
   }
 
   if (userId === recipientId) {
-    throw new functions.https.HttpsError("invalid-argument", "Cannot send tokens to yourself");
+    throw new HttpsError("invalid-argument", "Cannot send tokens to yourself");
   }
 
   // Verify conversation and membership
   const convDoc = await db.collection("conversations").doc(conversationId).get();
   if (!convDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Conversation not found");
+    throw new HttpsError("not-found", "Conversation not found");
   }
   const conv = convDoc.data()!;
   if (!conv.participantIds?.includes(userId) || !conv.participantIds?.includes(recipientId)) {
-    throw new functions.https.HttpsError("permission-denied", "Not a participant in this conversation");
+    throw new HttpsError("permission-denied", "Not a participant in this conversation");
   }
 
   // Validate sender balance (sub-account or main wallet)
@@ -363,17 +365,17 @@ export const sendConversationTokens = functions.https.onCall(async (data, contex
   if (senderSubAccount) {
     const p2pAllowed = await validateSubAccountAllows(senderSubAccount.accountTypeId, "p2p_send");
     if (!p2pAllowed.allowed) {
-      throw new functions.https.HttpsError("failed-precondition", p2pAllowed.reason || "Account cannot send P2P transfers");
+      throw new HttpsError("failed-precondition", p2pAllowed.reason || "Account cannot send P2P transfers");
     }
     const balanceCheck = await validateSubAccountBalance(userId, senderSubAccount.id, amount);
     if (!balanceCheck.allowed) {
-      throw new functions.https.HttpsError("failed-precondition", balanceCheck.reason || "Insufficient balance");
+      throw new HttpsError("failed-precondition", balanceCheck.reason || "Insufficient balance");
     }
     senderSubAccountId = senderSubAccount.id;
   } else {
     const mainCheck = await validateMainWalletBalance(userId, amount);
     if (!mainCheck.sufficient) {
-      throw new functions.https.HttpsError("failed-precondition", `Insufficient balance: has ${mainCheck.available}, needs ${amount}`);
+      throw new HttpsError("failed-precondition", `Insufficient balance: has ${mainCheck.available}, needs ${amount}`);
     }
   }
 
@@ -391,7 +393,7 @@ export const sendConversationTokens = functions.https.onCall(async (data, contex
   );
 
   if (!ledgerResult.success) {
-    throw new functions.https.HttpsError("internal", `Failed to process transfer: ${ledgerResult.error}`);
+    throw new HttpsError("internal", `Failed to process transfer: ${ledgerResult.error}`);
   }
 
   // Create tokenSend message
@@ -454,28 +456,28 @@ export const sendConversationTokens = functions.https.onCall(async (data, contex
  * Request tokens from another user in a conversation.
  * Creates a tokenRequest message with 7-day expiry.
  */
-export const requestConversationTokens = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "requestConversationTokens");
+export const requestConversationTokens = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "requestConversationTokens");
 
-  const { conversationId, recipientId, amount, message } = data;
+  const { conversationId, recipientId, amount, message } = request.data;
 
   if (!conversationId || !recipientId || !amount || amount <= 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Invalid request data");
+    throw new HttpsError("invalid-argument", "Invalid request data");
   }
 
   if (userId === recipientId) {
-    throw new functions.https.HttpsError("invalid-argument", "Cannot request from yourself");
+    throw new HttpsError("invalid-argument", "Cannot request from yourself");
   }
 
   // Verify conversation membership
   const convDoc = await db.collection("conversations").doc(conversationId).get();
   if (!convDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Conversation not found");
+    throw new HttpsError("not-found", "Conversation not found");
   }
   const conv = convDoc.data()!;
   if (!conv.participantIds?.includes(userId) || !conv.participantIds?.includes(recipientId)) {
-    throw new functions.https.HttpsError("permission-denied", "Not a participant in this conversation");
+    throw new HttpsError("permission-denied", "Not a participant in this conversation");
   }
 
   const userProfile = await getUserProfile(userId);
@@ -538,15 +540,15 @@ export const requestConversationTokens = functions.https.onCall(async (data, con
  * Accept a token request in a conversation.
  * Validates the request is pending + not expired, processes payment via ledger.
  */
-export const acceptConversationTokenRequest = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "acceptConversationTokenRequest");
-  await requirePlayIntegrity(data, context, "acceptConversationTokenRequest", "HIGHEST");
+export const acceptConversationTokenRequest = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "acceptConversationTokenRequest");
+  await requirePlayIntegrity(request.data, request, "acceptConversationTokenRequest", "HIGHEST");
 
-  const { conversationId, messageId } = data;
+  const { conversationId, messageId } = request.data;
 
   if (!conversationId || !messageId) {
-    throw new functions.https.HttpsError("invalid-argument", "conversationId and messageId are required");
+    throw new HttpsError("invalid-argument", "conversationId and messageId are required");
   }
 
   const messageDoc = await db
@@ -557,21 +559,21 @@ export const acceptConversationTokenRequest = functions.https.onCall(async (data
     .get();
 
   if (!messageDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Message not found");
+    throw new HttpsError("not-found", "Message not found");
   }
 
   const msgData = messageDoc.data()!;
 
   if (msgData.type !== "tokenRequest") {
-    throw new functions.https.HttpsError("invalid-argument", "Message is not a token request");
+    throw new HttpsError("invalid-argument", "Message is not a token request");
   }
 
   if (msgData.recipientId !== userId) {
-    throw new functions.https.HttpsError("permission-denied", "Not authorized to accept this request");
+    throw new HttpsError("permission-denied", "Not authorized to accept this request");
   }
 
   if (msgData.status !== "pending") {
-    throw new functions.https.HttpsError("failed-precondition", `Request is no longer pending (status: ${msgData.status})`);
+    throw new HttpsError("failed-precondition", `Request is no longer pending (status: ${msgData.status})`);
   }
 
   if (msgData.expiresAt && msgData.expiresAt.toDate() < new Date()) {
@@ -579,7 +581,7 @@ export const acceptConversationTokenRequest = functions.https.onCall(async (data
       status: "expired",
       actionedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-    throw new functions.https.HttpsError("failed-precondition", "Request has expired");
+    throw new HttpsError("failed-precondition", "Request has expired");
   }
 
   const requesterId = msgData.senderId;
@@ -592,17 +594,17 @@ export const acceptConversationTokenRequest = functions.https.onCall(async (data
   if (payerSubAccount) {
     const p2pAllowed = await validateSubAccountAllows(payerSubAccount.accountTypeId, "p2p_send");
     if (!p2pAllowed.allowed) {
-      throw new functions.https.HttpsError("failed-precondition", p2pAllowed.reason || "Account cannot send P2P transfers");
+      throw new HttpsError("failed-precondition", p2pAllowed.reason || "Account cannot send P2P transfers");
     }
     const balanceCheck = await validateSubAccountBalance(userId, payerSubAccount.id, amount);
     if (!balanceCheck.allowed) {
-      throw new functions.https.HttpsError("failed-precondition", balanceCheck.reason || "Insufficient balance");
+      throw new HttpsError("failed-precondition", balanceCheck.reason || "Insufficient balance");
     }
     payerSubAccountId = payerSubAccount.id;
   } else {
     const mainCheck = await validateMainWalletBalance(userId, amount);
     if (!mainCheck.sufficient) {
-      throw new functions.https.HttpsError("failed-precondition", `Insufficient balance: has ${mainCheck.available}, needs ${amount}`);
+      throw new HttpsError("failed-precondition", `Insufficient balance: has ${mainCheck.available}, needs ${amount}`);
     }
   }
 
@@ -620,7 +622,7 @@ export const acceptConversationTokenRequest = functions.https.onCall(async (data
   );
 
   if (!ledgerResult.success) {
-    throw new functions.https.HttpsError("internal", `Failed to process payment: ${ledgerResult.error}`);
+    throw new HttpsError("internal", `Failed to process payment: ${ledgerResult.error}`);
   }
 
   // Update message and conversation
@@ -646,14 +648,14 @@ export const acceptConversationTokenRequest = functions.https.onCall(async (data
 /**
  * Decline a token request in a conversation.
  */
-export const declineConversationTokenRequest = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "declineConversationTokenRequest");
+export const declineConversationTokenRequest = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "declineConversationTokenRequest");
 
-  const { conversationId, messageId } = data;
+  const { conversationId, messageId } = request.data;
 
   if (!conversationId || !messageId) {
-    throw new functions.https.HttpsError("invalid-argument", "conversationId and messageId are required");
+    throw new HttpsError("invalid-argument", "conversationId and messageId are required");
   }
 
   const messageDoc = await db
@@ -664,21 +666,21 @@ export const declineConversationTokenRequest = functions.https.onCall(async (dat
     .get();
 
   if (!messageDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Message not found");
+    throw new HttpsError("not-found", "Message not found");
   }
 
   const msgData = messageDoc.data()!;
 
   if (msgData.type !== "tokenRequest") {
-    throw new functions.https.HttpsError("invalid-argument", "Message is not a token request");
+    throw new HttpsError("invalid-argument", "Message is not a token request");
   }
 
   if (msgData.recipientId !== userId) {
-    throw new functions.https.HttpsError("permission-denied", "Not authorized to decline this request");
+    throw new HttpsError("permission-denied", "Not authorized to decline this request");
   }
 
   if (msgData.status !== "pending") {
-    throw new functions.https.HttpsError("failed-precondition", "Request is no longer pending");
+    throw new HttpsError("failed-precondition", "Request is no longer pending");
   }
 
   const now = admin.firestore.FieldValue.serverTimestamp();
@@ -707,14 +709,14 @@ export const declineConversationTokenRequest = functions.https.onCall(async (dat
  * Mark a conversation as read for the current user.
  * Resets unreadCounts.{userId} to 0.
  */
-export const markConversationRead = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "markConversationRead");
+export const markConversationRead = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "markConversationRead");
 
-  const { conversationId } = data;
+  const { conversationId } = request.data;
 
   if (!conversationId) {
-    throw new functions.https.HttpsError("invalid-argument", "conversationId is required");
+    throw new HttpsError("invalid-argument", "conversationId is required");
   }
 
   await db.collection("conversations").doc(conversationId).update({
@@ -727,14 +729,14 @@ export const markConversationRead = functions.https.onCall(async (data, context)
 /**
  * Toggle pin status for a conversation.
  */
-export const toggleConversationPin = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "toggleConversationPin");
+export const toggleConversationPin = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "toggleConversationPin");
 
-  const { conversationId, pinned } = data;
+  const { conversationId, pinned } = request.data;
 
   if (!conversationId || typeof pinned !== "boolean") {
-    throw new functions.https.HttpsError("invalid-argument", "conversationId and pinned (boolean) are required");
+    throw new HttpsError("invalid-argument", "conversationId and pinned (boolean) are required");
   }
 
   await db.collection("conversations").doc(conversationId).update({
@@ -748,14 +750,14 @@ export const toggleConversationPin = functions.https.onCall(async (data, context
 /**
  * Toggle mute status for a conversation.
  */
-export const toggleConversationMute = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "toggleConversationMute");
+export const toggleConversationMute = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "toggleConversationMute");
 
-  const { conversationId, muted } = data;
+  const { conversationId, muted } = request.data;
 
   if (!conversationId || typeof muted !== "boolean") {
-    throw new functions.https.HttpsError("invalid-argument", "conversationId and muted (boolean) are required");
+    throw new HttpsError("invalid-argument", "conversationId and muted (boolean) are required");
   }
 
   await db.collection("conversations").doc(conversationId).update({
@@ -769,14 +771,14 @@ export const toggleConversationMute = functions.https.onCall(async (data, contex
 /**
  * Archive a conversation for the current user.
  */
-export const archiveConversation = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "archiveConversation");
+export const archiveConversation = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "archiveConversation");
 
-  const { conversationId } = data;
+  const { conversationId } = request.data;
 
   if (!conversationId) {
-    throw new functions.https.HttpsError("invalid-argument", "conversationId is required");
+    throw new HttpsError("invalid-argument", "conversationId is required");
   }
 
   await db.collection("conversations").doc(conversationId).update({
@@ -796,14 +798,14 @@ export const archiveConversation = functions.https.onCall(async (data, context) 
  * If the user has already reacted with this emoji, removes it.
  * Otherwise, adds it.
  */
-export const toggleMessageReaction = functions.https.onCall(async (data, context) => {
-  const userId = requireAuth(context);
-  requireAppCheck(context, "toggleMessageReaction");
+export const toggleMessageReaction = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "toggleMessageReaction");
 
-  const { conversationId, messageId, emoji } = data;
+  const { conversationId, messageId, emoji } = request.data;
 
   if (!conversationId || !messageId || !emoji) {
-    throw new functions.https.HttpsError("invalid-argument", "conversationId, messageId, and emoji are required");
+    throw new HttpsError("invalid-argument", "conversationId, messageId, and emoji are required");
   }
 
   const messageRef = db
@@ -814,7 +816,7 @@ export const toggleMessageReaction = functions.https.onCall(async (data, context
 
   const messageDoc = await messageRef.get();
   if (!messageDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Message not found");
+    throw new HttpsError("not-found", "Message not found");
   }
 
   const reactions = messageDoc.data()!.reactions || {};
@@ -836,20 +838,299 @@ export const toggleMessageReaction = functions.https.onCall(async (data, context
 });
 
 // ============================================================================
+// MESSAGE DELETION
+// ============================================================================
+
+/**
+ * Delete media files associated with a single message from Firebase Storage.
+ * Checks all possible file paths (image full/thumb, voice, encrypted variants).
+ * Best-effort: logs warnings but does not throw on failure.
+ */
+async function deleteMessageMedia(
+  conversationId: string,
+  messageId: string,
+  msgData: admin.firestore.DocumentData
+): Promise<void> {
+  if (!msgData.media) return;
+
+  const bucket = admin.storage().bucket();
+  const prefix = `conversations/${conversationId}`;
+
+  const possiblePaths = [
+    `${prefix}/images/${messageId}_full.jpg`,
+    `${prefix}/images/${messageId}_thumb.jpg`,
+    `${prefix}/images/${messageId}_full.enc`,
+    `${prefix}/images/${messageId}_thumb.enc`,
+    `${prefix}/voice/${messageId}.m4a`,
+    `${prefix}/voice/${messageId}.enc`,
+  ];
+
+  await Promise.all(
+    possiblePaths.map(async (path) => {
+      try {
+        const file = bucket.file(path);
+        const [exists] = await file.exists();
+        if (exists) {
+          await file.delete();
+        }
+      } catch (err: any) {
+        logger.warn(`Failed to delete storage file ${path}:`, err.message);
+      }
+    })
+  );
+}
+
+/**
+ * Delete a single message for everyone in a conversation.
+ * Soft-deletes the message (sets deletedForEveryone, clears content/media)
+ * and removes associated media files from Firebase Storage.
+ *
+ * Any conversation participant can delete — no time limit.
+ */
+export const deleteConversationMessage = onCall(
+  { labels: { area: "social" } },
+  async (request) => {
+    const userId = requireAuth(request);
+    requireAppCheck(request, "deleteConversationMessage");
+
+    const { conversationId, messageId } = request.data;
+
+    if (!conversationId || !messageId) {
+      throw new HttpsError(
+        "invalid-argument",
+        "conversationId and messageId are required"
+      );
+    }
+
+    // Verify conversation exists and user is a participant
+    const convDoc = await db
+      .collection("conversations")
+      .doc(conversationId)
+      .get();
+    if (!convDoc.exists) {
+      throw new HttpsError(
+        "not-found",
+        "Conversation not found"
+      );
+    }
+    const conv = convDoc.data()!;
+    if (!conv.participantIds || !conv.participantIds.includes(userId)) {
+      throw new HttpsError(
+        "permission-denied",
+        "Not a participant in this conversation"
+      );
+    }
+
+    // Get the message
+    const msgRef = db
+      .collection("conversations")
+      .doc(conversationId)
+      .collection("messages")
+      .doc(messageId);
+    const msgDoc = await msgRef.get();
+    if (!msgDoc.exists) {
+      throw new HttpsError("not-found", "Message not found");
+    }
+
+    const msgData = msgDoc.data()!;
+
+    // Delete media from Storage (best-effort)
+    await deleteMessageMedia(conversationId, messageId, msgData);
+
+    // Soft-delete the message: clear all content fields
+    await msgRef.update({
+      deletedForEveryone: true,
+      deletedAt: admin.firestore.FieldValue.serverTimestamp(),
+      textContent: null,
+      ciphertext: null,
+      media: null,
+      e2ee: null,
+      x3dhHeader: null,
+    });
+
+    // If this was the latest message, update conversation preview
+    if (conv.lastMessageAt) {
+      const latestMsg = await db
+        .collection("conversations")
+        .doc(conversationId)
+        .collection("messages")
+        .orderBy("createdAt", "desc")
+        .limit(1)
+        .get();
+
+      if (!latestMsg.empty && latestMsg.docs[0].id === messageId) {
+        await convDoc.ref.update({
+          lastMessageText: "This message was deleted",
+          lastMessageType: "system",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+    }
+
+    return { success: true };
+  }
+);
+
+/**
+ * Clear all messages from a conversation for the calling user only.
+ * Adds the user's ID to each message's `deletedFor` array.
+ * Does NOT delete media or hard-delete documents (other user still needs them).
+ */
+export const clearConversationChat = onCall(
+  { labels: { area: "social" } },
+  async (request) => {
+    const userId = requireAuth(request);
+    requireAppCheck(request, "clearConversationChat");
+
+    const { conversationId } = request.data;
+
+    if (!conversationId) {
+      throw new HttpsError(
+        "invalid-argument",
+        "conversationId is required"
+      );
+    }
+
+    // Verify conversation exists and user is a participant
+    const convDoc = await db
+      .collection("conversations")
+      .doc(conversationId)
+      .get();
+    if (!convDoc.exists) {
+      throw new HttpsError(
+        "not-found",
+        "Conversation not found"
+      );
+    }
+    const conv = convDoc.data()!;
+    if (!conv.participantIds || !conv.participantIds.includes(userId)) {
+      throw new HttpsError(
+        "permission-denied",
+        "Not a participant in this conversation"
+      );
+    }
+
+    const messagesRef = db
+      .collection("conversations")
+      .doc(conversationId)
+      .collection("messages");
+
+    // Batch-update all messages: add userId to deletedFor array
+    const batchSize = 500;
+    let totalCleared = 0;
+    let lastDoc: admin.firestore.QueryDocumentSnapshot | undefined;
+
+    while (true) {
+      let query = messagesRef.orderBy("createdAt").limit(batchSize);
+      if (lastDoc) {
+        query = query.startAfter(lastDoc);
+      }
+
+      const snapshot = await query.get();
+      if (snapshot.empty) break;
+
+      const batch = db.batch();
+      for (const doc of snapshot.docs) {
+        batch.update(doc.ref, {
+          deletedFor: admin.firestore.FieldValue.arrayUnion([userId]),
+        });
+      }
+      await batch.commit();
+      totalCleared += snapshot.docs.length;
+      lastDoc = snapshot.docs.at(-1)!;
+
+      if (snapshot.docs.length < batchSize) break;
+    }
+
+    // Reset conversation preview for this user
+    await convDoc.ref.update({
+      [`unreadCounts.${userId}`]: 0,
+      [`lastMessageEncryptedPreviews.${userId}`]: "",
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    logger.info(
+      `clearConversationChat: cleared ${totalCleared} messages for user ${userId} in conversation ${conversationId}`
+    );
+
+    return { success: true, clearedCount: totalCleared };
+  }
+);
+
+// ============================================================================
 // PROFILE SYNC TRIGGER
 // ============================================================================
+
+// ============================================================================
+// HEAL STALE PARTICIPANT AVATARS
+// ============================================================================
+
+/**
+ * Callable function to patch stale participant avatarUrl fields
+ * on conversation documents. Called by the client-side self-healing
+ * mechanism since Firestore security rules block direct client writes
+ * to the conversations collection.
+ *
+ * Accepts: { patches: [{ conversationId, userId }] }
+ * For each patch, reads the user doc's current avatarUrl and writes it
+ * to participants.{userId}.avatarUrl on the conversation doc.
+ */
+export const healConversationAvatars = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+
+  const { patches } = request.data;
+  if (!Array.isArray(patches) || patches.length === 0) {
+    return { success: true, healed: 0 };
+  }
+
+  // Cap at 20 patches per call to avoid abuse
+  const limited = patches.slice(0, 20) as Array<{ conversationId: string; participantId: string }>;
+
+  let healed = 0;
+  for (const patch of limited) {
+    const { conversationId, participantId } = patch;
+    if (!conversationId || !participantId) continue;
+
+    // Verify caller is a participant of this conversation
+    const convDoc = await db.collection("conversations").doc(conversationId).get();
+    if (!convDoc.exists) continue;
+    const convData = convDoc.data()!;
+    if (!convData.participantIds || !convData.participantIds.includes(userId)) continue;
+
+    // Read the participant's current avatarUrl from their user doc
+    const userDoc = await db.collection("users").doc(participantId).get();
+    if (!userDoc.exists) continue;
+    const freshAvatarUrl = userDoc.data()!.avatarUrl || null;
+
+    // Only patch if there's actually a URL to set
+    if (!freshAvatarUrl) continue;
+
+    // Check if conversation already has this avatar (skip unnecessary writes)
+    const currentAvatar = convData.participants?.[participantId]?.avatarUrl;
+    if (currentAvatar === freshAvatarUrl) continue;
+
+    await convDoc.ref.update({
+      [`participants.${participantId}.avatarUrl`]: freshAvatarUrl,
+    });
+    healed++;
+  }
+
+  return { success: true, healed };
+});
 
 /**
  * Firestore trigger: when a user's profile changes (avatarUrl or displayName),
  * propagate the update to all conversation documents where that user
  * is a participant. This keeps denormalized participant info fresh.
  */
-export const syncUserProfileToConversations = functions.firestore
-  .document("users/{userId}")
-  .onUpdate(async (change, context) => {
-    const userId = context.params.userId;
-    const before = change.before.data();
-    const after = change.after.data();
+export const syncUserProfileToConversations = onDocumentUpdated(
+  { document: "users/{userId}", labels: { area: "social" } },
+  async (event) => {
+    const userId = event.params.userId;
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
+
+    if (!before || !after) return;
 
     const avatarChanged = before.avatarUrl !== after.avatarUrl;
     const nameChanged = before.displayName !== after.displayName;
@@ -909,7 +1190,7 @@ export const syncUserProfileToConversations = functions.firestore
       totalUpdated += communities.docs.length;
     }
 
-    console.log(
+    logger.info(
       `syncUserProfileToConversations: updated ${totalUpdated} docs (${conversations.docs.length} conversations, ${communities.docs.length} community memberships) for user ${userId}`
     );
   });

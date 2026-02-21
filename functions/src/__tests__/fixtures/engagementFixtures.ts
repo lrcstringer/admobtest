@@ -347,9 +347,9 @@ export const validSurveyEvidence = {
   surveySubmittedAt: createTimestamp(new Date()),
   clientAttentionScore: 88,
   responses: [
-    { questionId: "q1", answer: "Daily" },
-    { questionId: "q2", answer: "4" },
-    { questionId: "q3", answer: "Yes" },
+    { questionId: "q1", selectedOption: "Daily" },
+    { questionId: "q2", selectedOption: "4" },
+    { questionId: "q3", selectedOption: "Yes" },
   ],
 };
 

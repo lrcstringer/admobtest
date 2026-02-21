@@ -179,7 +179,7 @@ class SettingsScreen extends StatelessWidget {
     );
 
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('exportUserData')
           .call();
 

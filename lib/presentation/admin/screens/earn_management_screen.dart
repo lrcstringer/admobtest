@@ -869,7 +869,7 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
     if (confirmed != true || !mounted) return;
 
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminSoftDeleteThread')
           .call({'threadId': thread['id']});
       final deleted = result.data['deletedOpportunities'] ?? 0;
@@ -1196,7 +1196,7 @@ class _CampaignCard extends StatelessWidget {
     if (confirmed != true) return;
 
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminSoftDeleteThread')
           .call({'threadId': thread['id']});
       final deleted = result.data['deletedOpportunities'] ?? 0;
@@ -1622,7 +1622,7 @@ class _OpportunityCard extends StatelessWidget {
     if (confirmed != true) return;
 
     try {
-      await FirebaseFunctions.instance
+      await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminSoftDeleteOpportunity')
           .call({'opportunityId': oppId});
       if (context.mounted) {
@@ -1692,7 +1692,7 @@ class _OpportunityCard extends StatelessWidget {
 
     try {
       final callable =
-          FirebaseFunctions.instance.httpsCallable(functionName);
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable(functionName);
       await callable.call(<String, dynamic>{'pollId': pollId});
 
       if (context.mounted) {
@@ -1753,7 +1753,7 @@ class _PollResultsDialogState extends State<_PollResultsDialog> {
   Future<void> _loadResults() async {
     try {
       final callable =
-          FirebaseFunctions.instance.httpsCallable('getPollAdminDetails');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('getPollAdminDetails');
       final result = await callable.call(<String, dynamic>{
         'pollId': widget.pollId,
       });
@@ -2065,7 +2065,7 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
 
   Future<void> _loadTokenSourceAccounts(String clientId) async {
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminListClientSubAccounts')
           .call({'clientId': clientId});
       final subList = (result.data['subAccounts'] as List?)
@@ -2242,7 +2242,7 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
       }
       debugPrint('=== CALLING createEarnThread ===');
       debugPrint('Data: $callData');
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('createEarnThread')
           .call(callData);
       debugPrint('=== createEarnThread SUCCEEDED ===');
@@ -2955,7 +2955,7 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
 
   Future<void> _loadTokenSourceAccounts(String clientId) async {
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminListClientSubAccounts')
           .call({'clientId': clientId});
       final subList = (result.data['subAccounts'] as List?)
@@ -3086,7 +3086,7 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
       }
 
       // Use createEarnThread CF (upsert) — auto-creates sub-account if needed
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('createEarnThread')
           .call({
         'id': threadId,
@@ -4041,7 +4041,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
     }
 
     // Call createPoll Cloud Function (creates both poll + opportunity atomically)
-    final callable = FirebaseFunctions.instance.httpsCallable('createPoll');
+    final callable = FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('createPoll');
     await callable.call(<String, dynamic>{
       'threadId': widget.threadId,
       'question': _titleController.text.trim(),

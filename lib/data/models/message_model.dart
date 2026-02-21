@@ -298,6 +298,7 @@ class MessageModel with _$MessageModel {
       identityKey: raw['identityKey'] as String? ?? '',
       ephemeralKey: raw['ephemeralKey'] as String? ?? '',
       oneTimePreKeyId: raw['oneTimePreKeyId'] as int?,
+      oneTimePreKeyPublicKey: raw['oneTimePreKeyPublicKey'] as String?,
     );
   }
 

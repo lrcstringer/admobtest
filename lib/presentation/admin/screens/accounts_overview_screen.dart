@@ -73,7 +73,7 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
   Future<void> _loadSystemAccounts() async {
     setState(() => _isLoadingSystem = true);
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminGetSystemAccountStatus')
           .call();
       final data = Map<String, dynamic>.from(result.data as Map);
@@ -147,7 +147,7 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
   Future<void> _loadClients() async {
     setState(() => _isLoadingClients = true);
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminListClients')
           .call();
       final list = (result.data['clients'] as List?)
@@ -170,7 +170,7 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
   Future<void> _loadSuppliers() async {
     setState(() => _isLoadingSuppliers = true);
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminListSuppliers')
           .call();
       final list = (result.data['suppliers'] as List?)
@@ -193,7 +193,7 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
   Future<void> _loadUsers() async {
     setState(() => _isLoadingUsers = true);
     try {
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('adminListUsers')
           .call();
       final list = (result.data['users'] as List?)
@@ -231,7 +231,7 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
         return;
       }
 
-      final result = await FirebaseFunctions.instance
+      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable(functionName)
           .call(params);
 

@@ -6,6 +6,7 @@
  */
 
 import * as admin from "firebase-admin";
+import { logger } from "firebase-functions/v2";
 import {
   LedgerAccount,
   LedgerJournal,
@@ -66,7 +67,7 @@ export async function reconcileAccount(
 
   // Log audit event if discrepancy found
   if (!isReconciled) {
-    console.error(
+    logger.error(
       `BALANCE DRIFT DETECTED for ${accountId}: stored=${account.balance}, calculated=${calculatedBalance}, drift=${discrepancy}`
     );
 
@@ -110,15 +111,21 @@ export async function reconcileAllAccounts(): Promise<{
 }> {
   const snapshot = await db.collection(LedgerConfig.COLLECTION_ACCOUNTS).get();
 
+  const accounts = snapshot.docs.map((doc) => doc.data() as LedgerAccount);
   const results: ReconciliationResult[] = [];
   let passed = 0;
   let failed = 0;
 
-  for (const doc of snapshot.docs) {
-    const account = doc.data() as LedgerAccount;
-    const result = await reconcileAccount(account.id);
-    results.push(result);
+  // Process in batches of 10 to avoid overwhelming Firestore
+  for (let i = 0; i < accounts.length; i += 10) {
+    const batch = accounts.slice(i, i + 10);
+    const batchResults = await Promise.all(
+      batch.map((account) => reconcileAccount(account.id))
+    );
+    results.push(...batchResults);
+  }
 
+  for (const result of results) {
     if (result.isReconciled) {
       passed++;
     } else {
@@ -127,8 +134,8 @@ export async function reconcileAllAccounts(): Promise<{
   }
 
   // Log summary
-  console.log(
-    `Reconciliation complete: ${passed} passed, ${failed} failed out of ${snapshot.docs.length} accounts`
+  logger.info(
+    `Reconciliation complete: ${passed} passed, ${failed} failed out of ${accounts.length} accounts`
   );
 
   if (failed > 0) {
@@ -138,7 +145,7 @@ export async function reconcileAllAccounts(): Promise<{
       actorType: "system",
       description: `Reconciliation completed with ${failed} failures`,
       metadata: {
-        total: snapshot.docs.length,
+        total: accounts.length,
         passed,
         failed,
         failedAccounts: results
@@ -149,7 +156,7 @@ export async function reconcileAllAccounts(): Promise<{
   }
 
   return {
-    total: snapshot.docs.length,
+    total: accounts.length,
     passed,
     failed,
     results,
@@ -162,11 +169,21 @@ export async function reconcileAllAccounts(): Promise<{
 export async function calculateBalanceFromEntries(
   accountId: string
 ): Promise<number> {
-  // Get all posted journals
+  // Query only journals where this account participates, with safety cap
+  const SAFETY_LIMIT = 10000;
   const snapshot = await db
     .collection(LedgerConfig.COLLECTION_JOURNALS)
     .where("status", "==", "posted")
+    .where("participantAccountIds", "array-contains", accountId)
+    .select("entries", "status")
+    .limit(SAFETY_LIMIT)
     .get();
+
+  if (snapshot.docs.length >= SAFETY_LIMIT) {
+    logger.warn(
+      `calculateBalanceFromEntries: hit ${SAFETY_LIMIT} journal safety cap for account ${accountId}. Balance may be incomplete.`
+    );
+  }
 
   let balance = 0;
 
@@ -267,34 +284,61 @@ export async function verifyAllJournalsBalanced(): Promise<{
   balanced: number;
   unbalanced: string[];
 }> {
-  const snapshot = await db.collection(LedgerConfig.COLLECTION_JOURNALS).get();
-
+  const BATCH_SIZE = 500;
   let balanced = 0;
+  let total = 0;
   const unbalanced: string[] = [];
+  let lastDoc: admin.firestore.QueryDocumentSnapshot | undefined;
 
-  for (const doc of snapshot.docs) {
-    const journal = doc.data() as LedgerJournal;
+  // Paginate through journals in batches of 500
+  while (true) {
+    let query: admin.firestore.Query = db
+      .collection(LedgerConfig.COLLECTION_JOURNALS)
+      .orderBy("postedAt", "desc")
+      .limit(BATCH_SIZE);
 
-    const debits = journal.entries
-      .filter((e) => e.entryType === "debit")
-      .reduce((sum, e) => sum + e.amount, 0);
+    if (lastDoc) {
+      query = query.startAfter(lastDoc);
+    }
 
-    const credits = journal.entries
-      .filter((e) => e.entryType === "credit")
-      .reduce((sum, e) => sum + e.amount, 0);
+    const snapshot = await query.get();
+    if (snapshot.empty) break;
 
-    if (debits === credits) {
-      balanced++;
-    } else {
-      unbalanced.push(journal.id);
-      console.error(
-        `Unbalanced journal ${journal.id}: debits=${debits}, credits=${credits}`
+    for (const doc of snapshot.docs) {
+      const journal = doc.data() as LedgerJournal;
+      total++;
+
+      const debits = journal.entries
+        .filter((e) => e.entryType === "debit")
+        .reduce((sum, e) => sum + e.amount, 0);
+
+      const credits = journal.entries
+        .filter((e) => e.entryType === "credit")
+        .reduce((sum, e) => sum + e.amount, 0);
+
+      if (debits === credits) {
+        balanced++;
+      } else {
+        unbalanced.push(journal.id);
+        logger.error(
+          `Unbalanced journal ${journal.id}: debits=${debits}, credits=${credits}`
+        );
+      }
+    }
+
+    lastDoc = snapshot.docs[snapshot.docs.length - 1];
+
+    // Safety cap: stop after 10000 journals
+    if (total >= 10000) {
+      logger.warn(
+        `verifyAllJournalsBalanced: hit 10000 journal safety cap. Remaining journals not checked.`
       );
+      break;
     }
   }
 
   return {
-    total: snapshot.docs.length,
+    total,
     balanced,
     unbalanced,
   };
@@ -321,7 +365,17 @@ export async function verifySystemBalance(): Promise<{
   systemBalances: number;
   groupBalances: number;
 }> {
-  const snapshot = await db.collection(LedgerConfig.COLLECTION_ACCOUNTS).get();
+  const ACCOUNTS_LIMIT = 5000;
+  const snapshot = await db
+    .collection(LedgerConfig.COLLECTION_ACCOUNTS)
+    .limit(ACCOUNTS_LIMIT)
+    .get();
+
+  if (snapshot.docs.length >= ACCOUNTS_LIMIT) {
+    logger.warn(
+      `verifySystemBalance: hit ${ACCOUNTS_LIMIT} account safety cap. Results may be incomplete.`
+    );
+  }
 
   let cbookBalances = 0;
   let systemBalances = 0;
@@ -377,7 +431,7 @@ export async function verifySystemBalance(): Promise<{
   const isValid = drift === 0;
 
   if (!isValid) {
-    console.error(
+    logger.error(
       `System balance mismatch! Asset-Liability drift: ${drift} (expected 0)`
     );
 
@@ -462,9 +516,10 @@ export async function getLedgerStatistics(): Promise<{
   totalTokensInCirculation: number;
   potBalances: { daily: number; weekly: number };
 }> {
-  // Get account stats
+  // Get account stats (safety cap at 5000)
   const accountsSnapshot = await db
     .collection(LedgerConfig.COLLECTION_ACCOUNTS)
+    .limit(5000)
     .get();
 
   const accountsByType: Record<string, number> = {};
@@ -489,9 +544,10 @@ export async function getLedgerStatistics(): Promise<{
     }
   }
 
-  // Get journal stats
+  // Get journal stats (safety cap at 10000)
   const journalsSnapshot = await db
     .collection(LedgerConfig.COLLECTION_JOURNALS)
+    .limit(10000)
     .get();
 
   const journalsByType: Record<string, number> = {};

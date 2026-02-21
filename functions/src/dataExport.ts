@@ -5,24 +5,25 @@
  * Rate limited to 1 export per 24 hours per user.
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
 
 const db = admin.firestore();
 
-export const exportUserData = functions
-  .runWith({ timeoutSeconds: 300, memory: "512MB" })
-  .https.onCall(async (data, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
+export const exportUserData = onCall(
+  { timeoutSeconds: 300, memory: "512MiB", labels: { area: "lifecycle" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
         "unauthenticated",
         "User must be authenticated to export data."
       );
     }
-    requireAppCheck(context, "exportUserData");
+    requireAppCheck(request, "exportUserData");
 
-    const userId = context.auth.uid;
+    const userId = request.auth.uid;
 
     // ── Rate limit: 1 export per 24 hours ──────────────────────────────
     const rateLimitRef = db.collection("rateLimits").doc(`${userId}_data_export`);
@@ -33,7 +34,7 @@ export const exportUserData = functions
       if (lastExport) {
         const hoursSince = (Date.now() - lastExport.getTime()) / (1000 * 60 * 60);
         if (hoursSince < 24) {
-          throw new functions.https.HttpsError(
+          throw new HttpsError(
             "resource-exhausted",
             "Data export is limited to once per 24 hours. " +
             `Please try again in ${Math.ceil(24 - hoursSince)} hours.`
@@ -42,7 +43,7 @@ export const exportUserData = functions
       }
     }
 
-    console.log(`Data export requested by user ${userId}`);
+    logger.info(`Data export requested by user ${userId}`);
 
     try {
       const exportData: Record<string, unknown> = {};
@@ -74,11 +75,18 @@ export const exportUserData = functions
         ["paymentRequests", "payerId", "paymentRequestsReceived"],
       ];
 
-      for (const [collection, field, exportKey] of collections) {
-        const snapshot = await db.collection(collection)
-          .where(field, "==", userId)
-          .get();
+      // Parallelize all collection queries with a per-collection limit
+      const results = await Promise.all(
+        collections.map(async ([collection, field, exportKey]) => {
+          const snapshot = await db.collection(collection)
+            .where(field, "==", userId)
+            .limit(1000)
+            .get();
+          return { exportKey, snapshot };
+        })
+      );
 
+      for (const { exportKey, snapshot } of results) {
         if (!snapshot.empty) {
           exportData[exportKey] = snapshot.docs.map((doc) => ({
             id: doc.id,
@@ -172,6 +180,7 @@ export const exportUserData = functions
       // ── Chat threads ──────────────────────────────────────────────
       const threads = await db.collection("chatThreads")
         .where("participantIds", "array-contains", userId)
+        .limit(5000)
         .get();
 
       if (!threads.empty) {
@@ -187,7 +196,7 @@ export const exportUserData = functions
         lastExportAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
-      console.log(`Data export complete for user ${userId}`);
+      logger.info(`Data export complete for user ${userId}`);
 
       return {
         success: true,
@@ -195,10 +204,11 @@ export const exportUserData = functions
         data: exportData,
       };
     } catch (error) {
-      console.error(`Data export failed for user ${userId}:`, error);
-      throw new functions.https.HttpsError(
+      logger.error(`Data export failed for user ${userId}:`, error);
+      throw new HttpsError(
         "internal",
         "Data export failed. Please try again."
       );
     }
-  });
+  }
+);

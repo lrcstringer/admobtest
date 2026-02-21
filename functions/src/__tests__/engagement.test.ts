@@ -43,10 +43,7 @@ import {
 import {
   activeThread,
 } from "./fixtures/threadFixtures";
-import {
-  healthySubAccount,
-  depletedSubAccount,
-} from "./fixtures/ledgerFixtures";
+// ledgerFixtures no longer needed — budget pre-check now uses escrow mocks
 
 // Mock the imported modules
 jest.mock("../security", () => ({
@@ -64,9 +61,33 @@ jest.mock("../ledger", () => ({
     EARNING_DAILY_POT_SHARE: 0.05,
     EARNING_WEEKLY_POT_SHARE: 0.05,
   },
+  AccountId: {
+    client: (id: string) => `client:${id}`,
+    clientSubAccount: (id: string) => `client_subacc:${id}`,
+    user: (id: string) => `user:${id}`,
+    isClientAccount: (id: string) => id.startsWith("client:") && !id.startsWith("client_subacc:"),
+    isClientSubAccount: (id: string) => id.startsWith("client_subacc:"),
+  },
   getOrCreateDefaultSubAccount: jest.fn().mockResolvedValue({
     subAccountId: "sub_default_001",
     created: false,
+  }),
+  getOrCreateBrandSubAccount: jest.fn().mockResolvedValue({
+    subAccountId: "sub_brand_001",
+    created: false,
+  }),
+  getBalance: jest.fn().mockResolvedValue(100000),
+  createEscrowReservation: jest.fn().mockResolvedValue({
+    success: true,
+    journalId: "escrow_journal_001",
+  }),
+  processEscrowCompletion: jest.fn().mockResolvedValue({
+    success: true,
+    journalId: "escrow_completion_001",
+  }),
+  reverseJournal: jest.fn().mockResolvedValue({
+    success: true,
+    reversalJournalId: "reversal_001",
   }),
 }));
 
@@ -116,6 +137,20 @@ jest.mock("../bonus", () => ({
     windowSize: 10,
     maxBonusesInWindow: 3,
   },
+}));
+
+// Mock rewardAllocation (used by startEngagement for dual rewards)
+jest.mock("../rewardAllocation", () => ({
+  reserveRewardItem: jest.fn().mockResolvedValue({ itemId: null }),
+  confirmRewardReservation: jest.fn().mockResolvedValue(undefined),
+  releaseRewardReservation: jest.fn().mockResolvedValue(undefined),
+}));
+
+// Mock pots (getSASTDayStart etc. used by startEngagement daily limit check)
+jest.mock("../pots", () => ({
+  getSASTDayStart: jest.fn().mockReturnValue(new Date()),
+  getSASTWeekStart: jest.fn().mockReturnValue(new Date()),
+  SAST_OFFSET_MS: 2 * 60 * 60 * 1000,
 }));
 
 // Import the module after mocking dependencies
@@ -205,14 +240,20 @@ describe("Engagement Cloud Functions", () => {
       });
     });
 
-    describe("Budget Pre-check", () => {
-      it("should reject when client sub-account is inactive", async () => {
+    describe("Budget Pre-check (Escrow)", () => {
+      it("should reject when escrow reservation fails (inactive/insufficient)", async () => {
         const context = createMockCallContext({ uid: activeUser.id });
+        const { createEscrowReservation } = require("../ledger");
+        (createEscrowReservation as jest.Mock).mockResolvedValueOnce({
+          success: false,
+          error: "Account is inactive",
+          errorCode: "ACCOUNT_INACTIVE",
+        });
 
         const threadWithBudget = {
           ...activeThread,
           clientId: "client_001",
-          tokenSourceSubAccountId: "sub_001",
+          tokenSourceAccountId: "client_subacc:sub_001",
         };
 
         setMockDoc("earnOpportunities", "opp_001", {
@@ -220,25 +261,27 @@ describe("Engagement Cloud Functions", () => {
           threadId: "thread_001",
         });
         setMockDoc("earnThreads", "thread_001", threadWithBudget);
-        setMockDoc("clients/client_001/subAccounts", "sub_001", {
-          ...healthySubAccount,
-          isActive: false,
-        });
 
         const handler = (engagement.startEngagement as unknown as { run?: Function }).run || engagement.startEngagement;
 
         await expect(
           handler({ earnOpportunityId: "opp_001" }, context)
-        ).rejects.toThrow();
+        ).rejects.toThrow("Escrow failed");
       });
 
-      it("should reject when client budget is insufficient", async () => {
+      it("should reject when escrow fails due to insufficient balance", async () => {
         const context = createMockCallContext({ uid: activeUser.id });
+        const { createEscrowReservation } = require("../ledger");
+        (createEscrowReservation as jest.Mock).mockResolvedValueOnce({
+          success: false,
+          error: "Insufficient balance",
+          errorCode: "INSUFFICIENT_BALANCE",
+        });
 
         const threadWithBudget = {
           ...activeThread,
           clientId: "client_001",
-          tokenSourceSubAccountId: "sub_001",
+          tokenSourceAccountId: "client_subacc:sub_001",
         };
 
         setMockDoc("earnOpportunities", "opp_001", {
@@ -247,25 +290,21 @@ describe("Engagement Cloud Functions", () => {
           threadId: "thread_001",
         });
         setMockDoc("earnThreads", "thread_001", threadWithBudget);
-        setMockDoc("clients/client_001/subAccounts", "sub_001", {
-          ...depletedSubAccount,
-          balance: 50, // Less than 200 reward
-        });
 
         const handler = (engagement.startEngagement as unknown as { run?: Function }).run || engagement.startEngagement;
 
         await expect(
           handler({ earnOpportunityId: "opp_001" }, context)
-        ).rejects.toThrow();
+        ).rejects.toThrow("Escrow failed");
       });
 
-      it("should allow when client budget is sufficient", async () => {
+      it("should allow when escrow reservation succeeds", async () => {
         const context = createMockCallContext({ uid: activeUser.id });
 
         const threadWithBudget = {
           ...activeThread,
           clientId: "client_001",
-          tokenSourceSubAccountId: "sub_001",
+          tokenSourceAccountId: "client_subacc:sub_001",
         };
 
         setMockDoc("earnOpportunities", "opp_001", {
@@ -274,10 +313,6 @@ describe("Engagement Cloud Functions", () => {
           threadId: "thread_001",
         });
         setMockDoc("earnThreads", "thread_001", threadWithBudget);
-        setMockDoc("clients/client_001/subAccounts", "sub_001", {
-          ...healthySubAccount,
-          balance: 10000, // Plenty of budget
-        });
 
         const handler = (engagement.startEngagement as unknown as { run?: Function }).run || engagement.startEngagement;
         const result = await handler({ earnOpportunityId: "opp_001" }, context);
@@ -1118,14 +1153,7 @@ describe("Engagement Cloud Functions", () => {
         setMockDoc("earnThreads", "thread_001", {
           ...activeThread,
           clientId: "client_001",
-          tokenSourceSubAccountId: "sub_001",
-        });
-        // Add the sub-account document at the correct subcollection path
-        setMockDoc("clients/client_001/subAccounts", "sub_001", {
-          ...healthySubAccount,
-          id: "sub_001",
-          balance: 10000,
-          isActive: true,
+          tokenSourceAccountId: "client_subacc:sub_001",
         });
         setMockDoc("users", activeUser.id, activeUser);
 
@@ -1213,6 +1241,9 @@ describe("Engagement Cloud Functions", () => {
           { engagementId: "eng_001", evidence: videoEvidence },
           context
         );
+
+        // Leaderboard updates are fire-and-forget — flush pending microtasks
+        await new Promise((resolve) => setImmediate(resolve));
 
         expect(updateDailyScore).toHaveBeenCalled();
         expect(updateLeaderboardScores).toHaveBeenCalled();
@@ -1636,7 +1667,7 @@ describe("Engagement Cloud Functions", () => {
       expect(result.success).toBe(true);
     });
 
-    it("should handle engagement without clientId", async () => {
+    it("should reject engagement without clientId or token source", async () => {
       const context = createMockCallContext({ uid: activeUser.id });
       setMockDoc("engagements", "eng_001", {
         ...watchingEngagement,
@@ -1649,16 +1680,14 @@ describe("Engagement Cloud Functions", () => {
       setMockDoc("earnThreads", "thread_001", {
         ...activeThread,
         clientId: null,
+        tokenSourceAccountId: null,
       });
       setMockDoc("users", activeUser.id, activeUser);
 
       const handler = (engagement.processEngagement as unknown as { run?: Function }).run || engagement.processEngagement;
-      const result = await handler(
-        { engagementId: "eng_001", evidence: videoEvidence },
-        context
-      );
-
-      expect(result.success).toBe(true);
+      await expect(
+        handler({ engagementId: "eng_001", evidence: videoEvidence }, context)
+      ).rejects.toThrow("No token source configured");
     });
 
     it("should default streakPoints to 1 when not specified", async () => {

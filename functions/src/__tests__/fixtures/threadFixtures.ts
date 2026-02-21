@@ -21,11 +21,12 @@ const daysFromNow = (days: number): Date => {
 };
 
 /**
- * Standard active thread (NO client funding - simpler for basic tests)
+ * Standard active thread with client but no explicit token source.
+ * processEngagement falls back to AccountId.client(clientId) for token source.
  */
 export const activeThread = {
   id: "thread_001",
-  clientId: null,
+  clientId: "client_001",
   clientName: "Test Brand",
   clientAvatarImage: null,
   clientAvatarColor: "#FF5733",
@@ -36,7 +37,7 @@ export const activeThread = {
   isActive: true,
   activeFrom: null,
   activeTo: null,
-  tokenSourceSubAccountId: null, // No client funding - simpler for basic tests
+  tokenSourceAccountId: null, // No explicit token source — uses clientId fallback
   tokenDestAccountTypeId: null,
   availableOpportunities: 5,
   completedOpportunities: 100,
@@ -63,7 +64,7 @@ export const clientFundedActiveThread = {
   isActive: true,
   activeFrom: null,
   activeTo: null,
-  tokenSourceSubAccountId: "sub_client_001",
+  tokenSourceAccountId: "client_subacc:sub_client_001",
   tokenDestAccountTypeId: null,
   availableOpportunities: 5,
   completedOpportunities: 100,
@@ -90,7 +91,7 @@ export const featuredThread = {
   isActive: true,
   activeFrom: null,
   activeTo: null,
-  tokenSourceSubAccountId: "sub_client_002",
+  tokenSourceAccountId: "sub_client_002",
   tokenDestAccountTypeId: null,
   availableOpportunities: 3,
   completedOpportunities: 200,
@@ -117,7 +118,7 @@ export const pinnedThread = {
   isActive: true,
   activeFrom: null,
   activeTo: null,
-  tokenSourceSubAccountId: "sub_client_003",
+  tokenSourceAccountId: "sub_client_003",
   tokenDestAccountTypeId: null,
   availableOpportunities: 2,
   completedOpportunities: 50,
@@ -144,7 +145,7 @@ export const targetedThread = {
   isActive: true,
   activeFrom: null,
   activeTo: null,
-  tokenSourceSubAccountId: "sub_client_004",
+  tokenSourceAccountId: "sub_client_004",
   tokenDestAccountTypeId: null,
   availableOpportunities: 4,
   completedOpportunities: 80,
@@ -185,7 +186,7 @@ export const scheduledThread = {
   isActive: true,
   activeFrom: createTimestamp(daysFromNow(7)), // Starts in 7 days
   activeTo: createTimestamp(daysFromNow(37)), // Ends in 37 days
-  tokenSourceSubAccountId: "sub_client_005",
+  tokenSourceAccountId: "sub_client_005",
   tokenDestAccountTypeId: null,
   availableOpportunities: 10,
   completedOpportunities: 0,
@@ -212,7 +213,7 @@ export const expiredThread = {
   isActive: true,
   activeFrom: createTimestamp(daysAgo(30)),
   activeTo: createTimestamp(daysAgo(1)), // Ended yesterday
-  tokenSourceSubAccountId: "sub_client_006",
+  tokenSourceAccountId: "sub_client_006",
   tokenDestAccountTypeId: null,
   availableOpportunities: 0,
   completedOpportunities: 500,
@@ -239,7 +240,7 @@ export const inactiveThread = {
   isActive: false, // Manually deactivated
   activeFrom: null,
   activeTo: null,
-  tokenSourceSubAccountId: "sub_client_007",
+  tokenSourceAccountId: "sub_client_007",
   tokenDestAccountTypeId: null,
   availableOpportunities: 3,
   completedOpportunities: 150,
@@ -266,7 +267,7 @@ export const brandWalletThread = {
   isActive: true,
   activeFrom: null,
   activeTo: null,
-  tokenSourceSubAccountId: "sub_client_008",
+  tokenSourceAccountId: "sub_client_008",
   tokenDestAccountTypeId: "brand_loyalty", // Restricted wallet type
   availableOpportunities: 6,
   completedOpportunities: 75,
@@ -293,7 +294,7 @@ export const maxAudienceThread = {
   isActive: true,
   activeFrom: null,
   activeTo: null,
-  tokenSourceSubAccountId: "sub_client_009",
+  tokenSourceAccountId: "sub_client_009",
   tokenDestAccountTypeId: null,
   availableOpportunities: 5,
   completedOpportunities: 250,
@@ -322,7 +323,7 @@ export const emptyThread = {
   isActive: true,
   activeFrom: null,
   activeTo: null,
-  tokenSourceSubAccountId: "sub_client_010",
+  tokenSourceAccountId: "sub_client_010",
   tokenDestAccountTypeId: null,
   availableOpportunities: 0,
   completedOpportunities: 0,
@@ -341,7 +342,7 @@ export const clientFundedThread = {
   id: "thread_client_funded_001",
   clientId: "client_011",
   clientName: "Funded Brand",
-  tokenSourceSubAccountId: "sub_client_011",
+  tokenSourceAccountId: "sub_client_011",
   tokenDestAccountTypeId: null,
 };
 
@@ -361,7 +362,7 @@ export const depletedBudgetThread = {
   id: "thread_depleted_001",
   clientId: "client_012",
   clientName: "Depleted Brand",
-  tokenSourceSubAccountId: "sub_depleted_001",
+  tokenSourceAccountId: "sub_depleted_001",
   isActive: true, // Still active but budget is depleted
 };
 

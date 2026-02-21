@@ -82,6 +82,9 @@ mixin _$ConversationEvent {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -138,6 +141,9 @@ mixin _$ConversationEvent {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -194,6 +200,9 @@ mixin _$ConversationEvent {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -224,6 +233,9 @@ mixin _$ConversationEvent {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -252,6 +264,9 @@ mixin _$ConversationEvent {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -280,6 +295,8 @@ mixin _$ConversationEvent {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -416,6 +433,9 @@ class _$LoadConversationsImpl implements _LoadConversations {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -476,6 +496,9 @@ class _$LoadConversationsImpl implements _LoadConversations {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -536,6 +559,9 @@ class _$LoadConversationsImpl implements _LoadConversations {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -573,6 +599,9 @@ class _$LoadConversationsImpl implements _LoadConversations {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -605,6 +634,9 @@ class _$LoadConversationsImpl implements _LoadConversations {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -637,6 +669,8 @@ class _$LoadConversationsImpl implements _LoadConversations {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -760,6 +794,9 @@ class _$WatchConversationsImpl implements _WatchConversations {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -820,6 +857,9 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -880,6 +920,9 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -917,6 +960,9 @@ class _$WatchConversationsImpl implements _WatchConversations {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -949,6 +995,9 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -981,6 +1030,8 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -1147,6 +1198,9 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -1207,6 +1261,9 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -1267,6 +1324,9 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -1304,6 +1364,9 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -1336,6 +1399,9 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -1368,6 +1434,8 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -1530,6 +1598,9 @@ class _$SelectConversationImpl implements _SelectConversation {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -1590,6 +1661,9 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -1650,6 +1724,9 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -1687,6 +1764,9 @@ class _$SelectConversationImpl implements _SelectConversation {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -1719,6 +1799,9 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -1751,6 +1834,8 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -1913,6 +1998,9 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -1973,6 +2061,9 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -2033,6 +2124,9 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -2070,6 +2164,9 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -2102,6 +2199,9 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -2134,6 +2234,8 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -2316,6 +2418,9 @@ class _$LoadMessagesImpl implements _LoadMessages {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -2376,6 +2481,9 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -2436,6 +2544,9 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -2473,6 +2584,9 @@ class _$LoadMessagesImpl implements _LoadMessages {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -2505,6 +2619,9 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -2537,6 +2654,8 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -2709,6 +2828,9 @@ class _$WatchMessagesImpl implements _WatchMessages {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -2769,6 +2891,9 @@ class _$WatchMessagesImpl implements _WatchMessages {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -2829,6 +2954,9 @@ class _$WatchMessagesImpl implements _WatchMessages {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -2866,6 +2994,9 @@ class _$WatchMessagesImpl implements _WatchMessages {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -2898,6 +3029,9 @@ class _$WatchMessagesImpl implements _WatchMessages {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -2930,6 +3064,8 @@ class _$WatchMessagesImpl implements _WatchMessages {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -3102,6 +3238,9 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -3162,6 +3301,9 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -3222,6 +3364,9 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -3259,6 +3404,9 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -3291,6 +3439,9 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -3323,6 +3474,8 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -3510,6 +3663,9 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -3570,6 +3726,9 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -3630,6 +3789,9 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -3667,6 +3829,9 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -3699,6 +3864,9 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -3731,6 +3899,8 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -3938,6 +4108,9 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -3998,6 +4171,9 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -4058,6 +4234,9 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -4095,6 +4274,9 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -4127,6 +4309,9 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -4159,6 +4344,8 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -4364,6 +4551,9 @@ class _$SendTokensImpl implements _SendTokens {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -4424,6 +4614,9 @@ class _$SendTokensImpl implements _SendTokens {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -4484,6 +4677,9 @@ class _$SendTokensImpl implements _SendTokens {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -4521,6 +4717,9 @@ class _$SendTokensImpl implements _SendTokens {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -4553,6 +4752,9 @@ class _$SendTokensImpl implements _SendTokens {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -4585,6 +4787,8 @@ class _$SendTokensImpl implements _SendTokens {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -4790,6 +4994,9 @@ class _$RequestTokensImpl implements _RequestTokens {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -4850,6 +5057,9 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -4910,6 +5120,9 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -4947,6 +5160,9 @@ class _$RequestTokensImpl implements _RequestTokens {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -4979,6 +5195,9 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -5011,6 +5230,8 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -5192,6 +5413,9 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -5252,6 +5476,9 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -5312,6 +5539,9 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -5349,6 +5579,9 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -5381,6 +5614,9 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -5413,6 +5649,8 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -5590,6 +5828,9 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -5650,6 +5891,9 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -5710,6 +5954,9 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -5747,6 +5994,9 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -5779,6 +6029,9 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -5811,6 +6064,8 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -5974,6 +6229,9 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -6034,6 +6292,9 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -6094,6 +6355,9 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -6131,6 +6395,9 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -6163,6 +6430,9 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -6195,6 +6465,8 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -6361,6 +6633,9 @@ class _$TogglePinImpl implements _TogglePin {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -6421,6 +6696,9 @@ class _$TogglePinImpl implements _TogglePin {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -6481,6 +6759,9 @@ class _$TogglePinImpl implements _TogglePin {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -6518,6 +6799,9 @@ class _$TogglePinImpl implements _TogglePin {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -6550,6 +6834,9 @@ class _$TogglePinImpl implements _TogglePin {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -6582,6 +6869,8 @@ class _$TogglePinImpl implements _TogglePin {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -6752,6 +7041,9 @@ class _$ToggleMuteImpl implements _ToggleMute {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -6812,6 +7104,9 @@ class _$ToggleMuteImpl implements _ToggleMute {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -6872,6 +7167,9 @@ class _$ToggleMuteImpl implements _ToggleMute {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -6909,6 +7207,9 @@ class _$ToggleMuteImpl implements _ToggleMute {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -6941,6 +7242,9 @@ class _$ToggleMuteImpl implements _ToggleMute {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -6973,6 +7277,8 @@ class _$ToggleMuteImpl implements _ToggleMute {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -7139,6 +7445,9 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -7199,6 +7508,9 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -7259,6 +7571,9 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -7296,6 +7611,9 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -7328,6 +7646,9 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -7360,6 +7681,8 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -7544,6 +7867,9 @@ class _$AddReactionImpl implements _AddReaction {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -7604,6 +7930,9 @@ class _$AddReactionImpl implements _AddReaction {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -7664,6 +7993,9 @@ class _$AddReactionImpl implements _AddReaction {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -7701,6 +8033,9 @@ class _$AddReactionImpl implements _AddReaction {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -7733,6 +8068,9 @@ class _$AddReactionImpl implements _AddReaction {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -7765,6 +8103,8 @@ class _$AddReactionImpl implements _AddReaction {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -7957,6 +8297,9 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -8017,6 +8360,9 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -8077,6 +8423,9 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -8114,6 +8463,9 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -8146,6 +8498,9 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -8178,6 +8533,8 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -8345,6 +8702,9 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -8405,6 +8765,9 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -8465,6 +8828,9 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -8502,6 +8868,9 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -8534,6 +8903,9 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -8566,6 +8938,8 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -8588,6 +8962,819 @@ abstract class _UnreadCountUpdated implements ConversationEvent {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$UnreadCountUpdatedImplCopyWith<_$UnreadCountUpdatedImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$DeleteMessageForEveryoneImplCopyWith<$Res> {
+  factory _$$DeleteMessageForEveryoneImplCopyWith(
+    _$DeleteMessageForEveryoneImpl value,
+    $Res Function(_$DeleteMessageForEveryoneImpl) then,
+  ) = __$$DeleteMessageForEveryoneImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String conversationId, String messageId});
+}
+
+/// @nodoc
+class __$$DeleteMessageForEveryoneImplCopyWithImpl<$Res>
+    extends
+        _$ConversationEventCopyWithImpl<$Res, _$DeleteMessageForEveryoneImpl>
+    implements _$$DeleteMessageForEveryoneImplCopyWith<$Res> {
+  __$$DeleteMessageForEveryoneImplCopyWithImpl(
+    _$DeleteMessageForEveryoneImpl _value,
+    $Res Function(_$DeleteMessageForEveryoneImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? conversationId = null, Object? messageId = null}) {
+    return _then(
+      _$DeleteMessageForEveryoneImpl(
+        conversationId: null == conversationId
+            ? _value.conversationId
+            : conversationId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        messageId: null == messageId
+            ? _value.messageId
+            : messageId // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
+  const _$DeleteMessageForEveryoneImpl({
+    required this.conversationId,
+    required this.messageId,
+  });
+
+  @override
+  final String conversationId;
+  @override
+  final String messageId;
+
+  @override
+  String toString() {
+    return 'ConversationEvent.deleteMessageForEveryone(conversationId: $conversationId, messageId: $messageId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$DeleteMessageForEveryoneImpl &&
+            (identical(other.conversationId, conversationId) ||
+                other.conversationId == conversationId) &&
+            (identical(other.messageId, messageId) ||
+                other.messageId == messageId));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, conversationId, messageId);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$DeleteMessageForEveryoneImplCopyWith<_$DeleteMessageForEveryoneImpl>
+  get copyWith =>
+      __$$DeleteMessageForEveryoneImplCopyWithImpl<
+        _$DeleteMessageForEveryoneImpl
+      >(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadConversations,
+    required TResult Function() watchConversations,
+    required TResult Function(List<Conversation> conversations)
+    conversationsUpdated,
+    required TResult Function(String id) selectConversation,
+    required TResult Function(String participantId) getOrCreateConversation,
+    required TResult Function(
+      String conversationId,
+      int? limit,
+      DateTime? before,
+    )
+    loadMessages,
+    required TResult Function(String conversationId, int? limit) watchMessages,
+    required TResult Function(List<Message> messages) messagesUpdated,
+    required TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )
+    sendTextMessage,
+    required TResult Function(
+      String conversationId,
+      String mediaUrl,
+      String mediaType,
+      String? caption,
+    )
+    sendMediaMessage,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    sendTokens,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    requestTokens,
+    required TResult Function(String messageId, String conversationId)
+    acceptTokenRequest,
+    required TResult Function(String messageId, String conversationId)
+    declineTokenRequest,
+    required TResult Function(String conversationId) markAsRead,
+    required TResult Function(String conversationId, bool pinned) togglePin,
+    required TResult Function(String conversationId, bool muted) toggleMute,
+    required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    addReaction,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    removeReaction,
+    required TResult Function(int count) unreadCountUpdated,
+    required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
+    retryMessage,
+    required TResult Function(String query) searchUsers,
+    required TResult Function() clearSearch,
+    required TResult Function() clearError,
+  }) {
+    return deleteMessageForEveryone(conversationId, messageId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadConversations,
+    TResult? Function()? watchConversations,
+    TResult? Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult? Function(String id)? selectConversation,
+    TResult? Function(String participantId)? getOrCreateConversation,
+    TResult? Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult? Function(String conversationId, int? limit)? watchMessages,
+    TResult? Function(List<Message> messages)? messagesUpdated,
+    TResult? Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult? Function(
+      String conversationId,
+      String mediaUrl,
+      String mediaType,
+      String? caption,
+    )?
+    sendMediaMessage,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult? Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult? Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult? Function(String conversationId)? markAsRead,
+    TResult? Function(String conversationId, bool pinned)? togglePin,
+    TResult? Function(String conversationId, bool muted)? toggleMute,
+    TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
+    TResult? Function(String conversationId, String messageId)? retryMessage,
+    TResult? Function(String query)? searchUsers,
+    TResult? Function()? clearSearch,
+    TResult? Function()? clearError,
+  }) {
+    return deleteMessageForEveryone?.call(conversationId, messageId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadConversations,
+    TResult Function()? watchConversations,
+    TResult Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult Function(String id)? selectConversation,
+    TResult Function(String participantId)? getOrCreateConversation,
+    TResult Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult Function(String conversationId, int? limit)? watchMessages,
+    TResult Function(List<Message> messages)? messagesUpdated,
+    TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult Function(
+      String conversationId,
+      String mediaUrl,
+      String mediaType,
+      String? caption,
+    )?
+    sendMediaMessage,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult Function(String conversationId)? markAsRead,
+    TResult Function(String conversationId, bool pinned)? togglePin,
+    TResult Function(String conversationId, bool muted)? toggleMute,
+    TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
+    TResult Function(String conversationId, String messageId)? retryMessage,
+    TResult Function(String query)? searchUsers,
+    TResult Function()? clearSearch,
+    TResult Function()? clearError,
+    required TResult orElse(),
+  }) {
+    if (deleteMessageForEveryone != null) {
+      return deleteMessageForEveryone(conversationId, messageId);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadConversations value) loadConversations,
+    required TResult Function(_WatchConversations value) watchConversations,
+    required TResult Function(_ConversationsUpdated value) conversationsUpdated,
+    required TResult Function(_SelectConversation value) selectConversation,
+    required TResult Function(_GetOrCreateConversation value)
+    getOrCreateConversation,
+    required TResult Function(_LoadMessages value) loadMessages,
+    required TResult Function(_WatchMessages value) watchMessages,
+    required TResult Function(_MessagesUpdated value) messagesUpdated,
+    required TResult Function(_SendTextMessage value) sendTextMessage,
+    required TResult Function(_SendMediaMessage value) sendMediaMessage,
+    required TResult Function(_SendTokens value) sendTokens,
+    required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
+    required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
+    required TResult Function(_MarkAsRead value) markAsRead,
+    required TResult Function(_TogglePin value) togglePin,
+    required TResult Function(_ToggleMute value) toggleMute,
+    required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AddReaction value) addReaction,
+    required TResult Function(_RemoveReaction value) removeReaction,
+    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
+    required TResult Function(_RetryMessage value) retryMessage,
+    required TResult Function(_SearchUsers value) searchUsers,
+    required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_ClearError value) clearError,
+  }) {
+    return deleteMessageForEveryone(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadConversations value)? loadConversations,
+    TResult? Function(_WatchConversations value)? watchConversations,
+    TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult? Function(_SelectConversation value)? selectConversation,
+    TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult? Function(_LoadMessages value)? loadMessages,
+    TResult? Function(_WatchMessages value)? watchMessages,
+    TResult? Function(_MessagesUpdated value)? messagesUpdated,
+    TResult? Function(_SendTextMessage value)? sendTextMessage,
+    TResult? Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult? Function(_SendTokens value)? sendTokens,
+    TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult? Function(_MarkAsRead value)? markAsRead,
+    TResult? Function(_TogglePin value)? togglePin,
+    TResult? Function(_ToggleMute value)? toggleMute,
+    TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AddReaction value)? addReaction,
+    TResult? Function(_RemoveReaction value)? removeReaction,
+    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
+    TResult? Function(_RetryMessage value)? retryMessage,
+    TResult? Function(_SearchUsers value)? searchUsers,
+    TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_ClearError value)? clearError,
+  }) {
+    return deleteMessageForEveryone?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadConversations value)? loadConversations,
+    TResult Function(_WatchConversations value)? watchConversations,
+    TResult Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult Function(_SelectConversation value)? selectConversation,
+    TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult Function(_LoadMessages value)? loadMessages,
+    TResult Function(_WatchMessages value)? watchMessages,
+    TResult Function(_MessagesUpdated value)? messagesUpdated,
+    TResult Function(_SendTextMessage value)? sendTextMessage,
+    TResult Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult Function(_SendTokens value)? sendTokens,
+    TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult Function(_MarkAsRead value)? markAsRead,
+    TResult Function(_TogglePin value)? togglePin,
+    TResult Function(_ToggleMute value)? toggleMute,
+    TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AddReaction value)? addReaction,
+    TResult Function(_RemoveReaction value)? removeReaction,
+    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
+    TResult Function(_RetryMessage value)? retryMessage,
+    TResult Function(_SearchUsers value)? searchUsers,
+    TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_ClearError value)? clearError,
+    required TResult orElse(),
+  }) {
+    if (deleteMessageForEveryone != null) {
+      return deleteMessageForEveryone(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _DeleteMessageForEveryone implements ConversationEvent {
+  const factory _DeleteMessageForEveryone({
+    required final String conversationId,
+    required final String messageId,
+  }) = _$DeleteMessageForEveryoneImpl;
+
+  String get conversationId;
+  String get messageId;
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$DeleteMessageForEveryoneImplCopyWith<_$DeleteMessageForEveryoneImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$ClearChatImplCopyWith<$Res> {
+  factory _$$ClearChatImplCopyWith(
+    _$ClearChatImpl value,
+    $Res Function(_$ClearChatImpl) then,
+  ) = __$$ClearChatImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String conversationId});
+}
+
+/// @nodoc
+class __$$ClearChatImplCopyWithImpl<$Res>
+    extends _$ConversationEventCopyWithImpl<$Res, _$ClearChatImpl>
+    implements _$$ClearChatImplCopyWith<$Res> {
+  __$$ClearChatImplCopyWithImpl(
+    _$ClearChatImpl _value,
+    $Res Function(_$ClearChatImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? conversationId = null}) {
+    return _then(
+      _$ClearChatImpl(
+        null == conversationId
+            ? _value.conversationId
+            : conversationId // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$ClearChatImpl implements _ClearChat {
+  const _$ClearChatImpl(this.conversationId);
+
+  @override
+  final String conversationId;
+
+  @override
+  String toString() {
+    return 'ConversationEvent.clearChat(conversationId: $conversationId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ClearChatImpl &&
+            (identical(other.conversationId, conversationId) ||
+                other.conversationId == conversationId));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, conversationId);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ClearChatImplCopyWith<_$ClearChatImpl> get copyWith =>
+      __$$ClearChatImplCopyWithImpl<_$ClearChatImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadConversations,
+    required TResult Function() watchConversations,
+    required TResult Function(List<Conversation> conversations)
+    conversationsUpdated,
+    required TResult Function(String id) selectConversation,
+    required TResult Function(String participantId) getOrCreateConversation,
+    required TResult Function(
+      String conversationId,
+      int? limit,
+      DateTime? before,
+    )
+    loadMessages,
+    required TResult Function(String conversationId, int? limit) watchMessages,
+    required TResult Function(List<Message> messages) messagesUpdated,
+    required TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )
+    sendTextMessage,
+    required TResult Function(
+      String conversationId,
+      String mediaUrl,
+      String mediaType,
+      String? caption,
+    )
+    sendMediaMessage,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    sendTokens,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    requestTokens,
+    required TResult Function(String messageId, String conversationId)
+    acceptTokenRequest,
+    required TResult Function(String messageId, String conversationId)
+    declineTokenRequest,
+    required TResult Function(String conversationId) markAsRead,
+    required TResult Function(String conversationId, bool pinned) togglePin,
+    required TResult Function(String conversationId, bool muted) toggleMute,
+    required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    addReaction,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    removeReaction,
+    required TResult Function(int count) unreadCountUpdated,
+    required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
+    retryMessage,
+    required TResult Function(String query) searchUsers,
+    required TResult Function() clearSearch,
+    required TResult Function() clearError,
+  }) {
+    return clearChat(conversationId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadConversations,
+    TResult? Function()? watchConversations,
+    TResult? Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult? Function(String id)? selectConversation,
+    TResult? Function(String participantId)? getOrCreateConversation,
+    TResult? Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult? Function(String conversationId, int? limit)? watchMessages,
+    TResult? Function(List<Message> messages)? messagesUpdated,
+    TResult? Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult? Function(
+      String conversationId,
+      String mediaUrl,
+      String mediaType,
+      String? caption,
+    )?
+    sendMediaMessage,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult? Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult? Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult? Function(String conversationId)? markAsRead,
+    TResult? Function(String conversationId, bool pinned)? togglePin,
+    TResult? Function(String conversationId, bool muted)? toggleMute,
+    TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
+    TResult? Function(String conversationId, String messageId)? retryMessage,
+    TResult? Function(String query)? searchUsers,
+    TResult? Function()? clearSearch,
+    TResult? Function()? clearError,
+  }) {
+    return clearChat?.call(conversationId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadConversations,
+    TResult Function()? watchConversations,
+    TResult Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult Function(String id)? selectConversation,
+    TResult Function(String participantId)? getOrCreateConversation,
+    TResult Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult Function(String conversationId, int? limit)? watchMessages,
+    TResult Function(List<Message> messages)? messagesUpdated,
+    TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult Function(
+      String conversationId,
+      String mediaUrl,
+      String mediaType,
+      String? caption,
+    )?
+    sendMediaMessage,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult Function(String conversationId)? markAsRead,
+    TResult Function(String conversationId, bool pinned)? togglePin,
+    TResult Function(String conversationId, bool muted)? toggleMute,
+    TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
+    TResult Function(String conversationId, String messageId)? retryMessage,
+    TResult Function(String query)? searchUsers,
+    TResult Function()? clearSearch,
+    TResult Function()? clearError,
+    required TResult orElse(),
+  }) {
+    if (clearChat != null) {
+      return clearChat(conversationId);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadConversations value) loadConversations,
+    required TResult Function(_WatchConversations value) watchConversations,
+    required TResult Function(_ConversationsUpdated value) conversationsUpdated,
+    required TResult Function(_SelectConversation value) selectConversation,
+    required TResult Function(_GetOrCreateConversation value)
+    getOrCreateConversation,
+    required TResult Function(_LoadMessages value) loadMessages,
+    required TResult Function(_WatchMessages value) watchMessages,
+    required TResult Function(_MessagesUpdated value) messagesUpdated,
+    required TResult Function(_SendTextMessage value) sendTextMessage,
+    required TResult Function(_SendMediaMessage value) sendMediaMessage,
+    required TResult Function(_SendTokens value) sendTokens,
+    required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
+    required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
+    required TResult Function(_MarkAsRead value) markAsRead,
+    required TResult Function(_TogglePin value) togglePin,
+    required TResult Function(_ToggleMute value) toggleMute,
+    required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AddReaction value) addReaction,
+    required TResult Function(_RemoveReaction value) removeReaction,
+    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
+    required TResult Function(_RetryMessage value) retryMessage,
+    required TResult Function(_SearchUsers value) searchUsers,
+    required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_ClearError value) clearError,
+  }) {
+    return clearChat(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadConversations value)? loadConversations,
+    TResult? Function(_WatchConversations value)? watchConversations,
+    TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult? Function(_SelectConversation value)? selectConversation,
+    TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult? Function(_LoadMessages value)? loadMessages,
+    TResult? Function(_WatchMessages value)? watchMessages,
+    TResult? Function(_MessagesUpdated value)? messagesUpdated,
+    TResult? Function(_SendTextMessage value)? sendTextMessage,
+    TResult? Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult? Function(_SendTokens value)? sendTokens,
+    TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult? Function(_MarkAsRead value)? markAsRead,
+    TResult? Function(_TogglePin value)? togglePin,
+    TResult? Function(_ToggleMute value)? toggleMute,
+    TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AddReaction value)? addReaction,
+    TResult? Function(_RemoveReaction value)? removeReaction,
+    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
+    TResult? Function(_RetryMessage value)? retryMessage,
+    TResult? Function(_SearchUsers value)? searchUsers,
+    TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_ClearError value)? clearError,
+  }) {
+    return clearChat?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadConversations value)? loadConversations,
+    TResult Function(_WatchConversations value)? watchConversations,
+    TResult Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult Function(_SelectConversation value)? selectConversation,
+    TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult Function(_LoadMessages value)? loadMessages,
+    TResult Function(_WatchMessages value)? watchMessages,
+    TResult Function(_MessagesUpdated value)? messagesUpdated,
+    TResult Function(_SendTextMessage value)? sendTextMessage,
+    TResult Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult Function(_SendTokens value)? sendTokens,
+    TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult Function(_MarkAsRead value)? markAsRead,
+    TResult Function(_TogglePin value)? togglePin,
+    TResult Function(_ToggleMute value)? toggleMute,
+    TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AddReaction value)? addReaction,
+    TResult Function(_RemoveReaction value)? removeReaction,
+    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
+    TResult Function(_RetryMessage value)? retryMessage,
+    TResult Function(_SearchUsers value)? searchUsers,
+    TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_ClearError value)? clearError,
+    required TResult orElse(),
+  }) {
+    if (clearChat != null) {
+      return clearChat(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ClearChat implements ConversationEvent {
+  const factory _ClearChat(final String conversationId) = _$ClearChatImpl;
+
+  String get conversationId;
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ClearChatImplCopyWith<_$ClearChatImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -8736,6 +9923,9 @@ class _$RetryMessageImpl implements _RetryMessage {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -8796,6 +9986,9 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -8856,6 +10049,9 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -8893,6 +10089,9 @@ class _$RetryMessageImpl implements _RetryMessage {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -8925,6 +10124,9 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -8957,6 +10159,8 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -9119,6 +10323,9 @@ class _$SearchUsersImpl implements _SearchUsers {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -9179,6 +10386,9 @@ class _$SearchUsersImpl implements _SearchUsers {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -9239,6 +10449,9 @@ class _$SearchUsersImpl implements _SearchUsers {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -9276,6 +10489,9 @@ class _$SearchUsersImpl implements _SearchUsers {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -9308,6 +10524,9 @@ class _$SearchUsersImpl implements _SearchUsers {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -9340,6 +10559,8 @@ class _$SearchUsersImpl implements _SearchUsers {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -9471,6 +10692,9 @@ class _$ClearSearchImpl implements _ClearSearch {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -9531,6 +10755,9 @@ class _$ClearSearchImpl implements _ClearSearch {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -9591,6 +10818,9 @@ class _$ClearSearchImpl implements _ClearSearch {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -9628,6 +10858,9 @@ class _$ClearSearchImpl implements _ClearSearch {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -9660,6 +10893,9 @@ class _$ClearSearchImpl implements _ClearSearch {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -9692,6 +10928,8 @@ class _$ClearSearchImpl implements _ClearSearch {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -9815,6 +11053,9 @@ class _$ClearErrorImpl implements _ClearError {
     removeReaction,
     required TResult Function(int count) unreadCountUpdated,
     required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
@@ -9875,6 +11116,9 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
@@ -9935,6 +11179,9 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(String conversationId, String messageId, String emoji)?
     removeReaction,
     TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
@@ -9972,6 +11219,9 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
@@ -10004,6 +11254,9 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
@@ -10036,6 +11289,8 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
@@ -10060,8 +11315,10 @@ mixin _$ConversationState {
   List<Message> get messages => throw _privateConstructorUsedError;
   Conversation? get selectedConversation => throw _privateConstructorUsedError;
   bool get isLoadingMessages => throw _privateConstructorUsedError;
+  bool get hasLoadedMessages => throw _privateConstructorUsedError;
   bool get hasMoreMessages => throw _privateConstructorUsedError;
   bool get isSending => throw _privateConstructorUsedError;
+  bool get isClearingChat => throw _privateConstructorUsedError;
   int get totalUnreadCount => throw _privateConstructorUsedError;
   List<UserSearchResult> get searchResults =>
       throw _privateConstructorUsedError;
@@ -10088,8 +11345,10 @@ abstract class $ConversationStateCopyWith<$Res> {
     List<Message> messages,
     Conversation? selectedConversation,
     bool isLoadingMessages,
+    bool hasLoadedMessages,
     bool hasMoreMessages,
     bool isSending,
+    bool isClearingChat,
     int totalUnreadCount,
     List<UserSearchResult> searchResults,
     bool isSearching,
@@ -10119,8 +11378,10 @@ class _$ConversationStateCopyWithImpl<$Res, $Val extends ConversationState>
     Object? messages = null,
     Object? selectedConversation = freezed,
     Object? isLoadingMessages = null,
+    Object? hasLoadedMessages = null,
     Object? hasMoreMessages = null,
     Object? isSending = null,
+    Object? isClearingChat = null,
     Object? totalUnreadCount = null,
     Object? searchResults = null,
     Object? isSearching = null,
@@ -10148,6 +11409,10 @@ class _$ConversationStateCopyWithImpl<$Res, $Val extends ConversationState>
                 ? _value.isLoadingMessages
                 : isLoadingMessages // ignore: cast_nullable_to_non_nullable
                       as bool,
+            hasLoadedMessages: null == hasLoadedMessages
+                ? _value.hasLoadedMessages
+                : hasLoadedMessages // ignore: cast_nullable_to_non_nullable
+                      as bool,
             hasMoreMessages: null == hasMoreMessages
                 ? _value.hasMoreMessages
                 : hasMoreMessages // ignore: cast_nullable_to_non_nullable
@@ -10155,6 +11420,10 @@ class _$ConversationStateCopyWithImpl<$Res, $Val extends ConversationState>
             isSending: null == isSending
                 ? _value.isSending
                 : isSending // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isClearingChat: null == isClearingChat
+                ? _value.isClearingChat
+                : isClearingChat // ignore: cast_nullable_to_non_nullable
                       as bool,
             totalUnreadCount: null == totalUnreadCount
                 ? _value.totalUnreadCount
@@ -10207,8 +11476,10 @@ abstract class _$$ConversationStateImplCopyWith<$Res>
     List<Message> messages,
     Conversation? selectedConversation,
     bool isLoadingMessages,
+    bool hasLoadedMessages,
     bool hasMoreMessages,
     bool isSending,
+    bool isClearingChat,
     int totalUnreadCount,
     List<UserSearchResult> searchResults,
     bool isSearching,
@@ -10238,8 +11509,10 @@ class __$$ConversationStateImplCopyWithImpl<$Res>
     Object? messages = null,
     Object? selectedConversation = freezed,
     Object? isLoadingMessages = null,
+    Object? hasLoadedMessages = null,
     Object? hasMoreMessages = null,
     Object? isSending = null,
+    Object? isClearingChat = null,
     Object? totalUnreadCount = null,
     Object? searchResults = null,
     Object? isSearching = null,
@@ -10267,6 +11540,10 @@ class __$$ConversationStateImplCopyWithImpl<$Res>
             ? _value.isLoadingMessages
             : isLoadingMessages // ignore: cast_nullable_to_non_nullable
                   as bool,
+        hasLoadedMessages: null == hasLoadedMessages
+            ? _value.hasLoadedMessages
+            : hasLoadedMessages // ignore: cast_nullable_to_non_nullable
+                  as bool,
         hasMoreMessages: null == hasMoreMessages
             ? _value.hasMoreMessages
             : hasMoreMessages // ignore: cast_nullable_to_non_nullable
@@ -10274,6 +11551,10 @@ class __$$ConversationStateImplCopyWithImpl<$Res>
         isSending: null == isSending
             ? _value.isSending
             : isSending // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isClearingChat: null == isClearingChat
+            ? _value.isClearingChat
+            : isClearingChat // ignore: cast_nullable_to_non_nullable
                   as bool,
         totalUnreadCount: null == totalUnreadCount
             ? _value.totalUnreadCount
@@ -10305,8 +11586,10 @@ class _$ConversationStateImpl extends _ConversationState {
     final List<Message> messages = const [],
     this.selectedConversation,
     this.isLoadingMessages = false,
+    this.hasLoadedMessages = false,
     this.hasMoreMessages = false,
     this.isSending = false,
+    this.isClearingChat = false,
     this.totalUnreadCount = 0,
     final List<UserSearchResult> searchResults = const [],
     this.isSearching = false,
@@ -10344,10 +11627,16 @@ class _$ConversationStateImpl extends _ConversationState {
   final bool isLoadingMessages;
   @override
   @JsonKey()
+  final bool hasLoadedMessages;
+  @override
+  @JsonKey()
   final bool hasMoreMessages;
   @override
   @JsonKey()
   final bool isSending;
+  @override
+  @JsonKey()
+  final bool isClearingChat;
   @override
   @JsonKey()
   final int totalUnreadCount;
@@ -10368,7 +11657,7 @@ class _$ConversationStateImpl extends _ConversationState {
 
   @override
   String toString() {
-    return 'ConversationState(status: $status, conversations: $conversations, messages: $messages, selectedConversation: $selectedConversation, isLoadingMessages: $isLoadingMessages, hasMoreMessages: $hasMoreMessages, isSending: $isSending, totalUnreadCount: $totalUnreadCount, searchResults: $searchResults, isSearching: $isSearching, errorMessage: $errorMessage)';
+    return 'ConversationState(status: $status, conversations: $conversations, messages: $messages, selectedConversation: $selectedConversation, isLoadingMessages: $isLoadingMessages, hasLoadedMessages: $hasLoadedMessages, hasMoreMessages: $hasMoreMessages, isSending: $isSending, isClearingChat: $isClearingChat, totalUnreadCount: $totalUnreadCount, searchResults: $searchResults, isSearching: $isSearching, errorMessage: $errorMessage)';
   }
 
   @override
@@ -10386,10 +11675,14 @@ class _$ConversationStateImpl extends _ConversationState {
                 other.selectedConversation == selectedConversation) &&
             (identical(other.isLoadingMessages, isLoadingMessages) ||
                 other.isLoadingMessages == isLoadingMessages) &&
+            (identical(other.hasLoadedMessages, hasLoadedMessages) ||
+                other.hasLoadedMessages == hasLoadedMessages) &&
             (identical(other.hasMoreMessages, hasMoreMessages) ||
                 other.hasMoreMessages == hasMoreMessages) &&
             (identical(other.isSending, isSending) ||
                 other.isSending == isSending) &&
+            (identical(other.isClearingChat, isClearingChat) ||
+                other.isClearingChat == isClearingChat) &&
             (identical(other.totalUnreadCount, totalUnreadCount) ||
                 other.totalUnreadCount == totalUnreadCount) &&
             const DeepCollectionEquality().equals(
@@ -10410,8 +11703,10 @@ class _$ConversationStateImpl extends _ConversationState {
     const DeepCollectionEquality().hash(_messages),
     selectedConversation,
     isLoadingMessages,
+    hasLoadedMessages,
     hasMoreMessages,
     isSending,
+    isClearingChat,
     totalUnreadCount,
     const DeepCollectionEquality().hash(_searchResults),
     isSearching,
@@ -10437,8 +11732,10 @@ abstract class _ConversationState extends ConversationState {
     final List<Message> messages,
     final Conversation? selectedConversation,
     final bool isLoadingMessages,
+    final bool hasLoadedMessages,
     final bool hasMoreMessages,
     final bool isSending,
+    final bool isClearingChat,
     final int totalUnreadCount,
     final List<UserSearchResult> searchResults,
     final bool isSearching,
@@ -10457,9 +11754,13 @@ abstract class _ConversationState extends ConversationState {
   @override
   bool get isLoadingMessages;
   @override
+  bool get hasLoadedMessages;
+  @override
   bool get hasMoreMessages;
   @override
   bool get isSending;
+  @override
+  bool get isClearingChat;
   @override
   int get totalUnreadCount;
   @override

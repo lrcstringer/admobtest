@@ -133,7 +133,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       ),
     );
 
-    if (other.avatarUrl != null) {
+    if (other.avatarUrl != null && other.avatarUrl!.isNotEmpty) {
       return CachedNetworkImage(
         imageUrl: other.avatarUrl!,
         imageBuilder: (_, imageProvider) => CircleAvatar(
@@ -152,7 +152,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     ConversationState state,
     String currentUserId,
   ) {
-    if (state.isLoadingMessages && state.messages.isEmpty) {
+    if (state.messages.isEmpty && !state.hasLoadedMessages) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -236,7 +236,50 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     _messageController.clear();
   }
 
-  void _onMessageLongPress(BuildContext context, Message message) async {
+  void _onMessageLongPress(BuildContext context, Message message) {
+    // Skip for already-deleted messages
+    if (message.deletedForEveryone) return;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textHint,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.emoji_emotions_outlined),
+              title: const Text('React'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showReactionPicker(context, message);
+              },
+            ),
+            ListTile(
+              leading:
+                  const Icon(Icons.delete_outline, color: AppColors.error),
+              title: const Text('Delete for Everyone'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _confirmDeleteMessage(context, message.id);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showReactionPicker(BuildContext context, Message message) async {
     final bloc = context.read<ConversationBloc>();
     final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
     final emoji = await showReactionPicker(context);
@@ -340,6 +383,15 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.delete_sweep_outlined,
+                  color: AppColors.error),
+              title: const Text('Clear Chat'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _confirmClearChat(context, conv.id);
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.block_outlined, color: AppColors.error),
               title: const Text('Block User'),
               onTap: () {
@@ -356,6 +408,76 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmClearChat(
+    BuildContext context,
+    String conversationId,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Clear Chat'),
+        content: const Text(
+          'Clear all messages from your view? The other person will still have their copy.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    context.read<ConversationBloc>().add(
+          ConversationEvent.clearChat(conversationId),
+        );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Chat cleared')),
+    );
+  }
+
+  Future<void> _confirmDeleteMessage(
+    BuildContext context,
+    String messageId,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Message'),
+        content: const Text(
+          'This message will be deleted for everyone. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    context.read<ConversationBloc>().add(
+          ConversationEvent.deleteMessageForEveryone(
+            conversationId: widget.conversationId,
+            messageId: messageId,
+          ),
+        );
   }
 
   Future<void> _confirmBlockUser(

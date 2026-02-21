@@ -8,7 +8,7 @@ class CaptchaService {
 
   CaptchaService({
     FirebaseFunctions? functions,
-  }) : _functions = functions ?? FirebaseFunctions.instance;
+  }) : _functions = functions ?? FirebaseFunctions.instanceFor(region: 'africa-south1');
 
   /// Risk actions that require CAPTCHA verification
   static const Set<String> _riskActions = {

@@ -33,7 +33,8 @@ abstract class RegisterModule {
   FirebaseAppCheck get firebaseAppCheck => FirebaseAppCheck.instance;
 
   @lazySingleton
-  FirebaseFunctions get firebaseFunctions => FirebaseFunctions.instance;
+  FirebaseFunctions get firebaseFunctions =>
+      FirebaseFunctions.instanceFor(region: 'africa-south1');
 
   @lazySingleton
   InternetConnection get internetConnection => InternetConnection();

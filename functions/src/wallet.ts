@@ -8,7 +8,7 @@
  * engagement.ts → processEngagement which uses the ledger system.
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import { requireAdminPermission, createPendingAction } from "./adminAuth";
@@ -34,19 +34,19 @@ const db = admin.firestore();
 /**
  * Process cashout request
  */
-export const processCashout = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const processCashout = onCall({ minInstances: 1, concurrency: 10, labels: { area: "wallet" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "processCashout");
-  await requirePlayIntegrity(data, context, "processCashout", "HIGHEST");
+  requireAppCheck(request, "processCashout");
+  await requirePlayIntegrity(request.data, request, "processCashout", "HIGHEST");
 
-  const userId = context.auth.uid;
-  const { amount, bankDetails, subAccountId: requestedSubAccountId } = data;
+  const userId = request.auth.uid;
+  const { amount, bankDetails, subAccountId: requestedSubAccountId } = request.data;
 
   // Validate minimum cashout (from ledger config)
   if (amount < LedgerConfig.MIN_CASHOUT_AMOUNT) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       `Minimum cashout is ${LedgerConfig.MIN_CASHOUT_AMOUNT} tokens (R${LedgerConfig.MIN_CASHOUT_AMOUNT / LedgerConfig.TOKENS_PER_ZAR})`
     );
@@ -59,7 +59,7 @@ export const processCashout = functions.https.onCall(async (data, context) => {
     // Specific sub-account requested
     const subAccount = await getSubAccount(userId, requestedSubAccountId);
     if (!subAccount) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Sub-account not found."
       );
@@ -71,7 +71,7 @@ export const processCashout = functions.https.onCall(async (data, context) => {
       "cashout"
     );
     if (!cashoutAllowed.allowed) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         cashoutAllowed.reason || "This account cannot perform cashouts"
       );
@@ -84,7 +84,7 @@ export const processCashout = functions.https.onCall(async (data, context) => {
       amount
     );
     if (!balanceCheck.allowed) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         balanceCheck.reason || "Insufficient balance"
       );
@@ -94,7 +94,7 @@ export const processCashout = functions.https.onCall(async (data, context) => {
     // Main wallet cashout — validate main wallet balance
     const mainCheck = await validateMainWalletBalance(userId, amount);
     if (!mainCheck.sufficient) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Insufficient balance: has ${mainCheck.available}, needs ${amount}`
       );
@@ -135,7 +135,7 @@ export const processCashout = functions.https.onCall(async (data, context) => {
       status: "failed",
       failureReason: ledgerResult.error,
     });
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "internal",
       `Failed to initiate cashout: ${ledgerResult.error}`
     );
@@ -159,25 +159,25 @@ export const processCashout = functions.https.onCall(async (data, context) => {
  * Complete a pending cashout (called after bank transfer is confirmed).
  * Maker-checker: creates a pending action that must be approved by a second admin.
  */
-export const completeCashoutRequest = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "completeCashoutRequest");
-  const adminCtx = await requireAdminPermission(context, "cashout:complete", "completeCashoutRequest");
+export const completeCashoutRequest = onCall({ labels: { area: "wallet" } }, async (request) => {
+  requireAppCheck(request, "completeCashoutRequest");
+  const adminCtx = await requireAdminPermission(request, "cashout:complete", "completeCashoutRequest");
 
-  const { cashoutId, adminNotes } = data;
+  const { cashoutId, adminNotes } = request.data;
 
   if (!cashoutId) {
-    throw new functions.https.HttpsError("invalid-argument", "Cashout ID is required");
+    throw new HttpsError("invalid-argument", "Cashout ID is required");
   }
 
   // Validate cashout exists and is pending before creating pending action
   const cashoutDoc = await db.collection("cashouts").doc(cashoutId).get();
   if (!cashoutDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Cashout not found");
+    throw new HttpsError("not-found", "Cashout not found");
   }
 
   const cashoutData = cashoutDoc.data()!;
   if (cashoutData.status !== "pending") {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       `Cashout is not pending (status: ${cashoutData.status})`
     );
@@ -209,26 +209,26 @@ export const completeCashoutRequest = functions.https.onCall(async (data, contex
 /**
  * Fail/refund a cashout (if bank transfer fails)
  */
-export const failCashoutRequest = functions.https.onCall(async (data, context) => {
-  requireAppCheck(context, "failCashoutRequest");
-  const adminCtx = await requireAdminPermission(context, "cashout:fail", "failCashoutRequest");
+export const failCashoutRequest = onCall({ labels: { area: "wallet" } }, async (request) => {
+  requireAppCheck(request, "failCashoutRequest");
+  const adminCtx = await requireAdminPermission(request, "cashout:fail", "failCashoutRequest");
 
-  const { cashoutId, reason } = data;
+  const { cashoutId, reason } = request.data;
 
   if (!cashoutId || !reason) {
-    throw new functions.https.HttpsError("invalid-argument", "Cashout ID and reason are required");
+    throw new HttpsError("invalid-argument", "Cashout ID and reason are required");
   }
 
   // Get cashout record
   const cashoutDoc = await db.collection("cashouts").doc(cashoutId).get();
   if (!cashoutDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Cashout not found");
+    throw new HttpsError("not-found", "Cashout not found");
   }
 
   const cashoutData = cashoutDoc.data()!;
 
   if (cashoutData.status !== "pending") {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       `Cashout is not pending (status: ${cashoutData.status})`
     );
@@ -250,7 +250,7 @@ export const failCashoutRequest = functions.https.onCall(async (data, context) =
   );
 
   if (!ledgerResult.success) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "internal",
       `Failed to refund cashout: ${ledgerResult.error}`
     );
@@ -275,13 +275,13 @@ export const failCashoutRequest = functions.https.onCall(async (data, context) =
  * Get all sub-accounts (wallets) for the current user.
  * Returns only user-created and brand sub-accounts (no default auto-creation).
  */
-export const getSubAccounts = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const getSubAccounts = onCall({ labels: { area: "wallet" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "getSubAccounts");
+  requireAppCheck(request, "getSubAccounts");
 
-  const userId = context.auth.uid;
+  const userId = request.auth.uid;
 
   // Return all active sub-accounts (user-created + brand)
   const subAccounts = await getUserSubAccounts(userId);
@@ -291,28 +291,28 @@ export const getSubAccounts = functions.https.onCall(async (data, context) => {
 /**
  * Transfer tokens between the current user's own sub-accounts (wallets).
  */
-export const transferBetweenWallets = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const transferBetweenWallets = onCall({ labels: { area: "wallet" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "transferBetweenWallets");
+  requireAppCheck(request, "transferBetweenWallets");
 
-  const userId = context.auth.uid;
-  const { fromSubAccountId, toSubAccountId, amount } = data;
+  const userId = request.auth.uid;
+  const { fromSubAccountId, toSubAccountId, amount } = request.data;
 
   if (!fromSubAccountId || !toSubAccountId || !amount) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "fromSubAccountId, toSubAccountId, and amount are required"
     );
   }
 
   if (amount <= 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Amount must be positive");
+    throw new HttpsError("invalid-argument", "Amount must be positive");
   }
 
   if (fromSubAccountId === toSubAccountId) {
-    throw new functions.https.HttpsError("invalid-argument", "Source and destination must be different");
+    throw new HttpsError("invalid-argument", "Source and destination must be different");
   }
 
   try {
@@ -320,7 +320,7 @@ export const transferBetweenWallets = functions.https.onCall(async (data, contex
     const toIsMain = toSubAccountId === "main";
 
     if (fromIsMain && toIsMain) {
-      throw new functions.https.HttpsError("invalid-argument", "Source and destination cannot both be main wallet");
+      throw new HttpsError("invalid-argument", "Source and destination cannot both be main wallet");
     }
 
     if (fromIsMain) {
@@ -328,7 +328,7 @@ export const transferBetweenWallets = functions.https.onCall(async (data, contex
       // creditSubAccount increases allocatedBalance, effectively reducing main wallet available.
       const { sufficient, available } = await validateMainWalletBalance(userId, amount);
       if (!sufficient) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           `Insufficient main wallet balance: has ${available}, needs ${amount}`
         );
@@ -341,7 +341,7 @@ export const transferBetweenWallets = functions.https.onCall(async (data, contex
       if (fromSubAccount?.accountTypeId) {
         const allowed = await validateSubAccountAllows(fromSubAccount.accountTypeId, "p2p_send");
         if (!allowed.allowed) {
-          throw new functions.https.HttpsError(
+          throw new HttpsError(
             "failed-precondition",
             allowed.reason || "This wallet does not allow outbound transfers"
           );
@@ -354,7 +354,7 @@ export const transferBetweenWallets = functions.https.onCall(async (data, contex
       if (fromSubAccount?.accountTypeId) {
         const allowed = await validateSubAccountAllows(fromSubAccount.accountTypeId, "p2p_send");
         if (!allowed.allowed) {
-          throw new functions.https.HttpsError(
+          throw new HttpsError(
             "failed-precondition",
             allowed.reason || "This wallet does not allow outbound transfers"
           );
@@ -365,37 +365,37 @@ export const transferBetweenWallets = functions.https.onCall(async (data, contex
 
     return { success: true };
   } catch (e: unknown) {
-    if (e instanceof functions.https.HttpsError) throw e;
+    if (e instanceof HttpsError) throw e;
     const message = e instanceof Error ? e.message : "Transfer failed";
-    throw new functions.https.HttpsError("internal", message);
+    throw new HttpsError("internal", message);
   }
 });
 
 /**
  * Send tokens to another user (P2P transfer).
  */
-export const sendP2PTransfer = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const sendP2PTransfer = onCall({ labels: { area: "wallet" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "sendP2PTransfer");
+  requireAppCheck(request, "sendP2PTransfer");
 
-  const userId = context.auth.uid;
-  const { recipientUserId, amount, subAccountId: requestedSubAccountId, note } = data;
+  const userId = request.auth.uid;
+  const { recipientUserId, amount, subAccountId: requestedSubAccountId, note } = request.data;
 
   if (!recipientUserId || !amount) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "recipientUserId and amount are required"
     );
   }
 
   if (amount <= 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Amount must be positive");
+    throw new HttpsError("invalid-argument", "Amount must be positive");
   }
 
   if (recipientUserId === userId) {
-    throw new functions.https.HttpsError("invalid-argument", "Cannot send to yourself");
+    throw new HttpsError("invalid-argument", "Cannot send to yourself");
   }
 
   // Determine source: specific sub-account or main wallet
@@ -407,7 +407,7 @@ export const sendP2PTransfer = functions.https.onCall(async (data, context) => {
     if (subAccount) {
       const allowed = await validateSubAccountAllows(subAccount.accountTypeId, "p2p_send");
       if (!allowed.allowed) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "failed-precondition",
           allowed.reason || "This wallet cannot send tokens"
         );
@@ -417,7 +417,7 @@ export const sendP2PTransfer = functions.https.onCall(async (data, context) => {
     // Validate sub-account balance
     const balanceCheck = await validateSubAccountBalance(userId, requestedSubAccountId, amount);
     if (!balanceCheck.allowed) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         balanceCheck.reason || "Insufficient balance"
       );
@@ -427,7 +427,7 @@ export const sendP2PTransfer = functions.https.onCall(async (data, context) => {
     // Main wallet — validate main wallet balance
     const mainCheck = await validateMainWalletBalance(userId, amount);
     if (!mainCheck.sufficient) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Insufficient balance: has ${mainCheck.available}, needs ${amount}`
       );
@@ -449,7 +449,7 @@ export const sendP2PTransfer = functions.https.onCall(async (data, context) => {
   );
 
   if (!result.success) {
-    throw new functions.https.HttpsError("internal", result.error || "Transfer failed");
+    throw new HttpsError("internal", result.error || "Transfer failed");
   }
 
   return {
@@ -464,21 +464,21 @@ export const sendP2PTransfer = functions.https.onCall(async (data, context) => {
  * Creates an unrestricted sub-account the user can transfer tokens into.
  * Max 10 user-created wallets per user.
  */
-export const createUserWallet = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const createUserWallet = onCall({ labels: { area: "wallet" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
 
-  const userId = context.auth.uid;
-  const { name } = data;
+  const userId = request.auth.uid;
+  const { name } = request.data;
 
   if (!name || typeof name !== "string" || name.trim().length === 0) {
-    throw new functions.https.HttpsError("invalid-argument", "Wallet name is required");
+    throw new HttpsError("invalid-argument", "Wallet name is required");
   }
 
   const trimmedName = name.trim();
   if (trimmedName.length > 30) {
-    throw new functions.https.HttpsError("invalid-argument", "Wallet name must be 30 characters or less");
+    throw new HttpsError("invalid-argument", "Wallet name must be 30 characters or less");
   }
 
   // Fetch existing sub-accounts to check limits and duplicates
@@ -489,7 +489,7 @@ export const createUserWallet = functions.https.onCall(async (data, context) => 
     (sa) => !sa.isDefault && !sa.accountTypeId
   ).length;
   if (userCreatedCount >= 10) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "resource-exhausted",
       "Maximum of 10 custom wallets reached"
     );
@@ -500,7 +500,7 @@ export const createUserWallet = functions.https.onCall(async (data, context) => 
     (sa) => sa.name.toLowerCase() === trimmedName.toLowerCase()
   );
   if (nameExists) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "already-exists",
       "A wallet with this name already exists"
     );
@@ -543,17 +543,17 @@ export const createUserWallet = functions.https.onCall(async (data, context) => 
 /**
  * Cancel a pending cashout — reverse the ledger transaction and return tokens.
  */
-export const cancelCashout = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "User must be authenticated");
+export const cancelCashout = onCall({ labels: { area: "wallet" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(context, "cancelCashout");
+  requireAppCheck(request, "cancelCashout");
 
-  const userId = context.auth.uid;
-  const { cashoutId } = data;
+  const userId = request.auth.uid;
+  const { cashoutId } = request.data;
 
   if (!cashoutId) {
-    throw new functions.https.HttpsError("invalid-argument", "cashoutId is required");
+    throw new HttpsError("invalid-argument", "cashoutId is required");
   }
 
   // Get cashout document
@@ -561,19 +561,19 @@ export const cancelCashout = functions.https.onCall(async (data, context) => {
   const cashoutDoc = await cashoutRef.get();
 
   if (!cashoutDoc.exists) {
-    throw new functions.https.HttpsError("not-found", "Cashout not found");
+    throw new HttpsError("not-found", "Cashout not found");
   }
 
   const cashout = cashoutDoc.data()!;
 
   // Validate ownership
   if (cashout.userId !== userId) {
-    throw new functions.https.HttpsError("permission-denied", "Not authorized to cancel this cashout");
+    throw new HttpsError("permission-denied", "Not authorized to cancel this cashout");
   }
 
   // Only pending cashouts can be cancelled
   if (cashout.status !== "pending") {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "failed-precondition",
       "Can only cancel pending cashouts"
     );
@@ -592,7 +592,7 @@ export const cancelCashout = functions.https.onCall(async (data, context) => {
   );
 
   if (!ledgerResult.success) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "internal",
       `Failed to reverse cashout: ${ledgerResult.error}`
     );

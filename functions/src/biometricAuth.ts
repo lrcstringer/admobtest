@@ -6,7 +6,8 @@
  * 2. verifyBiometricChallenge — verifies the ECDSA signature and issues a custom token
  */
 
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
 import { checkRateLimit, requireAppCheck } from "./security";
@@ -23,14 +24,16 @@ const db = admin.firestore();
  * @param {string} deviceId - The registered device ID
  * @returns {{ challengeId: string, nonce: string }}
  */
-export const requestBiometricChallenge = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "requestBiometricChallenge");
+export const requestBiometricChallenge = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    const data = request.data;
+    requireAppCheck(request, "requestBiometricChallenge");
 
     const { deviceId } = data;
 
     if (!deviceId || typeof deviceId !== "string") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "deviceId is required."
       );
@@ -42,7 +45,7 @@ export const requestBiometricChallenge = functions.https.onCall(
       "biometric_challenge"
     );
     if (!rateLimitResult.allowed) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "resource-exhausted",
         rateLimitResult.message || "Too many attempts. Try again later."
       );
@@ -51,19 +54,19 @@ export const requestBiometricChallenge = functions.https.onCall(
     // Verify device exists, is trusted, and not revoked
     const deviceDoc = await db.collection("devices").doc(deviceId).get();
     if (!deviceDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Device not found.");
+      throw new HttpsError("not-found", "Device not found.");
     }
 
     const deviceData = deviceDoc.data()!;
     if (!deviceData.trusted || deviceData.revoked) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "Device is not trusted."
       );
     }
 
     if (!deviceData.userId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         "Device has no associated user."
       );
@@ -85,7 +88,7 @@ export const requestBiometricChallenge = functions.https.onCall(
       expiresAt,
     });
 
-    console.log(
+    logger.info(
       `Biometric challenge ${challengeRef.id} created for device ${deviceId}`
     );
 
@@ -109,14 +112,16 @@ export const requestBiometricChallenge = functions.https.onCall(
  * @param {string} deviceId - The registered device ID
  * @returns {{ customToken: string, userId: string }}
  */
-export const verifyBiometricChallenge = functions.https.onCall(
-  async (data, context) => {
-    requireAppCheck(context, "verifyBiometricChallenge");
+export const verifyBiometricChallenge = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    const data = request.data;
+    requireAppCheck(request, "verifyBiometricChallenge");
 
     const { challengeId, signedNonce, deviceId } = data;
 
     if (!challengeId || !signedNonce || !deviceId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "invalid-argument",
         "challengeId, signedNonce, and deviceId are required."
       );
@@ -128,7 +133,7 @@ export const verifyBiometricChallenge = functions.https.onCall(
       "biometric_verify"
     );
     if (!rateLimitResult.allowed) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "resource-exhausted",
         rateLimitResult.message || "Too many attempts. Try again later."
       );
@@ -141,7 +146,7 @@ export const verifyBiometricChallenge = functions.https.onCall(
     const challengeDoc = await challengeRef.get();
 
     if (!challengeDoc.exists) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "not-found",
         "Challenge not found."
       );
@@ -151,7 +156,7 @@ export const verifyBiometricChallenge = functions.https.onCall(
 
     // Verify challenge belongs to this device
     if (challengeData.deviceId !== deviceId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "Challenge does not belong to this device."
       );
@@ -159,7 +164,7 @@ export const verifyBiometricChallenge = functions.https.onCall(
 
     // Check challenge status
     if (challengeData.status !== "pending") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "failed-precondition",
         `Challenge is ${challengeData.status}, not pending.`
       );
@@ -169,7 +174,7 @@ export const verifyBiometricChallenge = functions.https.onCall(
     const expiresAt = challengeData.expiresAt?.toDate();
     if (!expiresAt || Date.now() > expiresAt.getTime()) {
       await challengeRef.update({ status: "expired" });
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "deadline-exceeded",
         "Challenge has expired."
       );
@@ -178,19 +183,19 @@ export const verifyBiometricChallenge = functions.https.onCall(
     // Get device and verify it's still trusted
     const deviceDoc = await db.collection("devices").doc(deviceId).get();
     if (!deviceDoc.exists) {
-      throw new functions.https.HttpsError("not-found", "Device not found.");
+      throw new HttpsError("not-found", "Device not found.");
     }
 
     const deviceData = deviceDoc.data()!;
     if (!deviceData.trusted || deviceData.revoked) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "Device is not trusted."
       );
     }
 
     if (deviceData.userId !== challengeData.userId) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         "permission-denied",
         "Device user mismatch."
       );
@@ -214,7 +219,7 @@ export const verifyBiometricChallenge = functions.https.onCall(
           status: "failed",
           respondedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
           "permission-denied",
           "Invalid signature."
         );
@@ -224,8 +229,8 @@ export const verifyBiometricChallenge = functions.https.onCall(
       if (err.code) {
         throw error; // Re-throw HttpsError
       }
-      console.error("Signature verification error:", error);
-      throw new functions.https.HttpsError(
+      logger.error("Signature verification error:", error);
+      throw new HttpsError(
         "internal",
         "Signature verification failed."
       );
@@ -251,9 +256,9 @@ export const verifyBiometricChallenge = functions.https.onCall(
     db.collection("users").doc(challengeData.userId).set(
       { lastLoginAt: admin.firestore.FieldValue.serverTimestamp() },
       { merge: true }
-    ).catch((err: unknown) => console.warn("Failed to stamp lastLoginAt:", err));
+    ).catch((err: unknown) => logger.warn("Failed to stamp lastLoginAt:", err));
 
-    console.log(
+    logger.info(
       `Biometric challenge ${challengeId} verified for device ${deviceId}, user ${challengeData.userId}`
     );
 

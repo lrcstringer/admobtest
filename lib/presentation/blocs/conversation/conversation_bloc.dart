@@ -54,6 +54,10 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     on<_AddReaction>(_onAddReaction);
     on<_RemoveReaction>(_onRemoveReaction);
 
+    // Message deletion
+    on<_DeleteMessageForEveryone>(_onDeleteMessageForEveryone);
+    on<_ClearChat>(_onClearChat);
+
     // Unread
     on<_UnreadCountUpdated>(_onUnreadCountUpdated);
 
@@ -124,9 +128,23 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     _ConversationsUpdated event,
     Emitter<ConversationState> emit,
   ) {
+    // Also refresh selectedConversation if it exists in the updated list,
+    // so detail screen picks up freshly-healed participant data (e.g. avatarUrl).
+    Conversation? refreshedSelected;
+    if (state.selectedConversation != null) {
+      try {
+        refreshedSelected = event.conversations.firstWhere(
+          (c) => c.id == state.selectedConversation!.id,
+        );
+      } catch (_) {
+        // Selected conversation no longer in the list; keep as-is
+      }
+    }
+
     emit(state.copyWith(
       status: ConversationStatus.loaded,
       conversations: event.conversations,
+      selectedConversation: refreshedSelected ?? state.selectedConversation,
     ));
   }
 
@@ -149,7 +167,11 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       (c) => c.id == event.id,
       orElse: () => state.conversations.first,
     );
-    emit(state.copyWith(selectedConversation: conversation, messages: []));
+    emit(state.copyWith(
+      selectedConversation: conversation,
+      messages: [],
+      hasLoadedMessages: false,
+    ));
 
     // Start watching messages for this conversation
     add(ConversationEvent.watchMessages(conversationId: event.id));
@@ -200,6 +222,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     result.fold(
       (failure) => emit(state.copyWith(
         isLoadingMessages: false,
+        hasLoadedMessages: true,
         errorMessage: failure.displayMessage,
       )),
       (messages) {
@@ -208,6 +231,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
             : messages;
         emit(state.copyWith(
           isLoadingMessages: false,
+          hasLoadedMessages: true,
           messages: allMessages,
           hasMoreMessages: messages.length >= (event.limit ?? 50),
         ));
@@ -236,7 +260,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     _MessagesUpdated event,
     Emitter<ConversationState> emit,
   ) {
-    emit(state.copyWith(messages: event.messages));
+    emit(state.copyWith(messages: event.messages, hasLoadedMessages: true));
   }
 
   Future<void> _onSendTextMessage(
@@ -408,6 +432,46 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
       (_) {},
+    );
+  }
+
+  // ===========================================================================
+  // MESSAGE DELETION HANDLERS
+  // ===========================================================================
+
+  Future<void> _onDeleteMessageForEveryone(
+    _DeleteMessageForEveryone event,
+    Emitter<ConversationState> emit,
+  ) async {
+    final result = await _conversationRepository.deleteMessageForEveryone(
+      conversationId: event.conversationId,
+      messageId: event.messageId,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
+      (_) {}, // watchMessages stream auto-updates the message list
+    );
+  }
+
+  Future<void> _onClearChat(
+    _ClearChat event,
+    Emitter<ConversationState> emit,
+  ) async {
+    emit(state.copyWith(isClearingChat: true));
+
+    final result = await _conversationRepository.clearChat(
+      conversationId: event.conversationId,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isClearingChat: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isClearingChat: false,
+        messages: [], // Clear local messages immediately
+      )),
     );
   }
 

@@ -659,7 +659,7 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
   Future<void> _updateCampaignStatus(
       String campaignId, String newStatus) async {
     try {
-      final fn = FirebaseFunctions.instance.httpsCallable(
+      final fn = FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable(
         'updateRewardCampaign',
       );
       await fn.call({
@@ -1034,7 +1034,7 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
           : {'enabled': false, 'variants': <Map<String, dynamic>>[]};
 
       if (_isEditing) {
-        final fn = FirebaseFunctions.instance.httpsCallable(
+        final fn = FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable(
           'updateRewardCampaign',
         );
         await fn.call({
@@ -1056,7 +1056,7 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
           },
         });
       } else {
-        final fn = FirebaseFunctions.instance.httpsCallable(
+        final fn = FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable(
           'createRewardCampaign',
         );
         await fn.call({
@@ -1505,7 +1505,7 @@ class _ImportCodesDialogState extends State<_ImportCodesDialog> {
       _completedBatches = 0;
 
       final fn =
-          FirebaseFunctions.instance.httpsCallable('importRewardItems');
+          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('importRewardItems');
 
       for (final batch in batches) {
         await fn.call({

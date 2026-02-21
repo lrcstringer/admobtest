@@ -12,7 +12,8 @@
  */
 
 import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
+import { onCall, onRequest, HttpsError } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 import { createClientAccount, getClientAccount, unfreezeAccount } from "../ledger/accounts";
 import { AccountId } from "../ledger/types";
 
@@ -73,14 +74,14 @@ async function createClient(): Promise<void> {
   const clientDoc = await clientRef.get();
 
   if (clientDoc.exists && clientDoc.data()?.isDeleted !== true) {
-    console.log("Client already exists:", ADMOB_CONFIG.CLIENT_ID);
+    logger.info("Client already exists:", ADMOB_CONFIG.CLIENT_ID);
     return;
   }
 
   // Create or reactivate ledger account
   const existingLedger = await getClientAccount(ADMOB_CONFIG.CLIENT_ID);
   if (existingLedger && existingLedger.status !== "active") {
-    console.log("Reactivating closed ledger account...");
+    logger.info("Reactivating closed ledger account...");
     await unfreezeAccount(
       AccountId.client(ADMOB_CONFIG.CLIENT_ID),
       "Platform setup: recreating client",
@@ -122,7 +123,7 @@ async function createClient(): Promise<void> {
     createdBy: "platform_setup",
   });
 
-  console.log("Created client:", ADMOB_CONFIG.CLIENT_ID);
+  logger.info("Created client:", ADMOB_CONFIG.CLIENT_ID);
 }
 
 async function createDefaultSubAccount(): Promise<void> {
@@ -135,7 +136,7 @@ async function createDefaultSubAccount(): Promise<void> {
   const subAccountDoc = await subAccountRef.get();
 
   if (subAccountDoc.exists && subAccountDoc.data()?.isDeleted !== true) {
-    console.log("Default sub-account already exists");
+    logger.info("Default sub-account already exists");
     return;
   }
 
@@ -152,7 +153,7 @@ async function createDefaultSubAccount(): Promise<void> {
     createdBy: "platform_setup",
   });
 
-  console.log("Created default sub-account:", ADMOB_CONFIG.SUB_ACCOUNT_ID);
+  logger.info("Created default sub-account:", ADMOB_CONFIG.SUB_ACCOUNT_ID);
 }
 
 async function createThread(): Promise<void> {
@@ -160,7 +161,7 @@ async function createThread(): Promise<void> {
   const threadDoc = await threadRef.get();
 
   if (threadDoc.exists && threadDoc.data()?.isDeleted !== true) {
-    console.log("Thread already exists:", ADMOB_CONFIG.THREAD_ID);
+    logger.info("Thread already exists:", ADMOB_CONFIG.THREAD_ID);
     return;
   }
 
@@ -185,7 +186,7 @@ async function createThread(): Promise<void> {
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  console.log("Created thread:", ADMOB_CONFIG.THREAD_ID);
+  logger.info("Created thread:", ADMOB_CONFIG.THREAD_ID);
 }
 
 async function createAdMobOpportunity(): Promise<void> {
@@ -195,7 +196,7 @@ async function createAdMobOpportunity(): Promise<void> {
   const opportunityDoc = await opportunityRef.get();
 
   if (opportunityDoc.exists && opportunityDoc.data()?.isDeleted !== true) {
-    console.log("AdMob opportunity already exists:", ADMOB_CONFIG.OPPORTUNITY_ID);
+    logger.info("AdMob opportunity already exists:", ADMOB_CONFIG.OPPORTUNITY_ID);
     return;
   }
 
@@ -222,46 +223,46 @@ async function createAdMobOpportunity(): Promise<void> {
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  console.log("Created AdMob opportunity:", ADMOB_CONFIG.OPPORTUNITY_ID);
+  logger.info("Created AdMob opportunity:", ADMOB_CONFIG.OPPORTUNITY_ID);
 }
 
 async function runMigration(): Promise<void> {
-  console.log("Starting IMaliChat platform setup...\n");
+  logger.info("Starting IMaliChat platform setup...\n");
 
   try {
     // Step 0: Ensure Trust Ledger system accounts exist (treasury, pots, etc.)
-    console.log("Step 0: Initializing Trust Ledger system accounts...");
+    logger.info("Step 0: Initializing Trust Ledger system accounts...");
     const { initializeLedger } = await import("../ledger");
     await initializeLedger();
 
     // Step 1: Create client with proper ledger account
-    console.log("Step 1: Creating IMaliChat client...");
+    logger.info("Step 1: Creating IMaliChat client...");
     await createClient();
 
     // Step 2: Create default sub-account for budget tracking
-    console.log("\nStep 2: Creating default sub-account...");
+    logger.info("\nStep 2: Creating default sub-account...");
     await createDefaultSubAccount();
 
     // Step 3: Create Watch & Earn thread
-    console.log("\nStep 3: Creating Watch & Earn thread...");
+    logger.info("\nStep 3: Creating Watch & Earn thread...");
     await createThread();
 
     // Step 4: Create AdMob opportunity
-    console.log("\nStep 4: Creating AdMob opportunity...");
+    logger.info("\nStep 4: Creating AdMob opportunity...");
     await createAdMobOpportunity();
 
-    console.log("\n✅ Platform setup completed successfully!");
-    console.log("\nSummary:");
-    console.log(`  - Client ID: ${ADMOB_CONFIG.CLIENT_ID}`);
-    console.log(`  - Sub-Account: ${ADMOB_CONFIG.SUB_ACCOUNT_ID}`);
-    console.log(`  - Thread ID: ${ADMOB_CONFIG.THREAD_ID}`);
-    console.log(`  - Opportunity ID: ${ADMOB_CONFIG.OPPORTUNITY_ID}`);
-    console.log(`  - Token Reward: ${ADMOB_CONFIG.TOKEN_REWARD}`);
-    console.log(`  - Daily Limit: ${ADMOB_CONFIG.DAILY_LIMIT_PER_USER}`);
-    console.log(`  - Ad Unit ID: ${ADMOB_CONFIG.AD_UNIT_ID}`);
-    console.log("\n⚠️  Remember to fund the IMaliChat client sub-account via Clients → Fund!");
+    logger.info("\n✅ Platform setup completed successfully!");
+    logger.info("\nSummary:");
+    logger.info(`  - Client ID: ${ADMOB_CONFIG.CLIENT_ID}`);
+    logger.info(`  - Sub-Account: ${ADMOB_CONFIG.SUB_ACCOUNT_ID}`);
+    logger.info(`  - Thread ID: ${ADMOB_CONFIG.THREAD_ID}`);
+    logger.info(`  - Opportunity ID: ${ADMOB_CONFIG.OPPORTUNITY_ID}`);
+    logger.info(`  - Token Reward: ${ADMOB_CONFIG.TOKEN_REWARD}`);
+    logger.info(`  - Daily Limit: ${ADMOB_CONFIG.DAILY_LIMIT_PER_USER}`);
+    logger.info(`  - Ad Unit ID: ${ADMOB_CONFIG.AD_UNIT_ID}`);
+    logger.info("\n⚠️  Remember to fund the IMaliChat client sub-account via Clients → Fund!");
   } catch (error) {
-    console.error("\n❌ Platform setup failed:", error);
+    logger.error("\n❌ Platform setup failed:", error);
     throw error;
   }
 }
@@ -277,7 +278,7 @@ async function updateAdMobQuestion(): Promise<void> {
   const opportunityDoc = await opportunityRef.get();
 
   if (!opportunityDoc.exists) {
-    console.log("AdMob opportunity does not exist — run the full setup first");
+    logger.info("AdMob opportunity does not exist — run the full setup first");
     return;
   }
 
@@ -286,14 +287,14 @@ async function updateAdMobQuestion(): Promise<void> {
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  console.log("Updated questions on:", ADMOB_CONFIG.OPPORTUNITY_ID);
+  logger.info("Updated questions on:", ADMOB_CONFIG.OPPORTUNITY_ID);
 }
 
 /**
  * HTTP endpoint to update the AdMob opportunity question (one-shot).
  * POST /updateAdMobQuestion with admin Bearer token.
  */
-export const runUpdateAdMobQuestion = functions.https.onRequest(async (req, res) => {
+export const runUpdateAdMobQuestion = onRequest({ labels: { area: "migrations" } }, async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer ")) {
     res.status(401).json({error: "Missing authorization header"});
@@ -321,7 +322,7 @@ export const runUpdateAdMobQuestion = functions.https.onRequest(async (req, res)
       question: SAMPLE_QUESTION,
     });
   } catch (error) {
-    console.error("Question update failed:", error);
+    logger.error("Question update failed:", error);
     res.status(500).json({success: false, error: String(error)});
   }
 });
@@ -330,13 +331,13 @@ export const runUpdateAdMobQuestion = functions.https.onRequest(async (req, res)
  * Callable function for Admin Portal to run platform setup.
  * Requires admin custom claim.
  */
-export const adminRunPlatformSetup = functions.https.onCall(async (_data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "Must be authenticated");
+export const adminRunPlatformSetup = onCall({ labels: { area: "migrations" } }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Must be authenticated");
   }
-  const token = context.auth.token;
+  const token = request.auth.token;
   if (!token.admin && !token.superAdmin) {
-    throw new functions.https.HttpsError("permission-denied", "Admin access required");
+    throw new HttpsError("permission-denied", "Admin access required");
   }
 
   await runMigration();
@@ -360,7 +361,7 @@ export const adminRunPlatformSetup = functions.https.onCall(async (_data, contex
  * HTTP endpoint to run the IMaliChat platform setup.
  * Requires admin authentication.
  */
-export const runAdMobSystemMigration = functions.https.onRequest(async (req, res) => {
+export const runAdMobSystemMigration = onRequest({ labels: { area: "migrations" } }, async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer ")) {
     res.status(401).json({ error: "Missing authorization header" });
@@ -396,7 +397,7 @@ export const runAdMobSystemMigration = functions.https.onRequest(async (req, res
       },
     });
   } catch (error) {
-    console.error("Platform setup failed:", error);
+    logger.error("Platform setup failed:", error);
     res.status(500).json({
       success: false,
       error: String(error),

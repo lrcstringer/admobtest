@@ -130,6 +130,19 @@ abstract class ConversationRepository {
   Future<Either<Failure, void>> archiveConversation(String conversationId);
 
   // =========================================================================
+  // MESSAGE DELETION
+  // =========================================================================
+
+  /// Delete a single message for everyone (soft-delete + media cleanup)
+  Future<Either<Failure, void>> deleteMessageForEveryone({
+    required String conversationId,
+    required String messageId,
+  });
+
+  /// Clear all messages from a conversation for the current user only
+  Future<Either<Failure, void>> clearChat({required String conversationId});
+
+  // =========================================================================
   // REACTIONS
   // =========================================================================
 
