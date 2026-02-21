@@ -163,10 +163,17 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     _SelectConversation event,
     Emitter<ConversationState> emit,
   ) async {
-    final conversation = state.conversations.firstWhere(
-      (c) => c.id == event.id,
-      orElse: () => state.conversations.first,
-    );
+    Conversation? conversation;
+    try {
+      conversation = state.conversations.firstWhere(
+        (c) => c.id == event.id,
+      );
+    } catch (_) {
+      // Conversation not in list yet — ignore silently
+    }
+
+    if (conversation == null) return;
+
     emit(state.copyWith(
       selectedConversation: conversation,
       messages: [],
@@ -518,10 +525,15 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     Emitter<ConversationState> emit,
   ) async {
     // Find the failed message in current messages list
-    final failedMessage = state.messages.firstWhere(
-      (m) => m.id == event.messageId,
-      orElse: () => state.messages.first,
-    );
+    Message? failedMessage;
+    try {
+      failedMessage = state.messages.firstWhere(
+        (m) => m.id == event.messageId,
+      );
+    } catch (_) {
+      // Message not found — nothing to retry
+      return;
+    }
 
     // Re-send based on message type
     if (failedMessage.hasMedia && failedMessage.media != null) {

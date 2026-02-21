@@ -120,10 +120,17 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     Conversation conv,
     String currentUserId,
   ) {
+    const double size = 36;
+    const double radius = 4;
     final other = conv.getOtherParticipant(currentUserId);
-    final initialsWidget = CircleAvatar(
-      radius: 18,
-      backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+    final initialsWidget = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(radius),
+      ),
+      alignment: Alignment.center,
       child: Text(
         conv.displayInitialsFor(currentUserId),
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -136,9 +143,13 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     if (other.avatarUrl != null && other.avatarUrl!.isNotEmpty) {
       return CachedNetworkImage(
         imageUrl: other.avatarUrl!,
-        imageBuilder: (_, imageProvider) => CircleAvatar(
-          radius: 18,
-          backgroundImage: imageProvider,
+        imageBuilder: (_, imageProvider) => Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(radius),
+            image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+          ),
         ),
         placeholder: (_, __) => initialsWidget,
         errorWidget: (_, __, ___) => initialsWidget,

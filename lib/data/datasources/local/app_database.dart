@@ -151,6 +151,17 @@ class LocalSyncMetadata extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+/// Persistent cache of decrypted E2EE message plaintext.
+/// Prevents "Encrypted message" / "Cannot decrypt" after app restart.
+class DecryptedMessageCache extends Table {
+  TextColumn get messageId => text()();
+  TextColumn get plaintext => text()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {messageId};
+}
+
 // ============ DATABASE CLASS ============
 
 @lazySingleton
@@ -163,6 +174,7 @@ class LocalSyncMetadata extends Table {
   LocalContacts,
   LocalPendingChanges,
   LocalSyncMetadata,
+  DecryptedMessageCache,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -171,7 +183,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -180,7 +192,9 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
       },
       onUpgrade: (Migrator m, int from, int to) async {
-        // Handle future migrations
+        if (from < 2) {
+          await m.createTable(decryptedMessageCache);
+        }
       },
     );
   }
@@ -432,6 +446,29 @@ class AppDatabase extends _$AppDatabase {
         .go();
   }
 
+  // ============ DECRYPTED MESSAGE CACHE ============
+
+  Future<String?> getDecryptedPlaintext(String messageId) async {
+    final result = await (select(decryptedMessageCache)
+          ..where((m) => m.messageId.equals(messageId)))
+        .getSingleOrNull();
+    return result?.plaintext;
+  }
+
+  Future<void> cacheDecryptedPlaintext(String messageId, String plaintext) {
+    return into(decryptedMessageCache).insertOnConflictUpdate(
+      DecryptedMessageCacheCompanion.insert(
+        messageId: messageId,
+        plaintext: plaintext,
+        createdAt: DateTime.now(),
+      ),
+    );
+  }
+
+  Future<void> clearDecryptedMessages() {
+    return delete(decryptedMessageCache).go();
+  }
+
   // ============ CLEAR ALL DATA ============
 
   Future<void> clearAllData() async {
@@ -443,6 +480,7 @@ class AppDatabase extends _$AppDatabase {
     await delete(localContacts).go();
     await delete(localPendingChanges).go();
     await delete(localSyncMetadata).go();
+    await clearDecryptedMessages();
   }
 
   Future<void> clearUserData(String userId) async {
@@ -451,6 +489,7 @@ class AppDatabase extends _$AppDatabase {
     await deleteEarnThreads(userId);
     await deleteChatThreads(userId);
     await deleteContacts(userId);
+    await clearDecryptedMessages();
   }
 }
 

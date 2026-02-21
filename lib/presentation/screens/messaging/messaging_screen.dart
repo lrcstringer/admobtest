@@ -241,9 +241,15 @@ class _MessagingScreenState extends State<MessagingScreen> {
             .read<CommunityBloc>()
             .add(const CommunityEvent.loadUserCommunities());
       },
-      child: ListView.builder(
+      child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
         itemCount: items.length,
+        separatorBuilder: (context, index) => Divider(
+          height: 0.5,
+          thickness: 0.5,
+          color: AppColors.border.withValues(alpha: 0.3),
+          indent: 76, // aligns with text start (avatar + padding)
+        ),
         itemBuilder: (context, index) => items[index],
       ),
     );

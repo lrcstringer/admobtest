@@ -217,6 +217,8 @@ class MessageModel with _$MessageModel {
         return MessageStatus.sending;
       case 'sent':
         return MessageStatus.sent;
+      case 'pending':
+        return MessageStatus.pending;
       case 'failed':
         return MessageStatus.failed;
       case 'paid':

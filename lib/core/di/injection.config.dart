@@ -314,18 +314,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i206.RewardBloc>(
       () => _i206.RewardBloc(gh<_i191.RewardRepository>()),
     );
-    gh.lazySingleton<_i973.ConversationRepository>(
-      () => _i161.ConversationRepositoryImpl(
-        gh<_i425.ConversationRemoteDataSource>(),
-        gh<_i161.SignalProtocolService>(),
-      ),
-    );
     gh.lazySingleton<_i9.ReferralRemoteDataSource>(
       () => _i9.ReferralRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
         gh<_i351.PlayIntegrityService>(),
+      ),
+    );
+    gh.lazySingleton<_i973.ConversationRepository>(
+      () => _i161.ConversationRepositoryImpl(
+        gh<_i425.ConversationRemoteDataSource>(),
+        gh<_i161.SignalProtocolService>(),
+        gh<_i483.AppDatabase>(),
       ),
     );
     gh.lazySingleton<_i693.DeviceBindingService>(

@@ -6,6 +6,9 @@ enum MessageStatus {
   /// Message delivered to server
   sent,
 
+  /// Token request awaiting recipient action
+  pending,
+
   /// Message failed to send
   failed,
 

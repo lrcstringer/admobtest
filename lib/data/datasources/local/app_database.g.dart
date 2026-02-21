@@ -5228,6 +5228,282 @@ class LocalSyncMetadataCompanion
   }
 }
 
+class $DecryptedMessageCacheTable extends DecryptedMessageCache
+    with TableInfo<$DecryptedMessageCacheTable, DecryptedMessageCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DecryptedMessageCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _messageIdMeta = const VerificationMeta(
+    'messageId',
+  );
+  @override
+  late final GeneratedColumn<String> messageId = GeneratedColumn<String>(
+    'message_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _plaintextMeta = const VerificationMeta(
+    'plaintext',
+  );
+  @override
+  late final GeneratedColumn<String> plaintext = GeneratedColumn<String>(
+    'plaintext',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [messageId, plaintext, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'decrypted_message_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DecryptedMessageCacheData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('message_id')) {
+      context.handle(
+        _messageIdMeta,
+        messageId.isAcceptableOrUnknown(data['message_id']!, _messageIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_messageIdMeta);
+    }
+    if (data.containsKey('plaintext')) {
+      context.handle(
+        _plaintextMeta,
+        plaintext.isAcceptableOrUnknown(data['plaintext']!, _plaintextMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_plaintextMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {messageId};
+  @override
+  DecryptedMessageCacheData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DecryptedMessageCacheData(
+      messageId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}message_id'],
+      )!,
+      plaintext: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}plaintext'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $DecryptedMessageCacheTable createAlias(String alias) {
+    return $DecryptedMessageCacheTable(attachedDatabase, alias);
+  }
+}
+
+class DecryptedMessageCacheData extends DataClass
+    implements Insertable<DecryptedMessageCacheData> {
+  final String messageId;
+  final String plaintext;
+  final DateTime createdAt;
+  const DecryptedMessageCacheData({
+    required this.messageId,
+    required this.plaintext,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['message_id'] = Variable<String>(messageId);
+    map['plaintext'] = Variable<String>(plaintext);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  DecryptedMessageCacheCompanion toCompanion(bool nullToAbsent) {
+    return DecryptedMessageCacheCompanion(
+      messageId: Value(messageId),
+      plaintext: Value(plaintext),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory DecryptedMessageCacheData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DecryptedMessageCacheData(
+      messageId: serializer.fromJson<String>(json['messageId']),
+      plaintext: serializer.fromJson<String>(json['plaintext']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'messageId': serializer.toJson<String>(messageId),
+      'plaintext': serializer.toJson<String>(plaintext),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  DecryptedMessageCacheData copyWith({
+    String? messageId,
+    String? plaintext,
+    DateTime? createdAt,
+  }) => DecryptedMessageCacheData(
+    messageId: messageId ?? this.messageId,
+    plaintext: plaintext ?? this.plaintext,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  DecryptedMessageCacheData copyWithCompanion(
+    DecryptedMessageCacheCompanion data,
+  ) {
+    return DecryptedMessageCacheData(
+      messageId: data.messageId.present ? data.messageId.value : this.messageId,
+      plaintext: data.plaintext.present ? data.plaintext.value : this.plaintext,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DecryptedMessageCacheData(')
+          ..write('messageId: $messageId, ')
+          ..write('plaintext: $plaintext, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(messageId, plaintext, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DecryptedMessageCacheData &&
+          other.messageId == this.messageId &&
+          other.plaintext == this.plaintext &&
+          other.createdAt == this.createdAt);
+}
+
+class DecryptedMessageCacheCompanion
+    extends UpdateCompanion<DecryptedMessageCacheData> {
+  final Value<String> messageId;
+  final Value<String> plaintext;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const DecryptedMessageCacheCompanion({
+    this.messageId = const Value.absent(),
+    this.plaintext = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DecryptedMessageCacheCompanion.insert({
+    required String messageId,
+    required String plaintext,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : messageId = Value(messageId),
+       plaintext = Value(plaintext),
+       createdAt = Value(createdAt);
+  static Insertable<DecryptedMessageCacheData> custom({
+    Expression<String>? messageId,
+    Expression<String>? plaintext,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (messageId != null) 'message_id': messageId,
+      if (plaintext != null) 'plaintext': plaintext,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DecryptedMessageCacheCompanion copyWith({
+    Value<String>? messageId,
+    Value<String>? plaintext,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return DecryptedMessageCacheCompanion(
+      messageId: messageId ?? this.messageId,
+      plaintext: plaintext ?? this.plaintext,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (messageId.present) {
+      map['message_id'] = Variable<String>(messageId.value);
+    }
+    if (plaintext.present) {
+      map['plaintext'] = Variable<String>(plaintext.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DecryptedMessageCacheCompanion(')
+          ..write('messageId: $messageId, ')
+          ..write('plaintext: $plaintext, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5247,6 +5523,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $LocalPendingChangesTable(this);
   late final $LocalSyncMetadataTable localSyncMetadata =
       $LocalSyncMetadataTable(this);
+  late final $DecryptedMessageCacheTable decryptedMessageCache =
+      $DecryptedMessageCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5260,6 +5538,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     localContacts,
     localPendingChanges,
     localSyncMetadata,
+    decryptedMessageCache,
   ];
 }
 
@@ -7841,6 +8120,187 @@ typedef $$LocalSyncMetadataTableProcessedTableManager =
       LocalSyncMetadataData,
       PrefetchHooks Function()
     >;
+typedef $$DecryptedMessageCacheTableCreateCompanionBuilder =
+    DecryptedMessageCacheCompanion Function({
+      required String messageId,
+      required String plaintext,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$DecryptedMessageCacheTableUpdateCompanionBuilder =
+    DecryptedMessageCacheCompanion Function({
+      Value<String> messageId,
+      Value<String> plaintext,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$DecryptedMessageCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $DecryptedMessageCacheTable> {
+  $$DecryptedMessageCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get messageId => $composableBuilder(
+    column: $table.messageId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get plaintext => $composableBuilder(
+    column: $table.plaintext,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DecryptedMessageCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $DecryptedMessageCacheTable> {
+  $$DecryptedMessageCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get messageId => $composableBuilder(
+    column: $table.messageId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get plaintext => $composableBuilder(
+    column: $table.plaintext,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DecryptedMessageCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DecryptedMessageCacheTable> {
+  $$DecryptedMessageCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get messageId =>
+      $composableBuilder(column: $table.messageId, builder: (column) => column);
+
+  GeneratedColumn<String> get plaintext =>
+      $composableBuilder(column: $table.plaintext, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$DecryptedMessageCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DecryptedMessageCacheTable,
+          DecryptedMessageCacheData,
+          $$DecryptedMessageCacheTableFilterComposer,
+          $$DecryptedMessageCacheTableOrderingComposer,
+          $$DecryptedMessageCacheTableAnnotationComposer,
+          $$DecryptedMessageCacheTableCreateCompanionBuilder,
+          $$DecryptedMessageCacheTableUpdateCompanionBuilder,
+          (
+            DecryptedMessageCacheData,
+            BaseReferences<
+              _$AppDatabase,
+              $DecryptedMessageCacheTable,
+              DecryptedMessageCacheData
+            >,
+          ),
+          DecryptedMessageCacheData,
+          PrefetchHooks Function()
+        > {
+  $$DecryptedMessageCacheTableTableManager(
+    _$AppDatabase db,
+    $DecryptedMessageCacheTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DecryptedMessageCacheTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$DecryptedMessageCacheTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$DecryptedMessageCacheTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> messageId = const Value.absent(),
+                Value<String> plaintext = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DecryptedMessageCacheCompanion(
+                messageId: messageId,
+                plaintext: plaintext,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String messageId,
+                required String plaintext,
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => DecryptedMessageCacheCompanion.insert(
+                messageId: messageId,
+                plaintext: plaintext,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DecryptedMessageCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DecryptedMessageCacheTable,
+      DecryptedMessageCacheData,
+      $$DecryptedMessageCacheTableFilterComposer,
+      $$DecryptedMessageCacheTableOrderingComposer,
+      $$DecryptedMessageCacheTableAnnotationComposer,
+      $$DecryptedMessageCacheTableCreateCompanionBuilder,
+      $$DecryptedMessageCacheTableUpdateCompanionBuilder,
+      (
+        DecryptedMessageCacheData,
+        BaseReferences<
+          _$AppDatabase,
+          $DecryptedMessageCacheTable,
+          DecryptedMessageCacheData
+        >,
+      ),
+      DecryptedMessageCacheData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7861,4 +8321,6 @@ class $AppDatabaseManager {
       $$LocalPendingChangesTableTableManager(_db, _db.localPendingChanges);
   $$LocalSyncMetadataTableTableManager get localSyncMetadata =>
       $$LocalSyncMetadataTableTableManager(_db, _db.localSyncMetadata);
+  $$DecryptedMessageCacheTableTableManager get decryptedMessageCache =>
+      $$DecryptedMessageCacheTableTableManager(_db, _db.decryptedMessageCache);
 }

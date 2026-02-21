@@ -11,14 +11,16 @@ import '../../domain/enums/message_status.dart';
 import '../../domain/enums/message_type.dart';
 import '../../domain/repositories/conversation_repository.dart';
 import '../../domain/value_objects/user_search_result.dart';
+import '../datasources/local/app_database.dart';
 import '../datasources/remote/conversation_remote_datasource.dart';
 
 @LazySingleton(as: ConversationRepository)
 class ConversationRepositoryImpl implements ConversationRepository {
   final ConversationRemoteDataSource _remoteDataSource;
   final SignalProtocolService _signalProtocolService;
+  final AppDatabase _appDatabase;
 
-  ConversationRepositoryImpl(this._remoteDataSource, this._signalProtocolService);
+  ConversationRepositoryImpl(this._remoteDataSource, this._signalProtocolService, this._appDatabase);
 
   /// Cache of sent encrypted messages: messageId → plaintext.
   /// Allows the sender to see their own E2EE messages without decryption
@@ -210,6 +212,8 @@ class ConversationRepositoryImpl implements ConversationRepository {
               );
               // Cache plaintext so sender can view their own E2EE message
               _sentPlaintextCache[messageId] = text;
+              // Persist to encrypted DB so it survives app restart
+              _appDatabase.cacheDecryptedPlaintext(messageId, text);
               // Return optimistic message with original text for immediate UI
               return Right(Message(
                 id: messageId,
@@ -576,9 +580,13 @@ class ConversationRepositoryImpl implements ConversationRepository {
       if (cached != null) {
         return msg.copyWith(textContent: cached);
       }
-      // Message was sent in a previous app session — plaintext is no longer
-      // available locally. Return as-is; the UI will show the encrypted
-      // indicator via the lock icon (isEncrypted == true, textContent == null).
+      // Fallback: check persistent DB (survives app restart)
+      final dbCached = await _appDatabase.getDecryptedPlaintext(msg.id);
+      if (dbCached != null) {
+        _sentPlaintextCache[msg.id] = dbCached; // re-hydrate in-memory
+        return msg.copyWith(textContent: dbCached);
+      }
+      // No cached plaintext available — UI shows lock icon
       return msg;
     }
 
@@ -586,6 +594,12 @@ class ConversationRepositoryImpl implements ConversationRepository {
     final cachedReceived = _receivedPlaintextCache[msg.id];
     if (cachedReceived != null) {
       return msg.copyWith(textContent: cachedReceived);
+    }
+    // Fallback: check persistent DB (survives app restart)
+    final dbCachedReceived = await _appDatabase.getDecryptedPlaintext(msg.id);
+    if (dbCachedReceived != null) {
+      _receivedPlaintextCache[msg.id] = dbCachedReceived; // re-hydrate in-memory
+      return msg.copyWith(textContent: dbCachedReceived);
     }
 
     // Decrypt incoming message from the other participant
@@ -613,9 +627,20 @@ class ConversationRepositoryImpl implements ConversationRepository {
         encryptedMap,
       );
       _receivedPlaintextCache[msg.id] = plaintext;
+      // Persist to encrypted DB so it survives app restart
+      _appDatabase.cacheDecryptedPlaintext(msg.id, plaintext);
       return msg.copyWith(textContent: plaintext);
     } catch (e) {
+      final isAlreadyConsumed = e.toString().contains('already consumed');
       debugPrint('E2EE decrypt failed for msg ${msg.id}: $e');
+
+      if (!isAlreadyConsumed) {
+        // Session is corrupted — reset it so the next outgoing message
+        // triggers a fresh X3DH key exchange.
+        debugPrint('E2EE: Resetting corrupted session with ${msg.senderId}');
+        await _signalProtocolService.resetSession(msg.senderId);
+      }
+
       return msg.copyWith(textContent: '[Cannot decrypt]');
     }
   }

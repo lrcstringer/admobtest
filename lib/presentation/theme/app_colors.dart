@@ -185,8 +185,9 @@ class AppColors {
   // ============ CHAT COLORS ============
   // WeChat-style bright bubbles on dark background
   static const Color chatBubbleSent = Color(0xFF95EC69); // WeChat green
-  static const Color chatBubbleReceived = Color(0xFFFFFFFF); // White
-  static const Color chatBubbleText = Color(0xFF000000); // Black text on bubbles
+  static const Color chatBubbleReceived = Color(0xFF3A3A3C); // Mid grey
+  static const Color chatBubbleText = Color(0xFF000000); // Black text on sent bubbles
+  static const Color chatBubbleReceivedText = Color(0xFFFFFFFF); // White text on received bubbles
   static const Color chatBubbleTimestamp = Color(0xFF666666); // Grey timestamp on bubbles
   static const Color chatInputBackground = Color(0xFF13161D);
   static const Color chatTimestamp = Color(0xFF5C6E7F);

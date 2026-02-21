@@ -7,6 +7,7 @@ import 'package:imalichat/data/models/message_model.dart';
 import 'package:imalichat/data/datasources/remote/conversation_remote_datasource.dart';
 import 'package:imalichat/data/repositories/conversation_repository_impl.dart';
 import 'package:imalichat/domain/enums/message_status.dart';
+import 'package:imalichat/data/datasources/local/app_database.dart';
 import 'package:imalichat/domain/enums/message_type.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -16,6 +17,8 @@ import '../../helpers/e2ee_test_helpers.dart';
 
 class MockConversationRemoteDataSource extends Mock
     implements ConversationRemoteDataSource {}
+
+class MockAppDatabase extends Mock implements AppDatabase {}
 
 // ==================== TEST FIXTURES ====================
 
@@ -110,12 +113,19 @@ MessageModel _createEncryptedModelWithX3dh({
 void main() {
   late MockConversationRemoteDataSource mockDataSource;
   late MockSignalProtocolService mockSignalProtocol;
+  late MockAppDatabase mockAppDatabase;
   late ConversationRepositoryImpl repository;
 
   setUp(() {
     mockDataSource = MockConversationRemoteDataSource();
     mockSignalProtocol = MockSignalProtocolService();
-    repository = ConversationRepositoryImpl(mockDataSource, mockSignalProtocol);
+    mockAppDatabase = MockAppDatabase();
+    // Stub fire-and-forget DB cache calls used by the repository
+    when(() => mockAppDatabase.cacheDecryptedPlaintext(any(), any()))
+        .thenAnswer((_) async {});
+    when(() => mockAppDatabase.getDecryptedPlaintext(any()))
+        .thenAnswer((_) async => null);
+    repository = ConversationRepositoryImpl(mockDataSource, mockSignalProtocol, mockAppDatabase);
   });
 
   // ===========================================================================

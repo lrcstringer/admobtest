@@ -240,10 +240,15 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
       .get();
     if (replyDoc.exists) {
       const replyData = replyDoc.data()!;
+      const replyText = replyData.textContent
+        ? truncate(replyData.textContent, 50)
+        : replyData.ciphertext
+          ? "Encrypted message"
+          : "[Media]";
       replyTo = {
         messageId: replyToMessageId,
         senderName: replyData.senderName || "Unknown",
-        text: truncate(replyData.textContent || "[Media]", 50),
+        text: replyText,
         type: replyData.type || "text",
       };
     }

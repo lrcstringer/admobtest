@@ -116,11 +116,18 @@ class CommunityListTile extends StatelessWidget {
   }
 
   Widget _buildAvatar(BuildContext context) {
+    const double size = 48;
+    const double radius = 6;
     final color = community.isStokvel ? AppColors.secondary : AppColors.primary;
 
-    final initialsWidget = CircleAvatar(
-      radius: 24,
-      backgroundColor: color.withValues(alpha: 0.2),
+    final initialsWidget = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(radius),
+      ),
+      alignment: Alignment.center,
       child: Text(
         community.displayInitials,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -136,9 +143,13 @@ class CommunityListTile extends StatelessWidget {
         if (community.avatarUrl != null && community.avatarUrl!.isNotEmpty)
           CachedNetworkImage(
             imageUrl: community.avatarUrl!,
-            imageBuilder: (_, imageProvider) => CircleAvatar(
-              radius: 24,
-              backgroundImage: imageProvider,
+            imageBuilder: (_, imageProvider) => Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(radius),
+                image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+              ),
             ),
             placeholder: (_, __) => initialsWidget,
             errorWidget: (_, __, ___) => initialsWidget,

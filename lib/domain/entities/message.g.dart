@@ -263,6 +263,7 @@ const _$MessageTypeEnumMap = {
 const _$MessageStatusEnumMap = {
   MessageStatus.sending: 'sending',
   MessageStatus.sent: 'sent',
+  MessageStatus.pending: 'pending',
   MessageStatus.failed: 'failed',
   MessageStatus.paid: 'paid',
   MessageStatus.declined: 'declined',

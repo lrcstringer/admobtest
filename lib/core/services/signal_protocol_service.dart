@@ -218,8 +218,12 @@ class SignalProtocolService {
 
     var session = await _loadSession(senderUserId);
 
-    // If X3DH header present and no session exists — receiver-side X3DH
-    if (x3dhHeader != null && session == null) {
+    // If X3DH header present and no session exists (or only an initiator
+    // session from a simultaneous key exchange) — perform receiver-side X3DH.
+    // The isInitiator guard handles the race condition where both users call
+    // establishSession() simultaneously: the receiver X3DH takes precedence
+    // because the incoming message was encrypted under those keys.
+    if (x3dhHeader != null && (session == null || session.isInitiator)) {
       session = await _performReceiverX3DH(senderUserId, x3dhHeader, peerDhPublic);
     }
 
@@ -279,6 +283,16 @@ class SignalProtocolService {
       session.rootKey = Uint8List.fromList(derived2.sublist(0, 32));
       session.sendChainKey = Uint8List.fromList(derived2.sublist(32, 64));
       session.sendMessageNumber = 0;
+    }
+
+    // Guard: if message number is behind the current chain position AND
+    // not found in skipped keys, the message was already decrypted in a
+    // previous session. Re-decrypting would corrupt the chain — bail out.
+    if (messageNumber < session.recvMessageNumber) {
+      throw StateError(
+        'E2EE: message #$messageNumber already consumed '
+        '(chain at #${session.recvMessageNumber}) — cannot re-decrypt',
+      );
     }
 
     // Skip to target message number in recv chain

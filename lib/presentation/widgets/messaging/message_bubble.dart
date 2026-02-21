@@ -253,6 +253,13 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildBubbleContent(BuildContext context, Color bubbleColor) {
+    final textColor = isMe
+        ? AppColors.chatBubbleText
+        : AppColors.chatBubbleReceivedText;
+    final metaColor = isMe
+        ? AppColors.chatBubbleTimestamp
+        : AppColors.chatBubbleReceivedText.withValues(alpha: 0.6);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -272,7 +279,7 @@ class MessageBubble extends StatelessWidget {
             Text(
               message.textContent!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.chatBubbleText,
+                    color: textColor,
                   ),
             ),
           const SizedBox(height: 4),
@@ -283,14 +290,14 @@ class MessageBubble extends StatelessWidget {
                 Icon(
                   Icons.lock,
                   size: 10,
-                  color: AppColors.chatBubbleTimestamp,
+                  color: metaColor,
                 ),
                 const SizedBox(width: 2),
               ],
               Text(
                 _formatTime(message.createdAt),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.chatBubbleTimestamp,
+                      color: metaColor,
                       fontSize: 10,
                     ),
               ),
@@ -334,7 +341,9 @@ class MessageBubble extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.chatBubbleTimestamp,
+                    color: isMe
+                        ? AppColors.chatBubbleTimestamp
+                        : AppColors.chatBubbleReceivedText.withValues(alpha: 0.6),
                   ),
             ),
           ],
@@ -367,6 +376,9 @@ class MessageBubble extends StatelessWidget {
 
     if (message.type == MessageType.voice) {
       final duration = message.media?.duration ?? 0;
+      final voiceColor = isMe
+          ? AppColors.chatBubbleText
+          : AppColors.chatBubbleReceivedText;
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
@@ -374,14 +386,14 @@ class MessageBubble extends StatelessWidget {
           children: [
             Icon(
               Icons.play_circle_filled,
-              color: AppColors.chatBubbleText,
+              color: voiceColor,
               size: 32,
             ),
             const SizedBox(width: 8),
             Text(
               '${(duration ~/ 60).toString().padLeft(2, '0')}:${(duration % 60).toString().padLeft(2, '0')}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.chatBubbleText,
+                    color: voiceColor,
                   ),
             ),
           ],
@@ -401,6 +413,9 @@ class MessageBubble extends StatelessWidget {
         icon = Icons.access_time;
       case MessageStatus.sent:
         icon = Icons.done;
+      case MessageStatus.pending:
+        icon = Icons.hourglass_empty;
+        color = AppColors.accent;
       case MessageStatus.failed:
         icon = Icons.error_outline;
         color = AppColors.error;
@@ -447,7 +462,7 @@ class MessageBubble extends StatelessWidget {
     final isRequest = message.type == MessageType.tokenRequest;
     final canAction = isRequest &&
         message.recipientId == currentUserId &&
-        message.status == MessageStatus.sending; // pending
+        message.status == MessageStatus.pending;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -592,13 +607,16 @@ class MessageBubble extends StatelessWidget {
   Widget _buildDecryptionFailed(BuildContext context) {
     final isWaiting =
         message.textContent == '[Waiting for encryption key...]';
+    final indicatorColor = isMe
+        ? AppColors.chatBubbleTimestamp
+        : AppColors.chatBubbleReceivedText.withValues(alpha: 0.6);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           Icons.lock_outline,
           size: 16,
-          color: AppColors.chatBubbleTimestamp,
+          color: indicatorColor,
         ),
         const SizedBox(width: 6),
         Text(
@@ -606,7 +624,7 @@ class MessageBubble extends StatelessWidget {
               ? 'Waiting for encryption key...'
               : 'Message cannot be decrypted',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.chatBubbleTimestamp,
+                color: indicatorColor,
                 fontStyle: FontStyle.italic,
               ),
         ),
@@ -615,19 +633,22 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildEncryptedSentIndicator(BuildContext context) {
+    final indicatorColor = isMe
+        ? AppColors.chatBubbleTimestamp
+        : AppColors.chatBubbleReceivedText.withValues(alpha: 0.6);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           Icons.lock,
           size: 16,
-          color: AppColors.chatBubbleTimestamp,
+          color: indicatorColor,
         ),
         const SizedBox(width: 6),
         Text(
           'Encrypted message',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.chatBubbleTimestamp,
+                color: indicatorColor,
                 fontStyle: FontStyle.italic,
               ),
         ),

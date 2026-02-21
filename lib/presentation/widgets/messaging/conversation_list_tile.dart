@@ -69,7 +69,21 @@ class ConversationListTile extends StatelessWidget {
                         color: AppColors.textSecondary,
                       ),
             )
-          : null,
+          : conversation.lastMessageAt != null
+              ? Row(
+                  children: [
+                    Icon(Icons.lock, size: 14, color: AppColors.textSecondary),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Encrypted message',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppColors.textSecondary,
+                            fontStyle: FontStyle.italic,
+                          ),
+                    ),
+                  ],
+                )
+              : null,
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -105,9 +119,17 @@ class ConversationListTile extends StatelessWidget {
   }
 
   Widget _buildAvatar(BuildContext context, ParticipantInfo other) {
-    final initialsWidget = CircleAvatar(
-      radius: 24,
-      backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+    const double size = 48;
+    const double radius = 6;
+
+    final initialsWidget = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(radius),
+      ),
+      alignment: Alignment.center,
       child: Text(
         _initials(other.displayName),
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -120,9 +142,13 @@ class ConversationListTile extends StatelessWidget {
     if (other.avatarUrl != null && other.avatarUrl!.isNotEmpty) {
       return CachedNetworkImage(
         imageUrl: other.avatarUrl!,
-        imageBuilder: (_, imageProvider) => CircleAvatar(
-          radius: 24,
-          backgroundImage: imageProvider,
+        imageBuilder: (_, imageProvider) => Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(radius),
+            image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+          ),
         ),
         placeholder: (_, __) => initialsWidget,
         errorWidget: (_, __, ___) => initialsWidget,
