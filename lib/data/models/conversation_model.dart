@@ -30,6 +30,9 @@ class ConversationModel with _$ConversationModel {
     // E2EE: per-user encrypted last message previews
     @Default({}) Map<String, String> lastMessageEncryptedPreviews,
 
+    // Per-user chat cleared timestamps
+    @Default({}) Map<String, DateTime> chatClearedAt,
+
     // Timestamps
     required DateTime createdAt,
     DateTime? updatedAt,
@@ -67,6 +70,7 @@ class ConversationModel with _$ConversationModel {
       muted: _parseBoolMap(json['muted']),
       lastMessageEncryptedPreviews:
           _parseStringMap(json['lastMessageEncryptedPreviews']),
+      chatClearedAt: _parseDateTimeMap(json['chatClearedAt']),
       createdAt: _parseDateTimeRequired(createdAt),
       updatedAt: _parseDateTime(updatedAt),
     );
@@ -101,6 +105,7 @@ class ConversationModel with _$ConversationModel {
       pinned: pinned,
       muted: muted,
       lastMessageEncryptedPreviews: lastMessageEncryptedPreviews,
+      chatClearedAt: chatClearedAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -127,6 +132,7 @@ class ConversationModel with _$ConversationModel {
       pinned: entity.pinned,
       muted: entity.muted,
       lastMessageEncryptedPreviews: entity.lastMessageEncryptedPreviews,
+      chatClearedAt: entity.chatClearedAt,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );
@@ -170,6 +176,17 @@ class ConversationModel with _$ConversationModel {
           key.toString(),
           value is String ? value : '',
         ));
+  }
+
+  static Map<String, DateTime> _parseDateTimeMap(dynamic raw) {
+    if (raw == null) return {};
+    if (raw is! Map) return {};
+    final result = <String, DateTime>{};
+    for (final entry in raw.entries) {
+      final dt = _parseDateTime(entry.value);
+      if (dt != null) result[entry.key.toString()] = dt;
+    }
+    return result;
   }
 
   static Map<String, int> _parseIntMap(dynamic raw) {

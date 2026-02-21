@@ -47,6 +47,11 @@ _$ConversationImpl _$$ConversationImplFromJson(Map<String, dynamic> json) =>
             (k, e) => MapEntry(k, e as String),
           ) ??
           const {},
+      chatClearedAt:
+          (json['chatClearedAt'] as Map<String, dynamic>?)?.map(
+            (k, e) => MapEntry(k, DateTime.parse(e as String)),
+          ) ??
+          const {},
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] == null
           ? null
@@ -69,6 +74,9 @@ Map<String, dynamic> _$$ConversationImplToJson(_$ConversationImpl instance) =>
       'pinned': instance.pinned,
       'muted': instance.muted,
       'lastMessageEncryptedPreviews': instance.lastMessageEncryptedPreviews,
+      'chatClearedAt': instance.chatClearedAt.map(
+        (k, e) => MapEntry(k, e.toIso8601String()),
+      ),
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
     };

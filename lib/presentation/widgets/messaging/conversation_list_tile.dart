@@ -56,39 +56,13 @@ class ConversationListTile extends StatelessWidget {
             ),
         ],
       ),
-      subtitle: conversation.lastMessageText != null
-          ? Text(
-              conversation.lastMessageText!,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: hasUnread
-                  ? Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      )
-                  : Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-            )
-          : conversation.lastMessageAt != null
-              ? Row(
-                  children: [
-                    Icon(Icons.lock, size: 14, color: AppColors.textSecondary),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Encrypted message',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
-                            fontStyle: FontStyle.italic,
-                          ),
-                    ),
-                  ],
-                )
-              : null,
+      subtitle: _buildSubtitle(context, hasUnread),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (conversation.lastMessageAt != null)
+          if (conversation.lastMessageAt != null &&
+              !conversation.isChatClearedFor(currentUserId))
             Text(
               _formatDate(conversation.lastMessageAt!),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -116,6 +90,43 @@ class ConversationListTile extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget? _buildSubtitle(BuildContext context, bool hasUnread) {
+    final chatCleared = conversation.isChatClearedFor(currentUserId);
+
+    if (!chatCleared && conversation.lastMessageText != null) {
+      return Text(
+        conversation.lastMessageText!,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: hasUnread
+            ? Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                )
+            : Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+      );
+    }
+
+    if (!chatCleared && conversation.lastMessageAt != null) {
+      return Row(
+        children: [
+          Icon(Icons.lock, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 4),
+          Text(
+            'Encrypted message',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                  fontStyle: FontStyle.italic,
+                ),
+          ),
+        ],
+      );
+    }
+
+    return null;
   }
 
   Widget _buildAvatar(BuildContext context, ParticipantInfo other) {

@@ -126,5 +126,6 @@ When modifying domain entities or data flow, these files often need coordinated 
 - Use `Navigator.push()` — use GoRouter everywhere
 - Use stream subscriptions for earn data — use one-shot Future calls
 - Skip running `build_runner` after Freezed/Injectable changes
-- Deploy Cloud Functions or push code without asking first
+- **NEVER run `firebase deploy` (any variant) without explicit user approval first** — always ask and wait for confirmation before deploying anything to Firebase
+- Push code (`git push`) without asking first
 - Add unused imports, dead code, or speculative abstractions

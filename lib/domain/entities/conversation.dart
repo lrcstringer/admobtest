@@ -44,6 +44,9 @@ class Conversation with _$Conversation {
     // E2EE: per-user encrypted last message previews
     @Default({}) Map<String, String> lastMessageEncryptedPreviews,
 
+    // Per-user chat cleared timestamps
+    @Default({}) Map<String, DateTime> chatClearedAt,
+
     // Timestamps
     required DateTime createdAt,
     DateTime? updatedAt,
@@ -68,6 +71,14 @@ class Conversation with _$Conversation {
 
   /// Check if thread has unread messages for a user
   bool hasUnreadFor(String userId) => unreadCountFor(userId) > 0;
+
+  /// Whether the chat was cleared after the last message (hide preview)
+  bool isChatClearedFor(String userId) {
+    final cleared = chatClearedAt[userId];
+    if (cleared == null) return false;
+    if (lastMessageAt == null) return true;
+    return cleared.isAfter(lastMessageAt!);
+  }
 
   /// Get the other participant's ID (for P2P)
   String otherParticipantId(String currentUserId) =>

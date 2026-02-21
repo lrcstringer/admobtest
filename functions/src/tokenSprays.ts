@@ -316,7 +316,7 @@ export const contributeToSpray = onCall({ labels: { area: "gifts" } }, async (re
     },
     currentTotal: admin.firestore.FieldValue.increment(amount),
     contributorCount: newContributorCount,
-    debitTransactionIds: admin.firestore.FieldValue.arrayUnion([transferResult.journalId || ""]),
+    debitTransactionIds: admin.firestore.FieldValue.arrayUnion(transferResult.journalId || ""),
   };
 
   // Recalculate top 5 leaderboard

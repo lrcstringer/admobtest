@@ -211,6 +211,8 @@ mixin _$Conversation {
   Map<String, bool> get muted =>
       throw _privateConstructorUsedError; // E2EE: per-user encrypted last message previews
   Map<String, String> get lastMessageEncryptedPreviews =>
+      throw _privateConstructorUsedError; // Per-user chat cleared timestamps
+  Map<String, DateTime> get chatClearedAt =>
       throw _privateConstructorUsedError; // Timestamps
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
@@ -247,6 +249,7 @@ abstract class $ConversationCopyWith<$Res> {
     Map<String, bool> pinned,
     Map<String, bool> muted,
     Map<String, String> lastMessageEncryptedPreviews,
+    Map<String, DateTime> chatClearedAt,
     DateTime createdAt,
     DateTime? updatedAt,
   });
@@ -281,6 +284,7 @@ class _$ConversationCopyWithImpl<$Res, $Val extends Conversation>
     Object? pinned = null,
     Object? muted = null,
     Object? lastMessageEncryptedPreviews = null,
+    Object? chatClearedAt = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
   }) {
@@ -342,6 +346,10 @@ class _$ConversationCopyWithImpl<$Res, $Val extends Conversation>
                 ? _value.lastMessageEncryptedPreviews
                 : lastMessageEncryptedPreviews // ignore: cast_nullable_to_non_nullable
                       as Map<String, String>,
+            chatClearedAt: null == chatClearedAt
+                ? _value.chatClearedAt
+                : chatClearedAt // ignore: cast_nullable_to_non_nullable
+                      as Map<String, DateTime>,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -380,6 +388,7 @@ abstract class _$$ConversationImplCopyWith<$Res>
     Map<String, bool> pinned,
     Map<String, bool> muted,
     Map<String, String> lastMessageEncryptedPreviews,
+    Map<String, DateTime> chatClearedAt,
     DateTime createdAt,
     DateTime? updatedAt,
   });
@@ -413,6 +422,7 @@ class __$$ConversationImplCopyWithImpl<$Res>
     Object? pinned = null,
     Object? muted = null,
     Object? lastMessageEncryptedPreviews = null,
+    Object? chatClearedAt = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
   }) {
@@ -474,6 +484,10 @@ class __$$ConversationImplCopyWithImpl<$Res>
             ? _value._lastMessageEncryptedPreviews
             : lastMessageEncryptedPreviews // ignore: cast_nullable_to_non_nullable
                   as Map<String, String>,
+        chatClearedAt: null == chatClearedAt
+            ? _value._chatClearedAt
+            : chatClearedAt // ignore: cast_nullable_to_non_nullable
+                  as Map<String, DateTime>,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -505,6 +519,7 @@ class _$ConversationImpl extends _Conversation {
     required final Map<String, bool> pinned,
     required final Map<String, bool> muted,
     final Map<String, String> lastMessageEncryptedPreviews = const {},
+    final Map<String, DateTime> chatClearedAt = const {},
     required this.createdAt,
     this.updatedAt,
   }) : _participantIds = participantIds,
@@ -514,6 +529,7 @@ class _$ConversationImpl extends _Conversation {
        _pinned = pinned,
        _muted = muted,
        _lastMessageEncryptedPreviews = lastMessageEncryptedPreviews,
+       _chatClearedAt = chatClearedAt,
        super._();
 
   factory _$ConversationImpl.fromJson(Map<String, dynamic> json) =>
@@ -596,6 +612,17 @@ class _$ConversationImpl extends _Conversation {
     return EqualUnmodifiableMapView(_lastMessageEncryptedPreviews);
   }
 
+  // Per-user chat cleared timestamps
+  final Map<String, DateTime> _chatClearedAt;
+  // Per-user chat cleared timestamps
+  @override
+  @JsonKey()
+  Map<String, DateTime> get chatClearedAt {
+    if (_chatClearedAt is EqualUnmodifiableMapView) return _chatClearedAt;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_chatClearedAt);
+  }
+
   // Timestamps
   @override
   final DateTime createdAt;
@@ -604,7 +631,7 @@ class _$ConversationImpl extends _Conversation {
 
   @override
   String toString() {
-    return 'Conversation(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Conversation(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -643,6 +670,10 @@ class _$ConversationImpl extends _Conversation {
               other._lastMessageEncryptedPreviews,
               _lastMessageEncryptedPreviews,
             ) &&
+            const DeepCollectionEquality().equals(
+              other._chatClearedAt,
+              _chatClearedAt,
+            ) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -667,6 +698,7 @@ class _$ConversationImpl extends _Conversation {
     const DeepCollectionEquality().hash(_pinned),
     const DeepCollectionEquality().hash(_muted),
     const DeepCollectionEquality().hash(_lastMessageEncryptedPreviews),
+    const DeepCollectionEquality().hash(_chatClearedAt),
     createdAt,
     updatedAt,
   );
@@ -701,6 +733,7 @@ abstract class _Conversation extends Conversation {
     required final Map<String, bool> pinned,
     required final Map<String, bool> muted,
     final Map<String, String> lastMessageEncryptedPreviews,
+    final Map<String, DateTime> chatClearedAt,
     required final DateTime createdAt,
     final DateTime? updatedAt,
   }) = _$ConversationImpl;
@@ -736,7 +769,9 @@ abstract class _Conversation extends Conversation {
   @override
   Map<String, bool> get muted; // E2EE: per-user encrypted last message previews
   @override
-  Map<String, String> get lastMessageEncryptedPreviews; // Timestamps
+  Map<String, String> get lastMessageEncryptedPreviews; // Per-user chat cleared timestamps
+  @override
+  Map<String, DateTime> get chatClearedAt; // Timestamps
   @override
   DateTime get createdAt;
   @override

@@ -201,6 +201,7 @@ class _ChatTab extends StatelessWidget {
               controller: messageController,
               isSending: state.isSending,
               onSend: () => _send(context),
+              onTokenAction: () => _showCommunityActions(context),
             ),
           ],
         );
@@ -292,6 +293,108 @@ class _ChatTab extends StatelessWidget {
         ));
       }
     }
+  }
+
+  void _showCommunityActions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textHint,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.card_giftcard),
+              title: const Text('Send Gift'),
+              subtitle: const Text('Send a wrapped gift to a member'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showGiftMemberPicker(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.celebration),
+              title: const Text('Start Token Spray'),
+              subtitle: const Text('Celebrate a member together'),
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/chat/community/$communityId/create-spray');
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showGiftMemberPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => BlocBuilder<CommunityBloc, CommunityState>(
+        builder: (blocContext, communityState) {
+          final members = communityState.selectedCommunityMembers
+              .where((m) => m.isActive && m.userId != currentUserId)
+              .toList();
+
+          return SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.textHint,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'Send Gift To',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (members.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text('No other members available'),
+                  )
+                else
+                  ...members.map((member) => ListTile(
+                        title: Text(member.displayName),
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          context.push(
+                            '/chat/community/$communityId/send-gift',
+                            extra: {
+                              'recipientId': member.userId,
+                              'recipientName': member.displayName,
+                            },
+                          );
+                        },
+                      )),
+                const SizedBox(height: 8),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 

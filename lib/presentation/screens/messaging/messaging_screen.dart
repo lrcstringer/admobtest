@@ -158,7 +158,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
             icon: Icons.send,
             label: 'Send',
             color: AppColors.primary,
-            onTap: () => context.push('/chat/send-wallet'),
+            onTap: () => context.push('/wallet/send'),
           ),
           _buildQuickAction(
             context,

@@ -345,12 +345,16 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     final recipientId = state.getRecipientId(currentUserId);
     if (recipientId == null || recipientId.isEmpty) return;
 
+    final recipientName =
+        state.selectedConversation?.displayNameFor(currentUserId) ?? '';
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (ctx) => _TokenActionsSheet(
         conversationId: widget.conversationId,
         recipientId: recipientId,
+        recipientName: recipientName,
       ),
     );
   }
@@ -451,9 +455,6 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     context.read<ConversationBloc>().add(
           ConversationEvent.clearChat(conversationId),
         );
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Chat cleared')),
-    );
   }
 
   Future<void> _confirmDeleteMessage(
@@ -543,10 +544,12 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 class _TokenActionsSheet extends StatefulWidget {
   final String conversationId;
   final String recipientId;
+  final String recipientName;
 
   const _TokenActionsSheet({
     required this.conversationId,
     required this.recipientId,
+    required this.recipientName,
   });
 
   @override
@@ -598,6 +601,23 @@ class _TokenActionsSheetState extends State<_TokenActionsSheet> {
                       context, 'Request', Icons.call_received, false),
                 ),
               ],
+            ),
+            AppSpacing.verticalSm,
+            Center(
+              child: TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.push(
+                    '/chat/conversation/${widget.conversationId}/send-gift',
+                    extra: {
+                      'recipientId': widget.recipientId,
+                      'recipientName': widget.recipientName,
+                    },
+                  );
+                },
+                icon: const Icon(Icons.card_giftcard),
+                label: const Text('Send a Gift instead'),
+              ),
             ),
             AppSpacing.verticalLg,
             TextField(

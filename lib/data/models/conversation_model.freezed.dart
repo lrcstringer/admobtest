@@ -34,6 +34,8 @@ mixin _$ConversationModel {
   Map<String, bool> get muted =>
       throw _privateConstructorUsedError; // E2EE: per-user encrypted last message previews
   Map<String, String> get lastMessageEncryptedPreviews =>
+      throw _privateConstructorUsedError; // Per-user chat cleared timestamps
+  Map<String, DateTime> get chatClearedAt =>
       throw _privateConstructorUsedError; // Timestamps
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
@@ -67,6 +69,7 @@ abstract class $ConversationModelCopyWith<$Res> {
     Map<String, bool> pinned,
     Map<String, bool> muted,
     Map<String, String> lastMessageEncryptedPreviews,
+    Map<String, DateTime> chatClearedAt,
     DateTime createdAt,
     DateTime? updatedAt,
   });
@@ -101,6 +104,7 @@ class _$ConversationModelCopyWithImpl<$Res, $Val extends ConversationModel>
     Object? pinned = null,
     Object? muted = null,
     Object? lastMessageEncryptedPreviews = null,
+    Object? chatClearedAt = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
   }) {
@@ -162,6 +166,10 @@ class _$ConversationModelCopyWithImpl<$Res, $Val extends ConversationModel>
                 ? _value.lastMessageEncryptedPreviews
                 : lastMessageEncryptedPreviews // ignore: cast_nullable_to_non_nullable
                       as Map<String, String>,
+            chatClearedAt: null == chatClearedAt
+                ? _value.chatClearedAt
+                : chatClearedAt // ignore: cast_nullable_to_non_nullable
+                      as Map<String, DateTime>,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -200,6 +208,7 @@ abstract class _$$ConversationModelImplCopyWith<$Res>
     Map<String, bool> pinned,
     Map<String, bool> muted,
     Map<String, String> lastMessageEncryptedPreviews,
+    Map<String, DateTime> chatClearedAt,
     DateTime createdAt,
     DateTime? updatedAt,
   });
@@ -233,6 +242,7 @@ class __$$ConversationModelImplCopyWithImpl<$Res>
     Object? pinned = null,
     Object? muted = null,
     Object? lastMessageEncryptedPreviews = null,
+    Object? chatClearedAt = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
   }) {
@@ -294,6 +304,10 @@ class __$$ConversationModelImplCopyWithImpl<$Res>
             ? _value._lastMessageEncryptedPreviews
             : lastMessageEncryptedPreviews // ignore: cast_nullable_to_non_nullable
                   as Map<String, String>,
+        chatClearedAt: null == chatClearedAt
+            ? _value._chatClearedAt
+            : chatClearedAt // ignore: cast_nullable_to_non_nullable
+                  as Map<String, DateTime>,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -325,6 +339,7 @@ class _$ConversationModelImpl extends _ConversationModel {
     required final Map<String, bool> pinned,
     required final Map<String, bool> muted,
     final Map<String, String> lastMessageEncryptedPreviews = const {},
+    final Map<String, DateTime> chatClearedAt = const {},
     required this.createdAt,
     this.updatedAt,
   }) : _participantIds = participantIds,
@@ -334,6 +349,7 @@ class _$ConversationModelImpl extends _ConversationModel {
        _pinned = pinned,
        _muted = muted,
        _lastMessageEncryptedPreviews = lastMessageEncryptedPreviews,
+       _chatClearedAt = chatClearedAt,
        super._();
 
   @override
@@ -413,6 +429,17 @@ class _$ConversationModelImpl extends _ConversationModel {
     return EqualUnmodifiableMapView(_lastMessageEncryptedPreviews);
   }
 
+  // Per-user chat cleared timestamps
+  final Map<String, DateTime> _chatClearedAt;
+  // Per-user chat cleared timestamps
+  @override
+  @JsonKey()
+  Map<String, DateTime> get chatClearedAt {
+    if (_chatClearedAt is EqualUnmodifiableMapView) return _chatClearedAt;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_chatClearedAt);
+  }
+
   // Timestamps
   @override
   final DateTime createdAt;
@@ -421,7 +448,7 @@ class _$ConversationModelImpl extends _ConversationModel {
 
   @override
   String toString() {
-    return 'ConversationModel(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ConversationModel(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -460,6 +487,10 @@ class _$ConversationModelImpl extends _ConversationModel {
               other._lastMessageEncryptedPreviews,
               _lastMessageEncryptedPreviews,
             ) &&
+            const DeepCollectionEquality().equals(
+              other._chatClearedAt,
+              _chatClearedAt,
+            ) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -483,6 +514,7 @@ class _$ConversationModelImpl extends _ConversationModel {
     const DeepCollectionEquality().hash(_pinned),
     const DeepCollectionEquality().hash(_muted),
     const DeepCollectionEquality().hash(_lastMessageEncryptedPreviews),
+    const DeepCollectionEquality().hash(_chatClearedAt),
     createdAt,
     updatedAt,
   );
@@ -515,6 +547,7 @@ abstract class _ConversationModel extends ConversationModel {
     required final Map<String, bool> pinned,
     required final Map<String, bool> muted,
     final Map<String, String> lastMessageEncryptedPreviews,
+    final Map<String, DateTime> chatClearedAt,
     required final DateTime createdAt,
     final DateTime? updatedAt,
   }) = _$ConversationModelImpl;
@@ -547,7 +580,9 @@ abstract class _ConversationModel extends ConversationModel {
   @override
   Map<String, bool> get muted; // E2EE: per-user encrypted last message previews
   @override
-  Map<String, String> get lastMessageEncryptedPreviews; // Timestamps
+  Map<String, String> get lastMessageEncryptedPreviews; // Per-user chat cleared timestamps
+  @override
+  Map<String, DateTime> get chatClearedAt; // Timestamps
   @override
   DateTime get createdAt;
   @override

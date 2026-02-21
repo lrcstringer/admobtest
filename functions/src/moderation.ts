@@ -60,9 +60,7 @@ export const blockUser = onCall(
 
     // Add to blocked list
     await db.collection("users").doc(userId).update({
-      "chat.blockedUserIds": admin.firestore.FieldValue.arrayUnion([
-        targetUserId,
-      ]),
+      "chat.blockedUserIds": admin.firestore.FieldValue.arrayUnion(targetUserId),
     });
 
     return { success: true };
@@ -88,9 +86,7 @@ export const unblockUser = onCall(
     }
 
     await db.collection("users").doc(userId).update({
-      "chat.blockedUserIds": admin.firestore.FieldValue.arrayRemove([
-        targetUserId,
-      ]),
+      "chat.blockedUserIds": admin.firestore.FieldValue.arrayRemove(targetUserId),
     });
 
     return { success: true };
@@ -219,7 +215,7 @@ export const deleteMessageForMe = onCall(
     }
 
     await msgRef.update({
-      deletedFor: admin.firestore.FieldValue.arrayUnion([userId]),
+      deletedFor: admin.firestore.FieldValue.arrayUnion(userId),
     });
 
     return { success: true };

@@ -1037,7 +1037,7 @@ export const clearConversationChat = onCall(
       const batch = db.batch();
       for (const doc of snapshot.docs) {
         batch.update(doc.ref, {
-          deletedFor: admin.firestore.FieldValue.arrayUnion([userId]),
+          deletedFor: admin.firestore.FieldValue.arrayUnion(userId),
         });
       }
       await batch.commit();
@@ -1051,6 +1051,7 @@ export const clearConversationChat = onCall(
     await convDoc.ref.update({
       [`unreadCounts.${userId}`]: 0,
       [`lastMessageEncryptedPreviews.${userId}`]: "",
+      [`chatClearedAt.${userId}`]: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
