@@ -126,6 +126,14 @@ void main() {
         )).thenAnswer((_) async {});
   }
 
+  /// Stubs writes + identity key readback for storePrivateKeys tests.
+  void stubStorageWritesWithReadback() {
+    stubStorageWrites();
+    // storePrivateKeys reads back the identity key to verify persistence
+    when(() => mockSecureStorage.read(key: 'e2ee_identity_key'))
+        .thenAnswer((_) async => 'readback_ok');
+  }
+
   group('KeyManagementService', () {
     // ==================== generateKeyBundle ====================
     group('generateKeyBundle', () {
@@ -452,7 +460,7 @@ void main() {
     group('storePrivateKeys', () {
       test('writes identity key pair to secure storage', () async {
         final bundle = createStoredBundle();
-        stubStorageWrites();
+        stubStorageWritesWithReadback();
 
         await service.storePrivateKeys(bundle);
 
@@ -464,7 +472,7 @@ void main() {
 
       test('writes signed pre-key to secure storage', () async {
         final bundle = createStoredBundle();
-        stubStorageWrites();
+        stubStorageWritesWithReadback();
 
         await service.storePrivateKeys(bundle);
 
@@ -476,7 +484,7 @@ void main() {
 
       test('writes signed pre-key signature to secure storage', () async {
         final bundle = createStoredBundle();
-        stubStorageWrites();
+        stubStorageWritesWithReadback();
 
         await service.storePrivateKeys(bundle);
 
@@ -489,7 +497,7 @@ void main() {
       test('writes one-time pre-keys as JSON array to secure storage',
           () async {
         final bundle = createStoredBundle();
-        stubStorageWrites();
+        stubStorageWritesWithReadback();
 
         await service.storePrivateKeys(bundle);
 
@@ -501,7 +509,7 @@ void main() {
 
       test('writes registration ID as string to secure storage', () async {
         final bundle = createStoredBundle();
-        stubStorageWrites();
+        stubStorageWritesWithReadback();
 
         await service.storePrivateKeys(bundle);
 
@@ -513,7 +521,7 @@ void main() {
 
       test('writes all 5 storage keys exactly once', () async {
         final bundle = createStoredBundle();
-        stubStorageWrites();
+        stubStorageWritesWithReadback();
 
         await service.storePrivateKeys(bundle);
 
