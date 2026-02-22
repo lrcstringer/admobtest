@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -681,11 +682,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           debugPrint('E2EE INIT: Upload succeeded on attempt $attempt');
         }
         return; // confirmed
+      } on FirebaseFunctionsException catch (e) {
+        final isRetryable = e.code == 'unavailable' ||
+            e.code == 'deadline-exceeded' ||
+            e.code == 'unauthenticated';
+        debugPrint('E2EE INIT: Upload attempt $attempt failed '
+            '[CF code=${e.code}, retryable=$isRetryable] '
+            '— retrying in ${backoff.inSeconds}s');
+        if (!isRetryable) {
+          // permission-denied (IAM) or internal (Firestore crash) won't
+          // resolve by waiting — still retry but log prominently so the
+          // developer knows to check server config.
+          debugPrint('E2EE INIT: ⚠ NON-TRANSIENT error "${e.code}" — '
+              'check Cloud Function IAM, App Check, and Firestore health');
+        }
+        await Future<void>.delayed(backoff);
+        backoff = Duration(
+          milliseconds: (backoff.inMilliseconds * 2)
+              .clamp(0, maxBackoff.inMilliseconds),
+        );
       } catch (e) {
-        debugPrint('E2EE INIT: Upload attempt $attempt failed: $e '
+        debugPrint('E2EE INIT: Upload attempt $attempt failed '
+            '[non-CF: ${e.runtimeType}] $e '
             '— retrying in ${backoff.inSeconds}s');
         await Future<void>.delayed(backoff);
-        // Double backoff, capped at maxBackoff
         backoff = Duration(
           milliseconds: (backoff.inMilliseconds * 2)
               .clamp(0, maxBackoff.inMilliseconds),

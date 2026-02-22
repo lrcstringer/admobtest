@@ -325,6 +325,17 @@ class MessageSyncService {
           _decryptFailures[msg.id] = _maxDecryptAttempts;
         } catch (retryError) {
           debugPrint('E2EE SYNC [${msg.id}]: Recovery FAILED: $retryError');
+          // CRITICAL: Reset the session after failed recovery. The retry
+          // performed a receiver X3DH which created a session with wrong
+          // keys (old install's identity/ephemeral keys). Leaving this
+          // corrupted session in place would cause the NEXT encrypt to
+          // use it — producing a message with no x3dh header that the
+          // recipient can never decrypt.
+          try {
+            await _signalProtocolService.resetSession(msg.senderId);
+            debugPrint('E2EE SYNC [${msg.id}]: Cleaned up corrupted session '
+                'after failed recovery');
+          } catch (_) {}
         }
       }
 

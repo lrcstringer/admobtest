@@ -899,8 +899,17 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
 
   @override
   Future<String?> getUserE2eeIdentityKey(String userId) async {
-    final doc = await _firestore.collection('users').doc(userId).get();
+    // Read from users/{userId}/keys/bundle instead of users/{userId}.
+    // Firestore rules allow any authenticated user to read the keys/bundle
+    // subcollection, but restrict the user document to owner-only reads.
+    // The 'identityKey' field is set by the uploadKeyBundle Cloud Function.
+    final doc = await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('keys')
+        .doc('bundle')
+        .get();
     if (!doc.exists) return null;
-    return doc.data()?['e2eeIdentityKey'] as String?;
+    return doc.data()?['identityKey'] as String?;
   }
 }

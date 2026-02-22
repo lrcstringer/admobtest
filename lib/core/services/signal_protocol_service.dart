@@ -171,7 +171,16 @@ class SignalProtocolService {
   ) async {
     // Load or establish session
     var session = await _loadSession(recipientUserId);
-    if (session == null) {
+    if (session == null || !session.isInitiator) {
+      // No session, or the session was established from a receiver X3DH
+      // (decrypt path). Receiver-side sessions have no pendingIdentityKey,
+      // so the encrypted message would lack an x3dh header — the recipient
+      // on a fresh install can't establish a session without one.
+      // Always establish a proper sender session for encryption.
+      if (session != null && !session.isInitiator) {
+        debugPrint('E2EE ENCRYPT [$recipientUserId]: Discarding receiver-side '
+            'session — establishing fresh sender session for proper x3dh header');
+      }
       await establishSession(recipientUserId);
       session = await _loadSession(recipientUserId);
       if (session == null) {
@@ -424,10 +433,35 @@ class SignalProtocolService {
   /// peerX3dhEphemeralKey bug. Returns true if migration was performed.
   Future<bool> migrateResetCorruptedSessions() async {
     final migrated = await _secureStorage.read(key: 'e2ee_session_migration_v1');
-    if (migrated != null) return false;
+    if (migrated != null) {
+      debugPrint('E2EE: Session migration already done (flag present)');
+      return false;
+    }
+
+    // Diagnostic: check total secure storage state to understand if this is
+    // a first launch or if storage was wiped by app reinstall.
+    try {
+      final all = await _secureStorage.readAll();
+      final sessionKeys = all.keys.where((k) => k.startsWith(_sessionPrefix)).toList();
+      final e2eeKeys = all.keys.where((k) => k.startsWith('e2ee_')).toList();
+      debugPrint('E2EE: Migration flag NOT found — total keys: ${all.length}, '
+          'E2EE keys: ${e2eeKeys.length}, sessions: ${sessionKeys.length}. '
+          '${all.isEmpty ? "Storage is EMPTY (first launch or wiped by reinstall)" : ""}');
+    } catch (e) {
+      debugPrint('E2EE: Migration flag NOT found, readAll failed: $e');
+    }
 
     await resetAllSessions();
     await _secureStorage.write(key: 'e2ee_session_migration_v1', value: 'done');
+
+    // Readback verification for migration flag
+    final readback = await _secureStorage.read(key: 'e2ee_session_migration_v1');
+    if (readback == null) {
+      debugPrint('E2EE: ⚠ CRITICAL — migration flag readback is NULL immediately '
+          'after write! Secure storage writes are NOT persisting. This device '
+          'will regenerate keys on every app restart.');
+    }
+
     debugPrint('E2EE: One-time session migration — all sessions reset');
     return true;
   }
