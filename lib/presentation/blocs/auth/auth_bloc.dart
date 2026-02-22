@@ -598,15 +598,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   // E2EE KEY INITIALIZATION
   // =========================================================================
 
-  /// Generate and upload E2EE keys, retrying the upload until it succeeds.
+  /// Generate and upload E2EE keys, retrying until the upload is confirmed.
   ///
   /// If the upload fails, the server still has the OLD key bundle from a
   /// previous install. Any sender who fetches that stale bundle will get
   /// OTKs we no longer have → permanent OTK mismatch → undecryptable.
-  /// So we MUST retry until the upload succeeds.
+  ///
+  /// Message sync does NOT start until the upload is confirmed — there is
+  /// no point decrypting incoming messages with keys the sender doesn't have.
+  /// The UI loads immediately (callers fire-and-forget), so the user isn't
+  /// blocked — messages simply appear once E2EE setup completes.
   Future<void> _initializeE2EEKeys() async {
     if (_e2eeInitInProgress) return;
     _e2eeInitInProgress = true;
+
+    var uploadConfirmed = false;
     try {
       // One-time migration: reset sessions corrupted by legacy
       // peerX3dhEphemeralKey bug (all messages showed "Cannot decrypt")
@@ -618,64 +624,83 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             '${existing.oneTimePreKeys.length} local OTKs, '
             'identity=${existing.identityKeyPair.split("|")[1].substring(0, 8)}…');
         // Verify Firestore bundle matches local keys (catches failed uploads).
-        // This retries the upload if the previous attempt failed.
-        await _uploadWithRetry(
+        // Retries indefinitely until confirmed or BLoC is disposed.
+        await _uploadUntilConfirmed(
           () => _keyManagementService.ensureBundleUploaded(existing),
         );
+        uploadConfirmed = true;
         // Replenish OTKs if running low
         await _keyManagementService.replenishOneTimePreKeysIfNeeded();
       } else {
         debugPrint('E2EE INIT: No existing keys — generating fresh bundle');
-        // First time — generate full key bundle
         final bundle = await _keyManagementService.generateKeyBundle();
         await _keyManagementService.storePrivateKeys(bundle);
-        await _uploadWithRetry(
+        await _uploadUntilConfirmed(
           () => _keyManagementService.uploadKeyBundle(bundle),
         );
+        uploadConfirmed = true;
         debugPrint('E2EE INIT: Fresh bundle uploaded — '
             '${bundle.oneTimePreKeys.length} OTKs, '
             'identity=${bundle.identityKeyPair.split("|")[1].substring(0, 8)}…');
-        // Log first 8 chars of each OTK public key so we can correlate
-        // with what the sender receives from fetchKeyBundle
         for (var i = 0; i < bundle.oneTimePreKeys.length; i++) {
           final pub = bundle.oneTimePreKeys[i].split('|')[1];
           debugPrint('E2EE INIT: OTK[$i] = ${pub.substring(0, 12)}…');
         }
       }
     } catch (e) {
-      debugPrint('E2EE key init FAILED after retries: $e');
+      debugPrint('E2EE key init error: $e');
     } finally {
       _e2eeInitInProgress = false;
     }
 
-    // Start sync even if key init fails — messages are queued for later
-    // decryption, and the upload retry runs on next app start via
-    // ensureBundleUploaded.
-    _messageSyncService.startSync();
-    _offlineActionQueue.startListening();
-  }
-
-  /// Retry an upload operation up to 3 times with exponential backoff.
-  ///
-  /// Key bundle uploads are CRITICAL — if they fail, the server has stale
-  /// keys and all incoming messages will be undecryptable.
-  Future<void> _uploadWithRetry(Future<void> Function() upload) async {
-    const maxAttempts = 3;
-    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        await upload();
-        return; // success
-      } catch (e) {
-        debugPrint('E2EE INIT: Upload attempt $attempt/$maxAttempts failed: $e');
-        if (attempt == maxAttempts) rethrow;
-        // Exponential backoff: 1s, 2s
-        await Future<void>.delayed(Duration(seconds: attempt));
-      }
+    if (uploadConfirmed) {
+      debugPrint('E2EE INIT: Bundle upload confirmed — starting message sync');
+      _messageSyncService.startSync();
+      _offlineActionQueue.startListening();
+    } else {
+      debugPrint('E2EE INIT: Bundle upload NOT confirmed — '
+          'message sync will NOT start until keys are on the server');
     }
   }
 
+  /// Retry an upload indefinitely with exponential backoff (capped at 30s).
+  ///
+  /// Stops only when the upload succeeds or the BLoC is disposed.
+  /// Key bundle uploads are non-negotiable — without them on the server,
+  /// every incoming encrypted message is permanently undecryptable.
+  Future<void> _uploadUntilConfirmed(Future<void> Function() upload) async {
+    const maxBackoff = Duration(seconds: 30);
+    var backoff = const Duration(seconds: 1);
+    var attempt = 0;
+
+    while (!_disposed) {
+      attempt++;
+      try {
+        await upload();
+        if (attempt > 1) {
+          debugPrint('E2EE INIT: Upload succeeded on attempt $attempt');
+        }
+        return; // confirmed
+      } catch (e) {
+        debugPrint('E2EE INIT: Upload attempt $attempt failed: $e '
+            '— retrying in ${backoff.inSeconds}s');
+        await Future<void>.delayed(backoff);
+        // Double backoff, capped at maxBackoff
+        backoff = Duration(
+          milliseconds: (backoff.inMilliseconds * 2)
+              .clamp(0, maxBackoff.inMilliseconds),
+        );
+      }
+    }
+    // BLoC was disposed while retrying
+    throw StateError('E2EE INIT: BLoC disposed during upload retry');
+  }
+
+  bool _disposed = false;
+
   @override
   Future<void> close() {
+    _disposed = true;
     _messageSyncService.stopSync();
     _offlineActionQueue.stopListening();
     _authStateSubscription?.cancel();
