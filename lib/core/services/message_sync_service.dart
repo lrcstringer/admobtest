@@ -215,7 +215,7 @@ class MessageSyncService {
         // Update conversation preview with latest message
         await _updateConversationPreview(conversationId, decryptedMsg);
       } catch (e) {
-        debugPrint('MessageSyncService: Failed to process msg ${model.toEntity().id}: $e');
+        debugPrint('MessageSyncService: Failed to process msg ${model.id}: $e');
       }
     }
   }
@@ -254,6 +254,16 @@ class MessageSyncService {
       return null;
     }
 
+    // Diagnostic: log what we received from Firestore
+    debugPrint('E2EE SYNC [${msg.id}]: '
+        'sender=${msg.senderId.substring(0, 8)}… '
+        'hasCiphertext=${msg.ciphertext != null} '
+        'hasE2ee=${msg.e2ee != null} '
+        'hasX3dh=${msg.x3dhHeader != null} '
+        'msgNum=${msg.e2ee?.messageNumber} '
+        'dhPubKey=${msg.e2ee?.dhPublicKey != null ? "${msg.e2ee!.dhPublicKey!.substring(0, 8)}…" : "null"} '
+        'ctLen=${msg.ciphertext?.length ?? 0}');
+
     // Build encrypted map for Signal Protocol
     final encryptedMap = <String, dynamic>{
       'ciphertext': msg.ciphertext,
@@ -275,23 +285,29 @@ class MessageSyncService {
     };
 
     try {
-      return await _signalProtocolService.decryptP2P(
+      final plaintext = await _signalProtocolService.decryptP2P(
         msg.senderId,
         encryptedMap,
       );
+      debugPrint('E2EE SYNC [${msg.id}]: Decrypt SUCCESS '
+          '(${plaintext.length} chars)');
+      return plaintext;
     } catch (e) {
-      debugPrint('MessageSyncService: Decrypt failed for ${msg.id}: $e');
+      debugPrint('E2EE SYNC [${msg.id}]: Decrypt FAILED: $e');
 
       // Session recovery: reset and retry if x3dhHeader present
       if (msg.x3dhHeader != null) {
         try {
+          debugPrint('E2EE SYNC [${msg.id}]: Resetting session, retrying…');
           await _signalProtocolService.resetSession(msg.senderId);
-          return await _signalProtocolService.decryptP2P(
+          final plaintext = await _signalProtocolService.decryptP2P(
             msg.senderId,
             encryptedMap,
           );
+          debugPrint('E2EE SYNC [${msg.id}]: Recovery SUCCESS');
+          return plaintext;
         } catch (retryError) {
-          debugPrint('MessageSyncService: Recovery failed for ${msg.id}: $retryError');
+          debugPrint('E2EE SYNC [${msg.id}]: Recovery FAILED: $retryError');
         }
       }
 

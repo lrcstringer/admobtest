@@ -568,11 +568,21 @@ class SignalProtocolService {
     // Generate our DH ratchet key pair for send direction
     final dhSendKp = await _cryptoService.generateX25519KeyPair();
 
+    // Guard: peerDhPublic is required for the send-side DH ratchet.
+    // It comes from e2ee.dhPublicKey in the incoming message. If missing,
+    // the sender's client didn't include it — can't derive sendChainKey.
+    if (peerDhPublic == null) {
+      throw StateError(
+        'E2EE: peerDhPublic is null in receiver X3DH for $senderUserId — '
+        'sender message is missing e2ee.dhPublicKey',
+      );
+    }
+
     // Perform DH ratchet for send direction so sendChainKey is properly
     // derived (not zeros). The initiator will perform the matching recv-side
     // ratchet when it sees our new dhSendPublic in the first reply message.
     final dhSendResult = await _cryptoService.diffieHellman(
-      dhSendKp['privateKey']!, peerDhPublic!,
+      dhSendKp['privateKey']!, peerDhPublic,
     );
     final combinedSend = _concat(rootKey, dhSendResult);
     final derivedSend = await _cryptoService.hkdf(

@@ -259,6 +259,7 @@ void main() {
     group('uploadKeyBundle', () {
       test('calls httpsCallable with "uploadKeyBundle"', () async {
         final bundle = createStoredBundle();
+        stubStorageWrites();
         when(() => mockFunctions.httpsCallable('uploadKeyBundle'))
             .thenReturn(mockCallable);
         when(() => mockCallable.call<dynamic>(any()))
@@ -271,6 +272,7 @@ void main() {
 
       test('sends only public halves in the payload', () async {
         final bundle = createStoredBundle();
+        stubStorageWrites();
         when(() => mockFunctions.httpsCallable('uploadKeyBundle'))
             .thenReturn(mockCallable);
 
@@ -311,6 +313,7 @@ void main() {
 
       test('does not include private keys in the upload payload', () async {
         final bundle = createStoredBundle();
+        stubStorageWrites();
         when(() => mockFunctions.httpsCallable('uploadKeyBundle'))
             .thenReturn(mockCallable);
 

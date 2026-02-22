@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:crypto/crypto.dart' as hmac_lib;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
@@ -97,6 +97,12 @@ class KeyManagementService {
       if (bundle.ed25519Signature != null)
         'ed25519Signature': bundle.ed25519Signature,
     });
+    // Record which identity key was uploaded so ensureBundleUploaded
+    // can detect mismatches on future app starts.
+    await _secureStorage.write(
+      key: 'e2ee_uploaded_identity',
+      value: _extractPublicBase64(bundle.identityKeyPair),
+    );
   }
 
   /// Fetch another user's public key bundle from the server.
@@ -126,6 +132,28 @@ class KeyManagementService {
   /// so this is a no-op on the client side.
   Future<void> consumeOneTimePreKey(String userId, int preKeyId) async {
     // No-op: server consumes OTK atomically during fetchKeyBundle
+  }
+
+  /// Verify that the Firestore key bundle matches local keys.
+  ///
+  /// Compares the local identity key against the last successfully uploaded
+  /// identity key. If they differ (e.g., upload failed on a previous init),
+  /// re-uploads the full bundle. This prevents the scenario where local
+  /// keys exist but Firestore has stale/missing keys.
+  Future<void> ensureBundleUploaded(KeyBundle bundle) async {
+    final localIdentityPub = _extractPublicBase64(bundle.identityKeyPair);
+    final lastUploaded =
+        await _secureStorage.read(key: 'e2ee_uploaded_identity');
+    if (lastUploaded == localIdentityPub) return; // already in sync
+
+    debugPrint('E2EE: Bundle not confirmed uploaded — re-uploading '
+        '(local=${localIdentityPub.substring(0, 8)}… '
+        'lastUploaded=${lastUploaded?.substring(0, 8) ?? "never"}…)');
+    await uploadKeyBundle(bundle);
+    await _secureStorage.write(
+      key: 'e2ee_uploaded_identity',
+      value: localIdentityPub,
+    );
   }
 
   /// Check the server-side one-time pre-key count and upload new ones

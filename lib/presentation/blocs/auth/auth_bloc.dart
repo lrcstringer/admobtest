@@ -610,21 +610,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final existing = await _keyManagementService.loadPrivateKeys();
       if (existing != null) {
-        // Keys exist — just replenish OTKs if running low
+        // Verify Firestore bundle matches local keys (catches failed uploads)
+        await _keyManagementService.ensureBundleUploaded(existing);
+        // Replenish OTKs if running low
         await _keyManagementService.replenishOneTimePreKeysIfNeeded();
-        return;
+      } else {
+        // First time — generate full key bundle
+        final bundle = await _keyManagementService.generateKeyBundle();
+        await _keyManagementService.storePrivateKeys(bundle);
+        await _keyManagementService.uploadKeyBundle(bundle);
       }
-      // First time — generate full key bundle
-      final bundle = await _keyManagementService.generateKeyBundle();
-      await _keyManagementService.storePrivateKeys(bundle);
-      await _keyManagementService.uploadKeyBundle(bundle);
     } catch (e) {
       debugPrint('E2EE key init failed (non-fatal): $e');
     } finally {
       _e2eeInitInProgress = false;
     }
 
-    // Start message sync and offline queue after E2EE keys are ready
+    // CRITICAL: Always start sync — even if key init fails, sync must
+    // run so messages can be received and queued for later decryption.
     _messageSyncService.startSync();
     _offlineActionQueue.startListening();
   }

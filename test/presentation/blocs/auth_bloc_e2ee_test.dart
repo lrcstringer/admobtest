@@ -105,6 +105,8 @@ void main() {
         .thenAnswer((_) async {});
     when(() => mockKeyManagementService.replenishOneTimePreKeysIfNeeded())
         .thenAnswer((_) async {});
+    when(() => mockKeyManagementService.ensureBundleUploaded(any()))
+        .thenAnswer((_) async {});
   });
 
   tearDown(() {
