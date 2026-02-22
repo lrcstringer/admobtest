@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imalichat/core/services/crypto_service.dart';
 import 'package:imalichat/core/services/key_management_service.dart';
 import 'package:imalichat/core/services/signal_protocol_service.dart';
+import 'package:imalichat/data/models/message_model.dart';
 import 'package:imalichat/domain/entities/e2ee_types.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -315,5 +316,240 @@ void main() {
         expect(fromBob, equals('Hello Alice'));
       },
     );
+  });
+
+  // ===========================================================================
+  // FIRESTORE ROUND-TRIP TESTS
+  //
+  // These tests simulate the EXACT production data path:
+  //   encryptP2P → JSON (CF callable) → Firestore → MessageModel.fromJson
+  //   → toEntity → rebuild encrypted map (sync service) → decryptP2P
+  //
+  // The direct encrypt/decrypt tests above pass the map DIRECTLY between
+  // encrypt and decrypt. Production goes through serialisation/deserialisation
+  // which can lose types (int→double), drop null keys, or mutate nested maps.
+  // ===========================================================================
+
+  group('Firestore round-trip serialisation', () {
+    late _Participant alice;
+    late _Participant bob;
+
+    setUp(() async {
+      alice = _Participant(aliceId);
+      bob = _Participant(bobId);
+
+      await alice.init(CryptoService());
+      await bob.init(CryptoService());
+
+      when(() => alice.keyMgmt.fetchKeyBundle(bobId))
+          .thenAnswer((_) async => bob.publicBundle);
+      when(() => bob.keyMgmt.fetchKeyBundle(aliceId))
+          .thenAnswer((_) async => alice.publicBundle);
+    });
+
+    /// Simulate what the Cloud Function does: build a Firestore message doc
+    /// from the encrypted output, then parse it back via MessageModel.
+    Map<String, dynamic> buildFirestoreDoc(
+      Map<String, dynamic> encrypted,
+      String senderId,
+    ) {
+      // CF stores these fields (conversations.ts lines 271-308)
+      return {
+        'id': 'test_msg_${DateTime.now().microsecondsSinceEpoch}',
+        'senderId': senderId,
+        'senderName': 'Test User',
+        'type': 'text',
+        'status': 'sent',
+        'textContent': null,
+        'ciphertext': encrypted['ciphertext'],
+        'e2ee': encrypted['e2ee'],
+        'x3dhHeader': encrypted['x3dhHeader'],
+        'createdAt': DateTime.now().toIso8601String(),
+      };
+    }
+
+    /// Rebuild the encrypted map exactly as MessageSyncService._decryptMessage
+    /// does (message_sync_service.dart lines 268-285).
+    Map<String, dynamic> rebuildEncryptedMap(dynamic msg) {
+      final message = msg;
+      return <String, dynamic>{
+        'ciphertext': message.ciphertext,
+        if (message.e2ee != null)
+          'e2ee': {
+            'protocol': message.e2ee.protocol,
+            'messageNumber': message.e2ee.messageNumber,
+            'dhPublicKey': message.e2ee.dhPublicKey,
+          },
+        if (message.x3dhHeader != null)
+          'x3dhHeader': {
+            'identityKey': message.x3dhHeader.identityKey,
+            'ephemeralKey': message.x3dhHeader.ephemeralKey,
+            if (message.x3dhHeader.oneTimePreKeyPublicKey != null)
+              'oneTimePreKeyPublicKey':
+                  message.x3dhHeader.oneTimePreKeyPublicKey,
+            if (message.x3dhHeader.oneTimePreKeyId != null)
+              'oneTimePreKeyId': message.x3dhHeader.oneTimePreKeyId,
+          },
+      };
+    }
+
+    test('encrypt → Firestore doc → MessageModel → entity → rebuild → decrypt',
+        () async {
+      await alice.service.establishSession(bobId);
+      final encrypted =
+          await alice.service.encryptP2P(bobId, 'Hello via Firestore!');
+
+      // Step 1: Build Firestore document (simulating CF storage)
+      final firestoreDoc = buildFirestoreDoc(encrypted, aliceId);
+
+      // Step 2: Parse via MessageModel (simulating Firestore SDK read)
+      final model = MessageModel.fromJson(firestoreDoc);
+
+      // Step 3: Convert to entity (simulating sync service)
+      final entity = model.toEntity();
+
+      // Verify the entity preserved the E2EE fields
+      expect(entity.ciphertext, isNotNull);
+      expect(entity.e2ee, isNotNull);
+      expect(entity.e2ee!.messageNumber, isA<int>());
+      expect(entity.e2ee!.dhPublicKey, isNotNull);
+      expect(entity.x3dhHeader, isNotNull);
+      expect(entity.x3dhHeader!.identityKey, isNotEmpty);
+      expect(entity.x3dhHeader!.ephemeralKey, isNotEmpty);
+
+      // Step 4: Rebuild encrypted map (exactly as sync service does)
+      final rebuiltMap = rebuildEncryptedMap(entity);
+
+      // Step 5: Bob decrypts using the rebuilt map
+      final plaintext = await bob.service.decryptP2P(aliceId, rebuiltMap);
+      expect(plaintext, equals('Hello via Firestore!'));
+    });
+
+    test('JSON round-trip simulating JavaScript number serialisation',
+        () async {
+      await alice.service.establishSession(bobId);
+      final encrypted =
+          await alice.service.encryptP2P(bobId, 'JSON round-trip test');
+
+      // Simulate: Dart map → JSON string → JavaScript → Firestore → JSON → Dart
+      // This is what actually happens with callable functions + Firestore
+      final jsonStr = jsonEncode(encrypted);
+      final fromJson = jsonDecode(jsonStr) as Map<String, dynamic>;
+
+      // Verify types survived JSON round-trip
+      final e2ee = fromJson['e2ee'] as Map<String, dynamic>;
+      // JSON decode returns int for whole numbers in Dart
+      expect(e2ee['messageNumber'], isA<int>());
+
+      // Build Firestore doc from JSON-roundtripped data
+      final firestoreDoc = buildFirestoreDoc(fromJson, aliceId);
+      final model = MessageModel.fromJson(firestoreDoc);
+      final entity = model.toEntity();
+      final rebuiltMap = rebuildEncryptedMap(entity);
+
+      final plaintext = await bob.service.decryptP2P(aliceId, rebuiltMap);
+      expect(plaintext, equals('JSON round-trip test'));
+    });
+
+    test('messageNumber as double (Firestore web edge case) still decrypts',
+        () async {
+      await alice.service.establishSession(bobId);
+      final encrypted =
+          await alice.service.encryptP2P(bobId, 'double messageNumber');
+
+      // Simulate Firestore returning messageNumber as double (web platform)
+      final firestoreDoc = buildFirestoreDoc(encrypted, aliceId);
+      final e2eeMap =
+          Map<String, dynamic>.from(firestoreDoc['e2ee'] as Map);
+      e2eeMap['messageNumber'] =
+          (e2eeMap['messageNumber'] as int).toDouble();
+      firestoreDoc['e2ee'] = e2eeMap;
+
+      // MessageModel.fromJson should handle this — _parseE2eeMetadata
+      // casts messageNumber as int?, which WILL throw for double.
+      // This test documents the current behavior.
+      try {
+        final model = MessageModel.fromJson(firestoreDoc);
+        final entity = model.toEntity();
+        final rebuiltMap = rebuildEncryptedMap(entity);
+
+        final plaintext = await bob.service.decryptP2P(aliceId, rebuiltMap);
+        expect(plaintext, equals('double messageNumber'));
+      } on TypeError {
+        // If this fires, messageNumber: double → as int? throws.
+        // This IS a real production bug on platforms that return double.
+        fail(
+          'messageNumber as double caused TypeError — '
+          '_parseE2eeMetadata needs (raw["messageNumber"] as num?)?.toInt()',
+        );
+      }
+    });
+
+    test('multiple messages through Firestore round-trip', () async {
+      await alice.service.establishSession(bobId);
+
+      for (var i = 0; i < 5; i++) {
+        final msg = 'Firestore message #$i';
+        final encrypted = await alice.service.encryptP2P(bobId, msg);
+
+        final firestoreDoc = buildFirestoreDoc(encrypted, aliceId);
+        final model = MessageModel.fromJson(firestoreDoc);
+        final entity = model.toEntity();
+        final rebuiltMap = rebuildEncryptedMap(entity);
+
+        final plaintext = await bob.service.decryptP2P(aliceId, rebuiltMap);
+        expect(plaintext, equals(msg));
+      }
+    });
+
+    test('bidirectional through Firestore round-trip', () async {
+      // Alice → Bob
+      await alice.service.establishSession(bobId);
+      final enc1 =
+          await alice.service.encryptP2P(bobId, 'Hello from Alice');
+      final doc1 = buildFirestoreDoc(enc1, aliceId);
+      final model1 = MessageModel.fromJson(doc1);
+      final entity1 = model1.toEntity();
+      final rebuilt1 = rebuildEncryptedMap(entity1);
+      final pt1 = await bob.service.decryptP2P(aliceId, rebuilt1);
+      expect(pt1, equals('Hello from Alice'));
+
+      // Bob → Alice
+      final enc2 =
+          await bob.service.encryptP2P(aliceId, 'Hello from Bob');
+      final doc2 = buildFirestoreDoc(enc2, bobId);
+      final model2 = MessageModel.fromJson(doc2);
+      final entity2 = model2.toEntity();
+      final rebuilt2 = rebuildEncryptedMap(entity2);
+      final pt2 = await alice.service.decryptP2P(bobId, rebuilt2);
+      expect(pt2, equals('Hello from Bob'));
+    });
+
+    test('x3dhHeader.oneTimePreKeyPublicKey preserved through round-trip',
+        () async {
+      await alice.service.establishSession(bobId);
+      final encrypted =
+          await alice.service.encryptP2P(bobId, 'OTK round-trip');
+
+      // Verify original has OTK
+      final origHeader = encrypted['x3dhHeader'] as Map<String, dynamic>;
+      expect(origHeader['oneTimePreKeyPublicKey'], isNotNull,
+          reason: 'sender must include OTK public key in x3dhHeader');
+
+      // Round-trip
+      final firestoreDoc = buildFirestoreDoc(encrypted, aliceId);
+      final model = MessageModel.fromJson(firestoreDoc);
+      final entity = model.toEntity();
+
+      // Verify OTK survived
+      expect(entity.x3dhHeader!.oneTimePreKeyPublicKey, isNotNull);
+      expect(entity.x3dhHeader!.oneTimePreKeyPublicKey,
+          equals(origHeader['oneTimePreKeyPublicKey']));
+
+      // Decrypt
+      final rebuiltMap = rebuildEncryptedMap(entity);
+      final plaintext = await bob.service.decryptP2P(aliceId, rebuiltMap);
+      expect(plaintext, equals('OTK round-trip'));
+    });
   });
 }

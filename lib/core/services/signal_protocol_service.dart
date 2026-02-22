@@ -233,7 +233,7 @@ class SignalProtocolService {
     final x3dhHeader =
         encryptedMessage['x3dhHeader'] as Map<String, dynamic>?;
 
-    final messageNumber = e2ee?['messageNumber'] as int? ?? 0;
+    final messageNumber = (e2ee?['messageNumber'] as num?)?.toInt() ?? 0;
     final peerDhPublicBase64 = e2ee?['dhPublicKey'] as String?;
     final peerDhPublic =
         peerDhPublicBase64 != null ? base64Decode(peerDhPublicBase64) : null;
@@ -498,7 +498,7 @@ class SignalProtocolService {
     Uint8List? dh4;
     final otkPublicKey = x3dhHeader['oneTimePreKeyPublicKey'] as String?;
     // Also support legacy 'oneTimePreKeyId' (int index) for backward compatibility
-    final legacyOtkId = x3dhHeader['oneTimePreKeyId'] as int?;
+    final legacyOtkId = (x3dhHeader['oneTimePreKeyId'] as num?)?.toInt();
     if (otkPublicKey != null) {
       // Content-based matching: find the OTK whose public key matches
       for (final otkEncoded in ourBundle.oneTimePreKeys) {

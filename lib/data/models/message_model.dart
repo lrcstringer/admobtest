@@ -289,7 +289,9 @@ class MessageModel with _$MessageModel {
     return E2eeMetadata(
       protocol: raw['protocol'] as String? ?? 'signal',
       senderKeyChainId: raw['senderKeyChainId'] as String?,
-      messageNumber: raw['messageNumber'] as int?,
+      // Firestore can return numbers as double (especially on web / nested maps).
+      // Using (as num?)?.toInt() handles both int and double safely.
+      messageNumber: (raw['messageNumber'] as num?)?.toInt(),
       dhPublicKey: raw['dhPublicKey'] as String?,
     );
   }
@@ -299,7 +301,7 @@ class MessageModel with _$MessageModel {
     return X3dhHeader(
       identityKey: raw['identityKey'] as String? ?? '',
       ephemeralKey: raw['ephemeralKey'] as String? ?? '',
-      oneTimePreKeyId: raw['oneTimePreKeyId'] as int?,
+      oneTimePreKeyId: (raw['oneTimePreKeyId'] as num?)?.toInt(),
       oneTimePreKeyPublicKey: raw['oneTimePreKeyPublicKey'] as String?,
     );
   }
