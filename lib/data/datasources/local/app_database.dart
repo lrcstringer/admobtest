@@ -162,6 +162,70 @@ class DecryptedMessageCache extends Table {
   Set<Column> get primaryKey => {messageId};
 }
 
+/// Full message entity stored locally for offline-first architecture.
+/// Stores decrypted plaintext — messages are decrypted once on receipt
+/// by MessageSyncService and never re-decrypted.
+class LocalFullMessages extends Table {
+  TextColumn get id => text()();
+  TextColumn get conversationId => text()();
+  TextColumn get senderId => text()();
+  TextColumn get senderName => text()();
+  TextColumn get senderAvatarUrl => text().nullable()();
+  TextColumn get type => text()(); // MessageType enum name
+  TextColumn get status => text()(); // MessageStatus enum name
+  TextColumn get textContent => text().nullable()(); // DECRYPTED plaintext
+  IntColumn get tokenAmount => integer().nullable()();
+  TextColumn get recipientId => text().nullable()();
+  TextColumn get ledgerJournalId => text().nullable()();
+  TextColumn get mediaJson => text().nullable()(); // JSON MessageMedia
+  TextColumn get reactionsJson => text().nullable()(); // JSON Map<String, List<String>>
+  TextColumn get replyToJson => text().nullable()(); // JSON MessageReply
+  TextColumn get giftJson => text().nullable()(); // JSON GiftMessageData
+  TextColumn get tokenSprayJson => text().nullable()(); // JSON TokenSprayMessageData
+  TextColumn get communityId => text().nullable()();
+  TextColumn get systemEventType => text().nullable()();
+  TextColumn get systemEventDataJson => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get expiresAt => dateTime().nullable()();
+  DateTimeColumn get actionedAt => dateTime().nullable()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+  TextColumn get deletedForJson => text().withDefault(const Constant('[]'))();
+  BoolColumn get deletedForEveryone =>
+      boolean().withDefault(const Constant(false))();
+  BoolColumn get isDecrypted =>
+      boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Full conversation entity stored locally for offline-first architecture.
+/// Stores decrypted last message preview — no on-the-fly decryption needed.
+class LocalFullConversations extends Table {
+  TextColumn get id => text()();
+  TextColumn get type => text()(); // ConversationType enum name
+  TextColumn get participantIdsJson => text()(); // JSON List<String>
+  TextColumn get participantsJson => text()(); // JSON Map<String, ParticipantInfo>
+  TextColumn get lastMessageId => text().nullable()();
+  TextColumn get lastMessageText => text().nullable()(); // DECRYPTED preview
+  TextColumn get lastMessageSenderId => text().nullable()();
+  TextColumn get lastMessageSenderName => text().nullable()();
+  TextColumn get lastMessageType => text().nullable()();
+  DateTimeColumn get lastMessageAt => dateTime().nullable()();
+  TextColumn get unreadCountsJson =>
+      text().withDefault(const Constant('{}'))();
+  TextColumn get archivedJson => text().withDefault(const Constant('{}'))();
+  TextColumn get pinnedJson => text().withDefault(const Constant('{}'))();
+  TextColumn get mutedJson => text().withDefault(const Constant('{}'))();
+  TextColumn get chatClearedAtJson =>
+      text().withDefault(const Constant('{}'))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 // ============ DATABASE CLASS ============
 
 @lazySingleton
@@ -175,6 +239,8 @@ class DecryptedMessageCache extends Table {
   LocalPendingChanges,
   LocalSyncMetadata,
   DecryptedMessageCache,
+  LocalFullMessages,
+  LocalFullConversations,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -183,7 +249,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -194,6 +260,10 @@ class AppDatabase extends _$AppDatabase {
       onUpgrade: (Migrator m, int from, int to) async {
         if (from < 2) {
           await m.createTable(decryptedMessageCache);
+        }
+        if (from < 3) {
+          await m.createTable(localFullMessages);
+          await m.createTable(localFullConversations);
         }
       },
     );
@@ -469,6 +539,117 @@ class AppDatabase extends _$AppDatabase {
     return delete(decryptedMessageCache).go();
   }
 
+  // ============ LOCAL FULL MESSAGE OPERATIONS ============
+
+  Stream<List<LocalFullMessage>> watchLocalMessages(
+    String conversationId, {
+    int limit = 50,
+  }) {
+    return (select(localFullMessages)
+          ..where((m) => m.conversationId.equals(conversationId))
+          ..orderBy([(m) => OrderingTerm.desc(m.createdAt)])
+          ..limit(limit))
+        .watch();
+  }
+
+  Future<List<LocalFullMessage>> getLocalMessages(
+    String conversationId, {
+    int limit = 50,
+    DateTime? before,
+  }) {
+    return (select(localFullMessages)
+          ..where((m) {
+            final conv = m.conversationId.equals(conversationId);
+            if (before != null) {
+              return conv & m.createdAt.isSmallerThanValue(before);
+            }
+            return conv;
+          })
+          ..orderBy([(m) => OrderingTerm.desc(m.createdAt)])
+          ..limit(limit))
+        .get();
+  }
+
+  Future<void> upsertLocalMessage(LocalFullMessagesCompanion message) {
+    return into(localFullMessages).insertOnConflictUpdate(message);
+  }
+
+  Future<void> upsertLocalMessages(
+      List<LocalFullMessagesCompanion> messages) async {
+    await batch((b) {
+      for (final msg in messages) {
+        b.insert(localFullMessages, msg, onConflict: DoUpdate((_) => msg));
+      }
+    });
+  }
+
+  Future<void> deleteLocalMessage(String messageId) {
+    return (delete(localFullMessages)..where((m) => m.id.equals(messageId)))
+        .go();
+  }
+
+  Future<void> deleteLocalMessagesForConversation(String conversationId) {
+    return (delete(localFullMessages)
+          ..where((m) => m.conversationId.equals(conversationId)))
+        .go();
+  }
+
+  Future<LocalFullMessage?> getLatestLocalMessage(String conversationId) {
+    return (select(localFullMessages)
+          ..where((m) => m.conversationId.equals(conversationId))
+          ..orderBy([(m) => OrderingTerm.desc(m.createdAt)])
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
+  Future<LocalFullMessage?> getLocalMessageById(String messageId) {
+    return (select(localFullMessages)..where((m) => m.id.equals(messageId)))
+        .getSingleOrNull();
+  }
+
+  Future<void> updateLocalMessageStatus(String messageId, String status) {
+    return (update(localFullMessages)..where((m) => m.id.equals(messageId)))
+        .write(LocalFullMessagesCompanion(status: Value(status)));
+  }
+
+  // ============ LOCAL FULL CONVERSATION OPERATIONS ============
+
+  Stream<List<LocalFullConversation>> watchLocalConversations() {
+    return (select(localFullConversations)
+          ..orderBy([(c) => OrderingTerm.desc(c.lastMessageAt)]))
+        .watch();
+  }
+
+  Future<List<LocalFullConversation>> getLocalConversations() {
+    return (select(localFullConversations)
+          ..orderBy([(c) => OrderingTerm.desc(c.lastMessageAt)]))
+        .get();
+  }
+
+  Future<void> upsertLocalConversation(
+      LocalFullConversationsCompanion conversation) {
+    return into(localFullConversations).insertOnConflictUpdate(conversation);
+  }
+
+  Future<LocalFullConversation?> getLocalConversation(String id) {
+    return (select(localFullConversations)
+          ..where((c) => c.id.equals(id)))
+        .getSingleOrNull();
+  }
+
+  Future<void> deleteLocalConversation(String id) {
+    return (delete(localFullConversations)..where((c) => c.id.equals(id)))
+        .go();
+  }
+
+  Future<void> clearLocalFullMessages() {
+    return delete(localFullMessages).go();
+  }
+
+  Future<void> clearLocalFullConversations() {
+    return delete(localFullConversations).go();
+  }
+
   // ============ CLEAR ALL DATA ============
 
   Future<void> clearAllData() async {
@@ -481,6 +662,8 @@ class AppDatabase extends _$AppDatabase {
     await delete(localPendingChanges).go();
     await delete(localSyncMetadata).go();
     await clearDecryptedMessages();
+    await clearLocalFullMessages();
+    await clearLocalFullConversations();
   }
 
   Future<void> clearUserData(String userId) async {
@@ -490,12 +673,18 @@ class AppDatabase extends _$AppDatabase {
     await deleteChatThreads(userId);
     await deleteContacts(userId);
     await clearDecryptedMessages();
+    await clearLocalFullMessages();
+    await clearLocalFullConversations();
   }
 }
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    // Load sqlcipher native library on Android
+    // Load sqlcipher native library on Android.
+    // IMPORTANT: This override is per-isolate. We must NOT use
+    // NativeDatabase.createInBackground because the background isolate
+    // would not inherit this override and would fail with:
+    //   dlopen failed: library "libsqlite3.so" not found
     open.overrideFor(OperatingSystem.android, openCipherOnAndroid);
 
     final dbFolder = await getApplicationDocumentsDirectory();
@@ -517,7 +706,7 @@ LazyDatabase _openConnection() {
       await oldFile.delete();
     }
 
-    return NativeDatabase.createInBackground(
+    return NativeDatabase(
       file,
       setup: (db) {
         db.execute("PRAGMA key = '$key'");

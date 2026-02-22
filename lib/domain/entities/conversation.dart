@@ -29,6 +29,7 @@ class Conversation with _$Conversation {
     required Map<String, ParticipantInfo> participants,
 
     // Last message preview (for inbox list)
+    String? lastMessageId,
     String? lastMessageText,
     String? lastMessageSenderId,
     String? lastMessageSenderName,

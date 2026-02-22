@@ -9,6 +9,8 @@ import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/core/security/device_binding_service.dart';
 import 'package:imalichat/core/services/biometric_login_service.dart';
 import 'package:imalichat/core/services/fcm_challenge_handler.dart';
+import 'package:imalichat/core/services/message_sync_service.dart';
+import 'package:imalichat/core/services/offline_action_queue.dart';
 import 'package:imalichat/domain/entities/trusted_device.dart';
 import 'package:imalichat/domain/entities/user.dart';
 import 'package:imalichat/domain/repositories/auth_repository.dart';
@@ -28,6 +30,10 @@ class MockBiometricLoginService extends Mock implements BiometricLoginService {}
 
 class MockFcmChallengeHandler extends Mock implements FcmChallengeHandler {}
 
+class MockMessageSyncService extends Mock implements MessageSyncService {}
+
+class MockOfflineActionQueue extends Mock implements OfflineActionQueue {}
+
 void main() {
   late MockAuthRepository mockAuthRepository;
   late MockUserRepository mockUserRepository;
@@ -35,6 +41,7 @@ void main() {
   late MockBiometricLoginService mockBiometricLoginService;
   late MockFcmChallengeHandler mockFcmChallengeHandler;
   late MockKeyManagementService mockKeyManagementService;
+  late MockSignalProtocolService mockSignalProtocolService;
   late StreamController<User?> authStateController;
 
   final testKeyBundle = E2EETestData.createTestKeyBundle();
@@ -50,6 +57,9 @@ void main() {
         mockBiometricLoginService,
         mockFcmChallengeHandler,
         mockKeyManagementService,
+        mockSignalProtocolService,
+        MockMessageSyncService(),
+        MockOfflineActionQueue(),
       );
 
   setUp(() {
@@ -59,7 +69,12 @@ void main() {
     mockBiometricLoginService = MockBiometricLoginService();
     mockFcmChallengeHandler = MockFcmChallengeHandler();
     mockKeyManagementService = MockKeyManagementService();
+    mockSignalProtocolService = MockSignalProtocolService();
     authStateController = StreamController<User?>.broadcast();
+
+    // Stub migration method added in Phase 0
+    when(() => mockSignalProtocolService.migrateResetCorruptedSessions())
+        .thenAnswer((_) async => false);
 
     // Default stubs shared by all tests
     when(() => mockAuthRepository.authStateChanges)

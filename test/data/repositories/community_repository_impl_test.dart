@@ -132,7 +132,17 @@ void main() {
       mockDataSource,
       mockNetworkInfo,
       mockSenderKeyService,
+      MockSignalProtocolService(),
     );
+
+    // Default stubs for _ensureSenderKeyDistributed (called before encrypt).
+    // Pretend sender key already exists and member list is empty so the method
+    // completes without network calls.
+    when(() => mockSenderKeyService.hasSenderKey(any()))
+        .thenAnswer((_) async => true);
+    when(() => mockDataSource.getMembers(any()))
+        .thenAnswer((_) async => <CommunityMemberModel>[]);
+    when(() => mockDataSource.currentUserId).thenReturn(_userId);
   });
 
   // ===========================================================================

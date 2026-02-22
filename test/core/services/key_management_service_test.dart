@@ -27,6 +27,12 @@ void main() {
     mockCallable = MockHttpsCallable();
     mockCallableResult = MockHttpsCallableResult();
 
+    // Default stubs for Ed25519 storage keys (optional, null by default)
+    when(() => mockSecureStorage.read(key: 'e2ee_ed25519_identity_key'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_ed25519_signature'))
+        .thenAnswer((_) async => null);
+
     service = KeyManagementService(
       mockCryptoService,
       mockSecureStorage,
@@ -53,13 +59,21 @@ void main() {
     return encodedPair.split('|')[1];
   }
 
-  /// Stub generateX25519KeyPair to return a sequence of distinct key pairs.
+  /// Stub generateX25519KeyPair, Ed25519 key generation, and signing.
   void stubKeyPairGeneration({int count = 12}) {
     var callIndex = 0;
     when(() => mockCryptoService.generateX25519KeyPair()).thenAnswer((_) async {
       final kp = fakeKeyPair(callIndex * 10);
       callIndex++;
       return kp;
+    });
+    // Ed25519 key pair (used for verifiable signatures)
+    when(() => mockCryptoService.generateEd25519KeyPair()).thenAnswer((_) async {
+      return fakeKeyPair(200);
+    });
+    // Ed25519 signing
+    when(() => mockCryptoService.ed25519Sign(any(), any())).thenAnswer((_) async {
+      return Uint8List.fromList(List.generate(64, (i) => i + 50));
     });
   }
 
@@ -98,6 +112,10 @@ void main() {
         .thenAnswer((_) async => jsonEncode(bundle.oneTimePreKeys));
     when(() => mockSecureStorage.read(key: 'e2ee_registration_id'))
         .thenAnswer((_) async => bundle.registrationId.toString());
+    when(() => mockSecureStorage.read(key: 'e2ee_ed25519_identity_key'))
+        .thenAnswer((_) async => bundle.ed25519IdentityKeyPair);
+    when(() => mockSecureStorage.read(key: 'e2ee_ed25519_signature'))
+        .thenAnswer((_) async => bundle.ed25519Signature);
   }
 
   /// Stubs all secure storage writes to succeed.

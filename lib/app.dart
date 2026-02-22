@@ -114,24 +114,31 @@ class _IMaliChatAppState extends State<IMaliChatApp>
 
     // App opened from a background notification tap
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      final data = message.data;
-      if (data['type'] == 'auth_challenge') {
-        _appRouter.router.push('/auth/challenge-approval', extra: {
-          'challengeId': data['challengeId'],
-          'nonce': data['nonce'],
-        });
-      }
+      _handleNotificationTap(message.data);
     });
 
     // App launched from terminated state via notification tap
     FirebaseMessaging.instance.getInitialMessage().then((message) {
-      if (message != null && message.data['type'] == 'auth_challenge') {
-        _appRouter.router.push('/auth/challenge-approval', extra: {
-          'challengeId': message.data['challengeId'],
-          'nonce': message.data['nonce'],
-        });
+      if (message != null) {
+        _handleNotificationTap(message.data);
       }
     });
+  }
+
+  /// Route notification taps to the appropriate screen.
+  void _handleNotificationTap(Map<String, dynamic> data) {
+    final type = data['type'];
+    if (type == 'auth_challenge') {
+      _appRouter.router.push('/auth/challenge-approval', extra: {
+        'challengeId': data['challengeId'],
+        'nonce': data['nonce'],
+      });
+    } else if (type == 'chat_message') {
+      final conversationId = data['conversationId'];
+      if (conversationId != null) {
+        _appRouter.router.push('/chat/$conversationId');
+      }
+    }
   }
 
   /// Propagate the current user ID to security services that need it

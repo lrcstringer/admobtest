@@ -199,6 +199,7 @@ mixin _$Conversation {
   List<String> get participantIds => throw _privateConstructorUsedError;
   Map<String, ParticipantInfo> get participants =>
       throw _privateConstructorUsedError; // Last message preview (for inbox list)
+  String? get lastMessageId => throw _privateConstructorUsedError;
   String? get lastMessageText => throw _privateConstructorUsedError;
   String? get lastMessageSenderId => throw _privateConstructorUsedError;
   String? get lastMessageSenderName => throw _privateConstructorUsedError;
@@ -239,6 +240,7 @@ abstract class $ConversationCopyWith<$Res> {
     ConversationType type,
     List<String> participantIds,
     Map<String, ParticipantInfo> participants,
+    String? lastMessageId,
     String? lastMessageText,
     String? lastMessageSenderId,
     String? lastMessageSenderName,
@@ -274,6 +276,7 @@ class _$ConversationCopyWithImpl<$Res, $Val extends Conversation>
     Object? type = null,
     Object? participantIds = null,
     Object? participants = null,
+    Object? lastMessageId = freezed,
     Object? lastMessageText = freezed,
     Object? lastMessageSenderId = freezed,
     Object? lastMessageSenderName = freezed,
@@ -306,6 +309,10 @@ class _$ConversationCopyWithImpl<$Res, $Val extends Conversation>
                 ? _value.participants
                 : participants // ignore: cast_nullable_to_non_nullable
                       as Map<String, ParticipantInfo>,
+            lastMessageId: freezed == lastMessageId
+                ? _value.lastMessageId
+                : lastMessageId // ignore: cast_nullable_to_non_nullable
+                      as String?,
             lastMessageText: freezed == lastMessageText
                 ? _value.lastMessageText
                 : lastMessageText // ignore: cast_nullable_to_non_nullable
@@ -378,6 +385,7 @@ abstract class _$$ConversationImplCopyWith<$Res>
     ConversationType type,
     List<String> participantIds,
     Map<String, ParticipantInfo> participants,
+    String? lastMessageId,
     String? lastMessageText,
     String? lastMessageSenderId,
     String? lastMessageSenderName,
@@ -412,6 +420,7 @@ class __$$ConversationImplCopyWithImpl<$Res>
     Object? type = null,
     Object? participantIds = null,
     Object? participants = null,
+    Object? lastMessageId = freezed,
     Object? lastMessageText = freezed,
     Object? lastMessageSenderId = freezed,
     Object? lastMessageSenderName = freezed,
@@ -444,6 +453,10 @@ class __$$ConversationImplCopyWithImpl<$Res>
             ? _value._participants
             : participants // ignore: cast_nullable_to_non_nullable
                   as Map<String, ParticipantInfo>,
+        lastMessageId: freezed == lastMessageId
+            ? _value.lastMessageId
+            : lastMessageId // ignore: cast_nullable_to_non_nullable
+                  as String?,
         lastMessageText: freezed == lastMessageText
             ? _value.lastMessageText
             : lastMessageText // ignore: cast_nullable_to_non_nullable
@@ -509,6 +522,7 @@ class _$ConversationImpl extends _Conversation {
     required this.type,
     required final List<String> participantIds,
     required final Map<String, ParticipantInfo> participants,
+    this.lastMessageId,
     this.lastMessageText,
     this.lastMessageSenderId,
     this.lastMessageSenderName,
@@ -556,6 +570,8 @@ class _$ConversationImpl extends _Conversation {
   }
 
   // Last message preview (for inbox list)
+  @override
+  final String? lastMessageId;
   @override
   final String? lastMessageText;
   @override
@@ -631,7 +647,7 @@ class _$ConversationImpl extends _Conversation {
 
   @override
   String toString() {
-    return 'Conversation(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Conversation(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageId: $lastMessageId, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -649,6 +665,8 @@ class _$ConversationImpl extends _Conversation {
               other._participants,
               _participants,
             ) &&
+            (identical(other.lastMessageId, lastMessageId) ||
+                other.lastMessageId == lastMessageId) &&
             (identical(other.lastMessageText, lastMessageText) ||
                 other.lastMessageText == lastMessageText) &&
             (identical(other.lastMessageSenderId, lastMessageSenderId) ||
@@ -688,6 +706,7 @@ class _$ConversationImpl extends _Conversation {
     type,
     const DeepCollectionEquality().hash(_participantIds),
     const DeepCollectionEquality().hash(_participants),
+    lastMessageId,
     lastMessageText,
     lastMessageSenderId,
     lastMessageSenderName,
@@ -723,6 +742,7 @@ abstract class _Conversation extends Conversation {
     required final ConversationType type,
     required final List<String> participantIds,
     required final Map<String, ParticipantInfo> participants,
+    final String? lastMessageId,
     final String? lastMessageText,
     final String? lastMessageSenderId,
     final String? lastMessageSenderName,
@@ -750,6 +770,8 @@ abstract class _Conversation extends Conversation {
   List<String> get participantIds;
   @override
   Map<String, ParticipantInfo> get participants; // Last message preview (for inbox list)
+  @override
+  String? get lastMessageId;
   @override
   String? get lastMessageText;
   @override

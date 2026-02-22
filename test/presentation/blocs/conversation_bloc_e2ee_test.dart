@@ -7,6 +7,7 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/domain/entities/message.dart';
+import 'package:imalichat/domain/enums/message_status.dart';
 import 'package:imalichat/domain/repositories/conversation_repository.dart';
 import 'package:imalichat/presentation/blocs/conversation/conversation_bloc.dart';
 
@@ -206,13 +207,16 @@ void main() {
 
     group('sendTextMessage', () {
       blocTest<ConversationBloc, ConversationState>(
-        'calls repository.sendTextMessage and emits sending states',
+        'calls repository.sendTextMessage and emits optimistic insert then success',
         build: () {
           when(() => mockConversationRepository.sendTextMessage(
                 conversationId: any(named: 'conversationId'),
                 text: any(named: 'text'),
                 replyToMessageId: any(named: 'replyToMessageId'),
+                recipientId: any(named: 'recipientId'),
               )).thenAnswer((_) async => Right(sentMessage));
+          when(() => mockConversationRepository.currentUserId)
+              .thenReturn('test_user');
           return ConversationBloc(mockConversationRepository);
         },
         act: (bloc) => bloc.add(const ConversationEvent.sendTextMessage(
@@ -220,28 +224,48 @@ void main() {
           text: 'Hello encrypted world!',
         )),
         expect: () => [
+          // Optimistic insert: message added with status=sending
           isA<ConversationState>()
-              .having((s) => s.isSending, 'isSending', true),
+              .having((s) => s.messages.length, 'messages.length', 1)
+              .having(
+                (s) => s.messages.first.status,
+                'first message status',
+                MessageStatus.sending,
+              )
+              .having(
+                (s) => s.messages.first.textContent,
+                'textContent',
+                'Hello encrypted world!',
+              ),
+          // After send succeeds: optimistic message replaced with real one
           isA<ConversationState>()
-              .having((s) => s.isSending, 'isSending', false),
+              .having(
+                (s) => s.messages.first.status,
+                'first message status',
+                MessageStatus.sent,
+              ),
         ],
         verify: (_) {
           verify(() => mockConversationRepository.sendTextMessage(
                 conversationId: 'conv_abc',
                 text: 'Hello encrypted world!',
                 replyToMessageId: null,
+                recipientId: null,
               )).called(1);
         },
       );
 
       blocTest<ConversationBloc, ConversationState>(
-        'emits error when sendTextMessage fails',
+        'emits error with failed status when sendTextMessage fails',
         build: () {
           when(() => mockConversationRepository.sendTextMessage(
                 conversationId: any(named: 'conversationId'),
                 text: any(named: 'text'),
                 replyToMessageId: any(named: 'replyToMessageId'),
+                recipientId: any(named: 'recipientId'),
               )).thenAnswer((_) async => const Left(Failure.network()));
+          when(() => mockConversationRepository.currentUserId)
+              .thenReturn('test_user');
           return ConversationBloc(mockConversationRepository);
         },
         act: (bloc) => bloc.add(const ConversationEvent.sendTextMessage(
@@ -249,10 +273,21 @@ void main() {
           text: 'This will fail',
         )),
         expect: () => [
+          // Optimistic insert: message added with status=sending
           isA<ConversationState>()
-              .having((s) => s.isSending, 'isSending', true),
+              .having((s) => s.messages.length, 'messages.length', 1)
+              .having(
+                (s) => s.messages.first.status,
+                'first message status',
+                MessageStatus.sending,
+              ),
+          // After send fails: message status changed to failed + error set
           isA<ConversationState>()
-              .having((s) => s.isSending, 'isSending', false)
+              .having(
+                (s) => s.messages.first.status,
+                'first message status',
+                MessageStatus.failed,
+              )
               .having((s) => s.errorMessage, 'errorMessage', isNotNull),
         ],
       );

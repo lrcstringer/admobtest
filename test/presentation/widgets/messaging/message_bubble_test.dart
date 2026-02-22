@@ -215,6 +215,95 @@ void main() {
   });
 
   // =====================================================================
+  // E2EE Display Proof — Decrypted Text Reaches the Screen
+  // =====================================================================
+  group('E2EE display proof', () {
+    testWidgets(
+        'Successfully decrypted E2EE message shows plaintext, not "Message cannot be decrypted"',
+        (tester) async {
+      // This simulates exactly what _decryptIfNeeded returns on success:
+      // msg.copyWith(textContent: plaintext) — ciphertext stays set, textContent is populated.
+      final msg = E2EETestData.createEncryptedMessage(
+        senderId: otherUserId,
+        ciphertext: 'ZW5jcnlwdGVkRGF0YQ==',
+        e2ee: E2EETestData.createSignalMetadata(),
+      ).copyWith(textContent: 'Hello from Alice!');
+
+      await pumpBubble(tester, message: msg, isMe: false);
+
+      // The ACTUAL plaintext MUST be visible on screen
+      expect(find.text('Hello from Alice!'), findsOneWidget);
+      // "Message cannot be decrypted" MUST NOT appear
+      expect(find.text('Message cannot be decrypted'), findsNothing);
+      // Lock icon appears (message.isEncrypted is true because ciphertext is set)
+      expect(find.byIcon(Icons.lock), findsOneWidget);
+      // lock_outline (failure indicator) MUST NOT appear
+      expect(find.byIcon(Icons.lock_outline), findsNothing);
+    });
+
+    testWidgets(
+        'Failed decrypt (textContent=[Cannot decrypt]) shows "Message cannot be decrypted"',
+        (tester) async {
+      // This simulates _decryptIfNeeded catch block:
+      // msg.copyWith(textContent: '[Cannot decrypt]')
+      final msg = E2EETestData.createEncryptedMessage(
+        senderId: otherUserId,
+      ).copyWith(textContent: '[Cannot decrypt]');
+
+      await pumpBubble(tester, message: msg, isMe: false);
+
+      expect(find.text('Message cannot be decrypted'), findsOneWidget);
+      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
+      // The raw sentinel value must NOT leak to the UI
+      expect(find.text('[Cannot decrypt]'), findsNothing);
+    });
+
+    testWidgets(
+        'Encrypted message with null textContent shows "Encrypted message" indicator',
+        (tester) async {
+      // This is a sent message where the sender's cache hasn't populated yet
+      final msg = E2EETestData.createEncryptedMessage(
+        senderId: currentUserId,
+      );
+      // textContent is null, ciphertext is set → isEncrypted && textContent == null
+
+      await pumpBubble(tester, message: msg, isMe: true);
+
+      expect(find.text('Encrypted message'), findsOneWidget);
+      // Two lock icons: one in "Encrypted message" row (16px) + one in metadata row (10px)
+      expect(find.byIcon(Icons.lock), findsNWidgets(2));
+      expect(find.text('Message cannot be decrypted'), findsNothing);
+    });
+
+    testWidgets(
+        'Long decrypted text renders fully (not truncated by bubble)',
+        (tester) async {
+      final longText = 'A' * 300;
+      final msg = E2EETestData.createEncryptedMessage(
+        senderId: otherUserId,
+      ).copyWith(textContent: longText);
+
+      await pumpBubble(tester, message: msg, isMe: false);
+
+      expect(find.text(longText), findsOneWidget);
+      expect(find.text('Message cannot be decrypted'), findsNothing);
+    });
+
+    testWidgets(
+        'Unicode/emoji decrypted text displays correctly',
+        (tester) async {
+      const unicodeText = 'Hello \u2764\ufe0f\ud83d\ude80 world! \u4f60\u597d';
+      final msg = E2EETestData.createEncryptedMessage(
+        senderId: otherUserId,
+      ).copyWith(textContent: unicodeText);
+
+      await pumpBubble(tester, message: msg, isMe: false);
+
+      expect(find.text(unicodeText), findsOneWidget);
+    });
+  });
+
+  // =====================================================================
   // Token Card
   // =====================================================================
   group('Token card', () {
@@ -233,13 +322,13 @@ void main() {
     testWidgets(
         'token request card renders Pay/Decline buttons when canAction=true',
         (tester) async {
-      // canAction requires: isRequest && recipientId == currentUserId && status == sending
+      // canAction requires: isRequest && recipientId == currentUserId && status == pending
       final msg = Message(
         id: 'msg_token_req',
         senderId: otherUserId,
         senderName: 'Bob',
         type: MessageType.tokenRequest,
-        status: MessageStatus.sending,
+        status: MessageStatus.pending,
         textContent: 'Please pay me',
         tokenAmount: 250,
         recipientId: currentUserId,
@@ -267,7 +356,7 @@ void main() {
         senderId: otherUserId,
         senderName: 'Bob',
         type: MessageType.tokenRequest,
-        status: MessageStatus.sending,
+        status: MessageStatus.pending,
         tokenAmount: 100,
         recipientId: currentUserId,
         createdAt: DateTime(2024, 6, 1, 14, 30),
@@ -295,7 +384,7 @@ void main() {
         senderId: otherUserId,
         senderName: 'Bob',
         type: MessageType.tokenRequest,
-        status: MessageStatus.sending,
+        status: MessageStatus.pending,
         tokenAmount: 100,
         recipientId: currentUserId,
         createdAt: DateTime(2024, 6, 1, 14, 30),

@@ -230,13 +230,9 @@ void main() {
         ),
       );
 
-      final sizedBox = tester.widget<SizedBox>(
-        find.ancestor(
-          of: find.byType(ElevatedButton),
-          matching: find.byType(SizedBox),
-        ).first,
-      );
-      expect(sizedBox.width, isNot(double.infinity));
+      final buttonSize = tester.getSize(find.byType(AppButton));
+      final scaffoldSize = tester.getSize(find.byType(Scaffold));
+      expect(buttonSize.width, lessThan(scaffoldSize.width));
     });
   });
 }

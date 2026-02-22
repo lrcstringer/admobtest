@@ -242,10 +242,11 @@ void main() {
       expect(bobPublicBundle.oneTimePreKeys, isNotEmpty);
       await aliceService.establishSession(bobId);
 
-      // Session should record the consumed OTK id in the x3dhHeader data
+      // Session should record the consumed OTK public key in pending data
       final stored = aliceStorage.store['e2ee_session_$bobId']!;
       final json = jsonDecode(stored) as Map<String, dynamic>;
-      expect(json['pendingOtkId'], equals(0));
+      expect(json['pendingOtkPublicKey'], isNotNull);
+      expect(json['pendingOtkPublicKey'], equals(bobPublicBundle.oneTimePreKeys.first));
     });
 
     test('performs X3DH without OTK when none available (3 DH operations)',
@@ -267,7 +268,7 @@ void main() {
       final stored = aliceStorage.store['e2ee_session_$bobId']!;
       final json = jsonDecode(stored) as Map<String, dynamic>;
       // No OTK consumed
-      expect(json['pendingOtkId'], isNull);
+      expect(json['pendingOtkPublicKey'], isNull);
       // Session still created successfully
       expect(json['rootKey'], isNotNull);
     });
@@ -342,13 +343,22 @@ void main() {
           () => base64Decode(header['ephemeralKey'] as String), returnsNormally);
     });
 
-    test('second message does NOT include x3dhHeader', () async {
+    test('x3dhHeader is included on all messages until session confirmed', () async {
       await aliceService.establishSession(bobId);
-      // First message consumes the pending header
-      await aliceService.encryptP2P(bobId, 'first');
 
+      final first = await aliceService.encryptP2P(bobId, 'first');
       final second = await aliceService.encryptP2P(bobId, 'second');
-      expect(second.containsKey('x3dhHeader'), isFalse);
+
+      // Both messages include x3dhHeader because pending keys are kept
+      // until the sender receives a decrypted reply (session confirmation).
+      expect(first.containsKey('x3dhHeader'), isTrue);
+      expect(second.containsKey('x3dhHeader'), isTrue);
+
+      // Both headers contain the same keys
+      final h1 = first['x3dhHeader'] as Map<String, dynamic>;
+      final h2 = second['x3dhHeader'] as Map<String, dynamic>;
+      expect(h1['identityKey'], equals(h2['identityKey']));
+      expect(h1['ephemeralKey'], equals(h2['ephemeralKey']));
     });
 
     test('different messages produce different ciphertext', () async {
@@ -467,7 +477,7 @@ void main() {
       expect(pt2, equals('Message 2'));
     });
 
-    test('Bob replies to Alice -> Alice decrypts', skip: 'Receiver sendChainKey=zeros causes DH ratchet mismatch — protocol implementation needs fix', () async {
+    test('Bob replies to Alice -> Alice decrypts', () async {
       // Alice initiates
       await alice.service.establishSession(bobId);
       final encrypted =
@@ -529,7 +539,7 @@ void main() {
       expect(plaintext, equals(message));
     });
 
-    test('bidirectional multi-turn conversation', skip: 'Receiver sendChainKey=zeros causes DH ratchet mismatch — protocol implementation needs fix', () async {
+    test('bidirectional multi-turn conversation', () async {
       // Alice initiates
       await alice.service.establishSession(bobId);
 

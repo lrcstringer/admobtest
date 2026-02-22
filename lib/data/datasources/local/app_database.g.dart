@@ -5504,6 +5504,2521 @@ class DecryptedMessageCacheCompanion
   }
 }
 
+class $LocalFullMessagesTable extends LocalFullMessages
+    with TableInfo<$LocalFullMessagesTable, LocalFullMessage> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalFullMessagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _conversationIdMeta = const VerificationMeta(
+    'conversationId',
+  );
+  @override
+  late final GeneratedColumn<String> conversationId = GeneratedColumn<String>(
+    'conversation_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _senderIdMeta = const VerificationMeta(
+    'senderId',
+  );
+  @override
+  late final GeneratedColumn<String> senderId = GeneratedColumn<String>(
+    'sender_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _senderNameMeta = const VerificationMeta(
+    'senderName',
+  );
+  @override
+  late final GeneratedColumn<String> senderName = GeneratedColumn<String>(
+    'sender_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _senderAvatarUrlMeta = const VerificationMeta(
+    'senderAvatarUrl',
+  );
+  @override
+  late final GeneratedColumn<String> senderAvatarUrl = GeneratedColumn<String>(
+    'sender_avatar_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _textContentMeta = const VerificationMeta(
+    'textContent',
+  );
+  @override
+  late final GeneratedColumn<String> textContent = GeneratedColumn<String>(
+    'text_content',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tokenAmountMeta = const VerificationMeta(
+    'tokenAmount',
+  );
+  @override
+  late final GeneratedColumn<int> tokenAmount = GeneratedColumn<int>(
+    'token_amount',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _recipientIdMeta = const VerificationMeta(
+    'recipientId',
+  );
+  @override
+  late final GeneratedColumn<String> recipientId = GeneratedColumn<String>(
+    'recipient_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ledgerJournalIdMeta = const VerificationMeta(
+    'ledgerJournalId',
+  );
+  @override
+  late final GeneratedColumn<String> ledgerJournalId = GeneratedColumn<String>(
+    'ledger_journal_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _mediaJsonMeta = const VerificationMeta(
+    'mediaJson',
+  );
+  @override
+  late final GeneratedColumn<String> mediaJson = GeneratedColumn<String>(
+    'media_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reactionsJsonMeta = const VerificationMeta(
+    'reactionsJson',
+  );
+  @override
+  late final GeneratedColumn<String> reactionsJson = GeneratedColumn<String>(
+    'reactions_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _replyToJsonMeta = const VerificationMeta(
+    'replyToJson',
+  );
+  @override
+  late final GeneratedColumn<String> replyToJson = GeneratedColumn<String>(
+    'reply_to_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _giftJsonMeta = const VerificationMeta(
+    'giftJson',
+  );
+  @override
+  late final GeneratedColumn<String> giftJson = GeneratedColumn<String>(
+    'gift_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tokenSprayJsonMeta = const VerificationMeta(
+    'tokenSprayJson',
+  );
+  @override
+  late final GeneratedColumn<String> tokenSprayJson = GeneratedColumn<String>(
+    'token_spray_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _communityIdMeta = const VerificationMeta(
+    'communityId',
+  );
+  @override
+  late final GeneratedColumn<String> communityId = GeneratedColumn<String>(
+    'community_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _systemEventTypeMeta = const VerificationMeta(
+    'systemEventType',
+  );
+  @override
+  late final GeneratedColumn<String> systemEventType = GeneratedColumn<String>(
+    'system_event_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _systemEventDataJsonMeta =
+      const VerificationMeta('systemEventDataJson');
+  @override
+  late final GeneratedColumn<String> systemEventDataJson =
+      GeneratedColumn<String>(
+        'system_event_data_json',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _expiresAtMeta = const VerificationMeta(
+    'expiresAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> expiresAt = GeneratedColumn<DateTime>(
+    'expires_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _actionedAtMeta = const VerificationMeta(
+    'actionedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> actionedAt = GeneratedColumn<DateTime>(
+    'actioned_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deletedForJsonMeta = const VerificationMeta(
+    'deletedForJson',
+  );
+  @override
+  late final GeneratedColumn<String> deletedForJson = GeneratedColumn<String>(
+    'deleted_for_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _deletedForEveryoneMeta =
+      const VerificationMeta('deletedForEveryone');
+  @override
+  late final GeneratedColumn<bool> deletedForEveryone = GeneratedColumn<bool>(
+    'deleted_for_everyone',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted_for_everyone" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isDecryptedMeta = const VerificationMeta(
+    'isDecrypted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDecrypted = GeneratedColumn<bool>(
+    'is_decrypted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_decrypted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    conversationId,
+    senderId,
+    senderName,
+    senderAvatarUrl,
+    type,
+    status,
+    textContent,
+    tokenAmount,
+    recipientId,
+    ledgerJournalId,
+    mediaJson,
+    reactionsJson,
+    replyToJson,
+    giftJson,
+    tokenSprayJson,
+    communityId,
+    systemEventType,
+    systemEventDataJson,
+    createdAt,
+    expiresAt,
+    actionedAt,
+    deletedAt,
+    deletedForJson,
+    deletedForEveryone,
+    isDecrypted,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_full_messages';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalFullMessage> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('conversation_id')) {
+      context.handle(
+        _conversationIdMeta,
+        conversationId.isAcceptableOrUnknown(
+          data['conversation_id']!,
+          _conversationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_conversationIdMeta);
+    }
+    if (data.containsKey('sender_id')) {
+      context.handle(
+        _senderIdMeta,
+        senderId.isAcceptableOrUnknown(data['sender_id']!, _senderIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_senderIdMeta);
+    }
+    if (data.containsKey('sender_name')) {
+      context.handle(
+        _senderNameMeta,
+        senderName.isAcceptableOrUnknown(data['sender_name']!, _senderNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_senderNameMeta);
+    }
+    if (data.containsKey('sender_avatar_url')) {
+      context.handle(
+        _senderAvatarUrlMeta,
+        senderAvatarUrl.isAcceptableOrUnknown(
+          data['sender_avatar_url']!,
+          _senderAvatarUrlMeta,
+        ),
+      );
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('text_content')) {
+      context.handle(
+        _textContentMeta,
+        textContent.isAcceptableOrUnknown(
+          data['text_content']!,
+          _textContentMeta,
+        ),
+      );
+    }
+    if (data.containsKey('token_amount')) {
+      context.handle(
+        _tokenAmountMeta,
+        tokenAmount.isAcceptableOrUnknown(
+          data['token_amount']!,
+          _tokenAmountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('recipient_id')) {
+      context.handle(
+        _recipientIdMeta,
+        recipientId.isAcceptableOrUnknown(
+          data['recipient_id']!,
+          _recipientIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ledger_journal_id')) {
+      context.handle(
+        _ledgerJournalIdMeta,
+        ledgerJournalId.isAcceptableOrUnknown(
+          data['ledger_journal_id']!,
+          _ledgerJournalIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('media_json')) {
+      context.handle(
+        _mediaJsonMeta,
+        mediaJson.isAcceptableOrUnknown(data['media_json']!, _mediaJsonMeta),
+      );
+    }
+    if (data.containsKey('reactions_json')) {
+      context.handle(
+        _reactionsJsonMeta,
+        reactionsJson.isAcceptableOrUnknown(
+          data['reactions_json']!,
+          _reactionsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reply_to_json')) {
+      context.handle(
+        _replyToJsonMeta,
+        replyToJson.isAcceptableOrUnknown(
+          data['reply_to_json']!,
+          _replyToJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('gift_json')) {
+      context.handle(
+        _giftJsonMeta,
+        giftJson.isAcceptableOrUnknown(data['gift_json']!, _giftJsonMeta),
+      );
+    }
+    if (data.containsKey('token_spray_json')) {
+      context.handle(
+        _tokenSprayJsonMeta,
+        tokenSprayJson.isAcceptableOrUnknown(
+          data['token_spray_json']!,
+          _tokenSprayJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('community_id')) {
+      context.handle(
+        _communityIdMeta,
+        communityId.isAcceptableOrUnknown(
+          data['community_id']!,
+          _communityIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('system_event_type')) {
+      context.handle(
+        _systemEventTypeMeta,
+        systemEventType.isAcceptableOrUnknown(
+          data['system_event_type']!,
+          _systemEventTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('system_event_data_json')) {
+      context.handle(
+        _systemEventDataJsonMeta,
+        systemEventDataJson.isAcceptableOrUnknown(
+          data['system_event_data_json']!,
+          _systemEventDataJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('expires_at')) {
+      context.handle(
+        _expiresAtMeta,
+        expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta),
+      );
+    }
+    if (data.containsKey('actioned_at')) {
+      context.handle(
+        _actionedAtMeta,
+        actionedAt.isAcceptableOrUnknown(data['actioned_at']!, _actionedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_for_json')) {
+      context.handle(
+        _deletedForJsonMeta,
+        deletedForJson.isAcceptableOrUnknown(
+          data['deleted_for_json']!,
+          _deletedForJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('deleted_for_everyone')) {
+      context.handle(
+        _deletedForEveryoneMeta,
+        deletedForEveryone.isAcceptableOrUnknown(
+          data['deleted_for_everyone']!,
+          _deletedForEveryoneMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_decrypted')) {
+      context.handle(
+        _isDecryptedMeta,
+        isDecrypted.isAcceptableOrUnknown(
+          data['is_decrypted']!,
+          _isDecryptedMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalFullMessage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalFullMessage(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      conversationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conversation_id'],
+      )!,
+      senderId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sender_id'],
+      )!,
+      senderName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sender_name'],
+      )!,
+      senderAvatarUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sender_avatar_url'],
+      ),
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      textContent: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}text_content'],
+      ),
+      tokenAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}token_amount'],
+      ),
+      recipientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}recipient_id'],
+      ),
+      ledgerJournalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ledger_journal_id'],
+      ),
+      mediaJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}media_json'],
+      ),
+      reactionsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reactions_json'],
+      ),
+      replyToJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reply_to_json'],
+      ),
+      giftJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}gift_json'],
+      ),
+      tokenSprayJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}token_spray_json'],
+      ),
+      communityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}community_id'],
+      ),
+      systemEventType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}system_event_type'],
+      ),
+      systemEventDataJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}system_event_data_json'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      expiresAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}expires_at'],
+      ),
+      actionedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}actioned_at'],
+      ),
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deletedForJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}deleted_for_json'],
+      )!,
+      deletedForEveryone: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted_for_everyone'],
+      )!,
+      isDecrypted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_decrypted'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalFullMessagesTable createAlias(String alias) {
+    return $LocalFullMessagesTable(attachedDatabase, alias);
+  }
+}
+
+class LocalFullMessage extends DataClass
+    implements Insertable<LocalFullMessage> {
+  final String id;
+  final String conversationId;
+  final String senderId;
+  final String senderName;
+  final String? senderAvatarUrl;
+  final String type;
+  final String status;
+  final String? textContent;
+  final int? tokenAmount;
+  final String? recipientId;
+  final String? ledgerJournalId;
+  final String? mediaJson;
+  final String? reactionsJson;
+  final String? replyToJson;
+  final String? giftJson;
+  final String? tokenSprayJson;
+  final String? communityId;
+  final String? systemEventType;
+  final String? systemEventDataJson;
+  final DateTime createdAt;
+  final DateTime? expiresAt;
+  final DateTime? actionedAt;
+  final DateTime? deletedAt;
+  final String deletedForJson;
+  final bool deletedForEveryone;
+  final bool isDecrypted;
+  const LocalFullMessage({
+    required this.id,
+    required this.conversationId,
+    required this.senderId,
+    required this.senderName,
+    this.senderAvatarUrl,
+    required this.type,
+    required this.status,
+    this.textContent,
+    this.tokenAmount,
+    this.recipientId,
+    this.ledgerJournalId,
+    this.mediaJson,
+    this.reactionsJson,
+    this.replyToJson,
+    this.giftJson,
+    this.tokenSprayJson,
+    this.communityId,
+    this.systemEventType,
+    this.systemEventDataJson,
+    required this.createdAt,
+    this.expiresAt,
+    this.actionedAt,
+    this.deletedAt,
+    required this.deletedForJson,
+    required this.deletedForEveryone,
+    required this.isDecrypted,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['conversation_id'] = Variable<String>(conversationId);
+    map['sender_id'] = Variable<String>(senderId);
+    map['sender_name'] = Variable<String>(senderName);
+    if (!nullToAbsent || senderAvatarUrl != null) {
+      map['sender_avatar_url'] = Variable<String>(senderAvatarUrl);
+    }
+    map['type'] = Variable<String>(type);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || textContent != null) {
+      map['text_content'] = Variable<String>(textContent);
+    }
+    if (!nullToAbsent || tokenAmount != null) {
+      map['token_amount'] = Variable<int>(tokenAmount);
+    }
+    if (!nullToAbsent || recipientId != null) {
+      map['recipient_id'] = Variable<String>(recipientId);
+    }
+    if (!nullToAbsent || ledgerJournalId != null) {
+      map['ledger_journal_id'] = Variable<String>(ledgerJournalId);
+    }
+    if (!nullToAbsent || mediaJson != null) {
+      map['media_json'] = Variable<String>(mediaJson);
+    }
+    if (!nullToAbsent || reactionsJson != null) {
+      map['reactions_json'] = Variable<String>(reactionsJson);
+    }
+    if (!nullToAbsent || replyToJson != null) {
+      map['reply_to_json'] = Variable<String>(replyToJson);
+    }
+    if (!nullToAbsent || giftJson != null) {
+      map['gift_json'] = Variable<String>(giftJson);
+    }
+    if (!nullToAbsent || tokenSprayJson != null) {
+      map['token_spray_json'] = Variable<String>(tokenSprayJson);
+    }
+    if (!nullToAbsent || communityId != null) {
+      map['community_id'] = Variable<String>(communityId);
+    }
+    if (!nullToAbsent || systemEventType != null) {
+      map['system_event_type'] = Variable<String>(systemEventType);
+    }
+    if (!nullToAbsent || systemEventDataJson != null) {
+      map['system_event_data_json'] = Variable<String>(systemEventDataJson);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || expiresAt != null) {
+      map['expires_at'] = Variable<DateTime>(expiresAt);
+    }
+    if (!nullToAbsent || actionedAt != null) {
+      map['actioned_at'] = Variable<DateTime>(actionedAt);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['deleted_for_json'] = Variable<String>(deletedForJson);
+    map['deleted_for_everyone'] = Variable<bool>(deletedForEveryone);
+    map['is_decrypted'] = Variable<bool>(isDecrypted);
+    return map;
+  }
+
+  LocalFullMessagesCompanion toCompanion(bool nullToAbsent) {
+    return LocalFullMessagesCompanion(
+      id: Value(id),
+      conversationId: Value(conversationId),
+      senderId: Value(senderId),
+      senderName: Value(senderName),
+      senderAvatarUrl: senderAvatarUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(senderAvatarUrl),
+      type: Value(type),
+      status: Value(status),
+      textContent: textContent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(textContent),
+      tokenAmount: tokenAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tokenAmount),
+      recipientId: recipientId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recipientId),
+      ledgerJournalId: ledgerJournalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ledgerJournalId),
+      mediaJson: mediaJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mediaJson),
+      reactionsJson: reactionsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reactionsJson),
+      replyToJson: replyToJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(replyToJson),
+      giftJson: giftJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(giftJson),
+      tokenSprayJson: tokenSprayJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tokenSprayJson),
+      communityId: communityId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(communityId),
+      systemEventType: systemEventType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(systemEventType),
+      systemEventDataJson: systemEventDataJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(systemEventDataJson),
+      createdAt: Value(createdAt),
+      expiresAt: expiresAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(expiresAt),
+      actionedAt: actionedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(actionedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deletedForJson: Value(deletedForJson),
+      deletedForEveryone: Value(deletedForEveryone),
+      isDecrypted: Value(isDecrypted),
+    );
+  }
+
+  factory LocalFullMessage.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalFullMessage(
+      id: serializer.fromJson<String>(json['id']),
+      conversationId: serializer.fromJson<String>(json['conversationId']),
+      senderId: serializer.fromJson<String>(json['senderId']),
+      senderName: serializer.fromJson<String>(json['senderName']),
+      senderAvatarUrl: serializer.fromJson<String?>(json['senderAvatarUrl']),
+      type: serializer.fromJson<String>(json['type']),
+      status: serializer.fromJson<String>(json['status']),
+      textContent: serializer.fromJson<String?>(json['textContent']),
+      tokenAmount: serializer.fromJson<int?>(json['tokenAmount']),
+      recipientId: serializer.fromJson<String?>(json['recipientId']),
+      ledgerJournalId: serializer.fromJson<String?>(json['ledgerJournalId']),
+      mediaJson: serializer.fromJson<String?>(json['mediaJson']),
+      reactionsJson: serializer.fromJson<String?>(json['reactionsJson']),
+      replyToJson: serializer.fromJson<String?>(json['replyToJson']),
+      giftJson: serializer.fromJson<String?>(json['giftJson']),
+      tokenSprayJson: serializer.fromJson<String?>(json['tokenSprayJson']),
+      communityId: serializer.fromJson<String?>(json['communityId']),
+      systemEventType: serializer.fromJson<String?>(json['systemEventType']),
+      systemEventDataJson: serializer.fromJson<String?>(
+        json['systemEventDataJson'],
+      ),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      expiresAt: serializer.fromJson<DateTime?>(json['expiresAt']),
+      actionedAt: serializer.fromJson<DateTime?>(json['actionedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      deletedForJson: serializer.fromJson<String>(json['deletedForJson']),
+      deletedForEveryone: serializer.fromJson<bool>(json['deletedForEveryone']),
+      isDecrypted: serializer.fromJson<bool>(json['isDecrypted']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'conversationId': serializer.toJson<String>(conversationId),
+      'senderId': serializer.toJson<String>(senderId),
+      'senderName': serializer.toJson<String>(senderName),
+      'senderAvatarUrl': serializer.toJson<String?>(senderAvatarUrl),
+      'type': serializer.toJson<String>(type),
+      'status': serializer.toJson<String>(status),
+      'textContent': serializer.toJson<String?>(textContent),
+      'tokenAmount': serializer.toJson<int?>(tokenAmount),
+      'recipientId': serializer.toJson<String?>(recipientId),
+      'ledgerJournalId': serializer.toJson<String?>(ledgerJournalId),
+      'mediaJson': serializer.toJson<String?>(mediaJson),
+      'reactionsJson': serializer.toJson<String?>(reactionsJson),
+      'replyToJson': serializer.toJson<String?>(replyToJson),
+      'giftJson': serializer.toJson<String?>(giftJson),
+      'tokenSprayJson': serializer.toJson<String?>(tokenSprayJson),
+      'communityId': serializer.toJson<String?>(communityId),
+      'systemEventType': serializer.toJson<String?>(systemEventType),
+      'systemEventDataJson': serializer.toJson<String?>(systemEventDataJson),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'expiresAt': serializer.toJson<DateTime?>(expiresAt),
+      'actionedAt': serializer.toJson<DateTime?>(actionedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'deletedForJson': serializer.toJson<String>(deletedForJson),
+      'deletedForEveryone': serializer.toJson<bool>(deletedForEveryone),
+      'isDecrypted': serializer.toJson<bool>(isDecrypted),
+    };
+  }
+
+  LocalFullMessage copyWith({
+    String? id,
+    String? conversationId,
+    String? senderId,
+    String? senderName,
+    Value<String?> senderAvatarUrl = const Value.absent(),
+    String? type,
+    String? status,
+    Value<String?> textContent = const Value.absent(),
+    Value<int?> tokenAmount = const Value.absent(),
+    Value<String?> recipientId = const Value.absent(),
+    Value<String?> ledgerJournalId = const Value.absent(),
+    Value<String?> mediaJson = const Value.absent(),
+    Value<String?> reactionsJson = const Value.absent(),
+    Value<String?> replyToJson = const Value.absent(),
+    Value<String?> giftJson = const Value.absent(),
+    Value<String?> tokenSprayJson = const Value.absent(),
+    Value<String?> communityId = const Value.absent(),
+    Value<String?> systemEventType = const Value.absent(),
+    Value<String?> systemEventDataJson = const Value.absent(),
+    DateTime? createdAt,
+    Value<DateTime?> expiresAt = const Value.absent(),
+    Value<DateTime?> actionedAt = const Value.absent(),
+    Value<DateTime?> deletedAt = const Value.absent(),
+    String? deletedForJson,
+    bool? deletedForEveryone,
+    bool? isDecrypted,
+  }) => LocalFullMessage(
+    id: id ?? this.id,
+    conversationId: conversationId ?? this.conversationId,
+    senderId: senderId ?? this.senderId,
+    senderName: senderName ?? this.senderName,
+    senderAvatarUrl: senderAvatarUrl.present
+        ? senderAvatarUrl.value
+        : this.senderAvatarUrl,
+    type: type ?? this.type,
+    status: status ?? this.status,
+    textContent: textContent.present ? textContent.value : this.textContent,
+    tokenAmount: tokenAmount.present ? tokenAmount.value : this.tokenAmount,
+    recipientId: recipientId.present ? recipientId.value : this.recipientId,
+    ledgerJournalId: ledgerJournalId.present
+        ? ledgerJournalId.value
+        : this.ledgerJournalId,
+    mediaJson: mediaJson.present ? mediaJson.value : this.mediaJson,
+    reactionsJson: reactionsJson.present
+        ? reactionsJson.value
+        : this.reactionsJson,
+    replyToJson: replyToJson.present ? replyToJson.value : this.replyToJson,
+    giftJson: giftJson.present ? giftJson.value : this.giftJson,
+    tokenSprayJson: tokenSprayJson.present
+        ? tokenSprayJson.value
+        : this.tokenSprayJson,
+    communityId: communityId.present ? communityId.value : this.communityId,
+    systemEventType: systemEventType.present
+        ? systemEventType.value
+        : this.systemEventType,
+    systemEventDataJson: systemEventDataJson.present
+        ? systemEventDataJson.value
+        : this.systemEventDataJson,
+    createdAt: createdAt ?? this.createdAt,
+    expiresAt: expiresAt.present ? expiresAt.value : this.expiresAt,
+    actionedAt: actionedAt.present ? actionedAt.value : this.actionedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deletedForJson: deletedForJson ?? this.deletedForJson,
+    deletedForEveryone: deletedForEveryone ?? this.deletedForEveryone,
+    isDecrypted: isDecrypted ?? this.isDecrypted,
+  );
+  LocalFullMessage copyWithCompanion(LocalFullMessagesCompanion data) {
+    return LocalFullMessage(
+      id: data.id.present ? data.id.value : this.id,
+      conversationId: data.conversationId.present
+          ? data.conversationId.value
+          : this.conversationId,
+      senderId: data.senderId.present ? data.senderId.value : this.senderId,
+      senderName: data.senderName.present
+          ? data.senderName.value
+          : this.senderName,
+      senderAvatarUrl: data.senderAvatarUrl.present
+          ? data.senderAvatarUrl.value
+          : this.senderAvatarUrl,
+      type: data.type.present ? data.type.value : this.type,
+      status: data.status.present ? data.status.value : this.status,
+      textContent: data.textContent.present
+          ? data.textContent.value
+          : this.textContent,
+      tokenAmount: data.tokenAmount.present
+          ? data.tokenAmount.value
+          : this.tokenAmount,
+      recipientId: data.recipientId.present
+          ? data.recipientId.value
+          : this.recipientId,
+      ledgerJournalId: data.ledgerJournalId.present
+          ? data.ledgerJournalId.value
+          : this.ledgerJournalId,
+      mediaJson: data.mediaJson.present ? data.mediaJson.value : this.mediaJson,
+      reactionsJson: data.reactionsJson.present
+          ? data.reactionsJson.value
+          : this.reactionsJson,
+      replyToJson: data.replyToJson.present
+          ? data.replyToJson.value
+          : this.replyToJson,
+      giftJson: data.giftJson.present ? data.giftJson.value : this.giftJson,
+      tokenSprayJson: data.tokenSprayJson.present
+          ? data.tokenSprayJson.value
+          : this.tokenSprayJson,
+      communityId: data.communityId.present
+          ? data.communityId.value
+          : this.communityId,
+      systemEventType: data.systemEventType.present
+          ? data.systemEventType.value
+          : this.systemEventType,
+      systemEventDataJson: data.systemEventDataJson.present
+          ? data.systemEventDataJson.value
+          : this.systemEventDataJson,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
+      actionedAt: data.actionedAt.present
+          ? data.actionedAt.value
+          : this.actionedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deletedForJson: data.deletedForJson.present
+          ? data.deletedForJson.value
+          : this.deletedForJson,
+      deletedForEveryone: data.deletedForEveryone.present
+          ? data.deletedForEveryone.value
+          : this.deletedForEveryone,
+      isDecrypted: data.isDecrypted.present
+          ? data.isDecrypted.value
+          : this.isDecrypted,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalFullMessage(')
+          ..write('id: $id, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('senderId: $senderId, ')
+          ..write('senderName: $senderName, ')
+          ..write('senderAvatarUrl: $senderAvatarUrl, ')
+          ..write('type: $type, ')
+          ..write('status: $status, ')
+          ..write('textContent: $textContent, ')
+          ..write('tokenAmount: $tokenAmount, ')
+          ..write('recipientId: $recipientId, ')
+          ..write('ledgerJournalId: $ledgerJournalId, ')
+          ..write('mediaJson: $mediaJson, ')
+          ..write('reactionsJson: $reactionsJson, ')
+          ..write('replyToJson: $replyToJson, ')
+          ..write('giftJson: $giftJson, ')
+          ..write('tokenSprayJson: $tokenSprayJson, ')
+          ..write('communityId: $communityId, ')
+          ..write('systemEventType: $systemEventType, ')
+          ..write('systemEventDataJson: $systemEventDataJson, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('actionedAt: $actionedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deletedForJson: $deletedForJson, ')
+          ..write('deletedForEveryone: $deletedForEveryone, ')
+          ..write('isDecrypted: $isDecrypted')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    conversationId,
+    senderId,
+    senderName,
+    senderAvatarUrl,
+    type,
+    status,
+    textContent,
+    tokenAmount,
+    recipientId,
+    ledgerJournalId,
+    mediaJson,
+    reactionsJson,
+    replyToJson,
+    giftJson,
+    tokenSprayJson,
+    communityId,
+    systemEventType,
+    systemEventDataJson,
+    createdAt,
+    expiresAt,
+    actionedAt,
+    deletedAt,
+    deletedForJson,
+    deletedForEveryone,
+    isDecrypted,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalFullMessage &&
+          other.id == this.id &&
+          other.conversationId == this.conversationId &&
+          other.senderId == this.senderId &&
+          other.senderName == this.senderName &&
+          other.senderAvatarUrl == this.senderAvatarUrl &&
+          other.type == this.type &&
+          other.status == this.status &&
+          other.textContent == this.textContent &&
+          other.tokenAmount == this.tokenAmount &&
+          other.recipientId == this.recipientId &&
+          other.ledgerJournalId == this.ledgerJournalId &&
+          other.mediaJson == this.mediaJson &&
+          other.reactionsJson == this.reactionsJson &&
+          other.replyToJson == this.replyToJson &&
+          other.giftJson == this.giftJson &&
+          other.tokenSprayJson == this.tokenSprayJson &&
+          other.communityId == this.communityId &&
+          other.systemEventType == this.systemEventType &&
+          other.systemEventDataJson == this.systemEventDataJson &&
+          other.createdAt == this.createdAt &&
+          other.expiresAt == this.expiresAt &&
+          other.actionedAt == this.actionedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deletedForJson == this.deletedForJson &&
+          other.deletedForEveryone == this.deletedForEveryone &&
+          other.isDecrypted == this.isDecrypted);
+}
+
+class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
+  final Value<String> id;
+  final Value<String> conversationId;
+  final Value<String> senderId;
+  final Value<String> senderName;
+  final Value<String?> senderAvatarUrl;
+  final Value<String> type;
+  final Value<String> status;
+  final Value<String?> textContent;
+  final Value<int?> tokenAmount;
+  final Value<String?> recipientId;
+  final Value<String?> ledgerJournalId;
+  final Value<String?> mediaJson;
+  final Value<String?> reactionsJson;
+  final Value<String?> replyToJson;
+  final Value<String?> giftJson;
+  final Value<String?> tokenSprayJson;
+  final Value<String?> communityId;
+  final Value<String?> systemEventType;
+  final Value<String?> systemEventDataJson;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> expiresAt;
+  final Value<DateTime?> actionedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> deletedForJson;
+  final Value<bool> deletedForEveryone;
+  final Value<bool> isDecrypted;
+  final Value<int> rowid;
+  const LocalFullMessagesCompanion({
+    this.id = const Value.absent(),
+    this.conversationId = const Value.absent(),
+    this.senderId = const Value.absent(),
+    this.senderName = const Value.absent(),
+    this.senderAvatarUrl = const Value.absent(),
+    this.type = const Value.absent(),
+    this.status = const Value.absent(),
+    this.textContent = const Value.absent(),
+    this.tokenAmount = const Value.absent(),
+    this.recipientId = const Value.absent(),
+    this.ledgerJournalId = const Value.absent(),
+    this.mediaJson = const Value.absent(),
+    this.reactionsJson = const Value.absent(),
+    this.replyToJson = const Value.absent(),
+    this.giftJson = const Value.absent(),
+    this.tokenSprayJson = const Value.absent(),
+    this.communityId = const Value.absent(),
+    this.systemEventType = const Value.absent(),
+    this.systemEventDataJson = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+    this.actionedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deletedForJson = const Value.absent(),
+    this.deletedForEveryone = const Value.absent(),
+    this.isDecrypted = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalFullMessagesCompanion.insert({
+    required String id,
+    required String conversationId,
+    required String senderId,
+    required String senderName,
+    this.senderAvatarUrl = const Value.absent(),
+    required String type,
+    required String status,
+    this.textContent = const Value.absent(),
+    this.tokenAmount = const Value.absent(),
+    this.recipientId = const Value.absent(),
+    this.ledgerJournalId = const Value.absent(),
+    this.mediaJson = const Value.absent(),
+    this.reactionsJson = const Value.absent(),
+    this.replyToJson = const Value.absent(),
+    this.giftJson = const Value.absent(),
+    this.tokenSprayJson = const Value.absent(),
+    this.communityId = const Value.absent(),
+    this.systemEventType = const Value.absent(),
+    this.systemEventDataJson = const Value.absent(),
+    required DateTime createdAt,
+    this.expiresAt = const Value.absent(),
+    this.actionedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deletedForJson = const Value.absent(),
+    this.deletedForEveryone = const Value.absent(),
+    this.isDecrypted = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       conversationId = Value(conversationId),
+       senderId = Value(senderId),
+       senderName = Value(senderName),
+       type = Value(type),
+       status = Value(status),
+       createdAt = Value(createdAt);
+  static Insertable<LocalFullMessage> custom({
+    Expression<String>? id,
+    Expression<String>? conversationId,
+    Expression<String>? senderId,
+    Expression<String>? senderName,
+    Expression<String>? senderAvatarUrl,
+    Expression<String>? type,
+    Expression<String>? status,
+    Expression<String>? textContent,
+    Expression<int>? tokenAmount,
+    Expression<String>? recipientId,
+    Expression<String>? ledgerJournalId,
+    Expression<String>? mediaJson,
+    Expression<String>? reactionsJson,
+    Expression<String>? replyToJson,
+    Expression<String>? giftJson,
+    Expression<String>? tokenSprayJson,
+    Expression<String>? communityId,
+    Expression<String>? systemEventType,
+    Expression<String>? systemEventDataJson,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? expiresAt,
+    Expression<DateTime>? actionedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? deletedForJson,
+    Expression<bool>? deletedForEveryone,
+    Expression<bool>? isDecrypted,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (conversationId != null) 'conversation_id': conversationId,
+      if (senderId != null) 'sender_id': senderId,
+      if (senderName != null) 'sender_name': senderName,
+      if (senderAvatarUrl != null) 'sender_avatar_url': senderAvatarUrl,
+      if (type != null) 'type': type,
+      if (status != null) 'status': status,
+      if (textContent != null) 'text_content': textContent,
+      if (tokenAmount != null) 'token_amount': tokenAmount,
+      if (recipientId != null) 'recipient_id': recipientId,
+      if (ledgerJournalId != null) 'ledger_journal_id': ledgerJournalId,
+      if (mediaJson != null) 'media_json': mediaJson,
+      if (reactionsJson != null) 'reactions_json': reactionsJson,
+      if (replyToJson != null) 'reply_to_json': replyToJson,
+      if (giftJson != null) 'gift_json': giftJson,
+      if (tokenSprayJson != null) 'token_spray_json': tokenSprayJson,
+      if (communityId != null) 'community_id': communityId,
+      if (systemEventType != null) 'system_event_type': systemEventType,
+      if (systemEventDataJson != null)
+        'system_event_data_json': systemEventDataJson,
+      if (createdAt != null) 'created_at': createdAt,
+      if (expiresAt != null) 'expires_at': expiresAt,
+      if (actionedAt != null) 'actioned_at': actionedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deletedForJson != null) 'deleted_for_json': deletedForJson,
+      if (deletedForEveryone != null)
+        'deleted_for_everyone': deletedForEveryone,
+      if (isDecrypted != null) 'is_decrypted': isDecrypted,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalFullMessagesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? conversationId,
+    Value<String>? senderId,
+    Value<String>? senderName,
+    Value<String?>? senderAvatarUrl,
+    Value<String>? type,
+    Value<String>? status,
+    Value<String?>? textContent,
+    Value<int?>? tokenAmount,
+    Value<String?>? recipientId,
+    Value<String?>? ledgerJournalId,
+    Value<String?>? mediaJson,
+    Value<String?>? reactionsJson,
+    Value<String?>? replyToJson,
+    Value<String?>? giftJson,
+    Value<String?>? tokenSprayJson,
+    Value<String?>? communityId,
+    Value<String?>? systemEventType,
+    Value<String?>? systemEventDataJson,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? expiresAt,
+    Value<DateTime?>? actionedAt,
+    Value<DateTime?>? deletedAt,
+    Value<String>? deletedForJson,
+    Value<bool>? deletedForEveryone,
+    Value<bool>? isDecrypted,
+    Value<int>? rowid,
+  }) {
+    return LocalFullMessagesCompanion(
+      id: id ?? this.id,
+      conversationId: conversationId ?? this.conversationId,
+      senderId: senderId ?? this.senderId,
+      senderName: senderName ?? this.senderName,
+      senderAvatarUrl: senderAvatarUrl ?? this.senderAvatarUrl,
+      type: type ?? this.type,
+      status: status ?? this.status,
+      textContent: textContent ?? this.textContent,
+      tokenAmount: tokenAmount ?? this.tokenAmount,
+      recipientId: recipientId ?? this.recipientId,
+      ledgerJournalId: ledgerJournalId ?? this.ledgerJournalId,
+      mediaJson: mediaJson ?? this.mediaJson,
+      reactionsJson: reactionsJson ?? this.reactionsJson,
+      replyToJson: replyToJson ?? this.replyToJson,
+      giftJson: giftJson ?? this.giftJson,
+      tokenSprayJson: tokenSprayJson ?? this.tokenSprayJson,
+      communityId: communityId ?? this.communityId,
+      systemEventType: systemEventType ?? this.systemEventType,
+      systemEventDataJson: systemEventDataJson ?? this.systemEventDataJson,
+      createdAt: createdAt ?? this.createdAt,
+      expiresAt: expiresAt ?? this.expiresAt,
+      actionedAt: actionedAt ?? this.actionedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deletedForJson: deletedForJson ?? this.deletedForJson,
+      deletedForEveryone: deletedForEveryone ?? this.deletedForEveryone,
+      isDecrypted: isDecrypted ?? this.isDecrypted,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (conversationId.present) {
+      map['conversation_id'] = Variable<String>(conversationId.value);
+    }
+    if (senderId.present) {
+      map['sender_id'] = Variable<String>(senderId.value);
+    }
+    if (senderName.present) {
+      map['sender_name'] = Variable<String>(senderName.value);
+    }
+    if (senderAvatarUrl.present) {
+      map['sender_avatar_url'] = Variable<String>(senderAvatarUrl.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (textContent.present) {
+      map['text_content'] = Variable<String>(textContent.value);
+    }
+    if (tokenAmount.present) {
+      map['token_amount'] = Variable<int>(tokenAmount.value);
+    }
+    if (recipientId.present) {
+      map['recipient_id'] = Variable<String>(recipientId.value);
+    }
+    if (ledgerJournalId.present) {
+      map['ledger_journal_id'] = Variable<String>(ledgerJournalId.value);
+    }
+    if (mediaJson.present) {
+      map['media_json'] = Variable<String>(mediaJson.value);
+    }
+    if (reactionsJson.present) {
+      map['reactions_json'] = Variable<String>(reactionsJson.value);
+    }
+    if (replyToJson.present) {
+      map['reply_to_json'] = Variable<String>(replyToJson.value);
+    }
+    if (giftJson.present) {
+      map['gift_json'] = Variable<String>(giftJson.value);
+    }
+    if (tokenSprayJson.present) {
+      map['token_spray_json'] = Variable<String>(tokenSprayJson.value);
+    }
+    if (communityId.present) {
+      map['community_id'] = Variable<String>(communityId.value);
+    }
+    if (systemEventType.present) {
+      map['system_event_type'] = Variable<String>(systemEventType.value);
+    }
+    if (systemEventDataJson.present) {
+      map['system_event_data_json'] = Variable<String>(
+        systemEventDataJson.value,
+      );
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (expiresAt.present) {
+      map['expires_at'] = Variable<DateTime>(expiresAt.value);
+    }
+    if (actionedAt.present) {
+      map['actioned_at'] = Variable<DateTime>(actionedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (deletedForJson.present) {
+      map['deleted_for_json'] = Variable<String>(deletedForJson.value);
+    }
+    if (deletedForEveryone.present) {
+      map['deleted_for_everyone'] = Variable<bool>(deletedForEveryone.value);
+    }
+    if (isDecrypted.present) {
+      map['is_decrypted'] = Variable<bool>(isDecrypted.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalFullMessagesCompanion(')
+          ..write('id: $id, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('senderId: $senderId, ')
+          ..write('senderName: $senderName, ')
+          ..write('senderAvatarUrl: $senderAvatarUrl, ')
+          ..write('type: $type, ')
+          ..write('status: $status, ')
+          ..write('textContent: $textContent, ')
+          ..write('tokenAmount: $tokenAmount, ')
+          ..write('recipientId: $recipientId, ')
+          ..write('ledgerJournalId: $ledgerJournalId, ')
+          ..write('mediaJson: $mediaJson, ')
+          ..write('reactionsJson: $reactionsJson, ')
+          ..write('replyToJson: $replyToJson, ')
+          ..write('giftJson: $giftJson, ')
+          ..write('tokenSprayJson: $tokenSprayJson, ')
+          ..write('communityId: $communityId, ')
+          ..write('systemEventType: $systemEventType, ')
+          ..write('systemEventDataJson: $systemEventDataJson, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('actionedAt: $actionedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deletedForJson: $deletedForJson, ')
+          ..write('deletedForEveryone: $deletedForEveryone, ')
+          ..write('isDecrypted: $isDecrypted, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalFullConversationsTable extends LocalFullConversations
+    with TableInfo<$LocalFullConversationsTable, LocalFullConversation> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalFullConversationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _participantIdsJsonMeta =
+      const VerificationMeta('participantIdsJson');
+  @override
+  late final GeneratedColumn<String> participantIdsJson =
+      GeneratedColumn<String>(
+        'participant_ids_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _participantsJsonMeta = const VerificationMeta(
+    'participantsJson',
+  );
+  @override
+  late final GeneratedColumn<String> participantsJson = GeneratedColumn<String>(
+    'participants_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastMessageIdMeta = const VerificationMeta(
+    'lastMessageId',
+  );
+  @override
+  late final GeneratedColumn<String> lastMessageId = GeneratedColumn<String>(
+    'last_message_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastMessageTextMeta = const VerificationMeta(
+    'lastMessageText',
+  );
+  @override
+  late final GeneratedColumn<String> lastMessageText = GeneratedColumn<String>(
+    'last_message_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastMessageSenderIdMeta =
+      const VerificationMeta('lastMessageSenderId');
+  @override
+  late final GeneratedColumn<String> lastMessageSenderId =
+      GeneratedColumn<String>(
+        'last_message_sender_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _lastMessageSenderNameMeta =
+      const VerificationMeta('lastMessageSenderName');
+  @override
+  late final GeneratedColumn<String> lastMessageSenderName =
+      GeneratedColumn<String>(
+        'last_message_sender_name',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _lastMessageTypeMeta = const VerificationMeta(
+    'lastMessageType',
+  );
+  @override
+  late final GeneratedColumn<String> lastMessageType = GeneratedColumn<String>(
+    'last_message_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastMessageAtMeta = const VerificationMeta(
+    'lastMessageAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastMessageAt =
+      GeneratedColumn<DateTime>(
+        'last_message_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _unreadCountsJsonMeta = const VerificationMeta(
+    'unreadCountsJson',
+  );
+  @override
+  late final GeneratedColumn<String> unreadCountsJson = GeneratedColumn<String>(
+    'unread_counts_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _archivedJsonMeta = const VerificationMeta(
+    'archivedJson',
+  );
+  @override
+  late final GeneratedColumn<String> archivedJson = GeneratedColumn<String>(
+    'archived_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _pinnedJsonMeta = const VerificationMeta(
+    'pinnedJson',
+  );
+  @override
+  late final GeneratedColumn<String> pinnedJson = GeneratedColumn<String>(
+    'pinned_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _mutedJsonMeta = const VerificationMeta(
+    'mutedJson',
+  );
+  @override
+  late final GeneratedColumn<String> mutedJson = GeneratedColumn<String>(
+    'muted_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _chatClearedAtJsonMeta = const VerificationMeta(
+    'chatClearedAtJson',
+  );
+  @override
+  late final GeneratedColumn<String> chatClearedAtJson =
+      GeneratedColumn<String>(
+        'chat_cleared_at_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('{}'),
+      );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    type,
+    participantIdsJson,
+    participantsJson,
+    lastMessageId,
+    lastMessageText,
+    lastMessageSenderId,
+    lastMessageSenderName,
+    lastMessageType,
+    lastMessageAt,
+    unreadCountsJson,
+    archivedJson,
+    pinnedJson,
+    mutedJson,
+    chatClearedAtJson,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_full_conversations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalFullConversation> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('participant_ids_json')) {
+      context.handle(
+        _participantIdsJsonMeta,
+        participantIdsJson.isAcceptableOrUnknown(
+          data['participant_ids_json']!,
+          _participantIdsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_participantIdsJsonMeta);
+    }
+    if (data.containsKey('participants_json')) {
+      context.handle(
+        _participantsJsonMeta,
+        participantsJson.isAcceptableOrUnknown(
+          data['participants_json']!,
+          _participantsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_participantsJsonMeta);
+    }
+    if (data.containsKey('last_message_id')) {
+      context.handle(
+        _lastMessageIdMeta,
+        lastMessageId.isAcceptableOrUnknown(
+          data['last_message_id']!,
+          _lastMessageIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_message_text')) {
+      context.handle(
+        _lastMessageTextMeta,
+        lastMessageText.isAcceptableOrUnknown(
+          data['last_message_text']!,
+          _lastMessageTextMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_message_sender_id')) {
+      context.handle(
+        _lastMessageSenderIdMeta,
+        lastMessageSenderId.isAcceptableOrUnknown(
+          data['last_message_sender_id']!,
+          _lastMessageSenderIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_message_sender_name')) {
+      context.handle(
+        _lastMessageSenderNameMeta,
+        lastMessageSenderName.isAcceptableOrUnknown(
+          data['last_message_sender_name']!,
+          _lastMessageSenderNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_message_type')) {
+      context.handle(
+        _lastMessageTypeMeta,
+        lastMessageType.isAcceptableOrUnknown(
+          data['last_message_type']!,
+          _lastMessageTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_message_at')) {
+      context.handle(
+        _lastMessageAtMeta,
+        lastMessageAt.isAcceptableOrUnknown(
+          data['last_message_at']!,
+          _lastMessageAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('unread_counts_json')) {
+      context.handle(
+        _unreadCountsJsonMeta,
+        unreadCountsJson.isAcceptableOrUnknown(
+          data['unread_counts_json']!,
+          _unreadCountsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('archived_json')) {
+      context.handle(
+        _archivedJsonMeta,
+        archivedJson.isAcceptableOrUnknown(
+          data['archived_json']!,
+          _archivedJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('pinned_json')) {
+      context.handle(
+        _pinnedJsonMeta,
+        pinnedJson.isAcceptableOrUnknown(data['pinned_json']!, _pinnedJsonMeta),
+      );
+    }
+    if (data.containsKey('muted_json')) {
+      context.handle(
+        _mutedJsonMeta,
+        mutedJson.isAcceptableOrUnknown(data['muted_json']!, _mutedJsonMeta),
+      );
+    }
+    if (data.containsKey('chat_cleared_at_json')) {
+      context.handle(
+        _chatClearedAtJsonMeta,
+        chatClearedAtJson.isAcceptableOrUnknown(
+          data['chat_cleared_at_json']!,
+          _chatClearedAtJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalFullConversation map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalFullConversation(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      participantIdsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}participant_ids_json'],
+      )!,
+      participantsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}participants_json'],
+      )!,
+      lastMessageId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_message_id'],
+      ),
+      lastMessageText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_message_text'],
+      ),
+      lastMessageSenderId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_message_sender_id'],
+      ),
+      lastMessageSenderName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_message_sender_name'],
+      ),
+      lastMessageType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_message_type'],
+      ),
+      lastMessageAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_message_at'],
+      ),
+      unreadCountsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unread_counts_json'],
+      )!,
+      archivedJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}archived_json'],
+      )!,
+      pinnedJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pinned_json'],
+      )!,
+      mutedJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}muted_json'],
+      )!,
+      chatClearedAtJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}chat_cleared_at_json'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+    );
+  }
+
+  @override
+  $LocalFullConversationsTable createAlias(String alias) {
+    return $LocalFullConversationsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalFullConversation extends DataClass
+    implements Insertable<LocalFullConversation> {
+  final String id;
+  final String type;
+  final String participantIdsJson;
+  final String participantsJson;
+  final String? lastMessageId;
+  final String? lastMessageText;
+  final String? lastMessageSenderId;
+  final String? lastMessageSenderName;
+  final String? lastMessageType;
+  final DateTime? lastMessageAt;
+  final String unreadCountsJson;
+  final String archivedJson;
+  final String pinnedJson;
+  final String mutedJson;
+  final String chatClearedAtJson;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  const LocalFullConversation({
+    required this.id,
+    required this.type,
+    required this.participantIdsJson,
+    required this.participantsJson,
+    this.lastMessageId,
+    this.lastMessageText,
+    this.lastMessageSenderId,
+    this.lastMessageSenderName,
+    this.lastMessageType,
+    this.lastMessageAt,
+    required this.unreadCountsJson,
+    required this.archivedJson,
+    required this.pinnedJson,
+    required this.mutedJson,
+    required this.chatClearedAtJson,
+    required this.createdAt,
+    this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['type'] = Variable<String>(type);
+    map['participant_ids_json'] = Variable<String>(participantIdsJson);
+    map['participants_json'] = Variable<String>(participantsJson);
+    if (!nullToAbsent || lastMessageId != null) {
+      map['last_message_id'] = Variable<String>(lastMessageId);
+    }
+    if (!nullToAbsent || lastMessageText != null) {
+      map['last_message_text'] = Variable<String>(lastMessageText);
+    }
+    if (!nullToAbsent || lastMessageSenderId != null) {
+      map['last_message_sender_id'] = Variable<String>(lastMessageSenderId);
+    }
+    if (!nullToAbsent || lastMessageSenderName != null) {
+      map['last_message_sender_name'] = Variable<String>(lastMessageSenderName);
+    }
+    if (!nullToAbsent || lastMessageType != null) {
+      map['last_message_type'] = Variable<String>(lastMessageType);
+    }
+    if (!nullToAbsent || lastMessageAt != null) {
+      map['last_message_at'] = Variable<DateTime>(lastMessageAt);
+    }
+    map['unread_counts_json'] = Variable<String>(unreadCountsJson);
+    map['archived_json'] = Variable<String>(archivedJson);
+    map['pinned_json'] = Variable<String>(pinnedJson);
+    map['muted_json'] = Variable<String>(mutedJson);
+    map['chat_cleared_at_json'] = Variable<String>(chatClearedAtJson);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    return map;
+  }
+
+  LocalFullConversationsCompanion toCompanion(bool nullToAbsent) {
+    return LocalFullConversationsCompanion(
+      id: Value(id),
+      type: Value(type),
+      participantIdsJson: Value(participantIdsJson),
+      participantsJson: Value(participantsJson),
+      lastMessageId: lastMessageId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMessageId),
+      lastMessageText: lastMessageText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMessageText),
+      lastMessageSenderId: lastMessageSenderId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMessageSenderId),
+      lastMessageSenderName: lastMessageSenderName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMessageSenderName),
+      lastMessageType: lastMessageType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMessageType),
+      lastMessageAt: lastMessageAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMessageAt),
+      unreadCountsJson: Value(unreadCountsJson),
+      archivedJson: Value(archivedJson),
+      pinnedJson: Value(pinnedJson),
+      mutedJson: Value(mutedJson),
+      chatClearedAtJson: Value(chatClearedAtJson),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  factory LocalFullConversation.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalFullConversation(
+      id: serializer.fromJson<String>(json['id']),
+      type: serializer.fromJson<String>(json['type']),
+      participantIdsJson: serializer.fromJson<String>(
+        json['participantIdsJson'],
+      ),
+      participantsJson: serializer.fromJson<String>(json['participantsJson']),
+      lastMessageId: serializer.fromJson<String?>(json['lastMessageId']),
+      lastMessageText: serializer.fromJson<String?>(json['lastMessageText']),
+      lastMessageSenderId: serializer.fromJson<String?>(
+        json['lastMessageSenderId'],
+      ),
+      lastMessageSenderName: serializer.fromJson<String?>(
+        json['lastMessageSenderName'],
+      ),
+      lastMessageType: serializer.fromJson<String?>(json['lastMessageType']),
+      lastMessageAt: serializer.fromJson<DateTime?>(json['lastMessageAt']),
+      unreadCountsJson: serializer.fromJson<String>(json['unreadCountsJson']),
+      archivedJson: serializer.fromJson<String>(json['archivedJson']),
+      pinnedJson: serializer.fromJson<String>(json['pinnedJson']),
+      mutedJson: serializer.fromJson<String>(json['mutedJson']),
+      chatClearedAtJson: serializer.fromJson<String>(json['chatClearedAtJson']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'type': serializer.toJson<String>(type),
+      'participantIdsJson': serializer.toJson<String>(participantIdsJson),
+      'participantsJson': serializer.toJson<String>(participantsJson),
+      'lastMessageId': serializer.toJson<String?>(lastMessageId),
+      'lastMessageText': serializer.toJson<String?>(lastMessageText),
+      'lastMessageSenderId': serializer.toJson<String?>(lastMessageSenderId),
+      'lastMessageSenderName': serializer.toJson<String?>(
+        lastMessageSenderName,
+      ),
+      'lastMessageType': serializer.toJson<String?>(lastMessageType),
+      'lastMessageAt': serializer.toJson<DateTime?>(lastMessageAt),
+      'unreadCountsJson': serializer.toJson<String>(unreadCountsJson),
+      'archivedJson': serializer.toJson<String>(archivedJson),
+      'pinnedJson': serializer.toJson<String>(pinnedJson),
+      'mutedJson': serializer.toJson<String>(mutedJson),
+      'chatClearedAtJson': serializer.toJson<String>(chatClearedAtJson),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+    };
+  }
+
+  LocalFullConversation copyWith({
+    String? id,
+    String? type,
+    String? participantIdsJson,
+    String? participantsJson,
+    Value<String?> lastMessageId = const Value.absent(),
+    Value<String?> lastMessageText = const Value.absent(),
+    Value<String?> lastMessageSenderId = const Value.absent(),
+    Value<String?> lastMessageSenderName = const Value.absent(),
+    Value<String?> lastMessageType = const Value.absent(),
+    Value<DateTime?> lastMessageAt = const Value.absent(),
+    String? unreadCountsJson,
+    String? archivedJson,
+    String? pinnedJson,
+    String? mutedJson,
+    String? chatClearedAtJson,
+    DateTime? createdAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+  }) => LocalFullConversation(
+    id: id ?? this.id,
+    type: type ?? this.type,
+    participantIdsJson: participantIdsJson ?? this.participantIdsJson,
+    participantsJson: participantsJson ?? this.participantsJson,
+    lastMessageId: lastMessageId.present
+        ? lastMessageId.value
+        : this.lastMessageId,
+    lastMessageText: lastMessageText.present
+        ? lastMessageText.value
+        : this.lastMessageText,
+    lastMessageSenderId: lastMessageSenderId.present
+        ? lastMessageSenderId.value
+        : this.lastMessageSenderId,
+    lastMessageSenderName: lastMessageSenderName.present
+        ? lastMessageSenderName.value
+        : this.lastMessageSenderName,
+    lastMessageType: lastMessageType.present
+        ? lastMessageType.value
+        : this.lastMessageType,
+    lastMessageAt: lastMessageAt.present
+        ? lastMessageAt.value
+        : this.lastMessageAt,
+    unreadCountsJson: unreadCountsJson ?? this.unreadCountsJson,
+    archivedJson: archivedJson ?? this.archivedJson,
+    pinnedJson: pinnedJson ?? this.pinnedJson,
+    mutedJson: mutedJson ?? this.mutedJson,
+    chatClearedAtJson: chatClearedAtJson ?? this.chatClearedAtJson,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+  );
+  LocalFullConversation copyWithCompanion(
+    LocalFullConversationsCompanion data,
+  ) {
+    return LocalFullConversation(
+      id: data.id.present ? data.id.value : this.id,
+      type: data.type.present ? data.type.value : this.type,
+      participantIdsJson: data.participantIdsJson.present
+          ? data.participantIdsJson.value
+          : this.participantIdsJson,
+      participantsJson: data.participantsJson.present
+          ? data.participantsJson.value
+          : this.participantsJson,
+      lastMessageId: data.lastMessageId.present
+          ? data.lastMessageId.value
+          : this.lastMessageId,
+      lastMessageText: data.lastMessageText.present
+          ? data.lastMessageText.value
+          : this.lastMessageText,
+      lastMessageSenderId: data.lastMessageSenderId.present
+          ? data.lastMessageSenderId.value
+          : this.lastMessageSenderId,
+      lastMessageSenderName: data.lastMessageSenderName.present
+          ? data.lastMessageSenderName.value
+          : this.lastMessageSenderName,
+      lastMessageType: data.lastMessageType.present
+          ? data.lastMessageType.value
+          : this.lastMessageType,
+      lastMessageAt: data.lastMessageAt.present
+          ? data.lastMessageAt.value
+          : this.lastMessageAt,
+      unreadCountsJson: data.unreadCountsJson.present
+          ? data.unreadCountsJson.value
+          : this.unreadCountsJson,
+      archivedJson: data.archivedJson.present
+          ? data.archivedJson.value
+          : this.archivedJson,
+      pinnedJson: data.pinnedJson.present
+          ? data.pinnedJson.value
+          : this.pinnedJson,
+      mutedJson: data.mutedJson.present ? data.mutedJson.value : this.mutedJson,
+      chatClearedAtJson: data.chatClearedAtJson.present
+          ? data.chatClearedAtJson.value
+          : this.chatClearedAtJson,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalFullConversation(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('participantIdsJson: $participantIdsJson, ')
+          ..write('participantsJson: $participantsJson, ')
+          ..write('lastMessageId: $lastMessageId, ')
+          ..write('lastMessageText: $lastMessageText, ')
+          ..write('lastMessageSenderId: $lastMessageSenderId, ')
+          ..write('lastMessageSenderName: $lastMessageSenderName, ')
+          ..write('lastMessageType: $lastMessageType, ')
+          ..write('lastMessageAt: $lastMessageAt, ')
+          ..write('unreadCountsJson: $unreadCountsJson, ')
+          ..write('archivedJson: $archivedJson, ')
+          ..write('pinnedJson: $pinnedJson, ')
+          ..write('mutedJson: $mutedJson, ')
+          ..write('chatClearedAtJson: $chatClearedAtJson, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    type,
+    participantIdsJson,
+    participantsJson,
+    lastMessageId,
+    lastMessageText,
+    lastMessageSenderId,
+    lastMessageSenderName,
+    lastMessageType,
+    lastMessageAt,
+    unreadCountsJson,
+    archivedJson,
+    pinnedJson,
+    mutedJson,
+    chatClearedAtJson,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalFullConversation &&
+          other.id == this.id &&
+          other.type == this.type &&
+          other.participantIdsJson == this.participantIdsJson &&
+          other.participantsJson == this.participantsJson &&
+          other.lastMessageId == this.lastMessageId &&
+          other.lastMessageText == this.lastMessageText &&
+          other.lastMessageSenderId == this.lastMessageSenderId &&
+          other.lastMessageSenderName == this.lastMessageSenderName &&
+          other.lastMessageType == this.lastMessageType &&
+          other.lastMessageAt == this.lastMessageAt &&
+          other.unreadCountsJson == this.unreadCountsJson &&
+          other.archivedJson == this.archivedJson &&
+          other.pinnedJson == this.pinnedJson &&
+          other.mutedJson == this.mutedJson &&
+          other.chatClearedAtJson == this.chatClearedAtJson &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class LocalFullConversationsCompanion
+    extends UpdateCompanion<LocalFullConversation> {
+  final Value<String> id;
+  final Value<String> type;
+  final Value<String> participantIdsJson;
+  final Value<String> participantsJson;
+  final Value<String?> lastMessageId;
+  final Value<String?> lastMessageText;
+  final Value<String?> lastMessageSenderId;
+  final Value<String?> lastMessageSenderName;
+  final Value<String?> lastMessageType;
+  final Value<DateTime?> lastMessageAt;
+  final Value<String> unreadCountsJson;
+  final Value<String> archivedJson;
+  final Value<String> pinnedJson;
+  final Value<String> mutedJson;
+  final Value<String> chatClearedAtJson;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<int> rowid;
+  const LocalFullConversationsCompanion({
+    this.id = const Value.absent(),
+    this.type = const Value.absent(),
+    this.participantIdsJson = const Value.absent(),
+    this.participantsJson = const Value.absent(),
+    this.lastMessageId = const Value.absent(),
+    this.lastMessageText = const Value.absent(),
+    this.lastMessageSenderId = const Value.absent(),
+    this.lastMessageSenderName = const Value.absent(),
+    this.lastMessageType = const Value.absent(),
+    this.lastMessageAt = const Value.absent(),
+    this.unreadCountsJson = const Value.absent(),
+    this.archivedJson = const Value.absent(),
+    this.pinnedJson = const Value.absent(),
+    this.mutedJson = const Value.absent(),
+    this.chatClearedAtJson = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalFullConversationsCompanion.insert({
+    required String id,
+    required String type,
+    required String participantIdsJson,
+    required String participantsJson,
+    this.lastMessageId = const Value.absent(),
+    this.lastMessageText = const Value.absent(),
+    this.lastMessageSenderId = const Value.absent(),
+    this.lastMessageSenderName = const Value.absent(),
+    this.lastMessageType = const Value.absent(),
+    this.lastMessageAt = const Value.absent(),
+    this.unreadCountsJson = const Value.absent(),
+    this.archivedJson = const Value.absent(),
+    this.pinnedJson = const Value.absent(),
+    this.mutedJson = const Value.absent(),
+    this.chatClearedAtJson = const Value.absent(),
+    required DateTime createdAt,
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       type = Value(type),
+       participantIdsJson = Value(participantIdsJson),
+       participantsJson = Value(participantsJson),
+       createdAt = Value(createdAt);
+  static Insertable<LocalFullConversation> custom({
+    Expression<String>? id,
+    Expression<String>? type,
+    Expression<String>? participantIdsJson,
+    Expression<String>? participantsJson,
+    Expression<String>? lastMessageId,
+    Expression<String>? lastMessageText,
+    Expression<String>? lastMessageSenderId,
+    Expression<String>? lastMessageSenderName,
+    Expression<String>? lastMessageType,
+    Expression<DateTime>? lastMessageAt,
+    Expression<String>? unreadCountsJson,
+    Expression<String>? archivedJson,
+    Expression<String>? pinnedJson,
+    Expression<String>? mutedJson,
+    Expression<String>? chatClearedAtJson,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (type != null) 'type': type,
+      if (participantIdsJson != null)
+        'participant_ids_json': participantIdsJson,
+      if (participantsJson != null) 'participants_json': participantsJson,
+      if (lastMessageId != null) 'last_message_id': lastMessageId,
+      if (lastMessageText != null) 'last_message_text': lastMessageText,
+      if (lastMessageSenderId != null)
+        'last_message_sender_id': lastMessageSenderId,
+      if (lastMessageSenderName != null)
+        'last_message_sender_name': lastMessageSenderName,
+      if (lastMessageType != null) 'last_message_type': lastMessageType,
+      if (lastMessageAt != null) 'last_message_at': lastMessageAt,
+      if (unreadCountsJson != null) 'unread_counts_json': unreadCountsJson,
+      if (archivedJson != null) 'archived_json': archivedJson,
+      if (pinnedJson != null) 'pinned_json': pinnedJson,
+      if (mutedJson != null) 'muted_json': mutedJson,
+      if (chatClearedAtJson != null) 'chat_cleared_at_json': chatClearedAtJson,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalFullConversationsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? type,
+    Value<String>? participantIdsJson,
+    Value<String>? participantsJson,
+    Value<String?>? lastMessageId,
+    Value<String?>? lastMessageText,
+    Value<String?>? lastMessageSenderId,
+    Value<String?>? lastMessageSenderName,
+    Value<String?>? lastMessageType,
+    Value<DateTime?>? lastMessageAt,
+    Value<String>? unreadCountsJson,
+    Value<String>? archivedJson,
+    Value<String>? pinnedJson,
+    Value<String>? mutedJson,
+    Value<String>? chatClearedAtJson,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return LocalFullConversationsCompanion(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      participantIdsJson: participantIdsJson ?? this.participantIdsJson,
+      participantsJson: participantsJson ?? this.participantsJson,
+      lastMessageId: lastMessageId ?? this.lastMessageId,
+      lastMessageText: lastMessageText ?? this.lastMessageText,
+      lastMessageSenderId: lastMessageSenderId ?? this.lastMessageSenderId,
+      lastMessageSenderName:
+          lastMessageSenderName ?? this.lastMessageSenderName,
+      lastMessageType: lastMessageType ?? this.lastMessageType,
+      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+      unreadCountsJson: unreadCountsJson ?? this.unreadCountsJson,
+      archivedJson: archivedJson ?? this.archivedJson,
+      pinnedJson: pinnedJson ?? this.pinnedJson,
+      mutedJson: mutedJson ?? this.mutedJson,
+      chatClearedAtJson: chatClearedAtJson ?? this.chatClearedAtJson,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (participantIdsJson.present) {
+      map['participant_ids_json'] = Variable<String>(participantIdsJson.value);
+    }
+    if (participantsJson.present) {
+      map['participants_json'] = Variable<String>(participantsJson.value);
+    }
+    if (lastMessageId.present) {
+      map['last_message_id'] = Variable<String>(lastMessageId.value);
+    }
+    if (lastMessageText.present) {
+      map['last_message_text'] = Variable<String>(lastMessageText.value);
+    }
+    if (lastMessageSenderId.present) {
+      map['last_message_sender_id'] = Variable<String>(
+        lastMessageSenderId.value,
+      );
+    }
+    if (lastMessageSenderName.present) {
+      map['last_message_sender_name'] = Variable<String>(
+        lastMessageSenderName.value,
+      );
+    }
+    if (lastMessageType.present) {
+      map['last_message_type'] = Variable<String>(lastMessageType.value);
+    }
+    if (lastMessageAt.present) {
+      map['last_message_at'] = Variable<DateTime>(lastMessageAt.value);
+    }
+    if (unreadCountsJson.present) {
+      map['unread_counts_json'] = Variable<String>(unreadCountsJson.value);
+    }
+    if (archivedJson.present) {
+      map['archived_json'] = Variable<String>(archivedJson.value);
+    }
+    if (pinnedJson.present) {
+      map['pinned_json'] = Variable<String>(pinnedJson.value);
+    }
+    if (mutedJson.present) {
+      map['muted_json'] = Variable<String>(mutedJson.value);
+    }
+    if (chatClearedAtJson.present) {
+      map['chat_cleared_at_json'] = Variable<String>(chatClearedAtJson.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalFullConversationsCompanion(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('participantIdsJson: $participantIdsJson, ')
+          ..write('participantsJson: $participantsJson, ')
+          ..write('lastMessageId: $lastMessageId, ')
+          ..write('lastMessageText: $lastMessageText, ')
+          ..write('lastMessageSenderId: $lastMessageSenderId, ')
+          ..write('lastMessageSenderName: $lastMessageSenderName, ')
+          ..write('lastMessageType: $lastMessageType, ')
+          ..write('lastMessageAt: $lastMessageAt, ')
+          ..write('unreadCountsJson: $unreadCountsJson, ')
+          ..write('archivedJson: $archivedJson, ')
+          ..write('pinnedJson: $pinnedJson, ')
+          ..write('mutedJson: $mutedJson, ')
+          ..write('chatClearedAtJson: $chatClearedAtJson, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5525,6 +8040,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $LocalSyncMetadataTable(this);
   late final $DecryptedMessageCacheTable decryptedMessageCache =
       $DecryptedMessageCacheTable(this);
+  late final $LocalFullMessagesTable localFullMessages =
+      $LocalFullMessagesTable(this);
+  late final $LocalFullConversationsTable localFullConversations =
+      $LocalFullConversationsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5539,6 +8058,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     localPendingChanges,
     localSyncMetadata,
     decryptedMessageCache,
+    localFullMessages,
+    localFullConversations,
   ];
 }
 
@@ -8301,6 +10822,1123 @@ typedef $$DecryptedMessageCacheTableProcessedTableManager =
       DecryptedMessageCacheData,
       PrefetchHooks Function()
     >;
+typedef $$LocalFullMessagesTableCreateCompanionBuilder =
+    LocalFullMessagesCompanion Function({
+      required String id,
+      required String conversationId,
+      required String senderId,
+      required String senderName,
+      Value<String?> senderAvatarUrl,
+      required String type,
+      required String status,
+      Value<String?> textContent,
+      Value<int?> tokenAmount,
+      Value<String?> recipientId,
+      Value<String?> ledgerJournalId,
+      Value<String?> mediaJson,
+      Value<String?> reactionsJson,
+      Value<String?> replyToJson,
+      Value<String?> giftJson,
+      Value<String?> tokenSprayJson,
+      Value<String?> communityId,
+      Value<String?> systemEventType,
+      Value<String?> systemEventDataJson,
+      required DateTime createdAt,
+      Value<DateTime?> expiresAt,
+      Value<DateTime?> actionedAt,
+      Value<DateTime?> deletedAt,
+      Value<String> deletedForJson,
+      Value<bool> deletedForEveryone,
+      Value<bool> isDecrypted,
+      Value<int> rowid,
+    });
+typedef $$LocalFullMessagesTableUpdateCompanionBuilder =
+    LocalFullMessagesCompanion Function({
+      Value<String> id,
+      Value<String> conversationId,
+      Value<String> senderId,
+      Value<String> senderName,
+      Value<String?> senderAvatarUrl,
+      Value<String> type,
+      Value<String> status,
+      Value<String?> textContent,
+      Value<int?> tokenAmount,
+      Value<String?> recipientId,
+      Value<String?> ledgerJournalId,
+      Value<String?> mediaJson,
+      Value<String?> reactionsJson,
+      Value<String?> replyToJson,
+      Value<String?> giftJson,
+      Value<String?> tokenSprayJson,
+      Value<String?> communityId,
+      Value<String?> systemEventType,
+      Value<String?> systemEventDataJson,
+      Value<DateTime> createdAt,
+      Value<DateTime?> expiresAt,
+      Value<DateTime?> actionedAt,
+      Value<DateTime?> deletedAt,
+      Value<String> deletedForJson,
+      Value<bool> deletedForEveryone,
+      Value<bool> isDecrypted,
+      Value<int> rowid,
+    });
+
+class $$LocalFullMessagesTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalFullMessagesTable> {
+  $$LocalFullMessagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conversationId => $composableBuilder(
+    column: $table.conversationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get senderId => $composableBuilder(
+    column: $table.senderId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get senderName => $composableBuilder(
+    column: $table.senderName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get senderAvatarUrl => $composableBuilder(
+    column: $table.senderAvatarUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get textContent => $composableBuilder(
+    column: $table.textContent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get tokenAmount => $composableBuilder(
+    column: $table.tokenAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recipientId => $composableBuilder(
+    column: $table.recipientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ledgerJournalId => $composableBuilder(
+    column: $table.ledgerJournalId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mediaJson => $composableBuilder(
+    column: $table.mediaJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reactionsJson => $composableBuilder(
+    column: $table.reactionsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get replyToJson => $composableBuilder(
+    column: $table.replyToJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get giftJson => $composableBuilder(
+    column: $table.giftJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tokenSprayJson => $composableBuilder(
+    column: $table.tokenSprayJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get communityId => $composableBuilder(
+    column: $table.communityId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get systemEventType => $composableBuilder(
+    column: $table.systemEventType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get systemEventDataJson => $composableBuilder(
+    column: $table.systemEventDataJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get actionedAt => $composableBuilder(
+    column: $table.actionedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deletedForJson => $composableBuilder(
+    column: $table.deletedForJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deletedForEveryone => $composableBuilder(
+    column: $table.deletedForEveryone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDecrypted => $composableBuilder(
+    column: $table.isDecrypted,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalFullMessagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalFullMessagesTable> {
+  $$LocalFullMessagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conversationId => $composableBuilder(
+    column: $table.conversationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get senderId => $composableBuilder(
+    column: $table.senderId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get senderName => $composableBuilder(
+    column: $table.senderName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get senderAvatarUrl => $composableBuilder(
+    column: $table.senderAvatarUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get textContent => $composableBuilder(
+    column: $table.textContent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get tokenAmount => $composableBuilder(
+    column: $table.tokenAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recipientId => $composableBuilder(
+    column: $table.recipientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ledgerJournalId => $composableBuilder(
+    column: $table.ledgerJournalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mediaJson => $composableBuilder(
+    column: $table.mediaJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reactionsJson => $composableBuilder(
+    column: $table.reactionsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get replyToJson => $composableBuilder(
+    column: $table.replyToJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get giftJson => $composableBuilder(
+    column: $table.giftJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tokenSprayJson => $composableBuilder(
+    column: $table.tokenSprayJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get communityId => $composableBuilder(
+    column: $table.communityId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get systemEventType => $composableBuilder(
+    column: $table.systemEventType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get systemEventDataJson => $composableBuilder(
+    column: $table.systemEventDataJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get actionedAt => $composableBuilder(
+    column: $table.actionedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deletedForJson => $composableBuilder(
+    column: $table.deletedForJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deletedForEveryone => $composableBuilder(
+    column: $table.deletedForEveryone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDecrypted => $composableBuilder(
+    column: $table.isDecrypted,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalFullMessagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalFullMessagesTable> {
+  $$LocalFullMessagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get conversationId => $composableBuilder(
+    column: $table.conversationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get senderId =>
+      $composableBuilder(column: $table.senderId, builder: (column) => column);
+
+  GeneratedColumn<String> get senderName => $composableBuilder(
+    column: $table.senderName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get senderAvatarUrl => $composableBuilder(
+    column: $table.senderAvatarUrl,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get textContent => $composableBuilder(
+    column: $table.textContent,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get tokenAmount => $composableBuilder(
+    column: $table.tokenAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get recipientId => $composableBuilder(
+    column: $table.recipientId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get ledgerJournalId => $composableBuilder(
+    column: $table.ledgerJournalId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get mediaJson =>
+      $composableBuilder(column: $table.mediaJson, builder: (column) => column);
+
+  GeneratedColumn<String> get reactionsJson => $composableBuilder(
+    column: $table.reactionsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get replyToJson => $composableBuilder(
+    column: $table.replyToJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get giftJson =>
+      $composableBuilder(column: $table.giftJson, builder: (column) => column);
+
+  GeneratedColumn<String> get tokenSprayJson => $composableBuilder(
+    column: $table.tokenSprayJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get communityId => $composableBuilder(
+    column: $table.communityId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get systemEventType => $composableBuilder(
+    column: $table.systemEventType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get systemEventDataJson => $composableBuilder(
+    column: $table.systemEventDataJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get expiresAt =>
+      $composableBuilder(column: $table.expiresAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get actionedAt => $composableBuilder(
+    column: $table.actionedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deletedForJson => $composableBuilder(
+    column: $table.deletedForJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get deletedForEveryone => $composableBuilder(
+    column: $table.deletedForEveryone,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isDecrypted => $composableBuilder(
+    column: $table.isDecrypted,
+    builder: (column) => column,
+  );
+}
+
+class $$LocalFullMessagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalFullMessagesTable,
+          LocalFullMessage,
+          $$LocalFullMessagesTableFilterComposer,
+          $$LocalFullMessagesTableOrderingComposer,
+          $$LocalFullMessagesTableAnnotationComposer,
+          $$LocalFullMessagesTableCreateCompanionBuilder,
+          $$LocalFullMessagesTableUpdateCompanionBuilder,
+          (
+            LocalFullMessage,
+            BaseReferences<
+              _$AppDatabase,
+              $LocalFullMessagesTable,
+              LocalFullMessage
+            >,
+          ),
+          LocalFullMessage,
+          PrefetchHooks Function()
+        > {
+  $$LocalFullMessagesTableTableManager(
+    _$AppDatabase db,
+    $LocalFullMessagesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalFullMessagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalFullMessagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalFullMessagesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> conversationId = const Value.absent(),
+                Value<String> senderId = const Value.absent(),
+                Value<String> senderName = const Value.absent(),
+                Value<String?> senderAvatarUrl = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> textContent = const Value.absent(),
+                Value<int?> tokenAmount = const Value.absent(),
+                Value<String?> recipientId = const Value.absent(),
+                Value<String?> ledgerJournalId = const Value.absent(),
+                Value<String?> mediaJson = const Value.absent(),
+                Value<String?> reactionsJson = const Value.absent(),
+                Value<String?> replyToJson = const Value.absent(),
+                Value<String?> giftJson = const Value.absent(),
+                Value<String?> tokenSprayJson = const Value.absent(),
+                Value<String?> communityId = const Value.absent(),
+                Value<String?> systemEventType = const Value.absent(),
+                Value<String?> systemEventDataJson = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> expiresAt = const Value.absent(),
+                Value<DateTime?> actionedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String> deletedForJson = const Value.absent(),
+                Value<bool> deletedForEveryone = const Value.absent(),
+                Value<bool> isDecrypted = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalFullMessagesCompanion(
+                id: id,
+                conversationId: conversationId,
+                senderId: senderId,
+                senderName: senderName,
+                senderAvatarUrl: senderAvatarUrl,
+                type: type,
+                status: status,
+                textContent: textContent,
+                tokenAmount: tokenAmount,
+                recipientId: recipientId,
+                ledgerJournalId: ledgerJournalId,
+                mediaJson: mediaJson,
+                reactionsJson: reactionsJson,
+                replyToJson: replyToJson,
+                giftJson: giftJson,
+                tokenSprayJson: tokenSprayJson,
+                communityId: communityId,
+                systemEventType: systemEventType,
+                systemEventDataJson: systemEventDataJson,
+                createdAt: createdAt,
+                expiresAt: expiresAt,
+                actionedAt: actionedAt,
+                deletedAt: deletedAt,
+                deletedForJson: deletedForJson,
+                deletedForEveryone: deletedForEveryone,
+                isDecrypted: isDecrypted,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String conversationId,
+                required String senderId,
+                required String senderName,
+                Value<String?> senderAvatarUrl = const Value.absent(),
+                required String type,
+                required String status,
+                Value<String?> textContent = const Value.absent(),
+                Value<int?> tokenAmount = const Value.absent(),
+                Value<String?> recipientId = const Value.absent(),
+                Value<String?> ledgerJournalId = const Value.absent(),
+                Value<String?> mediaJson = const Value.absent(),
+                Value<String?> reactionsJson = const Value.absent(),
+                Value<String?> replyToJson = const Value.absent(),
+                Value<String?> giftJson = const Value.absent(),
+                Value<String?> tokenSprayJson = const Value.absent(),
+                Value<String?> communityId = const Value.absent(),
+                Value<String?> systemEventType = const Value.absent(),
+                Value<String?> systemEventDataJson = const Value.absent(),
+                required DateTime createdAt,
+                Value<DateTime?> expiresAt = const Value.absent(),
+                Value<DateTime?> actionedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String> deletedForJson = const Value.absent(),
+                Value<bool> deletedForEveryone = const Value.absent(),
+                Value<bool> isDecrypted = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalFullMessagesCompanion.insert(
+                id: id,
+                conversationId: conversationId,
+                senderId: senderId,
+                senderName: senderName,
+                senderAvatarUrl: senderAvatarUrl,
+                type: type,
+                status: status,
+                textContent: textContent,
+                tokenAmount: tokenAmount,
+                recipientId: recipientId,
+                ledgerJournalId: ledgerJournalId,
+                mediaJson: mediaJson,
+                reactionsJson: reactionsJson,
+                replyToJson: replyToJson,
+                giftJson: giftJson,
+                tokenSprayJson: tokenSprayJson,
+                communityId: communityId,
+                systemEventType: systemEventType,
+                systemEventDataJson: systemEventDataJson,
+                createdAt: createdAt,
+                expiresAt: expiresAt,
+                actionedAt: actionedAt,
+                deletedAt: deletedAt,
+                deletedForJson: deletedForJson,
+                deletedForEveryone: deletedForEveryone,
+                isDecrypted: isDecrypted,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalFullMessagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalFullMessagesTable,
+      LocalFullMessage,
+      $$LocalFullMessagesTableFilterComposer,
+      $$LocalFullMessagesTableOrderingComposer,
+      $$LocalFullMessagesTableAnnotationComposer,
+      $$LocalFullMessagesTableCreateCompanionBuilder,
+      $$LocalFullMessagesTableUpdateCompanionBuilder,
+      (
+        LocalFullMessage,
+        BaseReferences<
+          _$AppDatabase,
+          $LocalFullMessagesTable,
+          LocalFullMessage
+        >,
+      ),
+      LocalFullMessage,
+      PrefetchHooks Function()
+    >;
+typedef $$LocalFullConversationsTableCreateCompanionBuilder =
+    LocalFullConversationsCompanion Function({
+      required String id,
+      required String type,
+      required String participantIdsJson,
+      required String participantsJson,
+      Value<String?> lastMessageId,
+      Value<String?> lastMessageText,
+      Value<String?> lastMessageSenderId,
+      Value<String?> lastMessageSenderName,
+      Value<String?> lastMessageType,
+      Value<DateTime?> lastMessageAt,
+      Value<String> unreadCountsJson,
+      Value<String> archivedJson,
+      Value<String> pinnedJson,
+      Value<String> mutedJson,
+      Value<String> chatClearedAtJson,
+      required DateTime createdAt,
+      Value<DateTime?> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$LocalFullConversationsTableUpdateCompanionBuilder =
+    LocalFullConversationsCompanion Function({
+      Value<String> id,
+      Value<String> type,
+      Value<String> participantIdsJson,
+      Value<String> participantsJson,
+      Value<String?> lastMessageId,
+      Value<String?> lastMessageText,
+      Value<String?> lastMessageSenderId,
+      Value<String?> lastMessageSenderName,
+      Value<String?> lastMessageType,
+      Value<DateTime?> lastMessageAt,
+      Value<String> unreadCountsJson,
+      Value<String> archivedJson,
+      Value<String> pinnedJson,
+      Value<String> mutedJson,
+      Value<String> chatClearedAtJson,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$LocalFullConversationsTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalFullConversationsTable> {
+  $$LocalFullConversationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get participantIdsJson => $composableBuilder(
+    column: $table.participantIdsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get participantsJson => $composableBuilder(
+    column: $table.participantsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastMessageId => $composableBuilder(
+    column: $table.lastMessageId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastMessageText => $composableBuilder(
+    column: $table.lastMessageText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastMessageSenderId => $composableBuilder(
+    column: $table.lastMessageSenderId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastMessageSenderName => $composableBuilder(
+    column: $table.lastMessageSenderName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastMessageType => $composableBuilder(
+    column: $table.lastMessageType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastMessageAt => $composableBuilder(
+    column: $table.lastMessageAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unreadCountsJson => $composableBuilder(
+    column: $table.unreadCountsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get archivedJson => $composableBuilder(
+    column: $table.archivedJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pinnedJson => $composableBuilder(
+    column: $table.pinnedJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mutedJson => $composableBuilder(
+    column: $table.mutedJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get chatClearedAtJson => $composableBuilder(
+    column: $table.chatClearedAtJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalFullConversationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalFullConversationsTable> {
+  $$LocalFullConversationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get participantIdsJson => $composableBuilder(
+    column: $table.participantIdsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get participantsJson => $composableBuilder(
+    column: $table.participantsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastMessageId => $composableBuilder(
+    column: $table.lastMessageId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastMessageText => $composableBuilder(
+    column: $table.lastMessageText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastMessageSenderId => $composableBuilder(
+    column: $table.lastMessageSenderId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastMessageSenderName => $composableBuilder(
+    column: $table.lastMessageSenderName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastMessageType => $composableBuilder(
+    column: $table.lastMessageType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastMessageAt => $composableBuilder(
+    column: $table.lastMessageAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unreadCountsJson => $composableBuilder(
+    column: $table.unreadCountsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get archivedJson => $composableBuilder(
+    column: $table.archivedJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pinnedJson => $composableBuilder(
+    column: $table.pinnedJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mutedJson => $composableBuilder(
+    column: $table.mutedJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get chatClearedAtJson => $composableBuilder(
+    column: $table.chatClearedAtJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalFullConversationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalFullConversationsTable> {
+  $$LocalFullConversationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get participantIdsJson => $composableBuilder(
+    column: $table.participantIdsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get participantsJson => $composableBuilder(
+    column: $table.participantsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastMessageId => $composableBuilder(
+    column: $table.lastMessageId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastMessageText => $composableBuilder(
+    column: $table.lastMessageText,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastMessageSenderId => $composableBuilder(
+    column: $table.lastMessageSenderId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastMessageSenderName => $composableBuilder(
+    column: $table.lastMessageSenderName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastMessageType => $composableBuilder(
+    column: $table.lastMessageType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastMessageAt => $composableBuilder(
+    column: $table.lastMessageAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get unreadCountsJson => $composableBuilder(
+    column: $table.unreadCountsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get archivedJson => $composableBuilder(
+    column: $table.archivedJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get pinnedJson => $composableBuilder(
+    column: $table.pinnedJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get mutedJson =>
+      $composableBuilder(column: $table.mutedJson, builder: (column) => column);
+
+  GeneratedColumn<String> get chatClearedAtJson => $composableBuilder(
+    column: $table.chatClearedAtJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$LocalFullConversationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalFullConversationsTable,
+          LocalFullConversation,
+          $$LocalFullConversationsTableFilterComposer,
+          $$LocalFullConversationsTableOrderingComposer,
+          $$LocalFullConversationsTableAnnotationComposer,
+          $$LocalFullConversationsTableCreateCompanionBuilder,
+          $$LocalFullConversationsTableUpdateCompanionBuilder,
+          (
+            LocalFullConversation,
+            BaseReferences<
+              _$AppDatabase,
+              $LocalFullConversationsTable,
+              LocalFullConversation
+            >,
+          ),
+          LocalFullConversation,
+          PrefetchHooks Function()
+        > {
+  $$LocalFullConversationsTableTableManager(
+    _$AppDatabase db,
+    $LocalFullConversationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalFullConversationsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$LocalFullConversationsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$LocalFullConversationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String> participantIdsJson = const Value.absent(),
+                Value<String> participantsJson = const Value.absent(),
+                Value<String?> lastMessageId = const Value.absent(),
+                Value<String?> lastMessageText = const Value.absent(),
+                Value<String?> lastMessageSenderId = const Value.absent(),
+                Value<String?> lastMessageSenderName = const Value.absent(),
+                Value<String?> lastMessageType = const Value.absent(),
+                Value<DateTime?> lastMessageAt = const Value.absent(),
+                Value<String> unreadCountsJson = const Value.absent(),
+                Value<String> archivedJson = const Value.absent(),
+                Value<String> pinnedJson = const Value.absent(),
+                Value<String> mutedJson = const Value.absent(),
+                Value<String> chatClearedAtJson = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalFullConversationsCompanion(
+                id: id,
+                type: type,
+                participantIdsJson: participantIdsJson,
+                participantsJson: participantsJson,
+                lastMessageId: lastMessageId,
+                lastMessageText: lastMessageText,
+                lastMessageSenderId: lastMessageSenderId,
+                lastMessageSenderName: lastMessageSenderName,
+                lastMessageType: lastMessageType,
+                lastMessageAt: lastMessageAt,
+                unreadCountsJson: unreadCountsJson,
+                archivedJson: archivedJson,
+                pinnedJson: pinnedJson,
+                mutedJson: mutedJson,
+                chatClearedAtJson: chatClearedAtJson,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String type,
+                required String participantIdsJson,
+                required String participantsJson,
+                Value<String?> lastMessageId = const Value.absent(),
+                Value<String?> lastMessageText = const Value.absent(),
+                Value<String?> lastMessageSenderId = const Value.absent(),
+                Value<String?> lastMessageSenderName = const Value.absent(),
+                Value<String?> lastMessageType = const Value.absent(),
+                Value<DateTime?> lastMessageAt = const Value.absent(),
+                Value<String> unreadCountsJson = const Value.absent(),
+                Value<String> archivedJson = const Value.absent(),
+                Value<String> pinnedJson = const Value.absent(),
+                Value<String> mutedJson = const Value.absent(),
+                Value<String> chatClearedAtJson = const Value.absent(),
+                required DateTime createdAt,
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalFullConversationsCompanion.insert(
+                id: id,
+                type: type,
+                participantIdsJson: participantIdsJson,
+                participantsJson: participantsJson,
+                lastMessageId: lastMessageId,
+                lastMessageText: lastMessageText,
+                lastMessageSenderId: lastMessageSenderId,
+                lastMessageSenderName: lastMessageSenderName,
+                lastMessageType: lastMessageType,
+                lastMessageAt: lastMessageAt,
+                unreadCountsJson: unreadCountsJson,
+                archivedJson: archivedJson,
+                pinnedJson: pinnedJson,
+                mutedJson: mutedJson,
+                chatClearedAtJson: chatClearedAtJson,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalFullConversationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalFullConversationsTable,
+      LocalFullConversation,
+      $$LocalFullConversationsTableFilterComposer,
+      $$LocalFullConversationsTableOrderingComposer,
+      $$LocalFullConversationsTableAnnotationComposer,
+      $$LocalFullConversationsTableCreateCompanionBuilder,
+      $$LocalFullConversationsTableUpdateCompanionBuilder,
+      (
+        LocalFullConversation,
+        BaseReferences<
+          _$AppDatabase,
+          $LocalFullConversationsTable,
+          LocalFullConversation
+        >,
+      ),
+      LocalFullConversation,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -8323,4 +11961,11 @@ class $AppDatabaseManager {
       $$LocalSyncMetadataTableTableManager(_db, _db.localSyncMetadata);
   $$DecryptedMessageCacheTableTableManager get decryptedMessageCache =>
       $$DecryptedMessageCacheTableTableManager(_db, _db.decryptedMessageCache);
+  $$LocalFullMessagesTableTableManager get localFullMessages =>
+      $$LocalFullMessagesTableTableManager(_db, _db.localFullMessages);
+  $$LocalFullConversationsTableTableManager get localFullConversations =>
+      $$LocalFullConversationsTableTableManager(
+        _db,
+        _db.localFullConversations,
+      );
 }

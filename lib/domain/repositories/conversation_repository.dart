@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import '../../core/error/failures.dart';
 import '../entities/conversation.dart';
@@ -22,6 +24,10 @@ class CreateConversationParams {
 /// - Thread management (pin, mute, archive)
 /// - Reactions
 abstract class ConversationRepository {
+  /// Current authenticated user ID (from Firebase Auth).
+  /// Used by BLoC for optimistic message insertion without extra dependencies.
+  String? get currentUserId;
+
   // =========================================================================
   // CONVERSATION LIST (INBOX)
   // =========================================================================
@@ -60,19 +66,27 @@ abstract class ConversationRepository {
     int? limit,
   });
 
-  /// Send a text message
+  /// Send a text message.
+  /// Pass [recipientId] to skip the redundant Firestore read for E2EE lookup.
   Future<Either<Failure, Message>> sendTextMessage({
     required String conversationId,
     required String text,
     String? replyToMessageId,
+    String? recipientId,
   });
 
-  /// Send a media message (image or voice)
+  /// Send a media message (image or voice), encrypted end-to-end.
+  ///
+  /// [mediaFile] is the local file to encrypt and upload.
+  /// [mediaType] is the MIME type (e.g. "image/jpeg", "audio/m4a").
+  /// [recipientId] is the other participant (for E2EE key lookup).
   Future<Either<Failure, Message>> sendMediaMessage({
     required String conversationId,
-    required String mediaUrl,
+    required File mediaFile,
     required String mediaType,
+    required String recipientId,
     String? caption,
+    int? durationSeconds,
   });
 
   // =========================================================================

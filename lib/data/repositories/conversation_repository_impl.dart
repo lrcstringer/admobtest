@@ -1,9 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../core/error/exceptions.dart';
 import '../../core/error/failures.dart';
+import '../../core/services/offline_action_queue.dart';
 import '../../core/services/signal_protocol_service.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
@@ -11,26 +16,37 @@ import '../../domain/enums/message_status.dart';
 import '../../domain/enums/message_type.dart';
 import '../../domain/repositories/conversation_repository.dart';
 import '../../domain/value_objects/user_search_result.dart';
+import '../../core/services/message_sync_service.dart';
 import '../datasources/local/app_database.dart';
 import '../datasources/remote/conversation_remote_datasource.dart';
+import '../datasources/remote/media_upload_datasource.dart';
+import '../mappers/local_conversation_mapper.dart';
+import '../mappers/local_message_mapper.dart';
 
 @LazySingleton(as: ConversationRepository)
 class ConversationRepositoryImpl implements ConversationRepository {
   final ConversationRemoteDataSource _remoteDataSource;
   final SignalProtocolService _signalProtocolService;
   final AppDatabase _appDatabase;
+  final MediaUploadDatasource _mediaUploadDatasource;
+  final MessageSyncService _messageSyncService;
+  final OfflineActionQueue _offlineActionQueue;
 
-  ConversationRepositoryImpl(this._remoteDataSource, this._signalProtocolService, this._appDatabase);
+  ConversationRepositoryImpl(
+    this._remoteDataSource,
+    this._signalProtocolService,
+    this._appDatabase,
+    this._mediaUploadDatasource,
+    this._messageSyncService,
+    this._offlineActionQueue,
+  );
+
+  @override
+  String? get currentUserId => _remoteDataSource.currentUserId;
 
   /// Cache of sent encrypted messages: messageId → plaintext.
-  /// Allows the sender to see their own E2EE messages without decryption
-  /// (sender can't decrypt own messages — session is stored under recipient's ID).
+  /// Shared with MessageSyncService so it can resolve own outgoing messages.
   final Map<String, String> _sentPlaintextCache = {};
-
-  /// Cache of received decrypted messages: messageId → plaintext.
-  /// Prevents re-decryption on subsequent stream emissions (which would
-  /// ratchet the chain key forward and corrupt the session state).
-  final Map<String, String> _receivedPlaintextCache = {};
 
   // =========================================================================
   // CONVERSATION LIST
@@ -52,19 +68,18 @@ class ConversationRepositoryImpl implements ConversationRepository {
 
   @override
   Stream<Either<Failure, List<Conversation>>> watchConversations() {
-    return _remoteDataSource.watchConversations().map((models) {
-      return Right<Failure, List<Conversation>>(
-        models.map((m) => m.toEntity()).toList(),
-      );
-    }).handleError((error) {
-      if (error is AuthException) {
-        return const Left<Failure, List<Conversation>>(
-          Failure.unauthenticated(),
+    // Read from local DB — MessageSyncService populates it from Firestore
+    // with already-decrypted previews. No on-the-fly decryption needed.
+    return _appDatabase.watchLocalConversations().map((rows) {
+      try {
+        final conversations =
+            rows.map(LocalConversationMapper.toEntity).toList();
+        return Right<Failure, List<Conversation>>(conversations);
+      } catch (e) {
+        return Left<Failure, List<Conversation>>(
+          Failure.serverError(message: e.toString()),
         );
       }
-      return Left<Failure, List<Conversation>>(
-        Failure.serverError(message: error.toString()),
-      );
     });
   }
 
@@ -132,23 +147,14 @@ class ConversationRepositoryImpl implements ConversationRepository {
     DateTime? before,
   }) async {
     try {
-      final models = await _remoteDataSource.getMessages(
-        conversationId: conversationId,
-        limit: limit,
+      // Read from local DB — already decrypted by MessageSyncService
+      final rows = await _appDatabase.getLocalMessages(
+        conversationId,
+        limit: limit ?? 50,
         before: before,
       );
-      final messages = models.map((m) => m.toEntity()).toList();
-      // Decrypt sequentially to avoid concurrent chain key ratcheting
-      // for messages from the same sender (corrupts session state).
-      final decrypted = <Message>[];
-      for (final m in messages) {
-        decrypted.add(await _decryptIfNeeded(m));
-      }
-      return Right(decrypted);
-    } on AuthException {
-      return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
+      final messages = rows.map(LocalMessageMapper.toEntity).toList();
+      return Right(messages);
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -159,27 +165,15 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String conversationId,
     int? limit,
   }) {
-    return _remoteDataSource
-        .watchMessages(conversationId: conversationId, limit: limit)
-        .asyncMap<Either<Failure, List<Message>>>((models) async {
+    // Read from local DB — MessageSyncService decrypts once and stores.
+    // No decryption here. No permanent failure tracking needed.
+    return _appDatabase
+        .watchLocalMessages(conversationId, limit: limit ?? 50)
+        .map<Either<Failure, List<Message>>>((rows) {
       try {
-        final messages = models.map((m) => m.toEntity()).toList();
-        // Decrypt sequentially to avoid concurrent chain key ratcheting.
-        // Catch per-message so one failure doesn't drop the whole batch.
-        final decrypted = <Message>[];
-        for (final m in messages) {
-          try {
-            decrypted.add(await _decryptIfNeeded(m));
-          } catch (e) {
-            debugPrint('Decrypt failed for msg ${m.id}, adding as-is: $e');
-            decrypted.add(m);
-          }
-        }
-        return Right(decrypted);
-      } on AuthException {
-        return const Left(Failure.unauthenticated());
+        final messages = rows.map(LocalMessageMapper.toEntity).toList();
+        return Right(messages);
       } catch (e) {
-        debugPrint('watchMessages parse/decrypt error: $e');
         return Left(Failure.serverError(message: e.toString()));
       }
     });
@@ -190,89 +184,204 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String conversationId,
     required String text,
     String? replyToMessageId,
+    String? recipientId,
   }) async {
     try {
-      // Try to encrypt via Signal Protocol
-      final currentUserId = _remoteDataSource.currentUserId;
-      try {
-        if (currentUserId != null) {
-          // Get conversation to find recipient
-          final convModel = await _remoteDataSource.getConversationById(conversationId);
-          if (convModel != null) {
-            final conv = convModel.toEntity();
-            // Find the other participant using actual current user ID
-            final recipientId = conv.participantIds.firstWhere(
-              (id) => id != currentUserId,
-              orElse: () => '',
-            );
-            if (recipientId.isNotEmpty) {
-              final encrypted = await _signalProtocolService.encryptP2P(recipientId, text);
-              final messageId = await _remoteDataSource.sendEncryptedMessage(
-                conversationId: conversationId,
-                ciphertext: encrypted['ciphertext'] as String,
-                e2ee: encrypted['e2ee'] as Map<String, dynamic>,
-                x3dhHeader: encrypted['x3dhHeader'] as Map<String, dynamic>?,
-                replyToMessageId: replyToMessageId,
-              );
-              // Cache plaintext so sender can view their own E2EE message
-              _sentPlaintextCache[messageId] = text;
-              // Persist to encrypted DB so it survives app restart
-              _appDatabase.cacheDecryptedPlaintext(messageId, text);
-              // Return optimistic message with original text for immediate UI
-              return Right(Message(
-                id: messageId,
-                senderId: currentUserId,
-                senderName: '',
-                type: MessageType.text,
-                status: MessageStatus.sent,
-                textContent: text,
-                createdAt: DateTime.now(),
-              ));
-            }
-          }
-        }
-      } catch (e) {
-        // E2EE failed — fall through to plaintext
-        debugPrint('E2EE encrypt failed (falling back to plaintext): $e');
+      if (currentUserId == null) {
+        return const Left(Failure.unauthenticated());
       }
 
-      // Fallback: send plaintext
-      final model = await _remoteDataSource.sendTextMessage(
+      // Resolve recipient ID (use provided or look up from conversation)
+      String? actualRecipientId = recipientId;
+      if (actualRecipientId == null || actualRecipientId.isEmpty) {
+        final convModel = await _remoteDataSource.getConversationById(conversationId);
+        if (convModel != null) {
+          final conv = convModel.toEntity();
+          actualRecipientId = conv.participantIds.firstWhere(
+            (id) => id != currentUserId,
+            orElse: () => '',
+          );
+        }
+      }
+
+      if (actualRecipientId == null || actualRecipientId.isEmpty) {
+        return const Left(Failure.serverError(message: 'Could not determine recipient'));
+      }
+
+      // Verify session is still valid (peer may have regenerated keys)
+      await _ensureSessionFresh(actualRecipientId);
+
+      // E2EE encrypt — if this fails, the message fails. No plaintext fallback.
+      final encrypted = await _signalProtocolService.encryptP2P(actualRecipientId, text);
+
+      final now = DateTime.now();
+      final tempId = 'temp_${now.millisecondsSinceEpoch}';
+      final optimisticMessage = Message(
+        id: tempId,
+        senderId: currentUserId!,
+        senderName: '',
+        type: MessageType.text,
+        status: MessageStatus.sending,
+        textContent: text,
+        createdAt: now,
+      );
+
+      // Pre-cache plaintext by ciphertext fingerprint BEFORE sending.
+      // If the app is killed after the server receives the message but
+      // before we cache by messageId, MessageSyncService can still
+      // resolve the plaintext via ciphertext fingerprint lookup.
+      final ciphertextStr = encrypted['ciphertext'] as String;
+      final ctFingerprint = _ciphertextFingerprint(ciphertextStr);
+      try {
+        await _appDatabase.cacheDecryptedPlaintext(ctFingerprint, text);
+      } catch (e) {
+        debugPrint('Failed to pre-cache plaintext by fingerprint: $e');
+      }
+
+      // Optimistic local insert — message appears instantly in UI
+      try {
+        await _appDatabase.upsertLocalMessage(
+          LocalMessageMapper.toCompanion(optimisticMessage, conversationId),
+        );
+      } catch (e) {
+        debugPrint('Failed to insert optimistic message: $e');
+      }
+
+      // Send to server
+      final messageId = await _remoteDataSource.sendEncryptedMessage(
         conversationId: conversationId,
-        text: text,
+        ciphertext: encrypted['ciphertext'] as String,
+        e2ee: encrypted['e2ee'] as Map<String, dynamic>,
+        x3dhHeader: encrypted['x3dhHeader'] as Map<String, dynamic>?,
         replyToMessageId: replyToMessageId,
       );
-      return Right(model.toEntity());
+
+      // Cache plaintext for sync service to pick up
+      _sentPlaintextCache[messageId] = text;
+      _messageSyncService.sentPlaintextCache[messageId] = text;
+
+      // Replace optimistic message with real one
+      final sentMessage = optimisticMessage.copyWith(
+        id: messageId,
+        status: MessageStatus.sent,
+      );
+      try {
+        await _appDatabase.deleteLocalMessage(tempId);
+        await _appDatabase.upsertLocalMessage(
+          LocalMessageMapper.toCompanion(sentMessage, conversationId),
+        );
+        await _appDatabase.cacheDecryptedPlaintext(messageId, text);
+      } catch (e) {
+        debugPrint('Failed to finalize sent message $messageId: $e');
+      }
+
+      return Right(sentMessage);
     } on AuthException {
       return const Left(Failure.unauthenticated());
     } on ServerException catch (e) {
       return Left(Failure.serverError(message: e.message));
     } catch (e) {
-      return Left(Failure.serverError(message: e.toString()));
+      return Left(Failure.serverError(message: 'Encryption failed: $e'));
     }
   }
 
   @override
   Future<Either<Failure, Message>> sendMediaMessage({
     required String conversationId,
-    required String mediaUrl,
+    required File mediaFile,
     required String mediaType,
+    required String recipientId,
     String? caption,
+    int? durationSeconds,
   }) async {
     try {
-      final model = await _remoteDataSource.sendMediaMessage(
+      if (currentUserId == null) {
+        return const Left(Failure.unauthenticated());
+      }
+
+      // 1. Upload encrypted media to Firebase Storage
+      final isAudio = mediaType.startsWith('audio');
+      final tempMessageId = DateTime.now().millisecondsSinceEpoch.toString();
+      final uploadResult = isAudio
+          ? await _mediaUploadDatasource.uploadEncryptedVoice(
+              voiceFile: mediaFile,
+              parentCollection: 'conversations',
+              parentId: conversationId,
+              messageId: tempMessageId,
+              durationSeconds: durationSeconds ?? 0,
+            )
+          : await _mediaUploadDatasource.uploadEncryptedImage(
+              imageFile: mediaFile,
+              parentCollection: 'conversations',
+              parentId: conversationId,
+              messageId: tempMessageId,
+            );
+
+      // 2. Build structured JSON payload with encrypted media metadata
+      final payload = jsonEncode({
+        if (caption != null) 'text': caption,
+        'media': uploadResult.toMediaMap(),
+      });
+
+      // 3. Verify session, then encrypt the entire payload with Signal Protocol
+      await _ensureSessionFresh(recipientId);
+      final encrypted = await _signalProtocolService.encryptP2P(recipientId, payload);
+
+      // Pre-cache plaintext by ciphertext fingerprint before sending
+      final mediaCiphertextStr = encrypted['ciphertext'] as String;
+      final mediaCtFp = _ciphertextFingerprint(mediaCiphertextStr);
+      try {
+        await _appDatabase.cacheDecryptedPlaintext(mediaCtFp, payload);
+      } catch (e) {
+        debugPrint('Failed to pre-cache media plaintext by fingerprint: $e');
+      }
+
+      // 4. Send via the same encrypted message path
+      final msgType = isAudio ? 'voice' : 'image';
+      final messageId = await _remoteDataSource.sendEncryptedMessage(
         conversationId: conversationId,
-        mediaUrl: mediaUrl,
-        mediaType: mediaType,
-        caption: caption,
+        ciphertext: encrypted['ciphertext'] as String,
+        e2ee: encrypted['e2ee'] as Map<String, dynamic>,
+        x3dhHeader: encrypted['x3dhHeader'] as Map<String, dynamic>?,
+        messageType: msgType,
       );
-      return Right(model.toEntity());
+
+      // 5. Cache plaintext locally
+      _sentPlaintextCache[messageId] = payload;
+      _messageSyncService.sentPlaintextCache[messageId] = payload;
+      try {
+        await _appDatabase.cacheDecryptedPlaintext(messageId, payload);
+      } catch (e) {
+        debugPrint('Failed to persist plaintext for sent media msg $messageId: $e');
+      }
+
+      return Right(Message(
+        id: messageId,
+        senderId: currentUserId!,
+        senderName: '',
+        type: isAudio ? MessageType.voice : MessageType.image,
+        status: MessageStatus.sent,
+        textContent: caption,
+        media: MessageMedia(
+          url: uploadResult.url,
+          thumbnailUrl: uploadResult.thumbnailUrl,
+          fileName: uploadResult.fileName,
+          fileSize: uploadResult.fileSize,
+          mimeType: uploadResult.mimeType,
+          duration: uploadResult.duration,
+          width: uploadResult.width,
+          height: uploadResult.height,
+          mediaKey: uploadResult.mediaKey,
+          thumbKey: uploadResult.thumbKey,
+        ),
+        createdAt: DateTime.now(),
+      ));
     } on AuthException {
       return const Left(Failure.unauthenticated());
     } on ServerException catch (e) {
       return Left(Failure.serverError(message: e.message));
     } catch (e) {
-      return Left(Failure.serverError(message: e.toString()));
+      return Left(Failure.serverError(message: 'Media encryption failed: $e'));
     }
   }
 
@@ -288,13 +397,39 @@ class ConversationRepositoryImpl implements ConversationRepository {
     String? message,
   }) async {
     try {
+      // Encrypt optional user text if present
+      String? encryptedMsg;
+      Map<String, dynamic>? msgE2ee;
+      Map<String, dynamic>? msgX3dh;
+      if (message != null && message.isNotEmpty) {
+        await _ensureSessionFresh(recipientId);
+        final encrypted = await _signalProtocolService.encryptP2P(recipientId, message);
+        encryptedMsg = encrypted['ciphertext'] as String;
+        msgE2ee = encrypted['e2ee'] as Map<String, dynamic>;
+        msgX3dh = encrypted['x3dhHeader'] as Map<String, dynamic>?;
+      }
+
       final model = await _remoteDataSource.sendTokens(
         conversationId: conversationId,
         recipientId: recipientId,
         amount: amount,
-        message: message,
+        encryptedMessage: encryptedMsg,
+        messageE2ee: msgE2ee,
+        messageX3dh: msgX3dh,
       );
-      return Right(model.toEntity());
+
+      // Cache plaintext locally for sender display
+      final result = model.toEntity();
+      if (message != null && message.isNotEmpty) {
+        _sentPlaintextCache[result.id] = message;
+        try {
+          await _appDatabase.cacheDecryptedPlaintext(result.id, message);
+        } catch (e) {
+          debugPrint('Failed to persist plaintext for token msg ${result.id}: $e');
+        }
+      }
+
+      return Right(result);
     } on AuthException {
       return const Left(Failure.unauthenticated());
     } on InsufficientBalanceException {
@@ -314,13 +449,39 @@ class ConversationRepositoryImpl implements ConversationRepository {
     String? message,
   }) async {
     try {
+      // Encrypt optional user text if present
+      String? encryptedMsg;
+      Map<String, dynamic>? msgE2ee;
+      Map<String, dynamic>? msgX3dh;
+      if (message != null && message.isNotEmpty) {
+        await _ensureSessionFresh(recipientId);
+        final encrypted = await _signalProtocolService.encryptP2P(recipientId, message);
+        encryptedMsg = encrypted['ciphertext'] as String;
+        msgE2ee = encrypted['e2ee'] as Map<String, dynamic>;
+        msgX3dh = encrypted['x3dhHeader'] as Map<String, dynamic>?;
+      }
+
       final model = await _remoteDataSource.requestTokens(
         conversationId: conversationId,
         recipientId: recipientId,
         amount: amount,
-        message: message,
+        encryptedMessage: encryptedMsg,
+        messageE2ee: msgE2ee,
+        messageX3dh: msgX3dh,
       );
-      return Right(model.toEntity());
+
+      // Cache plaintext locally for sender display
+      final result = model.toEntity();
+      if (message != null && message.isNotEmpty) {
+        _sentPlaintextCache[result.id] = message;
+        try {
+          await _appDatabase.cacheDecryptedPlaintext(result.id, message);
+        } catch (e) {
+          debugPrint('Failed to persist plaintext for token req ${result.id}: $e');
+        }
+      }
+
+      return Right(result);
     } on AuthException {
       return const Left(Failure.unauthenticated());
     } on ServerException catch (e) {
@@ -381,12 +542,15 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String conversationId,
   }) async {
     try {
-      await _remoteDataSource.markAsRead(conversationId: conversationId);
+      await _offlineActionQueue.enqueue(
+        table: 'conversations',
+        recordId: conversationId,
+        changeType: 'mark_read',
+        data: {},
+      );
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -398,15 +562,15 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required bool pinned,
   }) async {
     try {
-      await _remoteDataSource.togglePin(
-        conversationId: conversationId,
-        pinned: pinned,
+      await _offlineActionQueue.enqueue(
+        table: 'conversations',
+        recordId: conversationId,
+        changeType: 'toggle_pin',
+        data: {'pinned': pinned},
       );
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -418,15 +582,15 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required bool muted,
   }) async {
     try {
-      await _remoteDataSource.toggleMute(
-        conversationId: conversationId,
-        muted: muted,
+      await _offlineActionQueue.enqueue(
+        table: 'conversations',
+        recordId: conversationId,
+        changeType: 'toggle_mute',
+        data: {'muted': muted},
       );
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -437,12 +601,15 @@ class ConversationRepositoryImpl implements ConversationRepository {
     String conversationId,
   ) async {
     try {
-      await _remoteDataSource.archiveConversation(conversationId);
+      await _offlineActionQueue.enqueue(
+        table: 'conversations',
+        recordId: conversationId,
+        changeType: 'archive',
+        data: {},
+      );
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -458,15 +625,15 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String messageId,
   }) async {
     try {
-      await _remoteDataSource.deleteMessageForEveryone(
-        conversationId: conversationId,
-        messageId: messageId,
+      await _offlineActionQueue.enqueue(
+        table: 'messages',
+        recordId: messageId,
+        changeType: 'delete_for_everyone',
+        data: {'conversationId': conversationId},
       );
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -477,12 +644,15 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String conversationId,
   }) async {
     try {
-      await _remoteDataSource.clearChat(conversationId: conversationId);
+      await _offlineActionQueue.enqueue(
+        table: 'conversations',
+        recordId: conversationId,
+        changeType: 'clear_chat',
+        data: {},
+      );
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -499,16 +669,15 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String emoji,
   }) async {
     try {
-      await _remoteDataSource.addReaction(
-        conversationId: conversationId,
-        messageId: messageId,
-        emoji: emoji,
+      await _offlineActionQueue.enqueue(
+        table: 'messages',
+        recordId: messageId,
+        changeType: 'add_reaction',
+        data: {'conversationId': conversationId, 'emoji': emoji},
       );
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -521,16 +690,15 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String emoji,
   }) async {
     try {
-      await _remoteDataSource.removeReaction(
-        conversationId: conversationId,
-        messageId: messageId,
-        emoji: emoji,
+      await _offlineActionQueue.enqueue(
+        table: 'messages',
+        recordId: messageId,
+        changeType: 'remove_reaction',
+        data: {'conversationId': conversationId, 'emoji': emoji},
       );
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -572,88 +740,54 @@ class ConversationRepositoryImpl implements ConversationRepository {
   // E2EE HELPERS
   // =========================================================================
 
-  Future<Message> _decryptIfNeeded(Message msg) async {
-    if (!msg.isEncrypted) return msg;
+  /// Cache of peer identity keys: userId → e2eeIdentityKey from Firestore.
+  /// Populated once per session per peer, avoids repeated Firestore reads.
+  final Map<String, String?> _peerIdentityKeyCache = {};
 
-    // Sender cannot decrypt their own outgoing E2EE messages because
-    // the Signal session is stored under the *recipient's* ID, not their own.
-    // Use the in-memory plaintext cache for messages sent this session.
-    final currentUserId = _remoteDataSource.currentUserId;
-    if (msg.senderId == currentUserId) {
-      final cached = _sentPlaintextCache[msg.id];
-      if (cached != null) {
-        return msg.copyWith(textContent: cached);
-      }
-      // Fallback: check persistent DB (survives app restart)
-      try {
-        final dbCached = await _appDatabase.getDecryptedPlaintext(msg.id);
-        if (dbCached != null) {
-          _sentPlaintextCache[msg.id] = dbCached; // re-hydrate in-memory
-          return msg.copyWith(textContent: dbCached);
-        }
-      } catch (e) {
-        debugPrint('DB plaintext lookup failed for own msg ${msg.id}: $e');
-      }
-      // No cached plaintext available — UI shows lock icon
-      return msg;
-    }
-
-    // Check received cache to avoid re-decrypting (which corrupts session state)
-    final cachedReceived = _receivedPlaintextCache[msg.id];
-    if (cachedReceived != null) {
-      return msg.copyWith(textContent: cachedReceived);
-    }
-    // Fallback: check persistent DB (survives app restart)
+  /// Ensure the Signal Protocol session with [recipientId] is fresh.
+  ///
+  /// Checks the recipient's current identity key (from their Firestore
+  /// profile) against what was stored in the session at establishment time.
+  /// If the keys differ (recipient reinstalled, key regeneration, etc.),
+  /// resets the session so the next `encryptP2P` call auto-establishes
+  /// a fresh session with the recipient's current key bundle.
+  Future<void> _ensureSessionFresh(String recipientId) async {
     try {
-      final dbCachedReceived = await _appDatabase.getDecryptedPlaintext(msg.id);
-      if (dbCachedReceived != null) {
-        _receivedPlaintextCache[msg.id] = dbCachedReceived; // re-hydrate in-memory
-        return msg.copyWith(textContent: dbCachedReceived);
+      // Fetch peer's current identity key (cached per session)
+      if (!_peerIdentityKeyCache.containsKey(recipientId)) {
+        _peerIdentityKeyCache[recipientId] =
+            await _remoteDataSource.getUserE2eeIdentityKey(recipientId);
       }
-    } catch (e) {
-      debugPrint('DB plaintext lookup failed for msg ${msg.id}: $e');
-    }
+      final currentPeerKey = _peerIdentityKeyCache[recipientId];
+      if (currentPeerKey == null) return; // peer hasn't uploaded keys yet
 
-    // Decrypt incoming message from the other participant
-    try {
-      final encryptedMap = {
-        'ciphertext': msg.ciphertext,
-        if (msg.e2ee != null)
-          'e2ee': {
-            'protocol': msg.e2ee!.protocol,
-            'messageNumber': msg.e2ee!.messageNumber,
-            'dhPublicKey': msg.e2ee!.dhPublicKey,
-          },
-        if (msg.x3dhHeader != null)
-          'x3dhHeader': {
-            'identityKey': msg.x3dhHeader!.identityKey,
-            'ephemeralKey': msg.x3dhHeader!.ephemeralKey,
-            if (msg.x3dhHeader!.oneTimePreKeyPublicKey != null)
-              'oneTimePreKeyPublicKey': msg.x3dhHeader!.oneTimePreKeyPublicKey,
-            if (msg.x3dhHeader!.oneTimePreKeyId != null)
-              'oneTimePreKeyId': msg.x3dhHeader!.oneTimePreKeyId,
-          },
-      };
-      final plaintext = await _signalProtocolService.decryptP2P(
-        msg.senderId,
-        encryptedMap,
+      final isStale = await _signalProtocolService.isPeerKeyStale(
+        recipientId,
+        currentPeerKey,
       );
-      _receivedPlaintextCache[msg.id] = plaintext;
-      // Persist to encrypted DB so it survives app restart
-      _appDatabase.cacheDecryptedPlaintext(msg.id, plaintext);
-      return msg.copyWith(textContent: plaintext);
-    } catch (e) {
-      final isAlreadyConsumed = e.toString().contains('already consumed');
-      debugPrint('E2EE decrypt failed for msg ${msg.id}: $e');
-
-      if (!isAlreadyConsumed) {
-        // Session is corrupted — reset it so the next outgoing message
-        // triggers a fresh X3DH key exchange.
-        debugPrint('E2EE: Resetting corrupted session with ${msg.senderId}');
-        await _signalProtocolService.resetSession(msg.senderId);
+      if (isStale) {
+        debugPrint('E2EE: Peer $recipientId identity key changed — '
+            'resetting stale session for re-establishment');
+        await _signalProtocolService.resetSession(recipientId);
+        // Clear the cache so the next send after re-establishment
+        // doesn't falsely detect staleness again.
+        _peerIdentityKeyCache.remove(recipientId);
       }
-
-      return msg.copyWith(textContent: '[Cannot decrypt]');
+    } catch (e) {
+      // Non-fatal — if the check fails, proceed with existing session.
+      // Worst case: encryption uses stale keys and peer can't decrypt,
+      // which triggers the receiver-side session recovery.
+      debugPrint('E2EE: Session freshness check failed for $recipientId: $e');
     }
+  }
+
+  /// Compute a stable fingerprint from ciphertext for pre-caching plaintext.
+  ///
+  /// Uses the first 64 chars of the base64 ciphertext (which includes the
+  /// 12-byte random nonce, making collisions astronomically unlikely).
+  /// Prefixed with `sent_ct:` to avoid key collisions in DecryptedMessageCache.
+  static String _ciphertextFingerprint(String ciphertextBase64) {
+    final fpLen = min(64, ciphertextBase64.length);
+    return 'sent_ct:${ciphertextBase64.substring(0, fpLen)}';
   }
 }

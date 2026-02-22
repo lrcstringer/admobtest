@@ -36,6 +36,8 @@ abstract class ConversationRemoteDataSource {
     required String conversationId,
     int? limit,
   });
+  @Deprecated('Use sendEncryptedMessage for P2P conversations. '
+      'Plaintext send is no longer supported for E2EE conversations.')
   Future<MessageModel> sendTextMessage({
     required String conversationId,
     required String text,
@@ -46,8 +48,8 @@ abstract class ConversationRemoteDataSource {
     required String ciphertext,
     required Map<String, dynamic> e2ee,
     Map<String, dynamic>? x3dhHeader,
-    Map<String, String>? encryptedPreviews,
     String? replyToMessageId,
+    String? messageType,
   });
   Future<MessageModel> sendMediaMessage({
     required String conversationId,
@@ -61,13 +63,17 @@ abstract class ConversationRemoteDataSource {
     required String conversationId,
     required String recipientId,
     required int amount,
-    String? message,
+    String? encryptedMessage,
+    Map<String, dynamic>? messageE2ee,
+    Map<String, dynamic>? messageX3dh,
   });
   Future<MessageModel> requestTokens({
     required String conversationId,
     required String recipientId,
     required int amount,
-    String? message,
+    String? encryptedMessage,
+    Map<String, dynamic>? messageE2ee,
+    Map<String, dynamic>? messageX3dh,
   });
   Future<MessageModel> acceptTokenRequest({
     required String messageId,
@@ -112,6 +118,9 @@ abstract class ConversationRemoteDataSource {
   // Unread count
   Future<int> getTotalUnreadCount();
   Stream<int> watchTotalUnreadCount();
+
+  // E2EE key lookup
+  Future<String?> getUserE2eeIdentityKey(String userId);
 }
 
 @LazySingleton(as: ConversationRemoteDataSource)
@@ -470,8 +479,8 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
     required String ciphertext,
     required Map<String, dynamic> e2ee,
     Map<String, dynamic>? x3dhHeader,
-    Map<String, String>? encryptedPreviews,
     String? replyToMessageId,
+    String? messageType,
   }) async {
     _requireUserId();
     try {
@@ -481,8 +490,8 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
         'ciphertext': ciphertext,
         'e2ee': e2ee,
         if (x3dhHeader != null) 'x3dhHeader': x3dhHeader,
-        if (encryptedPreviews != null) 'encryptedPreviews': encryptedPreviews,
         if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
+        if (messageType != null) 'messageType': messageType,
       });
       final data = result.data;
       return data['messageId'] as String? ?? '';
@@ -537,7 +546,9 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
     required String conversationId,
     required String recipientId,
     required int amount,
-    String? message,
+    String? encryptedMessage,
+    Map<String, dynamic>? messageE2ee,
+    Map<String, dynamic>? messageX3dh,
   }) async {
     final userId = _requireUserId();
     try {
@@ -550,20 +561,20 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
         'conversationId': conversationId,
         'recipientId': recipientId,
         'amount': amount,
-        if (message != null) 'message': message,
+        if (encryptedMessage != null) 'encryptedMessage': encryptedMessage,
+        if (messageE2ee != null) 'messageE2ee': messageE2ee,
+        if (messageX3dh != null) 'messageX3dh': messageX3dh,
         if (integrityToken != null) 'integrityToken': integrityToken,
         if (integrityToken != null) 'integrityNonce': nonce,
       });
 
       final data = deepConvertMap(result.data);
-      // If CF returns only success + messageId, build optimistic model
       if (data.containsKey('messageId') && !data.containsKey('senderId')) {
         return MessageModel.optimistic(
           localId: data['messageId'] as String,
           senderId: userId,
           senderName: '',
           type: 'tokenSend',
-          textContent: message,
           tokenAmount: amount,
           recipientId: recipientId,
         );
@@ -582,7 +593,9 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
     required String conversationId,
     required String recipientId,
     required int amount,
-    String? message,
+    String? encryptedMessage,
+    Map<String, dynamic>? messageE2ee,
+    Map<String, dynamic>? messageX3dh,
   }) async {
     final userId = _requireUserId();
     try {
@@ -591,7 +604,9 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
         'conversationId': conversationId,
         'recipientId': recipientId,
         'amount': amount,
-        if (message != null) 'message': message,
+        if (encryptedMessage != null) 'encryptedMessage': encryptedMessage,
+        if (messageE2ee != null) 'messageE2ee': messageE2ee,
+        if (messageX3dh != null) 'messageX3dh': messageX3dh,
       });
 
       final data = deepConvertMap(result.data);
@@ -601,7 +616,6 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
           senderId: userId,
           senderName: '',
           type: 'tokenRequest',
-          textContent: message,
           tokenAmount: amount,
           recipientId: recipientId,
         );
@@ -881,5 +895,12 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
       }
       return total;
     });
+  }
+
+  @override
+  Future<String?> getUserE2eeIdentityKey(String userId) async {
+    final doc = await _firestore.collection('users').doc(userId).get();
+    if (!doc.exists) return null;
+    return doc.data()?['e2eeIdentityKey'] as String?;
   }
 }

@@ -1,11 +1,15 @@
 import 'package:dartz/dartz.dart';
+import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imalichat/core/error/exceptions.dart';
 import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/data/models/conversation_model.dart';
 import 'package:imalichat/data/models/message_model.dart';
 import 'package:imalichat/data/datasources/remote/conversation_remote_datasource.dart';
+import 'package:imalichat/data/datasources/remote/media_upload_datasource.dart';
 import 'package:imalichat/data/repositories/conversation_repository_impl.dart';
+import 'package:imalichat/core/services/message_sync_service.dart';
+import 'package:imalichat/core/services/offline_action_queue.dart';
 import 'package:imalichat/domain/enums/message_status.dart';
 import 'package:imalichat/data/datasources/local/app_database.dart';
 import 'package:imalichat/domain/enums/message_type.dart';
@@ -19,6 +23,12 @@ class MockConversationRemoteDataSource extends Mock
     implements ConversationRemoteDataSource {}
 
 class MockAppDatabase extends Mock implements AppDatabase {}
+
+class MockMediaUploadDatasource extends Mock implements MediaUploadDatasource {}
+
+class MockMessageSyncService extends Mock implements MessageSyncService {}
+
+class MockOfflineActionQueue extends Mock implements OfflineActionQueue {}
 
 // ==================== TEST FIXTURES ====================
 
@@ -61,50 +71,44 @@ MessageModel _createPlaintextModel({
   );
 }
 
-MessageModel _createEncryptedModel({
-  String id = 'msg_enc_1',
-  String senderId = _recipientId,
+/// Creates a LocalFullMessage row matching a decrypted message in local DB
+LocalFullMessage _createLocalFullMessage({
+  String id = 'msg_1',
+  String senderId = _userId,
+  String senderName = 'Alice',
+  String type = 'text',
+  String status = 'sent',
+  String? textContent = 'Hello, world!',
+  bool isDecrypted = true,
+  String conversationId = _conversationId,
 }) {
-  return MessageModel(
+  return LocalFullMessage(
     id: id,
+    conversationId: conversationId,
     senderId: senderId,
-    senderName: 'Bob',
-    type: 'text',
-    status: 'sent',
-    textContent: null,
-    ciphertext: 'ZW5jcnlwdGVkRGF0YQ==',
-    e2ee: {
-      'protocol': 'signal-v1',
-      'messageNumber': 0,
-      'dhPublicKey': 'ZGhQdWJsaWNLZXk=',
-    },
+    senderName: senderName,
+    type: type,
+    status: status,
+    textContent: textContent,
+    isDecrypted: isDecrypted,
     createdAt: DateTime(2024, 6, 1, 12, 0),
-  );
-}
-
-MessageModel _createEncryptedModelWithX3dh({
-  String id = 'msg_enc_x3dh',
-  String senderId = _recipientId,
-}) {
-  return MessageModel(
-    id: id,
-    senderId: senderId,
-    senderName: 'Bob',
-    type: 'text',
-    status: 'sent',
-    textContent: null,
-    ciphertext: 'ZW5jcnlwdGVkRGF0YQ==',
-    e2ee: {
-      'protocol': 'signal-v1',
-      'messageNumber': 0,
-      'dhPublicKey': 'ZGhQdWJsaWNLZXk=',
-    },
-    x3dhHeader: {
-      'identityKey': 'aWRlbnRpdHlLZXk=',
-      'ephemeralKey': 'ZXBoZW1lcmFsS2V5',
-      'oneTimePreKeyId': 0,
-    },
-    createdAt: DateTime(2024, 6, 1, 12, 0),
+    deletedForJson: '[]',
+    deletedForEveryone: false,
+    senderAvatarUrl: null,
+    tokenAmount: null,
+    recipientId: null,
+    ledgerJournalId: null,
+    mediaJson: null,
+    reactionsJson: null,
+    replyToJson: null,
+    giftJson: null,
+    tokenSprayJson: null,
+    communityId: null,
+    systemEventType: null,
+    systemEventDataJson: null,
+    expiresAt: null,
+    actionedAt: null,
+    deletedAt: null,
   );
 }
 
@@ -114,18 +118,60 @@ void main() {
   late MockConversationRemoteDataSource mockDataSource;
   late MockSignalProtocolService mockSignalProtocol;
   late MockAppDatabase mockAppDatabase;
+  late MockMessageSyncService mockSyncService;
+  late MockOfflineActionQueue mockOfflineQueue;
   late ConversationRepositoryImpl repository;
+
+  setUpAll(() {
+    registerFallbackValue(LocalFullMessagesCompanion.insert(
+      id: '',
+      conversationId: '',
+      senderId: '',
+      senderName: '',
+      type: '',
+      status: '',
+      createdAt: DateTime(2024),
+    ));
+  });
 
   setUp(() {
     mockDataSource = MockConversationRemoteDataSource();
     mockSignalProtocol = MockSignalProtocolService();
     mockAppDatabase = MockAppDatabase();
+    mockSyncService = MockMessageSyncService();
+    mockOfflineQueue = MockOfflineActionQueue();
     // Stub fire-and-forget DB cache calls used by the repository
     when(() => mockAppDatabase.cacheDecryptedPlaintext(any(), any()))
         .thenAnswer((_) async {});
     when(() => mockAppDatabase.getDecryptedPlaintext(any()))
         .thenAnswer((_) async => null);
-    repository = ConversationRepositoryImpl(mockDataSource, mockSignalProtocol, mockAppDatabase);
+    // Stub local DB operations for optimistic insert/delete
+    when(() => mockAppDatabase.upsertLocalMessage(any()))
+        .thenAnswer((_) async {});
+    when(() => mockAppDatabase.deleteLocalMessage(any()))
+        .thenAnswer((_) async {});
+    // Stub peer identity key lookup used by _ensureSessionFresh
+    when(() => mockDataSource.getUserE2eeIdentityKey(any()))
+        .thenAnswer((_) async => null);
+    // Stub currentUserId — most send methods check this
+    when(() => mockDataSource.currentUserId).thenReturn(_userId);
+    // Stub sync service sent plaintext cache
+    when(() => mockSyncService.sentPlaintextCache).thenReturn({});
+    // Stub offline queue enqueue (returns Future<void>)
+    when(() => mockOfflineQueue.enqueue(
+          table: any(named: 'table'),
+          recordId: any(named: 'recordId'),
+          changeType: any(named: 'changeType'),
+          data: any(named: 'data'),
+        )).thenAnswer((_) async {});
+    repository = ConversationRepositoryImpl(
+      mockDataSource,
+      mockSignalProtocol,
+      mockAppDatabase,
+      MockMediaUploadDatasource(),
+      mockSyncService,
+      mockOfflineQueue,
+    );
   });
 
   // ===========================================================================
@@ -215,88 +261,93 @@ void main() {
           )).called(1);
     });
 
-    test('falls back to plaintext when encryptP2P throws', () async {
+    test('returns Left(serverError) when encryptP2P throws (no plaintext fallback)',
+        () async {
       final convModel = _createConversationModel();
       when(() => mockDataSource.getConversationById(_conversationId))
           .thenAnswer((_) async => convModel);
       when(() => mockSignalProtocol.encryptP2P(_recipientId, 'Fallback'))
           .thenThrow(StateError('No session'));
-      when(() => mockDataSource.sendTextMessage(
-            conversationId: _conversationId,
-            text: 'Fallback',
-            replyToMessageId: null,
-          )).thenAnswer((_) async => _createPlaintextModel());
 
       final result = await repository.sendTextMessage(
         conversationId: _conversationId,
         text: 'Fallback',
       );
 
-      expect(result.isRight(), isTrue);
-      verify(() => mockDataSource.sendTextMessage(
-            conversationId: _conversationId,
-            text: 'Fallback',
-            replyToMessageId: null,
-          )).called(1);
-      verifyNever(() => mockDataSource.sendEncryptedMessage(
+      expect(result.isLeft(), isTrue);
+      // No plaintext fallback — encryption failure is a hard error
+      verifyNever(() => mockDataSource.sendTextMessage(
             conversationId: any(named: 'conversationId'),
-            ciphertext: any(named: 'ciphertext'),
-            e2ee: any(named: 'e2ee'),
-            x3dhHeader: any(named: 'x3dhHeader'),
+            text: any(named: 'text'),
             replyToMessageId: any(named: 'replyToMessageId'),
           ));
     });
 
-    test('falls back to plaintext when getConversationById returns null',
+    test('returns Left(serverError) when recipient cannot be determined',
         () async {
       when(() => mockDataSource.getConversationById(_conversationId))
           .thenAnswer((_) async => null);
-      when(() => mockDataSource.sendTextMessage(
-            conversationId: _conversationId,
-            text: 'Test',
-            replyToMessageId: null,
-          )).thenAnswer((_) async => _createPlaintextModel());
 
       final result = await repository.sendTextMessage(
         conversationId: _conversationId,
         text: 'Test',
       );
 
-      expect(result.isRight(), isTrue);
+      expect(result.isLeft(), isTrue);
       verifyNever(
           () => mockSignalProtocol.encryptP2P(any(), any()));
     });
 
-    test('passes correct conversationId to datasource', () async {
+    test('passes correct conversationId to encrypted datasource', () async {
       const customConvId = 'conv_custom_999';
+      final convModel = _createConversationModel(id: customConvId);
       when(() => mockDataSource.getConversationById(customConvId))
-          .thenAnswer((_) async => null);
-      when(() => mockDataSource.sendTextMessage(
+          .thenAnswer((_) async => convModel);
+      when(() => mockSignalProtocol.encryptP2P(_recipientId, 'Msg'))
+          .thenAnswer((_) async => {
+                'ciphertext': 'ct_msg',
+                'e2ee': {'protocol': 'signal-v1', 'messageNumber': 0},
+                'x3dhHeader': null,
+              });
+      when(() => mockDataSource.sendEncryptedMessage(
             conversationId: customConvId,
-            text: 'Msg',
+            ciphertext: 'ct_msg',
+            e2ee: {'protocol': 'signal-v1', 'messageNumber': 0},
+            x3dhHeader: null,
             replyToMessageId: null,
-          )).thenAnswer((_) async => _createPlaintextModel());
+          )).thenAnswer((_) async => 'msg_custom');
 
       await repository.sendTextMessage(
         conversationId: customConvId,
         text: 'Msg',
       );
 
-      verify(() => mockDataSource.sendTextMessage(
+      verify(() => mockDataSource.sendEncryptedMessage(
             conversationId: customConvId,
-            text: 'Msg',
+            ciphertext: 'ct_msg',
+            e2ee: {'protocol': 'signal-v1', 'messageNumber': 0},
+            x3dhHeader: null,
             replyToMessageId: null,
           )).called(1);
     });
 
-    test('passes replyToMessageId through to datasource', () async {
+    test('passes replyToMessageId through to encrypted datasource', () async {
+      final convModel = _createConversationModel();
       when(() => mockDataSource.getConversationById(_conversationId))
-          .thenAnswer((_) async => null);
-      when(() => mockDataSource.sendTextMessage(
+          .thenAnswer((_) async => convModel);
+      when(() => mockSignalProtocol.encryptP2P(_recipientId, 'Reply text'))
+          .thenAnswer((_) async => {
+                'ciphertext': 'ct_reply',
+                'e2ee': {'protocol': 'signal-v1', 'messageNumber': 0},
+                'x3dhHeader': null,
+              });
+      when(() => mockDataSource.sendEncryptedMessage(
             conversationId: _conversationId,
-            text: 'Reply text',
+            ciphertext: 'ct_reply',
+            e2ee: {'protocol': 'signal-v1', 'messageNumber': 0},
+            x3dhHeader: null,
             replyToMessageId: 'parent_msg_1',
-          )).thenAnswer((_) async => _createPlaintextModel());
+          )).thenAnswer((_) async => 'msg_reply');
 
       await repository.sendTextMessage(
         conversationId: _conversationId,
@@ -304,23 +355,44 @@ void main() {
         replyToMessageId: 'parent_msg_1',
       );
 
-      verify(() => mockDataSource.sendTextMessage(
+      verify(() => mockDataSource.sendEncryptedMessage(
             conversationId: _conversationId,
-            text: 'Reply text',
+            ciphertext: 'ct_reply',
+            e2ee: {'protocol': 'signal-v1', 'messageNumber': 0},
+            x3dhHeader: null,
             replyToMessageId: 'parent_msg_1',
           )).called(1);
     });
 
+    test('returns Left(unauthenticated) when currentUserId is null',
+        () async {
+      when(() => mockDataSource.currentUserId).thenReturn(null);
+
+      final result = await repository.sendTextMessage(
+        conversationId: _conversationId,
+        text: 'Test',
+      );
+
+      expect(result, const Left(Failure.unauthenticated()));
+    });
+
     test('returns Left(unauthenticated) when AuthException is thrown',
         () async {
-      // The inner try-catch swallows errors from getConversationById,
-      // so AuthException must come from the plaintext fallback path
+      final convModel = _createConversationModel();
       when(() => mockDataSource.getConversationById(_conversationId))
-          .thenAnswer((_) async => null);
-      when(() => mockDataSource.sendTextMessage(
-            conversationId: _conversationId,
-            text: 'Test',
-            replyToMessageId: null,
+          .thenAnswer((_) async => convModel);
+      when(() => mockSignalProtocol.encryptP2P(_recipientId, 'Test'))
+          .thenAnswer((_) async => {
+                'ciphertext': 'ct_test',
+                'e2ee': {'protocol': 'signal-v1', 'messageNumber': 0},
+                'x3dhHeader': null,
+              });
+      when(() => mockDataSource.sendEncryptedMessage(
+            conversationId: any(named: 'conversationId'),
+            ciphertext: any(named: 'ciphertext'),
+            e2ee: any(named: 'e2ee'),
+            x3dhHeader: any(named: 'x3dhHeader'),
+            replyToMessageId: any(named: 'replyToMessageId'),
           )).thenThrow(const AuthException(message: 'Not logged in'));
 
       final result = await repository.sendTextMessage(
@@ -332,12 +404,21 @@ void main() {
     });
 
     test('returns Left(serverError) when ServerException is thrown', () async {
+      final convModel = _createConversationModel();
       when(() => mockDataSource.getConversationById(_conversationId))
-          .thenAnswer((_) async => null);
-      when(() => mockDataSource.sendTextMessage(
-            conversationId: _conversationId,
-            text: 'Test',
-            replyToMessageId: null,
+          .thenAnswer((_) async => convModel);
+      when(() => mockSignalProtocol.encryptP2P(_recipientId, 'Test'))
+          .thenAnswer((_) async => {
+                'ciphertext': 'ct_test',
+                'e2ee': {'protocol': 'signal-v1', 'messageNumber': 0},
+                'x3dhHeader': null,
+              });
+      when(() => mockDataSource.sendEncryptedMessage(
+            conversationId: any(named: 'conversationId'),
+            ciphertext: any(named: 'ciphertext'),
+            e2ee: any(named: 'e2ee'),
+            x3dhHeader: any(named: 'x3dhHeader'),
+            replyToMessageId: any(named: 'replyToMessageId'),
           )).thenThrow(const ServerException(message: 'Server down'));
 
       final result = await repository.sendTextMessage(
@@ -355,91 +436,19 @@ void main() {
   });
 
   // ===========================================================================
-  // getMessages
+  // getMessages — now reads from local DB (pre-decrypted by MessageSyncService)
   // ===========================================================================
 
   group('getMessages', () {
-    test('decrypts encrypted messages via _decryptIfNeeded', () async {
-      when(() => mockDataSource.getMessages(
-            conversationId: _conversationId,
-            limit: null,
-            before: null,
-          )).thenAnswer((_) async => [_createEncryptedModel()]);
-      when(() => mockSignalProtocol.decryptP2P(_recipientId, any()))
-          .thenAnswer((_) async => 'Decrypted text');
-
-      final result = await repository.getMessages(
-        conversationId: _conversationId,
-      );
-
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages.length, 1);
-          expect(messages[0].textContent, 'Decrypted text');
-        },
-      );
-    });
-
-    test('plaintext messages pass through unchanged', () async {
-      when(() => mockDataSource.getMessages(
-            conversationId: _conversationId,
-            limit: null,
-            before: null,
-          )).thenAnswer((_) async => [_createPlaintextModel()]);
-
-      final result = await repository.getMessages(
-        conversationId: _conversationId,
-      );
-
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages.length, 1);
-          expect(messages[0].textContent, 'Hello, world!');
-        },
-      );
-      verifyNever(
-          () => mockSignalProtocol.decryptP2P(any(), any()));
-    });
-
-    test('failed decryption results in "[Cannot decrypt]" text', () async {
-      when(() => mockDataSource.getMessages(
-            conversationId: _conversationId,
-            limit: null,
-            before: null,
-          )).thenAnswer((_) async => [_createEncryptedModel()]);
-      when(() => mockSignalProtocol.decryptP2P(_recipientId, any()))
-          .thenThrow(Exception('Decryption error'));
-
-      final result = await repository.getMessages(
-        conversationId: _conversationId,
-      );
-
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages.length, 1);
-          expect(messages[0].textContent, '[Cannot decrypt]');
-        },
-      );
-    });
-
-    test('returns correct list size for mixed messages', () async {
-      when(() => mockDataSource.getMessages(
-            conversationId: _conversationId,
-            limit: null,
+    test('reads messages from local DB and returns entities', () async {
+      when(() => mockAppDatabase.getLocalMessages(
+            _conversationId,
+            limit: 50,
             before: null,
           )).thenAnswer((_) async => [
-            _createPlaintextModel(id: 'msg_1'),
-            _createEncryptedModel(id: 'msg_2'),
-            _createPlaintextModel(id: 'msg_3', senderId: _recipientId),
+            _createLocalFullMessage(id: 'msg_1', textContent: 'Hello'),
+            _createLocalFullMessage(id: 'msg_2', textContent: 'World'),
           ]);
-      when(() => mockSignalProtocol.decryptP2P(_recipientId, any()))
-          .thenAnswer((_) async => 'Decrypted');
 
       final result = await repository.getMessages(
         conversationId: _conversationId,
@@ -449,63 +458,73 @@ void main() {
       result.fold(
         (_) => fail('Expected Right'),
         (messages) {
-          expect(messages.length, 3);
-          expect(messages[0].textContent, 'Hello, world!');
-          expect(messages[1].textContent, 'Decrypted');
-          expect(messages[2].textContent, 'Hello, world!');
+          expect(messages.length, 2);
+          expect(messages[0].textContent, 'Hello');
+          expect(messages[1].textContent, 'World');
         },
       );
     });
 
-    test('passes x3dhHeader fields to decryptP2P', () async {
-      when(() => mockDataSource.getMessages(
-            conversationId: _conversationId,
-            limit: null,
+    test('returns empty list when no local messages', () async {
+      when(() => mockAppDatabase.getLocalMessages(
+            _conversationId,
+            limit: 50,
             before: null,
-          )).thenAnswer((_) async => [_createEncryptedModelWithX3dh()]);
-      when(() => mockSignalProtocol.decryptP2P(_recipientId, any()))
-          .thenAnswer((_) async => 'Session established');
+          )).thenAnswer((_) async => []);
 
       final result = await repository.getMessages(
         conversationId: _conversationId,
       );
 
       expect(result.isRight(), isTrue);
-      final captured = verify(
-              () => mockSignalProtocol.decryptP2P(_recipientId, captureAny()))
-          .captured;
-      final decryptMap = captured.first as Map<String, dynamic>;
-      expect(decryptMap.containsKey('x3dhHeader'), isTrue);
-      expect(decryptMap['x3dhHeader']['identityKey'], 'aWRlbnRpdHlLZXk=');
+      result.fold(
+        (_) => fail('Expected Right'),
+        (messages) => expect(messages.isEmpty, isTrue),
+      );
     });
 
-    test('returns Left(unauthenticated) on AuthException', () async {
-      when(() => mockDataSource.getMessages(
-            conversationId: _conversationId,
-            limit: null,
+    test('does not call decryptP2P (decryption handled by sync service)',
+        () async {
+      when(() => mockAppDatabase.getLocalMessages(
+            _conversationId,
+            limit: 50,
             before: null,
-          )).thenThrow(const AuthException(message: 'Not authed'));
+          )).thenAnswer((_) async => [
+            _createLocalFullMessage(textContent: 'Already decrypted'),
+          ]);
+
+      await repository.getMessages(conversationId: _conversationId);
+
+      verifyNever(() => mockSignalProtocol.decryptP2P(any(), any()));
+    });
+
+    test('returns Left on database error', () async {
+      when(() => mockAppDatabase.getLocalMessages(
+            _conversationId,
+            limit: 50,
+            before: null,
+          )).thenThrow(Exception('DB error'));
 
       final result = await repository.getMessages(
         conversationId: _conversationId,
       );
 
-      expect(result, const Left(Failure.unauthenticated()));
+      expect(result.isLeft(), isTrue);
     });
   });
 
   // ===========================================================================
-  // watchMessages
+  // watchMessages — now streams from local DB (pre-decrypted)
   // ===========================================================================
 
   group('watchMessages', () {
-    test('stream emits decrypted messages via asyncMap', () async {
-      when(() => mockDataSource.watchMessages(
-            conversationId: _conversationId,
-            limit: null,
-          )).thenAnswer((_) => Stream.value([_createEncryptedModel()]));
-      when(() => mockSignalProtocol.decryptP2P(_recipientId, any()))
-          .thenAnswer((_) async => 'Watched & decrypted');
+    test('streams messages from local DB', () async {
+      when(() => mockAppDatabase.watchLocalMessages(
+            _conversationId,
+            limit: 50,
+          )).thenAnswer((_) => Stream.value([
+            _createLocalFullMessage(id: 'msg_1', textContent: 'Streamed'),
+          ]));
 
       final stream = repository.watchMessages(
         conversationId: _conversationId,
@@ -517,107 +536,46 @@ void main() {
         (_) => fail('Expected Right'),
         (messages) {
           expect(messages.length, 1);
-          expect(messages[0].textContent, 'Watched & decrypted');
+          expect(messages[0].textContent, 'Streamed');
         },
       );
     });
 
-    test('stream handles mixed encrypted and plaintext messages', () async {
-      when(() => mockDataSource.watchMessages(
-            conversationId: _conversationId,
-            limit: null,
+    test('does not call decryptP2P (decryption handled by sync service)',
+        () async {
+      when(() => mockAppDatabase.watchLocalMessages(
+            _conversationId,
+            limit: 50,
           )).thenAnswer((_) => Stream.value([
-            _createPlaintextModel(id: 'pt_1'),
-            _createEncryptedModel(id: 'enc_1'),
+            _createLocalFullMessage(textContent: 'Pre-decrypted'),
           ]));
-      when(() => mockSignalProtocol.decryptP2P(_recipientId, any()))
-          .thenAnswer((_) async => 'Decrypted stream msg');
-
-      final stream = repository.watchMessages(
-        conversationId: _conversationId,
-      );
-
-      final emission = await stream.first;
-      emission.fold(
-        (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages.length, 2);
-          expect(messages[0].textContent, 'Hello, world!');
-          expect(messages[1].textContent, 'Decrypted stream msg');
-        },
-      );
-    });
-
-    test('uses asyncMap for async decryption in stream', () async {
-      // Verify the stream uses asyncMap by checking it awaits decryptP2P
-      var decryptCalled = false;
-      when(() => mockDataSource.watchMessages(
-            conversationId: _conversationId,
-            limit: null,
-          )).thenAnswer((_) => Stream.value([_createEncryptedModel()]));
-      when(() => mockSignalProtocol.decryptP2P(_recipientId, any()))
-          .thenAnswer((_) async {
-        decryptCalled = true;
-        return 'Async result';
-      });
 
       final stream = repository.watchMessages(
         conversationId: _conversationId,
       );
       await stream.first;
 
-      expect(decryptCalled, isTrue);
-    });
-
-    test('decrypt failure in stream results in "[Cannot decrypt]"', () async {
-      when(() => mockDataSource.watchMessages(
-            conversationId: _conversationId,
-            limit: null,
-          )).thenAnswer((_) => Stream.value([_createEncryptedModel()]));
-      when(() => mockSignalProtocol.decryptP2P(_recipientId, any()))
-          .thenThrow(Exception('Stream decrypt error'));
-
-      final stream = repository.watchMessages(
-        conversationId: _conversationId,
-      );
-
-      final emission = await stream.first;
-      emission.fold(
-        (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages[0].textContent, '[Cannot decrypt]');
-        },
-      );
+      verifyNever(() => mockSignalProtocol.decryptP2P(any(), any()));
     });
   });
 
   // ===========================================================================
-  // Passthrough methods
+  // Metadata operations — now routed through OfflineActionQueue
   // ===========================================================================
 
   group('markAsRead', () {
-    test('delegates to datasource correctly', () async {
-      when(() => mockDataSource.markAsRead(conversationId: _conversationId))
-          .thenAnswer((_) async {});
-
+    test('enqueues action via offline queue', () async {
       final result = await repository.markAsRead(
         conversationId: _conversationId,
       );
 
       expect(result, const Right(null));
-      verify(() => mockDataSource.markAsRead(conversationId: _conversationId))
-          .called(1);
-    });
-
-    test('returns Left(unauthenticated) on AuthException', () async {
-      when(() => mockDataSource.markAsRead(conversationId: _conversationId))
-          .thenThrow(const AuthException(message: 'No auth'));
-
-      final result = await repository.markAsRead(
-        conversationId: _conversationId,
-      );
-
-      expect(result, const Left(Failure.unauthenticated()));
+      verify(() => mockOfflineQueue.enqueue(
+            table: 'conversations',
+            recordId: _conversationId,
+            changeType: 'mark_read',
+            data: {},
+          )).called(1);
     });
   });
 
@@ -652,11 +610,20 @@ void main() {
   group('sendTokens', () {
     test('delegates to datasource with correct params', () async {
       final model = _createPlaintextModel();
+      // Stub encryption for the optional message text
+      when(() => mockSignalProtocol.encryptP2P(_recipientId, 'Enjoy!'))
+          .thenAnswer((_) async => {
+                'ciphertext': 'ct_enjoy',
+                'e2ee': {'protocol': 'signal-v1', 'messageNumber': 0},
+                'x3dhHeader': null,
+              });
       when(() => mockDataSource.sendTokens(
-            conversationId: _conversationId,
-            recipientId: _recipientId,
-            amount: 100,
-            message: 'Enjoy!',
+            conversationId: any(named: 'conversationId'),
+            recipientId: any(named: 'recipientId'),
+            amount: any(named: 'amount'),
+            encryptedMessage: any(named: 'encryptedMessage'),
+            messageE2ee: any(named: 'messageE2ee'),
+            messageX3dh: any(named: 'messageX3dh'),
           )).thenAnswer((_) async => model);
 
       final result = await repository.sendTokens(
@@ -667,21 +634,17 @@ void main() {
       );
 
       expect(result.isRight(), isTrue);
-      verify(() => mockDataSource.sendTokens(
-            conversationId: _conversationId,
-            recipientId: _recipientId,
-            amount: 100,
-            message: 'Enjoy!',
-          )).called(1);
     });
 
     test('returns Left(insufficientBalance) on InsufficientBalanceException',
         () async {
       when(() => mockDataSource.sendTokens(
-            conversationId: _conversationId,
-            recipientId: _recipientId,
-            amount: 99999,
-            message: null,
+            conversationId: any(named: 'conversationId'),
+            recipientId: any(named: 'recipientId'),
+            amount: any(named: 'amount'),
+            encryptedMessage: any(named: 'encryptedMessage'),
+            messageE2ee: any(named: 'messageE2ee'),
+            messageX3dh: any(named: 'messageX3dh'),
           )).thenThrow(InsufficientBalanceException());
 
       final result = await repository.sendTokens(
@@ -695,67 +658,56 @@ void main() {
   });
 
   group('togglePin', () {
-    test('delegates to datasource correctly', () async {
-      when(() => mockDataSource.togglePin(
-            conversationId: _conversationId,
-            pinned: true,
-          )).thenAnswer((_) async {});
-
+    test('enqueues action via offline queue', () async {
       final result = await repository.togglePin(
         conversationId: _conversationId,
         pinned: true,
       );
 
       expect(result, const Right(null));
-      verify(() => mockDataSource.togglePin(
-            conversationId: _conversationId,
-            pinned: true,
+      verify(() => mockOfflineQueue.enqueue(
+            table: 'conversations',
+            recordId: _conversationId,
+            changeType: 'toggle_pin',
+            data: {'pinned': true},
           )).called(1);
     });
   });
 
   group('toggleMute', () {
-    test('delegates to datasource correctly', () async {
-      when(() => mockDataSource.toggleMute(
-            conversationId: _conversationId,
-            muted: true,
-          )).thenAnswer((_) async {});
-
+    test('enqueues action via offline queue', () async {
       final result = await repository.toggleMute(
         conversationId: _conversationId,
         muted: true,
       );
 
       expect(result, const Right(null));
-      verify(() => mockDataSource.toggleMute(
-            conversationId: _conversationId,
-            muted: true,
+      verify(() => mockOfflineQueue.enqueue(
+            table: 'conversations',
+            recordId: _conversationId,
+            changeType: 'toggle_mute',
+            data: {'muted': true},
           )).called(1);
     });
   });
 
   group('archiveConversation', () {
-    test('delegates to datasource correctly', () async {
-      when(() => mockDataSource.archiveConversation(_conversationId))
-          .thenAnswer((_) async {});
-
+    test('enqueues action via offline queue', () async {
       final result =
           await repository.archiveConversation(_conversationId);
 
       expect(result, const Right(null));
-      verify(() => mockDataSource.archiveConversation(_conversationId))
-          .called(1);
+      verify(() => mockOfflineQueue.enqueue(
+            table: 'conversations',
+            recordId: _conversationId,
+            changeType: 'archive',
+            data: {},
+          )).called(1);
     });
   });
 
   group('addReaction', () {
-    test('delegates to datasource correctly', () async {
-      when(() => mockDataSource.addReaction(
-            conversationId: _conversationId,
-            messageId: 'msg_1',
-            emoji: '👍',
-          )).thenAnswer((_) async {});
-
+    test('enqueues action via offline queue', () async {
       final result = await repository.addReaction(
         conversationId: _conversationId,
         messageId: 'msg_1',
@@ -763,22 +715,17 @@ void main() {
       );
 
       expect(result, const Right(null));
-      verify(() => mockDataSource.addReaction(
-            conversationId: _conversationId,
-            messageId: 'msg_1',
-            emoji: '👍',
+      verify(() => mockOfflineQueue.enqueue(
+            table: 'messages',
+            recordId: 'msg_1',
+            changeType: 'add_reaction',
+            data: {'conversationId': _conversationId, 'emoji': '👍'},
           )).called(1);
     });
   });
 
   group('removeReaction', () {
-    test('delegates to datasource correctly', () async {
-      when(() => mockDataSource.removeReaction(
-            conversationId: _conversationId,
-            messageId: 'msg_1',
-            emoji: '👍',
-          )).thenAnswer((_) async {});
-
+    test('enqueues action via offline queue', () async {
       final result = await repository.removeReaction(
         conversationId: _conversationId,
         messageId: 'msg_1',
@@ -786,10 +733,11 @@ void main() {
       );
 
       expect(result, const Right(null));
-      verify(() => mockDataSource.removeReaction(
-            conversationId: _conversationId,
-            messageId: 'msg_1',
-            emoji: '👍',
+      verify(() => mockOfflineQueue.enqueue(
+            table: 'messages',
+            recordId: 'msg_1',
+            changeType: 'remove_reaction',
+            data: {'conversationId': _conversationId, 'emoji': '👍'},
           )).called(1);
     });
   });

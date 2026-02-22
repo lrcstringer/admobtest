@@ -26,6 +26,7 @@ void main() {
   late MockAdMobService mockAdMobService;
   late ValueNotifier<bool> isAdReadyNotifier;
   late ValueNotifier<bool> isLoadingNotifier;
+  late ValueNotifier<int> currentAttemptNotifier;
 
   setUpAll(() {
     registerFallbackValue(FakeEngagementEvidence());
@@ -37,16 +38,19 @@ void main() {
     mockAdMobService = MockAdMobService();
     isAdReadyNotifier = ValueNotifier(false);
     isLoadingNotifier = ValueNotifier(false);
+    currentAttemptNotifier = ValueNotifier(0);
 
     // Setup default AdMobService mock behavior
     when(() => mockAdMobService.isAdReady).thenReturn(isAdReadyNotifier);
     when(() => mockAdMobService.isLoading).thenReturn(isLoadingNotifier);
+    when(() => mockAdMobService.currentAttempt).thenReturn(currentAttemptNotifier);
     when(() => mockAdMobService.hasAdReady).thenReturn(false);
   });
 
   tearDown(() {
     isAdReadyNotifier.dispose();
     isLoadingNotifier.dispose();
+    currentAttemptNotifier.dispose();
   });
 
   group('EarnBloc', () {
@@ -446,12 +450,8 @@ void main() {
       );
 
       blocTest<EarnBloc, EarnState>(
-        'silently ignores progress update errors',
+        'updates local engagement progress without server call',
         build: () {
-          when(() => mockEarnRepository.updateEngagementProgress(
-                engagementId: any(named: 'engagementId'),
-                watchDurationSeconds: any(named: 'watchDurationSeconds'),
-              )).thenAnswer((_) async => const Left(Failure.network()));
           return EarnBloc(mockEarnRepository, mockAdMobService);
         },
         seed: () => EarnState(
@@ -462,7 +462,13 @@ void main() {
           engagementId: 'engagement123',
           watchDurationSeconds: 20,
         )),
-        expect: () => [],
+        expect: () => [
+          isA<EarnState>()
+              .having((s) => s.currentEngagement?.watchDurationSeconds,
+                  'watchDurationSeconds', 20)
+              .having((s) => s.engagementPhase, 'phase',
+                  EngagementPhase.watching),
+        ],
       );
     });
 

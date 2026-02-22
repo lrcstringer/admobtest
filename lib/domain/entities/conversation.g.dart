@@ -31,6 +31,7 @@ _$ConversationImpl _$$ConversationImplFromJson(Map<String, dynamic> json) =>
         (k, e) =>
             MapEntry(k, ParticipantInfo.fromJson(e as Map<String, dynamic>)),
       ),
+      lastMessageId: json['lastMessageId'] as String?,
       lastMessageText: json['lastMessageText'] as String?,
       lastMessageSenderId: json['lastMessageSenderId'] as String?,
       lastMessageSenderName: json['lastMessageSenderName'] as String?,
@@ -64,6 +65,7 @@ Map<String, dynamic> _$$ConversationImplToJson(_$ConversationImpl instance) =>
       'type': _$ConversationTypeEnumMap[instance.type]!,
       'participantIds': instance.participantIds,
       'participants': instance.participants,
+      'lastMessageId': instance.lastMessageId,
       'lastMessageText': instance.lastMessageText,
       'lastMessageSenderId': instance.lastMessageSenderId,
       'lastMessageSenderName': instance.lastMessageSenderName,

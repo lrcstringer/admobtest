@@ -10,6 +10,9 @@ import 'package:imalichat/core/security/device_binding_service.dart';
 import 'package:imalichat/core/services/biometric_login_service.dart';
 import 'package:imalichat/core/services/fcm_challenge_handler.dart';
 import 'package:imalichat/core/services/key_management_service.dart';
+import 'package:imalichat/core/services/message_sync_service.dart';
+import 'package:imalichat/core/services/offline_action_queue.dart';
+import 'package:imalichat/core/services/signal_protocol_service.dart';
 import 'package:imalichat/domain/entities/trusted_device.dart';
 import 'package:imalichat/domain/entities/user.dart';
 import 'package:imalichat/domain/repositories/auth_repository.dart';
@@ -30,6 +33,12 @@ class MockFcmChallengeHandler extends Mock implements FcmChallengeHandler {}
 
 class MockKeyManagementService extends Mock implements KeyManagementService {}
 
+class MockSignalProtocolService extends Mock implements SignalProtocolService {}
+
+class MockMessageSyncService extends Mock implements MessageSyncService {}
+
+class MockOfflineActionQueue extends Mock implements OfflineActionQueue {}
+
 void main() {
   late MockAuthRepository mockAuthRepository;
   late MockUserRepository mockUserRepository;
@@ -46,6 +55,9 @@ void main() {
         mockBiometricLoginService,
         mockFcmChallengeHandler,
         mockKeyManagementService,
+        MockSignalProtocolService(),
+        MockMessageSyncService(),
+        MockOfflineActionQueue(),
       );
 
   setUp(() {
@@ -216,11 +228,15 @@ void main() {
               .having((s) => s.status, 'status', AuthStatus.authenticated)
               .having((s) => s.user, 'user', TestData.testUser)
               .having((s) => s.verificationId, 'verificationId', isNull),
+          // Device binding fires asynchronously after verify
+          isA<AuthState>()
+              .having((s) => s.isDeviceBound, 'isDeviceBound', true)
+              .having((s) => s.deviceId, 'deviceId', 'mock_device'),
         ],
       );
 
       blocTest<AuthBloc, AuthState>(
-        'emits [loading, onboardingRequired] when user needs onboarding',
+        'emits [loading, onboardingRequired, deviceBound] when user needs onboarding',
         build: () {
           when(() => mockAuthRepository.verifyOtp(
                 verificationId: any(named: 'verificationId'),
@@ -236,6 +252,10 @@ void main() {
           isA<AuthState>().having((s) => s.status, 'status', AuthStatus.loading),
           isA<AuthState>()
               .having((s) => s.status, 'status', AuthStatus.onboardingRequired),
+          // Device binding fires asynchronously after verify
+          isA<AuthState>()
+              .having((s) => s.isDeviceBound, 'isDeviceBound', true)
+              .having((s) => s.deviceId, 'deviceId', 'mock_device'),
         ],
       );
 
@@ -371,8 +391,14 @@ void main() {
 
     group('CompleteOnboarding', () {
       blocTest<AuthBloc, AuthState>(
-        'emits authenticated when onboarding is completed',
-        build: () => createBloc(),
+        'emits [loading, authenticated] when onboarding is completed',
+        build: () {
+          when(() => mockUserRepository.completeOnboarding())
+              .thenAnswer((_) async => const Right(null));
+          when(() => mockAuthRepository.getCurrentUser())
+              .thenAnswer((_) async => Right(TestData.testUser));
+          return createBloc();
+        },
         seed: () => AuthState(
           user: TestData.userNeedsOnboarding.copyWith(hasAcceptedTerms: true),
           status: AuthStatus.onboardingRequired,
@@ -380,8 +406,10 @@ void main() {
         act: (bloc) => bloc.add(const AuthEvent.completeOnboarding()),
         expect: () => [
           isA<AuthState>()
+              .having((s) => s.isLoading, 'isLoading', true),
+          isA<AuthState>()
               .having((s) => s.status, 'status', AuthStatus.authenticated)
-              .having((s) => s.user?.hasCompletedOnboarding, 'hasCompletedOnboarding', true),
+              .having((s) => s.isLoading, 'isLoading', false),
         ],
       );
     });

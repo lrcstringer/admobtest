@@ -38,41 +38,44 @@ void main() {
   }
 
   group('AdMobVideoWidget', () {
-    testWidgets('should display title correctly', (tester) async {
+    testWidgets('should display Load Ad button in default state',
+        (tester) async {
       when(() => mockEarnBloc.state).thenReturn(const EarnState());
 
       await tester.pumpWidget(buildWidget());
 
-      expect(find.text('Watch Ad to Continue'), findsOneWidget);
+      expect(find.text('Load Ad'), findsOneWidget);
+      expect(find.byIcon(Icons.refresh), findsOneWidget);
     });
 
-    testWidgets('should display description text', (tester) async {
-      when(() => mockEarnBloc.state).thenReturn(const EarnState());
-
-      await tester.pumpWidget(buildWidget());
-
-      expect(
-        find.text(
-            'Watch a short video ad to unlock the bonus question and earn your reward!'),
-        findsOneWidget,
+    testWidgets('should display Watch Ad button when ad is ready',
+        (tester) async {
+      when(() => mockEarnBloc.state).thenReturn(
+        const EarnState(isAdReady: true),
       );
+
+      await tester.pumpWidget(buildWidget());
+
+      expect(find.text('Watch Ad'), findsOneWidget);
+      expect(find.byIcon(Icons.play_arrow), findsOneWidget);
     });
 
-    testWidgets('should display token reward preview', (tester) async {
+    testWidgets('should not show Watch Ad button when not ready',
+        (tester) async {
       when(() => mockEarnBloc.state).thenReturn(const EarnState());
 
       await tester.pumpWidget(buildWidget());
 
-      expect(find.textContaining('tokens'), findsOneWidget);
-      expect(find.byIcon(Icons.monetization_on), findsOneWidget);
+      expect(find.text('Watch Ad'), findsNothing);
     });
 
-    testWidgets('should display play icon', (tester) async {
+    testWidgets('should not show loading text in default state',
+        (tester) async {
       when(() => mockEarnBloc.state).thenReturn(const EarnState());
 
       await tester.pumpWidget(buildWidget());
 
-      expect(find.byIcon(Icons.play_circle_filled), findsOneWidget);
+      expect(find.text('Loading ad...'), findsNothing);
     });
 
     group('Loading state', () {
@@ -138,7 +141,7 @@ void main() {
         expect(find.byIcon(Icons.refresh), findsOneWidget);
       });
 
-      testWidgets('should show retry message when ad is not ready',
+      testWidgets('should not show loading indicator when not ready',
           (tester) async {
         when(() => mockEarnBloc.state).thenReturn(
           const EarnState(isAdReady: false, isAdLoading: false),
@@ -146,7 +149,7 @@ void main() {
 
         await tester.pumpWidget(buildWidget());
 
-        expect(find.text('Tap to load the ad'), findsOneWidget);
+        expect(find.byType(CircularProgressIndicator), findsNothing);
       });
     });
 
@@ -195,25 +198,6 @@ void main() {
 
         // Should now show Watch Ad button
         expect(find.text('Watch Ad'), findsOneWidget);
-      });
-    });
-
-    group('Visual elements', () {
-      testWidgets('should have play circle icon container', (tester) async {
-        when(() => mockEarnBloc.state).thenReturn(const EarnState());
-
-        await tester.pumpWidget(buildWidget());
-
-        // Check for the container with circle shape
-        expect(find.byIcon(Icons.play_circle_filled), findsOneWidget);
-      });
-
-      testWidgets('should have monetization icon for reward', (tester) async {
-        when(() => mockEarnBloc.state).thenReturn(const EarnState());
-
-        await tester.pumpWidget(buildWidget());
-
-        expect(find.byIcon(Icons.monetization_on), findsOneWidget);
       });
     });
 

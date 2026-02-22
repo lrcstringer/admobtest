@@ -22,6 +22,7 @@ mixin _$ConversationModel {
   List<String> get participantIds => throw _privateConstructorUsedError;
   Map<String, Map<String, dynamic>> get participants =>
       throw _privateConstructorUsedError; // Last message preview
+  String? get lastMessageId => throw _privateConstructorUsedError;
   String? get lastMessageText => throw _privateConstructorUsedError;
   String? get lastMessageSenderId => throw _privateConstructorUsedError;
   String? get lastMessageSenderName => throw _privateConstructorUsedError;
@@ -59,6 +60,7 @@ abstract class $ConversationModelCopyWith<$Res> {
     String type,
     List<String> participantIds,
     Map<String, Map<String, dynamic>> participants,
+    String? lastMessageId,
     String? lastMessageText,
     String? lastMessageSenderId,
     String? lastMessageSenderName,
@@ -94,6 +96,7 @@ class _$ConversationModelCopyWithImpl<$Res, $Val extends ConversationModel>
     Object? type = null,
     Object? participantIds = null,
     Object? participants = null,
+    Object? lastMessageId = freezed,
     Object? lastMessageText = freezed,
     Object? lastMessageSenderId = freezed,
     Object? lastMessageSenderName = freezed,
@@ -126,6 +129,10 @@ class _$ConversationModelCopyWithImpl<$Res, $Val extends ConversationModel>
                 ? _value.participants
                 : participants // ignore: cast_nullable_to_non_nullable
                       as Map<String, Map<String, dynamic>>,
+            lastMessageId: freezed == lastMessageId
+                ? _value.lastMessageId
+                : lastMessageId // ignore: cast_nullable_to_non_nullable
+                      as String?,
             lastMessageText: freezed == lastMessageText
                 ? _value.lastMessageText
                 : lastMessageText // ignore: cast_nullable_to_non_nullable
@@ -198,6 +205,7 @@ abstract class _$$ConversationModelImplCopyWith<$Res>
     String type,
     List<String> participantIds,
     Map<String, Map<String, dynamic>> participants,
+    String? lastMessageId,
     String? lastMessageText,
     String? lastMessageSenderId,
     String? lastMessageSenderName,
@@ -232,6 +240,7 @@ class __$$ConversationModelImplCopyWithImpl<$Res>
     Object? type = null,
     Object? participantIds = null,
     Object? participants = null,
+    Object? lastMessageId = freezed,
     Object? lastMessageText = freezed,
     Object? lastMessageSenderId = freezed,
     Object? lastMessageSenderName = freezed,
@@ -264,6 +273,10 @@ class __$$ConversationModelImplCopyWithImpl<$Res>
             ? _value._participants
             : participants // ignore: cast_nullable_to_non_nullable
                   as Map<String, Map<String, dynamic>>,
+        lastMessageId: freezed == lastMessageId
+            ? _value.lastMessageId
+            : lastMessageId // ignore: cast_nullable_to_non_nullable
+                  as String?,
         lastMessageText: freezed == lastMessageText
             ? _value.lastMessageText
             : lastMessageText // ignore: cast_nullable_to_non_nullable
@@ -329,6 +342,7 @@ class _$ConversationModelImpl extends _ConversationModel {
     required this.type,
     required final List<String> participantIds,
     required final Map<String, Map<String, dynamic>> participants,
+    this.lastMessageId,
     this.lastMessageText,
     this.lastMessageSenderId,
     this.lastMessageSenderName,
@@ -373,6 +387,8 @@ class _$ConversationModelImpl extends _ConversationModel {
   }
 
   // Last message preview
+  @override
+  final String? lastMessageId;
   @override
   final String? lastMessageText;
   @override
@@ -448,7 +464,7 @@ class _$ConversationModelImpl extends _ConversationModel {
 
   @override
   String toString() {
-    return 'ConversationModel(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ConversationModel(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageId: $lastMessageId, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -466,6 +482,8 @@ class _$ConversationModelImpl extends _ConversationModel {
               other._participants,
               _participants,
             ) &&
+            (identical(other.lastMessageId, lastMessageId) ||
+                other.lastMessageId == lastMessageId) &&
             (identical(other.lastMessageText, lastMessageText) ||
                 other.lastMessageText == lastMessageText) &&
             (identical(other.lastMessageSenderId, lastMessageSenderId) ||
@@ -504,6 +522,7 @@ class _$ConversationModelImpl extends _ConversationModel {
     type,
     const DeepCollectionEquality().hash(_participantIds),
     const DeepCollectionEquality().hash(_participants),
+    lastMessageId,
     lastMessageText,
     lastMessageSenderId,
     lastMessageSenderName,
@@ -537,6 +556,7 @@ abstract class _ConversationModel extends ConversationModel {
     required final String type,
     required final List<String> participantIds,
     required final Map<String, Map<String, dynamic>> participants,
+    final String? lastMessageId,
     final String? lastMessageText,
     final String? lastMessageSenderId,
     final String? lastMessageSenderName,
@@ -561,6 +581,8 @@ abstract class _ConversationModel extends ConversationModel {
   List<String> get participantIds;
   @override
   Map<String, Map<String, dynamic>> get participants; // Last message preview
+  @override
+  String? get lastMessageId;
   @override
   String? get lastMessageText;
   @override

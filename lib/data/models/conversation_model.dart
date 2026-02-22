@@ -15,6 +15,7 @@ class ConversationModel with _$ConversationModel {
     required Map<String, Map<String, dynamic>> participants,
 
     // Last message preview
+    String? lastMessageId,
     String? lastMessageText,
     String? lastMessageSenderId,
     String? lastMessageSenderName,
@@ -54,6 +55,7 @@ class ConversationModel with _$ConversationModel {
           ? List<String>.from(participantIds)
           : <String>[],
       participants: _parseParticipants(json['participants']),
+      lastMessageId: json['lastMessageId'] as String?,
       lastMessageText: lastMessage?['text'] as String? ??
           json['lastMessageText'] as String?,
       lastMessageSenderId: lastMessage?['senderId'] as String? ??
@@ -95,6 +97,7 @@ class ConversationModel with _$ConversationModel {
           ),
         ),
       ),
+      lastMessageId: lastMessageId,
       lastMessageText: lastMessageText,
       lastMessageSenderId: lastMessageSenderId,
       lastMessageSenderName: lastMessageSenderName,
@@ -122,6 +125,7 @@ class ConversationModel with _$ConversationModel {
           'avatarUrl': value.avatarUrl,
         }),
       ),
+      lastMessageId: entity.lastMessageId,
       lastMessageText: entity.lastMessageText,
       lastMessageSenderId: entity.lastMessageSenderId,
       lastMessageSenderName: entity.lastMessageSenderName,

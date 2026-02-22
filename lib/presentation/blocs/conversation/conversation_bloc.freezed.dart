@@ -41,9 +41,11 @@ mixin _$ConversationEvent {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -109,9 +111,11 @@ mixin _$ConversationEvent {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -168,9 +172,11 @@ mixin _$ConversationEvent {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -392,9 +398,11 @@ class _$LoadConversationsImpl implements _LoadConversations {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -464,9 +472,11 @@ class _$LoadConversationsImpl implements _LoadConversations {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -527,9 +537,11 @@ class _$LoadConversationsImpl implements _LoadConversations {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -753,9 +765,11 @@ class _$WatchConversationsImpl implements _WatchConversations {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -825,9 +839,11 @@ class _$WatchConversationsImpl implements _WatchConversations {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -888,9 +904,11 @@ class _$WatchConversationsImpl implements _WatchConversations {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -1157,9 +1175,11 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -1229,9 +1249,11 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -1292,9 +1314,11 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -1557,9 +1581,11 @@ class _$SelectConversationImpl implements _SelectConversation {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -1629,9 +1655,11 @@ class _$SelectConversationImpl implements _SelectConversation {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -1692,9 +1720,11 @@ class _$SelectConversationImpl implements _SelectConversation {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -1957,9 +1987,11 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -2029,9 +2061,11 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -2092,9 +2126,11 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -2377,9 +2413,11 @@ class _$LoadMessagesImpl implements _LoadMessages {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -2449,9 +2487,11 @@ class _$LoadMessagesImpl implements _LoadMessages {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -2512,9 +2552,11 @@ class _$LoadMessagesImpl implements _LoadMessages {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -2787,9 +2829,11 @@ class _$WatchMessagesImpl implements _WatchMessages {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -2859,9 +2903,11 @@ class _$WatchMessagesImpl implements _WatchMessages {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -2922,9 +2968,11 @@ class _$WatchMessagesImpl implements _WatchMessages {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -3197,9 +3245,11 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -3269,9 +3319,11 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -3332,9 +3384,11 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -3622,9 +3676,11 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -3694,9 +3750,11 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -3757,9 +3815,11 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -3941,9 +4001,11 @@ abstract class _$$SendMediaMessageImplCopyWith<$Res> {
   @useResult
   $Res call({
     String conversationId,
-    String mediaUrl,
+    File mediaFile,
     String mediaType,
+    String recipientId,
     String? caption,
+    int? durationSeconds,
   });
 }
 
@@ -3962,9 +4024,11 @@ class __$$SendMediaMessageImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? conversationId = null,
-    Object? mediaUrl = null,
+    Object? mediaFile = null,
     Object? mediaType = null,
+    Object? recipientId = null,
     Object? caption = freezed,
+    Object? durationSeconds = freezed,
   }) {
     return _then(
       _$SendMediaMessageImpl(
@@ -3972,18 +4036,26 @@ class __$$SendMediaMessageImplCopyWithImpl<$Res>
             ? _value.conversationId
             : conversationId // ignore: cast_nullable_to_non_nullable
                   as String,
-        mediaUrl: null == mediaUrl
-            ? _value.mediaUrl
-            : mediaUrl // ignore: cast_nullable_to_non_nullable
-                  as String,
+        mediaFile: null == mediaFile
+            ? _value.mediaFile
+            : mediaFile // ignore: cast_nullable_to_non_nullable
+                  as File,
         mediaType: null == mediaType
             ? _value.mediaType
             : mediaType // ignore: cast_nullable_to_non_nullable
+                  as String,
+        recipientId: null == recipientId
+            ? _value.recipientId
+            : recipientId // ignore: cast_nullable_to_non_nullable
                   as String,
         caption: freezed == caption
             ? _value.caption
             : caption // ignore: cast_nullable_to_non_nullable
                   as String?,
+        durationSeconds: freezed == durationSeconds
+            ? _value.durationSeconds
+            : durationSeconds // ignore: cast_nullable_to_non_nullable
+                  as int?,
       ),
     );
   }
@@ -3994,23 +4066,29 @@ class __$$SendMediaMessageImplCopyWithImpl<$Res>
 class _$SendMediaMessageImpl implements _SendMediaMessage {
   const _$SendMediaMessageImpl({
     required this.conversationId,
-    required this.mediaUrl,
+    required this.mediaFile,
     required this.mediaType,
+    required this.recipientId,
     this.caption,
+    this.durationSeconds,
   });
 
   @override
   final String conversationId;
   @override
-  final String mediaUrl;
+  final File mediaFile;
   @override
   final String mediaType;
   @override
+  final String recipientId;
+  @override
   final String? caption;
+  @override
+  final int? durationSeconds;
 
   @override
   String toString() {
-    return 'ConversationEvent.sendMediaMessage(conversationId: $conversationId, mediaUrl: $mediaUrl, mediaType: $mediaType, caption: $caption)';
+    return 'ConversationEvent.sendMediaMessage(conversationId: $conversationId, mediaFile: $mediaFile, mediaType: $mediaType, recipientId: $recipientId, caption: $caption, durationSeconds: $durationSeconds)';
   }
 
   @override
@@ -4020,16 +4098,27 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
             other is _$SendMediaMessageImpl &&
             (identical(other.conversationId, conversationId) ||
                 other.conversationId == conversationId) &&
-            (identical(other.mediaUrl, mediaUrl) ||
-                other.mediaUrl == mediaUrl) &&
+            (identical(other.mediaFile, mediaFile) ||
+                other.mediaFile == mediaFile) &&
             (identical(other.mediaType, mediaType) ||
                 other.mediaType == mediaType) &&
-            (identical(other.caption, caption) || other.caption == caption));
+            (identical(other.recipientId, recipientId) ||
+                other.recipientId == recipientId) &&
+            (identical(other.caption, caption) || other.caption == caption) &&
+            (identical(other.durationSeconds, durationSeconds) ||
+                other.durationSeconds == durationSeconds));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, conversationId, mediaUrl, mediaType, caption);
+  int get hashCode => Object.hash(
+    runtimeType,
+    conversationId,
+    mediaFile,
+    mediaType,
+    recipientId,
+    caption,
+    durationSeconds,
+  );
 
   /// Create a copy of ConversationEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -4067,9 +4156,11 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -4116,7 +4207,14 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     required TResult Function() clearSearch,
     required TResult Function() clearError,
   }) {
-    return sendMediaMessage(conversationId, mediaUrl, mediaType, caption);
+    return sendMediaMessage(
+      conversationId,
+      mediaFile,
+      mediaType,
+      recipientId,
+      caption,
+      durationSeconds,
+    );
   }
 
   @override
@@ -4139,9 +4237,11 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -4179,7 +4279,14 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult? Function()? clearSearch,
     TResult? Function()? clearError,
   }) {
-    return sendMediaMessage?.call(conversationId, mediaUrl, mediaType, caption);
+    return sendMediaMessage?.call(
+      conversationId,
+      mediaFile,
+      mediaType,
+      recipientId,
+      caption,
+      durationSeconds,
+    );
   }
 
   @override
@@ -4202,9 +4309,11 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -4244,7 +4353,14 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     required TResult orElse(),
   }) {
     if (sendMediaMessage != null) {
-      return sendMediaMessage(conversationId, mediaUrl, mediaType, caption);
+      return sendMediaMessage(
+        conversationId,
+        mediaFile,
+        mediaType,
+        recipientId,
+        caption,
+        durationSeconds,
+      );
     }
     return orElse();
   }
@@ -4362,15 +4478,19 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
 abstract class _SendMediaMessage implements ConversationEvent {
   const factory _SendMediaMessage({
     required final String conversationId,
-    required final String mediaUrl,
+    required final File mediaFile,
     required final String mediaType,
+    required final String recipientId,
     final String? caption,
+    final int? durationSeconds,
   }) = _$SendMediaMessageImpl;
 
   String get conversationId;
-  String get mediaUrl;
+  File get mediaFile;
   String get mediaType;
+  String get recipientId;
   String? get caption;
+  int? get durationSeconds;
 
   /// Create a copy of ConversationEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -4510,9 +4630,11 @@ class _$SendTokensImpl implements _SendTokens {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -4582,9 +4704,11 @@ class _$SendTokensImpl implements _SendTokens {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -4645,9 +4769,11 @@ class _$SendTokensImpl implements _SendTokens {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -4953,9 +5079,11 @@ class _$RequestTokensImpl implements _RequestTokens {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -5025,9 +5153,11 @@ class _$RequestTokensImpl implements _RequestTokens {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -5088,9 +5218,11 @@ class _$RequestTokensImpl implements _RequestTokens {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -5372,9 +5504,11 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -5444,9 +5578,11 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -5507,9 +5643,11 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -5787,9 +5925,11 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -5859,9 +5999,11 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -5922,9 +6064,11 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -6188,9 +6332,11 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -6260,9 +6406,11 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -6323,9 +6471,11 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -6592,9 +6742,11 @@ class _$TogglePinImpl implements _TogglePin {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -6664,9 +6816,11 @@ class _$TogglePinImpl implements _TogglePin {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -6727,9 +6881,11 @@ class _$TogglePinImpl implements _TogglePin {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -7000,9 +7156,11 @@ class _$ToggleMuteImpl implements _ToggleMute {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -7072,9 +7230,11 @@ class _$ToggleMuteImpl implements _ToggleMute {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -7135,9 +7295,11 @@ class _$ToggleMuteImpl implements _ToggleMute {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -7404,9 +7566,11 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -7476,9 +7640,11 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -7539,9 +7705,11 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -7826,9 +7994,11 @@ class _$AddReactionImpl implements _AddReaction {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -7898,9 +8068,11 @@ class _$AddReactionImpl implements _AddReaction {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -7961,9 +8133,11 @@ class _$AddReactionImpl implements _AddReaction {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -8256,9 +8430,11 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -8328,9 +8504,11 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -8391,9 +8569,11 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -8661,9 +8841,11 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -8733,9 +8915,11 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -8796,9 +8980,11 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -9073,9 +9259,11 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -9145,9 +9333,11 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -9208,9 +9398,11 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -9474,9 +9666,11 @@ class _$ClearChatImpl implements _ClearChat {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -9546,9 +9740,11 @@ class _$ClearChatImpl implements _ClearChat {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -9609,9 +9805,11 @@ class _$ClearChatImpl implements _ClearChat {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -9882,9 +10080,11 @@ class _$RetryMessageImpl implements _RetryMessage {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -9954,9 +10154,11 @@ class _$RetryMessageImpl implements _RetryMessage {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -10017,9 +10219,11 @@ class _$RetryMessageImpl implements _RetryMessage {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -10282,9 +10486,11 @@ class _$SearchUsersImpl implements _SearchUsers {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -10354,9 +10560,11 @@ class _$SearchUsersImpl implements _SearchUsers {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -10417,9 +10625,11 @@ class _$SearchUsersImpl implements _SearchUsers {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -10651,9 +10861,11 @@ class _$ClearSearchImpl implements _ClearSearch {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -10723,9 +10935,11 @@ class _$ClearSearchImpl implements _ClearSearch {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -10786,9 +11000,11 @@ class _$ClearSearchImpl implements _ClearSearch {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(
@@ -11012,9 +11228,11 @@ class _$ClearErrorImpl implements _ClearError {
     sendTextMessage,
     required TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )
     sendMediaMessage,
     required TResult Function(
@@ -11084,9 +11302,11 @@ class _$ClearErrorImpl implements _ClearError {
     sendTextMessage,
     TResult? Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -11147,9 +11367,11 @@ class _$ClearErrorImpl implements _ClearError {
     sendTextMessage,
     TResult Function(
       String conversationId,
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
+      String recipientId,
       String? caption,
+      int? durationSeconds,
     )?
     sendMediaMessage,
     TResult Function(

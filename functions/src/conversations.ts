@@ -200,7 +200,7 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
   const userId = requireAuth(request);
   requireAppCheck(request, "sendConversationMessage");
 
-  const { conversationId, text, mediaUrl, mediaType, replyToMessageId, ciphertext, e2ee, x3dhHeader, encryptedPreviews } = request.data;
+  const { conversationId, text, mediaUrl, mediaType, messageType: messageTypeParam, replyToMessageId, ciphertext, e2ee, x3dhHeader } = request.data;
 
   if (!conversationId) {
     throw new HttpsError("invalid-argument", "conversationId is required");
@@ -219,6 +219,14 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
   const conv = convDoc.data()!;
   if (!conv.participantIds || !conv.participantIds.includes(userId)) {
     throw new HttpsError("permission-denied", "Not a participant in this conversation");
+  }
+
+  // P2P conversations require E2EE — reject plaintext messages
+  if (conv.type === "p2p" && !ciphertext) {
+    throw new HttpsError(
+      "invalid-argument",
+      "P2P conversations require end-to-end encryption. Plaintext messages are not accepted."
+    );
   }
 
   // Get sender info
@@ -258,7 +266,7 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
     .collection("messages")
     .doc();
 
-  const messageType = mediaUrl ? (mediaType?.startsWith("audio") ? "voice" : "image") : "text";
+  const messageType = messageTypeParam || (mediaUrl ? (mediaType?.startsWith("audio") ? "voice" : "image") : "text");
 
   const message: Record<string, unknown> = {
     id: messageRef.id,
@@ -312,6 +320,7 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
   batch.set(messageRef, message);
 
   batch.update(convDoc.ref, {
+    lastMessageId: messageRef.id,
     lastMessageText: ciphertext ? null : truncate(text || "[Media]", 100),
     lastMessageSenderId: userId,
     lastMessageSenderName: senderName,
@@ -319,10 +328,51 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
     lastMessageAt: now,
     updatedAt: now,
     ...unreadUpdates,
-    ...(encryptedPreviews ? { lastMessageEncryptedPreviews: encryptedPreviews } : {}),
   });
 
   await batch.commit();
+
+  // Send FCM push notification to other participants
+  for (const pid of otherParticipants) {
+    try {
+      const tokenDoc = await db.collection("users").doc(pid).get();
+      const fcmToken = tokenDoc.data()?.fcmToken;
+      if (fcmToken) {
+        await admin.messaging().send({
+          token: fcmToken,
+          notification: {
+            title: senderName,
+            body: ciphertext ? "New encrypted message" : truncate(text || "[Media]", 100),
+          },
+          data: {
+            type: "chat_message",
+            conversationId,
+            messageId: messageRef.id,
+            senderId: userId,
+            senderName,
+          },
+          android: {
+            priority: "high" as const,
+            notification: {
+              channelId: "chat_messages",
+              clickAction: "FLUTTER_NOTIFICATION_CLICK",
+            },
+          },
+          apns: {
+            payload: {
+              aps: {
+                sound: "default",
+                badge: 1,
+              },
+            },
+          },
+        });
+      }
+    } catch (fcmErr) {
+      // FCM failure is non-fatal — message was already sent
+      console.warn(`FCM push failed for ${pid}:`, fcmErr);
+    }
+  }
 
   return { success: true, messageId: messageRef.id };
 });
@@ -340,7 +390,7 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
   requireAppCheck(request, "sendConversationTokens");
   await requirePlayIntegrity(request.data, request, "sendConversationTokens", "HIGHEST");
 
-  const { conversationId, recipientId, amount, message } = request.data;
+  const { conversationId, recipientId, amount, encryptedMessage, messageE2ee, messageX3dh } = request.data;
 
   if (!conversationId || !recipientId || !amount || amount <= 0) {
     throw new HttpsError("invalid-argument", "Invalid transfer data");
@@ -390,7 +440,7 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
     transferId,
     senderSubAccountId,
     undefined,
-    message,
+    `P2P transfer: ${amount} tokens`,
     { conversationId, source: "conversation" }
   );
 
@@ -403,7 +453,7 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
   const now = admin.firestore.FieldValue.serverTimestamp();
   const messageRef = db.collection("conversations").doc(conversationId).collection("messages").doc();
 
-  const preview = message ? truncate(message, 100) : `Sent ${amount} tokens`;
+  const preview = `Sent ${amount} tokens`;
 
   const batch = db.batch();
 
@@ -414,7 +464,10 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
     senderAvatarUrl: userProfile.avatarUrl || userProfile.profilePicThumbUrl || null,
     type: "tokenSend",
     status: "sent",
-    textContent: message || null,
+    textContent: null,
+    ciphertext: encryptedMessage || null,
+    e2ee: messageE2ee || null,
+    x3dhHeader: messageX3dh || null,
     tokenAmount: amount,
     recipientId,
     ledgerJournalId: ledgerResult.journalId || null,
@@ -440,6 +493,7 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
   }
 
   batch.update(convDoc.ref, {
+    lastMessageId: messageRef.id,
     lastMessageText: preview,
     lastMessageSenderId: userId,
     lastMessageSenderName: userProfile.displayName || "Unknown",
@@ -462,7 +516,7 @@ export const requestConversationTokens = onCall({ labels: { area: "social" } }, 
   const userId = requireAuth(request);
   requireAppCheck(request, "requestConversationTokens");
 
-  const { conversationId, recipientId, amount, message } = request.data;
+  const { conversationId, recipientId, amount, encryptedMessage, messageE2ee, messageX3dh } = request.data;
 
   if (!conversationId || !recipientId || !amount || amount <= 0) {
     throw new HttpsError("invalid-argument", "Invalid request data");
@@ -487,7 +541,7 @@ export const requestConversationTokens = onCall({ labels: { area: "social" } }, 
   const expiresAt = admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
   const messageRef = db.collection("conversations").doc(conversationId).collection("messages").doc();
 
-  const preview = message ? truncate(message, 100) : `Requested ${amount} tokens`;
+  const preview = `Requested ${amount} tokens`;
 
   const batch = db.batch();
 
@@ -498,7 +552,10 @@ export const requestConversationTokens = onCall({ labels: { area: "social" } }, 
     senderAvatarUrl: userProfile.avatarUrl || userProfile.profilePicThumbUrl || null,
     type: "tokenRequest",
     status: "pending",
-    textContent: message || null,
+    textContent: null,
+    ciphertext: encryptedMessage || null,
+    e2ee: messageE2ee || null,
+    x3dhHeader: messageX3dh || null,
     tokenAmount: amount,
     recipientId,
     ledgerJournalId: null,
@@ -524,6 +581,7 @@ export const requestConversationTokens = onCall({ labels: { area: "social" } }, 
   }
 
   batch.update(convDoc.ref, {
+    lastMessageId: messageRef.id,
     lastMessageText: preview,
     lastMessageSenderId: userId,
     lastMessageSenderName: userProfile.displayName || "Unknown",

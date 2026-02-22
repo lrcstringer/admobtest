@@ -235,22 +235,22 @@ void main() {
       }
     });
 
-    test('First message has x3dhHeader, subsequent do not', () async {
+    test('All messages include x3dhHeader until session confirmed', () async {
       await alice.service.establishSession(bobId);
 
       final first = await alice.service.encryptP2P(bobId, 'first message');
       final second = await alice.service.encryptP2P(bobId, 'second message');
       final third = await alice.service.encryptP2P(bobId, 'third message');
 
-      // First message should have x3dhHeader
+      // All messages include x3dhHeader while pending keys exist
+      // (pending keys are cleared only when sender receives a decrypted reply)
       expect(first.containsKey('x3dhHeader'), isTrue);
-      final header = first['x3dhHeader'] as Map<String, dynamic>;
-      expect(header['identityKey'], isA<String>());
-      expect(header['ephemeralKey'], isA<String>());
+      expect(second.containsKey('x3dhHeader'), isTrue);
+      expect(third.containsKey('x3dhHeader'), isTrue);
 
-      // Subsequent messages should NOT have x3dhHeader
-      expect(second.containsKey('x3dhHeader'), isFalse);
-      expect(third.containsKey('x3dhHeader'), isFalse);
+      final h1 = first['x3dhHeader'] as Map<String, dynamic>;
+      expect(h1['identityKey'], isA<String>());
+      expect(h1['ephemeralKey'], isA<String>());
     });
 
     test('Large message (5000 chars) encrypts and decrypts correctly', () async {
@@ -301,8 +301,7 @@ void main() {
     });
 
     test(
-      'Bidirectional P2P messaging (Alice->Bob then Bob->Alice) has known bug',
-      skip: 'Receiver sendChainKey=zeros causes DH ratchet mismatch - protocol implementation needs fix',
+      'Bidirectional P2P messaging (Alice->Bob then Bob->Alice)',
       () async {
         await alice.service.establishSession(bobId);
         final encrypted =

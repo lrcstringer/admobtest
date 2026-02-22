@@ -75,12 +75,21 @@ export const uploadKeyBundle = onCall(
       bundleData.ed25519Signature = ed25519Signature;
     }
 
-    await db
-      .collection("users")
-      .doc(userId)
-      .collection("keys")
-      .doc("bundle")
-      .set(bundleData);
+    const batch = db.batch();
+
+    batch.set(
+      db.collection("users").doc(userId).collection("keys").doc("bundle"),
+      bundleData
+    );
+
+    // Store identity key on user profile so peers can detect key changes
+    // without fetching the full key bundle (which consumes an OTK).
+    batch.update(
+      db.collection("users").doc(userId),
+      { e2eeIdentityKey: identityKey }
+    );
+
+    await batch.commit();
 
     return { success: true };
   }

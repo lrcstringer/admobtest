@@ -10,6 +10,9 @@ import '../../../core/security/device_binding_service.dart';
 import '../../../core/services/biometric_login_service.dart';
 import '../../../core/services/fcm_challenge_handler.dart';
 import '../../../core/services/key_management_service.dart';
+import '../../../core/services/message_sync_service.dart';
+import '../../../core/services/offline_action_queue.dart';
+import '../../../core/services/signal_protocol_service.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/repositories/user_repository.dart';
@@ -26,6 +29,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final BiometricLoginService _biometricLoginService;
   final FcmChallengeHandler _fcmChallengeHandler;
   final KeyManagementService _keyManagementService;
+  final SignalProtocolService _signalProtocolService;
+  final MessageSyncService _messageSyncService;
+  final OfflineActionQueue _offlineActionQueue;
   StreamSubscription<User?>? _authStateSubscription;
   Timer? _resendTimer;
   bool _e2eeInitInProgress = false;
@@ -37,6 +43,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     this._biometricLoginService,
     this._fcmChallengeHandler,
     this._keyManagementService,
+    this._signalProtocolService,
+    this._messageSyncService,
+    this._offlineActionQueue,
   ) : super(const AuthState()) {
     on<_CheckAuthStatus>(_onCheckAuthStatus);
     on<_SendOtp>(_onSendOtp);
@@ -368,6 +377,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _ForceReauth event,
     Emitter<AuthState> emit,
   ) async {
+    // Stop message sync and offline queue before re-authentication
+    _messageSyncService.stopSync();
+    _offlineActionQueue.stopListening();
     // Clear session and force full OTP re-authentication
     await _deviceBindingService.clearBinding();
     await _authRepository.signOut();
@@ -379,6 +391,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(isLoading: true));
+
+    // Stop message sync and offline queue before signing out
+    _messageSyncService.stopSync();
+    _offlineActionQueue.stopListening();
 
     // NOTE: Do NOT clear device binding on sign-out.
     // The device binding (keypair + Firestore record) must persist
@@ -405,6 +421,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    // Stop message sync and offline queue before account deletion
+    _messageSyncService.stopSync();
+    _offlineActionQueue.stopListening();
 
     // Capture userId before deletion (needed for keystore cleanup)
     final userId = state.user?.id;
@@ -584,6 +604,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (_e2eeInitInProgress) return;
     _e2eeInitInProgress = true;
     try {
+      // One-time migration: reset sessions corrupted by legacy
+      // peerX3dhEphemeralKey bug (all messages showed "Cannot decrypt")
+      await _signalProtocolService.migrateResetCorruptedSessions();
+
       final existing = await _keyManagementService.loadPrivateKeys();
       if (existing != null) {
         // Keys exist — just replenish OTKs if running low
@@ -599,10 +623,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } finally {
       _e2eeInitInProgress = false;
     }
+
+    // Start message sync and offline queue after E2EE keys are ready
+    _messageSyncService.startSync();
+    _offlineActionQueue.startListening();
   }
 
   @override
   Future<void> close() {
+    _messageSyncService.stopSync();
+    _offlineActionQueue.stopListening();
     _authStateSubscription?.cancel();
     _resendTimer?.cancel();
     return super.close();
