@@ -610,18 +610,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final existing = await _keyManagementService.loadPrivateKeys();
       if (existing != null) {
+        debugPrint('E2EE INIT: Loaded existing keys — '
+            '${existing.oneTimePreKeys.length} local OTKs, '
+            'identity=${existing.identityKeyPair.split("|")[1].substring(0, 8)}…');
         // Verify Firestore bundle matches local keys (catches failed uploads)
         await _keyManagementService.ensureBundleUploaded(existing);
         // Replenish OTKs if running low
         await _keyManagementService.replenishOneTimePreKeysIfNeeded();
       } else {
+        debugPrint('E2EE INIT: No existing keys — generating fresh bundle');
         // First time — generate full key bundle
         final bundle = await _keyManagementService.generateKeyBundle();
         await _keyManagementService.storePrivateKeys(bundle);
         await _keyManagementService.uploadKeyBundle(bundle);
+        debugPrint('E2EE INIT: Fresh bundle uploaded — '
+            '${bundle.oneTimePreKeys.length} OTKs, '
+            'identity=${bundle.identityKeyPair.split("|")[1].substring(0, 8)}…');
+        // Log first 8 chars of each OTK public key so we can correlate
+        // with what the sender receives from fetchKeyBundle
+        for (var i = 0; i < bundle.oneTimePreKeys.length; i++) {
+          final pub = bundle.oneTimePreKeys[i].split('|')[1];
+          debugPrint('E2EE INIT: OTK[$i] = ${pub.substring(0, 12)}…');
+        }
       }
     } catch (e) {
-      debugPrint('E2EE key init failed (non-fatal): $e');
+      debugPrint('E2EE key init FAILED (non-fatal): $e');
     } finally {
       _e2eeInitInProgress = false;
     }

@@ -11,7 +11,7 @@ import '../../data/mappers/local_conversation_mapper.dart';
 import '../../data/mappers/local_message_mapper.dart';
 import '../../data/models/message_model.dart';
 import '../../domain/entities/message.dart';
-import 'signal_protocol_service.dart';
+import 'signal_protocol_service.dart' show SignalProtocolService, PermanentDecryptionError;
 
 /// Background service that syncs Firestore messages → decrypts once → stores
 /// in local DB. This is the core of the WhatsApp-style architecture:
@@ -182,13 +182,21 @@ class MessageSyncService {
             _decryptFailures.remove(msg.id);
           } else {
             isDecrypted = false;
-            decryptedMsg = msg.copyWith(textContent: '[Cannot decrypt]');
-            final attempts = (_decryptFailures[msg.id] ?? 0) + 1;
-            _decryptFailures[msg.id] = attempts;
-            if (attempts >= _maxDecryptAttempts) {
-              debugPrint('MessageSyncService: Permanently failed to decrypt '
-                  '${msg.id} after $attempts attempts — will not retry until '
-                  'app restart');
+            final isPermanent =
+                (_decryptFailures[msg.id] ?? 0) >= _maxDecryptAttempts;
+            decryptedMsg = msg.copyWith(
+              textContent: isPermanent
+                  ? '[Session expired — message cannot be recovered]'
+                  : '[Cannot decrypt]',
+            );
+            if (!isPermanent) {
+              final attempts = (_decryptFailures[msg.id] ?? 0) + 1;
+              _decryptFailures[msg.id] = attempts;
+              if (attempts >= _maxDecryptAttempts) {
+                debugPrint('MessageSyncService: Permanently failed to decrypt '
+                    '${msg.id} after $attempts attempts — will not retry until '
+                    'app restart');
+              }
             }
           }
         }
@@ -292,6 +300,12 @@ class MessageSyncService {
       debugPrint('E2EE SYNC [${msg.id}]: Decrypt SUCCESS '
           '(${plaintext.length} chars)');
       return plaintext;
+    } on PermanentDecryptionError catch (e) {
+      // Message can NEVER be decrypted (no x3dhHeader, OTK mismatch, etc.)
+      // Mark as permanently failed immediately — no retries.
+      debugPrint('E2EE SYNC [${msg.id}]: PERMANENT decrypt failure: $e');
+      _decryptFailures[msg.id] = _maxDecryptAttempts;
+      return null;
     } catch (e) {
       debugPrint('E2EE SYNC [${msg.id}]: Decrypt FAILED: $e');
 
@@ -306,6 +320,9 @@ class MessageSyncService {
           );
           debugPrint('E2EE SYNC [${msg.id}]: Recovery SUCCESS');
           return plaintext;
+        } on PermanentDecryptionError catch (e2) {
+          debugPrint('E2EE SYNC [${msg.id}]: PERMANENT after reset: $e2');
+          _decryptFailures[msg.id] = _maxDecryptAttempts;
         } catch (retryError) {
           debugPrint('E2EE SYNC [${msg.id}]: Recovery FAILED: $retryError');
         }

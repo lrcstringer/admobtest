@@ -742,7 +742,8 @@ class ConversationRepositoryImpl implements ConversationRepository {
 
   /// Cache of peer identity keys: userId → e2eeIdentityKey from Firestore.
   /// Populated once per session per peer, avoids repeated Firestore reads.
-  final Map<String, String?> _peerIdentityKeyCache = {};
+  // Removed: in-memory _peerIdentityKeyCache was never invalidated, causing
+  // stale sessions when the peer regenerated keys during the same app session.
 
   /// Ensure the Signal Protocol session with [recipientId] is fresh.
   ///
@@ -753,12 +754,11 @@ class ConversationRepositoryImpl implements ConversationRepository {
   /// a fresh session with the recipient's current key bundle.
   Future<void> _ensureSessionFresh(String recipientId) async {
     try {
-      // Fetch peer's current identity key (cached per session)
-      if (!_peerIdentityKeyCache.containsKey(recipientId)) {
-        _peerIdentityKeyCache[recipientId] =
-            await _remoteDataSource.getUserE2eeIdentityKey(recipientId);
-      }
-      final currentPeerKey = _peerIdentityKeyCache[recipientId];
+      // Always fetch fresh from Firestore — no in-memory cache.
+      // A stale cache caused OTK mismatch when the peer regenerated
+      // keys during the same app session.
+      final currentPeerKey =
+          await _remoteDataSource.getUserE2eeIdentityKey(recipientId);
       if (currentPeerKey == null) return; // peer hasn't uploaded keys yet
 
       final isStale = await _signalProtocolService.isPeerKeyStale(
@@ -769,9 +769,6 @@ class ConversationRepositoryImpl implements ConversationRepository {
         debugPrint('E2EE: Peer $recipientId identity key changed — '
             'resetting stale session for re-establishment');
         await _signalProtocolService.resetSession(recipientId);
-        // Clear the cache so the next send after re-establishment
-        // doesn't falsely detect staleness again.
-        _peerIdentityKeyCache.remove(recipientId);
       }
     } catch (e) {
       // Non-fatal — if the check fails, proceed with existing session.

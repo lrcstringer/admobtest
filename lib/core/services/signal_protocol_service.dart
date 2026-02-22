@@ -7,6 +7,15 @@ import 'package:injectable/injectable.dart';
 import 'crypto_service.dart';
 import 'key_management_service.dart';
 
+/// Thrown when a message can never be decrypted, regardless of retries.
+///
+/// Causes: missing x3dhHeader (pre-fix legacy message), OTK mismatch
+/// (sender used an OTK the receiver no longer has after key regeneration),
+/// or stale session with no recovery path.
+class PermanentDecryptionError extends StateError {
+  PermanentDecryptionError(super.message);
+}
+
 /// Implements the Signal Protocol for peer-to-peer encrypted messaging.
 ///
 /// Handles X3DH key agreement for session establishment and Double Ratchet
@@ -142,7 +151,7 @@ class SignalProtocolService {
         'theirSPKPub=${_fp(theirSignedPreKey)} '
         'ourIdPub=${_fp(ourIdentityPublic)} '
         'ephPub=${_fp(ephemeralKp['publicKey']!)} '
-        'otk=${consumedOtkPublicKey != null ? "yes" : "no"}');
+        'otk=${consumedOtkPublicKey != null ? consumedOtkPublicKey.substring(0, 12) : "none"}…');
 
     // 9. Persist session
     await _saveSession(recipientUserId, session);
@@ -281,7 +290,11 @@ class SignalProtocolService {
     }
 
     if (session == null) {
-      throw StateError('E2EE: No session with $senderUserId — cannot decrypt');
+      throw PermanentDecryptionError(
+        'E2EE: No session with $senderUserId and no x3dhHeader — '
+        'message was sent before x3dhHeader fix or with a stale session. '
+        'This message is permanently undecryptable.',
+      );
     }
 
     // Check for skipped message key first
@@ -497,6 +510,15 @@ class SignalProtocolService {
     // Gap 11 fix: match OTK by public key content instead of fragile array index
     Uint8List? dh4;
     final otkPublicKey = x3dhHeader['oneTimePreKeyPublicKey'] as String?;
+    // Log all local OTK public keys for correlation with sender logs
+    debugPrint('E2EE RECV-X3DH [$senderUserId]: looking for OTK '
+        '${otkPublicKey != null ? "${otkPublicKey.substring(0, 12)}…" : "null"} '
+        'in ${ourBundle.oneTimePreKeys.length} local OTKs:');
+    for (var i = 0; i < ourBundle.oneTimePreKeys.length; i++) {
+      final pub = ourBundle.oneTimePreKeys[i].split('|')[1];
+      debugPrint('  OTK[$i] = ${pub.substring(0, 12)}… '
+          '${pub == otkPublicKey ? "← MATCH" : ""}');
+    }
     // Also support legacy 'oneTimePreKeyId' (int index) for backward compatibility
     final legacyOtkId = (x3dhHeader['oneTimePreKeyId'] as num?)?.toInt();
     if (otkPublicKey != null) {
@@ -513,6 +535,14 @@ class SignalProtocolService {
         debugPrint('E2EE WARN [$senderUserId]: OTK public key from x3dhHeader '
             'not found in local OTK bundle (${ourBundle.oneTimePreKeys.length} '
             'keys available). Key may have been consumed or bundle regenerated.');
+        // Sender computed DH4 with this OTK but we can't — master secrets
+        // will ALWAYS differ. This message is permanently undecryptable.
+        throw PermanentDecryptionError(
+          'E2EE: OTK mismatch with $senderUserId — sender used OTK '
+          '${otkPublicKey.substring(0, 8)}… which is not in our local bundle. '
+          'Sender\'s master secret includes DH4 but ours cannot. '
+          'This message is permanently undecryptable.',
+        );
       }
     } else if (legacyOtkId != null && ourBundle.oneTimePreKeys.length > legacyOtkId) {
       // Legacy index-based fallback
