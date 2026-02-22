@@ -598,8 +598,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   // E2EE KEY INITIALIZATION
   // =========================================================================
 
-  /// Generate and upload E2EE keys if not already present.
-  /// Fire-and-forget — E2EE failures are non-fatal.
+  /// Generate and upload E2EE keys, retrying the upload until it succeeds.
+  ///
+  /// If the upload fails, the server still has the OLD key bundle from a
+  /// previous install. Any sender who fetches that stale bundle will get
+  /// OTKs we no longer have → permanent OTK mismatch → undecryptable.
+  /// So we MUST retry until the upload succeeds.
   Future<void> _initializeE2EEKeys() async {
     if (_e2eeInitInProgress) return;
     _e2eeInitInProgress = true;
@@ -613,8 +617,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         debugPrint('E2EE INIT: Loaded existing keys — '
             '${existing.oneTimePreKeys.length} local OTKs, '
             'identity=${existing.identityKeyPair.split("|")[1].substring(0, 8)}…');
-        // Verify Firestore bundle matches local keys (catches failed uploads)
-        await _keyManagementService.ensureBundleUploaded(existing);
+        // Verify Firestore bundle matches local keys (catches failed uploads).
+        // This retries the upload if the previous attempt failed.
+        await _uploadWithRetry(
+          () => _keyManagementService.ensureBundleUploaded(existing),
+        );
         // Replenish OTKs if running low
         await _keyManagementService.replenishOneTimePreKeysIfNeeded();
       } else {
@@ -622,7 +629,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         // First time — generate full key bundle
         final bundle = await _keyManagementService.generateKeyBundle();
         await _keyManagementService.storePrivateKeys(bundle);
-        await _keyManagementService.uploadKeyBundle(bundle);
+        await _uploadWithRetry(
+          () => _keyManagementService.uploadKeyBundle(bundle),
+        );
         debugPrint('E2EE INIT: Fresh bundle uploaded — '
             '${bundle.oneTimePreKeys.length} OTKs, '
             'identity=${bundle.identityKeyPair.split("|")[1].substring(0, 8)}…');
@@ -634,15 +643,35 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       }
     } catch (e) {
-      debugPrint('E2EE key init FAILED (non-fatal): $e');
+      debugPrint('E2EE key init FAILED after retries: $e');
     } finally {
       _e2eeInitInProgress = false;
     }
 
-    // CRITICAL: Always start sync — even if key init fails, sync must
-    // run so messages can be received and queued for later decryption.
+    // Start sync even if key init fails — messages are queued for later
+    // decryption, and the upload retry runs on next app start via
+    // ensureBundleUploaded.
     _messageSyncService.startSync();
     _offlineActionQueue.startListening();
+  }
+
+  /// Retry an upload operation up to 3 times with exponential backoff.
+  ///
+  /// Key bundle uploads are CRITICAL — if they fail, the server has stale
+  /// keys and all incoming messages will be undecryptable.
+  Future<void> _uploadWithRetry(Future<void> Function() upload) async {
+    const maxAttempts = 3;
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        await upload();
+        return; // success
+      } catch (e) {
+        debugPrint('E2EE INIT: Upload attempt $attempt/$maxAttempts failed: $e');
+        if (attempt == maxAttempts) rethrow;
+        // Exponential backoff: 1s, 2s
+        await Future<void>.delayed(Duration(seconds: attempt));
+      }
+    }
   }
 
   @override
