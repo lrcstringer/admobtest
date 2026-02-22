@@ -302,8 +302,13 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
           .where((m) => _pendingOptimisticIds.contains(m.id))
           .toList();
       if (optimistics.isNotEmpty) {
+        // Filter out DB copies of pending optimistic messages to prevent
+        // duplicates (the temp message is in both state and local DB).
+        final filtered = event.messages
+            .where((m) => !_pendingOptimisticIds.contains(m.id))
+            .toList();
         emit(state.copyWith(
-          messages: [...optimistics, ...event.messages],
+          messages: [...optimistics, ...filtered],
           hasLoadedMessages: true,
         ));
         return;

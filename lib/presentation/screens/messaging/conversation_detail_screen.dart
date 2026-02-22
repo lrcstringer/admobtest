@@ -13,7 +13,6 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/common/wave_background.dart';
 import '../../widgets/messaging/date_separator.dart';
 import '../../widgets/messaging/message_bubble.dart';
 import '../../widgets/messaging/message_input_bar.dart';
@@ -94,21 +93,29 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               ),
             ],
           ),
-          body: WaveBackground(
-            child: Column(
-              children: [
-                Expanded(
-                  child: _buildMessageList(context, state, currentUserId),
+          body: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/images/NewBackground.png',
+                  fit: BoxFit.cover,
                 ),
-                MessageInputBar(
-                  controller: _messageController,
-                  isSending: state.isSending,
-                  onSend: () => _sendMessage(context),
-                  onTokenAction: () =>
-                      _showTokenActions(context, state, currentUserId),
-                ),
-              ],
-            ),
+              ),
+              Column(
+                children: [
+                  Expanded(
+                    child: _buildMessageList(context, state, currentUserId),
+                  ),
+                  MessageInputBar(
+                    controller: _messageController,
+                    isSending: state.isSending,
+                    onSend: () => _sendMessage(context),
+                    onTokenAction: () =>
+                        _showTokenActions(context, state, currentUserId),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },

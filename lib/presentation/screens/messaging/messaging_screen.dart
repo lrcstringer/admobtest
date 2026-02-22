@@ -10,7 +10,6 @@ import '../../blocs/conversation/conversation_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
 import '../../widgets/messaging/community_list_tile.dart';
 import '../../widgets/messaging/conversation_list_tile.dart';
 
@@ -122,22 +121,30 @@ class _MessagingScreenState extends State<MessagingScreen> {
         builder: (context, convState) {
           return BlocBuilder<CommunityBloc, CommunityState>(
             builder: (context, commState) {
-              return WaveBackground(
-                child: Column(
-                  children: [
-                    // Quick Actions Bar
-                    _buildQuickActions(context),
-                    // Unified inbox list
-                    Expanded(
-                      child: _buildInboxList(
-                        context,
-                        convState,
-                        commState,
-                        currentUserId,
-                      ),
+              return Stack(
+                children: [
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/NewBackground.png',
+                      fit: BoxFit.cover,
                     ),
-                  ],
-                ),
+                  ),
+                  Column(
+                    children: [
+                      // Quick Actions Bar
+                      _buildQuickActions(context),
+                      // Unified inbox list
+                      Expanded(
+                        child: _buildInboxList(
+                          context,
+                          convState,
+                          commState,
+                          currentUserId,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               );
             },
           );
