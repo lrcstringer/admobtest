@@ -131,6 +131,12 @@ abstract class ConversationRemoteDataSource {
     required String conversationId,
   });
 
+  // Disappearing messages
+  Future<void> setDisappearingMessages({
+    required String conversationId,
+    required int? durationMs,
+  });
+
   // Message forwarding (via Cloud Function)
   Future<String> forwardMessage({
     required String sourceConversationId,
@@ -1009,6 +1015,29 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
       }
       return result;
     });
+  }
+
+  // =========================================================================
+  // DISAPPEARING MESSAGES
+  // =========================================================================
+
+  @override
+  Future<void> setDisappearingMessages({
+    required String conversationId,
+    required int? durationMs,
+  }) async {
+    _requireUserId();
+    try {
+      await _functions
+          .httpsCallable('setDisappearingMessages')
+          .call<Map<String, dynamic>>({
+        'conversationId': conversationId,
+        'durationMs': durationMs,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(
+          message: e.message ?? 'Failed to set disappearing messages');
+    }
   }
 
   // =========================================================================

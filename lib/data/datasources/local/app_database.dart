@@ -227,6 +227,7 @@ class LocalFullConversations extends Table {
   TextColumn get chatClearedAtJson =>
       text().withDefault(const Constant('{}'))();
   TextColumn get acceptedJson => text().withDefault(const Constant('{}'))();
+  IntColumn get disappearingMessagesDurationMs => integer().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
 
@@ -257,7 +258,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -282,6 +283,11 @@ class AppDatabase extends _$AppDatabase {
               localFullMessages, localFullMessages.readByJson);
           await m.addColumn(
               localFullMessages, localFullMessages.forwardedFromJson);
+        }
+        if (from < 6) {
+          await m.addColumn(
+              localFullConversations,
+              localFullConversations.disappearingMessagesDurationMs);
         }
       },
     );

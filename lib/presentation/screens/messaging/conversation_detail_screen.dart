@@ -92,12 +92,27 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                       _buildAppBarAvatar(context, conv, currentUserId),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
-                          conv.displayNameFor(currentUserId),
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                conv.displayNameFor(currentUserId),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (conv.hasDisappearingMessages) ...[
+                              const SizedBox(width: 6),
+                              const Icon(
+                                Icons.timer_outlined,
+                                size: 16,
+                                color: AppColors.accent,
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ],
@@ -309,7 +324,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       itemCount: messages.length,
       itemBuilder: (context, index) {
         final message = messages[index];
-        if (!message.isVisibleTo(currentUserId)) {
+        if (!message.isVisibleTo(currentUserId) || message.isExpired) {
           return const SizedBox.shrink();
         }
 
@@ -660,6 +675,27 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               },
             ),
             ListTile(
+              leading: Icon(
+                conv.hasDisappearingMessages
+                    ? Icons.timer
+                    : Icons.timer_outlined,
+                color:
+                    conv.hasDisappearingMessages ? AppColors.accent : null,
+              ),
+              title: Text(
+                conv.hasDisappearingMessages
+                    ? 'Disappearing messages (${conv.disappearingMessagesLabel})'
+                    : 'Disappearing messages',
+              ),
+              subtitle: conv.hasDisappearingMessages
+                  ? null
+                  : const Text('Off'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showDisappearingMessagesDialog(context, conv);
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.delete_sweep_outlined,
                   color: AppColors.error),
               title: const Text('Clear Chat'),
@@ -684,6 +720,92 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showDisappearingMessagesDialog(
+    BuildContext context,
+    Conversation conv,
+  ) {
+    final currentDuration = conv.disappearingMessagesDuration;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: double.infinity,
+              alignment: Alignment.center,
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.textHint,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                'Disappearing Messages',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'New messages will disappear after the selected time. '
+                'This does not affect existing messages.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            _buildDurationOption(ctx, 'Off', null, currentDuration),
+            _buildDurationOption(
+                ctx, '24 hours', const Duration(hours: 24), currentDuration),
+            _buildDurationOption(
+                ctx, '7 days', const Duration(days: 7), currentDuration),
+            _buildDurationOption(
+                ctx, '90 days', const Duration(days: 90), currentDuration),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDurationOption(
+    BuildContext ctx,
+    String label,
+    Duration? duration,
+    Duration? currentDuration,
+  ) {
+    final isSelected = duration == currentDuration;
+    return ListTile(
+      title: Text(label),
+      trailing: isSelected
+          ? const Icon(Icons.check_circle, color: AppColors.primary)
+          : null,
+      onTap: () {
+        Navigator.pop(ctx);
+        if (!isSelected) {
+          context.read<ConversationBloc>().add(
+                ConversationEvent.setDisappearingMessages(
+                  conversationId: widget.conversationId,
+                  duration: duration,
+                ),
+              );
+        }
+      },
     );
   }
 

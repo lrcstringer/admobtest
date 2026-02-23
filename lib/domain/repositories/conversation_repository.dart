@@ -143,6 +143,12 @@ abstract class ConversationRepository {
   /// Archive a conversation
   Future<Either<Failure, void>> archiveConversation(String conversationId);
 
+  /// Set disappearing messages duration for a conversation
+  Future<Either<Failure, void>> setDisappearingMessages({
+    required String conversationId,
+    required Duration? duration,
+  });
+
   // =========================================================================
   // MESSAGE REQUESTS
   // =========================================================================

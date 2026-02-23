@@ -309,6 +309,14 @@ class MessageBubble extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (message.expiresAt != null) ...[
+                Icon(
+                  Icons.timer_outlined,
+                  size: 10,
+                  color: metaColor,
+                ),
+                const SizedBox(width: 2),
+              ],
               if (message.isEncrypted) ...[
                 Icon(
                   Icons.lock,
@@ -598,6 +606,9 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildSystemMessage(BuildContext context) {
+    final isDisappearingEvent =
+        message.systemEventType == 'disappearing_messages_changed';
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Center(
@@ -607,11 +618,23 @@ class MessageBubble extends StatelessWidget {
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Text(
-            message.textContent ?? '',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isDisappearingEvent) ...[
+                const Icon(Icons.timer_outlined,
+                    size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 6),
+              ],
+              Flexible(
+                child: Text(
+                  message.textContent ?? '',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                 ),
+              ),
+            ],
           ),
         ),
       ),

@@ -214,6 +214,16 @@ class ConversationEvent with _$ConversationEvent {
   const factory ConversationEvent.clearMessageSearch() = _ClearMessageSearch;
 
   // =========================================================================
+  // DISAPPEARING MESSAGES
+  // =========================================================================
+
+  /// Set disappearing messages duration for a conversation
+  const factory ConversationEvent.setDisappearingMessages({
+    required String conversationId,
+    required Duration? duration,
+  }) = _SetDisappearingMessages;
+
+  // =========================================================================
   // MESSAGE FORWARDING
   // =========================================================================
 

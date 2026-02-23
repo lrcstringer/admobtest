@@ -51,6 +51,9 @@ class Conversation with _$Conversation {
     // Per-user acceptance status (message request system)
     @Default({}) Map<String, bool> accepted,
 
+    /// Disappearing messages duration. Null means off.
+    Duration? disappearingMessagesDuration,
+
     // Timestamps
     required DateTime createdAt,
     DateTime? updatedAt,
@@ -89,6 +92,18 @@ class Conversation with _$Conversation {
 
   /// Whether this is a message request for the given user
   bool isMessageRequestFor(String userId) => !isAcceptedFor(userId);
+
+  /// Whether disappearing messages are enabled for this conversation
+  bool get hasDisappearingMessages => disappearingMessagesDuration != null;
+
+  /// Human-readable label for the disappearing messages duration
+  String get disappearingMessagesLabel {
+    if (disappearingMessagesDuration == null) return 'Off';
+    final hours = disappearingMessagesDuration!.inHours;
+    if (hours <= 24) return '24 hours';
+    if (hours <= 168) return '7 days';
+    return '90 days';
+  }
 
   /// Get the other participant's ID (for P2P)
   String otherParticipantId(String currentUserId) =>

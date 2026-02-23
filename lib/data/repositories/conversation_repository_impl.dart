@@ -605,6 +605,30 @@ class ConversationRepositoryImpl implements ConversationRepository {
   }
 
   // =========================================================================
+  // DISAPPEARING MESSAGES
+  // =========================================================================
+
+  @override
+  Future<Either<Failure, void>> setDisappearingMessages({
+    required String conversationId,
+    required Duration? duration,
+  }) async {
+    try {
+      await _remoteDataSource.setDisappearingMessages(
+        conversationId: conversationId,
+        durationMs: duration?.inMilliseconds,
+      );
+      return const Right(null);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  // =========================================================================
   // MESSAGE REQUESTS
   // =========================================================================
 

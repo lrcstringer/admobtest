@@ -360,3 +360,88 @@ export const cleanupAbandonedEscrows = onSchedule(
     );
   }
 );
+
+/**
+ * Cleanup expired disappearing messages.
+ * Runs every 15 minutes. Queries messages where expiresAt < now and
+ * deletedForEveryone == false, then soft-deletes them (clears content
+ * and media) so they render as "This message was deleted" on clients.
+ */
+export const cleanupExpiredMessages = onSchedule(
+  { schedule: "*/15 * * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", timeoutSeconds: 300, labels: { area: "lifecycle" } },
+  async () => {
+    const now = admin.firestore.Timestamp.now();
+    let totalCleaned = 0;
+    let totalMediaDeleted = 0;
+
+    // Query messages with expiresAt <= now that haven't been soft-deleted yet
+    const expiredMessages = await db.collectionGroup("messages")
+      .where("deletedForEveryone", "==", false)
+      .where("expiresAt", "<=", now)
+      .limit(500)
+      .get();
+
+    if (expiredMessages.empty) {
+      logger.info("cleanupExpiredMessages: no expired messages to clean");
+      return;
+    }
+
+    const bucket = admin.storage().bucket();
+
+    for (const doc of expiredMessages.docs) {
+      try {
+        const msgData = doc.data();
+        // Extract conversationId from document path: conversations/{convId}/messages/{msgId}
+        const pathParts = doc.ref.path.split("/");
+        const conversationId = pathParts[1];
+        const messageId = doc.id;
+
+        // Delete media from Storage (best-effort)
+        if (msgData.media) {
+          const prefix = `conversations/${conversationId}`;
+          const possiblePaths = [
+            `${prefix}/images/${messageId}_full.jpg`,
+            `${prefix}/images/${messageId}_thumb.jpg`,
+            `${prefix}/images/${messageId}_full.enc`,
+            `${prefix}/images/${messageId}_thumb.enc`,
+            `${prefix}/voice/${messageId}.m4a`,
+            `${prefix}/voice/${messageId}.enc`,
+          ];
+          for (const path of possiblePaths) {
+            try {
+              const file = bucket.file(path);
+              const [exists] = await file.exists();
+              if (exists) {
+                await file.delete();
+                totalMediaDeleted++;
+              }
+            } catch (err: unknown) {
+              const errMsg = err instanceof Error ? err.message : String(err);
+              logger.warn(`cleanupExpiredMessages: Failed to delete ${path}: ${errMsg}`);
+            }
+          }
+        }
+
+        // Soft-delete: clear content, mark as deleted
+        await doc.ref.update({
+          deletedForEveryone: true,
+          deletedAt: admin.firestore.FieldValue.serverTimestamp(),
+          textContent: null,
+          ciphertext: null,
+          media: null,
+          e2ee: null,
+          x3dhHeader: null,
+        });
+
+        totalCleaned++;
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        logger.error(`cleanupExpiredMessages: Failed to clean message ${doc.id}: ${errMsg}`);
+      }
+    }
+
+    logger.info(
+      `cleanupExpiredMessages: cleaned=${totalCleaned}, mediaDeleted=${totalMediaDeleted}`
+    );
+  }
+);

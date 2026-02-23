@@ -186,6 +186,7 @@ export const getOrCreateConversation = onCall({ labels: { area: "social" } }, as
         [userId]: false,
         [participantId]: false,
       },
+      disappearingMessagesDurationMs: null,
       createdAt: now,
       updatedAt: null,
     };
@@ -275,6 +276,12 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
     .collection("messages")
     .doc();
 
+  // Compute expiresAt from conversation disappearing messages setting
+  const disappearDuration = conv.disappearingMessagesDurationMs || null;
+  const messageExpiresAt = disappearDuration
+    ? admin.firestore.Timestamp.fromDate(new Date(Date.now() + disappearDuration))
+    : null;
+
   const messageType = messageTypeParam || (mediaUrl ? (mediaType?.startsWith("audio") ? "voice" : "image") : "text");
 
   const message: Record<string, unknown> = {
@@ -311,7 +318,7 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
     systemEventType: null,
     systemEventData: null,
     createdAt: now,
-    expiresAt: null,
+    expiresAt: messageExpiresAt,
     actionedAt: null,
     deletedAt: null,
     deletedFor: [],
@@ -490,6 +497,12 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
   const now = admin.firestore.FieldValue.serverTimestamp();
   const messageRef = db.collection("conversations").doc(conversationId).collection("messages").doc();
 
+  // Compute expiresAt from conversation disappearing messages setting
+  const tokenDisappearDuration = conv.disappearingMessagesDurationMs || null;
+  const tokenExpiresAt = tokenDisappearDuration
+    ? admin.firestore.Timestamp.fromDate(new Date(Date.now() + tokenDisappearDuration))
+    : null;
+
   const preview = `Sent ${amount} tokens`;
 
   const batch = db.batch();
@@ -517,7 +530,7 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
     systemEventType: null,
     systemEventData: null,
     createdAt: now,
-    expiresAt: null,
+    expiresAt: tokenExpiresAt,
     actionedAt: now,
     deletedAt: null,
     deletedFor: [],
@@ -577,7 +590,11 @@ export const requestConversationTokens = onCall({ labels: { area: "social" } }, 
 
   const userProfile = await getUserProfile(userId);
   const now = admin.firestore.FieldValue.serverTimestamp();
-  const expiresAt = admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+  // Token requests expire in 7 days, or sooner if disappearing messages is enabled
+  const requestTtlMs = 7 * 24 * 60 * 60 * 1000;
+  const disappearTtlMs = conv.disappearingMessagesDurationMs || null;
+  const effectiveTtlMs = disappearTtlMs ? Math.min(requestTtlMs, disappearTtlMs) : requestTtlMs;
+  const expiresAt = admin.firestore.Timestamp.fromDate(new Date(Date.now() + effectiveTtlMs));
   const messageRef = db.collection("conversations").doc(conversationId).collection("messages").doc();
 
   const preview = `Requested ${amount} tokens`;
@@ -928,6 +945,118 @@ export const archiveConversation = onCall({ labels: { area: "social" } }, async 
   });
 
   return { success: true };
+});
+
+// ============================================================================
+// DISAPPEARING MESSAGES
+// ============================================================================
+
+/**
+ * Set disappearing messages duration for a conversation.
+ * Either participant can change the setting.
+ * Inserts a system message announcing the change.
+ *
+ * Allowed durationMs values: null (off), 86400000 (24h), 604800000 (7d), 7776000000 (90d)
+ */
+export const setDisappearingMessages = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "setDisappearingMessages");
+
+  const { conversationId, durationMs } = request.data;
+
+  if (!conversationId) {
+    throw new HttpsError("invalid-argument", "conversationId is required");
+  }
+
+  // Validate durationMs: null = off, or one of the allowed values
+  const ALLOWED_DURATIONS: (number | null)[] = [null, 86400000, 604800000, 7776000000];
+  if (!ALLOWED_DURATIONS.includes(durationMs ?? null)) {
+    throw new HttpsError("invalid-argument", "Invalid duration. Allowed: null, 86400000, 604800000, 7776000000");
+  }
+
+  // Verify conversation and membership
+  const convDoc = await db.collection("conversations").doc(conversationId).get();
+  if (!convDoc.exists) {
+    throw new HttpsError("not-found", "Conversation not found");
+  }
+  const conv = convDoc.data()!;
+  if (!conv.participantIds || !conv.participantIds.includes(userId)) {
+    throw new HttpsError("permission-denied", "Not a participant in this conversation");
+  }
+
+  // Get sender display name for system message
+  const userProfile = await getUserProfile(userId);
+  const senderName = userProfile.displayName || "Someone";
+  const senderAvatarUrl = userProfile.avatarUrl || userProfile.profilePicThumbUrl || null;
+
+  // Build system message text
+  let systemText: string;
+  const effectiveDuration = durationMs ?? null;
+  if (effectiveDuration === null) {
+    systemText = `${senderName} turned off disappearing messages`;
+  } else if (effectiveDuration === 86400000) {
+    systemText = `${senderName} turned on disappearing messages (24 hours)`;
+  } else if (effectiveDuration === 604800000) {
+    systemText = `${senderName} turned on disappearing messages (7 days)`;
+  } else {
+    systemText = `${senderName} turned on disappearing messages (90 days)`;
+  }
+
+  const now = admin.firestore.FieldValue.serverTimestamp();
+  const messageRef = db.collection("conversations").doc(conversationId).collection("messages").doc();
+
+  const batch = db.batch();
+
+  // 1. Update conversation TTL field
+  batch.update(convDoc.ref, {
+    disappearingMessagesDurationMs: effectiveDuration,
+    updatedAt: now,
+  });
+
+  // 2. Insert system message (system messages never expire)
+  batch.set(messageRef, {
+    id: messageRef.id,
+    senderId: userId,
+    senderName,
+    senderAvatarUrl,
+    type: "system",
+    status: "sent",
+    textContent: systemText,
+    ciphertext: null,
+    e2ee: null,
+    x3dhHeader: null,
+    media: null,
+    tokenAmount: null,
+    recipientId: null,
+    ledgerJournalId: null,
+    reactions: {},
+    replyTo: null,
+    readBy: {},
+    forwardedFrom: null,
+    communityId: null,
+    systemEventType: "disappearing_messages_changed",
+    systemEventData: { durationMs: effectiveDuration, changedBy: userId },
+    createdAt: now,
+    expiresAt: null,
+    actionedAt: null,
+    deletedAt: null,
+    deletedFor: [],
+    deletedForEveryone: false,
+  });
+
+  // 3. Update conversation last message preview
+  batch.update(convDoc.ref, {
+    lastMessageId: messageRef.id,
+    lastMessageText: systemText,
+    lastMessageSenderId: userId,
+    lastMessageSenderName: senderName,
+    lastMessageType: "system",
+    lastMessageAt: now,
+  });
+
+  await batch.commit();
+
+  return { success: true, messageId: messageRef.id };
 });
 
 // ============================================================================
@@ -1317,6 +1446,12 @@ export const forwardConversationMessage = onCall({ labels: { area: "social" } },
     .collection("messages")
     .doc();
 
+  // Forwarded messages follow the TARGET conversation's disappearing messages setting
+  const fwdDisappearDuration = targetConv.disappearingMessagesDurationMs || null;
+  const fwdExpiresAt = fwdDisappearDuration
+    ? admin.firestore.Timestamp.fromDate(new Date(Date.now() + fwdDisappearDuration))
+    : null;
+
   const forwardedFrom = {
     messageId: sourceMessageId,
     conversationId: sourceConversationId,
@@ -1348,7 +1483,7 @@ export const forwardConversationMessage = onCall({ labels: { area: "social" } },
     systemEventType: null,
     systemEventData: null,
     createdAt: now,
-    expiresAt: null,
+    expiresAt: fwdExpiresAt,
     actionedAt: null,
     deletedAt: null,
     deletedFor: [],

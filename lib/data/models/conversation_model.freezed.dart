@@ -39,6 +39,8 @@ mixin _$ConversationModel {
   Map<String, DateTime> get chatClearedAt =>
       throw _privateConstructorUsedError; // Per-user acceptance status (message request system)
   Map<String, bool> get accepted =>
+      throw _privateConstructorUsedError; // Disappearing messages duration in milliseconds (null = off)
+  int? get disappearingMessagesDurationMs =>
       throw _privateConstructorUsedError; // Timestamps
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
@@ -75,6 +77,7 @@ abstract class $ConversationModelCopyWith<$Res> {
     Map<String, String> lastMessageEncryptedPreviews,
     Map<String, DateTime> chatClearedAt,
     Map<String, bool> accepted,
+    int? disappearingMessagesDurationMs,
     DateTime createdAt,
     DateTime? updatedAt,
   });
@@ -112,6 +115,7 @@ class _$ConversationModelCopyWithImpl<$Res, $Val extends ConversationModel>
     Object? lastMessageEncryptedPreviews = null,
     Object? chatClearedAt = null,
     Object? accepted = null,
+    Object? disappearingMessagesDurationMs = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
   }) {
@@ -185,6 +189,11 @@ class _$ConversationModelCopyWithImpl<$Res, $Val extends ConversationModel>
                 ? _value.accepted
                 : accepted // ignore: cast_nullable_to_non_nullable
                       as Map<String, bool>,
+            disappearingMessagesDurationMs:
+                freezed == disappearingMessagesDurationMs
+                ? _value.disappearingMessagesDurationMs
+                : disappearingMessagesDurationMs // ignore: cast_nullable_to_non_nullable
+                      as int?,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -226,6 +235,7 @@ abstract class _$$ConversationModelImplCopyWith<$Res>
     Map<String, String> lastMessageEncryptedPreviews,
     Map<String, DateTime> chatClearedAt,
     Map<String, bool> accepted,
+    int? disappearingMessagesDurationMs,
     DateTime createdAt,
     DateTime? updatedAt,
   });
@@ -262,6 +272,7 @@ class __$$ConversationModelImplCopyWithImpl<$Res>
     Object? lastMessageEncryptedPreviews = null,
     Object? chatClearedAt = null,
     Object? accepted = null,
+    Object? disappearingMessagesDurationMs = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
   }) {
@@ -335,6 +346,11 @@ class __$$ConversationModelImplCopyWithImpl<$Res>
             ? _value._accepted
             : accepted // ignore: cast_nullable_to_non_nullable
                   as Map<String, bool>,
+        disappearingMessagesDurationMs:
+            freezed == disappearingMessagesDurationMs
+            ? _value.disappearingMessagesDurationMs
+            : disappearingMessagesDurationMs // ignore: cast_nullable_to_non_nullable
+                  as int?,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -369,6 +385,7 @@ class _$ConversationModelImpl extends _ConversationModel {
     final Map<String, String> lastMessageEncryptedPreviews = const {},
     final Map<String, DateTime> chatClearedAt = const {},
     final Map<String, bool> accepted = const {},
+    this.disappearingMessagesDurationMs,
     required this.createdAt,
     this.updatedAt,
   }) : _participantIds = participantIds,
@@ -483,6 +500,9 @@ class _$ConversationModelImpl extends _ConversationModel {
     return EqualUnmodifiableMapView(_accepted);
   }
 
+  // Disappearing messages duration in milliseconds (null = off)
+  @override
+  final int? disappearingMessagesDurationMs;
   // Timestamps
   @override
   final DateTime createdAt;
@@ -491,7 +511,7 @@ class _$ConversationModelImpl extends _ConversationModel {
 
   @override
   String toString() {
-    return 'ConversationModel(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageId: $lastMessageId, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, accepted: $accepted, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ConversationModel(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageId: $lastMessageId, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, accepted: $accepted, disappearingMessagesDurationMs: $disappearingMessagesDurationMs, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -537,6 +557,12 @@ class _$ConversationModelImpl extends _ConversationModel {
               _chatClearedAt,
             ) &&
             const DeepCollectionEquality().equals(other._accepted, _accepted) &&
+            (identical(
+                  other.disappearingMessagesDurationMs,
+                  disappearingMessagesDurationMs,
+                ) ||
+                other.disappearingMessagesDurationMs ==
+                    disappearingMessagesDurationMs) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -563,6 +589,7 @@ class _$ConversationModelImpl extends _ConversationModel {
     const DeepCollectionEquality().hash(_lastMessageEncryptedPreviews),
     const DeepCollectionEquality().hash(_chatClearedAt),
     const DeepCollectionEquality().hash(_accepted),
+    disappearingMessagesDurationMs,
     createdAt,
     updatedAt,
   ]);
@@ -598,6 +625,7 @@ abstract class _ConversationModel extends ConversationModel {
     final Map<String, String> lastMessageEncryptedPreviews,
     final Map<String, DateTime> chatClearedAt,
     final Map<String, bool> accepted,
+    final int? disappearingMessagesDurationMs,
     required final DateTime createdAt,
     final DateTime? updatedAt,
   }) = _$ConversationModelImpl;
@@ -636,7 +664,9 @@ abstract class _ConversationModel extends ConversationModel {
   @override
   Map<String, DateTime> get chatClearedAt; // Per-user acceptance status (message request system)
   @override
-  Map<String, bool> get accepted; // Timestamps
+  Map<String, bool> get accepted; // Disappearing messages duration in milliseconds (null = off)
+  @override
+  int? get disappearingMessagesDurationMs; // Timestamps
   @override
   DateTime get createdAt;
   @override

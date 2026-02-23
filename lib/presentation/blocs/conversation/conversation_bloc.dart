@@ -87,6 +87,9 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     on<_SearchMessages>(_onSearchMessages);
     on<_ClearMessageSearch>(_onClearMessageSearch);
 
+    // Disappearing messages
+    on<_SetDisappearingMessages>(_onSetDisappearingMessages);
+
     // Message forwarding
     on<_ForwardMessage>(_onForwardMessage);
 
@@ -928,6 +931,35 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
 
   // ===========================================================================
   // MESSAGE FORWARDING HANDLERS
+  // ===========================================================================
+  // DISAPPEARING MESSAGES
+  // ===========================================================================
+
+  Future<void> _onSetDisappearingMessages(
+    _SetDisappearingMessages event,
+    Emitter<ConversationState> emit,
+  ) async {
+    final result = await _conversationRepository.setDisappearingMessages(
+      conversationId: event.conversationId,
+      duration: event.duration,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
+      (_) {
+        // Optimistically update selectedConversation
+        if (state.selectedConversation?.id == event.conversationId) {
+          emit(state.copyWith(
+            selectedConversation: state.selectedConversation!.copyWith(
+              disappearingMessagesDuration: event.duration,
+            ),
+          ));
+        }
+      },
+    );
+  }
+
+  // ===========================================================================
+  // MESSAGE FORWARDING
   // ===========================================================================
 
   Future<void> _onForwardMessage(

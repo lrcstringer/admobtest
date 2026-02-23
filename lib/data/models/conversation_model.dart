@@ -37,6 +37,9 @@ class ConversationModel with _$ConversationModel {
     // Per-user acceptance status (message request system)
     @Default({}) Map<String, bool> accepted,
 
+    // Disappearing messages duration in milliseconds (null = off)
+    int? disappearingMessagesDurationMs,
+
     // Timestamps
     required DateTime createdAt,
     DateTime? updatedAt,
@@ -77,6 +80,7 @@ class ConversationModel with _$ConversationModel {
           _parseStringMap(json['lastMessageEncryptedPreviews']),
       chatClearedAt: _parseDateTimeMap(json['chatClearedAt']),
       accepted: _parseBoolMap(json['accepted']),
+      disappearingMessagesDurationMs: json['disappearingMessagesDurationMs'] as int?,
       createdAt: _parseDateTimeRequired(createdAt),
       updatedAt: _parseDateTime(updatedAt),
     );
@@ -114,6 +118,9 @@ class ConversationModel with _$ConversationModel {
       lastMessageEncryptedPreviews: lastMessageEncryptedPreviews,
       chatClearedAt: chatClearedAt,
       accepted: accepted,
+      disappearingMessagesDuration: disappearingMessagesDurationMs != null
+          ? Duration(milliseconds: disappearingMessagesDurationMs!)
+          : null,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -143,6 +150,8 @@ class ConversationModel with _$ConversationModel {
       lastMessageEncryptedPreviews: entity.lastMessageEncryptedPreviews,
       chatClearedAt: entity.chatClearedAt,
       accepted: entity.accepted,
+      disappearingMessagesDurationMs:
+          entity.disappearingMessagesDuration?.inMilliseconds,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );

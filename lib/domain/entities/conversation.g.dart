@@ -58,6 +58,12 @@ _$ConversationImpl _$$ConversationImplFromJson(Map<String, dynamic> json) =>
             (k, e) => MapEntry(k, e as bool),
           ) ??
           const {},
+      disappearingMessagesDuration: json['disappearingMessagesDuration'] == null
+          ? null
+          : Duration(
+              microseconds: (json['disappearingMessagesDuration'] as num)
+                  .toInt(),
+            ),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] == null
           ? null
@@ -85,6 +91,8 @@ Map<String, dynamic> _$$ConversationImplToJson(_$ConversationImpl instance) =>
         (k, e) => MapEntry(k, e.toIso8601String()),
       ),
       'accepted': instance.accepted,
+      'disappearingMessagesDuration':
+          instance.disappearingMessagesDuration?.inMicroseconds,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
     };

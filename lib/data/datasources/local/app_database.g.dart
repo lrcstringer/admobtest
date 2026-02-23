@@ -7285,6 +7285,17 @@ class $LocalFullConversationsTable extends LocalFullConversations
     requiredDuringInsert: false,
     defaultValue: const Constant('{}'),
   );
+  static const VerificationMeta _disappearingMessagesDurationMsMeta =
+      const VerificationMeta('disappearingMessagesDurationMs');
+  @override
+  late final GeneratedColumn<int> disappearingMessagesDurationMs =
+      GeneratedColumn<int>(
+        'disappearing_messages_duration_ms',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -7325,6 +7336,7 @@ class $LocalFullConversationsTable extends LocalFullConversations
     mutedJson,
     chatClearedAtJson,
     acceptedJson,
+    disappearingMessagesDurationMs,
     createdAt,
     updatedAt,
   ];
@@ -7477,6 +7489,15 @@ class $LocalFullConversationsTable extends LocalFullConversations
         ),
       );
     }
+    if (data.containsKey('disappearing_messages_duration_ms')) {
+      context.handle(
+        _disappearingMessagesDurationMsMeta,
+        disappearingMessagesDurationMs.isAcceptableOrUnknown(
+          data['disappearing_messages_duration_ms']!,
+          _disappearingMessagesDurationMsMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -7564,6 +7585,10 @@ class $LocalFullConversationsTable extends LocalFullConversations
         DriftSqlType.string,
         data['${effectivePrefix}accepted_json'],
       )!,
+      disappearingMessagesDurationMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}disappearing_messages_duration_ms'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -7599,6 +7624,7 @@ class LocalFullConversation extends DataClass
   final String mutedJson;
   final String chatClearedAtJson;
   final String acceptedJson;
+  final int? disappearingMessagesDurationMs;
   final DateTime createdAt;
   final DateTime? updatedAt;
   const LocalFullConversation({
@@ -7618,6 +7644,7 @@ class LocalFullConversation extends DataClass
     required this.mutedJson,
     required this.chatClearedAtJson,
     required this.acceptedJson,
+    this.disappearingMessagesDurationMs,
     required this.createdAt,
     this.updatedAt,
   });
@@ -7652,6 +7679,11 @@ class LocalFullConversation extends DataClass
     map['muted_json'] = Variable<String>(mutedJson);
     map['chat_cleared_at_json'] = Variable<String>(chatClearedAtJson);
     map['accepted_json'] = Variable<String>(acceptedJson);
+    if (!nullToAbsent || disappearingMessagesDurationMs != null) {
+      map['disappearing_messages_duration_ms'] = Variable<int>(
+        disappearingMessagesDurationMs,
+      );
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -7689,6 +7721,10 @@ class LocalFullConversation extends DataClass
       mutedJson: Value(mutedJson),
       chatClearedAtJson: Value(chatClearedAtJson),
       acceptedJson: Value(acceptedJson),
+      disappearingMessagesDurationMs:
+          disappearingMessagesDurationMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(disappearingMessagesDurationMs),
       createdAt: Value(createdAt),
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
@@ -7724,6 +7760,9 @@ class LocalFullConversation extends DataClass
       mutedJson: serializer.fromJson<String>(json['mutedJson']),
       chatClearedAtJson: serializer.fromJson<String>(json['chatClearedAtJson']),
       acceptedJson: serializer.fromJson<String>(json['acceptedJson']),
+      disappearingMessagesDurationMs: serializer.fromJson<int?>(
+        json['disappearingMessagesDurationMs'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
     );
@@ -7750,6 +7789,9 @@ class LocalFullConversation extends DataClass
       'mutedJson': serializer.toJson<String>(mutedJson),
       'chatClearedAtJson': serializer.toJson<String>(chatClearedAtJson),
       'acceptedJson': serializer.toJson<String>(acceptedJson),
+      'disappearingMessagesDurationMs': serializer.toJson<int?>(
+        disappearingMessagesDurationMs,
+      ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
     };
@@ -7772,6 +7814,7 @@ class LocalFullConversation extends DataClass
     String? mutedJson,
     String? chatClearedAtJson,
     String? acceptedJson,
+    Value<int?> disappearingMessagesDurationMs = const Value.absent(),
     DateTime? createdAt,
     Value<DateTime?> updatedAt = const Value.absent(),
   }) => LocalFullConversation(
@@ -7803,6 +7846,9 @@ class LocalFullConversation extends DataClass
     mutedJson: mutedJson ?? this.mutedJson,
     chatClearedAtJson: chatClearedAtJson ?? this.chatClearedAtJson,
     acceptedJson: acceptedJson ?? this.acceptedJson,
+    disappearingMessagesDurationMs: disappearingMessagesDurationMs.present
+        ? disappearingMessagesDurationMs.value
+        : this.disappearingMessagesDurationMs,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
@@ -7852,6 +7898,10 @@ class LocalFullConversation extends DataClass
       acceptedJson: data.acceptedJson.present
           ? data.acceptedJson.value
           : this.acceptedJson,
+      disappearingMessagesDurationMs:
+          data.disappearingMessagesDurationMs.present
+          ? data.disappearingMessagesDurationMs.value
+          : this.disappearingMessagesDurationMs,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -7876,6 +7926,9 @@ class LocalFullConversation extends DataClass
           ..write('mutedJson: $mutedJson, ')
           ..write('chatClearedAtJson: $chatClearedAtJson, ')
           ..write('acceptedJson: $acceptedJson, ')
+          ..write(
+            'disappearingMessagesDurationMs: $disappearingMessagesDurationMs, ',
+          )
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -7900,6 +7953,7 @@ class LocalFullConversation extends DataClass
     mutedJson,
     chatClearedAtJson,
     acceptedJson,
+    disappearingMessagesDurationMs,
     createdAt,
     updatedAt,
   );
@@ -7923,6 +7977,8 @@ class LocalFullConversation extends DataClass
           other.mutedJson == this.mutedJson &&
           other.chatClearedAtJson == this.chatClearedAtJson &&
           other.acceptedJson == this.acceptedJson &&
+          other.disappearingMessagesDurationMs ==
+              this.disappearingMessagesDurationMs &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -7945,6 +8001,7 @@ class LocalFullConversationsCompanion
   final Value<String> mutedJson;
   final Value<String> chatClearedAtJson;
   final Value<String> acceptedJson;
+  final Value<int?> disappearingMessagesDurationMs;
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
   final Value<int> rowid;
@@ -7965,6 +8022,7 @@ class LocalFullConversationsCompanion
     this.mutedJson = const Value.absent(),
     this.chatClearedAtJson = const Value.absent(),
     this.acceptedJson = const Value.absent(),
+    this.disappearingMessagesDurationMs = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -7986,6 +8044,7 @@ class LocalFullConversationsCompanion
     this.mutedJson = const Value.absent(),
     this.chatClearedAtJson = const Value.absent(),
     this.acceptedJson = const Value.absent(),
+    this.disappearingMessagesDurationMs = const Value.absent(),
     required DateTime createdAt,
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -8011,6 +8070,7 @@ class LocalFullConversationsCompanion
     Expression<String>? mutedJson,
     Expression<String>? chatClearedAtJson,
     Expression<String>? acceptedJson,
+    Expression<int>? disappearingMessagesDurationMs,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -8035,6 +8095,8 @@ class LocalFullConversationsCompanion
       if (mutedJson != null) 'muted_json': mutedJson,
       if (chatClearedAtJson != null) 'chat_cleared_at_json': chatClearedAtJson,
       if (acceptedJson != null) 'accepted_json': acceptedJson,
+      if (disappearingMessagesDurationMs != null)
+        'disappearing_messages_duration_ms': disappearingMessagesDurationMs,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -8058,6 +8120,7 @@ class LocalFullConversationsCompanion
     Value<String>? mutedJson,
     Value<String>? chatClearedAtJson,
     Value<String>? acceptedJson,
+    Value<int?>? disappearingMessagesDurationMs,
     Value<DateTime>? createdAt,
     Value<DateTime?>? updatedAt,
     Value<int>? rowid,
@@ -8080,6 +8143,8 @@ class LocalFullConversationsCompanion
       mutedJson: mutedJson ?? this.mutedJson,
       chatClearedAtJson: chatClearedAtJson ?? this.chatClearedAtJson,
       acceptedJson: acceptedJson ?? this.acceptedJson,
+      disappearingMessagesDurationMs:
+          disappearingMessagesDurationMs ?? this.disappearingMessagesDurationMs,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -8141,6 +8206,11 @@ class LocalFullConversationsCompanion
     if (acceptedJson.present) {
       map['accepted_json'] = Variable<String>(acceptedJson.value);
     }
+    if (disappearingMessagesDurationMs.present) {
+      map['disappearing_messages_duration_ms'] = Variable<int>(
+        disappearingMessagesDurationMs.value,
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -8172,6 +8242,9 @@ class LocalFullConversationsCompanion
           ..write('mutedJson: $mutedJson, ')
           ..write('chatClearedAtJson: $chatClearedAtJson, ')
           ..write('acceptedJson: $acceptedJson, ')
+          ..write(
+            'disappearingMessagesDurationMs: $disappearingMessagesDurationMs, ',
+          )
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -11689,6 +11762,7 @@ typedef $$LocalFullConversationsTableCreateCompanionBuilder =
       Value<String> mutedJson,
       Value<String> chatClearedAtJson,
       Value<String> acceptedJson,
+      Value<int?> disappearingMessagesDurationMs,
       required DateTime createdAt,
       Value<DateTime?> updatedAt,
       Value<int> rowid,
@@ -11711,6 +11785,7 @@ typedef $$LocalFullConversationsTableUpdateCompanionBuilder =
       Value<String> mutedJson,
       Value<String> chatClearedAtJson,
       Value<String> acceptedJson,
+      Value<int?> disappearingMessagesDurationMs,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
       Value<int> rowid,
@@ -11802,6 +11877,11 @@ class $$LocalFullConversationsTableFilterComposer
 
   ColumnFilters<String> get acceptedJson => $composableBuilder(
     column: $table.acceptedJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get disappearingMessagesDurationMs => $composableBuilder(
+    column: $table.disappearingMessagesDurationMs,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11905,6 +11985,11 @@ class $$LocalFullConversationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get disappearingMessagesDurationMs => $composableBuilder(
+    column: $table.disappearingMessagesDurationMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -11999,6 +12084,11 @@ class $$LocalFullConversationsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get disappearingMessagesDurationMs => $composableBuilder(
+    column: $table.disappearingMessagesDurationMs,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -12068,6 +12158,8 @@ class $$LocalFullConversationsTableTableManager
                 Value<String> mutedJson = const Value.absent(),
                 Value<String> chatClearedAtJson = const Value.absent(),
                 Value<String> acceptedJson = const Value.absent(),
+                Value<int?> disappearingMessagesDurationMs =
+                    const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -12088,6 +12180,7 @@ class $$LocalFullConversationsTableTableManager
                 mutedJson: mutedJson,
                 chatClearedAtJson: chatClearedAtJson,
                 acceptedJson: acceptedJson,
+                disappearingMessagesDurationMs: disappearingMessagesDurationMs,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -12110,6 +12203,8 @@ class $$LocalFullConversationsTableTableManager
                 Value<String> mutedJson = const Value.absent(),
                 Value<String> chatClearedAtJson = const Value.absent(),
                 Value<String> acceptedJson = const Value.absent(),
+                Value<int?> disappearingMessagesDurationMs =
+                    const Value.absent(),
                 required DateTime createdAt,
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -12130,6 +12225,7 @@ class $$LocalFullConversationsTableTableManager
                 mutedJson: mutedJson,
                 chatClearedAtJson: chatClearedAtJson,
                 acceptedJson: acceptedJson,
+                disappearingMessagesDurationMs: disappearingMessagesDurationMs,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,

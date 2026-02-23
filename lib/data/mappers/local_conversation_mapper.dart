@@ -35,6 +35,8 @@ class LocalConversationMapper {
         ),
       )),
       acceptedJson: Value(jsonEncode(conv.accepted)),
+      disappearingMessagesDurationMs:
+          Value(conv.disappearingMessagesDuration?.inMilliseconds),
       createdAt: Value(conv.createdAt),
       updatedAt: Value(conv.updatedAt),
     );
@@ -59,6 +61,9 @@ class LocalConversationMapper {
       muted: _parseBoolMap(row.mutedJson),
       chatClearedAt: _parseDateTimeMap(row.chatClearedAtJson),
       accepted: _parseBoolMap(row.acceptedJson),
+      disappearingMessagesDuration: row.disappearingMessagesDurationMs != null
+          ? Duration(milliseconds: row.disappearingMessagesDurationMs!)
+          : null,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
