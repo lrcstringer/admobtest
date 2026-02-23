@@ -1,6 +1,7 @@
 @Timeout(Duration(minutes: 5))
 library;
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imalichat/core/services/crypto_service.dart';
@@ -9,6 +10,10 @@ import 'package:imalichat/domain/entities/e2ee_types.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/e2ee_test_helpers.dart';
+
+class MockFirebaseAuth extends Mock implements FirebaseAuth {}
+
+class MockUser extends Mock implements User {}
 
 // In-memory secure storage for tests
 class _InMemorySecureStorage extends Mock implements FlutterSecureStorage {
@@ -61,6 +66,8 @@ void main() {
   late CryptoService realCrypto;
   late _InMemorySecureStorage secureStorage;
   late MockFirebaseFunctions mockFunctions;
+  late MockFirebaseAuth mockAuth;
+  late MockUser mockUser;
   late MockHttpsCallable mockCallable;
   late MockHttpsCallableResult mockResult;
 
@@ -75,14 +82,20 @@ void main() {
     realCrypto = CryptoService();
     secureStorage = _InMemorySecureStorage();
     mockFunctions = MockFirebaseFunctions();
+    mockAuth = MockFirebaseAuth();
+    mockUser = MockUser();
     mockCallable = MockHttpsCallable();
     mockResult = MockHttpsCallableResult();
+
+    when(() => mockAuth.currentUser).thenReturn(mockUser);
+    when(() => mockUser.uid).thenReturn('test-user-123');
 
     backupService = KeyBackupService(
       mockKeyMgmt,
       realCrypto,
       mockFunctions,
       secureStorage,
+      mockAuth,
     );
 
     // Default stubs
@@ -93,123 +106,103 @@ void main() {
   });
 
   group('KeyBackupService', () {
-    // ==================== createBackup ====================
-    group('createBackup', () {
+    // ==================== autoBackup ====================
+    group('autoBackup', () {
       test('loads private keys via keyManagementService', () async {
         when(() => mockKeyMgmt.loadPrivateKeys())
             .thenAnswer((_) async => testBundle);
+        when(() => mockResult.data).thenReturn(<String, dynamic>{
+          'secret': 'dGVzdC1zZWNyZXQ=',
+        });
 
-        await backupService.createBackup('my-passphrase');
+        await backupService.autoBackup();
 
         verify(() => mockKeyMgmt.loadPrivateKeys()).called(1);
       });
 
-      test('encrypts and stores blob in secure storage', () async {
-        when(() => mockKeyMgmt.loadPrivateKeys())
-            .thenAnswer((_) async => testBundle);
-
-        await backupService.createBackup('my-passphrase');
-
-        // Verify blob and salt are stored
-        final blob = await secureStorage.read(key: 'e2ee_backup_blob');
-        final salt = await secureStorage.read(key: 'e2ee_backup_salt');
-        expect(blob, isNotNull);
-        expect(salt, isNotNull);
-        expect(blob!.isNotEmpty, isTrue);
-        expect(salt!.isNotEmpty, isTrue);
-      });
-
-      test('caches passphrase in secure storage', () async {
-        when(() => mockKeyMgmt.loadPrivateKeys())
-            .thenAnswer((_) async => testBundle);
-
-        await backupService.createBackup('my-passphrase');
-
-        final cached =
-            await secureStorage.read(key: 'e2ee_backup_passphrase');
-        expect(cached, 'my-passphrase');
-      });
-
-      test('stores timestamp in secure storage', () async {
-        when(() => mockKeyMgmt.loadPrivateKeys())
-            .thenAnswer((_) async => testBundle);
-
-        await backupService.createBackup('my-passphrase');
-
-        final ts = await secureStorage.read(key: 'e2ee_backup_timestamp');
-        expect(ts, isNotNull);
-        // Verify it's a valid ISO 8601 timestamp
-        expect(() => DateTime.parse(ts!), returnsNormally);
-      });
-
-      test('uploads metadata to server via Cloud Function', () async {
-        when(() => mockKeyMgmt.loadPrivateKeys())
-            .thenAnswer((_) async => testBundle);
-
-        await backupService.createBackup('my-passphrase');
-
-        verify(() => mockFunctions.httpsCallable('saveBackupMetadata'))
-            .called(1);
-        verify(() => mockCallable.call<dynamic>(any())).called(1);
-      });
-
-      test('throws when no private keys to back up', () async {
+      test('does nothing when no private keys exist', () async {
         when(() => mockKeyMgmt.loadPrivateKeys())
             .thenAnswer((_) async => null);
 
-        expect(
-          () => backupService.createBackup('my-passphrase'),
-          throwsA(isA<StateError>()),
-        );
+        await backupService.autoBackup();
+
+        // Should not call any Cloud Functions
+        verifyNever(() => mockFunctions.httpsCallable(any()));
       });
 
-      test('generates random salt for PBKDF2', () async {
+      test('does nothing when user is not authenticated', () async {
         when(() => mockKeyMgmt.loadPrivateKeys())
             .thenAnswer((_) async => testBundle);
+        when(() => mockAuth.currentUser).thenReturn(null);
 
-        await backupService.createBackup('pass1');
-        final salt1 = await secureStorage.read(key: 'e2ee_backup_salt');
+        await backupService.autoBackup();
 
-        // Clear and create again
-        secureStorage._store.clear();
-        await backupService.createBackup('pass1');
-        final salt2 = await secureStorage.read(key: 'e2ee_backup_salt');
+        // Should not call any Cloud Functions
+        verifyNever(() => mockFunctions.httpsCallable(any()));
+      });
 
-        // Different salts (probabilistically guaranteed)
-        expect(salt1, isNot(equals(salt2)));
+      test('stores blob and timestamp in secure storage', () async {
+        when(() => mockKeyMgmt.loadPrivateKeys())
+            .thenAnswer((_) async => testBundle);
+        when(() => mockResult.data).thenReturn(<String, dynamic>{
+          'secret': 'dGVzdC1zZWNyZXQ=',
+        });
+
+        await backupService.autoBackup();
+
+        final blob = await secureStorage.read(key: 'e2ee_backup_blob');
+        final ts = await secureStorage.read(key: 'e2ee_backup_timestamp');
+        expect(blob, isNotNull);
+        expect(blob!.isNotEmpty, isTrue);
+        expect(ts, isNotNull);
+        expect(() => DateTime.parse(ts!), returnsNormally);
+      });
+
+      test('uploads encrypted blob via saveKeyBackup Cloud Function', () async {
+        when(() => mockKeyMgmt.loadPrivateKeys())
+            .thenAnswer((_) async => testBundle);
+        when(() => mockResult.data).thenReturn(<String, dynamic>{
+          'secret': 'dGVzdC1zZWNyZXQ=',
+        });
+
+        await backupService.autoBackup();
+
+        verify(() => mockFunctions.httpsCallable('saveKeyBackup')).called(1);
       });
     });
 
-    // ==================== restoreFromBackup ====================
-    group('restoreFromBackup', () {
-      test('returns true on successful restore with correct passphrase',
-          () async {
-        // First create a backup
-        when(() => mockKeyMgmt.loadPrivateKeys())
-            .thenAnswer((_) async => testBundle);
-        when(() => mockKeyMgmt.storePrivateKeys(any()))
-            .thenAnswer((_) async {});
-        when(() => mockKeyMgmt.uploadKeyBundle(any()))
-            .thenAnswer((_) async {});
+    // ==================== autoRestore ====================
+    group('autoRestore', () {
+      test('returns false when user is not authenticated', () async {
+        when(() => mockAuth.currentUser).thenReturn(null);
 
-        await backupService.createBackup('correct-pass');
-
-        final result = await backupService.restoreFromBackup('correct-pass');
-        expect(result, isTrue);
-      });
-
-      test('returns false on wrong passphrase', () async {
-        when(() => mockKeyMgmt.loadPrivateKeys())
-            .thenAnswer((_) async => testBundle);
-
-        await backupService.createBackup('correct-pass');
-
-        final result = await backupService.restoreFromBackup('wrong-pass');
+        final result = await backupService.autoRestore();
         expect(result, isFalse);
       });
 
-      test('returns false when no backup blob exists', () async {
-        final result = await backupService.restoreFromBackup('any-pass');
+      test('returns false when no server secret exists', () async {
+        when(() => mockResult.data).thenReturn(<String, dynamic>{
+          'secret': null,
+        });
+
+        final result = await backupService.autoRestore();
+        expect(result, isFalse);
+      });
+
+      test('returns false when no backup blob exists on server', () async {
+        var callCount = 0;
+        when(() => mockCallable.call<dynamic>(any())).thenAnswer((_) async {
+          callCount++;
+          return mockResult;
+        });
+        when(() => mockResult.data).thenAnswer((_) {
+          if (callCount <= 1) {
+            return <String, dynamic>{'secret': 'dGVzdC1zZWNyZXQ='};
+          }
+          return <String, dynamic>{'backupExists': false};
+        });
+
+        final result = await backupService.autoRestore();
         expect(result, isFalse);
       });
 
@@ -221,170 +214,61 @@ void main() {
         when(() => mockKeyMgmt.uploadKeyBundle(any()))
             .thenAnswer((_) async {});
 
-        await backupService.createBackup('pass');
-        await backupService.restoreFromBackup('pass');
+        // First: autoBackup to create a real encrypted blob
+        when(() => mockResult.data).thenReturn(<String, dynamic>{
+          'secret': 'dGVzdC1zZWNyZXQ=',
+        });
+        await backupService.autoBackup();
+
+        final blob = await secureStorage.read(key: 'e2ee_backup_blob');
+
+        // Mock restore calls
+        var callCount = 0;
+        when(() => mockCallable.call<dynamic>(any())).thenAnswer((_) async {
+          callCount++;
+          return mockResult;
+        });
+        when(() => mockResult.data).thenAnswer((_) {
+          if (callCount <= 1) {
+            return <String, dynamic>{'secret': 'dGVzdC1zZWNyZXQ='};
+          }
+          return <String, dynamic>{
+            'backupExists': true,
+            'encryptedBlob': blob,
+          };
+        });
+
+        final result = await backupService.autoRestore();
+        expect(result, isTrue);
 
         verify(() => mockKeyMgmt.storePrivateKeys(any())).called(1);
         verify(() => mockKeyMgmt.uploadKeyBundle(any())).called(1);
       });
 
-      test('caches passphrase on successful restore', () async {
-        when(() => mockKeyMgmt.loadPrivateKeys())
-            .thenAnswer((_) async => testBundle);
-        when(() => mockKeyMgmt.storePrivateKeys(any()))
-            .thenAnswer((_) async {});
-        when(() => mockKeyMgmt.uploadKeyBundle(any()))
-            .thenAnswer((_) async {});
-
-        await backupService.createBackup('my-pass');
-
-        // Clear passphrase cache
-        secureStorage._store.remove('e2ee_backup_passphrase');
-
-        await backupService.restoreFromBackup('my-pass');
-
-        final cached =
-            await secureStorage.read(key: 'e2ee_backup_passphrase');
-        expect(cached, 'my-pass');
-      });
-    });
-
-    // ==================== hasBackup ====================
-    group('hasBackup', () {
-      test('returns true when backup metadata exists on server', () async {
-        when(() => mockResult.data).thenReturn(<String, dynamic>{
-          'backupExists': true,
-          'userId': 'user123',
+      test('returns false on decryption failure (corrupted blob)', () async {
+        var callCount = 0;
+        when(() => mockCallable.call<dynamic>(any())).thenAnswer((_) async {
+          callCount++;
+          return mockResult;
+        });
+        when(() => mockResult.data).thenAnswer((_) {
+          if (callCount <= 1) {
+            return <String, dynamic>{'secret': 'dGVzdC1zZWNyZXQ='};
+          }
+          return <String, dynamic>{
+            'backupExists': true,
+            'encryptedBlob': 'Y29ycnVwdGVkX2RhdGE=',
+          };
         });
 
-        final result = await backupService.hasBackup();
-        expect(result, isTrue);
-      });
-
-      test('returns false when no backup exists', () async {
-        when(() => mockResult.data).thenReturn(<String, dynamic>{
-          'backupExists': false,
-          'userId': 'user123',
-        });
-
-        final result = await backupService.hasBackup();
+        final result = await backupService.autoRestore();
         expect(result, isFalse);
-      });
-
-      test('returns false when server returns null', () async {
-        when(() => mockResult.data).thenReturn(null);
-
-        final result = await backupService.hasBackup();
-        expect(result, isFalse);
-      });
-    });
-
-    // ==================== getBackupMetadata ====================
-    group('getBackupMetadata', () {
-      test('calls httpsCallable with correct function name', () async {
-        when(() => mockResult.data).thenReturn(<String, dynamic>{
-          'backupExists': true,
-          'userId': 'user123',
-          'backupVersion': 1,
-          'lastBackupAt': '2024-06-01T00:00:00.000Z',
-        });
-
-        await backupService.getBackupMetadata();
-
-        verify(() => mockFunctions.httpsCallable('getBackupMetadata'))
-            .called(1);
-      });
-
-      test('parses BackupMetadata from response', () async {
-        when(() => mockResult.data).thenReturn(<String, dynamic>{
-          'backupExists': true,
-          'userId': 'user123',
-          'backupVersion': 1,
-          'lastBackupAt': '2024-06-01T00:00:00.000Z',
-        });
-
-        final metadata = await backupService.getBackupMetadata();
-
-        expect(metadata, isNotNull);
-        expect(metadata!.backupExists, isTrue);
-        expect(metadata.userId, 'user123');
-        expect(metadata.backupVersion, 1);
-        expect(metadata.lastBackupAt, isNotNull);
-      });
-
-      test('returns null when server throws', () async {
-        when(() => mockCallable.call<dynamic>(any()))
-            .thenThrow(Exception('Network error'));
-
-        final metadata = await backupService.getBackupMetadata();
-        expect(metadata, isNull);
-      });
-    });
-
-    // ==================== autoBackupIfNeeded ====================
-    group('autoBackupIfNeeded', () {
-      test('skips when no cached passphrase', () async {
-        await backupService.autoBackupIfNeeded();
-
-        // Should not call loadPrivateKeys since no passphrase
-        verifyNever(() => mockKeyMgmt.loadPrivateKeys());
-      });
-
-      test('skips when backup is recent (less than 7 days)', () async {
-        // Cache a passphrase and recent timestamp
-        await secureStorage.write(
-          key: 'e2ee_backup_passphrase',
-          value: 'cached-pass',
-        );
-        await secureStorage.write(
-          key: 'e2ee_backup_timestamp',
-          value: DateTime.now().toIso8601String(),
-        );
-
-        await backupService.autoBackupIfNeeded();
-
-        // Should not attempt backup since it's fresh
-        verifyNever(() => mockKeyMgmt.loadPrivateKeys());
-      });
-
-      test('creates backup when stale (older than 7 days)', () async {
-        await secureStorage.write(
-          key: 'e2ee_backup_passphrase',
-          value: 'cached-pass',
-        );
-        await secureStorage.write(
-          key: 'e2ee_backup_timestamp',
-          value:
-              DateTime.now().subtract(const Duration(days: 8)).toIso8601String(),
-        );
-
-        when(() => mockKeyMgmt.loadPrivateKeys())
-            .thenAnswer((_) async => testBundle);
-
-        await backupService.autoBackupIfNeeded();
-
-        verify(() => mockKeyMgmt.loadPrivateKeys()).called(1);
-      });
-
-      test('creates backup when no timestamp exists (first time)', () async {
-        await secureStorage.write(
-          key: 'e2ee_backup_passphrase',
-          value: 'cached-pass',
-        );
-        // No timestamp stored
-
-        when(() => mockKeyMgmt.loadPrivateKeys())
-            .thenAnswer((_) async => testBundle);
-
-        await backupService.autoBackupIfNeeded();
-
-        verify(() => mockKeyMgmt.loadPrivateKeys()).called(1);
       });
     });
 
     // ==================== Full roundtrip ====================
-    group('full backup/restore roundtrip', () {
-      test('backup then restore yields matching key bundle', () async {
+    group('full auto backup/restore roundtrip', () {
+      test('autoBackup then autoRestore yields matching key bundle', () async {
         when(() => mockKeyMgmt.loadPrivateKeys())
             .thenAnswer((_) async => testBundle);
         when(() => mockKeyMgmt.storePrivateKeys(any()))
@@ -392,12 +276,33 @@ void main() {
         when(() => mockKeyMgmt.uploadKeyBundle(any()))
             .thenAnswer((_) async {});
 
+        when(() => mockResult.data).thenReturn(<String, dynamic>{
+          'secret': 'dGVzdC1zZWNyZXQ=',
+        });
+
         // Create backup
-        await backupService.createBackup('roundtrip-pass');
+        await backupService.autoBackup();
+        final blob = await secureStorage.read(key: 'e2ee_backup_blob');
+        expect(blob, isNotNull);
+
+        // Mock restore calls
+        var callCount = 0;
+        when(() => mockCallable.call<dynamic>(any())).thenAnswer((_) async {
+          callCount++;
+          return mockResult;
+        });
+        when(() => mockResult.data).thenAnswer((_) {
+          if (callCount <= 1) {
+            return <String, dynamic>{'secret': 'dGVzdC1zZWNyZXQ='};
+          }
+          return <String, dynamic>{
+            'backupExists': true,
+            'encryptedBlob': blob,
+          };
+        });
 
         // Restore
-        final success =
-            await backupService.restoreFromBackup('roundtrip-pass');
+        final success = await backupService.autoRestore();
         expect(success, isTrue);
 
         // Verify the restored bundle matches

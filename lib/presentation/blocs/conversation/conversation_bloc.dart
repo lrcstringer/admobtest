@@ -31,7 +31,6 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   ConversationBloc(this._conversationRepository)
       : super(const ConversationState()) {
     // Conversation list
-    on<_LoadConversations>(_onLoadConversations);
     on<_WatchConversations>(_onWatchConversations);
     on<_ConversationsUpdated>(_onConversationsUpdated);
 
@@ -41,7 +40,6 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
 
     // Messages
     on<_LoadMessages>(_onLoadMessages);
-    on<_WatchMessages>(_onWatchMessages);
     on<_MessagesUpdated>(_onMessagesUpdated);
     on<_SendTextMessage>(_onSendTextMessage);
     on<_SendMediaMessage>(_onSendMediaMessage);
@@ -84,12 +82,13 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   // CONVERSATION LIST HANDLERS
   // ===========================================================================
 
-  Future<void> _onLoadConversations(
-    _LoadConversations event,
+  Future<void> _onWatchConversations(
+    _WatchConversations event,
     Emitter<ConversationState> emit,
   ) async {
     emit(state.copyWith(status: ConversationStatus.loading));
 
+    // 1. Immediate one-shot load from local DB (deterministic)
     final result = await _conversationRepository.getConversations();
     result.fold(
       (failure) => emit(state.copyWith(
@@ -101,12 +100,8 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
         conversations: conversations,
       )),
     );
-  }
 
-  Future<void> _onWatchConversations(
-    _WatchConversations event,
-    Emitter<ConversationState> emit,
-  ) async {
+    // 2. Subscribe to watch stream for real-time updates
     await _conversationsSubscription?.cancel();
     _conversationsSubscription =
         _conversationRepository.watchConversations().listen(
@@ -117,9 +112,10 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
               add(ConversationEvent.conversationsUpdated(conversations)),
         );
       },
+      onError: (_) {},
     );
 
-    // Also watch total unread count for tab badge
+    // 3. Watch total unread count for tab badge
     await _unreadSubscription?.cancel();
     _unreadSubscription =
         _conversationRepository.watchTotalUnreadCount().listen(
@@ -129,6 +125,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
           (count) => add(ConversationEvent.unreadCountUpdated(count)),
         );
       },
+      onError: (_) {},
     );
   }
 
@@ -171,41 +168,54 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     _SelectConversation event,
     Emitter<ConversationState> emit,
   ) async {
+    // 1. Find conversation — local state first, then repo (local DB → Firestore)
     Conversation? conversation;
     try {
-      conversation = state.conversations.firstWhere(
-        (c) => c.id == event.id,
-      );
-    } catch (_) {
-      // Not in cached list — will fetch from Firestore below
-    }
+      conversation = state.conversations.firstWhere((c) => c.id == event.id);
+    } catch (_) {}
 
-    // If not found in the cached list (race condition, dedup, or timing),
-    // fetch directly from Firestore so the detail screen doesn't spin forever.
     if (conversation == null) {
-      final result = await _conversationRepository.getConversationById(event.id);
+      final result =
+          await _conversationRepository.getConversationById(event.id);
       result.fold(
-        (failure) {
-          emit(state.copyWith(
-            hasLoadedMessages: true, // Stop the spinner
-            errorMessage: failure.displayMessage,
-          ));
-        },
+        (failure) => emit(state.copyWith(
+          hasLoadedMessages: true,
+          errorMessage: failure.displayMessage,
+        )),
         (conv) => conversation = conv,
       );
     }
-
     if (conversation == null) return;
 
+    // 2. One-shot load of messages from local DB
+    final msgResult = await _conversationRepository.getMessages(
+      conversationId: event.id,
+    );
+    final initialMessages = msgResult.fold(
+      (failure) => <Message>[],
+      (messages) => messages,
+    );
+
+    _pendingOptimisticIds.clear();
     emit(state.copyWith(
       selectedConversation: conversation,
-      // Don't clear messages — local DB preserves them across navigation.
-      // The watchMessages stream emits instantly from local DB.
-      hasLoadedMessages: state.messages.isNotEmpty,
+      messages: initialMessages,
+      hasLoadedMessages: true, // ALWAYS true — spinner stops here, deterministically
     ));
 
-    // Start watching messages for this conversation
-    add(ConversationEvent.watchMessages(conversationId: event.id));
+    // 3. Subscribe to watch stream — real-time updates from here on
+    await _messagesSubscription?.cancel();
+    _messagesSubscription = _conversationRepository
+        .watchMessages(conversationId: event.id)
+        .listen(
+      (result) {
+        result.fold(
+          (failure) {},
+          (messages) => add(ConversationEvent.messagesUpdated(messages)),
+        );
+      },
+      onError: (_) {},
+    );
   }
 
   Future<void> _onGetOrCreateConversation(
@@ -218,19 +228,46 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       participantId: event.participantId,
     );
 
+    Conversation? conversation;
     result.fold(
       (failure) => emit(state.copyWith(
         status: ConversationStatus.error,
         errorMessage: failure.displayMessage,
       )),
-      (conversation) {
-        emit(state.copyWith(
-          status: ConversationStatus.loaded,
-          selectedConversation: conversation,
-        ));
-        // Start watching messages for the new/existing conversation
-        add(ConversationEvent.watchMessages(conversationId: conversation.id));
+      (conv) => conversation = conv,
+    );
+
+    if (conversation == null) return;
+
+    // Load initial messages (may be empty for brand-new conversations)
+    final msgResult = await _conversationRepository.getMessages(
+      conversationId: conversation!.id,
+    );
+    final initialMessages = msgResult.fold(
+      (failure) => <Message>[],
+      (messages) => messages,
+    );
+
+    _pendingOptimisticIds.clear();
+    emit(state.copyWith(
+      status: ConversationStatus.loaded,
+      selectedConversation: conversation,
+      messages: initialMessages,
+      hasLoadedMessages: true,
+    ));
+
+    // Subscribe to watch stream for real-time updates
+    await _messagesSubscription?.cancel();
+    _messagesSubscription = _conversationRepository
+        .watchMessages(conversationId: conversation!.id)
+        .listen(
+      (result) {
+        result.fold(
+          (failure) {},
+          (messages) => add(ConversationEvent.messagesUpdated(messages)),
+        );
       },
+      onError: (_) {},
     );
   }
 
@@ -270,48 +307,53 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     );
   }
 
-  Future<void> _onWatchMessages(
-    _WatchMessages event,
-    Emitter<ConversationState> emit,
-  ) async {
-    await _messagesSubscription?.cancel();
-    _messagesSubscription = _conversationRepository
-        .watchMessages(conversationId: event.conversationId, limit: event.limit)
-        .listen(
-      (result) {
-        result.fold(
-          (failure) {
-            // Emit empty messages with hasLoadedMessages=true so the spinner stops
-            add(ConversationEvent.messagesUpdated(const []));
-          },
-          (messages) => add(ConversationEvent.messagesUpdated(messages)),
-        );
-      },
-    );
-  }
-
   void _onMessagesUpdated(
     _MessagesUpdated event,
     Emitter<ConversationState> emit,
   ) {
-    // Keep any pending optimistic messages that the stream doesn't have yet.
-    // Once the Cloud Function completes and the stream includes the real message,
-    // the optimistic ID is removed from _pendingOptimisticIds and dropped here.
     if (_pendingOptimisticIds.isNotEmpty) {
       final optimistics = state.messages
           .where((m) => _pendingOptimisticIds.contains(m.id))
           .toList();
       if (optimistics.isNotEmpty) {
-        // Filter out DB copies of pending optimistic messages to prevent
-        // duplicates (the temp message is in both state and local DB).
-        final filtered = event.messages
-            .where((m) => !_pendingOptimisticIds.contains(m.id))
+        // Check if any optimistic has been superseded by a real server message
+        // (Firestore listener may deliver the real message before the repository
+        // HTTP response returns). Match by sender + text content.
+        final resolvedIds = <String>{};
+        final usedRealIds = <String>{};
+        for (final opt in optimistics) {
+          final realMatch = event.messages.cast<Message?>().firstWhere(
+            (m) =>
+                m != null &&
+                !usedRealIds.contains(m.id) &&
+                m.senderId == opt.senderId &&
+                m.textContent == opt.textContent &&
+                m.textContent != null &&
+                m.textContent!.isNotEmpty &&
+                !m.id.startsWith('optimistic_'),
+            orElse: () => null,
+          );
+          if (realMatch != null) {
+            resolvedIds.add(opt.id);
+            usedRealIds.add(realMatch.id);
+          }
+        }
+        _pendingOptimisticIds.removeAll(resolvedIds);
+
+        // Keep only unresolved optimistics
+        final unresolved = optimistics
+            .where((m) => !resolvedIds.contains(m.id))
             .toList();
-        emit(state.copyWith(
-          messages: [...optimistics, ...filtered],
-          hasLoadedMessages: true,
-        ));
-        return;
+        if (unresolved.isNotEmpty) {
+          final filtered = event.messages
+              .where((m) => !_pendingOptimisticIds.contains(m.id))
+              .toList();
+          emit(state.copyWith(
+            messages: [...unresolved, ...filtered],
+            hasLoadedMessages: true,
+          ));
+          return;
+        }
       }
     }
     emit(state.copyWith(messages: event.messages, hasLoadedMessages: true));
@@ -380,11 +422,15 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
         ));
       },
       (serverMessage) {
-        // Replace optimistic with the real message (has server-assigned ID)
-        final updated = state.messages.map((m) {
-          if (m.id == optimisticId) return serverMessage;
-          return m;
-        }).toList();
+        // Replace optimistic with the real message and deduplicate by ID.
+        // The stream may have already delivered the real message before
+        // this callback runs, so we need to prevent [msg, msg] duplicates.
+        final seen = <String>{};
+        final updated = <Message>[];
+        for (final m in state.messages) {
+          final msg = m.id == optimisticId ? serverMessage : m;
+          if (seen.add(msg.id)) updated.add(msg);
+        }
         emit(state.copyWith(messages: updated));
       },
     );

@@ -55,12 +55,10 @@ class ConversationRepositoryImpl implements ConversationRepository {
   @override
   Future<Either<Failure, List<Conversation>>> getConversations() async {
     try {
-      final models = await _remoteDataSource.getConversations();
-      return Right(models.map((m) => m.toEntity()).toList());
-    } on AuthException {
-      return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
+      // Offline-first: read from local Drift DB for instant display.
+      // MessageSyncService keeps this in sync with Firestore in the background.
+      final rows = await _appDatabase.getLocalConversations();
+      return Right(rows.map(LocalConversationMapper.toEntity).toList());
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -104,6 +102,12 @@ class ConversationRepositoryImpl implements ConversationRepository {
   @override
   Future<Either<Failure, Conversation>> getConversationById(String id) async {
     try {
+      // Offline-first: try local DB
+      final localRow = await _appDatabase.getLocalConversation(id);
+      if (localRow != null) {
+        return Right(LocalConversationMapper.toEntity(localRow));
+      }
+      // Fallback to Firestore
       final model = await _remoteDataSource.getConversationById(id);
       if (model == null) {
         return Left(Failure.serverError(message: 'Conversation not found'));
@@ -215,16 +219,6 @@ class ConversationRepositoryImpl implements ConversationRepository {
       final encrypted = await _signalProtocolService.encryptP2P(actualRecipientId, text);
 
       final now = DateTime.now();
-      final tempId = 'temp_${now.millisecondsSinceEpoch}';
-      final optimisticMessage = Message(
-        id: tempId,
-        senderId: currentUserId!,
-        senderName: '',
-        type: MessageType.text,
-        status: MessageStatus.sending,
-        textContent: text,
-        createdAt: now,
-      );
 
       // Pre-cache plaintext by ciphertext fingerprint BEFORE sending.
       // If the app is killed after the server receives the message but
@@ -238,16 +232,7 @@ class ConversationRepositoryImpl implements ConversationRepository {
         debugPrint('Failed to pre-cache plaintext by fingerprint: $e');
       }
 
-      // Optimistic local insert — message appears instantly in UI
-      try {
-        await _appDatabase.upsertLocalMessage(
-          LocalMessageMapper.toCompanion(optimisticMessage, conversationId),
-        );
-      } catch (e) {
-        debugPrint('Failed to insert optimistic message: $e');
-      }
-
-      // Send to server
+      // Send to server (BLoC handles optimistic UI — no local temp insert needed)
       final messageId = await _remoteDataSource.sendEncryptedMessage(
         conversationId: conversationId,
         ciphertext: encrypted['ciphertext'] as String,
@@ -260,13 +245,17 @@ class ConversationRepositoryImpl implements ConversationRepository {
       _sentPlaintextCache[messageId] = text;
       _messageSyncService.sentPlaintextCache[messageId] = text;
 
-      // Replace optimistic message with real one
-      final sentMessage = optimisticMessage.copyWith(
+      // Store real message in local DB
+      final sentMessage = Message(
         id: messageId,
+        senderId: currentUserId!,
+        senderName: '',
+        type: MessageType.text,
         status: MessageStatus.sent,
+        textContent: text,
+        createdAt: now,
       );
       try {
-        await _appDatabase.deleteLocalMessage(tempId);
         await _appDatabase.upsertLocalMessage(
           LocalMessageMapper.toCompanion(sentMessage, conversationId),
         );
@@ -644,6 +633,28 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String conversationId,
   }) async {
     try {
+      // 1. Delete local messages immediately
+      await _appDatabase.deleteLocalMessagesForConversation(conversationId);
+
+      // 2. Set chatClearedAt on local conversation (prevents re-sync of old messages)
+      final localConv = await _appDatabase.getLocalConversation(conversationId);
+      if (localConv != null && currentUserId != null) {
+        final conv = LocalConversationMapper.toEntity(localConv);
+        final updatedClearedAt = Map<String, DateTime>.from(conv.chatClearedAt);
+        updatedClearedAt[currentUserId!] = DateTime.now();
+        await _appDatabase.upsertLocalConversation(
+          LocalConversationMapper.toCompanion(conv.copyWith(
+            chatClearedAt: updatedClearedAt,
+            lastMessageText: null,
+            lastMessageId: null,
+            lastMessageSenderId: null,
+            lastMessageSenderName: null,
+            lastMessageType: null,
+          )),
+        );
+      }
+
+      // 3. Enqueue server-side clear (offline-safe)
       await _offlineActionQueue.enqueue(
         table: 'conversations',
         recordId: conversationId,

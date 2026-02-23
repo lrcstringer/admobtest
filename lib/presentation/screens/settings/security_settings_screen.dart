@@ -110,17 +110,6 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
           ),
           const Divider(height: 1),
 
-          // Encryption
-          _buildSectionHeader(context, 'Encryption'),
-          ListTile(
-            leading: const Icon(Icons.key_outlined),
-            title: const Text('Key Backup'),
-            subtitle: const Text('Back up your encryption keys'),
-            trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-            onTap: () => context.push('/settings/key-backup'),
-          ),
-          const Divider(height: 1),
-
           // Session
           _buildSectionHeader(context, 'Session'),
           ListTile(

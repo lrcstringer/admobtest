@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 
@@ -9,103 +10,101 @@ import '../../domain/entities/e2ee_types.dart';
 import 'crypto_service.dart';
 import 'key_management_service.dart';
 
-/// Manages encrypted backups of the user's E2EE private keys.
+/// Manages automatic encrypted backups of the user's E2EE private keys.
 ///
-/// Backups are encrypted with a passphrase-derived key (PBKDF2) before
-/// being uploaded to the server, so the server never sees plaintext keys.
+/// Uses a server-side per-user secret to derive the encryption key via PBKDF2.
+/// Zero user interaction — backup and restore happen silently during auth flow.
+///
+/// On reinstall: user logs in → fetches serverSecret from Firestore →
+/// derives same key → decrypts blob → restores keys → messages become readable.
 @lazySingleton
 class KeyBackupService {
   final KeyManagementService _keyManagementService;
   final CryptoService _cryptoService;
   final FirebaseFunctions _functions;
   final FlutterSecureStorage _secureStorage;
+  final FirebaseAuth _auth;
 
   KeyBackupService(
     this._keyManagementService,
     this._cryptoService,
     this._functions,
     this._secureStorage,
+    this._auth,
   );
 
   static const _backupBlobKey = 'e2ee_backup_blob';
-  static const _backupSaltKey = 'e2ee_backup_salt';
-  static const _backupPassphraseKey = 'e2ee_backup_passphrase';
   static const _backupTimestampKey = 'e2ee_backup_timestamp';
   static const _backupVersion = 1;
-  // Re-backup if older than 7 days
-  static const _backupStaleDays = 7;
 
-  /// Create an encrypted backup of the user's private keys.
+  /// Automatically backup keys using server-side secret. Zero user interaction.
   ///
-  /// The [passphrase] is used to derive an AES-256 key via PBKDF2,
-  /// which encrypts the key bundle before storing locally and saving
-  /// metadata to the server.
-  Future<void> createBackup(String passphrase) async {
+  /// Encrypts the key bundle with a key derived from a per-user server secret
+  /// via PBKDF2, then uploads the encrypted blob to the server.
+  Future<void> autoBackup() async {
     final bundle = await _keyManagementService.loadPrivateKeys();
-    if (bundle == null) {
-      throw StateError('E2EE: No key bundle to backup');
-    }
+    if (bundle == null) return;
 
-    // Generate salt for PBKDF2
-    final salt = _cryptoService.randomBytes(32);
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return;
 
-    // Derive encryption key from passphrase
+    // Get or create server-side secret
+    final serverSecret = await _getOrCreateServerSecret(uid);
+
+    // Derive encryption key (uid as salt — deterministic, unique per user)
+    final salt = Uint8List.fromList(utf8.encode(uid));
     final derivedKey = await _cryptoService.pbkdf2(
-      passphrase: passphrase,
+      passphrase: serverSecret,
       salt: salt,
     );
 
-    // Serialize key bundle to JSON
+    // Encrypt key bundle
     final bundleJson = jsonEncode(bundle.toJson());
-    final plaintextBytes = Uint8List.fromList(utf8.encode(bundleJson));
+    final plaintext = Uint8List.fromList(utf8.encode(bundleJson));
+    final encrypted = await _cryptoService.encrypt(plaintext, derivedKey);
+    final blobBase64 = base64Encode(encrypted);
 
-    // Encrypt with AES-256-GCM
-    final encrypted = await _cryptoService.encrypt(plaintextBytes, derivedKey);
-
-    // Store encrypted blob + salt locally
-    await _secureStorage.write(
-      key: _backupBlobKey,
-      value: base64Encode(encrypted),
-    );
-    await _secureStorage.write(
-      key: _backupSaltKey,
-      value: base64Encode(salt),
-    );
-
-    // Cache passphrase for auto-backup
-    await _secureStorage.write(
-      key: _backupPassphraseKey,
-      value: passphrase,
-    );
-
-    final now = DateTime.now().toIso8601String();
-    await _secureStorage.write(key: _backupTimestampKey, value: now);
-
-    // Save metadata to server
-    final callable = _functions.httpsCallable('saveBackupMetadata');
+    // Upload to server
+    final callable = _functions.httpsCallable('saveKeyBackup');
     await callable.call<dynamic>({
       'backupVersion': _backupVersion,
-      'lastBackupAt': now,
+      'encryptedBlob': blobBase64,
     });
+
+    // Cache locally too
+    await _secureStorage.write(key: _backupBlobKey, value: blobBase64);
+    await _secureStorage.write(
+      key: _backupTimestampKey,
+      value: DateTime.now().toIso8601String(),
+    );
   }
 
-  /// Restore private keys from an encrypted local backup.
+  /// Attempt to restore keys from server backup. Returns true if successful.
   ///
-  /// Returns `true` if the restore was successful, `false` if the
-  /// passphrase was incorrect or the backup was corrupted.
-  Future<bool> restoreFromBackup(String passphrase) async {
-    final blobBase64 = await _secureStorage.read(key: _backupBlobKey);
-    final saltBase64 = await _secureStorage.read(key: _backupSaltKey);
-
-    if (blobBase64 == null || saltBase64 == null) return false;
+  /// Called on fresh install after login when no local keys exist.
+  /// Fetches the server secret and encrypted blob, derives the same key,
+  /// decrypts the blob, and restores the key bundle.
+  Future<bool> autoRestore() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return false;
 
     try {
-      final encrypted = base64Decode(blobBase64);
-      final salt = base64Decode(saltBase64);
+      // Fetch server secret
+      final serverSecret = await _getServerSecret(uid);
+      if (serverSecret == null) return false;
 
-      // Derive key from passphrase
+      // Download encrypted blob
+      final callable = _functions.httpsCallable('getKeyBackup');
+      final result = await callable.call<dynamic>({});
+      final data = result.data as Map<String, dynamic>?;
+      if (data == null || data['encryptedBlob'] == null) return false;
+
+      final encrypted = base64Decode(data['encryptedBlob'] as String);
+
+      // Derive key (uid as salt — same as in autoBackup)
+      final salt = Uint8List.fromList(utf8.encode(uid));
       final derivedKey = await _cryptoService.pbkdf2(
-        passphrase: passphrase,
+        passphrase: serverSecret,
         salt: salt,
       );
 
@@ -122,70 +121,53 @@ class KeyBackupService {
       final bundleJson =
           jsonDecode(utf8.decode(plaintext)) as Map<String, dynamic>;
       final bundle = KeyBundle.fromJson(bundleJson);
-
       await _keyManagementService.storePrivateKeys(bundle);
       await _keyManagementService.uploadKeyBundle(bundle);
 
-      // Cache passphrase for future auto-backups
+      // Cache locally
       await _secureStorage.write(
-        key: _backupPassphraseKey,
-        value: passphrase,
+        key: _backupBlobKey,
+        value: data['encryptedBlob'] as String,
       );
 
       return true;
-    } catch (_) {
-      // Wrong passphrase or corrupted backup
+    } catch (e) {
+      debugPrint('E2EE autoRestore failed: $e');
       return false;
     }
   }
 
-  /// Check whether an encrypted backup exists.
-  Future<bool> hasBackup() async {
-    final metadata = await getBackupMetadata();
-    return metadata?.backupExists ?? false;
+  /// Get or create the per-user server secret used for backup encryption.
+  Future<String> _getOrCreateServerSecret(String uid) async {
+    // Try reading existing secret
+    final existing = await _getServerSecret(uid);
+    if (existing != null) return existing;
+
+    // Generate and store new secret
+    final secret = base64Encode(_cryptoService.randomBytes(32));
+    try {
+      final callable = _functions.httpsCallable('saveBackupSecret');
+      await callable.call<dynamic>({'secret': secret});
+      return secret;
+    } on FirebaseFunctionsException catch (e) {
+      // Race condition: another device created it first — read theirs
+      if (e.code == 'already-exists') {
+        final retry = await _getServerSecret(uid);
+        if (retry != null) return retry;
+      }
+      rethrow;
+    }
   }
 
-  /// Fetch metadata about the user's backup.
-  ///
-  /// Returns `null` if no backup exists.
-  Future<BackupMetadata?> getBackupMetadata() async {
+  /// Read the per-user server secret from the server.
+  Future<String?> _getServerSecret(String uid) async {
     try {
-      final callable = _functions.httpsCallable('getBackupMetadata');
+      final callable = _functions.httpsCallable('getBackupSecret');
       final result = await callable.call<dynamic>({});
       final data = result.data as Map<String, dynamic>?;
-      if (data == null) return null;
-
-      return BackupMetadata(
-        backupExists: data['backupExists'] as bool? ?? false,
-        lastBackupAt: data['lastBackupAt'] != null
-            ? DateTime.parse(data['lastBackupAt'] as String)
-            : null,
-        backupVersion: data['backupVersion'] as int?,
-        userId: data['userId'] as String? ?? '',
-      );
+      return data?['secret'] as String?;
     } catch (_) {
       return null;
     }
-  }
-
-  /// Automatically create or update the backup if conditions are met
-  /// (e.g., keys have changed since last backup, or backup is stale).
-  Future<void> autoBackupIfNeeded() async {
-    // Check for cached passphrase
-    final passphrase =
-        await _secureStorage.read(key: _backupPassphraseKey);
-    if (passphrase == null) return; // No passphrase cached, skip
-
-    // Check staleness
-    final timestampStr =
-        await _secureStorage.read(key: _backupTimestampKey);
-    if (timestampStr != null) {
-      final lastBackup = DateTime.parse(timestampStr);
-      final daysSince = DateTime.now().difference(lastBackup).inDays;
-      if (daysSince < _backupStaleDays) return; // Still fresh
-    }
-
-    // Create backup
-    await createBackup(passphrase);
   }
 }

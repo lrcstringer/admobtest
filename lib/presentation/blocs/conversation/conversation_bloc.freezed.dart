@@ -19,7 +19,6 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$ConversationEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -31,7 +30,6 @@ mixin _$ConversationEvent {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -94,14 +92,12 @@ mixin _$ConversationEvent {
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -155,14 +151,12 @@ mixin _$ConversationEvent {
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -217,14 +211,12 @@ mixin _$ConversationEvent {
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -249,13 +241,11 @@ mixin _$ConversationEvent {
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -280,13 +270,11 @@ mixin _$ConversationEvent {
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -334,373 +322,6 @@ class _$ConversationEventCopyWithImpl<$Res, $Val extends ConversationEvent>
 }
 
 /// @nodoc
-abstract class _$$LoadConversationsImplCopyWith<$Res> {
-  factory _$$LoadConversationsImplCopyWith(
-    _$LoadConversationsImpl value,
-    $Res Function(_$LoadConversationsImpl) then,
-  ) = __$$LoadConversationsImplCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$$LoadConversationsImplCopyWithImpl<$Res>
-    extends _$ConversationEventCopyWithImpl<$Res, _$LoadConversationsImpl>
-    implements _$$LoadConversationsImplCopyWith<$Res> {
-  __$$LoadConversationsImplCopyWithImpl(
-    _$LoadConversationsImpl _value,
-    $Res Function(_$LoadConversationsImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of ConversationEvent
-  /// with the given fields replaced by the non-null parameter values.
-}
-
-/// @nodoc
-
-class _$LoadConversationsImpl implements _LoadConversations {
-  const _$LoadConversationsImpl();
-
-  @override
-  String toString() {
-    return 'ConversationEvent.loadConversations()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$LoadConversationsImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
-    required TResult Function() watchConversations,
-    required TResult Function(List<Conversation> conversations)
-    conversationsUpdated,
-    required TResult Function(String id) selectConversation,
-    required TResult Function(String participantId) getOrCreateConversation,
-    required TResult Function(
-      String conversationId,
-      int? limit,
-      DateTime? before,
-    )
-    loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
-    required TResult Function(List<Message> messages) messagesUpdated,
-    required TResult Function(
-      String conversationId,
-      String text,
-      String? replyToMessageId,
-    )
-    sendTextMessage,
-    required TResult Function(
-      String conversationId,
-      File mediaFile,
-      String mediaType,
-      String recipientId,
-      String? caption,
-      int? durationSeconds,
-    )
-    sendMediaMessage,
-    required TResult Function(
-      String conversationId,
-      String recipientId,
-      int amount,
-      String? message,
-    )
-    sendTokens,
-    required TResult Function(
-      String conversationId,
-      String recipientId,
-      int amount,
-      String? message,
-    )
-    requestTokens,
-    required TResult Function(String messageId, String conversationId)
-    acceptTokenRequest,
-    required TResult Function(String messageId, String conversationId)
-    declineTokenRequest,
-    required TResult Function(String conversationId) markAsRead,
-    required TResult Function(String conversationId, bool pinned) togglePin,
-    required TResult Function(String conversationId, bool muted) toggleMute,
-    required TResult Function(String conversationId) archiveConversation,
-    required TResult Function(
-      String conversationId,
-      String messageId,
-      String emoji,
-    )
-    addReaction,
-    required TResult Function(
-      String conversationId,
-      String messageId,
-      String emoji,
-    )
-    removeReaction,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function(String conversationId, String messageId)
-    deleteMessageForEveryone,
-    required TResult Function(String conversationId) clearChat,
-    required TResult Function(String conversationId, String messageId)
-    retryMessage,
-    required TResult Function(String query) searchUsers,
-    required TResult Function() clearSearch,
-    required TResult Function() clearError,
-  }) {
-    return loadConversations();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
-    TResult? Function()? watchConversations,
-    TResult? Function(List<Conversation> conversations)? conversationsUpdated,
-    TResult? Function(String id)? selectConversation,
-    TResult? Function(String participantId)? getOrCreateConversation,
-    TResult? Function(String conversationId, int? limit, DateTime? before)?
-    loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
-    TResult? Function(List<Message> messages)? messagesUpdated,
-    TResult? Function(
-      String conversationId,
-      String text,
-      String? replyToMessageId,
-    )?
-    sendTextMessage,
-    TResult? Function(
-      String conversationId,
-      File mediaFile,
-      String mediaType,
-      String recipientId,
-      String? caption,
-      int? durationSeconds,
-    )?
-    sendMediaMessage,
-    TResult? Function(
-      String conversationId,
-      String recipientId,
-      int amount,
-      String? message,
-    )?
-    sendTokens,
-    TResult? Function(
-      String conversationId,
-      String recipientId,
-      int amount,
-      String? message,
-    )?
-    requestTokens,
-    TResult? Function(String messageId, String conversationId)?
-    acceptTokenRequest,
-    TResult? Function(String messageId, String conversationId)?
-    declineTokenRequest,
-    TResult? Function(String conversationId)? markAsRead,
-    TResult? Function(String conversationId, bool pinned)? togglePin,
-    TResult? Function(String conversationId, bool muted)? toggleMute,
-    TResult? Function(String conversationId)? archiveConversation,
-    TResult? Function(String conversationId, String messageId, String emoji)?
-    addReaction,
-    TResult? Function(String conversationId, String messageId, String emoji)?
-    removeReaction,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function(String conversationId, String messageId)?
-    deleteMessageForEveryone,
-    TResult? Function(String conversationId)? clearChat,
-    TResult? Function(String conversationId, String messageId)? retryMessage,
-    TResult? Function(String query)? searchUsers,
-    TResult? Function()? clearSearch,
-    TResult? Function()? clearError,
-  }) {
-    return loadConversations?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
-    TResult Function()? watchConversations,
-    TResult Function(List<Conversation> conversations)? conversationsUpdated,
-    TResult Function(String id)? selectConversation,
-    TResult Function(String participantId)? getOrCreateConversation,
-    TResult Function(String conversationId, int? limit, DateTime? before)?
-    loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
-    TResult Function(List<Message> messages)? messagesUpdated,
-    TResult Function(
-      String conversationId,
-      String text,
-      String? replyToMessageId,
-    )?
-    sendTextMessage,
-    TResult Function(
-      String conversationId,
-      File mediaFile,
-      String mediaType,
-      String recipientId,
-      String? caption,
-      int? durationSeconds,
-    )?
-    sendMediaMessage,
-    TResult Function(
-      String conversationId,
-      String recipientId,
-      int amount,
-      String? message,
-    )?
-    sendTokens,
-    TResult Function(
-      String conversationId,
-      String recipientId,
-      int amount,
-      String? message,
-    )?
-    requestTokens,
-    TResult Function(String messageId, String conversationId)?
-    acceptTokenRequest,
-    TResult Function(String messageId, String conversationId)?
-    declineTokenRequest,
-    TResult Function(String conversationId)? markAsRead,
-    TResult Function(String conversationId, bool pinned)? togglePin,
-    TResult Function(String conversationId, bool muted)? toggleMute,
-    TResult Function(String conversationId)? archiveConversation,
-    TResult Function(String conversationId, String messageId, String emoji)?
-    addReaction,
-    TResult Function(String conversationId, String messageId, String emoji)?
-    removeReaction,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function(String conversationId, String messageId)?
-    deleteMessageForEveryone,
-    TResult Function(String conversationId)? clearChat,
-    TResult Function(String conversationId, String messageId)? retryMessage,
-    TResult Function(String query)? searchUsers,
-    TResult Function()? clearSearch,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (loadConversations != null) {
-      return loadConversations();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
-    required TResult Function(_WatchConversations value) watchConversations,
-    required TResult Function(_ConversationsUpdated value) conversationsUpdated,
-    required TResult Function(_SelectConversation value) selectConversation,
-    required TResult Function(_GetOrCreateConversation value)
-    getOrCreateConversation,
-    required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
-    required TResult Function(_MessagesUpdated value) messagesUpdated,
-    required TResult Function(_SendTextMessage value) sendTextMessage,
-    required TResult Function(_SendMediaMessage value) sendMediaMessage,
-    required TResult Function(_SendTokens value) sendTokens,
-    required TResult Function(_RequestTokens value) requestTokens,
-    required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
-    required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
-    required TResult Function(_MarkAsRead value) markAsRead,
-    required TResult Function(_TogglePin value) togglePin,
-    required TResult Function(_ToggleMute value) toggleMute,
-    required TResult Function(_ArchiveConversation value) archiveConversation,
-    required TResult Function(_AddReaction value) addReaction,
-    required TResult Function(_RemoveReaction value) removeReaction,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_DeleteMessageForEveryone value)
-    deleteMessageForEveryone,
-    required TResult Function(_ClearChat value) clearChat,
-    required TResult Function(_RetryMessage value) retryMessage,
-    required TResult Function(_SearchUsers value) searchUsers,
-    required TResult Function(_ClearSearch value) clearSearch,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return loadConversations(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
-    TResult? Function(_WatchConversations value)? watchConversations,
-    TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
-    TResult? Function(_SelectConversation value)? selectConversation,
-    TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
-    TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
-    TResult? Function(_MessagesUpdated value)? messagesUpdated,
-    TResult? Function(_SendTextMessage value)? sendTextMessage,
-    TResult? Function(_SendMediaMessage value)? sendMediaMessage,
-    TResult? Function(_SendTokens value)? sendTokens,
-    TResult? Function(_RequestTokens value)? requestTokens,
-    TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
-    TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
-    TResult? Function(_MarkAsRead value)? markAsRead,
-    TResult? Function(_TogglePin value)? togglePin,
-    TResult? Function(_ToggleMute value)? toggleMute,
-    TResult? Function(_ArchiveConversation value)? archiveConversation,
-    TResult? Function(_AddReaction value)? addReaction,
-    TResult? Function(_RemoveReaction value)? removeReaction,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_DeleteMessageForEveryone value)?
-    deleteMessageForEveryone,
-    TResult? Function(_ClearChat value)? clearChat,
-    TResult? Function(_RetryMessage value)? retryMessage,
-    TResult? Function(_SearchUsers value)? searchUsers,
-    TResult? Function(_ClearSearch value)? clearSearch,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return loadConversations?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
-    TResult Function(_WatchConversations value)? watchConversations,
-    TResult Function(_ConversationsUpdated value)? conversationsUpdated,
-    TResult Function(_SelectConversation value)? selectConversation,
-    TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
-    TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
-    TResult Function(_MessagesUpdated value)? messagesUpdated,
-    TResult Function(_SendTextMessage value)? sendTextMessage,
-    TResult Function(_SendMediaMessage value)? sendMediaMessage,
-    TResult Function(_SendTokens value)? sendTokens,
-    TResult Function(_RequestTokens value)? requestTokens,
-    TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
-    TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
-    TResult Function(_MarkAsRead value)? markAsRead,
-    TResult Function(_TogglePin value)? togglePin,
-    TResult Function(_ToggleMute value)? toggleMute,
-    TResult Function(_ArchiveConversation value)? archiveConversation,
-    TResult Function(_AddReaction value)? addReaction,
-    TResult Function(_RemoveReaction value)? removeReaction,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
-    TResult Function(_ClearChat value)? clearChat,
-    TResult Function(_RetryMessage value)? retryMessage,
-    TResult Function(_SearchUsers value)? searchUsers,
-    TResult Function(_ClearSearch value)? clearSearch,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (loadConversations != null) {
-      return loadConversations(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _LoadConversations implements ConversationEvent {
-  const factory _LoadConversations() = _$LoadConversationsImpl;
-}
-
-/// @nodoc
 abstract class _$$WatchConversationsImplCopyWith<$Res> {
   factory _$$WatchConversationsImplCopyWith(
     _$WatchConversationsImpl value,
@@ -743,7 +364,6 @@ class _$WatchConversationsImpl implements _WatchConversations {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -755,7 +375,6 @@ class _$WatchConversationsImpl implements _WatchConversations {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -822,14 +441,12 @@ class _$WatchConversationsImpl implements _WatchConversations {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -887,14 +504,12 @@ class _$WatchConversationsImpl implements _WatchConversations {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -956,14 +571,12 @@ class _$WatchConversationsImpl implements _WatchConversations {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -992,13 +605,11 @@ class _$WatchConversationsImpl implements _WatchConversations {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -1027,13 +638,11 @@ class _$WatchConversationsImpl implements _WatchConversations {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -1153,7 +762,6 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -1165,7 +773,6 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -1232,14 +839,12 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -1297,14 +902,12 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -1366,14 +969,12 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -1402,13 +1003,11 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -1437,13 +1036,11 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -1559,7 +1156,6 @@ class _$SelectConversationImpl implements _SelectConversation {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -1571,7 +1167,6 @@ class _$SelectConversationImpl implements _SelectConversation {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -1638,14 +1233,12 @@ class _$SelectConversationImpl implements _SelectConversation {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -1703,14 +1296,12 @@ class _$SelectConversationImpl implements _SelectConversation {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -1772,14 +1363,12 @@ class _$SelectConversationImpl implements _SelectConversation {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -1808,13 +1397,11 @@ class _$SelectConversationImpl implements _SelectConversation {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -1843,13 +1430,11 @@ class _$SelectConversationImpl implements _SelectConversation {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -1965,7 +1550,6 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -1977,7 +1561,6 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -2044,14 +1627,12 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -2109,14 +1690,12 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -2178,14 +1757,12 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -2214,13 +1791,11 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -2249,13 +1824,11 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -2391,7 +1964,6 @@ class _$LoadMessagesImpl implements _LoadMessages {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -2403,7 +1975,6 @@ class _$LoadMessagesImpl implements _LoadMessages {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -2470,14 +2041,12 @@ class _$LoadMessagesImpl implements _LoadMessages {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -2535,14 +2104,12 @@ class _$LoadMessagesImpl implements _LoadMessages {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -2604,14 +2171,12 @@ class _$LoadMessagesImpl implements _LoadMessages {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -2640,13 +2205,11 @@ class _$LoadMessagesImpl implements _LoadMessages {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -2675,13 +2238,11 @@ class _$LoadMessagesImpl implements _LoadMessages {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -2726,420 +2287,6 @@ abstract class _LoadMessages implements ConversationEvent {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$LoadMessagesImplCopyWith<_$LoadMessagesImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$WatchMessagesImplCopyWith<$Res> {
-  factory _$$WatchMessagesImplCopyWith(
-    _$WatchMessagesImpl value,
-    $Res Function(_$WatchMessagesImpl) then,
-  ) = __$$WatchMessagesImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String conversationId, int? limit});
-}
-
-/// @nodoc
-class __$$WatchMessagesImplCopyWithImpl<$Res>
-    extends _$ConversationEventCopyWithImpl<$Res, _$WatchMessagesImpl>
-    implements _$$WatchMessagesImplCopyWith<$Res> {
-  __$$WatchMessagesImplCopyWithImpl(
-    _$WatchMessagesImpl _value,
-    $Res Function(_$WatchMessagesImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of ConversationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? conversationId = null, Object? limit = freezed}) {
-    return _then(
-      _$WatchMessagesImpl(
-        conversationId: null == conversationId
-            ? _value.conversationId
-            : conversationId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        limit: freezed == limit
-            ? _value.limit
-            : limit // ignore: cast_nullable_to_non_nullable
-                  as int?,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$WatchMessagesImpl implements _WatchMessages {
-  const _$WatchMessagesImpl({required this.conversationId, this.limit});
-
-  @override
-  final String conversationId;
-  @override
-  final int? limit;
-
-  @override
-  String toString() {
-    return 'ConversationEvent.watchMessages(conversationId: $conversationId, limit: $limit)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WatchMessagesImpl &&
-            (identical(other.conversationId, conversationId) ||
-                other.conversationId == conversationId) &&
-            (identical(other.limit, limit) || other.limit == limit));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, conversationId, limit);
-
-  /// Create a copy of ConversationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WatchMessagesImplCopyWith<_$WatchMessagesImpl> get copyWith =>
-      __$$WatchMessagesImplCopyWithImpl<_$WatchMessagesImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
-    required TResult Function() watchConversations,
-    required TResult Function(List<Conversation> conversations)
-    conversationsUpdated,
-    required TResult Function(String id) selectConversation,
-    required TResult Function(String participantId) getOrCreateConversation,
-    required TResult Function(
-      String conversationId,
-      int? limit,
-      DateTime? before,
-    )
-    loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
-    required TResult Function(List<Message> messages) messagesUpdated,
-    required TResult Function(
-      String conversationId,
-      String text,
-      String? replyToMessageId,
-    )
-    sendTextMessage,
-    required TResult Function(
-      String conversationId,
-      File mediaFile,
-      String mediaType,
-      String recipientId,
-      String? caption,
-      int? durationSeconds,
-    )
-    sendMediaMessage,
-    required TResult Function(
-      String conversationId,
-      String recipientId,
-      int amount,
-      String? message,
-    )
-    sendTokens,
-    required TResult Function(
-      String conversationId,
-      String recipientId,
-      int amount,
-      String? message,
-    )
-    requestTokens,
-    required TResult Function(String messageId, String conversationId)
-    acceptTokenRequest,
-    required TResult Function(String messageId, String conversationId)
-    declineTokenRequest,
-    required TResult Function(String conversationId) markAsRead,
-    required TResult Function(String conversationId, bool pinned) togglePin,
-    required TResult Function(String conversationId, bool muted) toggleMute,
-    required TResult Function(String conversationId) archiveConversation,
-    required TResult Function(
-      String conversationId,
-      String messageId,
-      String emoji,
-    )
-    addReaction,
-    required TResult Function(
-      String conversationId,
-      String messageId,
-      String emoji,
-    )
-    removeReaction,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function(String conversationId, String messageId)
-    deleteMessageForEveryone,
-    required TResult Function(String conversationId) clearChat,
-    required TResult Function(String conversationId, String messageId)
-    retryMessage,
-    required TResult Function(String query) searchUsers,
-    required TResult Function() clearSearch,
-    required TResult Function() clearError,
-  }) {
-    return watchMessages(conversationId, limit);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
-    TResult? Function()? watchConversations,
-    TResult? Function(List<Conversation> conversations)? conversationsUpdated,
-    TResult? Function(String id)? selectConversation,
-    TResult? Function(String participantId)? getOrCreateConversation,
-    TResult? Function(String conversationId, int? limit, DateTime? before)?
-    loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
-    TResult? Function(List<Message> messages)? messagesUpdated,
-    TResult? Function(
-      String conversationId,
-      String text,
-      String? replyToMessageId,
-    )?
-    sendTextMessage,
-    TResult? Function(
-      String conversationId,
-      File mediaFile,
-      String mediaType,
-      String recipientId,
-      String? caption,
-      int? durationSeconds,
-    )?
-    sendMediaMessage,
-    TResult? Function(
-      String conversationId,
-      String recipientId,
-      int amount,
-      String? message,
-    )?
-    sendTokens,
-    TResult? Function(
-      String conversationId,
-      String recipientId,
-      int amount,
-      String? message,
-    )?
-    requestTokens,
-    TResult? Function(String messageId, String conversationId)?
-    acceptTokenRequest,
-    TResult? Function(String messageId, String conversationId)?
-    declineTokenRequest,
-    TResult? Function(String conversationId)? markAsRead,
-    TResult? Function(String conversationId, bool pinned)? togglePin,
-    TResult? Function(String conversationId, bool muted)? toggleMute,
-    TResult? Function(String conversationId)? archiveConversation,
-    TResult? Function(String conversationId, String messageId, String emoji)?
-    addReaction,
-    TResult? Function(String conversationId, String messageId, String emoji)?
-    removeReaction,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function(String conversationId, String messageId)?
-    deleteMessageForEveryone,
-    TResult? Function(String conversationId)? clearChat,
-    TResult? Function(String conversationId, String messageId)? retryMessage,
-    TResult? Function(String query)? searchUsers,
-    TResult? Function()? clearSearch,
-    TResult? Function()? clearError,
-  }) {
-    return watchMessages?.call(conversationId, limit);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
-    TResult Function()? watchConversations,
-    TResult Function(List<Conversation> conversations)? conversationsUpdated,
-    TResult Function(String id)? selectConversation,
-    TResult Function(String participantId)? getOrCreateConversation,
-    TResult Function(String conversationId, int? limit, DateTime? before)?
-    loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
-    TResult Function(List<Message> messages)? messagesUpdated,
-    TResult Function(
-      String conversationId,
-      String text,
-      String? replyToMessageId,
-    )?
-    sendTextMessage,
-    TResult Function(
-      String conversationId,
-      File mediaFile,
-      String mediaType,
-      String recipientId,
-      String? caption,
-      int? durationSeconds,
-    )?
-    sendMediaMessage,
-    TResult Function(
-      String conversationId,
-      String recipientId,
-      int amount,
-      String? message,
-    )?
-    sendTokens,
-    TResult Function(
-      String conversationId,
-      String recipientId,
-      int amount,
-      String? message,
-    )?
-    requestTokens,
-    TResult Function(String messageId, String conversationId)?
-    acceptTokenRequest,
-    TResult Function(String messageId, String conversationId)?
-    declineTokenRequest,
-    TResult Function(String conversationId)? markAsRead,
-    TResult Function(String conversationId, bool pinned)? togglePin,
-    TResult Function(String conversationId, bool muted)? toggleMute,
-    TResult Function(String conversationId)? archiveConversation,
-    TResult Function(String conversationId, String messageId, String emoji)?
-    addReaction,
-    TResult Function(String conversationId, String messageId, String emoji)?
-    removeReaction,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function(String conversationId, String messageId)?
-    deleteMessageForEveryone,
-    TResult Function(String conversationId)? clearChat,
-    TResult Function(String conversationId, String messageId)? retryMessage,
-    TResult Function(String query)? searchUsers,
-    TResult Function()? clearSearch,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (watchMessages != null) {
-      return watchMessages(conversationId, limit);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
-    required TResult Function(_WatchConversations value) watchConversations,
-    required TResult Function(_ConversationsUpdated value) conversationsUpdated,
-    required TResult Function(_SelectConversation value) selectConversation,
-    required TResult Function(_GetOrCreateConversation value)
-    getOrCreateConversation,
-    required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
-    required TResult Function(_MessagesUpdated value) messagesUpdated,
-    required TResult Function(_SendTextMessage value) sendTextMessage,
-    required TResult Function(_SendMediaMessage value) sendMediaMessage,
-    required TResult Function(_SendTokens value) sendTokens,
-    required TResult Function(_RequestTokens value) requestTokens,
-    required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
-    required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
-    required TResult Function(_MarkAsRead value) markAsRead,
-    required TResult Function(_TogglePin value) togglePin,
-    required TResult Function(_ToggleMute value) toggleMute,
-    required TResult Function(_ArchiveConversation value) archiveConversation,
-    required TResult Function(_AddReaction value) addReaction,
-    required TResult Function(_RemoveReaction value) removeReaction,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_DeleteMessageForEveryone value)
-    deleteMessageForEveryone,
-    required TResult Function(_ClearChat value) clearChat,
-    required TResult Function(_RetryMessage value) retryMessage,
-    required TResult Function(_SearchUsers value) searchUsers,
-    required TResult Function(_ClearSearch value) clearSearch,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return watchMessages(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
-    TResult? Function(_WatchConversations value)? watchConversations,
-    TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
-    TResult? Function(_SelectConversation value)? selectConversation,
-    TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
-    TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
-    TResult? Function(_MessagesUpdated value)? messagesUpdated,
-    TResult? Function(_SendTextMessage value)? sendTextMessage,
-    TResult? Function(_SendMediaMessage value)? sendMediaMessage,
-    TResult? Function(_SendTokens value)? sendTokens,
-    TResult? Function(_RequestTokens value)? requestTokens,
-    TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
-    TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
-    TResult? Function(_MarkAsRead value)? markAsRead,
-    TResult? Function(_TogglePin value)? togglePin,
-    TResult? Function(_ToggleMute value)? toggleMute,
-    TResult? Function(_ArchiveConversation value)? archiveConversation,
-    TResult? Function(_AddReaction value)? addReaction,
-    TResult? Function(_RemoveReaction value)? removeReaction,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_DeleteMessageForEveryone value)?
-    deleteMessageForEveryone,
-    TResult? Function(_ClearChat value)? clearChat,
-    TResult? Function(_RetryMessage value)? retryMessage,
-    TResult? Function(_SearchUsers value)? searchUsers,
-    TResult? Function(_ClearSearch value)? clearSearch,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return watchMessages?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
-    TResult Function(_WatchConversations value)? watchConversations,
-    TResult Function(_ConversationsUpdated value)? conversationsUpdated,
-    TResult Function(_SelectConversation value)? selectConversation,
-    TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
-    TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
-    TResult Function(_MessagesUpdated value)? messagesUpdated,
-    TResult Function(_SendTextMessage value)? sendTextMessage,
-    TResult Function(_SendMediaMessage value)? sendMediaMessage,
-    TResult Function(_SendTokens value)? sendTokens,
-    TResult Function(_RequestTokens value)? requestTokens,
-    TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
-    TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
-    TResult Function(_MarkAsRead value)? markAsRead,
-    TResult Function(_TogglePin value)? togglePin,
-    TResult Function(_ToggleMute value)? toggleMute,
-    TResult Function(_ArchiveConversation value)? archiveConversation,
-    TResult Function(_AddReaction value)? addReaction,
-    TResult Function(_RemoveReaction value)? removeReaction,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
-    TResult Function(_ClearChat value)? clearChat,
-    TResult Function(_RetryMessage value)? retryMessage,
-    TResult Function(_SearchUsers value)? searchUsers,
-    TResult Function(_ClearSearch value)? clearSearch,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (watchMessages != null) {
-      return watchMessages(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _WatchMessages implements ConversationEvent {
-  const factory _WatchMessages({
-    required final String conversationId,
-    final int? limit,
-  }) = _$WatchMessagesImpl;
-
-  String get conversationId;
-  int? get limit;
-
-  /// Create a copy of ConversationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$WatchMessagesImplCopyWith<_$WatchMessagesImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -3223,7 +2370,6 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -3235,7 +2381,6 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -3302,14 +2447,12 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -3367,14 +2510,12 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -3436,14 +2577,12 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -3472,13 +2611,11 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -3507,13 +2644,11 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -3654,7 +2789,6 @@ class _$SendTextMessageImpl implements _SendTextMessage {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -3666,7 +2800,6 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -3733,14 +2866,12 @@ class _$SendTextMessageImpl implements _SendTextMessage {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -3798,14 +2929,12 @@ class _$SendTextMessageImpl implements _SendTextMessage {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -3867,14 +2996,12 @@ class _$SendTextMessageImpl implements _SendTextMessage {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -3903,13 +3030,11 @@ class _$SendTextMessageImpl implements _SendTextMessage {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -3938,13 +3063,11 @@ class _$SendTextMessageImpl implements _SendTextMessage {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -4134,7 +3257,6 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -4146,7 +3268,6 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -4220,14 +3341,12 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -4292,14 +3411,12 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -4368,14 +3485,12 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -4404,13 +3519,11 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -4439,13 +3552,11 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -4608,7 +3719,6 @@ class _$SendTokensImpl implements _SendTokens {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -4620,7 +3730,6 @@ class _$SendTokensImpl implements _SendTokens {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -4687,14 +3796,12 @@ class _$SendTokensImpl implements _SendTokens {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -4752,14 +3859,12 @@ class _$SendTokensImpl implements _SendTokens {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -4821,14 +3926,12 @@ class _$SendTokensImpl implements _SendTokens {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -4857,13 +3960,11 @@ class _$SendTokensImpl implements _SendTokens {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -4892,13 +3993,11 @@ class _$SendTokensImpl implements _SendTokens {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -5057,7 +4156,6 @@ class _$RequestTokensImpl implements _RequestTokens {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -5069,7 +4167,6 @@ class _$RequestTokensImpl implements _RequestTokens {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -5136,14 +4233,12 @@ class _$RequestTokensImpl implements _RequestTokens {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -5201,14 +4296,12 @@ class _$RequestTokensImpl implements _RequestTokens {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -5270,14 +4363,12 @@ class _$RequestTokensImpl implements _RequestTokens {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -5306,13 +4397,11 @@ class _$RequestTokensImpl implements _RequestTokens {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -5341,13 +4430,11 @@ class _$RequestTokensImpl implements _RequestTokens {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -5482,7 +4569,6 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -5494,7 +4580,6 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -5561,14 +4646,12 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -5626,14 +4709,12 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -5695,14 +4776,12 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -5731,13 +4810,11 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -5766,13 +4843,11 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -5903,7 +4978,6 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -5915,7 +4989,6 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -5982,14 +5055,12 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -6047,14 +5118,12 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -6116,14 +5185,12 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -6152,13 +5219,11 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -6187,13 +5252,11 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -6310,7 +5373,6 @@ class _$MarkAsReadImpl implements _MarkAsRead {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -6322,7 +5384,6 @@ class _$MarkAsReadImpl implements _MarkAsRead {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -6389,14 +5450,12 @@ class _$MarkAsReadImpl implements _MarkAsRead {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -6454,14 +5513,12 @@ class _$MarkAsReadImpl implements _MarkAsRead {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -6523,14 +5580,12 @@ class _$MarkAsReadImpl implements _MarkAsRead {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -6559,13 +5614,11 @@ class _$MarkAsReadImpl implements _MarkAsRead {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -6594,13 +5647,11 @@ class _$MarkAsReadImpl implements _MarkAsRead {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -6720,7 +5771,6 @@ class _$TogglePinImpl implements _TogglePin {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -6732,7 +5782,6 @@ class _$TogglePinImpl implements _TogglePin {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -6799,14 +5848,12 @@ class _$TogglePinImpl implements _TogglePin {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -6864,14 +5911,12 @@ class _$TogglePinImpl implements _TogglePin {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -6933,14 +5978,12 @@ class _$TogglePinImpl implements _TogglePin {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -6969,13 +6012,11 @@ class _$TogglePinImpl implements _TogglePin {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -7004,13 +6045,11 @@ class _$TogglePinImpl implements _TogglePin {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -7134,7 +6173,6 @@ class _$ToggleMuteImpl implements _ToggleMute {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -7146,7 +6184,6 @@ class _$ToggleMuteImpl implements _ToggleMute {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -7213,14 +6250,12 @@ class _$ToggleMuteImpl implements _ToggleMute {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -7278,14 +6313,12 @@ class _$ToggleMuteImpl implements _ToggleMute {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -7347,14 +6380,12 @@ class _$ToggleMuteImpl implements _ToggleMute {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -7383,13 +6414,11 @@ class _$ToggleMuteImpl implements _ToggleMute {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -7418,13 +6447,11 @@ class _$ToggleMuteImpl implements _ToggleMute {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -7544,7 +6571,6 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -7556,7 +6582,6 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -7623,14 +6648,12 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -7688,14 +6711,12 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -7757,14 +6778,12 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -7793,13 +6812,11 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -7828,13 +6845,11 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -7972,7 +6987,6 @@ class _$AddReactionImpl implements _AddReaction {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -7984,7 +6998,6 @@ class _$AddReactionImpl implements _AddReaction {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -8051,14 +7064,12 @@ class _$AddReactionImpl implements _AddReaction {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -8116,14 +7127,12 @@ class _$AddReactionImpl implements _AddReaction {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -8185,14 +7194,12 @@ class _$AddReactionImpl implements _AddReaction {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -8221,13 +7228,11 @@ class _$AddReactionImpl implements _AddReaction {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -8256,13 +7261,11 @@ class _$AddReactionImpl implements _AddReaction {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -8408,7 +7411,6 @@ class _$RemoveReactionImpl implements _RemoveReaction {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -8420,7 +7422,6 @@ class _$RemoveReactionImpl implements _RemoveReaction {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -8487,14 +7488,12 @@ class _$RemoveReactionImpl implements _RemoveReaction {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -8552,14 +7551,12 @@ class _$RemoveReactionImpl implements _RemoveReaction {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -8621,14 +7618,12 @@ class _$RemoveReactionImpl implements _RemoveReaction {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -8657,13 +7652,11 @@ class _$RemoveReactionImpl implements _RemoveReaction {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -8692,13 +7685,11 @@ class _$RemoveReactionImpl implements _RemoveReaction {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -8819,7 +7810,6 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -8831,7 +7821,6 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -8898,14 +7887,12 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -8963,14 +7950,12 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -9032,14 +8017,12 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -9068,13 +8051,11 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -9103,13 +8084,11 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -9237,7 +8216,6 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -9249,7 +8227,6 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -9316,14 +8293,12 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -9381,14 +8356,12 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -9450,14 +8423,12 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -9486,13 +8457,11 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -9521,13 +8490,11 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -9644,7 +8611,6 @@ class _$ClearChatImpl implements _ClearChat {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -9656,7 +8622,6 @@ class _$ClearChatImpl implements _ClearChat {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -9723,14 +8688,12 @@ class _$ClearChatImpl implements _ClearChat {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -9788,14 +8751,12 @@ class _$ClearChatImpl implements _ClearChat {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -9857,14 +8818,12 @@ class _$ClearChatImpl implements _ClearChat {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -9893,13 +8852,11 @@ class _$ClearChatImpl implements _ClearChat {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -9928,13 +8885,11 @@ class _$ClearChatImpl implements _ClearChat {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -10058,7 +9013,6 @@ class _$RetryMessageImpl implements _RetryMessage {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -10070,7 +9024,6 @@ class _$RetryMessageImpl implements _RetryMessage {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -10137,14 +9090,12 @@ class _$RetryMessageImpl implements _RetryMessage {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -10202,14 +9153,12 @@ class _$RetryMessageImpl implements _RetryMessage {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -10271,14 +9220,12 @@ class _$RetryMessageImpl implements _RetryMessage {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -10307,13 +9254,11 @@ class _$RetryMessageImpl implements _RetryMessage {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -10342,13 +9287,11 @@ class _$RetryMessageImpl implements _RetryMessage {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -10464,7 +9407,6 @@ class _$SearchUsersImpl implements _SearchUsers {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -10476,7 +9418,6 @@ class _$SearchUsersImpl implements _SearchUsers {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -10543,14 +9484,12 @@ class _$SearchUsersImpl implements _SearchUsers {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -10608,14 +9547,12 @@ class _$SearchUsersImpl implements _SearchUsers {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -10677,14 +9614,12 @@ class _$SearchUsersImpl implements _SearchUsers {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -10713,13 +9648,11 @@ class _$SearchUsersImpl implements _SearchUsers {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -10748,13 +9681,11 @@ class _$SearchUsersImpl implements _SearchUsers {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -10839,7 +9770,6 @@ class _$ClearSearchImpl implements _ClearSearch {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -10851,7 +9781,6 @@ class _$ClearSearchImpl implements _ClearSearch {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -10918,14 +9847,12 @@ class _$ClearSearchImpl implements _ClearSearch {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -10983,14 +9910,12 @@ class _$ClearSearchImpl implements _ClearSearch {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -11052,14 +9977,12 @@ class _$ClearSearchImpl implements _ClearSearch {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -11088,13 +10011,11 @@ class _$ClearSearchImpl implements _ClearSearch {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -11123,13 +10044,11 @@ class _$ClearSearchImpl implements _ClearSearch {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
@@ -11206,7 +10125,6 @@ class _$ClearErrorImpl implements _ClearError {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function() loadConversations,
     required TResult Function() watchConversations,
     required TResult Function(List<Conversation> conversations)
     conversationsUpdated,
@@ -11218,7 +10136,6 @@ class _$ClearErrorImpl implements _ClearError {
       DateTime? before,
     )
     loadMessages,
-    required TResult Function(String conversationId, int? limit) watchMessages,
     required TResult Function(List<Message> messages) messagesUpdated,
     required TResult Function(
       String conversationId,
@@ -11285,14 +10202,12 @@ class _$ClearErrorImpl implements _ClearError {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadConversations,
     TResult? Function()? watchConversations,
     TResult? Function(List<Conversation> conversations)? conversationsUpdated,
     TResult? Function(String id)? selectConversation,
     TResult? Function(String participantId)? getOrCreateConversation,
     TResult? Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult? Function(String conversationId, int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(
       String conversationId,
@@ -11350,14 +10265,12 @@ class _$ClearErrorImpl implements _ClearError {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadConversations,
     TResult Function()? watchConversations,
     TResult Function(List<Conversation> conversations)? conversationsUpdated,
     TResult Function(String id)? selectConversation,
     TResult Function(String participantId)? getOrCreateConversation,
     TResult Function(String conversationId, int? limit, DateTime? before)?
     loadMessages,
-    TResult Function(String conversationId, int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(
       String conversationId,
@@ -11419,14 +10332,12 @@ class _$ClearErrorImpl implements _ClearError {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_LoadConversations value) loadConversations,
     required TResult Function(_WatchConversations value) watchConversations,
     required TResult Function(_ConversationsUpdated value) conversationsUpdated,
     required TResult Function(_SelectConversation value) selectConversation,
     required TResult Function(_GetOrCreateConversation value)
     getOrCreateConversation,
     required TResult Function(_LoadMessages value) loadMessages,
-    required TResult Function(_WatchMessages value) watchMessages,
     required TResult Function(_MessagesUpdated value) messagesUpdated,
     required TResult Function(_SendTextMessage value) sendTextMessage,
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
@@ -11455,13 +10366,11 @@ class _$ClearErrorImpl implements _ClearError {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadConversations value)? loadConversations,
     TResult? Function(_WatchConversations value)? watchConversations,
     TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult? Function(_SelectConversation value)? selectConversation,
     TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult? Function(_LoadMessages value)? loadMessages,
-    TResult? Function(_WatchMessages value)? watchMessages,
     TResult? Function(_MessagesUpdated value)? messagesUpdated,
     TResult? Function(_SendTextMessage value)? sendTextMessage,
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
@@ -11490,13 +10399,11 @@ class _$ClearErrorImpl implements _ClearError {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadConversations value)? loadConversations,
     TResult Function(_WatchConversations value)? watchConversations,
     TResult Function(_ConversationsUpdated value)? conversationsUpdated,
     TResult Function(_SelectConversation value)? selectConversation,
     TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
     TResult Function(_LoadMessages value)? loadMessages,
-    TResult Function(_WatchMessages value)? watchMessages,
     TResult Function(_MessagesUpdated value)? messagesUpdated,
     TResult Function(_SendTextMessage value)? sendTextMessage,
     TResult Function(_SendMediaMessage value)? sendMediaMessage,

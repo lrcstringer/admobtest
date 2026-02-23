@@ -143,16 +143,34 @@ class MessageSyncService {
     final currentUserId = _remoteDataSource.currentUserId;
     if (currentUserId == null) return;
 
+    // Load chatClearedAt once for the batch to avoid per-message DB reads
+    DateTime? chatClearedAt;
+    final localConv = await _appDatabase.getLocalConversation(conversationId);
+    if (localConv != null) {
+      chatClearedAt = _parseChatClearedAt(localConv.chatClearedAtJson, currentUserId);
+    }
+
     for (final model in messageModels) {
       try {
         final msg = model.toEntity();
 
+        // Skip messages that predate this user's chatClearedAt
+        if (chatClearedAt != null && msg.createdAt.isBefore(chatClearedAt)) {
+          continue;
+        }
+
         // Check if already stored and decrypted
         final existing = await _appDatabase.getLocalMessageById(msg.id);
         if (existing != null && existing.isDecrypted) {
-          // Already processed — check if status/reactions changed
+          // Already processed — check if any mutable field changed
+          final deletedForChanged =
+              existing.deletedForJson != jsonEncode(msg.deletedFor);
+          final deletedForEveryoneChanged =
+              existing.deletedForEveryone != msg.deletedForEveryone;
           if (existing.status != msg.status.name ||
-              existing.reactionsJson != _encodeReactions(msg.reactions)) {
+              existing.reactionsJson != _encodeReactions(msg.reactions) ||
+              deletedForChanged ||
+              deletedForEveryoneChanged) {
             // Update mutable fields without re-decrypting
             await _appDatabase.upsertLocalMessage(
               LocalMessageMapper.toCompanion(
@@ -407,6 +425,17 @@ class MessageSyncService {
     if (reactions.isEmpty) return null;
     try {
       return reactions.toString();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Parse the chatClearedAt timestamp for a specific user from the JSON string.
+  DateTime? _parseChatClearedAt(String json, String userId) {
+    try {
+      final map = jsonDecode(json) as Map<String, dynamic>;
+      final value = map[userId] as String?;
+      return value != null ? DateTime.parse(value) : null;
     } catch (_) {
       return null;
     }

@@ -6,10 +6,7 @@ class ConversationEvent with _$ConversationEvent {
   // CONVERSATION LIST
   // =========================================================================
 
-  /// Load all conversations (one-shot)
-  const factory ConversationEvent.loadConversations() = _LoadConversations;
-
-  /// Watch conversations for real-time inbox updates
+  /// Load conversations from local DB, then watch for real-time inbox updates
   const factory ConversationEvent.watchConversations() = _WatchConversations;
 
   /// Conversations updated from stream
@@ -40,12 +37,6 @@ class ConversationEvent with _$ConversationEvent {
     int? limit,
     DateTime? before,
   }) = _LoadMessages;
-
-  /// Watch messages for real-time updates
-  const factory ConversationEvent.watchMessages({
-    required String conversationId,
-    int? limit,
-  }) = _WatchMessages;
 
   /// Messages updated from stream
   const factory ConversationEvent.messagesUpdated(

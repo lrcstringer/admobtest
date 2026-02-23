@@ -4,6 +4,7 @@ library;
 import 'dart:convert';
 
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imalichat/core/services/crypto_service.dart';
@@ -78,6 +79,10 @@ class InMemorySecureStorage extends Mock implements FlutterSecureStorage {
 
 class MockFirebaseFunctions extends Mock implements FirebaseFunctions {}
 
+class MockFirebaseAuth extends Mock implements FirebaseAuth {}
+
+class MockUser extends Mock implements User {}
+
 class MockHttpsCallable extends Mock implements HttpsCallable {}
 
 class MockHttpsCallableResult extends Mock
@@ -93,42 +98,116 @@ void main() {
   late KeyManagementService keyMgmt;
   late KeyBackupService backupService;
   late MockFirebaseFunctions mockFunctions;
+  late MockFirebaseAuth mockAuth;
+  late MockUser mockUser;
   late MockHttpsCallable mockCallable;
   late MockHttpsCallableResult mockResult;
+
+  /// Simulated server-side secret (base64-encoded 32 random bytes).
+  final serverSecretB64 = base64Encode(List.generate(32, (i) => i + 42));
 
   setUp(() {
     crypto = CryptoService();
     storage = InMemorySecureStorage();
     mockFunctions = MockFirebaseFunctions();
+    mockAuth = MockFirebaseAuth();
+    mockUser = MockUser();
     mockCallable = MockHttpsCallable();
     mockResult = MockHttpsCallableResult();
 
-    // Wire mock functions — saveBackupMetadata is called during createBackup
-    when(() => mockFunctions.httpsCallable('saveBackupMetadata'))
-        .thenReturn(mockCallable);
+    // Auth stubs
+    when(() => mockAuth.currentUser).thenReturn(mockUser);
+    when(() => mockUser.uid).thenReturn('test-user-123');
+
+    // Default: all httpsCallable calls go through the same mock callable
+    when(() => mockFunctions.httpsCallable(any())).thenReturn(mockCallable);
     when(() => mockCallable.call<dynamic>(any()))
         .thenAnswer((_) async => mockResult);
 
-    // Wire mock functions — uploadKeyBundle is called during restoreFromBackup
+    // Wire mock functions — uploadKeyBundle is called during autoRestore
     when(() => mockFunctions.httpsCallable('uploadKeyBundle'))
         .thenReturn(mockCallable);
 
     keyMgmt = KeyManagementService(crypto, storage, mockFunctions);
-    backupService = KeyBackupService(keyMgmt, crypto, mockFunctions, storage);
+    backupService = KeyBackupService(
+      keyMgmt,
+      crypto,
+      mockFunctions,
+      storage,
+      mockAuth,
+    );
   });
 
-  group('E2EE Backup & Restore Integration', () {
-    test('Backup -> restore with correct passphrase -> keys match', () async {
+  group('E2EE Auto Backup & Restore Integration', () {
+    test('autoBackup → autoRestore with server secret → keys match', () async {
       // Generate a real key bundle and store it
       final originalBundle = await keyMgmt.generateKeyBundle();
       await keyMgmt.storePrivateKeys(originalBundle);
 
-      // Create backup with passphrase
-      await backupService.createBackup('my-strong-passphrase');
+      // Track which function is called to return appropriate data
+      final callablesByName = <String, MockHttpsCallable>{};
+      for (final name in [
+        'getBackupSecret',
+        'saveBackupSecret',
+        'saveKeyBackup',
+        'getKeyBackup',
+      ]) {
+        final callable = MockHttpsCallable();
+        callablesByName[name] = callable;
+        when(() => mockFunctions.httpsCallable(name)).thenReturn(callable);
+      }
 
-      // Verify backup blob was stored
+      // Capture the actual secret generated during backup
+      String? capturedSecret;
+      var getSecretCallCount = 0;
+
+      // getBackupSecret: first call returns null (no secret), subsequent calls return captured
+      when(() => callablesByName['getBackupSecret']!.call<dynamic>(any()))
+          .thenAnswer((_) async {
+        getSecretCallCount++;
+        final result = MockHttpsCallableResult();
+        if (getSecretCallCount <= 1) {
+          when(() => result.data)
+              .thenReturn(<String, dynamic>{'secret': null});
+        } else {
+          when(() => result.data)
+              .thenReturn(<String, dynamic>{'secret': capturedSecret});
+        }
+        return result;
+      });
+
+      // saveBackupSecret: capture the actual generated secret
+      when(() => callablesByName['saveBackupSecret']!.call<dynamic>(any()))
+          .thenAnswer((invocation) async {
+        final args = invocation.positionalArguments.first as Map;
+        capturedSecret = args['secret'] as String;
+        final result = MockHttpsCallableResult();
+        when(() => result.data)
+            .thenReturn(<String, dynamic>{'success': true});
+        return result;
+      });
+
+      // saveKeyBackup: succeeds
+      when(() => callablesByName['saveKeyBackup']!.call<dynamic>(any()))
+          .thenAnswer((_) async {
+        final result = MockHttpsCallableResult();
+        when(() => result.data)
+            .thenReturn(<String, dynamic>{'success': true});
+        return result;
+      });
+
+      // Create backup
+      await backupService.autoBackup();
+
+      // Verify the secret was captured
+      expect(capturedSecret, isNotNull);
+
+      // Verify backup blob was stored locally
       expect(storage.store.containsKey('e2ee_backup_blob'), isTrue);
-      expect(storage.store.containsKey('e2ee_backup_salt'), isTrue);
+      expect(storage.store.containsKey('e2ee_backup_timestamp'), isTrue);
+
+      // Save the backup blob for restore
+      final backupBlob = storage.store['e2ee_backup_blob']!;
 
       // Clear the key material from storage (simulate device wipe)
       storage.store.remove('e2ee_identity_key');
@@ -140,9 +219,20 @@ void main() {
       // Verify keys are wiped
       expect(await keyMgmt.loadPrivateKeys(), isNull);
 
-      // Restore from backup with the correct passphrase
-      final success =
-          await backupService.restoreFromBackup('my-strong-passphrase');
+      // Mock restore: getBackupSecret returns the captured secret, getKeyBackup returns blob
+      getSecretCallCount = 10; // Force it to return the captured secret
+      when(() => callablesByName['getKeyBackup']!.call<dynamic>(any()))
+          .thenAnswer((_) async {
+        final result = MockHttpsCallableResult();
+        when(() => result.data).thenReturn(<String, dynamic>{
+          'backupExists': true,
+          'encryptedBlob': backupBlob,
+        });
+        return result;
+      });
+
+      // Restore from backup
+      final success = await backupService.autoRestore();
       expect(success, isTrue);
 
       // Load restored keys and verify they match original
@@ -159,120 +249,143 @@ void main() {
           equals(originalBundle.oneTimePreKeys.length));
     });
 
-    test('Wrong passphrase -> returns false', () async {
-      final originalBundle = await keyMgmt.generateKeyBundle();
-      await keyMgmt.storePrivateKeys(originalBundle);
+    test('autoRestore returns false when no backup exists on server', () async {
+      final callablesByName = <String, MockHttpsCallable>{};
+      for (final name in ['getBackupSecret', 'getKeyBackup']) {
+        final callable = MockHttpsCallable();
+        callablesByName[name] = callable;
+        when(() => mockFunctions.httpsCallable(name)).thenReturn(callable);
+      }
 
-      // Create backup
-      await backupService.createBackup('correct-passphrase');
+      when(() => callablesByName['getBackupSecret']!.call<dynamic>(any()))
+          .thenAnswer((_) async {
+        final result = MockHttpsCallableResult();
+        when(() => result.data)
+            .thenReturn(<String, dynamic>{'secret': serverSecretB64});
+        return result;
+      });
 
-      // Attempt restore with wrong passphrase
-      final success =
-          await backupService.restoreFromBackup('wrong-passphrase');
+      when(() => callablesByName['getKeyBackup']!.call<dynamic>(any()))
+          .thenAnswer((_) async {
+        final result = MockHttpsCallableResult();
+        when(() => result.data)
+            .thenReturn(<String, dynamic>{'backupExists': false});
+        return result;
+      });
+
+      final success = await backupService.autoRestore();
       expect(success, isFalse);
     });
 
-    test('Backup includes identity, signed pre-key, and OTKs', () async {
+    test('autoRestore returns false when no server secret exists', () async {
+      final callable = MockHttpsCallable();
+      when(() => mockFunctions.httpsCallable('getBackupSecret'))
+          .thenReturn(callable);
+      when(() => callable.call<dynamic>(any())).thenAnswer((_) async {
+        final result = MockHttpsCallableResult();
+        when(() => result.data)
+            .thenReturn(<String, dynamic>{'secret': null});
+        return result;
+      });
+
+      final success = await backupService.autoRestore();
+      expect(success, isFalse);
+    });
+
+    test('autoRestore returns false on corrupted blob', () async {
+      final callablesByName = <String, MockHttpsCallable>{};
+      for (final name in ['getBackupSecret', 'getKeyBackup']) {
+        final callable = MockHttpsCallable();
+        callablesByName[name] = callable;
+        when(() => mockFunctions.httpsCallable(name)).thenReturn(callable);
+      }
+
+      when(() => callablesByName['getBackupSecret']!.call<dynamic>(any()))
+          .thenAnswer((_) async {
+        final result = MockHttpsCallableResult();
+        when(() => result.data)
+            .thenReturn(<String, dynamic>{'secret': serverSecretB64});
+        return result;
+      });
+
+      when(() => callablesByName['getKeyBackup']!.call<dynamic>(any()))
+          .thenAnswer((_) async {
+        final result = MockHttpsCallableResult();
+        when(() => result.data).thenReturn(<String, dynamic>{
+          'backupExists': true,
+          'encryptedBlob': base64Encode([1, 2, 3, 4, 5]),
+        });
+        return result;
+      });
+
+      final success = await backupService.autoRestore();
+      expect(success, isFalse);
+    });
+
+    test('Backup blob contains encrypted data (not plaintext)', () async {
       final originalBundle = await keyMgmt.generateKeyBundle();
       await keyMgmt.storePrivateKeys(originalBundle);
 
-      await backupService.createBackup('test-passphrase');
+      // Set up mock to return server secret
+      final callablesByName = <String, MockHttpsCallable>{};
+      for (final name in [
+        'getBackupSecret',
+        'saveBackupSecret',
+        'saveKeyBackup',
+      ]) {
+        final callable = MockHttpsCallable();
+        callablesByName[name] = callable;
+        when(() => mockFunctions.httpsCallable(name)).thenReturn(callable);
+      }
+
+      var getSecretCalls = 0;
+      when(() => callablesByName['getBackupSecret']!.call<dynamic>(any()))
+          .thenAnswer((_) async {
+        getSecretCalls++;
+        final result = MockHttpsCallableResult();
+        if (getSecretCalls <= 1) {
+          when(() => result.data)
+              .thenReturn(<String, dynamic>{'secret': null});
+        } else {
+          when(() => result.data)
+              .thenReturn(<String, dynamic>{'secret': serverSecretB64});
+        }
+        return result;
+      });
+
+      when(() => callablesByName['saveBackupSecret']!.call<dynamic>(any()))
+          .thenAnswer((_) async {
+        final result = MockHttpsCallableResult();
+        when(() => result.data)
+            .thenReturn(<String, dynamic>{'success': true});
+        return result;
+      });
+
+      when(() => callablesByName['saveKeyBackup']!.call<dynamic>(any()))
+          .thenAnswer((_) async {
+        final result = MockHttpsCallableResult();
+        when(() => result.data)
+            .thenReturn(<String, dynamic>{'success': true});
+        return result;
+      });
+
+      await backupService.autoBackup();
 
       // The backup blob should be encrypted, so we can't read it directly.
-      // But we can verify it was stored and is non-empty base64.
       final blobBase64 = storage.store['e2ee_backup_blob']!;
-      final saltBase64 = storage.store['e2ee_backup_salt']!;
-
       expect(blobBase64.isNotEmpty, isTrue);
-      expect(saltBase64.isNotEmpty, isTrue);
 
       // Decode blob — it should be: nonce(12) + ciphertext + mac(16)
       final blob = base64Decode(blobBase64);
       // Minimum size: 12 (nonce) + 1 (min ciphertext) + 16 (mac) = 29
       expect(blob.length, greaterThan(28));
-
-      // Verify by restoring and checking all fields are present
-      final success =
-          await backupService.restoreFromBackup('test-passphrase');
-      expect(success, isTrue);
-
-      final restored = await keyMgmt.loadPrivateKeys();
-      expect(restored, isNotNull);
-      // Identity key pair should contain private|public
-      expect(restored!.identityKeyPair.contains('|'), isTrue);
-      // Signed pre-key should contain private|public
-      expect(restored.signedPreKey.contains('|'), isTrue);
-      // OTKs should be present (10 by default from generateKeyBundle)
-      expect(restored.oneTimePreKeys.length, equals(10));
     });
 
-    test('After restore, keys match original exactly', () async {
-      final originalBundle = await keyMgmt.generateKeyBundle();
-      await keyMgmt.storePrivateKeys(originalBundle);
+    test('autoRestore returns false when user is not authenticated', () async {
+      when(() => mockAuth.currentUser).thenReturn(null);
 
-      await backupService.createBackup('exact-match-test');
-
-      // Wipe keys
-      storage.store.remove('e2ee_identity_key');
-      storage.store.remove('e2ee_signed_pre_key');
-      storage.store.remove('e2ee_signed_pre_key_sig');
-      storage.store.remove('e2ee_one_time_pre_keys');
-      storage.store.remove('e2ee_registration_id');
-
-      await backupService.restoreFromBackup('exact-match-test');
-
-      final restored = await keyMgmt.loadPrivateKeys();
-      expect(restored, isNotNull);
-
-      // Compare every field
-      expect(
-          restored!.identityKeyPair, equals(originalBundle.identityKeyPair));
-      expect(restored.signedPreKey, equals(originalBundle.signedPreKey));
-      expect(restored.signedPreKeySignature,
-          equals(originalBundle.signedPreKeySignature));
-      expect(restored.registrationId,
-          equals(originalBundle.registrationId));
-      for (var i = 0; i < originalBundle.oneTimePreKeys.length; i++) {
-        expect(
-            restored.oneTimePreKeys[i], equals(originalBundle.oneTimePreKeys[i]));
-      }
-    });
-
-    test('Auto-backup triggers when passphrase cached and backup is stale',
-        () async {
-      final originalBundle = await keyMgmt.generateKeyBundle();
-      await keyMgmt.storePrivateKeys(originalBundle);
-
-      // Cache passphrase and set a stale timestamp (8 days ago)
-      storage.store['e2ee_backup_passphrase'] = 'auto-backup-pass';
-      final staleDatetime =
-          DateTime.now().subtract(const Duration(days: 8)).toIso8601String();
-      storage.store['e2ee_backup_timestamp'] = staleDatetime;
-
-      // Call autoBackupIfNeeded — should create a backup since it's stale
-      await backupService.autoBackupIfNeeded();
-
-      // Verify backup was created (blob should exist)
-      expect(storage.store.containsKey('e2ee_backup_blob'), isTrue);
-
-      // Verify the timestamp was updated to something more recent
-      final newTimestamp = storage.store['e2ee_backup_timestamp']!;
-      final newDate = DateTime.parse(newTimestamp);
-      expect(newDate.isAfter(DateTime.parse(staleDatetime)), isTrue);
-    });
-
-    test('No backup when no passphrase cached', () async {
-      final originalBundle = await keyMgmt.generateKeyBundle();
-      await keyMgmt.storePrivateKeys(originalBundle);
-
-      // Ensure no passphrase is cached
-      expect(storage.store.containsKey('e2ee_backup_passphrase'), isFalse);
-
-      // Call autoBackupIfNeeded — should do nothing
-      await backupService.autoBackupIfNeeded();
-
-      // No backup blob should be created
-      expect(storage.store.containsKey('e2ee_backup_blob'), isFalse);
+      final success = await backupService.autoRestore();
+      expect(success, isFalse);
     });
   });
 }

@@ -40,9 +40,6 @@ class _MessagingScreenState extends State<MessagingScreen> {
     super.initState();
     context
         .read<ConversationBloc>()
-        .add(const ConversationEvent.loadConversations());
-    context
-        .read<ConversationBloc>()
         .add(const ConversationEvent.watchConversations());
     context
         .read<CommunityBloc>()
@@ -243,7 +240,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
       onRefresh: () async {
         context
             .read<ConversationBloc>()
-            .add(const ConversationEvent.loadConversations());
+            .add(const ConversationEvent.watchConversations());
         context
             .read<CommunityBloc>()
             .add(const CommunityEvent.loadUserCommunities());

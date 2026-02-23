@@ -10,6 +10,8 @@ import '../../../core/error/failures.dart';
 import '../../../core/security/device_binding_service.dart';
 import '../../../core/services/biometric_login_service.dart';
 import '../../../core/services/fcm_challenge_handler.dart';
+import '../../../core/di/injection.dart';
+import '../../../core/services/key_backup_service.dart';
 import '../../../core/services/key_management_service.dart';
 import '../../../core/services/message_sync_service.dart';
 import '../../../core/services/offline_action_queue.dart';
@@ -633,19 +635,34 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         // Replenish OTKs if running low
         await _keyManagementService.replenishOneTimePreKeysIfNeeded();
       } else {
-        debugPrint('E2EE INIT: No existing keys — generating fresh bundle');
-        final bundle = await _keyManagementService.generateKeyBundle();
-        await _keyManagementService.storePrivateKeys(bundle);
-        await _uploadUntilConfirmed(
-          () => _keyManagementService.uploadKeyBundle(bundle),
-        );
-        uploadConfirmed = true;
-        debugPrint('E2EE INIT: Fresh bundle uploaded — '
-            '${bundle.oneTimePreKeys.length} OTKs, '
-            'identity=${bundle.identityKeyPair.split("|")[1].substring(0, 8)}…');
-        for (var i = 0; i < bundle.oneTimePreKeys.length; i++) {
-          final pub = bundle.oneTimePreKeys[i].split('|')[1];
-          debugPrint('E2EE INIT: OTK[$i] = ${pub.substring(0, 12)}…');
+        // No local keys — try automatic restore from server backup first
+        debugPrint('E2EE INIT: No local keys — attempting auto-restore from backup');
+        final backupService = getIt<KeyBackupService>();
+        final restored = await backupService.autoRestore();
+        if (restored) {
+          debugPrint('E2EE INIT: Auto-restore SUCCESS — keys recovered from backup');
+          final restoredBundle = await _keyManagementService.loadPrivateKeys();
+          if (restoredBundle != null) {
+            // Generate fresh OTKs (backup OTKs may have been consumed since backup)
+            await _keyManagementService.replenishOneTimePreKeysIfNeeded();
+            uploadConfirmed = true;
+          }
+          // NOTE: no retryUndecryptedMessages() needed here — local DB is empty on
+          // fresh install. startSync() will decrypt messages with the restored keys.
+        }
+
+        if (!uploadConfirmed) {
+          // No backup found or restore failed — generate fresh keys
+          debugPrint('E2EE INIT: No backup found — generating fresh bundle');
+          final bundle = await _keyManagementService.generateKeyBundle();
+          await _keyManagementService.storePrivateKeys(bundle);
+          await _uploadUntilConfirmed(
+            () => _keyManagementService.uploadKeyBundle(bundle),
+          );
+          uploadConfirmed = true;
+          debugPrint('E2EE INIT: Fresh bundle uploaded — '
+              '${bundle.oneTimePreKeys.length} OTKs, '
+              'identity=${bundle.identityKeyPair.split("|")[1].substring(0, 8)}…');
         }
       }
     } catch (e) {
@@ -658,6 +675,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       debugPrint('E2EE INIT: Bundle upload confirmed — starting message sync');
       _messageSyncService.startSync();
       _offlineActionQueue.startListening();
+      // Auto-backup keys to server (don't block startup)
+      getIt<KeyBackupService>().autoBackup().catchError((e) {
+        debugPrint('E2EE auto-backup failed: $e');
+        return; // Swallow error — backup is best-effort
+      });
     } else {
       debugPrint('E2EE INIT: Bundle upload NOT confirmed — '
           'message sync will NOT start until keys are on the server');

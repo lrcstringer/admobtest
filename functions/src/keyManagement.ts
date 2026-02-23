@@ -229,59 +229,116 @@ export const rotateSignedPreKey = onCall(
 );
 
 /**
- * Save encrypted key backup metadata.
+ * Save an encrypted key backup (blob + metadata).
+ * Replaces old saveBackupMetadata — now stores the actual encrypted blob.
  */
-export const saveBackupMetadata = onCall(
+export const saveKeyBackup = onCall(
   { labels: { area: "auth" } },
   async (request) => {
-    const data = request.data as { backupVersion: number; encryptedKeysHash: string };
+    const data = request.data as { backupVersion: number; encryptedBlob: string };
     const userId = requireAuth(request);
-    requireAppCheck(request, "saveBackupMetadata");
+    requireAppCheck(request, "saveKeyBackup");
 
-    await db
-      .collection("users")
-      .doc(userId)
-      .collection("keys")
-      .doc("backup")
-      .set({
-        userId,
-        backupExists: true,
-        backupVersion: data.backupVersion || 1,
-        encryptedKeysHash: data.encryptedKeysHash || null,
-        lastBackupAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+    const { backupVersion, encryptedBlob } = data;
+
+    if (!encryptedBlob || typeof encryptedBlob !== "string") {
+      throw new HttpsError("invalid-argument", "encryptedBlob required");
+    }
+    if (encryptedBlob.length > 50000) {
+      throw new HttpsError("invalid-argument", "Backup too large");
+    }
+
+    await db.collection("users").doc(userId).collection("keys").doc("backup").set({
+      userId,
+      backupExists: true,
+      backupVersion: backupVersion || 1,
+      encryptedBlob,
+      lastBackupAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
     return { success: true };
   }
 );
 
 /**
- * Get backup metadata for the current user.
+ * Get the encrypted key backup for the current user.
+ * Returns the encrypted blob so the client can decrypt locally.
  */
-export const getBackupMetadata = onCall(
+export const getKeyBackup = onCall(
   { labels: { area: "auth" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "getBackupMetadata");
+    requireAppCheck(request, "getKeyBackup");
 
-    const backupDoc = await db
-      .collection("users")
-      .doc(userId)
-      .collection("keys")
-      .doc("backup")
-      .get();
-
-    if (!backupDoc.exists) {
+    const doc = await db.collection("users").doc(userId).collection("keys").doc("backup").get();
+    if (!doc.exists || !doc.data()?.encryptedBlob) {
       return { backupExists: false };
     }
 
-    const backup = backupDoc.data()!;
+    const backupData = doc.data()!;
     return {
-      backupExists: backup.backupExists || false,
-      backupVersion: backup.backupVersion || 0,
-      lastBackupAt: backup.lastBackupAt || null,
+      backupExists: true,
+      encryptedBlob: backupData.encryptedBlob,
+      backupVersion: backupData.backupVersion,
+      lastBackupAt: backupData.lastBackupAt,
     };
+  }
+);
+
+/**
+ * Save the per-user backup secret (write-once).
+ * This secret is used to derive the encryption key for the key backup.
+ * Only allows creating, not overwriting — prevents an attacker from
+ * replacing the secret to decrypt a future backup.
+ */
+export const saveBackupSecret = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    const data = request.data as { secret: string };
+    const userId = requireAuth(request);
+    requireAppCheck(request, "saveBackupSecret");
+
+    const { secret } = data;
+
+    if (!secret || typeof secret !== "string") {
+      throw new HttpsError("invalid-argument", "secret required");
+    }
+
+    // Only allow creating, not overwriting
+    const existing = await db.collection("users").doc(userId)
+      .collection("keys").doc("backupSecret").get();
+    if (existing.exists) {
+      throw new HttpsError("already-exists", "Backup secret already exists");
+    }
+
+    await db.collection("users").doc(userId).collection("keys").doc("backupSecret").set({
+      userId,
+      secret,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return { success: true };
+  }
+);
+
+/**
+ * Get the per-user backup secret.
+ * Used by the client to derive the key for decrypting the key backup.
+ */
+export const getBackupSecret = onCall(
+  { labels: { area: "auth" } },
+  async (request) => {
+    const userId = requireAuth(request);
+    requireAppCheck(request, "getBackupSecret");
+
+    const doc = await db.collection("users").doc(userId)
+      .collection("keys").doc("backupSecret").get();
+    if (!doc.exists) {
+      return { secret: null };
+    }
+
+    return { secret: doc.data()!.secret };
   }
 );
 

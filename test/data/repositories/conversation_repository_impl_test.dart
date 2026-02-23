@@ -112,6 +112,34 @@ LocalFullMessage _createLocalFullMessage({
   );
 }
 
+/// Creates a LocalFullConversation row for testing getConversations()
+LocalFullConversation _createLocalFullConversation({
+  String id = _conversationId,
+  String type = 'p2p',
+  String? lastMessageText = 'Hello!',
+}) {
+  return LocalFullConversation(
+    id: id,
+    type: type,
+    participantIdsJson: '["$_userId","$_recipientId"]',
+    participantsJson:
+        '{"$_userId":{"displayName":"Alice"},"$_recipientId":{"displayName":"Bob"}}',
+    lastMessageId: 'msg_1',
+    lastMessageText: lastMessageText,
+    lastMessageSenderId: _userId,
+    lastMessageSenderName: 'Alice',
+    lastMessageType: 'text',
+    lastMessageAt: DateTime(2024, 6, 1, 12, 0),
+    unreadCountsJson: '{"$_userId":0,"$_recipientId":1}',
+    archivedJson: '{}',
+    pinnedJson: '{}',
+    mutedJson: '{}',
+    chatClearedAtJson: '{}',
+    createdAt: DateTime(2024, 6, 1),
+    updatedAt: null,
+  );
+}
+
 // ==================== TESTS ====================
 
 void main() {
@@ -144,6 +172,9 @@ void main() {
     when(() => mockAppDatabase.cacheDecryptedPlaintext(any(), any()))
         .thenAnswer((_) async {});
     when(() => mockAppDatabase.getDecryptedPlaintext(any()))
+        .thenAnswer((_) async => null);
+    // Stub getLocalConversation to return null by default (Firestore fallback)
+    when(() => mockAppDatabase.getLocalConversation(any()))
         .thenAnswer((_) async => null);
     // Stub local DB operations for optimistic insert/delete
     when(() => mockAppDatabase.upsertLocalMessage(any()))
@@ -436,6 +467,54 @@ void main() {
   });
 
   // ===========================================================================
+  // getConversations — reads from local DB (offline-first)
+  // ===========================================================================
+
+  group('getConversations', () {
+    test('reads conversations from local DB and returns entities', () async {
+      when(() => mockAppDatabase.getLocalConversations())
+          .thenAnswer((_) async => [
+                _createLocalFullConversation(id: 'conv_1'),
+                _createLocalFullConversation(id: 'conv_2'),
+              ]);
+
+      final result = await repository.getConversations();
+
+      expect(result.isRight(), isTrue);
+      result.fold(
+        (_) => fail('Expected Right'),
+        (conversations) {
+          expect(conversations.length, 2);
+          expect(conversations[0].id, 'conv_1');
+          expect(conversations[1].id, 'conv_2');
+        },
+      );
+    });
+
+    test('returns empty list when no local conversations', () async {
+      when(() => mockAppDatabase.getLocalConversations())
+          .thenAnswer((_) async => []);
+
+      final result = await repository.getConversations();
+
+      expect(result.isRight(), isTrue);
+      result.fold(
+        (_) => fail('Expected Right'),
+        (conversations) => expect(conversations.isEmpty, isTrue),
+      );
+    });
+
+    test('returns Left on database error', () async {
+      when(() => mockAppDatabase.getLocalConversations())
+          .thenThrow(Exception('DB error'));
+
+      final result = await repository.getConversations();
+
+      expect(result.isLeft(), isTrue);
+    });
+  });
+
+  // ===========================================================================
   // getMessages — now reads from local DB (pre-decrypted by MessageSyncService)
   // ===========================================================================
 
@@ -580,7 +659,28 @@ void main() {
   });
 
   group('getConversationById', () {
-    test('delegates to datasource and returns entity', () async {
+    test('returns from local DB when found (offline-first)', () async {
+      final localRow = _createLocalFullConversation();
+      when(() => mockAppDatabase.getLocalConversation(_conversationId))
+          .thenAnswer((_) async => localRow);
+
+      final result = await repository.getConversationById(_conversationId);
+
+      expect(result.isRight(), isTrue);
+      result.fold(
+        (_) => fail('Expected Right'),
+        (conv) {
+          expect(conv.id, _conversationId);
+          expect(conv.participantIds, [_userId, _recipientId]);
+        },
+      );
+      // Firestore should NOT be called when local DB has the data
+      verifyNever(() => mockDataSource.getConversationById(any()));
+    });
+
+    test('falls back to Firestore when not in local DB', () async {
+      when(() => mockAppDatabase.getLocalConversation(_conversationId))
+          .thenAnswer((_) async => null);
       final model = _createConversationModel();
       when(() => mockDataSource.getConversationById(_conversationId))
           .thenAnswer((_) async => model);
@@ -595,9 +695,16 @@ void main() {
           expect(conv.participantIds, [_userId, _recipientId]);
         },
       );
+      verify(() => mockAppDatabase.getLocalConversation(_conversationId))
+          .called(1);
+      verify(() => mockDataSource.getConversationById(_conversationId))
+          .called(1);
     });
 
-    test('returns Left(serverError) when conversation not found', () async {
+    test('returns Left(serverError) when neither local DB nor Firestore has it',
+        () async {
+      when(() => mockAppDatabase.getLocalConversation('not_found'))
+          .thenAnswer((_) async => null);
       when(() => mockDataSource.getConversationById('not_found'))
           .thenAnswer((_) async => null);
 

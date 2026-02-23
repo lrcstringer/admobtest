@@ -107,7 +107,6 @@ import '../screens/settings/about_screen.dart';
 import '../screens/settings/help_support_screen.dart';
 import '../screens/settings/kyc_verification_screen.dart';
 import '../screens/settings/notification_settings_screen.dart';
-import '../screens/settings/key_backup_screen.dart';
 import '../screens/settings/security_settings_screen.dart';
 import '../screens/settings/settings_screen.dart';
 
@@ -482,12 +481,6 @@ class AppRouter {
                         name: 'securitySettings',
                         builder: (context, state) =>
                             const SecuritySettingsScreen(),
-                      ),
-                      GoRoute(
-                        path: 'key-backup',
-                        name: 'keyBackup',
-                        builder: (context, state) =>
-                            const KeyBackupScreen(),
                       ),
                       GoRoute(
                         path: 'help',

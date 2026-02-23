@@ -242,6 +242,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i59.FirebaseAuth>(),
       ),
     );
+    gh.lazySingleton<_i946.KeyBackupService>(
+      () => _i946.KeyBackupService(
+        gh<_i418.KeyManagementService>(),
+        gh<_i1024.CryptoService>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i59.FirebaseAuth>(),
+      ),
+    );
     gh.lazySingleton<_i474.ShareService>(
       () => _i474.ShareService(gh<_i59.FirebaseAuth>()),
     );
@@ -276,14 +285,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i558.FlutterSecureStorage>(),
         gh<_i988.AuditLogger>(),
         gh<_i809.FirebaseFunctions>(),
-      ),
-    );
-    gh.lazySingleton<_i946.KeyBackupService>(
-      () => _i946.KeyBackupService(
-        gh<_i418.KeyManagementService>(),
-        gh<_i1024.CryptoService>(),
-        gh<_i809.FirebaseFunctions>(),
-        gh<_i558.FlutterSecureStorage>(),
       ),
     );
     gh.lazySingleton<_i351.PlayIntegrityService>(

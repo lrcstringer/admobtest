@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:imalichat/core/error/failures.dart';
-import 'package:imalichat/domain/entities/message.dart';
 import 'package:imalichat/domain/enums/message_status.dart';
 import 'package:imalichat/domain/repositories/conversation_repository.dart';
 import 'package:imalichat/presentation/blocs/conversation/conversation_bloc.dart';
@@ -41,10 +40,6 @@ void main() {
         .thenAnswer((_) => const Stream.empty());
     when(() => mockConversationRepository.watchTotalUnreadCount())
         .thenAnswer((_) => const Stream.empty());
-    when(() => mockConversationRepository.watchMessages(
-          conversationId: any(named: 'conversationId'),
-          limit: any(named: 'limit'),
-        )).thenAnswer((_) => const Stream.empty());
   });
 
   group('ConversationBloc - E2EE Message Handling', () {
@@ -289,49 +284,6 @@ void main() {
                 MessageStatus.failed,
               )
               .having((s) => s.errorMessage, 'errorMessage', isNotNull),
-        ],
-      );
-    });
-
-    // =========================================================================
-    // watchMessages
-    // =========================================================================
-
-    group('watchMessages', () {
-      blocTest<ConversationBloc, ConversationState>(
-        'emits decrypted messages from stream via messagesUpdated',
-        build: () {
-          final streamController =
-              StreamController<Either<Failure, List<Message>>>();
-          when(() => mockConversationRepository.watchMessages(
-                conversationId: any(named: 'conversationId'),
-                limit: any(named: 'limit'),
-              )).thenAnswer((_) => streamController.stream);
-
-          // Emit messages after a short delay
-          Future.delayed(const Duration(milliseconds: 50), () {
-            streamController
-                .add(Right([plaintextMessage, decryptionFailedMessage]));
-          });
-
-          return ConversationBloc(mockConversationRepository);
-        },
-        act: (bloc) async {
-          bloc.add(const ConversationEvent.watchMessages(
-            conversationId: 'conv_abc',
-          ));
-          // Wait for stream event to propagate
-          await Future.delayed(const Duration(milliseconds: 150));
-        },
-        expect: () => [
-          // messagesUpdated event triggers this state
-          isA<ConversationState>()
-              .having((s) => s.messages.length, 'messages.length', 2)
-              .having(
-                (s) => s.messages.any((m) => m.textContent == '[Cannot decrypt]'),
-                'has decrypt-failed',
-                true,
-              ),
         ],
       );
     });
