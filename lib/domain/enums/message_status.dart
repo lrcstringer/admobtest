@@ -6,6 +6,12 @@ enum MessageStatus {
   /// Message delivered to server
   sent,
 
+  /// Message delivered to recipient device
+  delivered,
+
+  /// Message read by recipient
+  read,
+
   /// Token request awaiting recipient action
   pending,
 

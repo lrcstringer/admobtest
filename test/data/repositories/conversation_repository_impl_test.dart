@@ -109,6 +109,8 @@ LocalFullMessage _createLocalFullMessage({
     expiresAt: null,
     actionedAt: null,
     deletedAt: null,
+    readByJson: '{}',
+    forwardedFromJson: null,
   );
 }
 

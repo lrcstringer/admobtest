@@ -61,6 +61,11 @@ dependencies:
   shimmer: ^3.0.0
   lottie: ^3.2.0
   video_player: ^2.9.2
+  photo_view: ^0.15.0
+
+  # Audio (voice messages)
+  record: ^5.1.2
+  just_audio: ^0.9.40
 
   # Forms & Validation
   reactive_forms: ^17.0.1

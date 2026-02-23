@@ -192,4 +192,40 @@ abstract class ConversationRepository {
 
   /// Watch total unread count in real-time (for tab badge)
   Stream<Either<Failure, int>> watchTotalUnreadCount();
+
+  // =========================================================================
+  // TYPING INDICATORS
+  // =========================================================================
+
+  /// Set typing state for current user in a conversation
+  Future<Either<Failure, void>> setTyping({
+    required String conversationId,
+    required bool isTyping,
+  });
+
+  /// Watch typing state of other participants
+  Stream<Map<String, bool>> watchTypingState({
+    required String conversationId,
+  });
+
+  // =========================================================================
+  // MESSAGE SEARCH
+  // =========================================================================
+
+  /// Search messages in a conversation by text content (local DB only)
+  Future<Either<Failure, List<Message>>> searchMessages({
+    required String conversationId,
+    required String query,
+  });
+
+  // =========================================================================
+  // MESSAGE FORWARDING
+  // =========================================================================
+
+  /// Forward a message to another conversation
+  Future<Either<Failure, String>> forwardMessage({
+    required String sourceConversationId,
+    required String sourceMessageId,
+    required String targetConversationId,
+  });
 }

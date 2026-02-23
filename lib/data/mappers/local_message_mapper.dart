@@ -47,6 +47,14 @@ class LocalMessageMapper {
       deletedForJson: Value(jsonEncode(msg.deletedFor)),
       deletedForEveryone: Value(msg.deletedForEveryone),
       isDecrypted: Value(isDecrypted),
+      readByJson: Value(jsonEncode(
+        msg.readBy.map((k, v) => MapEntry(k, v.toIso8601String())),
+      )),
+      forwardedFromJson: Value(
+        msg.forwardedFrom != null
+            ? jsonEncode(msg.forwardedFrom!.toJson())
+            : null,
+      ),
     );
   }
 
@@ -77,6 +85,8 @@ class LocalMessageMapper {
       deletedAt: row.deletedAt,
       deletedFor: _parseDeletedFor(row.deletedForJson),
       deletedForEveryone: row.deletedForEveryone,
+      readBy: _parseReadBy(row.readByJson),
+      forwardedFrom: _parseForwardedFrom(row.forwardedFromJson),
     );
   }
 
@@ -175,6 +185,31 @@ class LocalMessageMapper {
       return List<String>.from(jsonDecode(json) as List);
     } catch (_) {
       return [];
+    }
+  }
+
+  static Map<String, DateTime> _parseReadBy(String json) {
+    try {
+      final decoded = jsonDecode(json) as Map<String, dynamic>;
+      return decoded.map(
+        (k, v) => MapEntry(k, DateTime.parse(v as String)),
+      );
+    } catch (_) {
+      return {};
+    }
+  }
+
+  static ForwardedFrom? _parseForwardedFrom(String? json) {
+    if (json == null) return null;
+    try {
+      final map = jsonDecode(json) as Map<String, dynamic>;
+      return ForwardedFrom(
+        messageId: map['messageId'] as String? ?? '',
+        conversationId: map['conversationId'] as String? ?? '',
+        senderName: map['senderName'] as String? ?? 'Unknown',
+      );
+    } catch (_) {
+      return null;
     }
   }
 }

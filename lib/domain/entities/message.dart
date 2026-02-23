@@ -82,6 +82,19 @@ class TokenSprayMessageData with _$TokenSprayMessageData {
       _$TokenSprayMessageDataFromJson(json);
 }
 
+/// Metadata for forwarded messages
+@freezed
+class ForwardedFrom with _$ForwardedFrom {
+  const factory ForwardedFrom({
+    required String messageId,
+    required String conversationId,
+    required String senderName,
+  }) = _ForwardedFrom;
+
+  factory ForwardedFrom.fromJson(Map<String, dynamic> json) =>
+      _$ForwardedFromFromJson(json);
+}
+
 /// E2EE metadata attached to encrypted messages
 @freezed
 class E2eeMetadata with _$E2eeMetadata {
@@ -141,6 +154,10 @@ class Message with _$Message {
     @Default({}) Map<String, List<String>> reactions,
     MessageReply? replyTo,
 
+    // Read receipts & forwarding
+    @Default({}) Map<String, DateTime> readBy,
+    ForwardedFrom? forwardedFrom,
+
     // Gift & spray embedded data
     GiftMessageData? gift,
     TokenSprayMessageData? tokenSpray,
@@ -182,6 +199,14 @@ class Message with _$Message {
   bool get isEncrypted => ciphertext != null;
 
   bool get hasMedia => media != null;
+  bool get isForwarded => forwardedFrom != null;
+
+  /// Whether this message has been read by a specific user
+  bool isReadBy(String userId) => readBy.containsKey(userId);
+
+  /// Whether all non-sender participants have read this message
+  bool isReadByAll(List<String> participantIds) =>
+      participantIds.where((id) => id != senderId).every(readBy.containsKey);
 
   bool get isExpired =>
       expiresAt != null && DateTime.now().isAfter(expiresAt!);

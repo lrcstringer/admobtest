@@ -1253,6 +1253,205 @@ abstract class _TokenSprayMessageData implements TokenSprayMessageData {
   get copyWith => throw _privateConstructorUsedError;
 }
 
+ForwardedFrom _$ForwardedFromFromJson(Map<String, dynamic> json) {
+  return _ForwardedFrom.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ForwardedFrom {
+  String get messageId => throw _privateConstructorUsedError;
+  String get conversationId => throw _privateConstructorUsedError;
+  String get senderName => throw _privateConstructorUsedError;
+
+  /// Serializes this ForwardedFrom to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ForwardedFrom
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ForwardedFromCopyWith<ForwardedFrom> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ForwardedFromCopyWith<$Res> {
+  factory $ForwardedFromCopyWith(
+    ForwardedFrom value,
+    $Res Function(ForwardedFrom) then,
+  ) = _$ForwardedFromCopyWithImpl<$Res, ForwardedFrom>;
+  @useResult
+  $Res call({String messageId, String conversationId, String senderName});
+}
+
+/// @nodoc
+class _$ForwardedFromCopyWithImpl<$Res, $Val extends ForwardedFrom>
+    implements $ForwardedFromCopyWith<$Res> {
+  _$ForwardedFromCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ForwardedFrom
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? messageId = null,
+    Object? conversationId = null,
+    Object? senderName = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            messageId: null == messageId
+                ? _value.messageId
+                : messageId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            conversationId: null == conversationId
+                ? _value.conversationId
+                : conversationId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            senderName: null == senderName
+                ? _value.senderName
+                : senderName // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$ForwardedFromImplCopyWith<$Res>
+    implements $ForwardedFromCopyWith<$Res> {
+  factory _$$ForwardedFromImplCopyWith(
+    _$ForwardedFromImpl value,
+    $Res Function(_$ForwardedFromImpl) then,
+  ) = __$$ForwardedFromImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String messageId, String conversationId, String senderName});
+}
+
+/// @nodoc
+class __$$ForwardedFromImplCopyWithImpl<$Res>
+    extends _$ForwardedFromCopyWithImpl<$Res, _$ForwardedFromImpl>
+    implements _$$ForwardedFromImplCopyWith<$Res> {
+  __$$ForwardedFromImplCopyWithImpl(
+    _$ForwardedFromImpl _value,
+    $Res Function(_$ForwardedFromImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ForwardedFrom
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? messageId = null,
+    Object? conversationId = null,
+    Object? senderName = null,
+  }) {
+    return _then(
+      _$ForwardedFromImpl(
+        messageId: null == messageId
+            ? _value.messageId
+            : messageId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        conversationId: null == conversationId
+            ? _value.conversationId
+            : conversationId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        senderName: null == senderName
+            ? _value.senderName
+            : senderName // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ForwardedFromImpl implements _ForwardedFrom {
+  const _$ForwardedFromImpl({
+    required this.messageId,
+    required this.conversationId,
+    required this.senderName,
+  });
+
+  factory _$ForwardedFromImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ForwardedFromImplFromJson(json);
+
+  @override
+  final String messageId;
+  @override
+  final String conversationId;
+  @override
+  final String senderName;
+
+  @override
+  String toString() {
+    return 'ForwardedFrom(messageId: $messageId, conversationId: $conversationId, senderName: $senderName)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ForwardedFromImpl &&
+            (identical(other.messageId, messageId) ||
+                other.messageId == messageId) &&
+            (identical(other.conversationId, conversationId) ||
+                other.conversationId == conversationId) &&
+            (identical(other.senderName, senderName) ||
+                other.senderName == senderName));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, messageId, conversationId, senderName);
+
+  /// Create a copy of ForwardedFrom
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ForwardedFromImplCopyWith<_$ForwardedFromImpl> get copyWith =>
+      __$$ForwardedFromImplCopyWithImpl<_$ForwardedFromImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ForwardedFromImplToJson(this);
+  }
+}
+
+abstract class _ForwardedFrom implements ForwardedFrom {
+  const factory _ForwardedFrom({
+    required final String messageId,
+    required final String conversationId,
+    required final String senderName,
+  }) = _$ForwardedFromImpl;
+
+  factory _ForwardedFrom.fromJson(Map<String, dynamic> json) =
+      _$ForwardedFromImpl.fromJson;
+
+  @override
+  String get messageId;
+  @override
+  String get conversationId;
+  @override
+  String get senderName;
+
+  /// Create a copy of ForwardedFrom
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ForwardedFromImplCopyWith<_$ForwardedFromImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 E2eeMetadata _$E2eeMetadataFromJson(Map<String, dynamic> json) {
   return _E2eeMetadata.fromJson(json);
 }
@@ -1739,6 +1938,9 @@ mixin _$Message {
   MessageMedia? get media => throw _privateConstructorUsedError; // Interactions
   Map<String, List<String>> get reactions => throw _privateConstructorUsedError;
   MessageReply? get replyTo =>
+      throw _privateConstructorUsedError; // Read receipts & forwarding
+  Map<String, DateTime> get readBy => throw _privateConstructorUsedError;
+  ForwardedFrom? get forwardedFrom =>
       throw _privateConstructorUsedError; // Gift & spray embedded data
   GiftMessageData? get gift => throw _privateConstructorUsedError;
   TokenSprayMessageData? get tokenSpray =>
@@ -1786,6 +1988,8 @@ abstract class $MessageCopyWith<$Res> {
     MessageMedia? media,
     Map<String, List<String>> reactions,
     MessageReply? replyTo,
+    Map<String, DateTime> readBy,
+    ForwardedFrom? forwardedFrom,
     GiftMessageData? gift,
     TokenSprayMessageData? tokenSpray,
     String? communityId,
@@ -1804,6 +2008,7 @@ abstract class $MessageCopyWith<$Res> {
 
   $MessageMediaCopyWith<$Res>? get media;
   $MessageReplyCopyWith<$Res>? get replyTo;
+  $ForwardedFromCopyWith<$Res>? get forwardedFrom;
   $GiftMessageDataCopyWith<$Res>? get gift;
   $TokenSprayMessageDataCopyWith<$Res>? get tokenSpray;
   $E2eeMetadataCopyWith<$Res>? get e2ee;
@@ -1838,6 +2043,8 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
     Object? media = freezed,
     Object? reactions = null,
     Object? replyTo = freezed,
+    Object? readBy = null,
+    Object? forwardedFrom = freezed,
     Object? gift = freezed,
     Object? tokenSpray = freezed,
     Object? communityId = freezed,
@@ -1907,6 +2114,14 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
                 ? _value.replyTo
                 : replyTo // ignore: cast_nullable_to_non_nullable
                       as MessageReply?,
+            readBy: null == readBy
+                ? _value.readBy
+                : readBy // ignore: cast_nullable_to_non_nullable
+                      as Map<String, DateTime>,
+            forwardedFrom: freezed == forwardedFrom
+                ? _value.forwardedFrom
+                : forwardedFrom // ignore: cast_nullable_to_non_nullable
+                      as ForwardedFrom?,
             gift: freezed == gift
                 ? _value.gift
                 : gift // ignore: cast_nullable_to_non_nullable
@@ -2000,6 +2215,20 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
+  $ForwardedFromCopyWith<$Res>? get forwardedFrom {
+    if (_value.forwardedFrom == null) {
+      return null;
+    }
+
+    return $ForwardedFromCopyWith<$Res>(_value.forwardedFrom!, (value) {
+      return _then(_value.copyWith(forwardedFrom: value) as $Val);
+    });
+  }
+
+  /// Create a copy of Message
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
   $GiftMessageDataCopyWith<$Res>? get gift {
     if (_value.gift == null) {
       return null;
@@ -2075,6 +2304,8 @@ abstract class _$$MessageImplCopyWith<$Res> implements $MessageCopyWith<$Res> {
     MessageMedia? media,
     Map<String, List<String>> reactions,
     MessageReply? replyTo,
+    Map<String, DateTime> readBy,
+    ForwardedFrom? forwardedFrom,
     GiftMessageData? gift,
     TokenSprayMessageData? tokenSpray,
     String? communityId,
@@ -2095,6 +2326,8 @@ abstract class _$$MessageImplCopyWith<$Res> implements $MessageCopyWith<$Res> {
   $MessageMediaCopyWith<$Res>? get media;
   @override
   $MessageReplyCopyWith<$Res>? get replyTo;
+  @override
+  $ForwardedFromCopyWith<$Res>? get forwardedFrom;
   @override
   $GiftMessageDataCopyWith<$Res>? get gift;
   @override
@@ -2132,6 +2365,8 @@ class __$$MessageImplCopyWithImpl<$Res>
     Object? media = freezed,
     Object? reactions = null,
     Object? replyTo = freezed,
+    Object? readBy = null,
+    Object? forwardedFrom = freezed,
     Object? gift = freezed,
     Object? tokenSpray = freezed,
     Object? communityId = freezed,
@@ -2201,6 +2436,14 @@ class __$$MessageImplCopyWithImpl<$Res>
             ? _value.replyTo
             : replyTo // ignore: cast_nullable_to_non_nullable
                   as MessageReply?,
+        readBy: null == readBy
+            ? _value._readBy
+            : readBy // ignore: cast_nullable_to_non_nullable
+                  as Map<String, DateTime>,
+        forwardedFrom: freezed == forwardedFrom
+            ? _value.forwardedFrom
+            : forwardedFrom // ignore: cast_nullable_to_non_nullable
+                  as ForwardedFrom?,
         gift: freezed == gift
             ? _value.gift
             : gift // ignore: cast_nullable_to_non_nullable
@@ -2279,6 +2522,8 @@ class _$MessageImpl extends _Message {
     this.media,
     final Map<String, List<String>> reactions = const {},
     this.replyTo,
+    final Map<String, DateTime> readBy = const {},
+    this.forwardedFrom,
     this.gift,
     this.tokenSpray,
     this.communityId,
@@ -2294,6 +2539,7 @@ class _$MessageImpl extends _Message {
     final List<String> deletedFor = const [],
     this.deletedForEveryone = false,
   }) : _reactions = reactions,
+       _readBy = readBy,
        _systemEventData = systemEventData,
        _deletedFor = deletedFor,
        super._();
@@ -2340,6 +2586,19 @@ class _$MessageImpl extends _Message {
 
   @override
   final MessageReply? replyTo;
+  // Read receipts & forwarding
+  final Map<String, DateTime> _readBy;
+  // Read receipts & forwarding
+  @override
+  @JsonKey()
+  Map<String, DateTime> get readBy {
+    if (_readBy is EqualUnmodifiableMapView) return _readBy;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_readBy);
+  }
+
+  @override
+  final ForwardedFrom? forwardedFrom;
   // Gift & spray embedded data
   @override
   final GiftMessageData? gift;
@@ -2393,7 +2652,7 @@ class _$MessageImpl extends _Message {
 
   @override
   String toString() {
-    return 'Message(id: $id, senderId: $senderId, senderName: $senderName, senderAvatarUrl: $senderAvatarUrl, type: $type, status: $status, textContent: $textContent, tokenAmount: $tokenAmount, recipientId: $recipientId, ledgerJournalId: $ledgerJournalId, media: $media, reactions: $reactions, replyTo: $replyTo, gift: $gift, tokenSpray: $tokenSpray, communityId: $communityId, systemEventType: $systemEventType, systemEventData: $systemEventData, ciphertext: $ciphertext, e2ee: $e2ee, x3dhHeader: $x3dhHeader, createdAt: $createdAt, expiresAt: $expiresAt, actionedAt: $actionedAt, deletedAt: $deletedAt, deletedFor: $deletedFor, deletedForEveryone: $deletedForEveryone)';
+    return 'Message(id: $id, senderId: $senderId, senderName: $senderName, senderAvatarUrl: $senderAvatarUrl, type: $type, status: $status, textContent: $textContent, tokenAmount: $tokenAmount, recipientId: $recipientId, ledgerJournalId: $ledgerJournalId, media: $media, reactions: $reactions, replyTo: $replyTo, readBy: $readBy, forwardedFrom: $forwardedFrom, gift: $gift, tokenSpray: $tokenSpray, communityId: $communityId, systemEventType: $systemEventType, systemEventData: $systemEventData, ciphertext: $ciphertext, e2ee: $e2ee, x3dhHeader: $x3dhHeader, createdAt: $createdAt, expiresAt: $expiresAt, actionedAt: $actionedAt, deletedAt: $deletedAt, deletedFor: $deletedFor, deletedForEveryone: $deletedForEveryone)';
   }
 
   @override
@@ -2424,6 +2683,9 @@ class _$MessageImpl extends _Message {
               _reactions,
             ) &&
             (identical(other.replyTo, replyTo) || other.replyTo == replyTo) &&
+            const DeepCollectionEquality().equals(other._readBy, _readBy) &&
+            (identical(other.forwardedFrom, forwardedFrom) ||
+                other.forwardedFrom == forwardedFrom) &&
             (identical(other.gift, gift) || other.gift == gift) &&
             (identical(other.tokenSpray, tokenSpray) ||
                 other.tokenSpray == tokenSpray) &&
@@ -2473,6 +2735,8 @@ class _$MessageImpl extends _Message {
     media,
     const DeepCollectionEquality().hash(_reactions),
     replyTo,
+    const DeepCollectionEquality().hash(_readBy),
+    forwardedFrom,
     gift,
     tokenSpray,
     communityId,
@@ -2518,6 +2782,8 @@ abstract class _Message extends Message {
     final MessageMedia? media,
     final Map<String, List<String>> reactions,
     final MessageReply? replyTo,
+    final Map<String, DateTime> readBy,
+    final ForwardedFrom? forwardedFrom,
     final GiftMessageData? gift,
     final TokenSprayMessageData? tokenSpray,
     final String? communityId,
@@ -2562,7 +2828,11 @@ abstract class _Message extends Message {
   @override
   Map<String, List<String>> get reactions;
   @override
-  MessageReply? get replyTo; // Gift & spray embedded data
+  MessageReply? get replyTo; // Read receipts & forwarding
+  @override
+  Map<String, DateTime> get readBy;
+  @override
+  ForwardedFrom? get forwardedFrom; // Gift & spray embedded data
   @override
   GiftMessageData? get gift;
   @override

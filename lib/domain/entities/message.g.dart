@@ -124,6 +124,20 @@ const _$SprayStatusEnumMap = {
   SprayStatus.expired: 'expired',
 };
 
+_$ForwardedFromImpl _$$ForwardedFromImplFromJson(Map<String, dynamic> json) =>
+    _$ForwardedFromImpl(
+      messageId: json['messageId'] as String,
+      conversationId: json['conversationId'] as String,
+      senderName: json['senderName'] as String,
+    );
+
+Map<String, dynamic> _$$ForwardedFromImplToJson(_$ForwardedFromImpl instance) =>
+    <String, dynamic>{
+      'messageId': instance.messageId,
+      'conversationId': instance.conversationId,
+      'senderName': instance.senderName,
+    };
+
 _$E2eeMetadataImpl _$$E2eeMetadataImplFromJson(Map<String, dynamic> json) =>
     _$E2eeMetadataImpl(
       protocol: json['protocol'] as String,
@@ -156,67 +170,74 @@ Map<String, dynamic> _$$X3dhHeaderImplToJson(_$X3dhHeaderImpl instance) =>
       'oneTimePreKeyPublicKey': instance.oneTimePreKeyPublicKey,
     };
 
-_$MessageImpl _$$MessageImplFromJson(Map<String, dynamic> json) =>
-    _$MessageImpl(
-      id: json['id'] as String,
-      senderId: json['senderId'] as String,
-      senderName: json['senderName'] as String,
-      senderAvatarUrl: json['senderAvatarUrl'] as String?,
-      type: $enumDecode(_$MessageTypeEnumMap, json['type']),
-      status: $enumDecode(_$MessageStatusEnumMap, json['status']),
-      textContent: json['textContent'] as String?,
-      tokenAmount: (json['tokenAmount'] as num?)?.toInt(),
-      recipientId: json['recipientId'] as String?,
-      ledgerJournalId: json['ledgerJournalId'] as String?,
-      media: json['media'] == null
-          ? null
-          : MessageMedia.fromJson(json['media'] as Map<String, dynamic>),
-      reactions:
-          (json['reactions'] as Map<String, dynamic>?)?.map(
-            (k, e) => MapEntry(
-              k,
-              (e as List<dynamic>).map((e) => e as String).toList(),
-            ),
-          ) ??
-          const {},
-      replyTo: json['replyTo'] == null
-          ? null
-          : MessageReply.fromJson(json['replyTo'] as Map<String, dynamic>),
-      gift: json['gift'] == null
-          ? null
-          : GiftMessageData.fromJson(json['gift'] as Map<String, dynamic>),
-      tokenSpray: json['tokenSpray'] == null
-          ? null
-          : TokenSprayMessageData.fromJson(
-              json['tokenSpray'] as Map<String, dynamic>,
-            ),
-      communityId: json['communityId'] as String?,
-      systemEventType: json['systemEventType'] as String?,
-      systemEventData: json['systemEventData'] as Map<String, dynamic>?,
-      ciphertext: json['ciphertext'] as String?,
-      e2ee: json['e2ee'] == null
-          ? null
-          : E2eeMetadata.fromJson(json['e2ee'] as Map<String, dynamic>),
-      x3dhHeader: json['x3dhHeader'] == null
-          ? null
-          : X3dhHeader.fromJson(json['x3dhHeader'] as Map<String, dynamic>),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      expiresAt: json['expiresAt'] == null
-          ? null
-          : DateTime.parse(json['expiresAt'] as String),
-      actionedAt: json['actionedAt'] == null
-          ? null
-          : DateTime.parse(json['actionedAt'] as String),
-      deletedAt: json['deletedAt'] == null
-          ? null
-          : DateTime.parse(json['deletedAt'] as String),
-      deletedFor:
-          (json['deletedFor'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      deletedForEveryone: json['deletedForEveryone'] as bool? ?? false,
-    );
+_$MessageImpl _$$MessageImplFromJson(
+  Map<String, dynamic> json,
+) => _$MessageImpl(
+  id: json['id'] as String,
+  senderId: json['senderId'] as String,
+  senderName: json['senderName'] as String,
+  senderAvatarUrl: json['senderAvatarUrl'] as String?,
+  type: $enumDecode(_$MessageTypeEnumMap, json['type']),
+  status: $enumDecode(_$MessageStatusEnumMap, json['status']),
+  textContent: json['textContent'] as String?,
+  tokenAmount: (json['tokenAmount'] as num?)?.toInt(),
+  recipientId: json['recipientId'] as String?,
+  ledgerJournalId: json['ledgerJournalId'] as String?,
+  media: json['media'] == null
+      ? null
+      : MessageMedia.fromJson(json['media'] as Map<String, dynamic>),
+  reactions:
+      (json['reactions'] as Map<String, dynamic>?)?.map(
+        (k, e) =>
+            MapEntry(k, (e as List<dynamic>).map((e) => e as String).toList()),
+      ) ??
+      const {},
+  replyTo: json['replyTo'] == null
+      ? null
+      : MessageReply.fromJson(json['replyTo'] as Map<String, dynamic>),
+  readBy:
+      (json['readBy'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, DateTime.parse(e as String)),
+      ) ??
+      const {},
+  forwardedFrom: json['forwardedFrom'] == null
+      ? null
+      : ForwardedFrom.fromJson(json['forwardedFrom'] as Map<String, dynamic>),
+  gift: json['gift'] == null
+      ? null
+      : GiftMessageData.fromJson(json['gift'] as Map<String, dynamic>),
+  tokenSpray: json['tokenSpray'] == null
+      ? null
+      : TokenSprayMessageData.fromJson(
+          json['tokenSpray'] as Map<String, dynamic>,
+        ),
+  communityId: json['communityId'] as String?,
+  systemEventType: json['systemEventType'] as String?,
+  systemEventData: json['systemEventData'] as Map<String, dynamic>?,
+  ciphertext: json['ciphertext'] as String?,
+  e2ee: json['e2ee'] == null
+      ? null
+      : E2eeMetadata.fromJson(json['e2ee'] as Map<String, dynamic>),
+  x3dhHeader: json['x3dhHeader'] == null
+      ? null
+      : X3dhHeader.fromJson(json['x3dhHeader'] as Map<String, dynamic>),
+  createdAt: DateTime.parse(json['createdAt'] as String),
+  expiresAt: json['expiresAt'] == null
+      ? null
+      : DateTime.parse(json['expiresAt'] as String),
+  actionedAt: json['actionedAt'] == null
+      ? null
+      : DateTime.parse(json['actionedAt'] as String),
+  deletedAt: json['deletedAt'] == null
+      ? null
+      : DateTime.parse(json['deletedAt'] as String),
+  deletedFor:
+      (json['deletedFor'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  deletedForEveryone: json['deletedForEveryone'] as bool? ?? false,
+);
 
 Map<String, dynamic> _$$MessageImplToJson(_$MessageImpl instance) =>
     <String, dynamic>{
@@ -233,6 +254,8 @@ Map<String, dynamic> _$$MessageImplToJson(_$MessageImpl instance) =>
       'media': instance.media,
       'reactions': instance.reactions,
       'replyTo': instance.replyTo,
+      'readBy': instance.readBy.map((k, e) => MapEntry(k, e.toIso8601String())),
+      'forwardedFrom': instance.forwardedFrom,
       'gift': instance.gift,
       'tokenSpray': instance.tokenSpray,
       'communityId': instance.communityId,
@@ -263,6 +286,8 @@ const _$MessageTypeEnumMap = {
 const _$MessageStatusEnumMap = {
   MessageStatus.sending: 'sending',
   MessageStatus.sent: 'sent',
+  MessageStatus.delivered: 'delivered',
+  MessageStatus.read: 'read',
   MessageStatus.pending: 'pending',
   MessageStatus.failed: 'failed',
   MessageStatus.paid: 'paid',

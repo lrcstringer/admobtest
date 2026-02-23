@@ -1,0 +1,143 @@
+import 'dart:typed_data';
+
+import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
+
+import '../../../core/di/injection.dart';
+import '../../../data/datasources/remote/media_upload_datasource.dart';
+import '../../theme/app_colors.dart';
+
+/// Full-screen pinch-to-zoom image viewer.
+///
+/// Supports both encrypted (E2EE) and plain network images.
+/// Uses Hero animation from the message bubble.
+class ImageViewerScreen extends StatefulWidget {
+  final String messageId;
+  final String imageUrl;
+  final String? mediaKeyBase64;
+
+  const ImageViewerScreen({
+    super.key,
+    required this.messageId,
+    required this.imageUrl,
+    this.mediaKeyBase64,
+  });
+
+  @override
+  State<ImageViewerScreen> createState() => _ImageViewerScreenState();
+}
+
+class _ImageViewerScreenState extends State<ImageViewerScreen> {
+  Uint8List? _decryptedBytes;
+  bool _isLoading = false;
+  String? _error;
+
+  bool get _isEncrypted =>
+      widget.mediaKeyBase64 != null && widget.mediaKeyBase64!.isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isEncrypted) {
+      _loadEncryptedImage();
+    }
+  }
+
+  Future<void> _loadEncryptedImage() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final datasource = getIt<MediaUploadDatasource>();
+      final bytes = await datasource.downloadAndDecrypt(
+        url: widget.imageUrl,
+        mediaKeyBase64: widget.mediaKeyBase64!,
+      );
+      if (mounted) {
+        setState(() {
+          _decryptedBytes = bytes;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Failed to load image';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.broken_image, size: 64, color: AppColors.textHint),
+            const SizedBox(height: 16),
+            Text(
+              _error!,
+              style: const TextStyle(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: _loadEncryptedImage,
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final ImageProvider imageProvider;
+    if (_isEncrypted && _decryptedBytes != null) {
+      imageProvider = MemoryImage(_decryptedBytes!);
+    } else if (!_isEncrypted) {
+      imageProvider = NetworkImage(widget.imageUrl);
+    } else {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
+    }
+
+    return Hero(
+      tag: 'image_${widget.messageId}',
+      child: PhotoView(
+        imageProvider: imageProvider,
+        minScale: PhotoViewComputedScale.contained,
+        maxScale: PhotoViewComputedScale.covered * 3,
+        backgroundDecoration: const BoxDecoration(color: Colors.black),
+        loadingBuilder: (context, event) => const Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
+        errorBuilder: (context, error, stackTrace) => const Center(
+          child: Icon(Icons.broken_image, size: 64, color: AppColors.textHint),
+        ),
+      ),
+    );
+  }
+}

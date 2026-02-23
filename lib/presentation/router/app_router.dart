@@ -35,6 +35,7 @@ import '../screens/chat/chat_send_wallet_selection_screen.dart';
 import '../screens/messaging/messaging_screen.dart';
 import '../screens/messaging/contact_picker_screen.dart';
 import '../screens/messaging/conversation_detail_screen.dart';
+import '../screens/messaging/image_viewer_screen.dart';
 import '../screens/messaging/message_requests_screen.dart';
 import '../screens/community/community_detail_screen.dart';
 import '../screens/community/create_community_screen.dart';
@@ -633,6 +634,23 @@ class AppRouter {
                         builder: (context, state) {
                           final gift = state.extra as Gift;
                           return GiftOpeningScreen(gift: gift);
+                        },
+                      ),
+                      // 8.1.3) Full-screen image viewer
+                      GoRoute(
+                        path: 'image-viewer',
+                        name: 'imageViewer',
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>? ?? {};
+                          return ImageViewerScreen(
+                            messageId:
+                                extra['messageId'] as String? ?? '',
+                            imageUrl:
+                                extra['imageUrl'] as String? ?? '',
+                            mediaKeyBase64:
+                                extra['mediaKeyBase64'] as String?,
+                          );
                         },
                       ),
                     ],

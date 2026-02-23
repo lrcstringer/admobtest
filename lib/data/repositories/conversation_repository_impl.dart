@@ -838,4 +838,81 @@ class ConversationRepositoryImpl implements ConversationRepository {
     final fpLen = min(64, ciphertextBase64.length);
     return 'sent_ct:${ciphertextBase64.substring(0, fpLen)}';
   }
+
+  // =========================================================================
+  // TYPING INDICATORS
+  // =========================================================================
+
+  @override
+  Future<Either<Failure, void>> setTyping({
+    required String conversationId,
+    required bool isTyping,
+  }) async {
+    try {
+      await _remoteDataSource.setTyping(
+        conversationId: conversationId,
+        isTyping: isTyping,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Stream<Map<String, bool>> watchTypingState({
+    required String conversationId,
+  }) {
+    return _remoteDataSource.watchTypingState(
+      conversationId: conversationId,
+    );
+  }
+
+  // =========================================================================
+  // MESSAGE SEARCH
+  // =========================================================================
+
+  @override
+  Future<Either<Failure, List<Message>>> searchMessages({
+    required String conversationId,
+    required String query,
+  }) async {
+    try {
+      final rows = await _appDatabase.searchLocalMessages(
+        conversationId,
+        query,
+      );
+      final messages = rows.map(LocalMessageMapper.toEntity).toList();
+      return Right(messages);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  // =========================================================================
+  // MESSAGE FORWARDING
+  // =========================================================================
+
+  @override
+  Future<Either<Failure, String>> forwardMessage({
+    required String sourceConversationId,
+    required String sourceMessageId,
+    required String targetConversationId,
+  }) async {
+    try {
+      // For now, forward without re-encryption (plaintext forward).
+      // E2EE re-encryption can be added later if needed.
+      final messageId = await _remoteDataSource.forwardMessage(
+        sourceConversationId: sourceConversationId,
+        sourceMessageId: sourceMessageId,
+        targetConversationId: targetConversationId,
+      );
+      return Right(messageId);
+    } catch (e) {
+      if (e is ServerException) {
+        return Left(Failure.serverError(message: e.message ?? 'Forward failed'));
+      }
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
 }

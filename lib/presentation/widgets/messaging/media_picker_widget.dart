@@ -24,8 +24,13 @@ class MediaPickerResult {
 /// Shows as a bottom sheet with camera, gallery, and voice options.
 class MediaPickerWidget extends StatelessWidget {
   final ValueChanged<MediaPickerResult> onMediaSelected;
+  final VoidCallback? onVoiceRequested;
 
-  const MediaPickerWidget({super.key, required this.onMediaSelected});
+  const MediaPickerWidget({
+    super.key,
+    required this.onMediaSelected,
+    this.onVoiceRequested,
+  });
 
   Future<void> _pickFromCamera(BuildContext context) async {
     final picker = ImagePicker();
@@ -99,6 +104,16 @@ class MediaPickerWidget extends StatelessWidget {
                   color: AppColors.success,
                   onTap: () => _pickFromGallery(context),
                 ),
+                if (onVoiceRequested != null)
+                  _MediaOption(
+                    icon: Icons.mic,
+                    label: 'Voice',
+                    color: AppColors.primary,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onVoiceRequested!();
+                    },
+                  ),
               ],
             ),
             const SizedBox(height: 16),
@@ -155,9 +170,13 @@ class _MediaOption extends StatelessWidget {
 void showMediaPicker(
   BuildContext context, {
   required ValueChanged<MediaPickerResult> onMediaSelected,
+  VoidCallback? onVoiceRequested,
 }) {
   showModalBottomSheet(
     context: context,
-    builder: (ctx) => MediaPickerWidget(onMediaSelected: onMediaSelected),
+    builder: (ctx) => MediaPickerWidget(
+      onMediaSelected: onMediaSelected,
+      onVoiceRequested: onVoiceRequested,
+    ),
   );
 }

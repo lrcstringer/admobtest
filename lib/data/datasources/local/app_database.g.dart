@@ -5798,6 +5798,30 @@ class $LocalFullMessagesTable extends LocalFullMessages
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _readByJsonMeta = const VerificationMeta(
+    'readByJson',
+  );
+  @override
+  late final GeneratedColumn<String> readByJson = GeneratedColumn<String>(
+    'read_by_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _forwardedFromJsonMeta = const VerificationMeta(
+    'forwardedFromJson',
+  );
+  @override
+  late final GeneratedColumn<String> forwardedFromJson =
+      GeneratedColumn<String>(
+        'forwarded_from_json',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -5826,6 +5850,8 @@ class $LocalFullMessagesTable extends LocalFullMessages
     deletedForJson,
     deletedForEveryone,
     isDecrypted,
+    readByJson,
+    forwardedFromJson,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6051,6 +6077,24 @@ class $LocalFullMessagesTable extends LocalFullMessages
         ),
       );
     }
+    if (data.containsKey('read_by_json')) {
+      context.handle(
+        _readByJsonMeta,
+        readByJson.isAcceptableOrUnknown(
+          data['read_by_json']!,
+          _readByJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('forwarded_from_json')) {
+      context.handle(
+        _forwardedFromJsonMeta,
+        forwardedFromJson.isAcceptableOrUnknown(
+          data['forwarded_from_json']!,
+          _forwardedFromJsonMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -6164,6 +6208,14 @@ class $LocalFullMessagesTable extends LocalFullMessages
         DriftSqlType.bool,
         data['${effectivePrefix}is_decrypted'],
       )!,
+      readByJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}read_by_json'],
+      )!,
+      forwardedFromJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}forwarded_from_json'],
+      ),
     );
   }
 
@@ -6201,6 +6253,8 @@ class LocalFullMessage extends DataClass
   final String deletedForJson;
   final bool deletedForEveryone;
   final bool isDecrypted;
+  final String readByJson;
+  final String? forwardedFromJson;
   const LocalFullMessage({
     required this.id,
     required this.conversationId,
@@ -6228,6 +6282,8 @@ class LocalFullMessage extends DataClass
     required this.deletedForJson,
     required this.deletedForEveryone,
     required this.isDecrypted,
+    required this.readByJson,
+    this.forwardedFromJson,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6290,6 +6346,10 @@ class LocalFullMessage extends DataClass
     map['deleted_for_json'] = Variable<String>(deletedForJson);
     map['deleted_for_everyone'] = Variable<bool>(deletedForEveryone);
     map['is_decrypted'] = Variable<bool>(isDecrypted);
+    map['read_by_json'] = Variable<String>(readByJson);
+    if (!nullToAbsent || forwardedFromJson != null) {
+      map['forwarded_from_json'] = Variable<String>(forwardedFromJson);
+    }
     return map;
   }
 
@@ -6353,6 +6413,10 @@ class LocalFullMessage extends DataClass
       deletedForJson: Value(deletedForJson),
       deletedForEveryone: Value(deletedForEveryone),
       isDecrypted: Value(isDecrypted),
+      readByJson: Value(readByJson),
+      forwardedFromJson: forwardedFromJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(forwardedFromJson),
     );
   }
 
@@ -6390,6 +6454,10 @@ class LocalFullMessage extends DataClass
       deletedForJson: serializer.fromJson<String>(json['deletedForJson']),
       deletedForEveryone: serializer.fromJson<bool>(json['deletedForEveryone']),
       isDecrypted: serializer.fromJson<bool>(json['isDecrypted']),
+      readByJson: serializer.fromJson<String>(json['readByJson']),
+      forwardedFromJson: serializer.fromJson<String?>(
+        json['forwardedFromJson'],
+      ),
     );
   }
   @override
@@ -6422,6 +6490,8 @@ class LocalFullMessage extends DataClass
       'deletedForJson': serializer.toJson<String>(deletedForJson),
       'deletedForEveryone': serializer.toJson<bool>(deletedForEveryone),
       'isDecrypted': serializer.toJson<bool>(isDecrypted),
+      'readByJson': serializer.toJson<String>(readByJson),
+      'forwardedFromJson': serializer.toJson<String?>(forwardedFromJson),
     };
   }
 
@@ -6452,6 +6522,8 @@ class LocalFullMessage extends DataClass
     String? deletedForJson,
     bool? deletedForEveryone,
     bool? isDecrypted,
+    String? readByJson,
+    Value<String?> forwardedFromJson = const Value.absent(),
   }) => LocalFullMessage(
     id: id ?? this.id,
     conversationId: conversationId ?? this.conversationId,
@@ -6491,6 +6563,10 @@ class LocalFullMessage extends DataClass
     deletedForJson: deletedForJson ?? this.deletedForJson,
     deletedForEveryone: deletedForEveryone ?? this.deletedForEveryone,
     isDecrypted: isDecrypted ?? this.isDecrypted,
+    readByJson: readByJson ?? this.readByJson,
+    forwardedFromJson: forwardedFromJson.present
+        ? forwardedFromJson.value
+        : this.forwardedFromJson,
   );
   LocalFullMessage copyWithCompanion(LocalFullMessagesCompanion data) {
     return LocalFullMessage(
@@ -6554,6 +6630,12 @@ class LocalFullMessage extends DataClass
       isDecrypted: data.isDecrypted.present
           ? data.isDecrypted.value
           : this.isDecrypted,
+      readByJson: data.readByJson.present
+          ? data.readByJson.value
+          : this.readByJson,
+      forwardedFromJson: data.forwardedFromJson.present
+          ? data.forwardedFromJson.value
+          : this.forwardedFromJson,
     );
   }
 
@@ -6585,7 +6667,9 @@ class LocalFullMessage extends DataClass
           ..write('deletedAt: $deletedAt, ')
           ..write('deletedForJson: $deletedForJson, ')
           ..write('deletedForEveryone: $deletedForEveryone, ')
-          ..write('isDecrypted: $isDecrypted')
+          ..write('isDecrypted: $isDecrypted, ')
+          ..write('readByJson: $readByJson, ')
+          ..write('forwardedFromJson: $forwardedFromJson')
           ..write(')'))
         .toString();
   }
@@ -6618,6 +6702,8 @@ class LocalFullMessage extends DataClass
     deletedForJson,
     deletedForEveryone,
     isDecrypted,
+    readByJson,
+    forwardedFromJson,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -6648,7 +6734,9 @@ class LocalFullMessage extends DataClass
           other.deletedAt == this.deletedAt &&
           other.deletedForJson == this.deletedForJson &&
           other.deletedForEveryone == this.deletedForEveryone &&
-          other.isDecrypted == this.isDecrypted);
+          other.isDecrypted == this.isDecrypted &&
+          other.readByJson == this.readByJson &&
+          other.forwardedFromJson == this.forwardedFromJson);
 }
 
 class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
@@ -6678,6 +6766,8 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
   final Value<String> deletedForJson;
   final Value<bool> deletedForEveryone;
   final Value<bool> isDecrypted;
+  final Value<String> readByJson;
+  final Value<String?> forwardedFromJson;
   final Value<int> rowid;
   const LocalFullMessagesCompanion({
     this.id = const Value.absent(),
@@ -6706,6 +6796,8 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
     this.deletedForJson = const Value.absent(),
     this.deletedForEveryone = const Value.absent(),
     this.isDecrypted = const Value.absent(),
+    this.readByJson = const Value.absent(),
+    this.forwardedFromJson = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   LocalFullMessagesCompanion.insert({
@@ -6735,6 +6827,8 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
     this.deletedForJson = const Value.absent(),
     this.deletedForEveryone = const Value.absent(),
     this.isDecrypted = const Value.absent(),
+    this.readByJson = const Value.absent(),
+    this.forwardedFromJson = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        conversationId = Value(conversationId),
@@ -6770,6 +6864,8 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
     Expression<String>? deletedForJson,
     Expression<bool>? deletedForEveryone,
     Expression<bool>? isDecrypted,
+    Expression<String>? readByJson,
+    Expression<String>? forwardedFromJson,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -6801,6 +6897,8 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
       if (deletedForEveryone != null)
         'deleted_for_everyone': deletedForEveryone,
       if (isDecrypted != null) 'is_decrypted': isDecrypted,
+      if (readByJson != null) 'read_by_json': readByJson,
+      if (forwardedFromJson != null) 'forwarded_from_json': forwardedFromJson,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6832,6 +6930,8 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
     Value<String>? deletedForJson,
     Value<bool>? deletedForEveryone,
     Value<bool>? isDecrypted,
+    Value<String>? readByJson,
+    Value<String?>? forwardedFromJson,
     Value<int>? rowid,
   }) {
     return LocalFullMessagesCompanion(
@@ -6861,6 +6961,8 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
       deletedForJson: deletedForJson ?? this.deletedForJson,
       deletedForEveryone: deletedForEveryone ?? this.deletedForEveryone,
       isDecrypted: isDecrypted ?? this.isDecrypted,
+      readByJson: readByJson ?? this.readByJson,
+      forwardedFromJson: forwardedFromJson ?? this.forwardedFromJson,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6948,6 +7050,12 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
     if (isDecrypted.present) {
       map['is_decrypted'] = Variable<bool>(isDecrypted.value);
     }
+    if (readByJson.present) {
+      map['read_by_json'] = Variable<String>(readByJson.value);
+    }
+    if (forwardedFromJson.present) {
+      map['forwarded_from_json'] = Variable<String>(forwardedFromJson.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -6983,6 +7091,8 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
           ..write('deletedForJson: $deletedForJson, ')
           ..write('deletedForEveryone: $deletedForEveryone, ')
           ..write('isDecrypted: $isDecrypted, ')
+          ..write('readByJson: $readByJson, ')
+          ..write('forwardedFromJson: $forwardedFromJson, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -10901,6 +11011,8 @@ typedef $$LocalFullMessagesTableCreateCompanionBuilder =
       Value<String> deletedForJson,
       Value<bool> deletedForEveryone,
       Value<bool> isDecrypted,
+      Value<String> readByJson,
+      Value<String?> forwardedFromJson,
       Value<int> rowid,
     });
 typedef $$LocalFullMessagesTableUpdateCompanionBuilder =
@@ -10931,6 +11043,8 @@ typedef $$LocalFullMessagesTableUpdateCompanionBuilder =
       Value<String> deletedForJson,
       Value<bool> deletedForEveryone,
       Value<bool> isDecrypted,
+      Value<String> readByJson,
+      Value<String?> forwardedFromJson,
       Value<int> rowid,
     });
 
@@ -11070,6 +11184,16 @@ class $$LocalFullMessagesTableFilterComposer
 
   ColumnFilters<bool> get isDecrypted => $composableBuilder(
     column: $table.isDecrypted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get readByJson => $composableBuilder(
+    column: $table.readByJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get forwardedFromJson => $composableBuilder(
+    column: $table.forwardedFromJson,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -11212,6 +11336,16 @@ class $$LocalFullMessagesTableOrderingComposer
     column: $table.isDecrypted,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get readByJson => $composableBuilder(
+    column: $table.readByJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get forwardedFromJson => $composableBuilder(
+    column: $table.forwardedFromJson,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$LocalFullMessagesTableAnnotationComposer
@@ -11334,6 +11468,16 @@ class $$LocalFullMessagesTableAnnotationComposer
     column: $table.isDecrypted,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get readByJson => $composableBuilder(
+    column: $table.readByJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get forwardedFromJson => $composableBuilder(
+    column: $table.forwardedFromJson,
+    builder: (column) => column,
+  );
 }
 
 class $$LocalFullMessagesTableTableManager
@@ -11402,6 +11546,8 @@ class $$LocalFullMessagesTableTableManager
                 Value<String> deletedForJson = const Value.absent(),
                 Value<bool> deletedForEveryone = const Value.absent(),
                 Value<bool> isDecrypted = const Value.absent(),
+                Value<String> readByJson = const Value.absent(),
+                Value<String?> forwardedFromJson = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalFullMessagesCompanion(
                 id: id,
@@ -11430,6 +11576,8 @@ class $$LocalFullMessagesTableTableManager
                 deletedForJson: deletedForJson,
                 deletedForEveryone: deletedForEveryone,
                 isDecrypted: isDecrypted,
+                readByJson: readByJson,
+                forwardedFromJson: forwardedFromJson,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -11460,6 +11608,8 @@ class $$LocalFullMessagesTableTableManager
                 Value<String> deletedForJson = const Value.absent(),
                 Value<bool> deletedForEveryone = const Value.absent(),
                 Value<bool> isDecrypted = const Value.absent(),
+                Value<String> readByJson = const Value.absent(),
+                Value<String?> forwardedFromJson = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalFullMessagesCompanion.insert(
                 id: id,
@@ -11488,6 +11638,8 @@ class $$LocalFullMessagesTableTableManager
                 deletedForJson: deletedForJson,
                 deletedForEveryone: deletedForEveryone,
                 isDecrypted: isDecrypted,
+                readByJson: readByJson,
+                forwardedFromJson: forwardedFromJson,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

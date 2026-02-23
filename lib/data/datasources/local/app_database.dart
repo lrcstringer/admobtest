@@ -2,11 +2,13 @@ import 'dart:io';
 import 'dart:math';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/open.dart';
+import 'package:sqlite3/sqlite3.dart' as raw_sqlite;
 import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
 
 part 'app_database.g.dart';
@@ -195,6 +197,11 @@ class LocalFullMessages extends Table {
   BoolColumn get isDecrypted =>
       boolean().withDefault(const Constant(false))();
 
+  // Read receipts & forwarding (Feature 1 & 4)
+  TextColumn get readByJson =>
+      text().withDefault(const Constant('{}'))();
+  TextColumn get forwardedFromJson => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -250,7 +257,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {
@@ -269,6 +276,12 @@ class AppDatabase extends _$AppDatabase {
         if (from < 4) {
           await m.addColumn(
               localFullConversations, localFullConversations.acceptedJson);
+        }
+        if (from < 5) {
+          await m.addColumn(
+              localFullMessages, localFullMessages.readByJson);
+          await m.addColumn(
+              localFullMessages, localFullMessages.forwardedFromJson);
         }
       },
     );
@@ -647,6 +660,22 @@ class AppDatabase extends _$AppDatabase {
         .go();
   }
 
+  /// Search messages in a conversation by text content (for in-conversation search).
+  Future<List<LocalFullMessage>> searchLocalMessages(
+    String conversationId,
+    String query, {
+    int limit = 50,
+  }) {
+    return (select(localFullMessages)
+          ..where((m) =>
+              m.conversationId.equals(conversationId) &
+              m.textContent.like('%$query%') &
+              m.deletedForEveryone.equals(false))
+          ..orderBy([(m) => OrderingTerm.desc(m.createdAt)])
+          ..limit(limit))
+        .get();
+  }
+
   Future<void> clearLocalFullMessages() {
     return delete(localFullMessages).go();
   }
@@ -703,6 +732,29 @@ LazyDatabase _openConnection() {
       final bytes = List.generate(32, (_) => random.nextInt(256));
       key = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
       await storage.write(key: 'imali_db_encryption_key', value: key);
+      // Key was regenerated (FlutterSecureStorage lost it) — old DB can't
+      // be decrypted. Delete it; data re-syncs from Firestore.
+      if (await file.exists()) {
+        debugPrint('AppDatabase: Encryption key regenerated — deleting stale DB');
+        await file.delete();
+      }
+    }
+
+    // Validate existing DB is decryptable before Drift opens it.
+    // Catches key corruption / mismatch that the null-check above misses.
+    if (await file.exists()) {
+      try {
+        final testDb = raw_sqlite.sqlite3.open(file.path);
+        try {
+          testDb.execute("PRAGMA key = '$key'");
+          testDb.execute('SELECT count(*) FROM sqlite_master');
+        } finally {
+          testDb.dispose();
+        }
+      } catch (e) {
+        debugPrint('AppDatabase: DB validation failed ($e), recreating cache');
+        await file.delete();
+      }
     }
 
     // Delete old unencrypted database if it exists (cache only — syncs from Firestore)

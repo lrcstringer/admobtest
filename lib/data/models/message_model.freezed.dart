@@ -32,6 +32,9 @@ mixin _$MessageModel {
       throw _privateConstructorUsedError; // Interactions
   Map<String, List<String>> get reactions => throw _privateConstructorUsedError;
   Map<String, dynamic>? get replyTo =>
+      throw _privateConstructorUsedError; // Read receipts & forwarding
+  Map<String, DateTime> get readBy => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get forwardedFrom =>
       throw _privateConstructorUsedError; // Gift & spray embedded data
   Map<String, dynamic>? get gift => throw _privateConstructorUsedError;
   Map<String, dynamic>? get tokenSpray =>
@@ -79,6 +82,8 @@ abstract class $MessageModelCopyWith<$Res> {
     Map<String, dynamic>? media,
     Map<String, List<String>> reactions,
     Map<String, dynamic>? replyTo,
+    Map<String, DateTime> readBy,
+    Map<String, dynamic>? forwardedFrom,
     Map<String, dynamic>? gift,
     Map<String, dynamic>? tokenSpray,
     String? communityId,
@@ -124,6 +129,8 @@ class _$MessageModelCopyWithImpl<$Res, $Val extends MessageModel>
     Object? media = freezed,
     Object? reactions = null,
     Object? replyTo = freezed,
+    Object? readBy = null,
+    Object? forwardedFrom = freezed,
     Object? gift = freezed,
     Object? tokenSpray = freezed,
     Object? communityId = freezed,
@@ -192,6 +199,14 @@ class _$MessageModelCopyWithImpl<$Res, $Val extends MessageModel>
             replyTo: freezed == replyTo
                 ? _value.replyTo
                 : replyTo // ignore: cast_nullable_to_non_nullable
+                      as Map<String, dynamic>?,
+            readBy: null == readBy
+                ? _value.readBy
+                : readBy // ignore: cast_nullable_to_non_nullable
+                      as Map<String, DateTime>,
+            forwardedFrom: freezed == forwardedFrom
+                ? _value.forwardedFrom
+                : forwardedFrom // ignore: cast_nullable_to_non_nullable
                       as Map<String, dynamic>?,
             gift: freezed == gift
                 ? _value.gift
@@ -278,6 +293,8 @@ abstract class _$$MessageModelImplCopyWith<$Res>
     Map<String, dynamic>? media,
     Map<String, List<String>> reactions,
     Map<String, dynamic>? replyTo,
+    Map<String, DateTime> readBy,
+    Map<String, dynamic>? forwardedFrom,
     Map<String, dynamic>? gift,
     Map<String, dynamic>? tokenSpray,
     String? communityId,
@@ -322,6 +339,8 @@ class __$$MessageModelImplCopyWithImpl<$Res>
     Object? media = freezed,
     Object? reactions = null,
     Object? replyTo = freezed,
+    Object? readBy = null,
+    Object? forwardedFrom = freezed,
     Object? gift = freezed,
     Object? tokenSpray = freezed,
     Object? communityId = freezed,
@@ -390,6 +409,14 @@ class __$$MessageModelImplCopyWithImpl<$Res>
         replyTo: freezed == replyTo
             ? _value._replyTo
             : replyTo // ignore: cast_nullable_to_non_nullable
+                  as Map<String, dynamic>?,
+        readBy: null == readBy
+            ? _value._readBy
+            : readBy // ignore: cast_nullable_to_non_nullable
+                  as Map<String, DateTime>,
+        forwardedFrom: freezed == forwardedFrom
+            ? _value._forwardedFrom
+            : forwardedFrom // ignore: cast_nullable_to_non_nullable
                   as Map<String, dynamic>?,
         gift: freezed == gift
             ? _value._gift
@@ -469,6 +496,8 @@ class _$MessageModelImpl extends _MessageModel {
     final Map<String, dynamic>? media,
     final Map<String, List<String>> reactions = const {},
     final Map<String, dynamic>? replyTo,
+    final Map<String, DateTime> readBy = const {},
+    final Map<String, dynamic>? forwardedFrom,
     final Map<String, dynamic>? gift,
     final Map<String, dynamic>? tokenSpray,
     this.communityId,
@@ -486,6 +515,8 @@ class _$MessageModelImpl extends _MessageModel {
   }) : _media = media,
        _reactions = reactions,
        _replyTo = replyTo,
+       _readBy = readBy,
+       _forwardedFrom = forwardedFrom,
        _gift = gift,
        _tokenSpray = tokenSpray,
        _systemEventData = systemEventData,
@@ -546,6 +577,27 @@ class _$MessageModelImpl extends _MessageModel {
     final value = _replyTo;
     if (value == null) return null;
     if (_replyTo is EqualUnmodifiableMapView) return _replyTo;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
+  // Read receipts & forwarding
+  final Map<String, DateTime> _readBy;
+  // Read receipts & forwarding
+  @override
+  @JsonKey()
+  Map<String, DateTime> get readBy {
+    if (_readBy is EqualUnmodifiableMapView) return _readBy;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_readBy);
+  }
+
+  final Map<String, dynamic>? _forwardedFrom;
+  @override
+  Map<String, dynamic>? get forwardedFrom {
+    final value = _forwardedFrom;
+    if (value == null) return null;
+    if (_forwardedFrom is EqualUnmodifiableMapView) return _forwardedFrom;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(value);
   }
@@ -636,7 +688,7 @@ class _$MessageModelImpl extends _MessageModel {
 
   @override
   String toString() {
-    return 'MessageModel(id: $id, senderId: $senderId, senderName: $senderName, senderAvatarUrl: $senderAvatarUrl, type: $type, status: $status, textContent: $textContent, tokenAmount: $tokenAmount, recipientId: $recipientId, ledgerJournalId: $ledgerJournalId, media: $media, reactions: $reactions, replyTo: $replyTo, gift: $gift, tokenSpray: $tokenSpray, communityId: $communityId, systemEventType: $systemEventType, systemEventData: $systemEventData, ciphertext: $ciphertext, e2ee: $e2ee, x3dhHeader: $x3dhHeader, createdAt: $createdAt, expiresAt: $expiresAt, actionedAt: $actionedAt, deletedAt: $deletedAt, deletedFor: $deletedFor, deletedForEveryone: $deletedForEveryone)';
+    return 'MessageModel(id: $id, senderId: $senderId, senderName: $senderName, senderAvatarUrl: $senderAvatarUrl, type: $type, status: $status, textContent: $textContent, tokenAmount: $tokenAmount, recipientId: $recipientId, ledgerJournalId: $ledgerJournalId, media: $media, reactions: $reactions, replyTo: $replyTo, readBy: $readBy, forwardedFrom: $forwardedFrom, gift: $gift, tokenSpray: $tokenSpray, communityId: $communityId, systemEventType: $systemEventType, systemEventData: $systemEventData, ciphertext: $ciphertext, e2ee: $e2ee, x3dhHeader: $x3dhHeader, createdAt: $createdAt, expiresAt: $expiresAt, actionedAt: $actionedAt, deletedAt: $deletedAt, deletedFor: $deletedFor, deletedForEveryone: $deletedForEveryone)';
   }
 
   @override
@@ -667,6 +719,11 @@ class _$MessageModelImpl extends _MessageModel {
               _reactions,
             ) &&
             const DeepCollectionEquality().equals(other._replyTo, _replyTo) &&
+            const DeepCollectionEquality().equals(other._readBy, _readBy) &&
+            const DeepCollectionEquality().equals(
+              other._forwardedFrom,
+              _forwardedFrom,
+            ) &&
             const DeepCollectionEquality().equals(other._gift, _gift) &&
             const DeepCollectionEquality().equals(
               other._tokenSpray,
@@ -719,6 +776,8 @@ class _$MessageModelImpl extends _MessageModel {
     const DeepCollectionEquality().hash(_media),
     const DeepCollectionEquality().hash(_reactions),
     const DeepCollectionEquality().hash(_replyTo),
+    const DeepCollectionEquality().hash(_readBy),
+    const DeepCollectionEquality().hash(_forwardedFrom),
     const DeepCollectionEquality().hash(_gift),
     const DeepCollectionEquality().hash(_tokenSpray),
     communityId,
@@ -759,6 +818,8 @@ abstract class _MessageModel extends MessageModel {
     final Map<String, dynamic>? media,
     final Map<String, List<String>> reactions,
     final Map<String, dynamic>? replyTo,
+    final Map<String, DateTime> readBy,
+    final Map<String, dynamic>? forwardedFrom,
     final Map<String, dynamic>? gift,
     final Map<String, dynamic>? tokenSpray,
     final String? communityId,
@@ -801,7 +862,11 @@ abstract class _MessageModel extends MessageModel {
   @override
   Map<String, List<String>> get reactions;
   @override
-  Map<String, dynamic>? get replyTo; // Gift & spray embedded data
+  Map<String, dynamic>? get replyTo; // Read receipts & forwarding
+  @override
+  Map<String, DateTime> get readBy;
+  @override
+  Map<String, dynamic>? get forwardedFrom; // Gift & spray embedded data
   @override
   Map<String, dynamic>? get gift;
   @override

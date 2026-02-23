@@ -23,6 +23,8 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   StreamSubscription? _conversationsSubscription;
   StreamSubscription? _messagesSubscription;
   StreamSubscription? _unreadSubscription;
+  StreamSubscription? _typingSubscription;
+  Timer? _typingDebounce;
 
   /// IDs of optimistic messages that haven't been confirmed by the server stream yet.
   /// Used by _onMessagesUpdated to keep optimistic messages visible during stream emissions.
@@ -76,6 +78,17 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     // User search
     on<_SearchUsers>(_onSearchUsers);
     on<_ClearSearch>(_onClearSearch);
+
+    // Typing indicators
+    on<_SetTyping>(_onSetTyping);
+    on<_TypingStateUpdated>(_onTypingStateUpdated);
+
+    // Message search
+    on<_SearchMessages>(_onSearchMessages);
+    on<_ClearMessageSearch>(_onClearMessageSearch);
+
+    // Message forwarding
+    on<_ForwardMessage>(_onForwardMessage);
 
     // Utility
     on<_ClearError>(_onClearError);
@@ -248,6 +261,15 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
           (messages) => add(ConversationEvent.messagesUpdated(messages)),
         );
       },
+      onError: (_) {},
+    );
+
+    // 4. Subscribe to typing indicators
+    await _typingSubscription?.cancel();
+    _typingSubscription = _conversationRepository
+        .watchTypingState(conversationId: event.id)
+        .listen(
+      (typingUsers) => add(ConversationEvent.typingStateUpdated(typingUsers)),
       onError: (_) {},
     );
   }
@@ -826,11 +848,116 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     emit(state.copyWith(errorMessage: null));
   }
 
+  // ===========================================================================
+  // TYPING INDICATOR HANDLERS
+  // ===========================================================================
+
+  Future<void> _onSetTyping(
+    _SetTyping event,
+    Emitter<ConversationState> emit,
+  ) async {
+    // Debounce: only send isTyping=true once every 3 seconds
+    _typingDebounce?.cancel();
+    if (event.isTyping) {
+      await _conversationRepository.setTyping(
+        conversationId: event.conversationId,
+        isTyping: true,
+      );
+      // Auto-clear after 4 seconds of no further typing events
+      _typingDebounce = Timer(const Duration(seconds: 4), () {
+        _conversationRepository.setTyping(
+          conversationId: event.conversationId,
+          isTyping: false,
+        );
+      });
+    } else {
+      await _conversationRepository.setTyping(
+        conversationId: event.conversationId,
+        isTyping: false,
+      );
+    }
+  }
+
+  void _onTypingStateUpdated(
+    _TypingStateUpdated event,
+    Emitter<ConversationState> emit,
+  ) {
+    emit(state.copyWith(typingUsers: event.typingUsers));
+  }
+
+  // ===========================================================================
+  // MESSAGE SEARCH HANDLERS
+  // ===========================================================================
+
+  Future<void> _onSearchMessages(
+    _SearchMessages event,
+    Emitter<ConversationState> emit,
+  ) async {
+    emit(state.copyWith(
+      isSearchingMessages: true,
+      messageSearchQuery: event.query,
+    ));
+
+    final result = await _conversationRepository.searchMessages(
+      conversationId: event.conversationId,
+      query: event.query,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isSearchingMessages: false,
+        messageSearchResults: [],
+      )),
+      (messages) => emit(state.copyWith(
+        isSearchingMessages: false,
+        messageSearchResults: messages,
+      )),
+    );
+  }
+
+  void _onClearMessageSearch(
+    _ClearMessageSearch event,
+    Emitter<ConversationState> emit,
+  ) {
+    emit(state.copyWith(
+      messageSearchResults: [],
+      isSearchingMessages: false,
+      messageSearchQuery: null,
+    ));
+  }
+
+  // ===========================================================================
+  // MESSAGE FORWARDING HANDLERS
+  // ===========================================================================
+
+  Future<void> _onForwardMessage(
+    _ForwardMessage event,
+    Emitter<ConversationState> emit,
+  ) async {
+    emit(state.copyWith(isForwarding: true));
+
+    final result = await _conversationRepository.forwardMessage(
+      sourceConversationId: event.sourceConversationId,
+      sourceMessageId: event.sourceMessageId,
+      targetConversationId: event.targetConversationId,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isForwarding: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(isForwarding: false)),
+    );
+  }
+
   @override
   Future<void> close() {
     _conversationsSubscription?.cancel();
     _messagesSubscription?.cancel();
     _unreadSubscription?.cancel();
+    _typingSubscription?.cancel();
+    _typingDebounce?.cancel();
     return super.close();
   }
 }

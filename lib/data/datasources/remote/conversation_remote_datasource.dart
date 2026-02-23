@@ -122,6 +122,25 @@ abstract class ConversationRemoteDataSource {
   Future<int> getTotalUnreadCount();
   Stream<int> watchTotalUnreadCount();
 
+  // Typing indicators (direct Firestore writes — ephemeral data)
+  Future<void> setTyping({
+    required String conversationId,
+    required bool isTyping,
+  });
+  Stream<Map<String, bool>> watchTypingState({
+    required String conversationId,
+  });
+
+  // Message forwarding (via Cloud Function)
+  Future<String> forwardMessage({
+    required String sourceConversationId,
+    required String sourceMessageId,
+    required String targetConversationId,
+    String? ciphertext,
+    Map<String, dynamic>? e2ee,
+    Map<String, dynamic>? x3dhHeader,
+  });
+
   // E2EE key lookup
   Future<String?> getUserE2eeIdentityKey(String userId);
 }
@@ -937,5 +956,88 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
         .get();
     if (!doc.exists) return null;
     return doc.data()?['identityKey'] as String?;
+  }
+
+  // =========================================================================
+  // TYPING INDICATORS
+  // =========================================================================
+
+  @override
+  Future<void> setTyping({
+    required String conversationId,
+    required bool isTyping,
+  }) async {
+    final userId = _requireUserId();
+    final typingRef = _conversationsCollection
+        .doc(conversationId)
+        .collection('typing')
+        .doc(userId);
+
+    if (isTyping) {
+      await typingRef.set({
+        'isTyping': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } else {
+      await typingRef.delete();
+    }
+  }
+
+  @override
+  Stream<Map<String, bool>> watchTypingState({
+    required String conversationId,
+  }) {
+    final userId = _requireUserId();
+    return _conversationsCollection
+        .doc(conversationId)
+        .collection('typing')
+        .snapshots()
+        .map((snapshot) {
+      final result = <String, bool>{};
+      final cutoff = DateTime.now().subtract(const Duration(seconds: 5));
+      for (final doc in snapshot.docs) {
+        if (doc.id == userId) continue; // Exclude own typing state
+        final data = doc.data();
+        final isTyping = data['isTyping'] as bool? ?? false;
+        final updatedAt = data['updatedAt'];
+        // Auto-expire stale entries
+        if (isTyping && updatedAt is Timestamp) {
+          if (updatedAt.toDate().isAfter(cutoff)) {
+            result[doc.id] = true;
+          }
+        }
+      }
+      return result;
+    });
+  }
+
+  // =========================================================================
+  // MESSAGE FORWARDING
+  // =========================================================================
+
+  @override
+  Future<String> forwardMessage({
+    required String sourceConversationId,
+    required String sourceMessageId,
+    required String targetConversationId,
+    String? ciphertext,
+    Map<String, dynamic>? e2ee,
+    Map<String, dynamic>? x3dhHeader,
+  }) async {
+    try {
+      final result = await _functions
+          .httpsCallable('forwardConversationMessage')
+          .call<Map<String, dynamic>>({
+        'sourceConversationId': sourceConversationId,
+        'sourceMessageId': sourceMessageId,
+        'targetConversationId': targetConversationId,
+        'ciphertext': ciphertext,
+        'e2ee': e2ee,
+        'x3dhHeader': x3dhHeader,
+      });
+      return result.data['messageId'] as String;
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Failed to forward message');
+    }
   }
 }

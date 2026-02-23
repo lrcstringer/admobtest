@@ -6,6 +6,7 @@ import '../../../domain/enums/message_status.dart';
 import '../../../domain/enums/message_type.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import 'voice_player_widget.dart';
 
 /// WeChat-style message bubble with square avatars and speech triangles.
 ///
@@ -31,6 +32,12 @@ class MessageBubble extends StatelessWidget {
   /// Called when user taps the reply context.
   final VoidCallback? onReplyTap;
 
+  /// Called when user taps an image to view full-screen.
+  final VoidCallback? onImageTap;
+
+  /// Optional search query to highlight matching text.
+  final String? highlightQuery;
+
   const MessageBubble({
     super.key,
     required this.message,
@@ -41,6 +48,8 @@ class MessageBubble extends StatelessWidget {
     this.onTokenRequestAction,
     this.onLongPress,
     this.onReplyTap,
+    this.onImageTap,
+    this.highlightQuery,
   });
 
   String? get _effectiveAvatarUrl {
@@ -269,6 +278,25 @@ class MessageBubble extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
+          if (message.isForwarded)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.shortcut, size: 12, color: metaColor),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Forwarded',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: metaColor,
+                          fontStyle: FontStyle.italic,
+                          fontSize: 11,
+                        ),
+                  ),
+                ],
+              ),
+            ),
           if (message.hasMedia) _buildMedia(context),
           if (_isDecryptionFailed)
             _buildDecryptionFailed(context)
@@ -276,12 +304,7 @@ class MessageBubble extends StatelessWidget {
               (message.textContent == null || message.textContent!.isEmpty))
             _buildEncryptedSentIndicator(context)
           else if (message.textContent?.isNotEmpty == true)
-            Text(
-              message.textContent!,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: textColor,
-                  ),
-            ),
+            _buildTextContent(context, textColor),
           const SizedBox(height: 4),
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -356,18 +379,24 @@ class MessageBubble extends StatelessWidget {
     if (message.type == MessageType.image) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: ClipRRect(
-          borderRadius: AppSpacing.borderRadiusSm,
-          child: Image.network(
-            message.media!.thumbnailUrl ?? message.media!.url,
-            width: 220,
-            height: 180,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
-              width: 220,
-              height: 100,
-              color: AppColors.surface,
-              child: const Icon(Icons.broken_image, size: 40),
+        child: GestureDetector(
+          onTap: onImageTap,
+          child: Hero(
+            tag: 'image_${message.id}',
+            child: ClipRRect(
+              borderRadius: AppSpacing.borderRadiusSm,
+              child: Image.network(
+                message.media!.thumbnailUrl ?? message.media!.url,
+                width: 220,
+                height: 180,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 220,
+                  height: 100,
+                  color: AppColors.surface,
+                  child: const Icon(Icons.broken_image, size: 40),
+                ),
+              ),
             ),
           ),
         ),
@@ -375,30 +404,7 @@ class MessageBubble extends StatelessWidget {
     }
 
     if (message.type == MessageType.voice) {
-      final duration = message.media?.duration ?? 0;
-      final voiceColor = isMe
-          ? AppColors.chatBubbleText
-          : AppColors.chatBubbleReceivedText;
-      return Container(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.play_circle_filled,
-              color: voiceColor,
-              size: 32,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '${(duration ~/ 60).toString().padLeft(2, '0')}:${(duration % 60).toString().padLeft(2, '0')}',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: voiceColor,
-                  ),
-            ),
-          ],
-        ),
-      );
+      return VoicePlayerWidget(message: message, isMe: isMe);
     }
 
     return const SizedBox.shrink();
@@ -408,11 +414,23 @@ class MessageBubble extends StatelessWidget {
     IconData icon;
     Color color = AppColors.chatBubbleTimestamp;
 
+    // Read receipts: if readBy has entries, show blue double-check
+    if (message.readBy.isNotEmpty &&
+        (message.status == MessageStatus.sent ||
+         message.status == MessageStatus.delivered ||
+         message.status == MessageStatus.read)) {
+      return Icon(Icons.done_all, size: 14, color: Colors.blue);
+    }
+
     switch (message.status) {
       case MessageStatus.sending:
         icon = Icons.access_time;
       case MessageStatus.sent:
+      case MessageStatus.delivered:
         icon = Icons.done;
+      case MessageStatus.read:
+        icon = Icons.done_all;
+        color = Colors.blue;
       case MessageStatus.pending:
         icon = Icons.hourglass_empty;
         color = AppColors.accent;
@@ -596,6 +614,48 @@ class MessageBubble extends StatelessWidget {
                 ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextContent(BuildContext context, Color textColor) {
+    final text = message.textContent!;
+    if (highlightQuery == null || highlightQuery!.isEmpty) {
+      return Text(
+        text,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: textColor),
+      );
+    }
+
+    // Highlight matching segments
+    final query = highlightQuery!.toLowerCase();
+    final spans = <TextSpan>[];
+    int start = 0;
+    final textLower = text.toLowerCase();
+
+    while (start < text.length) {
+      final idx = textLower.indexOf(query, start);
+      if (idx == -1) {
+        spans.add(TextSpan(text: text.substring(start)));
+        break;
+      }
+      if (idx > start) {
+        spans.add(TextSpan(text: text.substring(start, idx)));
+      }
+      spans.add(TextSpan(
+        text: text.substring(idx, idx + query.length),
+        style: TextStyle(
+          backgroundColor: AppColors.accent.withValues(alpha: 0.3),
+          fontWeight: FontWeight.bold,
+        ),
+      ));
+      start = idx + query.length;
+    }
+
+    return RichText(
+      text: TextSpan(
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: textColor),
+        children: spans,
       ),
     );
   }

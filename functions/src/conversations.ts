@@ -305,6 +305,8 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
     ledgerJournalId: null,
     reactions: {},
     replyTo,
+    readBy: {},
+    forwardedFrom: null,
     communityId: null,
     systemEventType: null,
     systemEventData: null,
@@ -509,6 +511,8 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
     media: null,
     reactions: {},
     replyTo: null,
+    readBy: {},
+    forwardedFrom: null,
     communityId: null,
     systemEventType: null,
     systemEventData: null,
@@ -597,6 +601,8 @@ export const requestConversationTokens = onCall({ labels: { area: "social" } }, 
     media: null,
     reactions: {},
     replyTo: null,
+    readBy: {},
+    forwardedFrom: null,
     communityId: null,
     systemEventType: null,
     systemEventData: null,
@@ -814,9 +820,49 @@ export const markConversationRead = onCall({ labels: { area: "social" } }, async
     throw new HttpsError("invalid-argument", "conversationId is required");
   }
 
+  // Reset unread count
   await db.collection("conversations").doc(conversationId).update({
     [`unreadCounts.${userId}`]: 0,
   });
+
+  // Stamp readBy on recent messages not sent by this user
+  const messagesRef = db
+    .collection("conversations")
+    .doc(conversationId)
+    .collection("messages");
+
+  const recentMessages = await messagesRef
+    .where("senderId", "!=", userId)
+    .orderBy("senderId")
+    .orderBy("createdAt", "desc")
+    .limit(100)
+    .get();
+
+  if (!recentMessages.empty) {
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const batch = db.batch();
+    let batchCount = 0;
+
+    for (const msgDoc of recentMessages.docs) {
+      const data = msgDoc.data();
+      // Skip if already read by this user
+      if (data.readBy && data.readBy[userId]) continue;
+      // Skip deleted messages
+      if (data.deletedForEveryone) continue;
+
+      batch.update(msgDoc.ref, {
+        [`readBy.${userId}`]: now,
+      });
+      batchCount++;
+
+      // Firestore batch limit is 500
+      if (batchCount >= 499) break;
+    }
+
+    if (batchCount > 0) {
+      await batch.commit();
+    }
+  }
 
   return { success: true };
 });
@@ -1191,6 +1237,147 @@ export const clearConversationChat = onCall(
     return { success: true, clearedCount: totalCleared };
   }
 );
+
+// ============================================================================
+// MESSAGE FORWARDING
+// ============================================================================
+
+/**
+ * Forward a message from one conversation to another.
+ * Re-uses media Storage URLs. Client re-encrypts the payload for the target recipient.
+ */
+export const forwardConversationMessage = onCall({ labels: { area: "social" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "forwardConversationMessage");
+
+  const {
+    sourceConversationId,
+    sourceMessageId,
+    targetConversationId,
+    ciphertext,
+    e2ee,
+    x3dhHeader,
+  } = request.data;
+
+  if (!sourceConversationId || !sourceMessageId || !targetConversationId) {
+    throw new HttpsError("invalid-argument", "sourceConversationId, sourceMessageId, and targetConversationId are required");
+  }
+
+  // Verify user is participant in source conversation
+  const sourceConvDoc = await db.collection("conversations").doc(sourceConversationId).get();
+  if (!sourceConvDoc.exists) {
+    throw new HttpsError("not-found", "Source conversation not found");
+  }
+  const sourceConv = sourceConvDoc.data()!;
+  if (!sourceConv.participantIds?.includes(userId)) {
+    throw new HttpsError("permission-denied", "Not a participant in source conversation");
+  }
+
+  // Verify user is participant in target conversation
+  const targetConvDoc = await db.collection("conversations").doc(targetConversationId).get();
+  if (!targetConvDoc.exists) {
+    throw new HttpsError("not-found", "Target conversation not found");
+  }
+  const targetConv = targetConvDoc.data()!;
+  if (!targetConv.participantIds?.includes(userId)) {
+    throw new HttpsError("permission-denied", "Not a participant in target conversation");
+  }
+
+  // Read source message for metadata
+  const sourceMessageDoc = await db
+    .collection("conversations")
+    .doc(sourceConversationId)
+    .collection("messages")
+    .doc(sourceMessageId)
+    .get();
+
+  if (!sourceMessageDoc.exists) {
+    throw new HttpsError("not-found", "Source message not found");
+  }
+
+  const sourceMsg = sourceMessageDoc.data()!;
+
+  // Don't allow forwarding deleted or system messages
+  if (sourceMsg.deletedForEveryone) {
+    throw new HttpsError("failed-precondition", "Cannot forward a deleted message");
+  }
+  if (sourceMsg.type === "system" || sourceMsg.type === "tokenSend" || sourceMsg.type === "tokenRequest") {
+    throw new HttpsError("invalid-argument", "Cannot forward system or token messages");
+  }
+
+  // Get sender info
+  const userProfile = await getUserProfile(userId);
+  const senderName = userProfile.displayName || "Unknown";
+  const senderAvatarUrl = userProfile.avatarUrl || userProfile.profilePicThumbUrl || null;
+
+  const now = admin.firestore.FieldValue.serverTimestamp();
+  const messageRef = db
+    .collection("conversations")
+    .doc(targetConversationId)
+    .collection("messages")
+    .doc();
+
+  const forwardedFrom = {
+    messageId: sourceMessageId,
+    conversationId: sourceConversationId,
+    senderName: sourceMsg.senderName || "Unknown",
+  };
+
+  const batch = db.batch();
+
+  batch.set(messageRef, {
+    id: messageRef.id,
+    senderId: userId,
+    senderName,
+    senderAvatarUrl,
+    type: sourceMsg.type || "text",
+    status: "sent",
+    textContent: ciphertext ? null : (sourceMsg.textContent || null),
+    ciphertext: ciphertext || null,
+    e2ee: e2ee || null,
+    x3dhHeader: x3dhHeader || null,
+    media: sourceMsg.media || null,
+    tokenAmount: null,
+    recipientId: null,
+    ledgerJournalId: null,
+    reactions: {},
+    replyTo: null,
+    readBy: {},
+    forwardedFrom,
+    communityId: null,
+    systemEventType: null,
+    systemEventData: null,
+    createdAt: now,
+    expiresAt: null,
+    actionedAt: null,
+    deletedAt: null,
+    deletedFor: [],
+    deletedForEveryone: false,
+  });
+
+  // Update target conversation
+  const preview = "Forwarded message";
+  const otherParticipants = targetConv.participantIds.filter((id: string) => id !== userId);
+  const unreadUpdates: Record<string, unknown> = {};
+  for (const pid of otherParticipants) {
+    unreadUpdates[`unreadCounts.${pid}`] = admin.firestore.FieldValue.increment(1);
+  }
+
+  batch.update(targetConvDoc.ref, {
+    lastMessageId: messageRef.id,
+    lastMessageText: preview,
+    lastMessageSenderId: userId,
+    lastMessageSenderName: senderName,
+    lastMessageType: sourceMsg.type || "text",
+    lastMessageAt: now,
+    updatedAt: now,
+    ...unreadUpdates,
+  });
+
+  await batch.commit();
+
+  return { success: true, messageId: messageRef.id };
+});
 
 // ============================================================================
 // PROFILE SYNC TRIGGER

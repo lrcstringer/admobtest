@@ -20,6 +20,17 @@ class ConversationState with _$ConversationState {
     @Default(false) bool isSearching,
     @Default(0) int messageRequestCount,
     String? errorMessage,
+
+    // Typing indicators
+    @Default({}) Map<String, bool> typingUsers,
+
+    // Message search
+    @Default([]) List<Message> messageSearchResults,
+    @Default(false) bool isSearchingMessages,
+    String? messageSearchQuery,
+
+    // Message forwarding
+    @Default(false) bool isForwarding,
   }) = _ConversationState;
 
   const ConversationState._();

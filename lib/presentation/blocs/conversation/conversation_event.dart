@@ -186,6 +186,45 @@ class ConversationEvent with _$ConversationEvent {
   const factory ConversationEvent.clearSearch() = _ClearSearch;
 
   // =========================================================================
+  // TYPING INDICATORS
+  // =========================================================================
+
+  /// Set typing state for current user
+  const factory ConversationEvent.setTyping({
+    required String conversationId,
+    required bool isTyping,
+  }) = _SetTyping;
+
+  /// Typing state updated from stream
+  const factory ConversationEvent.typingStateUpdated(
+    Map<String, bool> typingUsers,
+  ) = _TypingStateUpdated;
+
+  // =========================================================================
+  // MESSAGE SEARCH
+  // =========================================================================
+
+  /// Search messages in a conversation
+  const factory ConversationEvent.searchMessages({
+    required String conversationId,
+    required String query,
+  }) = _SearchMessages;
+
+  /// Clear message search results
+  const factory ConversationEvent.clearMessageSearch() = _ClearMessageSearch;
+
+  // =========================================================================
+  // MESSAGE FORWARDING
+  // =========================================================================
+
+  /// Forward a message to another conversation
+  const factory ConversationEvent.forwardMessage({
+    required String sourceConversationId,
+    required String sourceMessageId,
+    required String targetConversationId,
+  }) = _ForwardMessage;
+
+  // =========================================================================
   // UTILITY
   // =========================================================================
 

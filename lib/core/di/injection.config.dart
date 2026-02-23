@@ -120,6 +120,7 @@ import '../security/security_service.dart' as _i383;
 import '../security/session_lock_service.dart' as _i942;
 import '../security/sim_change_detector.dart' as _i925;
 import '../security/step_up_auth_service.dart' as _i720;
+import '../services/audio_playback_service.dart' as _i38;
 import '../services/biometric_login_service.dart' as _i290;
 import '../services/chat_analytics_service.dart' as _i550;
 import '../services/crypto_service.dart' as _i1024;
@@ -265,6 +266,10 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i152.LocalAuthentication>(),
         gh<_i558.FlutterSecureStorage>(),
       ),
+    );
+    gh.lazySingleton<_i38.AudioPlaybackService>(
+      () => _i38.AudioPlaybackService(gh<_i654.MediaUploadDatasource>()),
+      dispose: (i) => i.dispose(),
     );
     gh.lazySingleton<_i50.UserRemoteDataSource>(
       () => _i50.UserRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),

@@ -89,6 +89,17 @@ mixin _$ConversationEvent {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -149,6 +160,16 @@ mixin _$ConversationEvent {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -209,6 +230,16 @@ mixin _$ConversationEvent {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
@@ -241,6 +272,11 @@ mixin _$ConversationEvent {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -271,6 +307,11 @@ mixin _$ConversationEvent {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -300,6 +341,11 @@ mixin _$ConversationEvent {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
@@ -440,6 +486,17 @@ class _$WatchConversationsImpl implements _WatchConversations {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return watchConversations();
@@ -504,6 +561,16 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return watchConversations?.call();
@@ -568,6 +635,16 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -607,6 +684,11 @@ class _$WatchConversationsImpl implements _WatchConversations {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return watchConversations(this);
@@ -641,6 +723,11 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return watchConversations?.call(this);
@@ -674,6 +761,11 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -844,6 +936,17 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return conversationsUpdated(conversations);
@@ -908,6 +1011,16 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return conversationsUpdated?.call(conversations);
@@ -972,6 +1085,16 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -1011,6 +1134,11 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return conversationsUpdated(this);
@@ -1045,6 +1173,11 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return conversationsUpdated?.call(this);
@@ -1078,6 +1211,11 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -1244,6 +1382,17 @@ class _$SelectConversationImpl implements _SelectConversation {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return selectConversation(id);
@@ -1308,6 +1457,16 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return selectConversation?.call(id);
@@ -1372,6 +1531,16 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -1411,6 +1580,11 @@ class _$SelectConversationImpl implements _SelectConversation {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return selectConversation(this);
@@ -1445,6 +1619,11 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return selectConversation?.call(this);
@@ -1478,6 +1657,11 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -1644,6 +1828,17 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return getOrCreateConversation(participantId);
@@ -1708,6 +1903,16 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return getOrCreateConversation?.call(participantId);
@@ -1772,6 +1977,16 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -1811,6 +2026,11 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return getOrCreateConversation(this);
@@ -1845,6 +2065,11 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return getOrCreateConversation?.call(this);
@@ -1878,6 +2103,11 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -2064,6 +2294,17 @@ class _$LoadMessagesImpl implements _LoadMessages {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return loadMessages(conversationId, limit, before);
@@ -2128,6 +2369,16 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return loadMessages?.call(conversationId, limit, before);
@@ -2192,6 +2443,16 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -2231,6 +2492,11 @@ class _$LoadMessagesImpl implements _LoadMessages {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return loadMessages(this);
@@ -2265,6 +2531,11 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return loadMessages?.call(this);
@@ -2298,6 +2569,11 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -2476,6 +2752,17 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return messagesUpdated(messages);
@@ -2540,6 +2827,16 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return messagesUpdated?.call(messages);
@@ -2604,6 +2901,16 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -2643,6 +2950,11 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return messagesUpdated(this);
@@ -2677,6 +2989,11 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return messagesUpdated?.call(this);
@@ -2710,6 +3027,11 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -2901,6 +3223,17 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return sendTextMessage(conversationId, text, replyToMessageId);
@@ -2965,6 +3298,16 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return sendTextMessage?.call(conversationId, text, replyToMessageId);
@@ -3029,6 +3372,16 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -3068,6 +3421,11 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return sendTextMessage(this);
@@ -3102,6 +3460,11 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return sendTextMessage?.call(this);
@@ -3135,6 +3498,11 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -3375,6 +3743,17 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return sendMediaMessage(
@@ -3446,6 +3825,16 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return sendMediaMessage?.call(
@@ -3517,6 +3906,16 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -3563,6 +3962,11 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return sendMediaMessage(this);
@@ -3597,6 +4001,11 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return sendMediaMessage?.call(this);
@@ -3630,6 +4039,11 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -3843,6 +4257,17 @@ class _$SendTokensImpl implements _SendTokens {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return sendTokens(conversationId, recipientId, amount, message);
@@ -3907,6 +4332,16 @@ class _$SendTokensImpl implements _SendTokens {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return sendTokens?.call(conversationId, recipientId, amount, message);
@@ -3971,6 +4406,16 @@ class _$SendTokensImpl implements _SendTokens {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -4010,6 +4455,11 @@ class _$SendTokensImpl implements _SendTokens {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return sendTokens(this);
@@ -4044,6 +4494,11 @@ class _$SendTokensImpl implements _SendTokens {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return sendTokens?.call(this);
@@ -4077,6 +4532,11 @@ class _$SendTokensImpl implements _SendTokens {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -4286,6 +4746,17 @@ class _$RequestTokensImpl implements _RequestTokens {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return requestTokens(conversationId, recipientId, amount, message);
@@ -4350,6 +4821,16 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return requestTokens?.call(conversationId, recipientId, amount, message);
@@ -4414,6 +4895,16 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -4453,6 +4944,11 @@ class _$RequestTokensImpl implements _RequestTokens {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return requestTokens(this);
@@ -4487,6 +4983,11 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return requestTokens?.call(this);
@@ -4520,6 +5021,11 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -4705,6 +5211,17 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return acceptTokenRequest(messageId, conversationId);
@@ -4769,6 +5286,16 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return acceptTokenRequest?.call(messageId, conversationId);
@@ -4833,6 +5360,16 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -4872,6 +5409,11 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return acceptTokenRequest(this);
@@ -4906,6 +5448,11 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return acceptTokenRequest?.call(this);
@@ -4939,6 +5486,11 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -5120,6 +5672,17 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return declineTokenRequest(messageId, conversationId);
@@ -5184,6 +5747,16 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return declineTokenRequest?.call(messageId, conversationId);
@@ -5248,6 +5821,16 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -5287,6 +5870,11 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return declineTokenRequest(this);
@@ -5321,6 +5909,11 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return declineTokenRequest?.call(this);
@@ -5354,6 +5947,11 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -5521,6 +6119,17 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return markAsRead(conversationId);
@@ -5585,6 +6194,16 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return markAsRead?.call(conversationId);
@@ -5649,6 +6268,16 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -5688,6 +6317,11 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return markAsRead(this);
@@ -5722,6 +6356,11 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return markAsRead?.call(this);
@@ -5755,6 +6394,11 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -5925,6 +6569,17 @@ class _$TogglePinImpl implements _TogglePin {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return togglePin(conversationId, pinned);
@@ -5989,6 +6644,16 @@ class _$TogglePinImpl implements _TogglePin {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return togglePin?.call(conversationId, pinned);
@@ -6053,6 +6718,16 @@ class _$TogglePinImpl implements _TogglePin {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -6092,6 +6767,11 @@ class _$TogglePinImpl implements _TogglePin {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return togglePin(this);
@@ -6126,6 +6806,11 @@ class _$TogglePinImpl implements _TogglePin {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return togglePin?.call(this);
@@ -6159,6 +6844,11 @@ class _$TogglePinImpl implements _TogglePin {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -6333,6 +7023,17 @@ class _$ToggleMuteImpl implements _ToggleMute {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return toggleMute(conversationId, muted);
@@ -6397,6 +7098,16 @@ class _$ToggleMuteImpl implements _ToggleMute {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return toggleMute?.call(conversationId, muted);
@@ -6461,6 +7172,16 @@ class _$ToggleMuteImpl implements _ToggleMute {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -6500,6 +7221,11 @@ class _$ToggleMuteImpl implements _ToggleMute {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return toggleMute(this);
@@ -6534,6 +7260,11 @@ class _$ToggleMuteImpl implements _ToggleMute {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return toggleMute?.call(this);
@@ -6567,6 +7298,11 @@ class _$ToggleMuteImpl implements _ToggleMute {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -6737,6 +7473,17 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return archiveConversation(conversationId);
@@ -6801,6 +7548,16 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return archiveConversation?.call(conversationId);
@@ -6865,6 +7622,16 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -6904,6 +7671,11 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return archiveConversation(this);
@@ -6938,6 +7710,11 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return archiveConversation?.call(this);
@@ -6971,6 +7748,11 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -7138,6 +7920,17 @@ class _$AcceptConversationImpl implements _AcceptConversation {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return acceptConversation(conversationId);
@@ -7202,6 +7995,16 @@ class _$AcceptConversationImpl implements _AcceptConversation {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return acceptConversation?.call(conversationId);
@@ -7266,6 +8069,16 @@ class _$AcceptConversationImpl implements _AcceptConversation {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -7305,6 +8118,11 @@ class _$AcceptConversationImpl implements _AcceptConversation {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return acceptConversation(this);
@@ -7339,6 +8157,11 @@ class _$AcceptConversationImpl implements _AcceptConversation {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return acceptConversation?.call(this);
@@ -7372,6 +8195,11 @@ class _$AcceptConversationImpl implements _AcceptConversation {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -7560,6 +8388,17 @@ class _$AddReactionImpl implements _AddReaction {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return addReaction(conversationId, messageId, emoji);
@@ -7624,6 +8463,16 @@ class _$AddReactionImpl implements _AddReaction {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return addReaction?.call(conversationId, messageId, emoji);
@@ -7688,6 +8537,16 @@ class _$AddReactionImpl implements _AddReaction {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -7727,6 +8586,11 @@ class _$AddReactionImpl implements _AddReaction {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return addReaction(this);
@@ -7761,6 +8625,11 @@ class _$AddReactionImpl implements _AddReaction {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return addReaction?.call(this);
@@ -7794,6 +8663,11 @@ class _$AddReactionImpl implements _AddReaction {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -7990,6 +8864,17 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return removeReaction(conversationId, messageId, emoji);
@@ -8054,6 +8939,16 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return removeReaction?.call(conversationId, messageId, emoji);
@@ -8118,6 +9013,16 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -8157,6 +9062,11 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return removeReaction(this);
@@ -8191,6 +9101,11 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return removeReaction?.call(this);
@@ -8224,6 +9139,11 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -8395,6 +9315,17 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return unreadCountUpdated(count);
@@ -8459,6 +9390,16 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return unreadCountUpdated?.call(count);
@@ -8523,6 +9464,16 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -8562,6 +9513,11 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return unreadCountUpdated(this);
@@ -8596,6 +9552,11 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return unreadCountUpdated?.call(this);
@@ -8629,6 +9590,11 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -8807,6 +9773,17 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return deleteMessageForEveryone(conversationId, messageId);
@@ -8871,6 +9848,16 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return deleteMessageForEveryone?.call(conversationId, messageId);
@@ -8935,6 +9922,16 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -8974,6 +9971,11 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return deleteMessageForEveryone(this);
@@ -9008,6 +10010,11 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return deleteMessageForEveryone?.call(this);
@@ -9041,6 +10048,11 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -9208,6 +10220,17 @@ class _$ClearChatImpl implements _ClearChat {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return clearChat(conversationId);
@@ -9272,6 +10295,16 @@ class _$ClearChatImpl implements _ClearChat {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return clearChat?.call(conversationId);
@@ -9336,6 +10369,16 @@ class _$ClearChatImpl implements _ClearChat {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -9375,6 +10418,11 @@ class _$ClearChatImpl implements _ClearChat {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return clearChat(this);
@@ -9409,6 +10457,11 @@ class _$ClearChatImpl implements _ClearChat {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return clearChat?.call(this);
@@ -9442,6 +10495,11 @@ class _$ClearChatImpl implements _ClearChat {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -9616,6 +10674,17 @@ class _$RetryMessageImpl implements _RetryMessage {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return retryMessage(conversationId, messageId);
@@ -9680,6 +10749,16 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return retryMessage?.call(conversationId, messageId);
@@ -9744,6 +10823,16 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -9783,6 +10872,11 @@ class _$RetryMessageImpl implements _RetryMessage {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return retryMessage(this);
@@ -9817,6 +10911,11 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return retryMessage?.call(this);
@@ -9850,6 +10949,11 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -10016,6 +11120,17 @@ class _$SearchUsersImpl implements _SearchUsers {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return searchUsers(query);
@@ -10080,6 +11195,16 @@ class _$SearchUsersImpl implements _SearchUsers {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return searchUsers?.call(query);
@@ -10144,6 +11269,16 @@ class _$SearchUsersImpl implements _SearchUsers {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -10183,6 +11318,11 @@ class _$SearchUsersImpl implements _SearchUsers {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return searchUsers(this);
@@ -10217,6 +11357,11 @@ class _$SearchUsersImpl implements _SearchUsers {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return searchUsers?.call(this);
@@ -10250,6 +11395,11 @@ class _$SearchUsersImpl implements _SearchUsers {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -10385,6 +11535,17 @@ class _$ClearSearchImpl implements _ClearSearch {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return clearSearch();
@@ -10449,6 +11610,16 @@ class _$ClearSearchImpl implements _ClearSearch {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return clearSearch?.call();
@@ -10513,6 +11684,16 @@ class _$ClearSearchImpl implements _ClearSearch {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -10552,6 +11733,11 @@ class _$ClearSearchImpl implements _ClearSearch {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return clearSearch(this);
@@ -10586,6 +11772,11 @@ class _$ClearSearchImpl implements _ClearSearch {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return clearSearch?.call(this);
@@ -10619,6 +11810,11 @@ class _$ClearSearchImpl implements _ClearSearch {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -10631,6 +11827,2283 @@ class _$ClearSearchImpl implements _ClearSearch {
 
 abstract class _ClearSearch implements ConversationEvent {
   const factory _ClearSearch() = _$ClearSearchImpl;
+}
+
+/// @nodoc
+abstract class _$$SetTypingImplCopyWith<$Res> {
+  factory _$$SetTypingImplCopyWith(
+    _$SetTypingImpl value,
+    $Res Function(_$SetTypingImpl) then,
+  ) = __$$SetTypingImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String conversationId, bool isTyping});
+}
+
+/// @nodoc
+class __$$SetTypingImplCopyWithImpl<$Res>
+    extends _$ConversationEventCopyWithImpl<$Res, _$SetTypingImpl>
+    implements _$$SetTypingImplCopyWith<$Res> {
+  __$$SetTypingImplCopyWithImpl(
+    _$SetTypingImpl _value,
+    $Res Function(_$SetTypingImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? conversationId = null, Object? isTyping = null}) {
+    return _then(
+      _$SetTypingImpl(
+        conversationId: null == conversationId
+            ? _value.conversationId
+            : conversationId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        isTyping: null == isTyping
+            ? _value.isTyping
+            : isTyping // ignore: cast_nullable_to_non_nullable
+                  as bool,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$SetTypingImpl implements _SetTyping {
+  const _$SetTypingImpl({required this.conversationId, required this.isTyping});
+
+  @override
+  final String conversationId;
+  @override
+  final bool isTyping;
+
+  @override
+  String toString() {
+    return 'ConversationEvent.setTyping(conversationId: $conversationId, isTyping: $isTyping)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SetTypingImpl &&
+            (identical(other.conversationId, conversationId) ||
+                other.conversationId == conversationId) &&
+            (identical(other.isTyping, isTyping) ||
+                other.isTyping == isTyping));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, conversationId, isTyping);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SetTypingImplCopyWith<_$SetTypingImpl> get copyWith =>
+      __$$SetTypingImplCopyWithImpl<_$SetTypingImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() watchConversations,
+    required TResult Function(List<Conversation> conversations)
+    conversationsUpdated,
+    required TResult Function(String id) selectConversation,
+    required TResult Function(String participantId) getOrCreateConversation,
+    required TResult Function(
+      String conversationId,
+      int? limit,
+      DateTime? before,
+    )
+    loadMessages,
+    required TResult Function(List<Message> messages) messagesUpdated,
+    required TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )
+    sendTextMessage,
+    required TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )
+    sendMediaMessage,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    sendTokens,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    requestTokens,
+    required TResult Function(String messageId, String conversationId)
+    acceptTokenRequest,
+    required TResult Function(String messageId, String conversationId)
+    declineTokenRequest,
+    required TResult Function(String conversationId) markAsRead,
+    required TResult Function(String conversationId, bool pinned) togglePin,
+    required TResult Function(String conversationId, bool muted) toggleMute,
+    required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    addReaction,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    removeReaction,
+    required TResult Function(int count) unreadCountUpdated,
+    required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
+    retryMessage,
+    required TResult Function(String query) searchUsers,
+    required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
+    required TResult Function() clearError,
+  }) {
+    return setTyping(conversationId, isTyping);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? watchConversations,
+    TResult? Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult? Function(String id)? selectConversation,
+    TResult? Function(String participantId)? getOrCreateConversation,
+    TResult? Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult? Function(List<Message> messages)? messagesUpdated,
+    TResult? Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult? Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )?
+    sendMediaMessage,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult? Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult? Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult? Function(String conversationId)? markAsRead,
+    TResult? Function(String conversationId, bool pinned)? togglePin,
+    TResult? Function(String conversationId, bool muted)? toggleMute,
+    TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
+    TResult? Function(String conversationId, String messageId)? retryMessage,
+    TResult? Function(String query)? searchUsers,
+    TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
+    TResult? Function()? clearError,
+  }) {
+    return setTyping?.call(conversationId, isTyping);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? watchConversations,
+    TResult Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult Function(String id)? selectConversation,
+    TResult Function(String participantId)? getOrCreateConversation,
+    TResult Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult Function(List<Message> messages)? messagesUpdated,
+    TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )?
+    sendMediaMessage,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult Function(String conversationId)? markAsRead,
+    TResult Function(String conversationId, bool pinned)? togglePin,
+    TResult Function(String conversationId, bool muted)? toggleMute,
+    TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
+    TResult Function(String conversationId, String messageId)? retryMessage,
+    TResult Function(String query)? searchUsers,
+    TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
+    TResult Function()? clearError,
+    required TResult orElse(),
+  }) {
+    if (setTyping != null) {
+      return setTyping(conversationId, isTyping);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_WatchConversations value) watchConversations,
+    required TResult Function(_ConversationsUpdated value) conversationsUpdated,
+    required TResult Function(_SelectConversation value) selectConversation,
+    required TResult Function(_GetOrCreateConversation value)
+    getOrCreateConversation,
+    required TResult Function(_LoadMessages value) loadMessages,
+    required TResult Function(_MessagesUpdated value) messagesUpdated,
+    required TResult Function(_SendTextMessage value) sendTextMessage,
+    required TResult Function(_SendMediaMessage value) sendMediaMessage,
+    required TResult Function(_SendTokens value) sendTokens,
+    required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
+    required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
+    required TResult Function(_MarkAsRead value) markAsRead,
+    required TResult Function(_TogglePin value) togglePin,
+    required TResult Function(_ToggleMute value) toggleMute,
+    required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
+    required TResult Function(_AddReaction value) addReaction,
+    required TResult Function(_RemoveReaction value) removeReaction,
+    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
+    required TResult Function(_RetryMessage value) retryMessage,
+    required TResult Function(_SearchUsers value) searchUsers,
+    required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
+    required TResult Function(_ClearError value) clearError,
+  }) {
+    return setTyping(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_WatchConversations value)? watchConversations,
+    TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult? Function(_SelectConversation value)? selectConversation,
+    TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult? Function(_LoadMessages value)? loadMessages,
+    TResult? Function(_MessagesUpdated value)? messagesUpdated,
+    TResult? Function(_SendTextMessage value)? sendTextMessage,
+    TResult? Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult? Function(_SendTokens value)? sendTokens,
+    TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult? Function(_MarkAsRead value)? markAsRead,
+    TResult? Function(_TogglePin value)? togglePin,
+    TResult? Function(_ToggleMute value)? toggleMute,
+    TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
+    TResult? Function(_AddReaction value)? addReaction,
+    TResult? Function(_RemoveReaction value)? removeReaction,
+    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
+    TResult? Function(_RetryMessage value)? retryMessage,
+    TResult? Function(_SearchUsers value)? searchUsers,
+    TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
+    TResult? Function(_ClearError value)? clearError,
+  }) {
+    return setTyping?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_WatchConversations value)? watchConversations,
+    TResult Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult Function(_SelectConversation value)? selectConversation,
+    TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult Function(_LoadMessages value)? loadMessages,
+    TResult Function(_MessagesUpdated value)? messagesUpdated,
+    TResult Function(_SendTextMessage value)? sendTextMessage,
+    TResult Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult Function(_SendTokens value)? sendTokens,
+    TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult Function(_MarkAsRead value)? markAsRead,
+    TResult Function(_TogglePin value)? togglePin,
+    TResult Function(_ToggleMute value)? toggleMute,
+    TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
+    TResult Function(_AddReaction value)? addReaction,
+    TResult Function(_RemoveReaction value)? removeReaction,
+    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
+    TResult Function(_RetryMessage value)? retryMessage,
+    TResult Function(_SearchUsers value)? searchUsers,
+    TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
+    TResult Function(_ClearError value)? clearError,
+    required TResult orElse(),
+  }) {
+    if (setTyping != null) {
+      return setTyping(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _SetTyping implements ConversationEvent {
+  const factory _SetTyping({
+    required final String conversationId,
+    required final bool isTyping,
+  }) = _$SetTypingImpl;
+
+  String get conversationId;
+  bool get isTyping;
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SetTypingImplCopyWith<_$SetTypingImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$TypingStateUpdatedImplCopyWith<$Res> {
+  factory _$$TypingStateUpdatedImplCopyWith(
+    _$TypingStateUpdatedImpl value,
+    $Res Function(_$TypingStateUpdatedImpl) then,
+  ) = __$$TypingStateUpdatedImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({Map<String, bool> typingUsers});
+}
+
+/// @nodoc
+class __$$TypingStateUpdatedImplCopyWithImpl<$Res>
+    extends _$ConversationEventCopyWithImpl<$Res, _$TypingStateUpdatedImpl>
+    implements _$$TypingStateUpdatedImplCopyWith<$Res> {
+  __$$TypingStateUpdatedImplCopyWithImpl(
+    _$TypingStateUpdatedImpl _value,
+    $Res Function(_$TypingStateUpdatedImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? typingUsers = null}) {
+    return _then(
+      _$TypingStateUpdatedImpl(
+        null == typingUsers
+            ? _value._typingUsers
+            : typingUsers // ignore: cast_nullable_to_non_nullable
+                  as Map<String, bool>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
+  const _$TypingStateUpdatedImpl(final Map<String, bool> typingUsers)
+    : _typingUsers = typingUsers;
+
+  final Map<String, bool> _typingUsers;
+  @override
+  Map<String, bool> get typingUsers {
+    if (_typingUsers is EqualUnmodifiableMapView) return _typingUsers;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_typingUsers);
+  }
+
+  @override
+  String toString() {
+    return 'ConversationEvent.typingStateUpdated(typingUsers: $typingUsers)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$TypingStateUpdatedImpl &&
+            const DeepCollectionEquality().equals(
+              other._typingUsers,
+              _typingUsers,
+            ));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_typingUsers),
+  );
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$TypingStateUpdatedImplCopyWith<_$TypingStateUpdatedImpl> get copyWith =>
+      __$$TypingStateUpdatedImplCopyWithImpl<_$TypingStateUpdatedImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() watchConversations,
+    required TResult Function(List<Conversation> conversations)
+    conversationsUpdated,
+    required TResult Function(String id) selectConversation,
+    required TResult Function(String participantId) getOrCreateConversation,
+    required TResult Function(
+      String conversationId,
+      int? limit,
+      DateTime? before,
+    )
+    loadMessages,
+    required TResult Function(List<Message> messages) messagesUpdated,
+    required TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )
+    sendTextMessage,
+    required TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )
+    sendMediaMessage,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    sendTokens,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    requestTokens,
+    required TResult Function(String messageId, String conversationId)
+    acceptTokenRequest,
+    required TResult Function(String messageId, String conversationId)
+    declineTokenRequest,
+    required TResult Function(String conversationId) markAsRead,
+    required TResult Function(String conversationId, bool pinned) togglePin,
+    required TResult Function(String conversationId, bool muted) toggleMute,
+    required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    addReaction,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    removeReaction,
+    required TResult Function(int count) unreadCountUpdated,
+    required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
+    retryMessage,
+    required TResult Function(String query) searchUsers,
+    required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
+    required TResult Function() clearError,
+  }) {
+    return typingStateUpdated(typingUsers);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? watchConversations,
+    TResult? Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult? Function(String id)? selectConversation,
+    TResult? Function(String participantId)? getOrCreateConversation,
+    TResult? Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult? Function(List<Message> messages)? messagesUpdated,
+    TResult? Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult? Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )?
+    sendMediaMessage,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult? Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult? Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult? Function(String conversationId)? markAsRead,
+    TResult? Function(String conversationId, bool pinned)? togglePin,
+    TResult? Function(String conversationId, bool muted)? toggleMute,
+    TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
+    TResult? Function(String conversationId, String messageId)? retryMessage,
+    TResult? Function(String query)? searchUsers,
+    TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
+    TResult? Function()? clearError,
+  }) {
+    return typingStateUpdated?.call(typingUsers);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? watchConversations,
+    TResult Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult Function(String id)? selectConversation,
+    TResult Function(String participantId)? getOrCreateConversation,
+    TResult Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult Function(List<Message> messages)? messagesUpdated,
+    TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )?
+    sendMediaMessage,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult Function(String conversationId)? markAsRead,
+    TResult Function(String conversationId, bool pinned)? togglePin,
+    TResult Function(String conversationId, bool muted)? toggleMute,
+    TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
+    TResult Function(String conversationId, String messageId)? retryMessage,
+    TResult Function(String query)? searchUsers,
+    TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
+    TResult Function()? clearError,
+    required TResult orElse(),
+  }) {
+    if (typingStateUpdated != null) {
+      return typingStateUpdated(typingUsers);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_WatchConversations value) watchConversations,
+    required TResult Function(_ConversationsUpdated value) conversationsUpdated,
+    required TResult Function(_SelectConversation value) selectConversation,
+    required TResult Function(_GetOrCreateConversation value)
+    getOrCreateConversation,
+    required TResult Function(_LoadMessages value) loadMessages,
+    required TResult Function(_MessagesUpdated value) messagesUpdated,
+    required TResult Function(_SendTextMessage value) sendTextMessage,
+    required TResult Function(_SendMediaMessage value) sendMediaMessage,
+    required TResult Function(_SendTokens value) sendTokens,
+    required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
+    required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
+    required TResult Function(_MarkAsRead value) markAsRead,
+    required TResult Function(_TogglePin value) togglePin,
+    required TResult Function(_ToggleMute value) toggleMute,
+    required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
+    required TResult Function(_AddReaction value) addReaction,
+    required TResult Function(_RemoveReaction value) removeReaction,
+    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
+    required TResult Function(_RetryMessage value) retryMessage,
+    required TResult Function(_SearchUsers value) searchUsers,
+    required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
+    required TResult Function(_ClearError value) clearError,
+  }) {
+    return typingStateUpdated(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_WatchConversations value)? watchConversations,
+    TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult? Function(_SelectConversation value)? selectConversation,
+    TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult? Function(_LoadMessages value)? loadMessages,
+    TResult? Function(_MessagesUpdated value)? messagesUpdated,
+    TResult? Function(_SendTextMessage value)? sendTextMessage,
+    TResult? Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult? Function(_SendTokens value)? sendTokens,
+    TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult? Function(_MarkAsRead value)? markAsRead,
+    TResult? Function(_TogglePin value)? togglePin,
+    TResult? Function(_ToggleMute value)? toggleMute,
+    TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
+    TResult? Function(_AddReaction value)? addReaction,
+    TResult? Function(_RemoveReaction value)? removeReaction,
+    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
+    TResult? Function(_RetryMessage value)? retryMessage,
+    TResult? Function(_SearchUsers value)? searchUsers,
+    TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
+    TResult? Function(_ClearError value)? clearError,
+  }) {
+    return typingStateUpdated?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_WatchConversations value)? watchConversations,
+    TResult Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult Function(_SelectConversation value)? selectConversation,
+    TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult Function(_LoadMessages value)? loadMessages,
+    TResult Function(_MessagesUpdated value)? messagesUpdated,
+    TResult Function(_SendTextMessage value)? sendTextMessage,
+    TResult Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult Function(_SendTokens value)? sendTokens,
+    TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult Function(_MarkAsRead value)? markAsRead,
+    TResult Function(_TogglePin value)? togglePin,
+    TResult Function(_ToggleMute value)? toggleMute,
+    TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
+    TResult Function(_AddReaction value)? addReaction,
+    TResult Function(_RemoveReaction value)? removeReaction,
+    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
+    TResult Function(_RetryMessage value)? retryMessage,
+    TResult Function(_SearchUsers value)? searchUsers,
+    TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
+    TResult Function(_ClearError value)? clearError,
+    required TResult orElse(),
+  }) {
+    if (typingStateUpdated != null) {
+      return typingStateUpdated(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _TypingStateUpdated implements ConversationEvent {
+  const factory _TypingStateUpdated(final Map<String, bool> typingUsers) =
+      _$TypingStateUpdatedImpl;
+
+  Map<String, bool> get typingUsers;
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$TypingStateUpdatedImplCopyWith<_$TypingStateUpdatedImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$SearchMessagesImplCopyWith<$Res> {
+  factory _$$SearchMessagesImplCopyWith(
+    _$SearchMessagesImpl value,
+    $Res Function(_$SearchMessagesImpl) then,
+  ) = __$$SearchMessagesImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String conversationId, String query});
+}
+
+/// @nodoc
+class __$$SearchMessagesImplCopyWithImpl<$Res>
+    extends _$ConversationEventCopyWithImpl<$Res, _$SearchMessagesImpl>
+    implements _$$SearchMessagesImplCopyWith<$Res> {
+  __$$SearchMessagesImplCopyWithImpl(
+    _$SearchMessagesImpl _value,
+    $Res Function(_$SearchMessagesImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? conversationId = null, Object? query = null}) {
+    return _then(
+      _$SearchMessagesImpl(
+        conversationId: null == conversationId
+            ? _value.conversationId
+            : conversationId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        query: null == query
+            ? _value.query
+            : query // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$SearchMessagesImpl implements _SearchMessages {
+  const _$SearchMessagesImpl({
+    required this.conversationId,
+    required this.query,
+  });
+
+  @override
+  final String conversationId;
+  @override
+  final String query;
+
+  @override
+  String toString() {
+    return 'ConversationEvent.searchMessages(conversationId: $conversationId, query: $query)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SearchMessagesImpl &&
+            (identical(other.conversationId, conversationId) ||
+                other.conversationId == conversationId) &&
+            (identical(other.query, query) || other.query == query));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, conversationId, query);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SearchMessagesImplCopyWith<_$SearchMessagesImpl> get copyWith =>
+      __$$SearchMessagesImplCopyWithImpl<_$SearchMessagesImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() watchConversations,
+    required TResult Function(List<Conversation> conversations)
+    conversationsUpdated,
+    required TResult Function(String id) selectConversation,
+    required TResult Function(String participantId) getOrCreateConversation,
+    required TResult Function(
+      String conversationId,
+      int? limit,
+      DateTime? before,
+    )
+    loadMessages,
+    required TResult Function(List<Message> messages) messagesUpdated,
+    required TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )
+    sendTextMessage,
+    required TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )
+    sendMediaMessage,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    sendTokens,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    requestTokens,
+    required TResult Function(String messageId, String conversationId)
+    acceptTokenRequest,
+    required TResult Function(String messageId, String conversationId)
+    declineTokenRequest,
+    required TResult Function(String conversationId) markAsRead,
+    required TResult Function(String conversationId, bool pinned) togglePin,
+    required TResult Function(String conversationId, bool muted) toggleMute,
+    required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    addReaction,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    removeReaction,
+    required TResult Function(int count) unreadCountUpdated,
+    required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
+    retryMessage,
+    required TResult Function(String query) searchUsers,
+    required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
+    required TResult Function() clearError,
+  }) {
+    return searchMessages(conversationId, query);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? watchConversations,
+    TResult? Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult? Function(String id)? selectConversation,
+    TResult? Function(String participantId)? getOrCreateConversation,
+    TResult? Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult? Function(List<Message> messages)? messagesUpdated,
+    TResult? Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult? Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )?
+    sendMediaMessage,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult? Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult? Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult? Function(String conversationId)? markAsRead,
+    TResult? Function(String conversationId, bool pinned)? togglePin,
+    TResult? Function(String conversationId, bool muted)? toggleMute,
+    TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
+    TResult? Function(String conversationId, String messageId)? retryMessage,
+    TResult? Function(String query)? searchUsers,
+    TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
+    TResult? Function()? clearError,
+  }) {
+    return searchMessages?.call(conversationId, query);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? watchConversations,
+    TResult Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult Function(String id)? selectConversation,
+    TResult Function(String participantId)? getOrCreateConversation,
+    TResult Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult Function(List<Message> messages)? messagesUpdated,
+    TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )?
+    sendMediaMessage,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult Function(String conversationId)? markAsRead,
+    TResult Function(String conversationId, bool pinned)? togglePin,
+    TResult Function(String conversationId, bool muted)? toggleMute,
+    TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
+    TResult Function(String conversationId, String messageId)? retryMessage,
+    TResult Function(String query)? searchUsers,
+    TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
+    TResult Function()? clearError,
+    required TResult orElse(),
+  }) {
+    if (searchMessages != null) {
+      return searchMessages(conversationId, query);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_WatchConversations value) watchConversations,
+    required TResult Function(_ConversationsUpdated value) conversationsUpdated,
+    required TResult Function(_SelectConversation value) selectConversation,
+    required TResult Function(_GetOrCreateConversation value)
+    getOrCreateConversation,
+    required TResult Function(_LoadMessages value) loadMessages,
+    required TResult Function(_MessagesUpdated value) messagesUpdated,
+    required TResult Function(_SendTextMessage value) sendTextMessage,
+    required TResult Function(_SendMediaMessage value) sendMediaMessage,
+    required TResult Function(_SendTokens value) sendTokens,
+    required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
+    required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
+    required TResult Function(_MarkAsRead value) markAsRead,
+    required TResult Function(_TogglePin value) togglePin,
+    required TResult Function(_ToggleMute value) toggleMute,
+    required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
+    required TResult Function(_AddReaction value) addReaction,
+    required TResult Function(_RemoveReaction value) removeReaction,
+    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
+    required TResult Function(_RetryMessage value) retryMessage,
+    required TResult Function(_SearchUsers value) searchUsers,
+    required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
+    required TResult Function(_ClearError value) clearError,
+  }) {
+    return searchMessages(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_WatchConversations value)? watchConversations,
+    TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult? Function(_SelectConversation value)? selectConversation,
+    TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult? Function(_LoadMessages value)? loadMessages,
+    TResult? Function(_MessagesUpdated value)? messagesUpdated,
+    TResult? Function(_SendTextMessage value)? sendTextMessage,
+    TResult? Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult? Function(_SendTokens value)? sendTokens,
+    TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult? Function(_MarkAsRead value)? markAsRead,
+    TResult? Function(_TogglePin value)? togglePin,
+    TResult? Function(_ToggleMute value)? toggleMute,
+    TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
+    TResult? Function(_AddReaction value)? addReaction,
+    TResult? Function(_RemoveReaction value)? removeReaction,
+    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
+    TResult? Function(_RetryMessage value)? retryMessage,
+    TResult? Function(_SearchUsers value)? searchUsers,
+    TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
+    TResult? Function(_ClearError value)? clearError,
+  }) {
+    return searchMessages?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_WatchConversations value)? watchConversations,
+    TResult Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult Function(_SelectConversation value)? selectConversation,
+    TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult Function(_LoadMessages value)? loadMessages,
+    TResult Function(_MessagesUpdated value)? messagesUpdated,
+    TResult Function(_SendTextMessage value)? sendTextMessage,
+    TResult Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult Function(_SendTokens value)? sendTokens,
+    TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult Function(_MarkAsRead value)? markAsRead,
+    TResult Function(_TogglePin value)? togglePin,
+    TResult Function(_ToggleMute value)? toggleMute,
+    TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
+    TResult Function(_AddReaction value)? addReaction,
+    TResult Function(_RemoveReaction value)? removeReaction,
+    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
+    TResult Function(_RetryMessage value)? retryMessage,
+    TResult Function(_SearchUsers value)? searchUsers,
+    TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
+    TResult Function(_ClearError value)? clearError,
+    required TResult orElse(),
+  }) {
+    if (searchMessages != null) {
+      return searchMessages(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _SearchMessages implements ConversationEvent {
+  const factory _SearchMessages({
+    required final String conversationId,
+    required final String query,
+  }) = _$SearchMessagesImpl;
+
+  String get conversationId;
+  String get query;
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SearchMessagesImplCopyWith<_$SearchMessagesImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$ClearMessageSearchImplCopyWith<$Res> {
+  factory _$$ClearMessageSearchImplCopyWith(
+    _$ClearMessageSearchImpl value,
+    $Res Function(_$ClearMessageSearchImpl) then,
+  ) = __$$ClearMessageSearchImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$ClearMessageSearchImplCopyWithImpl<$Res>
+    extends _$ConversationEventCopyWithImpl<$Res, _$ClearMessageSearchImpl>
+    implements _$$ClearMessageSearchImplCopyWith<$Res> {
+  __$$ClearMessageSearchImplCopyWithImpl(
+    _$ClearMessageSearchImpl _value,
+    $Res Function(_$ClearMessageSearchImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$ClearMessageSearchImpl implements _ClearMessageSearch {
+  const _$ClearMessageSearchImpl();
+
+  @override
+  String toString() {
+    return 'ConversationEvent.clearMessageSearch()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$ClearMessageSearchImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() watchConversations,
+    required TResult Function(List<Conversation> conversations)
+    conversationsUpdated,
+    required TResult Function(String id) selectConversation,
+    required TResult Function(String participantId) getOrCreateConversation,
+    required TResult Function(
+      String conversationId,
+      int? limit,
+      DateTime? before,
+    )
+    loadMessages,
+    required TResult Function(List<Message> messages) messagesUpdated,
+    required TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )
+    sendTextMessage,
+    required TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )
+    sendMediaMessage,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    sendTokens,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    requestTokens,
+    required TResult Function(String messageId, String conversationId)
+    acceptTokenRequest,
+    required TResult Function(String messageId, String conversationId)
+    declineTokenRequest,
+    required TResult Function(String conversationId) markAsRead,
+    required TResult Function(String conversationId, bool pinned) togglePin,
+    required TResult Function(String conversationId, bool muted) toggleMute,
+    required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    addReaction,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    removeReaction,
+    required TResult Function(int count) unreadCountUpdated,
+    required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
+    retryMessage,
+    required TResult Function(String query) searchUsers,
+    required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
+    required TResult Function() clearError,
+  }) {
+    return clearMessageSearch();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? watchConversations,
+    TResult? Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult? Function(String id)? selectConversation,
+    TResult? Function(String participantId)? getOrCreateConversation,
+    TResult? Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult? Function(List<Message> messages)? messagesUpdated,
+    TResult? Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult? Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )?
+    sendMediaMessage,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult? Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult? Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult? Function(String conversationId)? markAsRead,
+    TResult? Function(String conversationId, bool pinned)? togglePin,
+    TResult? Function(String conversationId, bool muted)? toggleMute,
+    TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
+    TResult? Function(String conversationId, String messageId)? retryMessage,
+    TResult? Function(String query)? searchUsers,
+    TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
+    TResult? Function()? clearError,
+  }) {
+    return clearMessageSearch?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? watchConversations,
+    TResult Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult Function(String id)? selectConversation,
+    TResult Function(String participantId)? getOrCreateConversation,
+    TResult Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult Function(List<Message> messages)? messagesUpdated,
+    TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )?
+    sendMediaMessage,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult Function(String conversationId)? markAsRead,
+    TResult Function(String conversationId, bool pinned)? togglePin,
+    TResult Function(String conversationId, bool muted)? toggleMute,
+    TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
+    TResult Function(String conversationId, String messageId)? retryMessage,
+    TResult Function(String query)? searchUsers,
+    TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
+    TResult Function()? clearError,
+    required TResult orElse(),
+  }) {
+    if (clearMessageSearch != null) {
+      return clearMessageSearch();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_WatchConversations value) watchConversations,
+    required TResult Function(_ConversationsUpdated value) conversationsUpdated,
+    required TResult Function(_SelectConversation value) selectConversation,
+    required TResult Function(_GetOrCreateConversation value)
+    getOrCreateConversation,
+    required TResult Function(_LoadMessages value) loadMessages,
+    required TResult Function(_MessagesUpdated value) messagesUpdated,
+    required TResult Function(_SendTextMessage value) sendTextMessage,
+    required TResult Function(_SendMediaMessage value) sendMediaMessage,
+    required TResult Function(_SendTokens value) sendTokens,
+    required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
+    required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
+    required TResult Function(_MarkAsRead value) markAsRead,
+    required TResult Function(_TogglePin value) togglePin,
+    required TResult Function(_ToggleMute value) toggleMute,
+    required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
+    required TResult Function(_AddReaction value) addReaction,
+    required TResult Function(_RemoveReaction value) removeReaction,
+    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
+    required TResult Function(_RetryMessage value) retryMessage,
+    required TResult Function(_SearchUsers value) searchUsers,
+    required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
+    required TResult Function(_ClearError value) clearError,
+  }) {
+    return clearMessageSearch(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_WatchConversations value)? watchConversations,
+    TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult? Function(_SelectConversation value)? selectConversation,
+    TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult? Function(_LoadMessages value)? loadMessages,
+    TResult? Function(_MessagesUpdated value)? messagesUpdated,
+    TResult? Function(_SendTextMessage value)? sendTextMessage,
+    TResult? Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult? Function(_SendTokens value)? sendTokens,
+    TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult? Function(_MarkAsRead value)? markAsRead,
+    TResult? Function(_TogglePin value)? togglePin,
+    TResult? Function(_ToggleMute value)? toggleMute,
+    TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
+    TResult? Function(_AddReaction value)? addReaction,
+    TResult? Function(_RemoveReaction value)? removeReaction,
+    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
+    TResult? Function(_RetryMessage value)? retryMessage,
+    TResult? Function(_SearchUsers value)? searchUsers,
+    TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
+    TResult? Function(_ClearError value)? clearError,
+  }) {
+    return clearMessageSearch?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_WatchConversations value)? watchConversations,
+    TResult Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult Function(_SelectConversation value)? selectConversation,
+    TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult Function(_LoadMessages value)? loadMessages,
+    TResult Function(_MessagesUpdated value)? messagesUpdated,
+    TResult Function(_SendTextMessage value)? sendTextMessage,
+    TResult Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult Function(_SendTokens value)? sendTokens,
+    TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult Function(_MarkAsRead value)? markAsRead,
+    TResult Function(_TogglePin value)? togglePin,
+    TResult Function(_ToggleMute value)? toggleMute,
+    TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
+    TResult Function(_AddReaction value)? addReaction,
+    TResult Function(_RemoveReaction value)? removeReaction,
+    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
+    TResult Function(_RetryMessage value)? retryMessage,
+    TResult Function(_SearchUsers value)? searchUsers,
+    TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
+    TResult Function(_ClearError value)? clearError,
+    required TResult orElse(),
+  }) {
+    if (clearMessageSearch != null) {
+      return clearMessageSearch(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ClearMessageSearch implements ConversationEvent {
+  const factory _ClearMessageSearch() = _$ClearMessageSearchImpl;
+}
+
+/// @nodoc
+abstract class _$$ForwardMessageImplCopyWith<$Res> {
+  factory _$$ForwardMessageImplCopyWith(
+    _$ForwardMessageImpl value,
+    $Res Function(_$ForwardMessageImpl) then,
+  ) = __$$ForwardMessageImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({
+    String sourceConversationId,
+    String sourceMessageId,
+    String targetConversationId,
+  });
+}
+
+/// @nodoc
+class __$$ForwardMessageImplCopyWithImpl<$Res>
+    extends _$ConversationEventCopyWithImpl<$Res, _$ForwardMessageImpl>
+    implements _$$ForwardMessageImplCopyWith<$Res> {
+  __$$ForwardMessageImplCopyWithImpl(
+    _$ForwardMessageImpl _value,
+    $Res Function(_$ForwardMessageImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? sourceConversationId = null,
+    Object? sourceMessageId = null,
+    Object? targetConversationId = null,
+  }) {
+    return _then(
+      _$ForwardMessageImpl(
+        sourceConversationId: null == sourceConversationId
+            ? _value.sourceConversationId
+            : sourceConversationId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        sourceMessageId: null == sourceMessageId
+            ? _value.sourceMessageId
+            : sourceMessageId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        targetConversationId: null == targetConversationId
+            ? _value.targetConversationId
+            : targetConversationId // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$ForwardMessageImpl implements _ForwardMessage {
+  const _$ForwardMessageImpl({
+    required this.sourceConversationId,
+    required this.sourceMessageId,
+    required this.targetConversationId,
+  });
+
+  @override
+  final String sourceConversationId;
+  @override
+  final String sourceMessageId;
+  @override
+  final String targetConversationId;
+
+  @override
+  String toString() {
+    return 'ConversationEvent.forwardMessage(sourceConversationId: $sourceConversationId, sourceMessageId: $sourceMessageId, targetConversationId: $targetConversationId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ForwardMessageImpl &&
+            (identical(other.sourceConversationId, sourceConversationId) ||
+                other.sourceConversationId == sourceConversationId) &&
+            (identical(other.sourceMessageId, sourceMessageId) ||
+                other.sourceMessageId == sourceMessageId) &&
+            (identical(other.targetConversationId, targetConversationId) ||
+                other.targetConversationId == targetConversationId));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    sourceConversationId,
+    sourceMessageId,
+    targetConversationId,
+  );
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ForwardMessageImplCopyWith<_$ForwardMessageImpl> get copyWith =>
+      __$$ForwardMessageImplCopyWithImpl<_$ForwardMessageImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() watchConversations,
+    required TResult Function(List<Conversation> conversations)
+    conversationsUpdated,
+    required TResult Function(String id) selectConversation,
+    required TResult Function(String participantId) getOrCreateConversation,
+    required TResult Function(
+      String conversationId,
+      int? limit,
+      DateTime? before,
+    )
+    loadMessages,
+    required TResult Function(List<Message> messages) messagesUpdated,
+    required TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )
+    sendTextMessage,
+    required TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )
+    sendMediaMessage,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    sendTokens,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    requestTokens,
+    required TResult Function(String messageId, String conversationId)
+    acceptTokenRequest,
+    required TResult Function(String messageId, String conversationId)
+    declineTokenRequest,
+    required TResult Function(String conversationId) markAsRead,
+    required TResult Function(String conversationId, bool pinned) togglePin,
+    required TResult Function(String conversationId, bool muted) toggleMute,
+    required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    addReaction,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    removeReaction,
+    required TResult Function(int count) unreadCountUpdated,
+    required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
+    retryMessage,
+    required TResult Function(String query) searchUsers,
+    required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
+    required TResult Function() clearError,
+  }) {
+    return forwardMessage(
+      sourceConversationId,
+      sourceMessageId,
+      targetConversationId,
+    );
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? watchConversations,
+    TResult? Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult? Function(String id)? selectConversation,
+    TResult? Function(String participantId)? getOrCreateConversation,
+    TResult? Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult? Function(List<Message> messages)? messagesUpdated,
+    TResult? Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult? Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )?
+    sendMediaMessage,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult? Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult? Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult? Function(String conversationId)? markAsRead,
+    TResult? Function(String conversationId, bool pinned)? togglePin,
+    TResult? Function(String conversationId, bool muted)? toggleMute,
+    TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
+    TResult? Function(String conversationId, String messageId)? retryMessage,
+    TResult? Function(String query)? searchUsers,
+    TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
+    TResult? Function()? clearError,
+  }) {
+    return forwardMessage?.call(
+      sourceConversationId,
+      sourceMessageId,
+      targetConversationId,
+    );
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? watchConversations,
+    TResult Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult Function(String id)? selectConversation,
+    TResult Function(String participantId)? getOrCreateConversation,
+    TResult Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult Function(List<Message> messages)? messagesUpdated,
+    TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )?
+    sendMediaMessage,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult Function(String conversationId)? markAsRead,
+    TResult Function(String conversationId, bool pinned)? togglePin,
+    TResult Function(String conversationId, bool muted)? toggleMute,
+    TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
+    TResult Function(String conversationId, String messageId)? retryMessage,
+    TResult Function(String query)? searchUsers,
+    TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
+    TResult Function()? clearError,
+    required TResult orElse(),
+  }) {
+    if (forwardMessage != null) {
+      return forwardMessage(
+        sourceConversationId,
+        sourceMessageId,
+        targetConversationId,
+      );
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_WatchConversations value) watchConversations,
+    required TResult Function(_ConversationsUpdated value) conversationsUpdated,
+    required TResult Function(_SelectConversation value) selectConversation,
+    required TResult Function(_GetOrCreateConversation value)
+    getOrCreateConversation,
+    required TResult Function(_LoadMessages value) loadMessages,
+    required TResult Function(_MessagesUpdated value) messagesUpdated,
+    required TResult Function(_SendTextMessage value) sendTextMessage,
+    required TResult Function(_SendMediaMessage value) sendMediaMessage,
+    required TResult Function(_SendTokens value) sendTokens,
+    required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
+    required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
+    required TResult Function(_MarkAsRead value) markAsRead,
+    required TResult Function(_TogglePin value) togglePin,
+    required TResult Function(_ToggleMute value) toggleMute,
+    required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
+    required TResult Function(_AddReaction value) addReaction,
+    required TResult Function(_RemoveReaction value) removeReaction,
+    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
+    required TResult Function(_RetryMessage value) retryMessage,
+    required TResult Function(_SearchUsers value) searchUsers,
+    required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
+    required TResult Function(_ClearError value) clearError,
+  }) {
+    return forwardMessage(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_WatchConversations value)? watchConversations,
+    TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult? Function(_SelectConversation value)? selectConversation,
+    TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult? Function(_LoadMessages value)? loadMessages,
+    TResult? Function(_MessagesUpdated value)? messagesUpdated,
+    TResult? Function(_SendTextMessage value)? sendTextMessage,
+    TResult? Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult? Function(_SendTokens value)? sendTokens,
+    TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult? Function(_MarkAsRead value)? markAsRead,
+    TResult? Function(_TogglePin value)? togglePin,
+    TResult? Function(_ToggleMute value)? toggleMute,
+    TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
+    TResult? Function(_AddReaction value)? addReaction,
+    TResult? Function(_RemoveReaction value)? removeReaction,
+    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
+    TResult? Function(_RetryMessage value)? retryMessage,
+    TResult? Function(_SearchUsers value)? searchUsers,
+    TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
+    TResult? Function(_ClearError value)? clearError,
+  }) {
+    return forwardMessage?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_WatchConversations value)? watchConversations,
+    TResult Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult Function(_SelectConversation value)? selectConversation,
+    TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult Function(_LoadMessages value)? loadMessages,
+    TResult Function(_MessagesUpdated value)? messagesUpdated,
+    TResult Function(_SendTextMessage value)? sendTextMessage,
+    TResult Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult Function(_SendTokens value)? sendTokens,
+    TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult Function(_MarkAsRead value)? markAsRead,
+    TResult Function(_TogglePin value)? togglePin,
+    TResult Function(_ToggleMute value)? toggleMute,
+    TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
+    TResult Function(_AddReaction value)? addReaction,
+    TResult Function(_RemoveReaction value)? removeReaction,
+    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
+    TResult Function(_RetryMessage value)? retryMessage,
+    TResult Function(_SearchUsers value)? searchUsers,
+    TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
+    TResult Function(_ClearError value)? clearError,
+    required TResult orElse(),
+  }) {
+    if (forwardMessage != null) {
+      return forwardMessage(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ForwardMessage implements ConversationEvent {
+  const factory _ForwardMessage({
+    required final String sourceConversationId,
+    required final String sourceMessageId,
+    required final String targetConversationId,
+  }) = _$ForwardMessageImpl;
+
+  String get sourceConversationId;
+  String get sourceMessageId;
+  String get targetConversationId;
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ForwardMessageImplCopyWith<_$ForwardMessageImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -10746,6 +14219,17 @@ class _$ClearErrorImpl implements _ClearError {
     retryMessage,
     required TResult Function(String query) searchUsers,
     required TResult Function() clearSearch,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
     required TResult Function() clearError,
   }) {
     return clearError();
@@ -10810,6 +14294,16 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(String conversationId, String messageId)? retryMessage,
     TResult? Function(String query)? searchUsers,
     TResult? Function()? clearSearch,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult? Function()? clearError,
   }) {
     return clearError?.call();
@@ -10874,6 +14368,16 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(String conversationId, String messageId)? retryMessage,
     TResult Function(String query)? searchUsers,
     TResult Function()? clearSearch,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
     TResult Function()? clearError,
     required TResult orElse(),
   }) {
@@ -10913,6 +14417,11 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(_RetryMessage value) retryMessage,
     required TResult Function(_SearchUsers value) searchUsers,
     required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_ForwardMessage value) forwardMessage,
     required TResult Function(_ClearError value) clearError,
   }) {
     return clearError(this);
@@ -10947,6 +14456,11 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(_RetryMessage value)? retryMessage,
     TResult? Function(_SearchUsers value)? searchUsers,
     TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
     TResult? Function(_ClearError value)? clearError,
   }) {
     return clearError?.call(this);
@@ -10980,6 +14494,11 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(_RetryMessage value)? retryMessage,
     TResult Function(_SearchUsers value)? searchUsers,
     TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_ForwardMessage value)? forwardMessage,
     TResult Function(_ClearError value)? clearError,
     required TResult orElse(),
   }) {
@@ -11010,7 +14529,15 @@ mixin _$ConversationState {
       throw _privateConstructorUsedError;
   bool get isSearching => throw _privateConstructorUsedError;
   int get messageRequestCount => throw _privateConstructorUsedError;
-  String? get errorMessage => throw _privateConstructorUsedError;
+  String? get errorMessage =>
+      throw _privateConstructorUsedError; // Typing indicators
+  Map<String, bool> get typingUsers =>
+      throw _privateConstructorUsedError; // Message search
+  List<Message> get messageSearchResults => throw _privateConstructorUsedError;
+  bool get isSearchingMessages => throw _privateConstructorUsedError;
+  String? get messageSearchQuery =>
+      throw _privateConstructorUsedError; // Message forwarding
+  bool get isForwarding => throw _privateConstructorUsedError;
 
   /// Create a copy of ConversationState
   /// with the given fields replaced by the non-null parameter values.
@@ -11041,6 +14568,11 @@ abstract class $ConversationStateCopyWith<$Res> {
     bool isSearching,
     int messageRequestCount,
     String? errorMessage,
+    Map<String, bool> typingUsers,
+    List<Message> messageSearchResults,
+    bool isSearchingMessages,
+    String? messageSearchQuery,
+    bool isForwarding,
   });
 
   $ConversationCopyWith<$Res>? get selectedConversation;
@@ -11075,6 +14607,11 @@ class _$ConversationStateCopyWithImpl<$Res, $Val extends ConversationState>
     Object? isSearching = null,
     Object? messageRequestCount = null,
     Object? errorMessage = freezed,
+    Object? typingUsers = null,
+    Object? messageSearchResults = null,
+    Object? isSearchingMessages = null,
+    Object? messageSearchQuery = freezed,
+    Object? isForwarding = null,
   }) {
     return _then(
       _value.copyWith(
@@ -11134,6 +14671,26 @@ class _$ConversationStateCopyWithImpl<$Res, $Val extends ConversationState>
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
                       as String?,
+            typingUsers: null == typingUsers
+                ? _value.typingUsers
+                : typingUsers // ignore: cast_nullable_to_non_nullable
+                      as Map<String, bool>,
+            messageSearchResults: null == messageSearchResults
+                ? _value.messageSearchResults
+                : messageSearchResults // ignore: cast_nullable_to_non_nullable
+                      as List<Message>,
+            isSearchingMessages: null == isSearchingMessages
+                ? _value.isSearchingMessages
+                : isSearchingMessages // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            messageSearchQuery: freezed == messageSearchQuery
+                ? _value.messageSearchQuery
+                : messageSearchQuery // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            isForwarding: null == isForwarding
+                ? _value.isForwarding
+                : isForwarding // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -11178,6 +14735,11 @@ abstract class _$$ConversationStateImplCopyWith<$Res>
     bool isSearching,
     int messageRequestCount,
     String? errorMessage,
+    Map<String, bool> typingUsers,
+    List<Message> messageSearchResults,
+    bool isSearchingMessages,
+    String? messageSearchQuery,
+    bool isForwarding,
   });
 
   @override
@@ -11212,6 +14774,11 @@ class __$$ConversationStateImplCopyWithImpl<$Res>
     Object? isSearching = null,
     Object? messageRequestCount = null,
     Object? errorMessage = freezed,
+    Object? typingUsers = null,
+    Object? messageSearchResults = null,
+    Object? isSearchingMessages = null,
+    Object? messageSearchQuery = freezed,
+    Object? isForwarding = null,
   }) {
     return _then(
       _$ConversationStateImpl(
@@ -11271,6 +14838,26 @@ class __$$ConversationStateImplCopyWithImpl<$Res>
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
                   as String?,
+        typingUsers: null == typingUsers
+            ? _value._typingUsers
+            : typingUsers // ignore: cast_nullable_to_non_nullable
+                  as Map<String, bool>,
+        messageSearchResults: null == messageSearchResults
+            ? _value._messageSearchResults
+            : messageSearchResults // ignore: cast_nullable_to_non_nullable
+                  as List<Message>,
+        isSearchingMessages: null == isSearchingMessages
+            ? _value.isSearchingMessages
+            : isSearchingMessages // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        messageSearchQuery: freezed == messageSearchQuery
+            ? _value.messageSearchQuery
+            : messageSearchQuery // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        isForwarding: null == isForwarding
+            ? _value.isForwarding
+            : isForwarding // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -11294,9 +14881,16 @@ class _$ConversationStateImpl extends _ConversationState {
     this.isSearching = false,
     this.messageRequestCount = 0,
     this.errorMessage,
+    final Map<String, bool> typingUsers = const {},
+    final List<Message> messageSearchResults = const [],
+    this.isSearchingMessages = false,
+    this.messageSearchQuery,
+    this.isForwarding = false,
   }) : _conversations = conversations,
        _messages = messages,
        _searchResults = searchResults,
+       _typingUsers = typingUsers,
+       _messageSearchResults = messageSearchResults,
        super._();
 
   @override
@@ -11357,10 +14951,42 @@ class _$ConversationStateImpl extends _ConversationState {
   final int messageRequestCount;
   @override
   final String? errorMessage;
+  // Typing indicators
+  final Map<String, bool> _typingUsers;
+  // Typing indicators
+  @override
+  @JsonKey()
+  Map<String, bool> get typingUsers {
+    if (_typingUsers is EqualUnmodifiableMapView) return _typingUsers;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_typingUsers);
+  }
+
+  // Message search
+  final List<Message> _messageSearchResults;
+  // Message search
+  @override
+  @JsonKey()
+  List<Message> get messageSearchResults {
+    if (_messageSearchResults is EqualUnmodifiableListView)
+      return _messageSearchResults;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_messageSearchResults);
+  }
+
+  @override
+  @JsonKey()
+  final bool isSearchingMessages;
+  @override
+  final String? messageSearchQuery;
+  // Message forwarding
+  @override
+  @JsonKey()
+  final bool isForwarding;
 
   @override
   String toString() {
-    return 'ConversationState(status: $status, conversations: $conversations, messages: $messages, selectedConversation: $selectedConversation, isLoadingMessages: $isLoadingMessages, hasLoadedMessages: $hasLoadedMessages, hasMoreMessages: $hasMoreMessages, isSending: $isSending, isClearingChat: $isClearingChat, totalUnreadCount: $totalUnreadCount, searchResults: $searchResults, isSearching: $isSearching, messageRequestCount: $messageRequestCount, errorMessage: $errorMessage)';
+    return 'ConversationState(status: $status, conversations: $conversations, messages: $messages, selectedConversation: $selectedConversation, isLoadingMessages: $isLoadingMessages, hasLoadedMessages: $hasLoadedMessages, hasMoreMessages: $hasMoreMessages, isSending: $isSending, isClearingChat: $isClearingChat, totalUnreadCount: $totalUnreadCount, searchResults: $searchResults, isSearching: $isSearching, messageRequestCount: $messageRequestCount, errorMessage: $errorMessage, typingUsers: $typingUsers, messageSearchResults: $messageSearchResults, isSearchingMessages: $isSearchingMessages, messageSearchQuery: $messageSearchQuery, isForwarding: $isForwarding)';
   }
 
   @override
@@ -11397,11 +15023,25 @@ class _$ConversationStateImpl extends _ConversationState {
             (identical(other.messageRequestCount, messageRequestCount) ||
                 other.messageRequestCount == messageRequestCount) &&
             (identical(other.errorMessage, errorMessage) ||
-                other.errorMessage == errorMessage));
+                other.errorMessage == errorMessage) &&
+            const DeepCollectionEquality().equals(
+              other._typingUsers,
+              _typingUsers,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._messageSearchResults,
+              _messageSearchResults,
+            ) &&
+            (identical(other.isSearchingMessages, isSearchingMessages) ||
+                other.isSearchingMessages == isSearchingMessages) &&
+            (identical(other.messageSearchQuery, messageSearchQuery) ||
+                other.messageSearchQuery == messageSearchQuery) &&
+            (identical(other.isForwarding, isForwarding) ||
+                other.isForwarding == isForwarding));
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     status,
     const DeepCollectionEquality().hash(_conversations),
@@ -11417,7 +15057,12 @@ class _$ConversationStateImpl extends _ConversationState {
     isSearching,
     messageRequestCount,
     errorMessage,
-  );
+    const DeepCollectionEquality().hash(_typingUsers),
+    const DeepCollectionEquality().hash(_messageSearchResults),
+    isSearchingMessages,
+    messageSearchQuery,
+    isForwarding,
+  ]);
 
   /// Create a copy of ConversationState
   /// with the given fields replaced by the non-null parameter values.
@@ -11447,6 +15092,11 @@ abstract class _ConversationState extends ConversationState {
     final bool isSearching,
     final int messageRequestCount,
     final String? errorMessage,
+    final Map<String, bool> typingUsers,
+    final List<Message> messageSearchResults,
+    final bool isSearchingMessages,
+    final String? messageSearchQuery,
+    final bool isForwarding,
   }) = _$ConversationStateImpl;
   const _ConversationState._() : super._();
 
@@ -11477,7 +15127,17 @@ abstract class _ConversationState extends ConversationState {
   @override
   int get messageRequestCount;
   @override
-  String? get errorMessage;
+  String? get errorMessage; // Typing indicators
+  @override
+  Map<String, bool> get typingUsers; // Message search
+  @override
+  List<Message> get messageSearchResults;
+  @override
+  bool get isSearchingMessages;
+  @override
+  String? get messageSearchQuery; // Message forwarding
+  @override
+  bool get isForwarding;
 
   /// Create a copy of ConversationState
   /// with the given fields replaced by the non-null parameter values.

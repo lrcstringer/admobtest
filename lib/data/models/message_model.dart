@@ -37,6 +37,10 @@ class MessageModel with _$MessageModel {
     @Default({}) Map<String, List<String>> reactions,
     Map<String, dynamic>? replyTo,
 
+    // Read receipts & forwarding
+    @Default({}) Map<String, DateTime> readBy,
+    Map<String, dynamic>? forwardedFrom,
+
     // Gift & spray embedded data
     Map<String, dynamic>? gift,
     Map<String, dynamic>? tokenSpray,
@@ -89,6 +93,10 @@ class MessageModel with _$MessageModel {
       replyTo: json['replyTo'] is Map
           ? Map<String, dynamic>.from(json['replyTo'] as Map)
           : null,
+      readBy: _parseReadBy(json['readBy']),
+      forwardedFrom: json['forwardedFrom'] is Map
+          ? Map<String, dynamic>.from(json['forwardedFrom'] as Map)
+          : null,
       gift: json['gift'] is Map
           ? Map<String, dynamic>.from(json['gift'] as Map)
           : null,
@@ -136,6 +144,8 @@ class MessageModel with _$MessageModel {
       media: _parseMedia(media),
       reactions: reactions,
       replyTo: _parseReply(replyTo),
+      readBy: readBy,
+      forwardedFrom: _parseForwardedFrom(forwardedFrom),
       gift: _parseGiftData(gift),
       tokenSpray: _parseSprayData(tokenSpray),
       communityId: communityId,
@@ -217,6 +227,10 @@ class MessageModel with _$MessageModel {
         return MessageStatus.sending;
       case 'sent':
         return MessageStatus.sent;
+      case 'delivered':
+        return MessageStatus.delivered;
+      case 'read':
+        return MessageStatus.read;
       case 'pending':
         return MessageStatus.pending;
       case 'failed':
@@ -351,6 +365,32 @@ class MessageModel with _$MessageModel {
       default:
         return SprayStatus.active;
     }
+  }
+
+  static Map<String, DateTime> _parseReadBy(dynamic raw) {
+    if (raw == null || raw is! Map) return {};
+    return raw.map((key, value) {
+      DateTime dt;
+      if (value is Timestamp) {
+        dt = value.toDate();
+      } else if (value is String) {
+        dt = DateTime.tryParse(value) ?? DateTime.now();
+      } else if (value is DateTime) {
+        dt = value;
+      } else {
+        dt = DateTime.now();
+      }
+      return MapEntry(key.toString(), dt);
+    });
+  }
+
+  static ForwardedFrom? _parseForwardedFrom(Map<String, dynamic>? raw) {
+    if (raw == null) return null;
+    return ForwardedFrom(
+      messageId: raw['messageId'] as String? ?? '',
+      conversationId: raw['conversationId'] as String? ?? '',
+      senderName: raw['senderName'] as String? ?? 'Unknown',
+    );
   }
 
   static Map<String, List<String>> _parseReactions(dynamic raw) {

@@ -595,6 +595,14 @@ service cloud.firestore {
         allow read: if isAuthenticated() && isConversationParticipant(convId);
         allow write: if false;
       }
+
+      // Typing indicators — ephemeral, direct client writes allowed
+      match /typing/{typingUserId} {
+        allow read: if isAuthenticated() && isConversationParticipant(convId);
+        allow write: if isAuthenticated()
+          && request.auth.uid == typingUserId
+          && isConversationParticipant(convId);
+      }
     }
 
     // =========================================================================

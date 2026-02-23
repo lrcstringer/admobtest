@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/di/injection.dart';
 import '../../../core/error/failures.dart';
+import '../../../core/services/audio_playback_service.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../../domain/entities/message.dart';
 import '../../../domain/repositories/moderation_repository.dart';
@@ -15,9 +16,14 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/messaging/chat_background.dart';
 import '../../widgets/messaging/date_separator.dart';
+import '../../widgets/messaging/media_picker_widget.dart';
 import '../../widgets/messaging/message_bubble.dart';
 import '../../widgets/messaging/message_input_bar.dart';
+import '../../widgets/messaging/forward_conversation_picker.dart';
+import '../../widgets/messaging/message_search_bar.dart';
 import '../../widgets/messaging/reaction_picker.dart';
+import '../../widgets/messaging/typing_indicator.dart';
+import '../../widgets/messaging/voice_recorder_widget.dart';
 
 /// P2P conversation detail screen showing messages and input bar.
 ///
@@ -38,6 +44,8 @@ class ConversationDetailScreen extends StatefulWidget {
 class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _isRecording = false;
+  bool _isSearchOpen = false;
 
   @override
   void initState() {
@@ -52,8 +60,16 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 
   @override
   void dispose() {
+    // Clear typing state when leaving
+    context.read<ConversationBloc>().add(
+          ConversationEvent.setTyping(
+            conversationId: widget.conversationId,
+            isTyping: false,
+          ),
+        );
     _messageController.dispose();
     _scrollController.dispose();
+    getIt<AudioPlaybackService>().stop();
     super.dispose();
   }
 
@@ -89,6 +105,17 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                 : const Text('Chat'),
             actions: [
               IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () {
+                  setState(() => _isSearchOpen = !_isSearchOpen);
+                  if (!_isSearchOpen) {
+                    context.read<ConversationBloc>().add(
+                          const ConversationEvent.clearMessageSearch(),
+                        );
+                  }
+                },
+              ),
+              IconButton(
                 icon: const Icon(Icons.more_vert),
                 onPressed: () => _showChatOptions(context, conv),
               ),
@@ -101,6 +128,25 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               ),
               Column(
                 children: [
+                  // Search bar
+                  if (_isSearchOpen)
+                    MessageSearchBar(
+                      resultCount: state.messageSearchResults.length,
+                      onSearch: (query) {
+                        context.read<ConversationBloc>().add(
+                              ConversationEvent.searchMessages(
+                                conversationId: widget.conversationId,
+                                query: query,
+                              ),
+                            );
+                      },
+                      onClose: () {
+                        setState(() => _isSearchOpen = false);
+                        context.read<ConversationBloc>().add(
+                              const ConversationEvent.clearMessageSearch(),
+                            );
+                      },
+                    ),
                   // Message request banner
                   if (conv != null &&
                       conv.isMessageRequestFor(currentUserId))
@@ -108,17 +154,64 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                   Expanded(
                     child: _buildMessageList(context, state, currentUserId),
                   ),
-                  MessageInputBar(
-                    controller: _messageController,
-                    isSending: state.isSending,
-                    onSend: () => _sendMessage(context),
-                    // Disable token actions for unaccepted conversations
-                    onTokenAction: conv != null &&
-                            conv.isMessageRequestFor(currentUserId)
-                        ? null
-                        : () => _showTokenActions(
-                            context, state, currentUserId),
-                  ),
+                  // Typing indicator
+                  if (state.typingUsers.isNotEmpty)
+                    TypingIndicator(
+                      typingNames: state.typingUsers.keys
+                          .map((uid) =>
+                              conv?.participants[uid]?.displayName ?? 'Someone')
+                          .toList(),
+                    ),
+                  if (_isRecording)
+                    VoiceRecorderWidget(
+                      onRecordingComplete: (result) {
+                        setState(() => _isRecording = false);
+                        final recipientId =
+                            state.getRecipientId(currentUserId);
+                        if (recipientId == null || recipientId.isEmpty) {
+                          return;
+                        }
+                        context.read<ConversationBloc>().add(
+                              ConversationEvent.sendMediaMessage(
+                                conversationId: widget.conversationId,
+                                mediaFile: result.file,
+                                mediaType: 'audio/m4a',
+                                recipientId: recipientId,
+                                durationSeconds: result.durationSeconds,
+                              ),
+                            );
+                      },
+                      onCancel: () =>
+                          setState(() => _isRecording = false),
+                    )
+                  else
+                    MessageInputBar(
+                      controller: _messageController,
+                      isSending: state.isSending,
+                      onSend: () => _sendMessage(context),
+                      onAttachment: conv != null &&
+                              conv.isMessageRequestFor(currentUserId)
+                          ? null
+                          : () => _showMediaPicker(
+                              context, state, currentUserId),
+                      onTokenAction: conv != null &&
+                              conv.isMessageRequestFor(currentUserId)
+                          ? null
+                          : () => _showTokenActions(
+                              context, state, currentUserId),
+                      onVoiceRecord: conv != null &&
+                              conv.isMessageRequestFor(currentUserId)
+                          ? null
+                          : () => setState(() => _isRecording = true),
+                      onTypingChanged: (isTyping) {
+                        context.read<ConversationBloc>().add(
+                              ConversationEvent.setTyping(
+                                conversationId: widget.conversationId,
+                                isTyping: isTyping,
+                              ),
+                            );
+                      },
+                    ),
                 ],
               ),
             ],
@@ -235,10 +328,21 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               isMe: isMe,
               currentUserId: currentUserId,
               avatarUrl: state.selectedConversation?.participants[message.senderId]?.avatarUrl,
-              onLongPress: () => _onMessageLongPress(context, message),
+              highlightQuery: state.messageSearchQuery,
+              onLongPress: () => _onMessageLongPress(context, message, state),
               onTokenRequestAction: message.isTokenTransfer
                   ? (accepted) => _handleTokenRequestAction(
                         context, message, accepted)
+                  : null,
+              onImageTap: message.hasMedia && message.media != null
+                  ? () => context.push(
+                        '/chat/conversation/${widget.conversationId}/image-viewer',
+                        extra: {
+                          'messageId': message.id,
+                          'imageUrl': message.media!.url,
+                          'mediaKeyBase64': message.media!.mediaKey,
+                        },
+                      )
                   : null,
             ),
           ],
@@ -320,22 +424,60 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     );
   }
 
+  void _showMediaPicker(
+    BuildContext context,
+    ConversationState state,
+    String currentUserId,
+  ) {
+    final recipientId = state.getRecipientId(currentUserId);
+    if (recipientId == null || recipientId.isEmpty) return;
+
+    showMediaPicker(
+      context,
+      onMediaSelected: (result) {
+        context.read<ConversationBloc>().add(
+              ConversationEvent.sendMediaMessage(
+                conversationId: widget.conversationId,
+                mediaFile: result.file,
+                mediaType: result.mediaType,
+                recipientId: recipientId,
+                caption: result.caption,
+              ),
+            );
+      },
+      onVoiceRequested: () => setState(() => _isRecording = true),
+    );
+  }
+
   void _sendMessage(BuildContext context) {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
 
-    context.read<ConversationBloc>().add(
-          ConversationEvent.sendTextMessage(
-            conversationId: widget.conversationId,
-            text: text,
-          ),
-        );
+    final bloc = context.read<ConversationBloc>();
+    bloc.add(
+      ConversationEvent.sendTextMessage(
+        conversationId: widget.conversationId,
+        text: text,
+      ),
+    );
+    // Clear typing state on send
+    bloc.add(
+      ConversationEvent.setTyping(
+        conversationId: widget.conversationId,
+        isTyping: false,
+      ),
+    );
     _messageController.clear();
   }
 
-  void _onMessageLongPress(BuildContext context, Message message) {
+  void _onMessageLongPress(
+    BuildContext context,
+    Message message,
+    ConversationState state,
+  ) {
     // Skip for already-deleted messages
     if (message.deletedForEveryone) return;
+    final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
 
     showModalBottomSheet(
       context: context,
@@ -361,6 +503,14 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.shortcut_outlined),
+              title: const Text('Forward'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _forwardMessage(context, message, state, currentUserId);
+              },
+            ),
+            ListTile(
               leading:
                   const Icon(Icons.delete_outline, color: AppColors.error),
               title: const Text('Delete for Everyone'),
@@ -374,6 +524,32 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _forwardMessage(
+    BuildContext context,
+    Message message,
+    ConversationState state,
+    String currentUserId,
+  ) async {
+    final targetConvId = await ForwardConversationPicker.show(
+      context: context,
+      conversations: state.conversations,
+      currentUserId: currentUserId,
+    );
+
+    if (targetConvId != null && mounted) {
+      context.read<ConversationBloc>().add(
+            ConversationEvent.forwardMessage(
+              sourceConversationId: widget.conversationId,
+              sourceMessageId: message.id,
+              targetConversationId: targetConvId,
+            ),
+          );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Message forwarded')),
+      );
+    }
   }
 
   void _showReactionPicker(BuildContext context, Message message) async {
