@@ -68,6 +68,7 @@ mixin _$ConversationEvent {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -136,6 +137,7 @@ mixin _$ConversationEvent {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -195,6 +197,7 @@ mixin _$ConversationEvent {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -228,6 +231,7 @@ mixin _$ConversationEvent {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -257,6 +261,7 @@ mixin _$ConversationEvent {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -286,6 +291,7 @@ mixin _$ConversationEvent {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -413,6 +419,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -485,6 +492,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -548,6 +556,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -588,6 +597,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -621,6 +631,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -654,6 +665,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -811,6 +823,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -883,6 +896,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -946,6 +960,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -986,6 +1001,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -1019,6 +1035,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -1052,6 +1069,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -1205,6 +1223,7 @@ class _$SelectConversationImpl implements _SelectConversation {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -1277,6 +1296,7 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -1340,6 +1360,7 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -1380,6 +1401,7 @@ class _$SelectConversationImpl implements _SelectConversation {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -1413,6 +1435,7 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -1446,6 +1469,7 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -1599,6 +1623,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -1671,6 +1696,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -1734,6 +1760,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -1774,6 +1801,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -1807,6 +1835,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -1840,6 +1869,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -2013,6 +2043,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -2085,6 +2116,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -2148,6 +2180,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -2188,6 +2221,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -2221,6 +2255,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -2254,6 +2289,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -2419,6 +2455,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -2491,6 +2528,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -2554,6 +2592,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -2594,6 +2633,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -2627,6 +2667,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -2660,6 +2701,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -2838,6 +2880,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -2910,6 +2953,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -2973,6 +3017,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -3013,6 +3058,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -3046,6 +3092,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -3079,6 +3126,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -3306,6 +3354,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -3385,6 +3434,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -3455,6 +3505,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -3502,6 +3553,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -3535,6 +3587,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -3568,6 +3621,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -3768,6 +3822,7 @@ class _$SendTokensImpl implements _SendTokens {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -3840,6 +3895,7 @@ class _$SendTokensImpl implements _SendTokens {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -3903,6 +3959,7 @@ class _$SendTokensImpl implements _SendTokens {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -3943,6 +4000,7 @@ class _$SendTokensImpl implements _SendTokens {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -3976,6 +4034,7 @@ class _$SendTokensImpl implements _SendTokens {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -4009,6 +4068,7 @@ class _$SendTokensImpl implements _SendTokens {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -4205,6 +4265,7 @@ class _$RequestTokensImpl implements _RequestTokens {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -4277,6 +4338,7 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -4340,6 +4402,7 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -4380,6 +4443,7 @@ class _$RequestTokensImpl implements _RequestTokens {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -4413,6 +4477,7 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -4446,6 +4511,7 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -4618,6 +4684,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -4690,6 +4757,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -4753,6 +4821,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -4793,6 +4862,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -4826,6 +4896,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -4859,6 +4930,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -5027,6 +5099,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -5099,6 +5172,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -5162,6 +5236,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -5202,6 +5277,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -5235,6 +5311,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -5268,6 +5345,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -5422,6 +5500,7 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -5494,6 +5573,7 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -5557,6 +5637,7 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -5597,6 +5678,7 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -5630,6 +5712,7 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -5663,6 +5746,7 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -5820,6 +5904,7 @@ class _$TogglePinImpl implements _TogglePin {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -5892,6 +5977,7 @@ class _$TogglePinImpl implements _TogglePin {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -5955,6 +6041,7 @@ class _$TogglePinImpl implements _TogglePin {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -5995,6 +6082,7 @@ class _$TogglePinImpl implements _TogglePin {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -6028,6 +6116,7 @@ class _$TogglePinImpl implements _TogglePin {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -6061,6 +6150,7 @@ class _$TogglePinImpl implements _TogglePin {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -6222,6 +6312,7 @@ class _$ToggleMuteImpl implements _ToggleMute {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -6294,6 +6385,7 @@ class _$ToggleMuteImpl implements _ToggleMute {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -6357,6 +6449,7 @@ class _$ToggleMuteImpl implements _ToggleMute {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -6397,6 +6490,7 @@ class _$ToggleMuteImpl implements _ToggleMute {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -6430,6 +6524,7 @@ class _$ToggleMuteImpl implements _ToggleMute {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -6463,6 +6558,7 @@ class _$ToggleMuteImpl implements _ToggleMute {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -6620,6 +6716,7 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -6692,6 +6789,7 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -6755,6 +6853,7 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -6795,6 +6894,7 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -6828,6 +6928,7 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -6861,6 +6962,7 @@ class _$ArchiveConversationImpl implements _ArchiveConversation {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -6889,6 +6991,407 @@ abstract class _ArchiveConversation implements ConversationEvent {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ArchiveConversationImplCopyWith<_$ArchiveConversationImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$AcceptConversationImplCopyWith<$Res> {
+  factory _$$AcceptConversationImplCopyWith(
+    _$AcceptConversationImpl value,
+    $Res Function(_$AcceptConversationImpl) then,
+  ) = __$$AcceptConversationImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String conversationId});
+}
+
+/// @nodoc
+class __$$AcceptConversationImplCopyWithImpl<$Res>
+    extends _$ConversationEventCopyWithImpl<$Res, _$AcceptConversationImpl>
+    implements _$$AcceptConversationImplCopyWith<$Res> {
+  __$$AcceptConversationImplCopyWithImpl(
+    _$AcceptConversationImpl _value,
+    $Res Function(_$AcceptConversationImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? conversationId = null}) {
+    return _then(
+      _$AcceptConversationImpl(
+        null == conversationId
+            ? _value.conversationId
+            : conversationId // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$AcceptConversationImpl implements _AcceptConversation {
+  const _$AcceptConversationImpl(this.conversationId);
+
+  @override
+  final String conversationId;
+
+  @override
+  String toString() {
+    return 'ConversationEvent.acceptConversation(conversationId: $conversationId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$AcceptConversationImpl &&
+            (identical(other.conversationId, conversationId) ||
+                other.conversationId == conversationId));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, conversationId);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$AcceptConversationImplCopyWith<_$AcceptConversationImpl> get copyWith =>
+      __$$AcceptConversationImplCopyWithImpl<_$AcceptConversationImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() watchConversations,
+    required TResult Function(List<Conversation> conversations)
+    conversationsUpdated,
+    required TResult Function(String id) selectConversation,
+    required TResult Function(String participantId) getOrCreateConversation,
+    required TResult Function(
+      String conversationId,
+      int? limit,
+      DateTime? before,
+    )
+    loadMessages,
+    required TResult Function(List<Message> messages) messagesUpdated,
+    required TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )
+    sendTextMessage,
+    required TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )
+    sendMediaMessage,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    sendTokens,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    requestTokens,
+    required TResult Function(String messageId, String conversationId)
+    acceptTokenRequest,
+    required TResult Function(String messageId, String conversationId)
+    declineTokenRequest,
+    required TResult Function(String conversationId) markAsRead,
+    required TResult Function(String conversationId, bool pinned) togglePin,
+    required TResult Function(String conversationId, bool muted) toggleMute,
+    required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    addReaction,
+    required TResult Function(
+      String conversationId,
+      String messageId,
+      String emoji,
+    )
+    removeReaction,
+    required TResult Function(int count) unreadCountUpdated,
+    required TResult Function(String conversationId, String messageId)
+    deleteMessageForEveryone,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
+    retryMessage,
+    required TResult Function(String query) searchUsers,
+    required TResult Function() clearSearch,
+    required TResult Function() clearError,
+  }) {
+    return acceptConversation(conversationId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? watchConversations,
+    TResult? Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult? Function(String id)? selectConversation,
+    TResult? Function(String participantId)? getOrCreateConversation,
+    TResult? Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult? Function(List<Message> messages)? messagesUpdated,
+    TResult? Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult? Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )?
+    sendMediaMessage,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult? Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult? Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult? Function(String conversationId)? markAsRead,
+    TResult? Function(String conversationId, bool pinned)? togglePin,
+    TResult? Function(String conversationId, bool muted)? toggleMute,
+    TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult? Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult? Function(String conversationId)? clearChat,
+    TResult? Function(String conversationId, String messageId)? retryMessage,
+    TResult? Function(String query)? searchUsers,
+    TResult? Function()? clearSearch,
+    TResult? Function()? clearError,
+  }) {
+    return acceptConversation?.call(conversationId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? watchConversations,
+    TResult Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult Function(String id)? selectConversation,
+    TResult Function(String participantId)? getOrCreateConversation,
+    TResult Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult Function(List<Message> messages)? messagesUpdated,
+    TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+    )?
+    sendMediaMessage,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult Function(String conversationId)? markAsRead,
+    TResult Function(String conversationId, bool pinned)? togglePin,
+    TResult Function(String conversationId, bool muted)? toggleMute,
+    TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    addReaction,
+    TResult Function(String conversationId, String messageId, String emoji)?
+    removeReaction,
+    TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId, String messageId)?
+    deleteMessageForEveryone,
+    TResult Function(String conversationId)? clearChat,
+    TResult Function(String conversationId, String messageId)? retryMessage,
+    TResult Function(String query)? searchUsers,
+    TResult Function()? clearSearch,
+    TResult Function()? clearError,
+    required TResult orElse(),
+  }) {
+    if (acceptConversation != null) {
+      return acceptConversation(conversationId);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_WatchConversations value) watchConversations,
+    required TResult Function(_ConversationsUpdated value) conversationsUpdated,
+    required TResult Function(_SelectConversation value) selectConversation,
+    required TResult Function(_GetOrCreateConversation value)
+    getOrCreateConversation,
+    required TResult Function(_LoadMessages value) loadMessages,
+    required TResult Function(_MessagesUpdated value) messagesUpdated,
+    required TResult Function(_SendTextMessage value) sendTextMessage,
+    required TResult Function(_SendMediaMessage value) sendMediaMessage,
+    required TResult Function(_SendTokens value) sendTokens,
+    required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
+    required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
+    required TResult Function(_MarkAsRead value) markAsRead,
+    required TResult Function(_TogglePin value) togglePin,
+    required TResult Function(_ToggleMute value) toggleMute,
+    required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
+    required TResult Function(_AddReaction value) addReaction,
+    required TResult Function(_RemoveReaction value) removeReaction,
+    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_DeleteMessageForEveryone value)
+    deleteMessageForEveryone,
+    required TResult Function(_ClearChat value) clearChat,
+    required TResult Function(_RetryMessage value) retryMessage,
+    required TResult Function(_SearchUsers value) searchUsers,
+    required TResult Function(_ClearSearch value) clearSearch,
+    required TResult Function(_ClearError value) clearError,
+  }) {
+    return acceptConversation(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_WatchConversations value)? watchConversations,
+    TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult? Function(_SelectConversation value)? selectConversation,
+    TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult? Function(_LoadMessages value)? loadMessages,
+    TResult? Function(_MessagesUpdated value)? messagesUpdated,
+    TResult? Function(_SendTextMessage value)? sendTextMessage,
+    TResult? Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult? Function(_SendTokens value)? sendTokens,
+    TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult? Function(_MarkAsRead value)? markAsRead,
+    TResult? Function(_TogglePin value)? togglePin,
+    TResult? Function(_ToggleMute value)? toggleMute,
+    TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
+    TResult? Function(_AddReaction value)? addReaction,
+    TResult? Function(_RemoveReaction value)? removeReaction,
+    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_DeleteMessageForEveryone value)?
+    deleteMessageForEveryone,
+    TResult? Function(_ClearChat value)? clearChat,
+    TResult? Function(_RetryMessage value)? retryMessage,
+    TResult? Function(_SearchUsers value)? searchUsers,
+    TResult? Function(_ClearSearch value)? clearSearch,
+    TResult? Function(_ClearError value)? clearError,
+  }) {
+    return acceptConversation?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_WatchConversations value)? watchConversations,
+    TResult Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult Function(_SelectConversation value)? selectConversation,
+    TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult Function(_LoadMessages value)? loadMessages,
+    TResult Function(_MessagesUpdated value)? messagesUpdated,
+    TResult Function(_SendTextMessage value)? sendTextMessage,
+    TResult Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult Function(_SendTokens value)? sendTokens,
+    TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult Function(_MarkAsRead value)? markAsRead,
+    TResult Function(_TogglePin value)? togglePin,
+    TResult Function(_ToggleMute value)? toggleMute,
+    TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
+    TResult Function(_AddReaction value)? addReaction,
+    TResult Function(_RemoveReaction value)? removeReaction,
+    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_DeleteMessageForEveryone value)? deleteMessageForEveryone,
+    TResult Function(_ClearChat value)? clearChat,
+    TResult Function(_RetryMessage value)? retryMessage,
+    TResult Function(_SearchUsers value)? searchUsers,
+    TResult Function(_ClearSearch value)? clearSearch,
+    TResult Function(_ClearError value)? clearError,
+    required TResult orElse(),
+  }) {
+    if (acceptConversation != null) {
+      return acceptConversation(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _AcceptConversation implements ConversationEvent {
+  const factory _AcceptConversation(final String conversationId) =
+      _$AcceptConversationImpl;
+
+  String get conversationId;
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$AcceptConversationImplCopyWith<_$AcceptConversationImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -7036,6 +7539,7 @@ class _$AddReactionImpl implements _AddReaction {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -7108,6 +7612,7 @@ class _$AddReactionImpl implements _AddReaction {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -7171,6 +7676,7 @@ class _$AddReactionImpl implements _AddReaction {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -7211,6 +7717,7 @@ class _$AddReactionImpl implements _AddReaction {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -7244,6 +7751,7 @@ class _$AddReactionImpl implements _AddReaction {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -7277,6 +7785,7 @@ class _$AddReactionImpl implements _AddReaction {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -7460,6 +7969,7 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -7532,6 +8042,7 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -7595,6 +8106,7 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -7635,6 +8147,7 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -7668,6 +8181,7 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -7701,6 +8215,7 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -7859,6 +8374,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -7931,6 +8447,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -7994,6 +8511,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -8034,6 +8552,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -8067,6 +8586,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -8100,6 +8620,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -8265,6 +8786,7 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -8337,6 +8859,7 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -8400,6 +8923,7 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -8440,6 +8964,7 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -8473,6 +8998,7 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -8506,6 +9032,7 @@ class _$DeleteMessageForEveryoneImpl implements _DeleteMessageForEveryone {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -8660,6 +9187,7 @@ class _$ClearChatImpl implements _ClearChat {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -8732,6 +9260,7 @@ class _$ClearChatImpl implements _ClearChat {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -8795,6 +9324,7 @@ class _$ClearChatImpl implements _ClearChat {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -8835,6 +9365,7 @@ class _$ClearChatImpl implements _ClearChat {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -8868,6 +9399,7 @@ class _$ClearChatImpl implements _ClearChat {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -8901,6 +9433,7 @@ class _$ClearChatImpl implements _ClearChat {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -9062,6 +9595,7 @@ class _$RetryMessageImpl implements _RetryMessage {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -9134,6 +9668,7 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -9197,6 +9732,7 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -9237,6 +9773,7 @@ class _$RetryMessageImpl implements _RetryMessage {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -9270,6 +9807,7 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -9303,6 +9841,7 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -9456,6 +9995,7 @@ class _$SearchUsersImpl implements _SearchUsers {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -9528,6 +10068,7 @@ class _$SearchUsersImpl implements _SearchUsers {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -9591,6 +10132,7 @@ class _$SearchUsersImpl implements _SearchUsers {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -9631,6 +10173,7 @@ class _$SearchUsersImpl implements _SearchUsers {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -9664,6 +10207,7 @@ class _$SearchUsersImpl implements _SearchUsers {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -9697,6 +10241,7 @@ class _$SearchUsersImpl implements _SearchUsers {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -9819,6 +10364,7 @@ class _$ClearSearchImpl implements _ClearSearch {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -9891,6 +10437,7 @@ class _$ClearSearchImpl implements _ClearSearch {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -9954,6 +10501,7 @@ class _$ClearSearchImpl implements _ClearSearch {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -9994,6 +10542,7 @@ class _$ClearSearchImpl implements _ClearSearch {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -10027,6 +10576,7 @@ class _$ClearSearchImpl implements _ClearSearch {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -10060,6 +10610,7 @@ class _$ClearSearchImpl implements _ClearSearch {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -10174,6 +10725,7 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(String conversationId, bool pinned) togglePin,
     required TResult Function(String conversationId, bool muted) toggleMute,
     required TResult Function(String conversationId) archiveConversation,
+    required TResult Function(String conversationId) acceptConversation,
     required TResult Function(
       String conversationId,
       String messageId,
@@ -10246,6 +10798,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(String conversationId, bool pinned)? togglePin,
     TResult? Function(String conversationId, bool muted)? toggleMute,
     TResult? Function(String conversationId)? archiveConversation,
+    TResult? Function(String conversationId)? acceptConversation,
     TResult? Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult? Function(String conversationId, String messageId, String emoji)?
@@ -10309,6 +10862,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(String conversationId, bool pinned)? togglePin,
     TResult Function(String conversationId, bool muted)? toggleMute,
     TResult Function(String conversationId)? archiveConversation,
+    TResult Function(String conversationId)? acceptConversation,
     TResult Function(String conversationId, String messageId, String emoji)?
     addReaction,
     TResult Function(String conversationId, String messageId, String emoji)?
@@ -10349,6 +10903,7 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(_TogglePin value) togglePin,
     required TResult Function(_ToggleMute value) toggleMute,
     required TResult Function(_ArchiveConversation value) archiveConversation,
+    required TResult Function(_AcceptConversation value) acceptConversation,
     required TResult Function(_AddReaction value) addReaction,
     required TResult Function(_RemoveReaction value) removeReaction,
     required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
@@ -10382,6 +10937,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(_TogglePin value)? togglePin,
     TResult? Function(_ToggleMute value)? toggleMute,
     TResult? Function(_ArchiveConversation value)? archiveConversation,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
     TResult? Function(_AddReaction value)? addReaction,
     TResult? Function(_RemoveReaction value)? removeReaction,
     TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -10415,6 +10971,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(_TogglePin value)? togglePin,
     TResult Function(_ToggleMute value)? toggleMute,
     TResult Function(_ArchiveConversation value)? archiveConversation,
+    TResult Function(_AcceptConversation value)? acceptConversation,
     TResult Function(_AddReaction value)? addReaction,
     TResult Function(_RemoveReaction value)? removeReaction,
     TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
@@ -10452,6 +11009,7 @@ mixin _$ConversationState {
   List<UserSearchResult> get searchResults =>
       throw _privateConstructorUsedError;
   bool get isSearching => throw _privateConstructorUsedError;
+  int get messageRequestCount => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of ConversationState
@@ -10481,6 +11039,7 @@ abstract class $ConversationStateCopyWith<$Res> {
     int totalUnreadCount,
     List<UserSearchResult> searchResults,
     bool isSearching,
+    int messageRequestCount,
     String? errorMessage,
   });
 
@@ -10514,6 +11073,7 @@ class _$ConversationStateCopyWithImpl<$Res, $Val extends ConversationState>
     Object? totalUnreadCount = null,
     Object? searchResults = null,
     Object? isSearching = null,
+    Object? messageRequestCount = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -10566,6 +11126,10 @@ class _$ConversationStateCopyWithImpl<$Res, $Val extends ConversationState>
                 ? _value.isSearching
                 : isSearching // ignore: cast_nullable_to_non_nullable
                       as bool,
+            messageRequestCount: null == messageRequestCount
+                ? _value.messageRequestCount
+                : messageRequestCount // ignore: cast_nullable_to_non_nullable
+                      as int,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -10612,6 +11176,7 @@ abstract class _$$ConversationStateImplCopyWith<$Res>
     int totalUnreadCount,
     List<UserSearchResult> searchResults,
     bool isSearching,
+    int messageRequestCount,
     String? errorMessage,
   });
 
@@ -10645,6 +11210,7 @@ class __$$ConversationStateImplCopyWithImpl<$Res>
     Object? totalUnreadCount = null,
     Object? searchResults = null,
     Object? isSearching = null,
+    Object? messageRequestCount = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -10697,6 +11263,10 @@ class __$$ConversationStateImplCopyWithImpl<$Res>
             ? _value.isSearching
             : isSearching // ignore: cast_nullable_to_non_nullable
                   as bool,
+        messageRequestCount: null == messageRequestCount
+            ? _value.messageRequestCount
+            : messageRequestCount // ignore: cast_nullable_to_non_nullable
+                  as int,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -10722,6 +11292,7 @@ class _$ConversationStateImpl extends _ConversationState {
     this.totalUnreadCount = 0,
     final List<UserSearchResult> searchResults = const [],
     this.isSearching = false,
+    this.messageRequestCount = 0,
     this.errorMessage,
   }) : _conversations = conversations,
        _messages = messages,
@@ -10782,11 +11353,14 @@ class _$ConversationStateImpl extends _ConversationState {
   @JsonKey()
   final bool isSearching;
   @override
+  @JsonKey()
+  final int messageRequestCount;
+  @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'ConversationState(status: $status, conversations: $conversations, messages: $messages, selectedConversation: $selectedConversation, isLoadingMessages: $isLoadingMessages, hasLoadedMessages: $hasLoadedMessages, hasMoreMessages: $hasMoreMessages, isSending: $isSending, isClearingChat: $isClearingChat, totalUnreadCount: $totalUnreadCount, searchResults: $searchResults, isSearching: $isSearching, errorMessage: $errorMessage)';
+    return 'ConversationState(status: $status, conversations: $conversations, messages: $messages, selectedConversation: $selectedConversation, isLoadingMessages: $isLoadingMessages, hasLoadedMessages: $hasLoadedMessages, hasMoreMessages: $hasMoreMessages, isSending: $isSending, isClearingChat: $isClearingChat, totalUnreadCount: $totalUnreadCount, searchResults: $searchResults, isSearching: $isSearching, messageRequestCount: $messageRequestCount, errorMessage: $errorMessage)';
   }
 
   @override
@@ -10820,6 +11394,8 @@ class _$ConversationStateImpl extends _ConversationState {
             ) &&
             (identical(other.isSearching, isSearching) ||
                 other.isSearching == isSearching) &&
+            (identical(other.messageRequestCount, messageRequestCount) ||
+                other.messageRequestCount == messageRequestCount) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -10839,6 +11415,7 @@ class _$ConversationStateImpl extends _ConversationState {
     totalUnreadCount,
     const DeepCollectionEquality().hash(_searchResults),
     isSearching,
+    messageRequestCount,
     errorMessage,
   );
 
@@ -10868,6 +11445,7 @@ abstract class _ConversationState extends ConversationState {
     final int totalUnreadCount,
     final List<UserSearchResult> searchResults,
     final bool isSearching,
+    final int messageRequestCount,
     final String? errorMessage,
   }) = _$ConversationStateImpl;
   const _ConversationState._() : super._();
@@ -10896,6 +11474,8 @@ abstract class _ConversationState extends ConversationState {
   List<UserSearchResult> get searchResults;
   @override
   bool get isSearching;
+  @override
+  int get messageRequestCount;
   @override
   String? get errorMessage;
 

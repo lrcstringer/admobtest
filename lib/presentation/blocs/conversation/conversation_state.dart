@@ -18,6 +18,7 @@ class ConversationState with _$ConversationState {
     @Default(0) int totalUnreadCount,
     @Default([]) List<UserSearchResult> searchResults,
     @Default(false) bool isSearching,
+    @Default(0) int messageRequestCount,
     String? errorMessage,
   }) = _ConversationState;
 

@@ -35,6 +35,7 @@ import '../screens/chat/chat_send_wallet_selection_screen.dart';
 import '../screens/messaging/messaging_screen.dart';
 import '../screens/messaging/contact_picker_screen.dart';
 import '../screens/messaging/conversation_detail_screen.dart';
+import '../screens/messaging/message_requests_screen.dart';
 import '../screens/community/community_detail_screen.dart';
 import '../screens/community/create_community_screen.dart';
 import '../screens/community/community_settings_screen.dart';
@@ -588,6 +589,13 @@ class AppRouter {
                     name: 'newChat',
                     builder: (context, state) =>
                         const ContactPickerScreen(),
+                  ),
+                  // 8.0.1) Message Requests
+                  GoRoute(
+                    path: 'requests',
+                    name: 'messageRequests',
+                    builder: (context, state) =>
+                        const MessageRequestsScreen(),
                   ),
                   // 8.1) P2P Conversation Detail
                   GoRoute(

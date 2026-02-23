@@ -129,63 +129,72 @@ export const getOrCreateConversation = onCall({ labels: { area: "social" } }, as
   const deterministicId = `p2p_${sortedIds[0]}_${sortedIds[1]}`;
   const convRef = db.collection("conversations").doc(deterministicId);
 
-  // Check if conversation already exists
-  const existingDoc = await convRef.get();
-  if (existingDoc.exists) {
-    const convData = existingDoc.data()!;
-    return { success: true, conversation: { ...convData, id: existingDoc.id } };
-  }
+  // Use a transaction to prevent race condition where both participants call
+  // getOrCreateConversation concurrently and the second set() overwrites the
+  // first's accepted map (inverting who accepted).
+  const result = await db.runTransaction(async (txn) => {
+    const existingDoc = await txn.get(convRef);
+    if (existingDoc.exists) {
+      const convData = existingDoc.data()!;
+      return { created: false, conversation: { ...convData, id: existingDoc.id } };
+    }
 
-  // Get both user profiles for denormalized data
-  const [currentUser, otherUser] = await Promise.all([
-    getUserProfile(userId),
-    getUserProfile(participantId),
-  ]);
+    // Get both user profiles for denormalized data
+    const [currentUser, otherUser] = await Promise.all([
+      getUserProfile(userId),
+      getUserProfile(participantId),
+    ]);
 
-  const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = admin.firestore.FieldValue.serverTimestamp();
 
-  const conversation = {
-    id: convRef.id,
-    type: "p2p",
-    participantIds: [userId, participantId],
-    participants: {
-      [userId]: {
-        displayName: currentUser.displayName || "Unknown",
-        avatarUrl: currentUser.avatarUrl || currentUser.profilePicThumbUrl || null,
+    const conversation: Record<string, unknown> = {
+      id: convRef.id,
+      type: "p2p",
+      participantIds: [userId, participantId],
+      participants: {
+        [userId]: {
+          displayName: currentUser.displayName || "Unknown",
+          avatarUrl: currentUser.avatarUrl || currentUser.profilePicThumbUrl || null,
+        },
+        [participantId]: {
+          displayName: otherUser.displayName || "Unknown",
+          avatarUrl: otherUser.avatarUrl || otherUser.profilePicThumbUrl || null,
+        },
       },
-      [participantId]: {
-        displayName: otherUser.displayName || "Unknown",
-        avatarUrl: otherUser.avatarUrl || otherUser.profilePicThumbUrl || null,
+      lastMessageText: null,
+      lastMessageSenderId: null,
+      lastMessageSenderName: null,
+      lastMessageType: null,
+      lastMessageAt: null,
+      unreadCounts: {
+        [userId]: 0,
+        [participantId]: 0,
       },
-    },
-    lastMessageText: null,
-    lastMessageSenderId: null,
-    lastMessageSenderName: null,
-    lastMessageType: null,
-    lastMessageAt: null,
-    unreadCounts: {
-      [userId]: 0,
-      [participantId]: 0,
-    },
-    archived: {
-      [userId]: false,
-      [participantId]: false,
-    },
-    pinned: {
-      [userId]: false,
-      [participantId]: false,
-    },
-    muted: {
-      [userId]: false,
-      [participantId]: false,
-    },
-    createdAt: now,
-    updatedAt: null,
-  };
+      accepted: {
+        [userId]: true,          // Initiator has accepted
+        [participantId]: false,  // Recipient hasn't accepted yet
+      },
+      archived: {
+        [userId]: false,
+        [participantId]: false,
+      },
+      pinned: {
+        [userId]: false,
+        [participantId]: false,
+      },
+      muted: {
+        [userId]: false,
+        [participantId]: false,
+      },
+      createdAt: now,
+      updatedAt: null,
+    };
 
-  await convRef.set(conversation);
+    txn.set(convRef, conversation);
+    return { created: true, conversation: { ...conversation, id: convRef.id } };
+  });
 
-  return { success: true, conversation: { ...conversation, id: convRef.id } };
+  return { success: true, conversation: result.conversation };
 });
 
 // ============================================================================
@@ -307,6 +316,13 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
     deletedForEveryone: false,
   };
 
+  // Auto-accept: if sender hasn't accepted yet, replying = implicit acceptance
+  const senderAccepted = conv.accepted?.[userId] ?? true; // legacy convos = accepted
+  const acceptUpdate: Record<string, unknown> = {};
+  if (!senderAccepted) {
+    acceptUpdate[`accepted.${userId}`] = true;
+  }
+
   // Find other participants to increment their unread counts
   const otherParticipants = conv.participantIds.filter((id: string) => id !== userId);
   const unreadUpdates: Record<string, unknown> = {};
@@ -328,6 +344,7 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
     lastMessageAt: now,
     updatedAt: now,
     ...unreadUpdates,
+    ...acceptUpdate,
   });
 
   await batch.commit();
@@ -338,6 +355,24 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
       const tokenDoc = await db.collection("users").doc(pid).get();
       const fcmToken = tokenDoc.data()?.fcmToken;
       if (fcmToken) {
+        // Check if the recipient has accepted this conversation
+        const recipientAccepted = conv.accepted?.[pid] ?? true; // legacy = accepted
+        if (!recipientAccepted) {
+          // Send silent data-only push (no notification banner, no sound)
+          await admin.messaging().send({
+            token: fcmToken,
+            data: {
+              type: "message_request",
+              conversationId,
+              messageId: messageRef.id,
+              senderId: userId,
+              senderName,
+            },
+            android: { priority: "normal" as const },
+          });
+          continue; // skip normal notification
+        }
+
         await admin.messaging().send({
           token: fcmToken,
           notification: {
@@ -848,6 +883,45 @@ export const archiveConversation = onCall({ labels: { area: "social" } }, async 
 
   return { success: true };
 });
+
+// ============================================================================
+// MESSAGE REQUESTS
+// ============================================================================
+
+/**
+ * Explicitly accept a message request (conversation).
+ * Sets accepted.{userId} to true on the conversation document.
+ */
+export const acceptConversationRequest = onCall(
+  { labels: { area: "social" } },
+  async (request) => {
+    const userId = requireAuth(request);
+    requireAppCheck(request, "acceptConversationRequest");
+
+    const { conversationId } = request.data;
+
+    if (!conversationId) {
+      throw new HttpsError("invalid-argument", "conversationId is required");
+    }
+
+    const convDoc = await db.collection("conversations").doc(conversationId).get();
+    if (!convDoc.exists) {
+      throw new HttpsError("not-found", "Conversation not found");
+    }
+
+    const conv = convDoc.data()!;
+    if (!conv.participantIds?.includes(userId)) {
+      throw new HttpsError("permission-denied", "Not a participant");
+    }
+
+    await convDoc.ref.update({
+      [`accepted.${userId}`]: true,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return { success: true };
+  }
+);
 
 // ============================================================================
 // REACTIONS

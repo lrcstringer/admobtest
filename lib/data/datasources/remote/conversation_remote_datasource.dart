@@ -96,6 +96,9 @@ abstract class ConversationRemoteDataSource {
   });
   Future<void> archiveConversation(String conversationId);
 
+  // Message requests (via Cloud Functions)
+  Future<void> acceptConversationRequest({required String conversationId});
+
   // Message deletion (via Cloud Functions)
   Future<void> deleteMessageForEveryone({
     required String conversationId,
@@ -755,6 +758,29 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
       });
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to archive');
+    } catch (e) {
+      if (e is AuthException) rethrow;
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  // =========================================================================
+  // MESSAGE REQUESTS
+  // =========================================================================
+
+  @override
+  Future<void> acceptConversationRequest({
+    required String conversationId,
+  }) async {
+    _requireUserId();
+    try {
+      final callable = _functions.httpsCallable('acceptConversationRequest');
+      await callable.call<Map<String, dynamic>>({
+        'conversationId': conversationId,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(
+          message: e.message ?? 'Failed to accept conversation');
     } catch (e) {
       if (e is AuthException) rethrow;
       throw ServerException(message: e.toString());

@@ -34,6 +34,9 @@ class ConversationModel with _$ConversationModel {
     // Per-user chat cleared timestamps
     @Default({}) Map<String, DateTime> chatClearedAt,
 
+    // Per-user acceptance status (message request system)
+    @Default({}) Map<String, bool> accepted,
+
     // Timestamps
     required DateTime createdAt,
     DateTime? updatedAt,
@@ -73,6 +76,7 @@ class ConversationModel with _$ConversationModel {
       lastMessageEncryptedPreviews:
           _parseStringMap(json['lastMessageEncryptedPreviews']),
       chatClearedAt: _parseDateTimeMap(json['chatClearedAt']),
+      accepted: _parseBoolMap(json['accepted']),
       createdAt: _parseDateTimeRequired(createdAt),
       updatedAt: _parseDateTime(updatedAt),
     );
@@ -109,6 +113,7 @@ class ConversationModel with _$ConversationModel {
       muted: muted,
       lastMessageEncryptedPreviews: lastMessageEncryptedPreviews,
       chatClearedAt: chatClearedAt,
+      accepted: accepted,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -137,6 +142,7 @@ class ConversationModel with _$ConversationModel {
       muted: entity.muted,
       lastMessageEncryptedPreviews: entity.lastMessageEncryptedPreviews,
       chatClearedAt: entity.chatClearedAt,
+      accepted: entity.accepted,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );

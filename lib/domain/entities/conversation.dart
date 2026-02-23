@@ -48,6 +48,9 @@ class Conversation with _$Conversation {
     // Per-user chat cleared timestamps
     @Default({}) Map<String, DateTime> chatClearedAt,
 
+    // Per-user acceptance status (message request system)
+    @Default({}) Map<String, bool> accepted,
+
     // Timestamps
     required DateTime createdAt,
     DateTime? updatedAt,
@@ -80,6 +83,12 @@ class Conversation with _$Conversation {
     if (lastMessageAt == null) return true;
     return cleared.isAfter(lastMessageAt!);
   }
+
+  /// Whether this user has accepted the conversation (not a message request)
+  bool isAcceptedFor(String userId) => accepted[userId] ?? true;
+
+  /// Whether this is a message request for the given user
+  bool isMessageRequestFor(String userId) => !isAcceptedFor(userId);
 
   /// Get the other participant's ID (for P2P)
   String otherParticipantId(String currentUserId) =>

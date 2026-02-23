@@ -269,6 +269,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
 
     for (final conv in convState.sortedConversations(currentUserId)) {
       if (conv.isArchivedFor(currentUserId)) continue;
+      if (conv.isMessageRequestFor(currentUserId)) continue; // skip requests
       if (_searchQuery.isNotEmpty &&
           !conv
               .displayNameFor(currentUserId)
@@ -316,7 +317,56 @@ class _MessagingScreenState extends State<MessagingScreen> {
       return b.sortTime.compareTo(a.sortTime);
     });
 
-    return entries.map((e) => e.widget).toList();
+    final widgets = <Widget>[];
+
+    // Message Requests row (when not searching)
+    if (_searchQuery.isEmpty && convState.messageRequestCount > 0) {
+      widgets.add(_buildMessageRequestsRow(context, convState.messageRequestCount));
+    }
+
+    widgets.addAll(entries.map((e) => e.widget));
+    return widgets;
+  }
+
+  Widget _buildMessageRequestsRow(BuildContext context, int count) {
+    return ListTile(
+      leading: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: AppColors.textSecondary.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: const Icon(Icons.chat_outlined, color: AppColors.textSecondary),
+      ),
+      title: const Text(
+        'Message Requests',
+        style: TextStyle(fontWeight: FontWeight.w600),
+      ),
+      subtitle: Text(
+        '$count pending',
+        style: TextStyle(
+          color: AppColors.textSecondary,
+          fontSize: 13,
+        ),
+      ),
+      trailing: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          '$count',
+          style: TextStyle(
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
+        ),
+      ),
+      onTap: () => context.push('/chat/requests'),
+    );
   }
 
   Widget _buildEmptyState(BuildContext context) {

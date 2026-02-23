@@ -34,6 +34,7 @@ class LocalConversationMapper {
           (k, v) => MapEntry(k, v.toIso8601String()),
         ),
       )),
+      acceptedJson: Value(jsonEncode(conv.accepted)),
       createdAt: Value(conv.createdAt),
       updatedAt: Value(conv.updatedAt),
     );
@@ -57,6 +58,7 @@ class LocalConversationMapper {
       pinned: _parseBoolMap(row.pinnedJson),
       muted: _parseBoolMap(row.mutedJson),
       chatClearedAt: _parseDateTimeMap(row.chatClearedAtJson),
+      accepted: _parseBoolMap(row.acceptedJson),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );

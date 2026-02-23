@@ -103,6 +103,10 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               ),
               Column(
                 children: [
+                  // Message request banner
+                  if (conv != null &&
+                      conv.isMessageRequestFor(currentUserId))
+                    _buildMessageRequestBanner(context, conv, currentUserId),
                   Expanded(
                     child: _buildMessageList(context, state, currentUserId),
                   ),
@@ -110,8 +114,12 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                     controller: _messageController,
                     isSending: state.isSending,
                     onSend: () => _sendMessage(context),
-                    onTokenAction: () =>
-                        _showTokenActions(context, state, currentUserId),
+                    // Disable token actions for unaccepted conversations
+                    onTokenAction: conv != null &&
+                            conv.isMessageRequestFor(currentUserId)
+                        ? null
+                        : () => _showTokenActions(
+                            context, state, currentUserId),
                   ),
                 ],
               ),
@@ -238,6 +246,79 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildMessageRequestBanner(
+    BuildContext context,
+    Conversation conv,
+    String currentUserId,
+  ) {
+    final senderName = conv.displayNameFor(currentUserId);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.border.withValues(alpha: 0.3),
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$senderName wants to message you',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          AppSpacing.verticalXs,
+          Text(
+            'Replying will accept this message request',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+          ),
+          AppSpacing.verticalSm,
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    context.read<ConversationBloc>().add(
+                          ConversationEvent.acceptConversation(
+                            conv.id,
+                          ),
+                        );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                  ),
+                  child: const Text('Accept'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => _confirmBlockUser(
+                    context,
+                    conv.otherParticipantId(currentUserId),
+                    senderName,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.error,
+                    side: const BorderSide(color: AppColors.error),
+                  ),
+                  child: const Text('Block'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

@@ -53,6 +53,11 @@ _$ConversationImpl _$$ConversationImplFromJson(Map<String, dynamic> json) =>
             (k, e) => MapEntry(k, DateTime.parse(e as String)),
           ) ??
           const {},
+      accepted:
+          (json['accepted'] as Map<String, dynamic>?)?.map(
+            (k, e) => MapEntry(k, e as bool),
+          ) ??
+          const {},
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] == null
           ? null
@@ -79,6 +84,7 @@ Map<String, dynamic> _$$ConversationImplToJson(_$ConversationImpl instance) =>
       'chatClearedAt': instance.chatClearedAt.map(
         (k, e) => MapEntry(k, e.toIso8601String()),
       ),
+      'accepted': instance.accepted,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
     };

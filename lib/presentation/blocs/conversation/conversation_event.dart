@@ -118,6 +118,15 @@ class ConversationEvent with _$ConversationEvent {
   ) = _ArchiveConversation;
 
   // =========================================================================
+  // MESSAGE REQUESTS
+  // =========================================================================
+
+  /// Explicitly accept a message request (moves to main inbox)
+  const factory ConversationEvent.acceptConversation(
+    String conversationId,
+  ) = _AcceptConversation;
+
+  // =========================================================================
   // REACTIONS
   // =========================================================================
 

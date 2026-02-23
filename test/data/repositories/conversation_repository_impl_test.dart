@@ -135,6 +135,7 @@ LocalFullConversation _createLocalFullConversation({
     pinnedJson: '{}',
     mutedJson: '{}',
     chatClearedAtJson: '{}',
+    acceptedJson: '{}',
     createdAt: DateTime(2024, 6, 1),
     updatedAt: null,
   );

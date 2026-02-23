@@ -56,6 +56,9 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     on<_ToggleMute>(_onToggleMute);
     on<_ArchiveConversation>(_onArchiveConversation);
 
+    // Message requests
+    on<_AcceptConversation>(_onAcceptConversation);
+
     // Reactions
     on<_AddReaction>(_onAddReaction);
     on<_RemoveReaction>(_onRemoveReaction);
@@ -133,12 +136,35 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     _ConversationsUpdated event,
     Emitter<ConversationState> emit,
   ) {
-    // Also refresh selectedConversation if it exists in the updated list,
+    final userId = _conversationRepository.currentUserId ?? '';
+
+    // Merge accepted status: if a conversation was optimistically accepted
+    // locally (accepted[userId]=true) but the incoming stream still has the
+    // old value (accepted[userId]=false), preserve the local accepted state.
+    // This prevents the brief UI flicker where the banner reappears.
+    final mergedConversations = event.conversations.map((incoming) {
+      if (userId.isEmpty) return incoming;
+      final existing = state.conversations.cast<Conversation?>().firstWhere(
+        (c) => c?.id == incoming.id,
+        orElse: () => null,
+      );
+      if (existing != null &&
+          existing.isAcceptedFor(userId) &&
+          !incoming.isAcceptedFor(userId)) {
+        // Preserve the local accepted=true (server hasn't caught up yet)
+        return incoming.copyWith(
+          accepted: {...incoming.accepted, userId: true},
+        );
+      }
+      return incoming;
+    }).toList();
+
+    // Refresh selectedConversation if it exists in the updated list,
     // so detail screen picks up freshly-healed participant data (e.g. avatarUrl).
     Conversation? refreshedSelected;
     if (state.selectedConversation != null) {
       try {
-        refreshedSelected = event.conversations.firstWhere(
+        refreshedSelected = mergedConversations.firstWhere(
           (c) => c.id == state.selectedConversation!.id,
         );
       } catch (_) {
@@ -146,10 +172,18 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       }
     }
 
+    // Compute message request count from the merged list
+    final requestCount = userId.isNotEmpty
+        ? mergedConversations
+            .where((c) => c.isMessageRequestFor(userId))
+            .length
+        : 0;
+
     emit(state.copyWith(
       status: ConversationStatus.loaded,
-      conversations: event.conversations,
+      conversations: mergedConversations,
       selectedConversation: refreshedSelected ?? state.selectedConversation,
+      messageRequestCount: requestCount,
     ));
   }
 
@@ -586,6 +620,55 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
       (_) {},
+    );
+  }
+
+  // ===========================================================================
+  // MESSAGE REQUEST HANDLERS
+  // ===========================================================================
+
+  Future<void> _onAcceptConversation(
+    _AcceptConversation event,
+    Emitter<ConversationState> emit,
+  ) async {
+    final result = await _conversationRepository.acceptConversation(
+      conversationId: event.conversationId,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
+      (_) {
+        final userId = _conversationRepository.currentUserId ?? '';
+        if (userId.isEmpty) return;
+
+        // Optimistically update the conversation in the main list too,
+        // so the stream can't reverse the accepted flag with stale data.
+        final updatedConversations = state.conversations.map((c) {
+          if (c.id == event.conversationId) {
+            return c.copyWith(
+              accepted: {...c.accepted, userId: true},
+            );
+          }
+          return c;
+        }).toList();
+
+        // Update selectedConversation if it matches (remove banner immediately)
+        final updatedSelected =
+            state.selectedConversation?.id == event.conversationId
+                ? state.selectedConversation!.copyWith(
+                    accepted: {
+                      ...state.selectedConversation!.accepted,
+                      userId: true,
+                    },
+                  )
+                : state.selectedConversation;
+
+        emit(state.copyWith(
+          conversations: updatedConversations,
+          selectedConversation: updatedSelected,
+          messageRequestCount:
+              (state.messageRequestCount - 1).clamp(0, 999999),
+        ));
+      },
     );
   }
 

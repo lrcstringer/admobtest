@@ -7163,6 +7163,18 @@ class $LocalFullConversationsTable extends LocalFullConversations
         requiredDuringInsert: false,
         defaultValue: const Constant('{}'),
       );
+  static const VerificationMeta _acceptedJsonMeta = const VerificationMeta(
+    'acceptedJson',
+  );
+  @override
+  late final GeneratedColumn<String> acceptedJson = GeneratedColumn<String>(
+    'accepted_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -7202,6 +7214,7 @@ class $LocalFullConversationsTable extends LocalFullConversations
     pinnedJson,
     mutedJson,
     chatClearedAtJson,
+    acceptedJson,
     createdAt,
     updatedAt,
   ];
@@ -7345,6 +7358,15 @@ class $LocalFullConversationsTable extends LocalFullConversations
         ),
       );
     }
+    if (data.containsKey('accepted_json')) {
+      context.handle(
+        _acceptedJsonMeta,
+        acceptedJson.isAcceptableOrUnknown(
+          data['accepted_json']!,
+          _acceptedJsonMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -7428,6 +7450,10 @@ class $LocalFullConversationsTable extends LocalFullConversations
         DriftSqlType.string,
         data['${effectivePrefix}chat_cleared_at_json'],
       )!,
+      acceptedJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}accepted_json'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -7462,6 +7488,7 @@ class LocalFullConversation extends DataClass
   final String pinnedJson;
   final String mutedJson;
   final String chatClearedAtJson;
+  final String acceptedJson;
   final DateTime createdAt;
   final DateTime? updatedAt;
   const LocalFullConversation({
@@ -7480,6 +7507,7 @@ class LocalFullConversation extends DataClass
     required this.pinnedJson,
     required this.mutedJson,
     required this.chatClearedAtJson,
+    required this.acceptedJson,
     required this.createdAt,
     this.updatedAt,
   });
@@ -7513,6 +7541,7 @@ class LocalFullConversation extends DataClass
     map['pinned_json'] = Variable<String>(pinnedJson);
     map['muted_json'] = Variable<String>(mutedJson);
     map['chat_cleared_at_json'] = Variable<String>(chatClearedAtJson);
+    map['accepted_json'] = Variable<String>(acceptedJson);
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -7549,6 +7578,7 @@ class LocalFullConversation extends DataClass
       pinnedJson: Value(pinnedJson),
       mutedJson: Value(mutedJson),
       chatClearedAtJson: Value(chatClearedAtJson),
+      acceptedJson: Value(acceptedJson),
       createdAt: Value(createdAt),
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
@@ -7583,6 +7613,7 @@ class LocalFullConversation extends DataClass
       pinnedJson: serializer.fromJson<String>(json['pinnedJson']),
       mutedJson: serializer.fromJson<String>(json['mutedJson']),
       chatClearedAtJson: serializer.fromJson<String>(json['chatClearedAtJson']),
+      acceptedJson: serializer.fromJson<String>(json['acceptedJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
     );
@@ -7608,6 +7639,7 @@ class LocalFullConversation extends DataClass
       'pinnedJson': serializer.toJson<String>(pinnedJson),
       'mutedJson': serializer.toJson<String>(mutedJson),
       'chatClearedAtJson': serializer.toJson<String>(chatClearedAtJson),
+      'acceptedJson': serializer.toJson<String>(acceptedJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
     };
@@ -7629,6 +7661,7 @@ class LocalFullConversation extends DataClass
     String? pinnedJson,
     String? mutedJson,
     String? chatClearedAtJson,
+    String? acceptedJson,
     DateTime? createdAt,
     Value<DateTime?> updatedAt = const Value.absent(),
   }) => LocalFullConversation(
@@ -7659,6 +7692,7 @@ class LocalFullConversation extends DataClass
     pinnedJson: pinnedJson ?? this.pinnedJson,
     mutedJson: mutedJson ?? this.mutedJson,
     chatClearedAtJson: chatClearedAtJson ?? this.chatClearedAtJson,
+    acceptedJson: acceptedJson ?? this.acceptedJson,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
@@ -7705,6 +7739,9 @@ class LocalFullConversation extends DataClass
       chatClearedAtJson: data.chatClearedAtJson.present
           ? data.chatClearedAtJson.value
           : this.chatClearedAtJson,
+      acceptedJson: data.acceptedJson.present
+          ? data.acceptedJson.value
+          : this.acceptedJson,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -7728,6 +7765,7 @@ class LocalFullConversation extends DataClass
           ..write('pinnedJson: $pinnedJson, ')
           ..write('mutedJson: $mutedJson, ')
           ..write('chatClearedAtJson: $chatClearedAtJson, ')
+          ..write('acceptedJson: $acceptedJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -7751,6 +7789,7 @@ class LocalFullConversation extends DataClass
     pinnedJson,
     mutedJson,
     chatClearedAtJson,
+    acceptedJson,
     createdAt,
     updatedAt,
   );
@@ -7773,6 +7812,7 @@ class LocalFullConversation extends DataClass
           other.pinnedJson == this.pinnedJson &&
           other.mutedJson == this.mutedJson &&
           other.chatClearedAtJson == this.chatClearedAtJson &&
+          other.acceptedJson == this.acceptedJson &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -7794,6 +7834,7 @@ class LocalFullConversationsCompanion
   final Value<String> pinnedJson;
   final Value<String> mutedJson;
   final Value<String> chatClearedAtJson;
+  final Value<String> acceptedJson;
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
   final Value<int> rowid;
@@ -7813,6 +7854,7 @@ class LocalFullConversationsCompanion
     this.pinnedJson = const Value.absent(),
     this.mutedJson = const Value.absent(),
     this.chatClearedAtJson = const Value.absent(),
+    this.acceptedJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -7833,6 +7875,7 @@ class LocalFullConversationsCompanion
     this.pinnedJson = const Value.absent(),
     this.mutedJson = const Value.absent(),
     this.chatClearedAtJson = const Value.absent(),
+    this.acceptedJson = const Value.absent(),
     required DateTime createdAt,
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -7857,6 +7900,7 @@ class LocalFullConversationsCompanion
     Expression<String>? pinnedJson,
     Expression<String>? mutedJson,
     Expression<String>? chatClearedAtJson,
+    Expression<String>? acceptedJson,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -7880,6 +7924,7 @@ class LocalFullConversationsCompanion
       if (pinnedJson != null) 'pinned_json': pinnedJson,
       if (mutedJson != null) 'muted_json': mutedJson,
       if (chatClearedAtJson != null) 'chat_cleared_at_json': chatClearedAtJson,
+      if (acceptedJson != null) 'accepted_json': acceptedJson,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -7902,6 +7947,7 @@ class LocalFullConversationsCompanion
     Value<String>? pinnedJson,
     Value<String>? mutedJson,
     Value<String>? chatClearedAtJson,
+    Value<String>? acceptedJson,
     Value<DateTime>? createdAt,
     Value<DateTime?>? updatedAt,
     Value<int>? rowid,
@@ -7923,6 +7969,7 @@ class LocalFullConversationsCompanion
       pinnedJson: pinnedJson ?? this.pinnedJson,
       mutedJson: mutedJson ?? this.mutedJson,
       chatClearedAtJson: chatClearedAtJson ?? this.chatClearedAtJson,
+      acceptedJson: acceptedJson ?? this.acceptedJson,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -7981,6 +8028,9 @@ class LocalFullConversationsCompanion
     if (chatClearedAtJson.present) {
       map['chat_cleared_at_json'] = Variable<String>(chatClearedAtJson.value);
     }
+    if (acceptedJson.present) {
+      map['accepted_json'] = Variable<String>(acceptedJson.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -8011,6 +8061,7 @@ class LocalFullConversationsCompanion
           ..write('pinnedJson: $pinnedJson, ')
           ..write('mutedJson: $mutedJson, ')
           ..write('chatClearedAtJson: $chatClearedAtJson, ')
+          ..write('acceptedJson: $acceptedJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -11485,6 +11536,7 @@ typedef $$LocalFullConversationsTableCreateCompanionBuilder =
       Value<String> pinnedJson,
       Value<String> mutedJson,
       Value<String> chatClearedAtJson,
+      Value<String> acceptedJson,
       required DateTime createdAt,
       Value<DateTime?> updatedAt,
       Value<int> rowid,
@@ -11506,6 +11558,7 @@ typedef $$LocalFullConversationsTableUpdateCompanionBuilder =
       Value<String> pinnedJson,
       Value<String> mutedJson,
       Value<String> chatClearedAtJson,
+      Value<String> acceptedJson,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
       Value<int> rowid,
@@ -11592,6 +11645,11 @@ class $$LocalFullConversationsTableFilterComposer
 
   ColumnFilters<String> get chatClearedAtJson => $composableBuilder(
     column: $table.chatClearedAtJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get acceptedJson => $composableBuilder(
+    column: $table.acceptedJson,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11690,6 +11748,11 @@ class $$LocalFullConversationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get acceptedJson => $composableBuilder(
+    column: $table.acceptedJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -11779,6 +11842,11 @@ class $$LocalFullConversationsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get acceptedJson => $composableBuilder(
+    column: $table.acceptedJson,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -11847,6 +11915,7 @@ class $$LocalFullConversationsTableTableManager
                 Value<String> pinnedJson = const Value.absent(),
                 Value<String> mutedJson = const Value.absent(),
                 Value<String> chatClearedAtJson = const Value.absent(),
+                Value<String> acceptedJson = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -11866,6 +11935,7 @@ class $$LocalFullConversationsTableTableManager
                 pinnedJson: pinnedJson,
                 mutedJson: mutedJson,
                 chatClearedAtJson: chatClearedAtJson,
+                acceptedJson: acceptedJson,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -11887,6 +11957,7 @@ class $$LocalFullConversationsTableTableManager
                 Value<String> pinnedJson = const Value.absent(),
                 Value<String> mutedJson = const Value.absent(),
                 Value<String> chatClearedAtJson = const Value.absent(),
+                Value<String> acceptedJson = const Value.absent(),
                 required DateTime createdAt,
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -11906,6 +11977,7 @@ class $$LocalFullConversationsTableTableManager
                 pinnedJson: pinnedJson,
                 mutedJson: mutedJson,
                 chatClearedAtJson: chatClearedAtJson,
+                acceptedJson: acceptedJson,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,

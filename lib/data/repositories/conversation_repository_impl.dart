@@ -605,6 +605,46 @@ class ConversationRepositoryImpl implements ConversationRepository {
   }
 
   // =========================================================================
+  // MESSAGE REQUESTS
+  // =========================================================================
+
+  @override
+  Future<Either<Failure, void>> acceptConversation({
+    required String conversationId,
+  }) async {
+    try {
+      // 1. Optimistically update local DB so UI reflects acceptance immediately
+      if (currentUserId != null) {
+        final localConv =
+            await _appDatabase.getLocalConversation(conversationId);
+        if (localConv != null) {
+          final conv = LocalConversationMapper.toEntity(localConv);
+          final updatedAccepted = Map<String, bool>.from(conv.accepted);
+          updatedAccepted[currentUserId!] = true;
+          await _appDatabase.upsertLocalConversation(
+            LocalConversationMapper.toCompanion(
+              conv.copyWith(accepted: updatedAccepted),
+            ),
+          );
+        }
+      }
+
+      // 2. Enqueue for server execution (works offline too)
+      await _offlineActionQueue.enqueue(
+        table: 'conversations',
+        recordId: conversationId,
+        changeType: 'accept_conversation',
+        data: {},
+      );
+      return const Right(null);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  // =========================================================================
   // MESSAGE DELETION
   // =========================================================================
 

@@ -144,6 +144,15 @@ abstract class ConversationRepository {
   Future<Either<Failure, void>> archiveConversation(String conversationId);
 
   // =========================================================================
+  // MESSAGE REQUESTS
+  // =========================================================================
+
+  /// Explicitly accept a conversation (message request → normal)
+  Future<Either<Failure, void>> acceptConversation({
+    required String conversationId,
+  });
+
+  // =========================================================================
   // MESSAGE DELETION
   // =========================================================================
 

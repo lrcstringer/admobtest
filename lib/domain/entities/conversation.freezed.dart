@@ -214,6 +214,8 @@ mixin _$Conversation {
   Map<String, String> get lastMessageEncryptedPreviews =>
       throw _privateConstructorUsedError; // Per-user chat cleared timestamps
   Map<String, DateTime> get chatClearedAt =>
+      throw _privateConstructorUsedError; // Per-user acceptance status (message request system)
+  Map<String, bool> get accepted =>
       throw _privateConstructorUsedError; // Timestamps
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
@@ -252,6 +254,7 @@ abstract class $ConversationCopyWith<$Res> {
     Map<String, bool> muted,
     Map<String, String> lastMessageEncryptedPreviews,
     Map<String, DateTime> chatClearedAt,
+    Map<String, bool> accepted,
     DateTime createdAt,
     DateTime? updatedAt,
   });
@@ -288,6 +291,7 @@ class _$ConversationCopyWithImpl<$Res, $Val extends Conversation>
     Object? muted = null,
     Object? lastMessageEncryptedPreviews = null,
     Object? chatClearedAt = null,
+    Object? accepted = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
   }) {
@@ -357,6 +361,10 @@ class _$ConversationCopyWithImpl<$Res, $Val extends Conversation>
                 ? _value.chatClearedAt
                 : chatClearedAt // ignore: cast_nullable_to_non_nullable
                       as Map<String, DateTime>,
+            accepted: null == accepted
+                ? _value.accepted
+                : accepted // ignore: cast_nullable_to_non_nullable
+                      as Map<String, bool>,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -397,6 +405,7 @@ abstract class _$$ConversationImplCopyWith<$Res>
     Map<String, bool> muted,
     Map<String, String> lastMessageEncryptedPreviews,
     Map<String, DateTime> chatClearedAt,
+    Map<String, bool> accepted,
     DateTime createdAt,
     DateTime? updatedAt,
   });
@@ -432,6 +441,7 @@ class __$$ConversationImplCopyWithImpl<$Res>
     Object? muted = null,
     Object? lastMessageEncryptedPreviews = null,
     Object? chatClearedAt = null,
+    Object? accepted = null,
     Object? createdAt = null,
     Object? updatedAt = freezed,
   }) {
@@ -501,6 +511,10 @@ class __$$ConversationImplCopyWithImpl<$Res>
             ? _value._chatClearedAt
             : chatClearedAt // ignore: cast_nullable_to_non_nullable
                   as Map<String, DateTime>,
+        accepted: null == accepted
+            ? _value._accepted
+            : accepted // ignore: cast_nullable_to_non_nullable
+                  as Map<String, bool>,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -534,6 +548,7 @@ class _$ConversationImpl extends _Conversation {
     required final Map<String, bool> muted,
     final Map<String, String> lastMessageEncryptedPreviews = const {},
     final Map<String, DateTime> chatClearedAt = const {},
+    final Map<String, bool> accepted = const {},
     required this.createdAt,
     this.updatedAt,
   }) : _participantIds = participantIds,
@@ -544,6 +559,7 @@ class _$ConversationImpl extends _Conversation {
        _muted = muted,
        _lastMessageEncryptedPreviews = lastMessageEncryptedPreviews,
        _chatClearedAt = chatClearedAt,
+       _accepted = accepted,
        super._();
 
   factory _$ConversationImpl.fromJson(Map<String, dynamic> json) =>
@@ -639,6 +655,17 @@ class _$ConversationImpl extends _Conversation {
     return EqualUnmodifiableMapView(_chatClearedAt);
   }
 
+  // Per-user acceptance status (message request system)
+  final Map<String, bool> _accepted;
+  // Per-user acceptance status (message request system)
+  @override
+  @JsonKey()
+  Map<String, bool> get accepted {
+    if (_accepted is EqualUnmodifiableMapView) return _accepted;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_accepted);
+  }
+
   // Timestamps
   @override
   final DateTime createdAt;
@@ -647,7 +674,7 @@ class _$ConversationImpl extends _Conversation {
 
   @override
   String toString() {
-    return 'Conversation(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageId: $lastMessageId, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Conversation(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageId: $lastMessageId, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, accepted: $accepted, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -692,6 +719,7 @@ class _$ConversationImpl extends _Conversation {
               other._chatClearedAt,
               _chatClearedAt,
             ) &&
+            const DeepCollectionEquality().equals(other._accepted, _accepted) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -700,7 +728,7 @@ class _$ConversationImpl extends _Conversation {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     type,
@@ -718,9 +746,10 @@ class _$ConversationImpl extends _Conversation {
     const DeepCollectionEquality().hash(_muted),
     const DeepCollectionEquality().hash(_lastMessageEncryptedPreviews),
     const DeepCollectionEquality().hash(_chatClearedAt),
+    const DeepCollectionEquality().hash(_accepted),
     createdAt,
     updatedAt,
-  );
+  ]);
 
   /// Create a copy of Conversation
   /// with the given fields replaced by the non-null parameter values.
@@ -754,6 +783,7 @@ abstract class _Conversation extends Conversation {
     required final Map<String, bool> muted,
     final Map<String, String> lastMessageEncryptedPreviews,
     final Map<String, DateTime> chatClearedAt,
+    final Map<String, bool> accepted,
     required final DateTime createdAt,
     final DateTime? updatedAt,
   }) = _$ConversationImpl;
@@ -793,7 +823,9 @@ abstract class _Conversation extends Conversation {
   @override
   Map<String, String> get lastMessageEncryptedPreviews; // Per-user chat cleared timestamps
   @override
-  Map<String, DateTime> get chatClearedAt; // Timestamps
+  Map<String, DateTime> get chatClearedAt; // Per-user acceptance status (message request system)
+  @override
+  Map<String, bool> get accepted; // Timestamps
   @override
   DateTime get createdAt;
   @override

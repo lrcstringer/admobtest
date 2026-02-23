@@ -160,6 +160,12 @@ class OfflineActionQueue {
         await _remoteDataSource.clearChat(conversationId: recordId);
         break;
 
+      case 'accept_conversation':
+        await _remoteDataSource.acceptConversationRequest(
+          conversationId: recordId,
+        );
+        break;
+
       case 'delete_for_everyone':
         await _remoteDataSource.deleteMessageForEveryone(
           conversationId: data['conversationId'] as String,
