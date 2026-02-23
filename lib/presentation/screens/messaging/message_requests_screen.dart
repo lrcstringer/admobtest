@@ -6,6 +6,7 @@ import '../../../domain/entities/conversation.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/messaging/chat_background.dart';
 import '../../widgets/messaging/conversation_list_tile.dart';
 
 /// Screen showing all unaccepted conversation requests.
@@ -21,15 +22,14 @@ class MessageRequestsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: AppColors.chatAppBar,
+        surfaceTintColor: Colors.transparent,
         title: const Text('Message Requests'),
       ),
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/NewBackground.png',
-              fit: BoxFit.cover,
-            ),
+          const Positioned.fill(
+            child: ChatBackground(),
           ),
           BlocBuilder<ConversationBloc, ConversationState>(
             builder: (context, state) {

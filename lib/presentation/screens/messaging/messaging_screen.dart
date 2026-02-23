@@ -10,6 +10,7 @@ import '../../blocs/conversation/conversation_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../widgets/messaging/chat_background.dart';
 import '../../widgets/messaging/community_list_tile.dart';
 import '../../widgets/messaging/conversation_list_tile.dart';
 
@@ -93,6 +94,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
             )
           : IMaliAppBar(
               title: 'Chat',
+              backgroundColor: AppColors.chatAppBar,
               extraActions: [
                 IconButton(
                   icon:
@@ -120,11 +122,8 @@ class _MessagingScreenState extends State<MessagingScreen> {
             builder: (context, commState) {
               return Stack(
                 children: [
-                  Positioned.fill(
-                    child: Image.asset(
-                      'assets/images/NewBackground.png',
-                      fit: BoxFit.cover,
-                    ),
+                  const Positioned.fill(
+                    child: ChatBackground(),
                   ),
                   Column(
                     children: [

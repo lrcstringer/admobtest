@@ -13,6 +13,7 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/messaging/chat_background.dart';
 import '../../widgets/messaging/date_separator.dart';
 import '../../widgets/messaging/message_bubble.dart';
 import '../../widgets/messaging/message_input_bar.dart';
@@ -66,7 +67,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: AppColors.chatAppBar,
             surfaceTintColor: Colors.transparent,
             elevation: 0,
             title: conv != null
@@ -95,11 +96,8 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           ),
           body: Stack(
             children: [
-              Positioned.fill(
-                child: Image.asset(
-                  'assets/images/NewBackground.png',
-                  fit: BoxFit.cover,
-                ),
+              const Positioned.fill(
+                child: ChatBackground(),
               ),
               Column(
                 children: [

@@ -183,6 +183,11 @@ class AppColors {
   ];
 
   // ============ CHAT COLORS ============
+  // Dark charcoal background for conversation screens (like WhatsApp/WeChat)
+  static const Color chatBackground = Color(0xFF111111);
+  static const Color chatAppBar = Color(0xFF1A0D12); // Dark with subtle pink undertone
+  static const Color chatDoodle = Color(0xFF1A1A1A); // Very subtle pattern on dark bg
+
   // WeChat-style bright bubbles on dark background
   static const Color chatBubbleSent = Color(0xFF95EC69); // WeChat green
   static const Color chatBubbleReceived = Color(0xFF3A3A3C); // Mid grey

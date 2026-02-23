@@ -9,12 +9,14 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? extraActions;
   final PreferredSizeWidget? bottom;
+  final Color? backgroundColor;
 
   const IMaliAppBar({
     super.key,
     required this.title,
     this.extraActions,
     this.bottom,
+    this.backgroundColor,
   });
 
   @override
@@ -36,7 +38,7 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
 
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: backgroundColor ?? Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       leadingWidth: canPop ? 104 : 56,
