@@ -80,11 +80,8 @@ class _MessageInputBarState extends State<MessageInputBar> {
         top: 8,
         bottom: MediaQuery.of(context).padding.bottom + 8,
       ),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(
-          top: BorderSide(color: AppColors.border.withValues(alpha: 0.5)),
-        ),
+      decoration: const BoxDecoration(
+        color: AppColors.chatInputBackground,
       ),
       child: Row(
         children: [
@@ -110,7 +107,7 @@ class _MessageInputBarState extends State<MessageInputBar> {
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: AppColors.background,
+                fillColor: AppColors.chatInputField,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 10,

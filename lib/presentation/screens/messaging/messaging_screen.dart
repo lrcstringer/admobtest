@@ -6,6 +6,7 @@ import '../../../domain/entities/community.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/community/community_bloc.dart';
+import '../../blocs/contact/contact_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -13,6 +14,7 @@ import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/messaging/chat_background.dart';
 import '../../widgets/messaging/community_list_tile.dart';
 import '../../widgets/messaging/conversation_list_tile.dart';
+import 'contacts_tab.dart';
 
 /// Unified inbox screen showing all P2P conversations and communities
 /// sorted by last message timestamp.
@@ -25,20 +27,30 @@ class MessagingScreen extends StatefulWidget {
   State<MessagingScreen> createState() => _MessagingScreenState();
 }
 
-class _MessagingScreenState extends State<MessagingScreen> {
+class _MessagingScreenState extends State<MessagingScreen>
+    with SingleTickerProviderStateMixin {
   bool _isSearching = false;
   String _searchQuery = '';
   final _searchController = TextEditingController();
+  late final TabController _tabController;
+  int _currentTab = 0;
 
   @override
   void dispose() {
     _searchController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) return;
+      setState(() => _currentTab = _tabController.index);
+    });
+
     context
         .read<ConversationBloc>()
         .add(const ConversationEvent.watchConversations());
@@ -48,6 +60,20 @@ class _MessagingScreenState extends State<MessagingScreen> {
     context
         .read<CommunityBloc>()
         .add(const CommunityEvent.watchUserCommunities());
+
+    // Start watching contacts and contact requests
+    context
+        .read<ContactBloc>()
+        .add(const ContactEvent.watchContacts());
+    context
+        .read<ContactBloc>()
+        .add(const ContactEvent.watchContactRequests());
+    context
+        .read<ContactBloc>()
+        .add(const ContactEvent.loadFollowedBrands());
+    context
+        .read<ContactBloc>()
+        .add(const ContactEvent.loadSuggestions());
   }
 
   @override
@@ -56,8 +82,11 @@ class _MessagingScreenState extends State<MessagingScreen> {
         context.read<AuthBloc>().state.user?.id ?? '';
 
     return Scaffold(
+      backgroundColor: AppColors.chatBackground,
       appBar: _isSearching
           ? AppBar(
+              backgroundColor: AppColors.chatAppBar,
+              surfaceTintColor: Colors.transparent,
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
@@ -102,51 +131,106 @@ class _MessagingScreenState extends State<MessagingScreen> {
                   onPressed: () => _showSearch(context),
                 ),
               ],
-            ),
-      body: BlocConsumer<ConversationBloc, ConversationState>(
-        listener: (context, state) {
-          if (state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: AppColors.error,
-              ),
-            );
-            context
-                .read<ConversationBloc>()
-                .add(const ConversationEvent.clearError());
-          }
-        },
-        builder: (context, convState) {
-          return BlocBuilder<CommunityBloc, CommunityState>(
-            builder: (context, commState) {
-              return Stack(
-                children: [
-                  const Positioned.fill(
-                    child: ChatBackground(),
-                  ),
-                  Column(
-                    children: [
-                      // Quick Actions Bar
-                      _buildQuickActions(context),
-                      // Unified inbox list
-                      Expanded(
-                        child: _buildInboxList(
-                          context,
-                          convState,
-                          commState,
-                          currentUserId,
+              bottom: TabBar(
+                controller: _tabController,
+                indicatorColor: AppColors.primary,
+                labelColor: AppColors.primary,
+                unselectedLabelColor: AppColors.textSecondary,
+                tabs: [
+                  const Tab(text: 'Chats'),
+                  BlocBuilder<ContactBloc, ContactState>(
+                    builder: (context, contactState) {
+                      final count = contactState.pendingRequestCount;
+                      return Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text('Contacts'),
+                            if (count > 0) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.error,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  '$count',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ],
-              );
-            },
-          );
-        },
+              ),
+            ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Tab 0: Chats
+          _buildChatsTab(context, currentUserId),
+          // Tab 1: Contacts
+          const ContactsTab(),
+        ],
       ),
-      floatingActionButton: _buildFAB(context),
+      floatingActionButton: _currentTab == 0 ? _buildFAB(context) : null,
+    );
+  }
+
+  Widget _buildChatsTab(BuildContext context, String currentUserId) {
+    return BlocConsumer<ConversationBloc, ConversationState>(
+      listener: (context, state) {
+        if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage!),
+              backgroundColor: AppColors.error,
+            ),
+          );
+          context
+              .read<ConversationBloc>()
+              .add(const ConversationEvent.clearError());
+        }
+      },
+      builder: (context, convState) {
+        return BlocBuilder<CommunityBloc, CommunityState>(
+          builder: (context, commState) {
+            return Stack(
+              children: [
+                const Positioned.fill(
+                  child: ChatBackground(),
+                ),
+                Column(
+                  children: [
+                    // Quick Actions Bar
+                    _buildQuickActions(context),
+                    // Unified inbox list
+                    Expanded(
+                      child: _buildInboxList(
+                        context,
+                        convState,
+                        commState,
+                        currentUserId,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -219,12 +303,12 @@ class _MessagingScreenState extends State<MessagingScreen> {
     CommunityState commState,
     String currentUserId,
   ) {
-    final isLoading = convState.status == ConversationStatus.loading &&
-        convState.conversations.isEmpty &&
-        commState.status == CommunityLoadingStatus.loading &&
-        commState.communities.isEmpty;
+    // Show spinner until conversations have loaded at least once
+    final convNotReady = convState.conversations.isEmpty &&
+        (convState.status == ConversationStatus.initial ||
+            convState.status == ConversationStatus.loading);
 
-    if (isLoading) {
+    if (convNotReady) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -250,7 +334,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
         separatorBuilder: (context, index) => Divider(
           height: 0.5,
           thickness: 0.5,
-          color: AppColors.border.withValues(alpha: 0.3),
+          color: AppColors.chatSurface.withValues(alpha: 0.3),
           indent: 76, // aligns with text start (avatar + padding)
         ),
         itemBuilder: (context, index) => items[index],

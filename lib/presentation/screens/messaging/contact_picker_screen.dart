@@ -78,7 +78,7 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                       )
                     : null,
                 filled: true,
-                fillColor: AppColors.surface,
+                fillColor: AppColors.chatSurface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,

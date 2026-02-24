@@ -251,7 +251,7 @@ class ReferralRemoteDataSourceImpl implements ReferralRemoteDataSource {
   Future<String> generateShareableLink() async {
     final referralCode = await getReferralCode();
     // In production, this would be a dynamic link
-    return 'https://imali.app/r/$referralCode';
+    return 'https://imalichat.app/join?ref=$referralCode';
   }
 
   @override
@@ -314,7 +314,7 @@ You'll get 10 tokens when you sign up and complete your first engagement!
         completedReferrals: data['completedReferrals'] as int? ?? 0,
         totalEarned: data['totalEarned'] as int? ?? 0,
         referralCode: referralCode,
-        referralLink: 'https://imali.app/r/$referralCode',
+        referralLink: 'https://imalichat.app/join?ref=$referralCode',
       ));
     }
 

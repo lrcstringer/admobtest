@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_links/app_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,11 +9,13 @@ import 'package:get_it/get_it.dart';
 import 'core/di/injection.dart';
 import 'core/security/session_lock_service.dart';
 import 'core/security/sim_change_detector.dart';
+import 'core/services/deep_link_service.dart';
 import 'core/services/fcm_challenge_handler.dart';
 import 'presentation/blocs/auth/auth_bloc.dart';
 import 'presentation/blocs/cashout/cashout_bloc.dart';
 import 'presentation/blocs/chat/chat_bloc.dart';
 import 'presentation/blocs/community/community_bloc.dart';
+import 'presentation/blocs/contact/contact_bloc.dart';
 import 'presentation/blocs/conversation/conversation_bloc.dart';
 import 'presentation/blocs/earn/earn_bloc.dart';
 import 'presentation/blocs/earn_inbox/earn_inbox_bloc.dart';
@@ -42,6 +45,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   late final ChatBloc _chatBloc;
   late final ConversationBloc _conversationBloc;
   late final CommunityBloc _communityBloc;
+  late final ContactBloc _contactBloc;
   late final PotBloc _potBloc;
   late final PurchaseBloc _purchaseBloc;
   late final ReferralBloc _referralBloc;
@@ -54,6 +58,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
 
   StreamSubscription<Map<String, dynamic>>? _challengeSubscription;
   StreamSubscription<AuthState>? _authStateSubscription;
+  StreamSubscription<Uri>? _appLinksSubscription;
 
   @override
   void initState() {
@@ -66,6 +71,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _chatBloc = getIt<ChatBloc>();
     _conversationBloc = getIt<ConversationBloc>();
     _communityBloc = getIt<CommunityBloc>();
+    _contactBloc = getIt<ContactBloc>();
     _potBloc = getIt<PotBloc>();
     _purchaseBloc = getIt<PurchaseBloc>();
     _referralBloc = getIt<ReferralBloc>();
@@ -76,6 +82,10 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _challengeHandler = GetIt.instance<FcmChallengeHandler>();
     _appRouter = AppRouter(authBloc: _authBloc);
 
+    // Wire up deep link handling
+    getIt<DeepLinkService>().setRouter(_appRouter.router);
+    _setupAppLinks();
+
     _setupChallengeNavigation();
     _setupUserIdPropagation();
   }
@@ -85,7 +95,25 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     WidgetsBinding.instance.removeObserver(this);
     _challengeSubscription?.cancel();
     _authStateSubscription?.cancel();
+    _appLinksSubscription?.cancel();
     super.dispose();
+  }
+
+  /// Listen for incoming deep links (app_links) and forward to DeepLinkService.
+  void _setupAppLinks() {
+    final appLinks = AppLinks();
+
+    // Handle link that launched the app from terminated state
+    appLinks.getInitialLink().then((uri) {
+      if (uri != null) {
+        getIt<DeepLinkService>().handleDeepLink(uri.toString());
+      }
+    });
+
+    // Handle links while app is running
+    _appLinksSubscription = appLinks.uriLinkStream.listen((uri) {
+      getIt<DeepLinkService>().handleDeepLink(uri.toString());
+    });
   }
 
   /// Listen to the FCM challenge stream and navigate to the approval screen
@@ -138,6 +166,9 @@ class _IMaliChatAppState extends State<IMaliChatApp>
       if (conversationId != null) {
         _appRouter.router.push('/chat/$conversationId');
       }
+    } else if (type == 'invite_joined' || type == 'contact_accepted') {
+      // Navigate to the messaging/contacts tab
+      _appRouter.router.go('/home/messaging');
     }
   }
 
@@ -211,6 +242,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
         BlocProvider<ChatBloc>.value(value: _chatBloc),
         BlocProvider<ConversationBloc>.value(value: _conversationBloc),
         BlocProvider<CommunityBloc>.value(value: _communityBloc),
+        BlocProvider<ContactBloc>.value(value: _contactBloc),
         BlocProvider<PotBloc>.value(value: _potBloc),
         BlocProvider<PurchaseBloc>.value(value: _purchaseBloc),
         BlocProvider<ReferralBloc>.value(value: _referralBloc),

@@ -182,11 +182,11 @@ class AppColors {
     Color(0xFFFF328C),
   ];
 
-  // ============ CHAT COLORS ============
-  // Dark charcoal background for conversation screens (like WhatsApp/WeChat)
-  static const Color chatBackground = Color(0xFF111111);
-  static const Color chatAppBar = Color(0xFF1A0D12); // Dark with subtle pink undertone
+  // ============ CHAT COLORS (WeChat-style neutral greys) ============
+  static const Color chatBackground = Color(0xFF111111); // Near-black body
+  static const Color chatAppBar = Color(0xFF111111); // Matches body — seamless
   static const Color chatDoodle = Color(0xFF1A1A1A); // Very subtle pattern on dark bg
+  static const Color chatSurface = Color(0xFF1E1E1E); // Lighter grey for input bar area
 
   // WeChat-style bright bubbles on dark background
   static const Color chatBubbleSent = Color(0xFF95EC69); // WeChat green
@@ -194,7 +194,8 @@ class AppColors {
   static const Color chatBubbleText = Color(0xFF000000); // Black text on sent bubbles
   static const Color chatBubbleReceivedText = Color(0xFFFFFFFF); // White text on received bubbles
   static const Color chatBubbleTimestamp = Color(0xFF666666); // Grey timestamp on bubbles
-  static const Color chatInputBackground = Color(0xFF13161D);
+  static const Color chatInputBackground = Color(0xFF1E1E1E); // Lighter grey input bar
+  static const Color chatInputField = Color(0xFF111111); // Dark field inside lighter bar
   static const Color chatTimestamp = Color(0xFF5C6E7F);
 
   // ============ INPUT COLORS ============

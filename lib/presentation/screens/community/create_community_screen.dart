@@ -387,10 +387,10 @@ class _TypeCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.1) : AppColors.surface,
+          color: isSelected ? color.withValues(alpha: 0.1) : AppColors.chatSurface,
           borderRadius: AppSpacing.borderRadiusMd,
           border: Border.all(
-            color: isSelected ? color : AppColors.border,
+            color: isSelected ? color : AppColors.chatSurface,
             width: isSelected ? 2 : 1,
           ),
         ),

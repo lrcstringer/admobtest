@@ -230,7 +230,7 @@ class MessageBubble extends StatelessWidget {
                       .withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
-                    color: AppColors.border.withValues(alpha: 0.3),
+                    color: AppColors.chatSurface,
                   ),
                 ),
                 child: Row(
@@ -401,7 +401,7 @@ class MessageBubble extends StatelessWidget {
                 errorBuilder: (_, __, ___) => Container(
                   width: 220,
                   height: 100,
-                  color: AppColors.surface,
+                  color: AppColors.chatSurface,
                   child: const Icon(Icons.broken_image, size: 40),
                 ),
               ),
@@ -461,10 +461,10 @@ class MessageBubble extends StatelessWidget {
       margin: const EdgeInsets.only(top: 2),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.chatSurface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.border.withValues(alpha: 0.5),
+          color: AppColors.chatSurface,
         ),
       ),
       child: Row(
@@ -494,7 +494,7 @@ class MessageBubble extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.chatSurface,
         borderRadius: AppSpacing.borderRadiusMd,
         border: Border.all(
           color: isSend
@@ -555,7 +555,7 @@ class MessageBubble extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: AppColors.chatBackground,
                 borderRadius: AppSpacing.borderRadiusSm,
               ),
               child: Text(
@@ -615,7 +615,7 @@ class MessageBubble extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.chatSurface,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(
@@ -683,16 +683,30 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  bool get _isDecryptionFailed =>
-      message.textContent == '[Cannot decrypt]' ||
-      message.textContent == '[Waiting for encryption key...]';
+  bool get _isDecryptionFailed {
+    final text = message.textContent;
+    return text == '[Cannot decrypt]' ||
+        text == '[Waiting for encryption key...]' ||
+        (text != null && text.startsWith('[Session expired'));
+  }
 
   Widget _buildDecryptionFailed(BuildContext context) {
-    final isWaiting =
-        message.textContent == '[Waiting for encryption key...]';
+    final text = message.textContent ?? '';
+    final isWaiting = text == '[Waiting for encryption key...]';
+    final isSessionExpired = text.startsWith('[Session expired');
     final indicatorColor = isMe
         ? AppColors.chatBubbleTimestamp
         : AppColors.chatBubbleReceivedText.withValues(alpha: 0.6);
+
+    final String label;
+    if (isWaiting) {
+      label = 'Waiting for encryption key...';
+    } else if (isSessionExpired) {
+      label = 'Session expired — message unavailable';
+    } else {
+      label = 'Message cannot be decrypted';
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -703,9 +717,7 @@ class MessageBubble extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          isWaiting
-              ? 'Waiting for encryption key...'
-              : 'Message cannot be decrypted',
+          label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: indicatorColor,
                 fontStyle: FontStyle.italic,

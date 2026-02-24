@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../core/error/failures.dart';
+import '../entities/privacy_settings.dart';
 import '../entities/user.dart';
 
 /// User repository interface
@@ -54,4 +55,8 @@ abstract class UserRepository {
 
   /// Mark onboarding as completed
   Future<Either<Failure, void>> completeOnboarding();
+
+  /// Update privacy settings
+  Future<Either<Failure, void>> updatePrivacySettings(
+      PrivacySettings settings);
 }

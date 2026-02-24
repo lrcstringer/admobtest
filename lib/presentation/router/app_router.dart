@@ -36,6 +36,9 @@ import '../screens/messaging/messaging_screen.dart';
 import '../screens/messaging/contact_picker_screen.dart';
 import '../screens/messaging/conversation_detail_screen.dart';
 import '../screens/messaging/image_viewer_screen.dart';
+import '../screens/messaging/contact_requests_screen.dart';
+import '../screens/messaging/import_contacts_screen.dart';
+import '../screens/messaging/brand_accounts_screen.dart';
 import '../screens/messaging/message_requests_screen.dart';
 import '../screens/community/community_detail_screen.dart';
 import '../screens/community/create_community_screen.dart';
@@ -109,6 +112,7 @@ import '../screens/settings/about_screen.dart';
 import '../screens/settings/help_support_screen.dart';
 import '../screens/settings/kyc_verification_screen.dart';
 import '../screens/settings/notification_settings_screen.dart';
+import '../screens/settings/privacy_settings_screen.dart';
 import '../screens/settings/security_settings_screen.dart';
 import '../screens/settings/settings_screen.dart';
 
@@ -485,6 +489,12 @@ class AppRouter {
                             const SecuritySettingsScreen(),
                       ),
                       GoRoute(
+                        path: 'privacy',
+                        name: 'privacySettings',
+                        builder: (context, state) =>
+                            const PrivacySettingsScreen(),
+                      ),
+                      GoRoute(
                         path: 'help',
                         name: 'helpSupport',
                         builder: (context, state) =>
@@ -597,6 +607,27 @@ class AppRouter {
                     name: 'messageRequests',
                     builder: (context, state) =>
                         const MessageRequestsScreen(),
+                  ),
+                  // 8.0.2) Contact Requests
+                  GoRoute(
+                    path: 'contact-requests',
+                    name: 'contactRequests',
+                    builder: (context, state) =>
+                        const ContactRequestsScreen(),
+                  ),
+                  // 8.0.3) Import Phone Contacts
+                  GoRoute(
+                    path: 'import-contacts',
+                    name: 'importContacts',
+                    builder: (context, state) =>
+                        const ImportContactsScreen(),
+                  ),
+                  // 8.0.4) Brand Accounts
+                  GoRoute(
+                    path: 'brand-accounts',
+                    name: 'brandAccounts',
+                    builder: (context, state) =>
+                        const BrandAccountsScreen(),
                   ),
                   // 8.1) P2P Conversation Detail
                   GoRoute(

@@ -52,7 +52,7 @@ class ForwardConversationPicker extends StatelessWidget {
           width: 40,
           height: 4,
           decoration: BoxDecoration(
-            color: AppColors.border,
+            color: AppColors.textHint,
             borderRadius: BorderRadius.circular(2),
           ),
         ),

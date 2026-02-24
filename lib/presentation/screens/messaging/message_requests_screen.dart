@@ -72,7 +72,7 @@ class MessageRequestsScreen extends StatelessWidget {
                 separatorBuilder: (context, index) => Divider(
                   height: 0.5,
                   thickness: 0.5,
-                  color: AppColors.border.withValues(alpha: 0.3),
+                  color: AppColors.chatSurface.withValues(alpha: 0.3),
                   indent: 76,
                 ),
                 itemBuilder: (context, index) {

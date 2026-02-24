@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imalichat/core/error/exceptions.dart';
 import 'package:imalichat/data/datasources/remote/user_remote_datasource.dart';
@@ -9,6 +10,8 @@ import 'package:mocktail/mocktail.dart';
 // ==================== MOCKS ====================
 
 class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
+
+class MockFirebaseFunctions extends Mock implements FirebaseFunctions {}
 
 class MockCollectionReference extends Mock
     implements CollectionReference<Map<String, dynamic>> {}
@@ -59,6 +62,7 @@ UserModel _createTestUserModel() {
 
 void main() {
   late MockFirebaseFirestore mockFirestore;
+  late MockFirebaseFunctions mockFunctions;
   late MockCollectionReference mockCollection;
   late MockDocumentReference mockDocRef;
   late MockDocumentSnapshot mockDocSnapshot;
@@ -68,12 +72,13 @@ void main() {
 
   setUp(() {
     mockFirestore = MockFirebaseFirestore();
+    mockFunctions = MockFirebaseFunctions();
     mockCollection = MockCollectionReference();
     mockDocRef = MockDocumentReference();
     mockDocSnapshot = MockDocumentSnapshot();
     mockQuerySnapshot = MockQuerySnapshot();
     mockQuery = MockQuery();
-    dataSource = UserRemoteDataSourceImpl(mockFirestore);
+    dataSource = UserRemoteDataSourceImpl(mockFirestore, mockFunctions);
 
     // Default: firestore.collection('users') returns mockCollection
     when(() => mockFirestore.collection('users')).thenReturn(mockCollection);

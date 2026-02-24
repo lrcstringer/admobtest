@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/injection.dart';
+import '../../../core/services/deep_link_service.dart';
 import '../../blocs/auth/auth_bloc.dart';
+import '../../blocs/referral/referral_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/onboarding/onboarding_progress_indicator.dart';
@@ -11,6 +14,12 @@ class OnboardingSuccessScreen extends StatelessWidget {
   const OnboardingSuccessScreen({super.key});
 
   void _completeAndNavigate(BuildContext context, String route) {
+    // Auto-apply referral code if user arrived via a deep link
+    final pendingCode = getIt<DeepLinkService>().consumeReferralCode();
+    if (pendingCode != null) {
+      context.read<ReferralBloc>().add(ReferralEvent.applyCode(pendingCode));
+    }
+
     context.read<AuthBloc>().add(const AuthEvent.completeOnboarding());
     context.go(route);
   }

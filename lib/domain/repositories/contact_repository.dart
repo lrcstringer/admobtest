@@ -1,14 +1,19 @@
 import 'package:dartz/dartz.dart';
 import '../../core/error/failures.dart';
+import '../entities/brand_account.dart';
 import '../entities/contact.dart';
+import '../entities/contact_suggestion.dart';
 
 /// Contact repository interface
 abstract class ContactRepository {
-  /// Get all contacts
+  /// Get all accepted contacts
   Future<Either<Failure, List<Contact>>> getContacts();
 
-  /// Stream contacts
+  /// Stream accepted contacts
   Stream<Either<Failure, List<Contact>>> watchContacts();
+
+  /// Stream incoming pending contact requests
+  Stream<Either<Failure, List<Contact>>> watchContactRequests();
 
   /// Get contact by ID
   Future<Either<Failure, Contact>> getContactById(String contactId);
@@ -16,13 +21,20 @@ abstract class ContactRepository {
   /// Get contact by user ID
   Future<Either<Failure, Contact?>> getContactByUserId(String userId);
 
-  /// Add contact
-  Future<Either<Failure, Contact>> addContact({
-    required String contactUserId,
-    String? nickname,
+  /// Send a contact request via Cloud Function.
+  /// Pass [source] as `"phone_import"` to auto-accept both sides.
+  Future<Either<Failure, void>> sendContactRequest(
+    String contactUserId, {
+    String? source,
   });
 
-  /// Update contact
+  /// Accept an incoming contact request
+  Future<Either<Failure, void>> acceptContactRequest(String contactId);
+
+  /// Decline an incoming contact request
+  Future<Either<Failure, void>> declineContactRequest(String contactId);
+
+  /// Update contact (nickname, notes, favorite)
   Future<Either<Failure, Contact>> updateContact({
     required String contactId,
     String? nickname,
@@ -30,7 +42,7 @@ abstract class ContactRepository {
     bool? isFavorite,
   });
 
-  /// Remove contact
+  /// Remove contact (unilateral)
   Future<Either<Failure, void>> removeContact(String contactId);
 
   /// Block contact
@@ -39,7 +51,7 @@ abstract class ContactRepository {
   /// Unblock contact
   Future<Either<Failure, void>> unblockContact(String contactId);
 
-  /// Search contacts
+  /// Search contacts locally
   Future<Either<Failure, List<Contact>>> searchContacts(String query);
 
   /// Get favorite contacts
@@ -49,4 +61,31 @@ abstract class ContactRepository {
   Future<Either<Failure, List<Contact>>> syncPhoneContacts(
     List<String> phoneNumbers,
   );
+
+  /// Match phone numbers against registered users via Cloud Function
+  /// Returns matched user profiles with isExistingContact flag
+  Future<Either<Failure, List<Map<String, dynamic>>>> matchPhoneContacts(
+    List<String> phoneNumbers,
+  );
+
+  /// Follow a brand
+  Future<Either<Failure, void>> followBrand(String clientId);
+
+  /// Unfollow a brand
+  Future<Either<Failure, void>> unfollowBrand(String clientId);
+
+  /// Get user's followed brands
+  Future<Either<Failure, List<BrandAccount>>> getFollowedBrands();
+
+  /// Get all available/discoverable brands
+  Future<Either<Failure, List<BrandAccount>>> getAvailableBrands();
+
+  /// Get "People You May Know" suggestions
+  Future<Either<Failure, List<ContactSuggestion>>> getSuggestions();
+
+  /// Record a pending invite for a phone number (fire-and-forget tracking)
+  Future<Either<Failure, void>> recordPendingInvite(
+    String phoneNumber, {
+    String? referralCode,
+  });
 }

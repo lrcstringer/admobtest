@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import '../../core/error/exceptions.dart';
 import '../../core/error/failures.dart';
 import '../../core/network/network_info.dart';
+import '../../domain/entities/privacy_settings.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/enums/user_status.dart';
 import '../../domain/repositories/user_repository.dart';
@@ -277,6 +278,31 @@ class UserRepositoryImpl implements UserRepository {
       );
 
       await _userRemoteDataSource.updateUser(updatedUser);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updatePrivacySettings(
+      PrivacySettings settings) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(Failure.network());
+    }
+
+    try {
+      await _userRemoteDataSource.updatePrivacySettings({
+        'discoverability': settings.discoverability.name,
+        'phoneNumberVisibility': settings.phoneNumberVisibility.name,
+        'profilePhotoVisibility': settings.profilePhotoVisibility.name,
+        'lastSeenVisibility': settings.lastSeenVisibility.name,
+        'readReceipts': settings.readReceipts,
+        'groupAddPermission': settings.groupAddPermission.name,
+        'brandMessaging': settings.brandMessaging.name,
+      });
       return const Right(null);
     } on ServerException catch (e) {
       return Left(Failure.serverError(message: e.message));

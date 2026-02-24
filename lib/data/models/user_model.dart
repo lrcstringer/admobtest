@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../domain/entities/privacy_settings.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/enums/user_status.dart';
@@ -40,6 +41,8 @@ class UserModel with _$UserModel {
     String? riskLevel,
     DateTime? lastLoginAt,
     @Default('none') String kycTier,
+    // Privacy settings (nested map from Firestore)
+    PrivacySettings? privacy,
     required DateTime createdAt,
     DateTime? updatedAt,
     DateTime? lastActiveAt,
@@ -82,6 +85,7 @@ class UserModel with _$UserModel {
           lastName: lastName,
           languages: languages,
           interests: interests,
+          privacySettings: privacy,
         ),
       );
 
@@ -103,6 +107,7 @@ class UserModel with _$UserModel {
         lastName: user.profile?.lastName,
         languages: user.profile?.languages,
         interests: user.profile?.interests,
+        privacy: user.profile?.privacySettings,
         status: user.status,
         referralCode: user.referralCode,
         referredBy: user.referredBy,

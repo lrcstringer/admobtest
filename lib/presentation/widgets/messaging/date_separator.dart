@@ -16,7 +16,7 @@ class DateSeparator extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.chatSurface,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(

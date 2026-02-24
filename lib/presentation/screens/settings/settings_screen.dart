@@ -81,7 +81,7 @@ class SettingsScreen extends StatelessWidget {
             context,
             icon: Icons.privacy_tip_outlined,
             title: 'Privacy',
-            onTap: () {},
+            onTap: () => context.push('/home/profile/privacy'),
           ),
           const Divider(height: 1),
 

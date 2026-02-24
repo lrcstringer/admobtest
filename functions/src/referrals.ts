@@ -13,6 +13,7 @@ import {
   getOrCreateUserAccount,
 } from "./ledger";
 import { createEngagementStats } from "./engagementStats";
+import { autoCreateContacts } from "./conversations";
 
 const db = admin.firestore();
 
@@ -229,6 +230,80 @@ export const generateReferralCode = onDocumentCreated({ document: "users/{userId
     });
 
     logger.info(`Generated referral code ${code} for user ${userId}`);
+
+    // ---------------------------------------------------------------
+    // Phase 4: Check pendingInvites for this user's phone number
+    // If someone invited this phone number, auto-create mutual contacts
+    // and notify the inviter.
+    // ---------------------------------------------------------------
+    try {
+      const userData = event.data?.data();
+      const newUserPhone = userData?.phoneNumber;
+
+      if (newUserPhone && typeof newUserPhone === "string") {
+        // Query pending invites for this phone number (first inviter wins)
+        const pendingSnap = await db
+          .collection("pendingInvites")
+          .where("invitedPhoneNumber", "==", newUserPhone)
+          .where("status", "==", "pending")
+          .orderBy("createdAt", "asc")
+          .limit(1)
+          .get();
+
+        if (!pendingSnap.empty) {
+          const inviteDoc = pendingSnap.docs[0];
+          const inviteData = inviteDoc.data();
+          const inviterUserId = inviteData.inviterUserId as string;
+
+          // Mark invite as claimed
+          await inviteDoc.ref.update({
+            status: "claimed",
+            claimedAt: admin.firestore.FieldValue.serverTimestamp(),
+            claimedByUserId: userId,
+          });
+
+          // Auto-create mutual contacts
+          const created = await autoCreateContacts(inviterUserId, userId, "phone_invite");
+          if (created) {
+            logger.info(`Auto-created contacts: inviter ${inviterUserId} ↔ new user ${userId}`);
+          }
+
+          // Store referredBy on the new user's doc
+          await db.collection("users").doc(userId).update({
+            referredBy: inviterUserId,
+          });
+
+          // Notify the inviter
+          try {
+            const inviterDoc = await db.collection("users").doc(inviterUserId).get();
+            const inviterFcm = inviterDoc.data()?.fcmToken;
+            const newUserName = userData?.displayName || "Someone";
+
+            if (inviterFcm) {
+              await admin.messaging().send({
+                token: inviterFcm,
+                notification: {
+                  title: "Your invite worked!",
+                  body: `${newUserName} just joined iMaliChat.`,
+                },
+                data: {
+                  type: "invite_joined",
+                  contactUserId: userId,
+                },
+              });
+            }
+          } catch (fcmErr) {
+            logger.warn("FCM notification failed for invite_joined:", fcmErr);
+          }
+
+          logger.info(`Claimed pending invite ${inviteDoc.id} for phone ${newUserPhone}`);
+        }
+      }
+    } catch (inviteErr) {
+      // Non-critical — don't let invite processing break user creation
+      logger.error("Error processing pending invites:", inviteErr);
+    }
+
     return null;
   });
 

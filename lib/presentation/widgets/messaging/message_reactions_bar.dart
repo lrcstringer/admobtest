@@ -48,7 +48,7 @@ class MessageReactionsBar extends StatelessWidget {
                 color: hasReacted
                     ? AppColors.primary
                         .withValues(alpha: 0.15)
-                    : AppColors.surfaceElevated
+                    : AppColors.chatSurface
                         .withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
                 border: hasReacted

@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'privacy_settings.dart';
+
 part 'user_profile.freezed.dart';
 part 'user_profile.g.dart';
 
@@ -25,6 +27,9 @@ class UserProfile with _$UserProfile {
     // POPIA consent
     /// Whether user has consented to receiving reward items
     @Default(false) bool rewardConsent,
+    // Privacy settings
+    /// User's privacy configuration (null = use defaults)
+    PrivacySettings? privacySettings,
   }) = _UserProfile;
 
   const UserProfile._();

@@ -48,9 +48,9 @@ class _MessageSearchBarState extends State<MessageSearchBar> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.chatInputBackground,
         border: Border(
-          bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.5)),
+          bottom: BorderSide(color: AppColors.chatSurface),
         ),
       ),
       child: Row(
@@ -68,7 +68,7 @@ class _MessageSearchBarState extends State<MessageSearchBar> {
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: AppColors.background,
+                fillColor: AppColors.chatInputField,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 8,

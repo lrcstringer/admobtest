@@ -375,10 +375,10 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.chatSurface,
         border: Border(
           bottom: BorderSide(
-            color: AppColors.border.withValues(alpha: 0.3),
+            color: AppColors.chatSurface,
           ),
         ),
       ),
@@ -1061,10 +1061,10 @@ class _TokenActionsSheetState extends State<_TokenActionsSheet> {
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.1)
-              : AppColors.surface,
+              : AppColors.chatSurface,
           borderRadius: AppSpacing.borderRadiusMd,
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? AppColors.primary : AppColors.chatSurface,
             width: isSelected ? 2 : 1,
           ),
         ),

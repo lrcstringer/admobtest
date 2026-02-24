@@ -30,4 +30,10 @@ class ProfileEvent with _$ProfileEvent {
 
   /// Accept terms and conditions
   const factory ProfileEvent.acceptTerms() = _AcceptTerms;
+
+  /// Update a single privacy setting
+  const factory ProfileEvent.updatePrivacySetting({
+    required String key,
+    required dynamic value,
+  }) = _UpdatePrivacySetting;
 }

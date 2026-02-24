@@ -196,6 +196,7 @@ export const adminCreateClient = onCall({ labels: { area: "admin" } }, async (re
     rewardMetadata,
     isPinned,
     isFeatured,
+    isBrandMessagingEnabled,
   } = request.data as {
     clientId: string;
     companyName: string;
@@ -215,6 +216,7 @@ export const adminCreateClient = onCall({ labels: { area: "admin" } }, async (re
     rewardMetadata?: Record<string, unknown>;
     isPinned?: boolean;
     isFeatured?: boolean;
+    isBrandMessagingEnabled?: boolean;
   };
 
   if (!clientId || !companyName || !contactEmail || !contactName) {
@@ -270,6 +272,8 @@ export const adminCreateClient = onCall({ labels: { area: "admin" } }, async (re
     // Inbox display flags
     isPinned: isPinned ?? false,
     isFeatured: isFeatured ?? false,
+    // Brand messaging opt-in (discoverable in contacts)
+    isBrandMessagingEnabled: isBrandMessagingEnabled ?? true,
     // Campaign stats
     totalCampaigns: 0,
     activeCampaigns: 0,
@@ -454,6 +458,7 @@ export const adminUpdateClient = onCall({ labels: { area: "admin" } }, async (re
       sponsorUserId?: string;
       isPinned?: boolean;
       isFeatured?: boolean;
+      isBrandMessagingEnabled?: boolean;
     };
   };
 

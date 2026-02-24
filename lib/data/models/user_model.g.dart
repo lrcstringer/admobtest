@@ -47,6 +47,9 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['lastLoginAt'] as String),
       kycTier: json['kycTier'] as String? ?? 'none',
+      privacy: json['privacy'] == null
+          ? null
+          : PrivacySettings.fromJson(json['privacy'] as Map<String, dynamic>),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] == null
           ? null
@@ -87,6 +90,7 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'riskLevel': instance.riskLevel,
       'lastLoginAt': instance.lastLoginAt?.toIso8601String(),
       'kycTier': instance.kycTier,
+      'privacy': instance.privacy,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
       'lastActiveAt': instance.lastActiveAt?.toIso8601String(),

@@ -27,6 +27,11 @@ _$UserProfileImpl _$$UserProfileImplFromJson(Map<String, dynamic> json) =>
           ?.map((e) => e as String)
           .toList(),
       rewardConsent: json['rewardConsent'] as bool? ?? false,
+      privacySettings: json['privacySettings'] == null
+          ? null
+          : PrivacySettings.fromJson(
+              json['privacySettings'] as Map<String, dynamic>,
+            ),
     );
 
 Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
@@ -44,4 +49,5 @@ Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
       'languages': instance.languages,
       'interests': instance.interests,
       'rewardConsent': instance.rewardConsent,
+      'privacySettings': instance.privacySettings,
     };

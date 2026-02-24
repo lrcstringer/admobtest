@@ -53,6 +53,7 @@ import '../../data/datasources/remote/wallet_remote_datasource.dart' as _i389;
 import '../../data/repositories/auth_repository_impl.dart' as _i895;
 import '../../data/repositories/chat_repository_impl.dart' as _i838;
 import '../../data/repositories/community_repository_impl.dart' as _i462;
+import '../../data/repositories/contact_repository_impl.dart' as _i133;
 import '../../data/repositories/conversation_repository_impl.dart' as _i161;
 import '../../data/repositories/device_repository_impl.dart' as _i34;
 import '../../data/repositories/earn_repository_impl.dart' as _i965;
@@ -72,6 +73,7 @@ import '../../data/services/upload_service.dart' as _i434;
 import '../../domain/repositories/auth_repository.dart' as _i1073;
 import '../../domain/repositories/chat_repository.dart' as _i1072;
 import '../../domain/repositories/community_repository.dart' as _i936;
+import '../../domain/repositories/contact_repository.dart' as _i482;
 import '../../domain/repositories/conversation_repository.dart' as _i973;
 import '../../domain/repositories/device_repository.dart' as _i454;
 import '../../domain/repositories/earn_repository.dart' as _i805;
@@ -94,6 +96,7 @@ import '../../presentation/blocs/chat/chat_bloc.dart' as _i142;
 import '../../presentation/blocs/community/community_bloc.dart' as _i856;
 import '../../presentation/blocs/community_messaging/community_messaging_bloc.dart'
     as _i256;
+import '../../presentation/blocs/contact/contact_bloc.dart' as _i792;
 import '../../presentation/blocs/conversation/conversation_bloc.dart' as _i654;
 import '../../presentation/blocs/earn/earn_bloc.dart' as _i775;
 import '../../presentation/blocs/earn_inbox/earn_inbox_bloc.dart' as _i480;
@@ -190,6 +193,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i434.UploadService>(
       () => _i434.UploadService(gh<_i457.FirebaseStorage>()),
     );
+    gh.lazySingleton<_i50.UserRemoteDataSource>(
+      () => _i50.UserRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i809.FirebaseFunctions>(),
+      ),
+    );
     gh.lazySingleton<_i1057.AuthRemoteDataSource>(
       () => _i1057.AuthRemoteDataSourceImpl(
         gh<_i59.FirebaseAuth>(),
@@ -216,6 +225,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1024.CryptoService>(),
         gh<_i558.FlutterSecureStorage>(),
         gh<_i809.FirebaseFunctions>(),
+      ),
+    );
+    gh.lazySingleton<_i271.UserRepository>(
+      () => _i790.UserRepositoryImpl(
+        gh<_i50.UserRemoteDataSource>(),
+        gh<_i1057.AuthRemoteDataSource>(),
+        gh<_i932.NetworkInfo>(),
       ),
     );
     gh.lazySingleton<_i752.PinManager>(
@@ -271,8 +287,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i38.AudioPlaybackService(gh<_i654.MediaUploadDatasource>()),
       dispose: (i) => i.dispose(),
     );
-    gh.lazySingleton<_i50.UserRemoteDataSource>(
-      () => _i50.UserRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),
+    gh.lazySingleton<_i1073.AuthRepository>(
+      () => _i895.AuthRepositoryImpl(
+        gh<_i1057.AuthRemoteDataSource>(),
+        gh<_i50.UserRemoteDataSource>(),
+        gh<_i932.NetworkInfo>(),
+        gh<_i483.AppDatabase>(),
+      ),
     );
     gh.lazySingleton<_i830.FcmChallengeHandler>(
       () => _i830.FcmChallengeHandler(
@@ -311,6 +332,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i418.KeyManagementService>(),
         gh<_i1024.CryptoService>(),
         gh<_i558.FlutterSecureStorage>(),
+      ),
+    );
+    gh.lazySingleton<_i482.ContactRepository>(
+      () => _i133.ContactRepositoryImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
       ),
     );
     gh.lazySingleton<_i454.DeviceRepository>(
@@ -358,13 +386,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i425.ConversationRemoteDataSource>(),
         gh<_i161.SignalProtocolService>(),
         gh<_i483.AppDatabase>(),
-      ),
-    );
-    gh.lazySingleton<_i271.UserRepository>(
-      () => _i790.UserRepositoryImpl(
-        gh<_i50.UserRemoteDataSource>(),
-        gh<_i1057.AuthRemoteDataSource>(),
-        gh<_i932.NetworkInfo>(),
       ),
     );
     gh.lazySingleton<_i942.SessionLockService>(
@@ -419,14 +440,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i58.PotBloc>(
       () => _i58.PotBloc(gh<_i1010.GamificationRepository>()),
-    );
-    gh.lazySingleton<_i1073.AuthRepository>(
-      () => _i895.AuthRepositoryImpl(
-        gh<_i1057.AuthRemoteDataSource>(),
-        gh<_i50.UserRemoteDataSource>(),
-        gh<_i932.NetworkInfo>(),
-        gh<_i483.AppDatabase>(),
-      ),
     );
     gh.lazySingleton<_i742.PurchaseRepository>(
       () => _i1044.PurchaseRepositoryImpl(gh<_i267.PurchaseRemoteDataSource>()),
@@ -586,6 +599,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i142.ChatBloc>(
       () => _i142.ChatBloc(gh<_i1072.ChatRepository>()),
+    );
+    gh.factory<_i792.ContactBloc>(
+      () => _i792.ContactBloc(
+        gh<_i482.ContactRepository>(),
+        gh<_i973.ConversationRepository>(),
+      ),
     );
     gh.factory<_i772.CashoutBloc>(
       () => _i772.CashoutBloc(gh<_i851.WalletRepository>()),

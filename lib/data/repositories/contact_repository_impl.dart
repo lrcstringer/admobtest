@@ -1,22 +1,27 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:injectable/injectable.dart';
 
 import '../../core/error/failures.dart';
+import '../../domain/entities/brand_account.dart';
 import '../../domain/entities/contact.dart';
+import '../../domain/entities/contact_suggestion.dart';
 import '../../domain/repositories/contact_repository.dart';
 
-/// Implementation of ContactRepository using Firebase Firestore
+@LazySingleton(as: ContactRepository)
 class ContactRepositoryImpl implements ContactRepository {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+  final FirebaseFunctions _functions;
 
-  ContactRepositoryImpl({
-    FirebaseFirestore? firestore,
-    FirebaseAuth? auth,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+  ContactRepositoryImpl(
+    this._firestore,
+    this._auth,
+    this._functions,
+  );
 
   String? get _currentUserId => _auth.currentUser?.uid;
 
@@ -73,6 +78,30 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
+  Stream<Either<Failure, List<Contact>>> watchContactRequests() {
+    final userId = _currentUserId;
+    if (userId == null) {
+      return Stream.value(const Left(Failure.unauthenticated()));
+    }
+
+    return _contactsCollection
+        .where('userId', isEqualTo: userId)
+        .where('status', isEqualTo: ContactStatus.pending.name)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      try {
+        final contacts = snapshot.docs
+            .map((doc) => _mapDocToContact(doc))
+            .toList();
+        return Right(contacts);
+      } catch (e) {
+        return Left(Failure.serverError(message: e.toString()));
+      }
+    });
+  }
+
+  @override
   Future<Either<Failure, Contact>> getContactById(String contactId) async {
     try {
       final doc = await _contactsCollection.doc(contactId).get();
@@ -112,9 +141,9 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
-  Future<Either<Failure, Contact>> addContact({
-    required String contactUserId,
-    String? nickname,
+  Future<Either<Failure, void>> sendContactRequest(
+    String contactUserId, {
+    String? source,
   }) async {
     try {
       final userId = _currentUserId;
@@ -122,46 +151,64 @@ class ContactRepositoryImpl implements ContactRepository {
         return const Left(Failure.unauthenticated());
       }
 
-      // Check if contact already exists
-      final existing = await getContactByUserId(contactUserId);
-      if (existing.isRight() && existing.getOrElse(() => null) != null) {
-        return const Left(Failure.serverError(message: 'Contact already exists'));
+      await _functions.httpsCallable('sendContactRequest').call({
+        'contactUserId': contactUserId,
+        if (source != null) 'source': source,
+      });
+
+      return const Right(null);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(Failure.serverError(
+        message: e.message ?? 'Failed to send contact request',
+      ));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> acceptContactRequest(
+    String contactId,
+  ) async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) {
+        return const Left(Failure.unauthenticated());
       }
 
-      // Get the user being added as contact
-      final contactUserDoc = await _firestore
-          .collection('users')
-          .doc(contactUserId)
-          .get();
+      await _functions.httpsCallable('acceptContactRequest').call({
+        'contactId': contactId,
+      });
 
-      if (!contactUserDoc.exists) {
-        return const Left(Failure.serverError(message: 'User not found'));
+      return const Right(null);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(Failure.serverError(
+        message: e.message ?? 'Failed to accept contact request',
+      ));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> declineContactRequest(
+    String contactId,
+  ) async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) {
+        return const Left(Failure.unauthenticated());
       }
 
-      final contactUserData = contactUserDoc.data()!;
+      await _functions.httpsCallable('declineContactRequest').call({
+        'contactId': contactId,
+      });
 
-      // Create the contact
-      final contactRef = _contactsCollection.doc();
-      final now = DateTime.now();
-
-      final contact = Contact(
-        id: contactRef.id,
-        userId: userId,
-        contactUserId: contactUserId,
-        displayName: contactUserData['displayName'] ?? 'User',
-        username: contactUserData['username'],
-        avatarUrl: contactUserData['profile']?['avatarUrl'],
-        avatarColor: contactUserData['profile']?['avatarColor'],
-        phoneNumber: contactUserData['phoneNumber'],
-        status: ContactStatus.accepted,
-        isFavorite: false,
-        nickname: nickname,
-        createdAt: now,
-      );
-
-      await contactRef.set(_contactToMap(contact));
-
-      return Right(contact);
+      return const Right(null);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(Failure.serverError(
+        message: e.message ?? 'Failed to decline contact request',
+      ));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -219,21 +266,15 @@ class ContactRepositoryImpl implements ContactRepository {
         return const Left(Failure.unauthenticated());
       }
 
-      final doc = await _contactsCollection.doc(contactId).get();
-
-      if (!doc.exists) {
-        return const Left(Failure.serverError(message: 'Contact not found'));
-      }
-
-      // Verify ownership
-      final data = doc.data()!;
-      if (data['userId'] != userId) {
-        return const Left(Failure.serverError(message: 'Not authorized'));
-      }
-
-      await _contactsCollection.doc(contactId).delete();
+      await _functions.httpsCallable('removeContact').call({
+        'contactId': contactId,
+      });
 
       return const Right(null);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(Failure.serverError(
+        message: e.message ?? 'Failed to remove contact',
+      ));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -383,16 +424,73 @@ class ContactRepositoryImpl implements ContactRepository {
             continue;
           }
 
-          // Add as contact
-          final addResult = await addContact(contactUserId: doc.id);
+          // Send contact request
+          final addResult = await sendContactRequest(doc.id);
           addResult.fold(
             (failure) => null,
-            (contact) => registeredContacts.add(contact),
+            (_) {
+              // We don't get the Contact back from CF, but the
+              // real-time stream will pick it up
+              final userData = doc.data();
+              registeredContacts.add(Contact(
+                id: '',
+                userId: userId,
+                contactUserId: doc.id,
+                displayName: userData['displayName'] ?? 'User',
+                username: userData['username'],
+                avatarUrl: userData['avatarUrl'],
+                phoneNumber: userData['phoneNumber'],
+                status: ContactStatus.accepted,
+                isFavorite: false,
+                createdAt: DateTime.now(),
+              ));
+            },
           );
         }
       }
 
       return Right(registeredContacts);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Map<String, dynamic>>>> matchPhoneContacts(
+    List<String> phoneNumbers,
+  ) async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) {
+        return const Left(Failure.unauthenticated());
+      }
+
+      // Normalize phone numbers
+      final normalizedNumbers = phoneNumbers
+          .map(_normalizePhoneNumber)
+          .where((p) => p.isNotEmpty)
+          .toList();
+
+      if (normalizedNumbers.isEmpty) {
+        return const Right([]);
+      }
+
+      final result =
+          await _functions.httpsCallable('matchPhoneContacts').call({
+        'phoneNumbers': normalizedNumbers,
+      });
+
+      final data = result.data as Map<String, dynamic>;
+      final matches = (data['matches'] as List<dynamic>?)
+              ?.map((m) => Map<String, dynamic>.from(m as Map))
+              .toList() ??
+          [];
+
+      return Right(matches);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(Failure.serverError(
+        message: e.message ?? 'Failed to match phone contacts',
+      ));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -410,6 +508,180 @@ class ContactRepositoryImpl implements ContactRepository {
     if (digits.isEmpty) return '';
 
     return '+$digits';
+  }
+
+  @override
+  Future<Either<Failure, void>> followBrand(String clientId) async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) {
+        return const Left(Failure.unauthenticated());
+      }
+
+      await _functions.httpsCallable('followBrand').call({
+        'clientId': clientId,
+      });
+
+      return const Right(null);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(Failure.serverError(
+        message: e.message ?? 'Failed to follow brand',
+      ));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> unfollowBrand(String clientId) async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) {
+        return const Left(Failure.unauthenticated());
+      }
+
+      await _functions.httpsCallable('unfollowBrand').call({
+        'clientId': clientId,
+      });
+
+      return const Right(null);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(Failure.serverError(
+        message: e.message ?? 'Failed to unfollow brand',
+      ));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<BrandAccount>>> getFollowedBrands() async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) {
+        return const Left(Failure.unauthenticated());
+      }
+
+      final result =
+          await _functions.httpsCallable('getFollowedBrands').call({});
+
+      final data = result.data as Map<String, dynamic>;
+      final brands = _parseBrandList(data['brands']);
+      return Right(brands);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(Failure.serverError(
+        message: e.message ?? 'Failed to get followed brands',
+      ));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<BrandAccount>>> getAvailableBrands() async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) {
+        return const Left(Failure.unauthenticated());
+      }
+
+      final result =
+          await _functions.httpsCallable('getAvailableBrands').call({});
+
+      final data = result.data as Map<String, dynamic>;
+      final brands = _parseBrandList(data['brands']);
+      return Right(brands);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(Failure.serverError(
+        message: e.message ?? 'Failed to get available brands',
+      ));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  List<BrandAccount> _parseBrandList(dynamic brandsData) {
+    if (brandsData is! List) return [];
+    return brandsData.map((b) {
+      final m = Map<String, dynamic>.from(b as Map);
+      return BrandAccount(
+        id: m['id'] as String? ?? '',
+        name: m['name'] as String? ?? 'Brand',
+        logoUrl: m['logoUrl'] as String?,
+        avatarColor: m['avatarColor'] as String?,
+        description: m['description'] as String?,
+        isFollowed: m['isFollowed'] as bool? ?? false,
+        followerCount: m['followerCount'] as int? ?? 0,
+      );
+    }).toList();
+  }
+
+  @override
+  Future<Either<Failure, List<ContactSuggestion>>> getSuggestions() async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) {
+        return const Left(Failure.unauthenticated());
+      }
+
+      final result =
+          await _functions.httpsCallable('getPeopleYouMayKnow').call({});
+
+      final data = result.data as Map<String, dynamic>;
+      final suggestions = (data['suggestions'] as List<dynamic>?)
+              ?.map((s) {
+                final m = Map<String, dynamic>.from(s as Map);
+                return ContactSuggestion(
+                  userId: m['userId'] as String? ?? '',
+                  displayName: m['displayName'] as String? ?? 'User',
+                  username: m['username'] as String?,
+                  avatarUrl: m['avatarUrl'] as String?,
+                  avatarColor: m['avatarColor'] as String?,
+                  reason: m['reason'] as String? ?? '',
+                  source: _parseSuggestionSource(m['source'] as String?),
+                );
+              })
+              .where((s) => s.userId.isNotEmpty)
+              .toList() ??
+          [];
+
+      return Right(suggestions);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(Failure.serverError(
+        message: e.message ?? 'Failed to get suggestions',
+      ));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  SuggestionSource _parseSuggestionSource(String? source) {
+    switch (source) {
+      case 'phoneContact':
+        return SuggestionSource.phoneContact;
+      case 'mutualFriend':
+        return SuggestionSource.mutualFriend;
+      case 'communityMember':
+        return SuggestionSource.communityMember;
+      default:
+        return SuggestionSource.mutualFriend;
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> recordPendingInvite(
+    String phoneNumber, {
+    String? referralCode,
+  }) async {
+    try {
+      await _functions.httpsCallable('recordPendingInvite').call({
+        'phoneNumber': phoneNumber,
+        if (referralCode != null) 'referralCode': referralCode,
+      });
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
   }
 
   Contact _mapDocToContact(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -435,24 +707,4 @@ class ContactRepositoryImpl implements ContactRepository {
     );
   }
 
-  Map<String, dynamic> _contactToMap(Contact contact) {
-    return {
-      'id': contact.id,
-      'userId': contact.userId,
-      'contactUserId': contact.contactUserId,
-      'displayName': contact.displayName,
-      'username': contact.username,
-      'avatarUrl': contact.avatarUrl,
-      'avatarColor': contact.avatarColor,
-      'phoneNumber': contact.phoneNumber,
-      'status': contact.status.name,
-      'isFavorite': contact.isFavorite,
-      'nickname': contact.nickname,
-      'notes': contact.notes,
-      'createdAt': Timestamp.fromDate(contact.createdAt),
-      'lastInteractionAt': contact.lastInteractionAt != null
-          ? Timestamp.fromDate(contact.lastInteractionAt!)
-          : null,
-    };
-  }
 }

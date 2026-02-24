@@ -161,11 +161,8 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
         top: 8,
         bottom: MediaQuery.of(context).padding.bottom + 8,
       ),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(
-          top: BorderSide(color: AppColors.border.withValues(alpha: 0.5)),
-        ),
+      decoration: const BoxDecoration(
+        color: AppColors.chatInputBackground,
       ),
       child: Row(
         children: [

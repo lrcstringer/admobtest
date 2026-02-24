@@ -35,6 +35,7 @@ mixin _$ProfileEvent {
     required TResult Function(String username) updateUsername,
     required TResult Function(String username) checkUsername,
     required TResult Function() acceptTerms,
+    required TResult Function(String key, dynamic value) updatePrivacySetting,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
@@ -54,6 +55,7 @@ mixin _$ProfileEvent {
     TResult? Function(String username)? updateUsername,
     TResult? Function(String username)? checkUsername,
     TResult? Function()? acceptTerms,
+    TResult? Function(String key, dynamic value)? updatePrivacySetting,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
@@ -73,6 +75,7 @@ mixin _$ProfileEvent {
     TResult Function(String username)? updateUsername,
     TResult Function(String username)? checkUsername,
     TResult Function()? acceptTerms,
+    TResult Function(String key, dynamic value)? updatePrivacySetting,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -84,6 +87,7 @@ mixin _$ProfileEvent {
     required TResult Function(_UpdateUsername value) updateUsername,
     required TResult Function(_CheckUsername value) checkUsername,
     required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_UpdatePrivacySetting value) updatePrivacySetting,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
@@ -94,6 +98,7 @@ mixin _$ProfileEvent {
     TResult? Function(_UpdateUsername value)? updateUsername,
     TResult? Function(_CheckUsername value)? checkUsername,
     TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_UpdatePrivacySetting value)? updatePrivacySetting,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
@@ -104,6 +109,7 @@ mixin _$ProfileEvent {
     TResult Function(_UpdateUsername value)? updateUsername,
     TResult Function(_CheckUsername value)? checkUsername,
     TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_UpdatePrivacySetting value)? updatePrivacySetting,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
 }
@@ -189,6 +195,7 @@ class _$LoadProfileImpl implements _LoadProfile {
     required TResult Function(String username) updateUsername,
     required TResult Function(String username) checkUsername,
     required TResult Function() acceptTerms,
+    required TResult Function(String key, dynamic value) updatePrivacySetting,
   }) {
     return loadProfile();
   }
@@ -212,6 +219,7 @@ class _$LoadProfileImpl implements _LoadProfile {
     TResult? Function(String username)? updateUsername,
     TResult? Function(String username)? checkUsername,
     TResult? Function()? acceptTerms,
+    TResult? Function(String key, dynamic value)? updatePrivacySetting,
   }) {
     return loadProfile?.call();
   }
@@ -235,6 +243,7 @@ class _$LoadProfileImpl implements _LoadProfile {
     TResult Function(String username)? updateUsername,
     TResult Function(String username)? checkUsername,
     TResult Function()? acceptTerms,
+    TResult Function(String key, dynamic value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (loadProfile != null) {
@@ -253,6 +262,7 @@ class _$LoadProfileImpl implements _LoadProfile {
     required TResult Function(_UpdateUsername value) updateUsername,
     required TResult Function(_CheckUsername value) checkUsername,
     required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_UpdatePrivacySetting value) updatePrivacySetting,
   }) {
     return loadProfile(this);
   }
@@ -267,6 +277,7 @@ class _$LoadProfileImpl implements _LoadProfile {
     TResult? Function(_UpdateUsername value)? updateUsername,
     TResult? Function(_CheckUsername value)? checkUsername,
     TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_UpdatePrivacySetting value)? updatePrivacySetting,
   }) {
     return loadProfile?.call(this);
   }
@@ -281,6 +292,7 @@ class _$LoadProfileImpl implements _LoadProfile {
     TResult Function(_UpdateUsername value)? updateUsername,
     TResult Function(_CheckUsername value)? checkUsername,
     TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_UpdatePrivacySetting value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (loadProfile != null) {
@@ -353,6 +365,7 @@ class _$WatchProfileImpl implements _WatchProfile {
     required TResult Function(String username) updateUsername,
     required TResult Function(String username) checkUsername,
     required TResult Function() acceptTerms,
+    required TResult Function(String key, dynamic value) updatePrivacySetting,
   }) {
     return watchProfile();
   }
@@ -376,6 +389,7 @@ class _$WatchProfileImpl implements _WatchProfile {
     TResult? Function(String username)? updateUsername,
     TResult? Function(String username)? checkUsername,
     TResult? Function()? acceptTerms,
+    TResult? Function(String key, dynamic value)? updatePrivacySetting,
   }) {
     return watchProfile?.call();
   }
@@ -399,6 +413,7 @@ class _$WatchProfileImpl implements _WatchProfile {
     TResult Function(String username)? updateUsername,
     TResult Function(String username)? checkUsername,
     TResult Function()? acceptTerms,
+    TResult Function(String key, dynamic value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (watchProfile != null) {
@@ -417,6 +432,7 @@ class _$WatchProfileImpl implements _WatchProfile {
     required TResult Function(_UpdateUsername value) updateUsername,
     required TResult Function(_CheckUsername value) checkUsername,
     required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_UpdatePrivacySetting value) updatePrivacySetting,
   }) {
     return watchProfile(this);
   }
@@ -431,6 +447,7 @@ class _$WatchProfileImpl implements _WatchProfile {
     TResult? Function(_UpdateUsername value)? updateUsername,
     TResult? Function(_CheckUsername value)? checkUsername,
     TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_UpdatePrivacySetting value)? updatePrivacySetting,
   }) {
     return watchProfile?.call(this);
   }
@@ -445,6 +462,7 @@ class _$WatchProfileImpl implements _WatchProfile {
     TResult Function(_UpdateUsername value)? updateUsername,
     TResult Function(_CheckUsername value)? checkUsername,
     TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_UpdatePrivacySetting value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (watchProfile != null) {
@@ -556,6 +574,7 @@ class _$UserUpdatedImpl implements _UserUpdated {
     required TResult Function(String username) updateUsername,
     required TResult Function(String username) checkUsername,
     required TResult Function() acceptTerms,
+    required TResult Function(String key, dynamic value) updatePrivacySetting,
   }) {
     return userUpdated(user);
   }
@@ -579,6 +598,7 @@ class _$UserUpdatedImpl implements _UserUpdated {
     TResult? Function(String username)? updateUsername,
     TResult? Function(String username)? checkUsername,
     TResult? Function()? acceptTerms,
+    TResult? Function(String key, dynamic value)? updatePrivacySetting,
   }) {
     return userUpdated?.call(user);
   }
@@ -602,6 +622,7 @@ class _$UserUpdatedImpl implements _UserUpdated {
     TResult Function(String username)? updateUsername,
     TResult Function(String username)? checkUsername,
     TResult Function()? acceptTerms,
+    TResult Function(String key, dynamic value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (userUpdated != null) {
@@ -620,6 +641,7 @@ class _$UserUpdatedImpl implements _UserUpdated {
     required TResult Function(_UpdateUsername value) updateUsername,
     required TResult Function(_CheckUsername value) checkUsername,
     required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_UpdatePrivacySetting value) updatePrivacySetting,
   }) {
     return userUpdated(this);
   }
@@ -634,6 +656,7 @@ class _$UserUpdatedImpl implements _UserUpdated {
     TResult? Function(_UpdateUsername value)? updateUsername,
     TResult? Function(_CheckUsername value)? checkUsername,
     TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_UpdatePrivacySetting value)? updatePrivacySetting,
   }) {
     return userUpdated?.call(this);
   }
@@ -648,6 +671,7 @@ class _$UserUpdatedImpl implements _UserUpdated {
     TResult Function(_UpdateUsername value)? updateUsername,
     TResult Function(_CheckUsername value)? checkUsername,
     TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_UpdatePrivacySetting value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (userUpdated != null) {
@@ -836,6 +860,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
     required TResult Function(String username) updateUsername,
     required TResult Function(String username) checkUsername,
     required TResult Function() acceptTerms,
+    required TResult Function(String key, dynamic value) updatePrivacySetting,
   }) {
     return updateProfile(
       displayName,
@@ -867,6 +892,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
     TResult? Function(String username)? updateUsername,
     TResult? Function(String username)? checkUsername,
     TResult? Function()? acceptTerms,
+    TResult? Function(String key, dynamic value)? updatePrivacySetting,
   }) {
     return updateProfile?.call(
       displayName,
@@ -898,6 +924,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
     TResult Function(String username)? updateUsername,
     TResult Function(String username)? checkUsername,
     TResult Function()? acceptTerms,
+    TResult Function(String key, dynamic value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (updateProfile != null) {
@@ -924,6 +951,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
     required TResult Function(_UpdateUsername value) updateUsername,
     required TResult Function(_CheckUsername value) checkUsername,
     required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_UpdatePrivacySetting value) updatePrivacySetting,
   }) {
     return updateProfile(this);
   }
@@ -938,6 +966,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
     TResult? Function(_UpdateUsername value)? updateUsername,
     TResult? Function(_CheckUsername value)? checkUsername,
     TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_UpdatePrivacySetting value)? updatePrivacySetting,
   }) {
     return updateProfile?.call(this);
   }
@@ -952,6 +981,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
     TResult Function(_UpdateUsername value)? updateUsername,
     TResult Function(_CheckUsername value)? checkUsername,
     TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_UpdatePrivacySetting value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (updateProfile != null) {
@@ -1077,6 +1107,7 @@ class _$UpdateUsernameImpl implements _UpdateUsername {
     required TResult Function(String username) updateUsername,
     required TResult Function(String username) checkUsername,
     required TResult Function() acceptTerms,
+    required TResult Function(String key, dynamic value) updatePrivacySetting,
   }) {
     return updateUsername(username);
   }
@@ -1100,6 +1131,7 @@ class _$UpdateUsernameImpl implements _UpdateUsername {
     TResult? Function(String username)? updateUsername,
     TResult? Function(String username)? checkUsername,
     TResult? Function()? acceptTerms,
+    TResult? Function(String key, dynamic value)? updatePrivacySetting,
   }) {
     return updateUsername?.call(username);
   }
@@ -1123,6 +1155,7 @@ class _$UpdateUsernameImpl implements _UpdateUsername {
     TResult Function(String username)? updateUsername,
     TResult Function(String username)? checkUsername,
     TResult Function()? acceptTerms,
+    TResult Function(String key, dynamic value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (updateUsername != null) {
@@ -1141,6 +1174,7 @@ class _$UpdateUsernameImpl implements _UpdateUsername {
     required TResult Function(_UpdateUsername value) updateUsername,
     required TResult Function(_CheckUsername value) checkUsername,
     required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_UpdatePrivacySetting value) updatePrivacySetting,
   }) {
     return updateUsername(this);
   }
@@ -1155,6 +1189,7 @@ class _$UpdateUsernameImpl implements _UpdateUsername {
     TResult? Function(_UpdateUsername value)? updateUsername,
     TResult? Function(_CheckUsername value)? checkUsername,
     TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_UpdatePrivacySetting value)? updatePrivacySetting,
   }) {
     return updateUsername?.call(this);
   }
@@ -1169,6 +1204,7 @@ class _$UpdateUsernameImpl implements _UpdateUsername {
     TResult Function(_UpdateUsername value)? updateUsername,
     TResult Function(_CheckUsername value)? checkUsername,
     TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_UpdatePrivacySetting value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (updateUsername != null) {
@@ -1277,6 +1313,7 @@ class _$CheckUsernameImpl implements _CheckUsername {
     required TResult Function(String username) updateUsername,
     required TResult Function(String username) checkUsername,
     required TResult Function() acceptTerms,
+    required TResult Function(String key, dynamic value) updatePrivacySetting,
   }) {
     return checkUsername(username);
   }
@@ -1300,6 +1337,7 @@ class _$CheckUsernameImpl implements _CheckUsername {
     TResult? Function(String username)? updateUsername,
     TResult? Function(String username)? checkUsername,
     TResult? Function()? acceptTerms,
+    TResult? Function(String key, dynamic value)? updatePrivacySetting,
   }) {
     return checkUsername?.call(username);
   }
@@ -1323,6 +1361,7 @@ class _$CheckUsernameImpl implements _CheckUsername {
     TResult Function(String username)? updateUsername,
     TResult Function(String username)? checkUsername,
     TResult Function()? acceptTerms,
+    TResult Function(String key, dynamic value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (checkUsername != null) {
@@ -1341,6 +1380,7 @@ class _$CheckUsernameImpl implements _CheckUsername {
     required TResult Function(_UpdateUsername value) updateUsername,
     required TResult Function(_CheckUsername value) checkUsername,
     required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_UpdatePrivacySetting value) updatePrivacySetting,
   }) {
     return checkUsername(this);
   }
@@ -1355,6 +1395,7 @@ class _$CheckUsernameImpl implements _CheckUsername {
     TResult? Function(_UpdateUsername value)? updateUsername,
     TResult? Function(_CheckUsername value)? checkUsername,
     TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_UpdatePrivacySetting value)? updatePrivacySetting,
   }) {
     return checkUsername?.call(this);
   }
@@ -1369,6 +1410,7 @@ class _$CheckUsernameImpl implements _CheckUsername {
     TResult Function(_UpdateUsername value)? updateUsername,
     TResult Function(_CheckUsername value)? checkUsername,
     TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_UpdatePrivacySetting value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (checkUsername != null) {
@@ -1449,6 +1491,7 @@ class _$AcceptTermsImpl implements _AcceptTerms {
     required TResult Function(String username) updateUsername,
     required TResult Function(String username) checkUsername,
     required TResult Function() acceptTerms,
+    required TResult Function(String key, dynamic value) updatePrivacySetting,
   }) {
     return acceptTerms();
   }
@@ -1472,6 +1515,7 @@ class _$AcceptTermsImpl implements _AcceptTerms {
     TResult? Function(String username)? updateUsername,
     TResult? Function(String username)? checkUsername,
     TResult? Function()? acceptTerms,
+    TResult? Function(String key, dynamic value)? updatePrivacySetting,
   }) {
     return acceptTerms?.call();
   }
@@ -1495,6 +1539,7 @@ class _$AcceptTermsImpl implements _AcceptTerms {
     TResult Function(String username)? updateUsername,
     TResult Function(String username)? checkUsername,
     TResult Function()? acceptTerms,
+    TResult Function(String key, dynamic value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (acceptTerms != null) {
@@ -1513,6 +1558,7 @@ class _$AcceptTermsImpl implements _AcceptTerms {
     required TResult Function(_UpdateUsername value) updateUsername,
     required TResult Function(_CheckUsername value) checkUsername,
     required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_UpdatePrivacySetting value) updatePrivacySetting,
   }) {
     return acceptTerms(this);
   }
@@ -1527,6 +1573,7 @@ class _$AcceptTermsImpl implements _AcceptTerms {
     TResult? Function(_UpdateUsername value)? updateUsername,
     TResult? Function(_CheckUsername value)? checkUsername,
     TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_UpdatePrivacySetting value)? updatePrivacySetting,
   }) {
     return acceptTerms?.call(this);
   }
@@ -1541,6 +1588,7 @@ class _$AcceptTermsImpl implements _AcceptTerms {
     TResult Function(_UpdateUsername value)? updateUsername,
     TResult Function(_CheckUsername value)? checkUsername,
     TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_UpdatePrivacySetting value)? updatePrivacySetting,
     required TResult orElse(),
   }) {
     if (acceptTerms != null) {
@@ -1552,6 +1600,227 @@ class _$AcceptTermsImpl implements _AcceptTerms {
 
 abstract class _AcceptTerms implements ProfileEvent {
   const factory _AcceptTerms() = _$AcceptTermsImpl;
+}
+
+/// @nodoc
+abstract class _$$UpdatePrivacySettingImplCopyWith<$Res> {
+  factory _$$UpdatePrivacySettingImplCopyWith(
+    _$UpdatePrivacySettingImpl value,
+    $Res Function(_$UpdatePrivacySettingImpl) then,
+  ) = __$$UpdatePrivacySettingImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String key, dynamic value});
+}
+
+/// @nodoc
+class __$$UpdatePrivacySettingImplCopyWithImpl<$Res>
+    extends _$ProfileEventCopyWithImpl<$Res, _$UpdatePrivacySettingImpl>
+    implements _$$UpdatePrivacySettingImplCopyWith<$Res> {
+  __$$UpdatePrivacySettingImplCopyWithImpl(
+    _$UpdatePrivacySettingImpl _value,
+    $Res Function(_$UpdatePrivacySettingImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ProfileEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? key = null, Object? value = freezed}) {
+    return _then(
+      _$UpdatePrivacySettingImpl(
+        key: null == key
+            ? _value.key
+            : key // ignore: cast_nullable_to_non_nullable
+                  as String,
+        value: freezed == value
+            ? _value.value
+            : value // ignore: cast_nullable_to_non_nullable
+                  as dynamic,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$UpdatePrivacySettingImpl implements _UpdatePrivacySetting {
+  const _$UpdatePrivacySettingImpl({required this.key, required this.value});
+
+  @override
+  final String key;
+  @override
+  final dynamic value;
+
+  @override
+  String toString() {
+    return 'ProfileEvent.updatePrivacySetting(key: $key, value: $value)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$UpdatePrivacySettingImpl &&
+            (identical(other.key, key) || other.key == key) &&
+            const DeepCollectionEquality().equals(other.value, value));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, key, const DeepCollectionEquality().hash(value));
+
+  /// Create a copy of ProfileEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$UpdatePrivacySettingImplCopyWith<_$UpdatePrivacySettingImpl>
+  get copyWith =>
+      __$$UpdatePrivacySettingImplCopyWithImpl<_$UpdatePrivacySettingImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loadProfile,
+    required TResult Function() watchProfile,
+    required TResult Function(User user) userUpdated,
+    required TResult Function(
+      String? displayName,
+      String? firstName,
+      String? lastName,
+      String? gender,
+      DateTime? dateOfBirth,
+      String? province,
+      String? avatarUrl,
+    )
+    updateProfile,
+    required TResult Function(String username) updateUsername,
+    required TResult Function(String username) checkUsername,
+    required TResult Function() acceptTerms,
+    required TResult Function(String key, dynamic value) updatePrivacySetting,
+  }) {
+    return updatePrivacySetting(key, value);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loadProfile,
+    TResult? Function()? watchProfile,
+    TResult? Function(User user)? userUpdated,
+    TResult? Function(
+      String? displayName,
+      String? firstName,
+      String? lastName,
+      String? gender,
+      DateTime? dateOfBirth,
+      String? province,
+      String? avatarUrl,
+    )?
+    updateProfile,
+    TResult? Function(String username)? updateUsername,
+    TResult? Function(String username)? checkUsername,
+    TResult? Function()? acceptTerms,
+    TResult? Function(String key, dynamic value)? updatePrivacySetting,
+  }) {
+    return updatePrivacySetting?.call(key, value);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loadProfile,
+    TResult Function()? watchProfile,
+    TResult Function(User user)? userUpdated,
+    TResult Function(
+      String? displayName,
+      String? firstName,
+      String? lastName,
+      String? gender,
+      DateTime? dateOfBirth,
+      String? province,
+      String? avatarUrl,
+    )?
+    updateProfile,
+    TResult Function(String username)? updateUsername,
+    TResult Function(String username)? checkUsername,
+    TResult Function()? acceptTerms,
+    TResult Function(String key, dynamic value)? updatePrivacySetting,
+    required TResult orElse(),
+  }) {
+    if (updatePrivacySetting != null) {
+      return updatePrivacySetting(key, value);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadProfile value) loadProfile,
+    required TResult Function(_WatchProfile value) watchProfile,
+    required TResult Function(_UserUpdated value) userUpdated,
+    required TResult Function(_UpdateProfile value) updateProfile,
+    required TResult Function(_UpdateUsername value) updateUsername,
+    required TResult Function(_CheckUsername value) checkUsername,
+    required TResult Function(_AcceptTerms value) acceptTerms,
+    required TResult Function(_UpdatePrivacySetting value) updatePrivacySetting,
+  }) {
+    return updatePrivacySetting(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadProfile value)? loadProfile,
+    TResult? Function(_WatchProfile value)? watchProfile,
+    TResult? Function(_UserUpdated value)? userUpdated,
+    TResult? Function(_UpdateProfile value)? updateProfile,
+    TResult? Function(_UpdateUsername value)? updateUsername,
+    TResult? Function(_CheckUsername value)? checkUsername,
+    TResult? Function(_AcceptTerms value)? acceptTerms,
+    TResult? Function(_UpdatePrivacySetting value)? updatePrivacySetting,
+  }) {
+    return updatePrivacySetting?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadProfile value)? loadProfile,
+    TResult Function(_WatchProfile value)? watchProfile,
+    TResult Function(_UserUpdated value)? userUpdated,
+    TResult Function(_UpdateProfile value)? updateProfile,
+    TResult Function(_UpdateUsername value)? updateUsername,
+    TResult Function(_CheckUsername value)? checkUsername,
+    TResult Function(_AcceptTerms value)? acceptTerms,
+    TResult Function(_UpdatePrivacySetting value)? updatePrivacySetting,
+    required TResult orElse(),
+  }) {
+    if (updatePrivacySetting != null) {
+      return updatePrivacySetting(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _UpdatePrivacySetting implements ProfileEvent {
+  const factory _UpdatePrivacySetting({
+    required final String key,
+    required final dynamic value,
+  }) = _$UpdatePrivacySettingImpl;
+
+  String get key;
+  dynamic get value;
+
+  /// Create a copy of ProfileEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$UpdatePrivacySettingImplCopyWith<_$UpdatePrivacySettingImpl>
+  get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc

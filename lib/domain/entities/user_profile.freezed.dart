@@ -39,7 +39,10 @@ mixin _$UserProfile {
   List<String>? get interests =>
       throw _privateConstructorUsedError; // POPIA consent
   /// Whether user has consented to receiving reward items
-  bool get rewardConsent => throw _privateConstructorUsedError;
+  bool get rewardConsent =>
+      throw _privateConstructorUsedError; // Privacy settings
+  /// User's privacy configuration (null = use defaults)
+  PrivacySettings? get privacySettings => throw _privateConstructorUsedError;
 
   /// Serializes this UserProfile to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -72,7 +75,10 @@ abstract class $UserProfileCopyWith<$Res> {
     List<String>? languages,
     List<String>? interests,
     bool rewardConsent,
+    PrivacySettings? privacySettings,
   });
+
+  $PrivacySettingsCopyWith<$Res>? get privacySettings;
 }
 
 /// @nodoc
@@ -103,6 +109,7 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? languages = freezed,
     Object? interests = freezed,
     Object? rewardConsent = null,
+    Object? privacySettings = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -158,9 +165,27 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
                 ? _value.rewardConsent
                 : rewardConsent // ignore: cast_nullable_to_non_nullable
                       as bool,
+            privacySettings: freezed == privacySettings
+                ? _value.privacySettings
+                : privacySettings // ignore: cast_nullable_to_non_nullable
+                      as PrivacySettings?,
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of UserProfile
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $PrivacySettingsCopyWith<$Res>? get privacySettings {
+    if (_value.privacySettings == null) {
+      return null;
+    }
+
+    return $PrivacySettingsCopyWith<$Res>(_value.privacySettings!, (value) {
+      return _then(_value.copyWith(privacySettings: value) as $Val);
+    });
   }
 }
 
@@ -187,7 +212,11 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     List<String>? languages,
     List<String>? interests,
     bool rewardConsent,
+    PrivacySettings? privacySettings,
   });
+
+  @override
+  $PrivacySettingsCopyWith<$Res>? get privacySettings;
 }
 
 /// @nodoc
@@ -217,6 +246,7 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? languages = freezed,
     Object? interests = freezed,
     Object? rewardConsent = null,
+    Object? privacySettings = freezed,
   }) {
     return _then(
       _$UserProfileImpl(
@@ -272,6 +302,10 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value.rewardConsent
             : rewardConsent // ignore: cast_nullable_to_non_nullable
                   as bool,
+        privacySettings: freezed == privacySettings
+            ? _value.privacySettings
+            : privacySettings // ignore: cast_nullable_to_non_nullable
+                  as PrivacySettings?,
       ),
     );
   }
@@ -294,6 +328,7 @@ class _$UserProfileImpl extends _UserProfile {
     final List<String>? languages,
     final List<String>? interests,
     this.rewardConsent = false,
+    this.privacySettings,
   }) : _languages = languages,
        _interests = interests,
        super._();
@@ -353,10 +388,14 @@ class _$UserProfileImpl extends _UserProfile {
   @override
   @JsonKey()
   final bool rewardConsent;
+  // Privacy settings
+  /// User's privacy configuration (null = use defaults)
+  @override
+  final PrivacySettings? privacySettings;
 
   @override
   String toString() {
-    return 'UserProfile(displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests, rewardConsent: $rewardConsent)';
+    return 'UserProfile(displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests, rewardConsent: $rewardConsent, privacySettings: $privacySettings)';
   }
 
   @override
@@ -391,7 +430,9 @@ class _$UserProfileImpl extends _UserProfile {
               _interests,
             ) &&
             (identical(other.rewardConsent, rewardConsent) ||
-                other.rewardConsent == rewardConsent));
+                other.rewardConsent == rewardConsent) &&
+            (identical(other.privacySettings, privacySettings) ||
+                other.privacySettings == privacySettings));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -411,6 +452,7 @@ class _$UserProfileImpl extends _UserProfile {
     const DeepCollectionEquality().hash(_languages),
     const DeepCollectionEquality().hash(_interests),
     rewardConsent,
+    privacySettings,
   );
 
   /// Create a copy of UserProfile
@@ -442,6 +484,7 @@ abstract class _UserProfile extends UserProfile {
     final List<String>? languages,
     final List<String>? interests,
     final bool rewardConsent,
+    final PrivacySettings? privacySettings,
   }) = _$UserProfileImpl;
   const _UserProfile._() : super._();
 
@@ -477,7 +520,10 @@ abstract class _UserProfile extends UserProfile {
   List<String>? get interests; // POPIA consent
   /// Whether user has consented to receiving reward items
   @override
-  bool get rewardConsent;
+  bool get rewardConsent; // Privacy settings
+  /// User's privacy configuration (null = use defaults)
+  @override
+  PrivacySettings? get privacySettings;
 
   /// Create a copy of UserProfile
   /// with the given fields replaced by the non-null parameter values.

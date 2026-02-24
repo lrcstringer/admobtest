@@ -16,7 +16,7 @@ class ReactionPicker extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.chatSurface,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(

@@ -50,7 +50,9 @@ mixin _$UserModel {
   String? get primaryDeviceId => throw _privateConstructorUsedError;
   String? get riskLevel => throw _privateConstructorUsedError;
   DateTime? get lastLoginAt => throw _privateConstructorUsedError;
-  String get kycTier => throw _privateConstructorUsedError;
+  String get kycTier =>
+      throw _privateConstructorUsedError; // Privacy settings (nested map from Firestore)
+  PrivacySettings? get privacy => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
   DateTime? get lastActiveAt => throw _privateConstructorUsedError;
@@ -100,10 +102,13 @@ abstract class $UserModelCopyWith<$Res> {
     String? riskLevel,
     DateTime? lastLoginAt,
     String kycTier,
+    PrivacySettings? privacy,
     DateTime createdAt,
     DateTime? updatedAt,
     DateTime? lastActiveAt,
   });
+
+  $PrivacySettingsCopyWith<$Res>? get privacy;
 }
 
 /// @nodoc
@@ -150,6 +155,7 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? riskLevel = freezed,
     Object? lastLoginAt = freezed,
     Object? kycTier = null,
+    Object? privacy = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
     Object? lastActiveAt = freezed,
@@ -272,6 +278,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
                 ? _value.kycTier
                 : kycTier // ignore: cast_nullable_to_non_nullable
                       as String,
+            privacy: freezed == privacy
+                ? _value.privacy
+                : privacy // ignore: cast_nullable_to_non_nullable
+                      as PrivacySettings?,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -287,6 +297,20 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of UserModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $PrivacySettingsCopyWith<$Res>? get privacy {
+    if (_value.privacy == null) {
+      return null;
+    }
+
+    return $PrivacySettingsCopyWith<$Res>(_value.privacy!, (value) {
+      return _then(_value.copyWith(privacy: value) as $Val);
+    });
   }
 }
 
@@ -329,10 +353,14 @@ abstract class _$$UserModelImplCopyWith<$Res>
     String? riskLevel,
     DateTime? lastLoginAt,
     String kycTier,
+    PrivacySettings? privacy,
     DateTime createdAt,
     DateTime? updatedAt,
     DateTime? lastActiveAt,
   });
+
+  @override
+  $PrivacySettingsCopyWith<$Res>? get privacy;
 }
 
 /// @nodoc
@@ -378,6 +406,7 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? riskLevel = freezed,
     Object? lastLoginAt = freezed,
     Object? kycTier = null,
+    Object? privacy = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
     Object? lastActiveAt = freezed,
@@ -500,6 +529,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
             ? _value.kycTier
             : kycTier // ignore: cast_nullable_to_non_nullable
                   as String,
+        privacy: freezed == privacy
+            ? _value.privacy
+            : privacy // ignore: cast_nullable_to_non_nullable
+                  as PrivacySettings?,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -550,6 +583,7 @@ class _$UserModelImpl extends _UserModel {
     this.riskLevel,
     this.lastLoginAt,
     this.kycTier = 'none',
+    this.privacy,
     required this.createdAt,
     this.updatedAt,
     this.lastActiveAt,
@@ -637,6 +671,9 @@ class _$UserModelImpl extends _UserModel {
   @override
   @JsonKey()
   final String kycTier;
+  // Privacy settings (nested map from Firestore)
+  @override
+  final PrivacySettings? privacy;
   @override
   final DateTime createdAt;
   @override
@@ -646,7 +683,7 @@ class _$UserModelImpl extends _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(userId: $userId, phoneNumber: $phoneNumber, displayName: $displayName, displayNameLower: $displayNameLower, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, kycTier: $kycTier, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
+    return 'UserModel(userId: $userId, phoneNumber: $phoneNumber, displayName: $displayName, displayNameLower: $displayNameLower, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, kycTier: $kycTier, privacy: $privacy, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
   }
 
   @override
@@ -711,6 +748,7 @@ class _$UserModelImpl extends _UserModel {
             (identical(other.lastLoginAt, lastLoginAt) ||
                 other.lastLoginAt == lastLoginAt) &&
             (identical(other.kycTier, kycTier) || other.kycTier == kycTier) &&
+            (identical(other.privacy, privacy) || other.privacy == privacy) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -752,6 +790,7 @@ class _$UserModelImpl extends _UserModel {
     riskLevel,
     lastLoginAt,
     kycTier,
+    privacy,
     createdAt,
     updatedAt,
     lastActiveAt,
@@ -802,6 +841,7 @@ abstract class _UserModel extends UserModel {
     final String? riskLevel,
     final DateTime? lastLoginAt,
     final String kycTier,
+    final PrivacySettings? privacy,
     required final DateTime createdAt,
     final DateTime? updatedAt,
     final DateTime? lastActiveAt,
@@ -868,7 +908,9 @@ abstract class _UserModel extends UserModel {
   @override
   DateTime? get lastLoginAt;
   @override
-  String get kycTier;
+  String get kycTier; // Privacy settings (nested map from Firestore)
+  @override
+  PrivacySettings? get privacy;
   @override
   DateTime get createdAt;
   @override

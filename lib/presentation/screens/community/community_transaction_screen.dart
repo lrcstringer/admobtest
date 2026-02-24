@@ -192,9 +192,9 @@ class _CommunityTransactionScreenState
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.chatSurface,
         borderRadius: AppSpacing.borderRadiusMd,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.chatSurface),
       ),
       child: Column(
         children: [

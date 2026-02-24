@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../core/constants/api_constants.dart';
@@ -34,13 +35,17 @@ abstract class UserRemoteDataSource {
 
   /// Update last active
   Future<void> updateLastActive(String userId);
+
+  /// Update privacy settings via Cloud Function
+  Future<void> updatePrivacySettings(Map<String, dynamic> settings);
 }
 
 @LazySingleton(as: UserRemoteDataSource)
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   final FirebaseFirestore _firestore;
+  final FirebaseFunctions _functions;
 
-  UserRemoteDataSourceImpl(this._firestore);
+  UserRemoteDataSourceImpl(this._firestore, this._functions);
 
   CollectionReference<Map<String, dynamic>> get _usersCollection =>
       _firestore.collection(ApiConstants.usersCollection);
@@ -181,6 +186,19 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       });
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to update last active');
+    }
+  }
+
+  @override
+  Future<void> updatePrivacySettings(Map<String, dynamic> settings) async {
+    try {
+      await _functions.httpsCallable('updatePrivacySettings').call(
+        {'settings': settings},
+      );
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(
+        message: e.message ?? 'Failed to update privacy settings',
+      );
     }
   }
 }

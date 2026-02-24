@@ -160,7 +160,7 @@ class _ApprovalCard extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: AppColors.chatSurface,
                   borderRadius: AppSpacing.borderRadiusSm,
                 ),
                 child: Text(
@@ -253,7 +253,7 @@ class _ApprovalCard extends StatelessWidget {
         AppSpacing.verticalXs,
         LinearProgressIndicator(
           value: progress,
-          backgroundColor: AppColors.border,
+          backgroundColor: AppColors.chatSurface,
           valueColor: AlwaysStoppedAnimation(
             approved >= required ? AppColors.success : AppColors.primary,
           ),
