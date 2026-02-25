@@ -45,9 +45,6 @@ class ConversationRepositoryImpl implements ConversationRepository {
   @override
   String? get currentUserId => _remoteDataSource.currentUserId;
 
-  /// Cache of sent encrypted messages: messageId → plaintext.
-  /// Shared with MessageSyncService so it can resolve own outgoing messages.
-  final Map<String, String> _sentPlaintextCache = {};
 
   // =========================================================================
   // CONVERSATION LIST
@@ -240,7 +237,6 @@ class ConversationRepositoryImpl implements ConversationRepository {
       );
 
       // Cache plaintext for sync service to pick up
-      _sentPlaintextCache[messageId] = text;
       _messageSyncService.sentPlaintextCache[messageId] = text;
 
       // Store real message in local DB
@@ -335,7 +331,6 @@ class ConversationRepositoryImpl implements ConversationRepository {
       );
 
       // 5. Cache plaintext locally
-      _sentPlaintextCache[messageId] = payload;
       _messageSyncService.sentPlaintextCache[messageId] = payload;
 
       final sentMessage = Message(
@@ -416,7 +411,6 @@ class ConversationRepositoryImpl implements ConversationRepository {
       // Cache plaintext locally for sender display
       final result = model.toEntity();
       if (message != null && message.isNotEmpty) {
-        _sentPlaintextCache[result.id] = message;
         try {
           await _appDatabase.cacheDecryptedPlaintext(result.id, message);
         } catch (e) {
@@ -467,7 +461,6 @@ class ConversationRepositoryImpl implements ConversationRepository {
       // Cache plaintext locally for sender display
       final result = model.toEntity();
       if (message != null && message.isNotEmpty) {
-        _sentPlaintextCache[result.id] = message;
         try {
           await _appDatabase.cacheDecryptedPlaintext(result.id, message);
         } catch (e) {

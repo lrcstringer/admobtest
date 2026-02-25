@@ -36,6 +36,14 @@ class SignalProtocolService {
   static const _sessionPrefix = 'e2ee_session_';
   static const _maxSkippedKeys = 200;
 
+  /// Per-recipient encrypt queue. Two rapid sends to the same recipient would
+  /// both load the same session state (sendMessageNumber=N), derive the same
+  /// message key, and produce two messages both claiming message number N.
+  /// The receiver decrypts the first, then sees N < recvMessageNumber → sentinel.
+  /// Chaining ensures each encryptP2P call sees the session state written by the
+  /// previous call.
+  final Map<String, Future<void>> _encryptLocks = {};
+
   /// Short fingerprint of key bytes for diagnostic logging.
   static String _fp(Uint8List? bytes) =>
       bytes == null ? 'null' : base64Encode(bytes).substring(0, 8);
@@ -167,6 +175,24 @@ class SignalProtocolService {
   ///
   /// Automatically establishes a session if one does not exist.
   Future<Map<String, dynamic>> encryptP2P(
+    String recipientUserId,
+    String plaintext,
+  ) {
+    final completer = Completer<Map<String, dynamic>>();
+    _encryptLocks[recipientUserId] =
+        (_encryptLocks[recipientUserId] ?? Future<void>.value())
+            .then((_) async {
+      try {
+        completer.complete(
+            await _encryptP2PImpl(recipientUserId, plaintext));
+      } catch (e, st) {
+        completer.completeError(e, st);
+      }
+    });
+    return completer.future;
+  }
+
+  Future<Map<String, dynamic>> _encryptP2PImpl(
     String recipientUserId,
     String plaintext,
   ) async {
@@ -420,8 +446,11 @@ class SignalProtocolService {
 
     // Remove the consumed OTK from local storage so the local count stays
     // in sync with the server (server atomically removes it during fetchKeyBundle).
+    // Awaited deliberately: a fire-and-forget removal can complete while a
+    // concurrent decryptP2P call's X3DH retry is reading the OTK bundle,
+    // producing an OTK mismatch → PermanentDecryptionError → sentinel overwrite.
     if (consumedOtkPublicKey != null) {
-      unawaited(_keyManagementService.removeConsumedOtk(consumedOtkPublicKey));
+      await _keyManagementService.removeConsumedOtk(consumedOtkPublicKey);
     }
 
     return plaintext;

@@ -32,8 +32,20 @@ class MessageSyncService {
   /// Per-conversation message stream subscriptions.
   final Map<String, StreamSubscription> _messageSubs = {};
 
+  /// Per-conversation processing chain. Each new Firestore event is chained
+  /// onto the previous Future so _processIncomingMessages calls are always
+  /// sequential — never concurrent — for the same conversation.
+  final Map<String, Future<void>> _processingLocks = {};
+
   /// Conversation list stream subscription.
   StreamSubscription? _conversationListSub;
+
+  /// Serialises conversation-list callbacks. Dart stream listeners with async
+  /// bodies do not await previous invocations — rapid Firestore updates (e.g.
+  /// conversation created + metadata updated) can spawn two concurrent async
+  /// callbacks that both see a conversation as "not yet syncing" and call
+  /// _startMessageSync twice, creating a duplicate subscription.
+  Future<void> _conversationListLock = Future.value();
 
   /// Track conversation IDs we're currently syncing.
   final Set<String> _syncingConversationIds = {};
@@ -76,45 +88,52 @@ class MessageSyncService {
     });
 
     _conversationListSub = _remoteDataSource.watchConversations().listen(
-      (conversationModels) async {
-        final conversations = conversationModels.map((m) => m.toEntity()).toList();
-        final currentIds = conversations.map((c) => c.id).toSet();
+      (conversationModels) {
+        _conversationListLock = _conversationListLock.then((_) async {
+          final conversations =
+              conversationModels.map((m) => m.toEntity()).toList();
+          final currentIds = conversations.map((c) => c.id).toSet();
 
-        // Store/update conversation metadata locally.
-        // Preserve local lastMessageText when Firestore sends null (E2EE
-        // messages have lastMessageText=null on the server — the decrypted
-        // preview is only available locally after MessageSyncService decrypts).
-        for (final conv in conversations) {
-          try {
-            var convToStore = conv;
-            if (conv.lastMessageText == null && conv.lastMessageAt != null) {
-              final existing = await _appDatabase.getLocalConversation(conv.id);
-              if (existing != null && existing.lastMessageText != null) {
-                convToStore = conv.copyWith(
-                  lastMessageText: existing.lastMessageText,
-                );
+          // Store/update conversation metadata locally.
+          // Preserve local lastMessageText when Firestore sends null (E2EE
+          // messages have lastMessageText=null on the server — the decrypted
+          // preview is only available locally after MessageSyncService decrypts).
+          for (final conv in conversations) {
+            try {
+              var convToStore = conv;
+              if (conv.lastMessageText == null && conv.lastMessageAt != null) {
+                final existing =
+                    await _appDatabase.getLocalConversation(conv.id);
+                if (existing != null && existing.lastMessageText != null) {
+                  convToStore = conv.copyWith(
+                    lastMessageText: existing.lastMessageText,
+                  );
+                }
               }
+              await _appDatabase.upsertLocalConversation(
+                LocalConversationMapper.toCompanion(convToStore),
+              );
+            } catch (e) {
+              debugPrint(
+                  'MessageSyncService: Failed to store conv ${conv.id}: $e');
             }
-            await _appDatabase.upsertLocalConversation(
-              LocalConversationMapper.toCompanion(convToStore),
-            );
-          } catch (e) {
-            debugPrint('MessageSyncService: Failed to store conv ${conv.id}: $e');
           }
-        }
 
-        // Start syncing new conversations
-        for (final convId in currentIds) {
-          if (!_syncingConversationIds.contains(convId)) {
-            _startMessageSync(convId);
+          // Start syncing new conversations
+          for (final convId in currentIds) {
+            if (!_syncingConversationIds.contains(convId)) {
+              _startMessageSync(convId);
+            }
           }
-        }
 
-        // Stop syncing removed conversations
-        final removedIds = _syncingConversationIds.difference(currentIds);
-        for (final convId in removedIds) {
-          _stopMessageSync(convId);
-        }
+          // Stop syncing removed conversations
+          final removedIds = _syncingConversationIds.difference(currentIds);
+          for (final convId in removedIds) {
+            _stopMessageSync(convId);
+          }
+        }).catchError((Object e) {
+          debugPrint('MessageSyncService: Conversation list error: $e');
+        });
       },
       onError: (e) {
         debugPrint('MessageSyncService: Conversation list error: $e');
@@ -139,6 +158,7 @@ class MessageSyncService {
     }
     _messageSubs.clear();
     _syncingConversationIds.clear();
+    _processingLocks.clear();
   }
 
   /// Start syncing messages for a specific conversation.
@@ -148,8 +168,21 @@ class MessageSyncService {
     _messageSubs[conversationId] = _remoteDataSource
         .watchMessages(conversationId: conversationId, limit: 50)
         .listen(
-      (messageModels) async {
-        await _processIncomingMessages(conversationId, messageModels);
+      (messageModels) {
+        // Chain onto the previous processing Future so calls for the same
+        // conversation execute sequentially. This prevents two concurrent
+        // _processIncomingMessages calls from both reading existing=null for
+        // the same message before either writes isDecrypted:true — which would
+        // cause the second call's destructive recovery to fire a
+        // PermanentDecryptionError (OTK already consumed) and overwrite the
+        // first call's successful isDecrypted:true row with the sentinel.
+        _processingLocks[conversationId] =
+            (_processingLocks[conversationId] ?? Future.value())
+                .then((_) => _processIncomingMessages(conversationId, messageModels))
+                .catchError((Object e) {
+          debugPrint(
+              'MessageSyncService: processing error for $conversationId: $e');
+        });
       },
       onError: (e) {
         debugPrint('MessageSyncService: Message sync error for $conversationId: $e');
@@ -162,6 +195,7 @@ class MessageSyncService {
     _messageSubs[conversationId]?.cancel();
     _messageSubs.remove(conversationId);
     _syncingConversationIds.remove(conversationId);
+    _processingLocks.remove(conversationId);
   }
 
   /// Process incoming messages from Firestore: decrypt new ones, store locally.
@@ -266,6 +300,16 @@ class MessageSyncService {
             _decryptFailures.remove(msg.id);
             sendersWithGoodSession.add(msg.senderId);
           } else {
+            // Defensive re-read: if any parallel path (e.g. a lock bypass or
+            // future refactor) already committed isDecrypted:true for this
+            // message, do NOT overwrite it with a failure row.
+            final recheck = await _appDatabase.getLocalMessageById(msg.id);
+            if (recheck != null && recheck.isDecrypted) {
+              debugPrint('MessageSyncService: Skipping failure write for '
+                  '${msg.id} — already stored as decrypted');
+              continue;
+            }
+
             isDecrypted = false;
             final isPermanent =
                 (_decryptFailures[msg.id] ?? 0) >= _maxDecryptAttempts;
