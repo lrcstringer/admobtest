@@ -665,8 +665,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
 
         if (!uploadConfirmed) {
-          // No backup found or restore failed — generate fresh keys
-          debugPrint('E2EE INIT: No backup found — generating fresh bundle');
+          // No backup found or restore failed — generate fresh keys.
+          // Wipe any sessions that survived reinstall via EncryptedSharedPreferences:
+          // they were derived from identity/OTK material we no longer hold and
+          // would send messages without a valid x3dhHeader, causing permanent
+          // decryption failure for the peer.
+          debugPrint('E2EE INIT: No backup found — clearing stale sessions '
+              'and generating fresh bundle');
+          await _signalProtocolService.clearAllSessions();
           final bundle = await _keyManagementService.generateKeyBundle();
           await _keyManagementService.storePrivateKeys(bundle);
           await _uploadUntilConfirmed(

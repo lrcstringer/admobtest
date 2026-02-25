@@ -198,15 +198,23 @@ class SignalProtocolService {
   ) async {
     // Load or establish session
     var session = await _loadSession(recipientUserId);
-    if (session == null || !session.isInitiator) {
-      // No session, or the session was established from a receiver X3DH
-      // (decrypt path). Receiver-side sessions have no pendingIdentityKey,
-      // so the encrypted message would lack an x3dh header — the recipient
-      // on a fresh install can't establish a session without one.
-      // Always establish a proper sender session for encryption.
+    // Re-establish when:
+    //  1. No session exists
+    //  2. Session is receiver-side (no pendingIdentityKey by design — can't
+    //     send x3dhHeader without the sender's ephemeral key material)
+    //  3. Session is a legacy pre-fix initiator session that has
+    //     pendingIdentityKey == null: these were stored before the "always keep
+    //     x3dhHeader" change. Without pendingIdentityKey the outgoing message
+    //     lacks an x3dh header; a recipient on a fresh install has no session
+    //     and cannot decrypt → immediate PermanentDecryptionError.
+    if (session == null || !session.isInitiator || session.pendingIdentityKey == null) {
       if (session != null && !session.isInitiator) {
         debugPrint('E2EE ENCRYPT [$recipientUserId]: Discarding receiver-side '
             'session — establishing fresh sender session for proper x3dh header');
+      } else if (session != null && session.pendingIdentityKey == null) {
+        debugPrint('E2EE ENCRYPT [$recipientUserId]: Discarding legacy initiator '
+            'session (pendingIdentityKey==null) — re-establishing to ensure '
+            'x3dh header is always present');
       }
       await establishSession(recipientUserId);
       session = await _loadSession(recipientUserId);
@@ -470,6 +478,30 @@ class SignalProtocolService {
     await _secureStorage.delete(key: '$_sessionPrefix$userId');
   }
 
+  /// Wipe ALL Double Ratchet sessions from secure storage.
+  ///
+  /// Called on fresh key generation (identity key changed). Any session
+  /// that survived reinstall via EncryptedSharedPreferences is now stale:
+  /// the old identity/signed-pre-key material is gone, so those sessions
+  /// cannot encrypt correctly and the X3DH header they carry references
+  /// keys the peer will no longer recognise.
+  Future<void> clearAllSessions() async {
+    try {
+      final allKeys = await _secureStorage.readAll();
+      final sessionKeys = allKeys.keys
+          .where((k) => k.startsWith(_sessionPrefix))
+          .toList();
+      for (final key in sessionKeys) {
+        await _secureStorage.delete(key: key);
+      }
+      debugPrint('E2EE: Cleared ${sessionKeys.length} stale session(s) '
+          'after identity key regeneration');
+    } catch (e) {
+      // Non-fatal — sessions will be re-established on next send/receive.
+      debugPrint('E2EE: clearAllSessions failed (non-fatal): $e');
+    }
+  }
+
   /// One-time migration: reset sessions corrupted by the legacy
   /// peerX3dhEphemeralKey bug. Returns true if migration was performed.
   Future<bool> migrateResetCorruptedSessions() async {
@@ -622,11 +654,20 @@ class SignalProtocolService {
           'This message is permanently undecryptable.',
         );
       }
-    } else if (legacyOtkId != null && ourBundle.oneTimePreKeys.length > legacyOtkId) {
-      // Legacy index-based fallback
-      final otkPrivate =
-          base64Decode(ourBundle.oneTimePreKeys[legacyOtkId].split('|')[0]);
-      dh4 = await _cryptoService.diffieHellman(otkPrivate, theirEphemeralPub);
+    } else if (legacyOtkId != null) {
+      // Legacy integer-index OTK (sent by old client code before content-based
+      // matching was introduced). The index refers to the slot in the KEY BUNDLE
+      // THAT EXISTED WHEN THE SENDER ESTABLISHED THE SESSION — which may be
+      // completely different from our current bundle (e.g. after reinstall or
+      // OTK replenishment). Using ourBundle.oneTimePreKeys[legacyOtkId] would
+      // pick the WRONG private key, producing a wrong DH4 → wrong master
+      // secret → MAC failure on every attempt. Better to fail permanently
+      // immediately (triggering a session reset) than to waste 3 retries.
+      throw PermanentDecryptionError(
+        'E2EE: Legacy OTK index ($legacyOtkId) from $senderUserId cannot be '
+        'safely resolved — bundle may have changed since session was established. '
+        'This message is permanently undecryptable.',
+      );
     }
 
     // Log OUR public keys (derived from local private keys) alongside the
