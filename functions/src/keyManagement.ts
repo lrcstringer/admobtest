@@ -119,37 +119,45 @@ export const fetchKeyBundle = onCall(
       .collection("keys")
       .doc("bundle");
 
-    const bundleDoc = await bundleRef.get();
-    if (!bundleDoc.exists) {
-      throw new HttpsError(
-        "not-found",
-        "Key bundle not found for user."
-      );
-    }
+    // Use a transaction to atomically read + consume one OTK.
+    // Without this, two concurrent fetchKeyBundle calls could consume
+    // the same OTK, causing permanent decryption failure for one sender.
+    const result = await db.runTransaction(async (txn) => {
+      const bundleDoc = await txn.get(bundleRef);
+      if (!bundleDoc.exists) {
+        throw new HttpsError(
+          "not-found",
+          "Key bundle not found for user."
+        );
+      }
 
-    const bundle = bundleDoc.data()!;
-    const oneTimePreKeys: string[] = bundle.oneTimePreKeys || [];
+      const bundle = bundleDoc.data()!;
+      const oneTimePreKeys: string[] = bundle.oneTimePreKeys || [];
 
-    // Consume one one-time pre-key (FIFO)
-    let consumedPreKey: string | null = null;
-    if (oneTimePreKeys.length > 0) {
-      consumedPreKey = oneTimePreKeys[0];
-      await bundleRef.update({
-        oneTimePreKeys: admin.firestore.FieldValue.arrayRemove(consumedPreKey),
-      });
-    }
+      // Consume one one-time pre-key (FIFO)
+      let consumedPreKey: string | null = null;
+      if (oneTimePreKeys.length > 0) {
+        consumedPreKey = oneTimePreKeys[0];
+        txn.update(bundleRef, {
+          oneTimePreKeys: admin.firestore.FieldValue.arrayRemove(consumedPreKey),
+        });
+      }
 
-    return {
-      userId: targetUserId,
-      identityKey: bundle.identityKey,
-      signedPreKey: bundle.signedPreKey,
-      signedPreKeySignature: bundle.signedPreKeySignature,
-      oneTimePreKey: consumedPreKey,
-      registrationId: bundle.registrationId || 0,
-      // Ed25519 fields (null for legacy bundles without Ed25519 support)
-      ed25519IdentityKey: bundle.ed25519IdentityKey || null,
-      ed25519Signature: bundle.ed25519Signature || null,
-    };
+      return {
+        userId: targetUserId,
+        identityKey: bundle.identityKey,
+        signedPreKey: bundle.signedPreKey,
+        signedPreKeySignature: bundle.signedPreKeySignature,
+        oneTimePreKey: consumedPreKey,
+        oneTimePreKeyCount: oneTimePreKeys.length - (consumedPreKey ? 1 : 0),
+        registrationId: bundle.registrationId || 0,
+        ed25519IdentityKey: bundle.ed25519IdentityKey || null,
+        ed25519Signature: bundle.ed25519Signature || null,
+        updatedAt: bundle.updatedAt?.toDate?.()?.toISOString?.() || null,
+      };
+    });
+
+    return result;
   }
 );
 

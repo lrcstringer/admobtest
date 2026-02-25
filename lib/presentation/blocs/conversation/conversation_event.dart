@@ -58,6 +58,7 @@ class ConversationEvent with _$ConversationEvent {
     required String recipientId,
     String? caption,
     int? durationSeconds,
+    String? replyToMessageId,
   }) = _SendMediaMessage;
 
   // =========================================================================

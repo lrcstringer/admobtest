@@ -266,6 +266,37 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
     );
   }
 
+  // Fix 4: Validate E2EE envelope schema when ciphertext is present
+  if (ciphertext) {
+    if (!e2ee || typeof e2ee !== "object") {
+      throw new HttpsError("invalid-argument", "e2ee metadata is required with ciphertext");
+    }
+    if (typeof e2ee.dhPublicKey !== "string" || !e2ee.dhPublicKey) {
+      throw new HttpsError("invalid-argument", "e2ee.dhPublicKey is required");
+    }
+    if (typeof e2ee.messageNumber !== "number") {
+      throw new HttpsError("invalid-argument", "e2ee.messageNumber is required");
+    }
+    // Fix 3: Verify the sender's claimed identity key matches their registered bundle
+    if (x3dhHeader && x3dhHeader.identityKey) {
+      const senderBundleDoc = await db
+        .collection("users")
+        .doc(userId)
+        .collection("keys")
+        .doc("bundle")
+        .get();
+      if (senderBundleDoc.exists) {
+        const registeredIdentityKey = senderBundleDoc.data()!.identityKey as string | undefined;
+        if (registeredIdentityKey && registeredIdentityKey !== x3dhHeader.identityKey) {
+          throw new HttpsError(
+            "permission-denied",
+            "Sender identity key does not match registered key bundle"
+          );
+        }
+      }
+    }
+  }
+
   // Get sender info
   const userProfile = await getUserProfile(userId);
   const senderName = userProfile.displayName || "Unknown";
@@ -1452,6 +1483,19 @@ export const forwardConversationMessage = onCall({ labels: { area: "social" } },
   }
 
   const sourceMsg = sourceMessageDoc.data()!;
+
+  // Validate E2EE envelope when re-encrypted ciphertext is provided
+  if (ciphertext) {
+    if (!e2ee || typeof e2ee !== "object") {
+      throw new HttpsError("invalid-argument", "e2ee metadata is required with ciphertext");
+    }
+    if (typeof e2ee.dhPublicKey !== "string" || !e2ee.dhPublicKey) {
+      throw new HttpsError("invalid-argument", "e2ee.dhPublicKey is required");
+    }
+    if (typeof e2ee.messageNumber !== "number") {
+      throw new HttpsError("invalid-argument", "e2ee.messageNumber is required");
+    }
+  }
 
   // Don't allow forwarding deleted or system messages
   if (sourceMsg.deletedForEveryone) {

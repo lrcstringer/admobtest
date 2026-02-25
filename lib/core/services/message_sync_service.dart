@@ -50,6 +50,9 @@ class MessageSyncService {
 
   bool _isSyncing = false;
 
+  /// Periodic timer that purges locally-stored messages past their [expiresAt].
+  Timer? _cleanupTimer;
+
   /// Start syncing all conversations for the current user.
   ///
   /// Subscribes to the Firestore conversation list, then creates
@@ -60,16 +63,40 @@ class MessageSyncService {
 
     debugPrint('MessageSyncService: Starting sync');
 
+    // Purge expired (disappearing) messages every minute
+    _cleanupTimer = Timer.periodic(const Duration(minutes: 1), (_) async {
+      try {
+        final deleted = await _appDatabase.deleteExpiredMessages();
+        if (deleted > 0) {
+          debugPrint('MessageSyncService: Deleted $deleted expired messages');
+        }
+      } catch (e) {
+        debugPrint('MessageSyncService: Error cleaning expired messages: $e');
+      }
+    });
+
     _conversationListSub = _remoteDataSource.watchConversations().listen(
       (conversationModels) async {
         final conversations = conversationModels.map((m) => m.toEntity()).toList();
         final currentIds = conversations.map((c) => c.id).toSet();
 
-        // Store/update conversation metadata locally
+        // Store/update conversation metadata locally.
+        // Preserve local lastMessageText when Firestore sends null (E2EE
+        // messages have lastMessageText=null on the server — the decrypted
+        // preview is only available locally after MessageSyncService decrypts).
         for (final conv in conversations) {
           try {
+            var convToStore = conv;
+            if (conv.lastMessageText == null && conv.lastMessageAt != null) {
+              final existing = await _appDatabase.getLocalConversation(conv.id);
+              if (existing != null && existing.lastMessageText != null) {
+                convToStore = conv.copyWith(
+                  lastMessageText: existing.lastMessageText,
+                );
+              }
+            }
             await _appDatabase.upsertLocalConversation(
-              LocalConversationMapper.toCompanion(conv),
+              LocalConversationMapper.toCompanion(convToStore),
             );
           } catch (e) {
             debugPrint('MessageSyncService: Failed to store conv ${conv.id}: $e');
@@ -102,6 +129,8 @@ class MessageSyncService {
 
     debugPrint('MessageSyncService: Stopping sync');
 
+    _cleanupTimer?.cancel();
+    _cleanupTimer = null;
     _conversationListSub?.cancel();
     _conversationListSub = null;
 
@@ -136,6 +165,12 @@ class MessageSyncService {
   }
 
   /// Process incoming messages from Firestore: decrypt new ones, store locally.
+  ///
+  /// Messages arrive newest-first from the Firestore query. This method tracks
+  /// senders that have successfully decrypted a message in this batch — for
+  /// subsequent OLDER messages from the same sender, destructive recovery
+  /// (session reset + retry) is skipped to prevent corrupting the working
+  /// session established by the newer message.
   Future<void> _processIncomingMessages(
     String conversationId,
     List<MessageModel> messageModels,
@@ -150,6 +185,13 @@ class MessageSyncService {
       chatClearedAt = _parseChatClearedAt(localConv.chatClearedAtJson, currentUserId);
     }
 
+    // Track senders whose session was successfully used in this batch.
+    // Once a newer message decrypts OK, older messages from the same sender
+    // must NOT trigger destructive recovery (session reset) — that would
+    // overwrite the working session with stale X3DH keys and break future
+    // messages.
+    final sendersWithGoodSession = <String>{};
+
     for (final model in messageModels) {
       try {
         final msg = model.toEntity();
@@ -162,7 +204,11 @@ class MessageSyncService {
         // Check if already stored and decrypted
         final existing = await _appDatabase.getLocalMessageById(msg.id);
         if (existing != null && existing.isDecrypted) {
-          // Already processed — check if any mutable field changed
+          // Already processed — mark sender as having a good session
+          if (msg.senderId != currentUserId) {
+            sendersWithGoodSession.add(msg.senderId);
+          }
+          // Check if any mutable field changed
           final deletedForChanged =
               existing.deletedForJson != jsonEncode(msg.deletedFor);
           final deletedForEveryoneChanged =
@@ -171,33 +217,54 @@ class MessageSyncService {
               existing.reactionsJson != _encodeReactions(msg.reactions) ||
               deletedForChanged ||
               deletedForEveryoneChanged) {
-            // Update mutable fields without re-decrypting
+            // Update ONLY mutable fields — preserve all decrypted content
+            // (textContent, media, gift, etc.) from the local row. Using the
+            // Firestore `msg` as base would overwrite media/gift with null
+            // because those fields are inside the encrypted payload on the server.
+            final localEntity = LocalMessageMapper.toEntity(existing);
+            final updated = localEntity.copyWith(
+              status: msg.status,
+              reactions: msg.reactions,
+              deletedFor: msg.deletedFor,
+              deletedForEveryone: msg.deletedForEveryone,
+              readBy: msg.readBy,
+            );
             await _appDatabase.upsertLocalMessage(
-              LocalMessageMapper.toCompanion(
-                msg.copyWith(textContent: existing.textContent),
-                conversationId,
-              ),
+              LocalMessageMapper.toCompanion(updated, conversationId),
             );
           }
           continue;
         }
 
-        // Skip messages that have permanently failed decryption
-        if (existing != null &&
-            !existing.isDecrypted &&
-            (_decryptFailures[msg.id] ?? 0) >= _maxDecryptAttempts) {
-          continue;
-        }
+        // Skip messages that have permanently failed decryption.
+        // Two signals: in-memory counter (this session) OR the permanent
+        // sentinel text already written to the local DB (persists across restarts).
+        const permanentSentinel = '[Session expired — message cannot be recovered]';
+        final isPermanentlyFailed = (existing != null &&
+                !existing.isDecrypted &&
+                existing.textContent == permanentSentinel) ||
+            (_decryptFailures[msg.id] ?? 0) >= _maxDecryptAttempts;
+        if (isPermanentlyFailed) continue;
 
         // Decrypt if needed
         Message decryptedMsg = msg;
         var isDecrypted = true;
 
         if (msg.isEncrypted) {
-          final plaintext = await _decryptMessage(msg, currentUserId);
+          // If a newer message from this sender already succeeded, protect
+          // that session by skipping destructive recovery on this older message.
+          final protectSession =
+              sendersWithGoodSession.contains(msg.senderId);
+
+          final plaintext = await _decryptMessage(
+            msg,
+            currentUserId,
+            protectSession: protectSession,
+          );
           if (plaintext != null) {
             decryptedMsg = _applyDecryptedPayload(msg, plaintext);
             _decryptFailures.remove(msg.id);
+            sendersWithGoodSession.add(msg.senderId);
           } else {
             isDecrypted = false;
             final isPermanent =
@@ -247,10 +314,16 @@ class MessageSyncService {
   }
 
   /// Decrypt a single message. Returns plaintext or null on failure.
+  ///
+  /// When [protectSession] is true, destructive recovery (session reset +
+  /// retry) is skipped. This is used when a newer message from the same sender
+  /// already decrypted successfully — resetting the session would overwrite
+  /// the working session with stale X3DH keys from the older message.
   Future<String?> _decryptMessage(
     Message msg,
-    String currentUserId,
-  ) async {
+    String currentUserId, {
+    bool protectSession = false,
+  }) async {
     // Sender's own messages: use sent plaintext cache or DB cache
     if (msg.senderId == currentUserId) {
       final cached = sentPlaintextCache[msg.id];
@@ -288,7 +361,25 @@ class MessageSyncService {
         'hasX3dh=${msg.x3dhHeader != null} '
         'msgNum=${msg.e2ee?.messageNumber} '
         'dhPubKey=${msg.e2ee?.dhPublicKey != null ? "${msg.e2ee!.dhPublicKey!.substring(0, 8)}…" : "null"} '
-        'ctLen=${msg.ciphertext?.length ?? 0}');
+        'ctLen=${msg.ciphertext?.length ?? 0} '
+        'protectSession=$protectSession '
+        'msgAge=${DateTime.now().difference(msg.createdAt).inSeconds}s');
+
+    // Fix 2: Verify sender identity key against registered Firestore bundle
+    // before performing X3DH. Prevents a MITM substituting their own key.
+    if (msg.x3dhHeader != null) {
+      final claimedKey = msg.x3dhHeader!.identityKey;
+      final registeredKey =
+          await _remoteDataSource.getUserE2eeIdentityKey(msg.senderId);
+      if (registeredKey != null && registeredKey != claimedKey) {
+        debugPrint('E2EE SECURITY [${msg.id}]: '
+            'Identity key mismatch for ${msg.senderId} — '
+            'claimed=${claimedKey.substring(0, 8)}… '
+            'registered=${registeredKey.substring(0, 8)}…');
+        _decryptFailures[msg.id] = _maxDecryptAttempts;
+        return null;
+      }
+    }
 
     // Build encrypted map for Signal Protocol
     final encryptedMap = <String, dynamic>{
@@ -323,9 +414,28 @@ class MessageSyncService {
       // Mark as permanently failed immediately — no retries.
       debugPrint('E2EE SYNC [${msg.id}]: PERMANENT decrypt failure: $e');
       _decryptFailures[msg.id] = _maxDecryptAttempts;
+      // Fix 7: On OTK mismatch the current session is poisoned — reset it
+      // so future messages from this sender can establish a fresh session.
+      if (e.message.contains('OTK mismatch')) {
+        try {
+          await _signalProtocolService.resetSession(msg.senderId);
+          debugPrint('E2EE SYNC [${msg.id}]: Session reset after OTK mismatch '
+              '— next message from ${msg.senderId} will re-establish');
+        } catch (_) {}
+      }
       return null;
     } catch (e) {
       debugPrint('E2EE SYNC [${msg.id}]: Decrypt FAILED: $e');
+
+      // If a newer message from this sender already decrypted OK, do NOT
+      // attempt destructive recovery — it would overwrite the working session
+      // with stale keys from this older message.
+      if (protectSession) {
+        debugPrint('E2EE SYNC [${msg.id}]: Skipping destructive recovery — '
+            'protecting working session from older message');
+        _decryptFailures[msg.id] = _maxDecryptAttempts;
+        return null;
+      }
 
       // Session recovery: reset and retry if x3dhHeader present
       if (msg.x3dhHeader != null) {
@@ -424,7 +534,7 @@ class MessageSyncService {
   String? _encodeReactions(Map<String, List<String>> reactions) {
     if (reactions.isEmpty) return null;
     try {
-      return reactions.toString();
+      return jsonEncode(reactions);
     } catch (_) {
       return null;
     }

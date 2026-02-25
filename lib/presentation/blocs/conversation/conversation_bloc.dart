@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:injectable/injectable.dart';
 import '../../../core/error/failures.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../../domain/entities/message.dart';
+import '../../../domain/enums/conversation_type.dart';
 import '../../../domain/enums/message_status.dart';
 import '../../../domain/enums/message_type.dart';
 import '../../../domain/repositories/conversation_repository.dart';
@@ -105,7 +107,12 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     _WatchConversations event,
     Emitter<ConversationState> emit,
   ) async {
-    emit(state.copyWith(status: ConversationStatus.loading));
+    // Only show loading spinner if we don't already have conversations.
+    // On re-dispatches (app resume, pull-to-refresh), keep showing the
+    // existing list while the fresh read completes in the background.
+    if (state.conversations.isEmpty) {
+      emit(state.copyWith(status: ConversationStatus.loading));
+    }
 
     // 1. Immediate one-shot load from local DB (deterministic)
     final result = await _conversationRepository.getConversations();
@@ -422,6 +429,13 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     _SendTextMessage event,
     Emitter<ConversationState> emit,
   ) async {
+    // Guard: empty messages should never be sent
+    if (event.text.trim().isEmpty) return;
+
+    // Guard: E2EE is only defined for P2P conversations
+    final selectedConv = state.selectedConversation;
+    if (selectedConv != null && selectedConv.type != ConversationType.p2p) return;
+
     // --- Optimistic UI: show the message IMMEDIATELY ---
     final currentUserId = _conversationRepository.currentUserId ?? '';
     final optimisticId = 'optimistic_${DateTime.now().millisecondsSinceEpoch}';
@@ -499,23 +513,71 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     _SendMediaMessage event,
     Emitter<ConversationState> emit,
   ) async {
-    emit(state.copyWith(isSending: true));
+    // Guard: E2EE is only defined for P2P conversations
+    final conv = state.selectedConversation;
+    if (conv == null || conv.type != ConversationType.p2p) return;
+
+    // Derive recipientId from state (same pattern as _onSendTextMessage)
+    final currentUserId = _conversationRepository.currentUserId ?? '';
+    final recipientId = conv.participantIds.cast<String?>().firstWhere(
+      (id) => id != currentUserId,
+      orElse: () => null,
+    );
+    if (recipientId == null || recipientId.isEmpty) return;
+
+    // Optimistic placeholder so the media bubble appears immediately
+    final isAudio = event.mediaType.startsWith('audio');
+    final optimisticId = 'optimistic_${DateTime.now().millisecondsSinceEpoch}';
+    final optimisticMessage = Message(
+      id: optimisticId,
+      senderId: currentUserId,
+      senderName: '',
+      type: isAudio ? MessageType.voice : MessageType.image,
+      status: MessageStatus.sending,
+      textContent: event.caption,
+      createdAt: DateTime.now(),
+    );
+    _pendingOptimisticIds.add(optimisticId);
+    emit(state.copyWith(
+      isSending: true,
+      messages: [optimisticMessage, ...state.messages],
+    ));
 
     final result = await _conversationRepository.sendMediaMessage(
       conversationId: event.conversationId,
       mediaFile: event.mediaFile,
       mediaType: event.mediaType,
-      recipientId: event.recipientId,
+      recipientId: recipientId,
       caption: event.caption,
       durationSeconds: event.durationSeconds,
+      replyToMessageId: event.replyToMessageId,
     );
 
+    _pendingOptimisticIds.remove(optimisticId);
+
     result.fold(
-      (failure) => emit(state.copyWith(
-        isSending: false,
-        errorMessage: failure.displayMessage,
-      )),
-      (message) => emit(state.copyWith(isSending: false)),
+      (failure) {
+        final updated = state.messages.map((m) {
+          if (m.id == optimisticId) {
+            return m.copyWith(status: MessageStatus.failed);
+          }
+          return m;
+        }).toList();
+        emit(state.copyWith(
+          isSending: false,
+          messages: updated,
+          errorMessage: failure.displayMessage,
+        ));
+      },
+      (serverMessage) {
+        final seen = <String>{};
+        final updated = <Message>[];
+        for (final m in state.messages) {
+          final msg = m.id == optimisticId ? serverMessage : m;
+          if (seen.add(msg.id)) updated.add(msg);
+        }
+        emit(state.copyWith(isSending: false, messages: updated));
+      },
     );
   }
 
@@ -968,10 +1030,42 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   ) async {
     emit(state.copyWith(isForwarding: true));
 
+    // Extract decrypted plaintext so the repository can re-encrypt it
+    // for the target conversation's recipient (E2EE forward fix).
+    String? plaintextContent;
+    try {
+      final msg =
+          state.messages.firstWhere((m) => m.id == event.sourceMessageId);
+      if (msg.type == MessageType.text) {
+        plaintextContent = msg.textContent;
+      } else if (msg.media != null) {
+        final m = msg.media!;
+        final mediaMap = <String, dynamic>{
+          'url': m.url,
+          'mediaKey': m.mediaKey,
+          'thumbKey': m.thumbKey,
+          'fileName': m.fileName,
+          'fileSize': m.fileSize,
+          'mimeType': m.mimeType,
+          if (m.duration != null) 'duration': m.duration,
+          if (m.width != null) 'width': m.width,
+          if (m.height != null) 'height': m.height,
+          if (m.thumbnailUrl != null) 'thumbnailUrl': m.thumbnailUrl,
+        };
+        plaintextContent = jsonEncode({
+          if (msg.textContent != null) 'text': msg.textContent,
+          'media': mediaMap,
+        });
+      }
+    } catch (_) {
+      // Message not in current state — CF will use the server copy
+    }
+
     final result = await _conversationRepository.forwardMessage(
       sourceConversationId: event.sourceConversationId,
       sourceMessageId: event.sourceMessageId,
       targetConversationId: event.targetConversationId,
+      plaintextContent: plaintextContent,
     );
 
     result.fold(

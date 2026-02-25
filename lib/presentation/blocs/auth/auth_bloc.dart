@@ -383,6 +383,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // Stop message sync and offline queue before re-authentication
     _messageSyncService.stopSync();
     _offlineActionQueue.stopListening();
+    // Clear E2EE sessions so a new device cannot decrypt old messages
+    await _signalProtocolService.resetAllSessions();
     // Clear session and force full OTP re-authentication
     await _deviceBindingService.clearBinding();
     await _authRepository.signOut();
@@ -398,6 +400,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // Stop message sync and offline queue before signing out
     _messageSyncService.stopSync();
     _offlineActionQueue.stopListening();
+    // Clear E2EE sessions so a new user on this device starts fresh
+    await _signalProtocolService.resetAllSessions();
 
     // NOTE: Do NOT clear device binding on sign-out.
     // The device binding (keypair + Firestore record) must persist
@@ -634,6 +638,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         uploadConfirmed = true;
         // Replenish OTKs if running low
         await _keyManagementService.replenishOneTimePreKeysIfNeeded();
+        // Rotate signed pre-key if due (every 7 days, fire-and-forget)
+        unawaited(_keyManagementService.rotateSignedPreKeyIfNeeded());
       } else {
         // No local keys — try automatic restore from server backup first
         debugPrint('E2EE INIT: No local keys — attempting auto-restore from backup');
@@ -643,6 +649,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           debugPrint('E2EE INIT: Auto-restore SUCCESS — keys recovered from backup');
           final restoredBundle = await _keyManagementService.loadPrivateKeys();
           if (restoredBundle != null) {
+            // Verify the Firestore bundle matches restored keys. autoRestore's
+            // internal uploadKeyBundle has no retry logic — this catches any
+            // upload failures and retries until confirmed, just like the
+            // existing-keys and fresh-keys paths.
+            await _uploadUntilConfirmed(
+              () => _keyManagementService.ensureBundleUploaded(restoredBundle),
+            );
             // Generate fresh OTKs (backup OTKs may have been consumed since backup)
             await _keyManagementService.replenishOneTimePreKeysIfNeeded();
             uploadConfirmed = true;

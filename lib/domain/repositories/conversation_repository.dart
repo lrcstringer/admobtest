@@ -87,6 +87,7 @@ abstract class ConversationRepository {
     required String recipientId,
     String? caption,
     int? durationSeconds,
+    String? replyToMessageId,
   });
 
   // =========================================================================
@@ -228,10 +229,15 @@ abstract class ConversationRepository {
   // MESSAGE FORWARDING
   // =========================================================================
 
-  /// Forward a message to another conversation
+  /// Forward a message to another conversation.
+  ///
+  /// [plaintextContent] is the already-decrypted message body (text or JSON
+  /// media payload). When provided and the target conversation is P2P, the
+  /// repository re-encrypts it for the target recipient before sending.
   Future<Either<Failure, String>> forwardMessage({
     required String sourceConversationId,
     required String sourceMessageId,
     required String targetConversationId,
+    String? plaintextContent,
   });
 }

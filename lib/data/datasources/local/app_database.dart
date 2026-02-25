@@ -257,6 +257,15 @@ class AppDatabase extends _$AppDatabase {
   /// Constructor for testing
   AppDatabase.forTesting(super.e);
 
+  /// Force the LazyDatabase connection to open eagerly.
+  ///
+  /// The encrypted DB setup (FlutterSecureStorage key read + SQLCipher open)
+  /// can take 1-3s on some devices. Call this during app startup so the
+  /// conversation list reads are instant when the messaging screen mounts.
+  Future<void> warmUp() async {
+    await customSelect('SELECT 1').get();
+  }
+
   @override
   int get schemaVersion => 6;
 
@@ -615,6 +624,19 @@ class AppDatabase extends _$AppDatabase {
   Future<void> deleteLocalMessagesForConversation(String conversationId) {
     return (delete(localFullMessages)
           ..where((m) => m.conversationId.equals(conversationId)))
+        .go();
+  }
+
+  /// Delete all locally-stored messages whose [expiresAt] is in the past.
+  ///
+  /// Called periodically by [MessageSyncService] to enforce the client-side
+  /// half of disappearing messages (server-side cleanup runs via a scheduled CF).
+  Future<int> deleteExpiredMessages() {
+    final now = DateTime.now();
+    return (delete(localFullMessages)
+          ..where(
+            (m) => m.expiresAt.isNotNull() & m.expiresAt.isSmallerThanValue(now),
+          ))
         .go();
   }
 

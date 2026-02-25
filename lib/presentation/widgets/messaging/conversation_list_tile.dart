@@ -111,12 +111,20 @@ class ConversationListTile extends StatelessWidget {
     }
 
     if (!chatCleared && conversation.lastMessageAt != null) {
+      // Show a human-readable fallback for media messages whose plaintext
+      // preview is not stored (e.g. image-only or voice-only messages).
+      final type = conversation.lastMessageType;
+      final (IconData icon, String label) = switch (type) {
+        'image' => (Icons.photo, 'Photo'),
+        'voice' => (Icons.mic, 'Voice message'),
+        _ => (Icons.lock, 'Encrypted message'),
+      };
       return Row(
         children: [
-          Icon(Icons.lock, size: 14, color: AppColors.textSecondary),
+          Icon(icon, size: 14, color: AppColors.textSecondary),
           const SizedBox(width: 4),
           Text(
-            'Encrypted message',
+            label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
                   fontStyle: FontStyle.italic,

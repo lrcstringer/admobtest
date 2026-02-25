@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -292,10 +293,14 @@ class SignalProtocolService {
       await _saveSession(senderUserId, session);
     }
 
+    String? consumedOtkPublicKey;
     if (needsReceiverX3dh) {
       debugPrint('E2EE: Performing receiver X3DH for $senderUserId '
           '(reason: session=${session == null ? "none" : session.isInitiator ? "initiator" : "stale"})');
-      session = await _performReceiverX3DH(senderUserId, x3dhHeader, peerDhPublic);
+      final x3dhResult =
+          await _performReceiverX3DH(senderUserId, x3dhHeader, peerDhPublic);
+      session = x3dhResult.session;
+      consumedOtkPublicKey = x3dhResult.consumedOtkPublicKey;
     }
 
     if (session == null) {
@@ -412,6 +417,13 @@ class SignalProtocolService {
     }
 
     await _saveSession(senderUserId, session);
+
+    // Remove the consumed OTK from local storage so the local count stays
+    // in sync with the server (server atomically removes it during fetchKeyBundle).
+    if (consumedOtkPublicKey != null) {
+      unawaited(_keyManagementService.removeConsumedOtk(consumedOtkPublicKey));
+    }
+
     return plaintext;
   }
 
@@ -505,7 +517,10 @@ class SignalProtocolService {
   // RECEIVER-SIDE X3DH
   // ===========================================================================
 
-  Future<_DoubleRatchetSession> _performReceiverX3DH(
+  /// Returns a record containing the new session and the public key of the
+  /// consumed OTK (if any), so the caller can remove it from local storage.
+  Future<({_DoubleRatchetSession session, String? consumedOtkPublicKey})>
+      _performReceiverX3DH(
     String senderUserId,
     Map<String, dynamic> x3dhHeader,
     Uint8List? peerDhPublic,
@@ -669,8 +684,13 @@ class SignalProtocolService {
       peerIdentityKey: x3dhHeader['identityKey'] as String?,
     );
 
-    await _saveSession(senderUserId, session);
-    return session;
+    // NOTE: Do NOT save the session here. The session must only be persisted
+    // after decrypt succeeds in decryptP2P. If we save here and decrypt fails
+    // (MAC error from wrong keys), a corrupt receiver-side session is left in
+    // secure storage. When the user next sends a message, encryptP2P may find
+    // this corrupt session and use it — producing a message without x3dhHeader
+    // that the recipient can never decrypt ("Session expired").
+    return (session: session, consumedOtkPublicKey: otkPublicKey);
   }
 
   // ===========================================================================
@@ -720,7 +740,10 @@ class SignalProtocolService {
 
   Future<String> _decryptWithKey(String ciphertextBase64, Uint8List messageKey) async {
     final encrypted = base64Decode(ciphertextBase64);
-    // Format: nonce(12) || ciphertext || mac(16)
+    // Format: nonce(12) || ciphertext || mac(16) — minimum 28 bytes
+    if (encrypted.length < 28) {
+      throw StateError('E2EE: ciphertext too short (${encrypted.length} bytes)');
+    }
     final nonce = Uint8List.fromList(encrypted.sublist(0, 12));
     final ciphertextWithMac = Uint8List.fromList(encrypted.sublist(12));
     final plaintext = await _cryptoService.decrypt(

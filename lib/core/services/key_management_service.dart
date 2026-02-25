@@ -181,8 +181,18 @@ class KeyManagementService {
     final data = result.data as Map<String, dynamic>;
     // CF returns singular oneTimePreKey (the consumed one), wrap in list
     final otk = data['oneTimePreKey'] as String?;
+    final identityKey = data['identityKey'] as String;
+    final remainingOtks = (data['oneTimePreKeyCount'] as num?)?.toInt();
+    final updatedAt = data['updatedAt'] as String?;
+
+    debugPrint('E2EE FETCH-BUNDLE [$userId]: '
+        'identity=${identityKey.substring(0, 8)}… '
+        'otk=${otk != null ? "${otk.substring(0, 8)}…" : "NONE"} '
+        'remainingOtks=$remainingOtks '
+        'bundleUpdatedAt=$updatedAt');
+
     return PublicKeyBundle(
-      identityKey: data['identityKey'] as String,
+      identityKey: identityKey,
       signedPreKey: data['signedPreKey'] as String,
       signedPreKeySignature: data['signedPreKeySignature'] as String,
       oneTimePreKeys: otk != null ? [otk] : [],
@@ -299,6 +309,62 @@ class KeyManagementService {
       signedPreKeySignature: hmacSigBase64,
       ed25519Signature: ed25519SigBase64,
     ));
+  }
+
+  // =========================================================================
+  // SPK ROTATION SCHEDULING
+  // =========================================================================
+
+  static const _spkLastRotationKey = 'e2ee_spk_last_rotation';
+  static const _spkRotationIntervalDays = 7;
+
+  /// Rotate the signed pre-key if it has not been rotated in the last
+  /// [_spkRotationIntervalDays] days. Safe to call on every app start.
+  Future<void> rotateSignedPreKeyIfNeeded() async {
+    try {
+      final lastRotationStr =
+          await _secureStorage.read(key: _spkLastRotationKey);
+      if (lastRotationStr != null) {
+        final lastRotation = DateTime.tryParse(lastRotationStr);
+        if (lastRotation != null &&
+            DateTime.now().difference(lastRotation).inDays <
+                _spkRotationIntervalDays) {
+          return; // Not due yet
+        }
+      }
+      await rotateSignedPreKey();
+      await _secureStorage.write(
+        key: _spkLastRotationKey,
+        value: DateTime.now().toIso8601String(),
+      );
+      debugPrint('E2EE SPK: Rotation complete');
+    } catch (e) {
+      // Non-fatal — will retry on next app start
+      debugPrint('E2EE SPK: Rotation failed (will retry on next startup): $e');
+    }
+  }
+
+  // =========================================================================
+  // OTK HOUSEKEEPING
+  // =========================================================================
+
+  /// Remove a consumed one-time pre-key from the local bundle.
+  ///
+  /// Called after a successful receiver-side X3DH so the local OTK count
+  /// stays in sync with the server count (server atomically removes it
+  /// during [fetchKeyBundle]).
+  Future<void> removeConsumedOtk(String publicKey) async {
+    final bundle = await loadPrivateKeys();
+    if (bundle == null) return;
+    final updated = bundle.oneTimePreKeys
+        .where((otk) => otk.split('|')[1] != publicKey)
+        .toList();
+    if (updated.length != bundle.oneTimePreKeys.length) {
+      await storePrivateKeys(bundle.copyWith(oneTimePreKeys: updated));
+      debugPrint('E2EE OTK: Removed consumed OTK '
+          '${publicKey.substring(0, 8)}… '
+          '(${updated.length} remaining locally)');
+    }
   }
 
   /// Store private keys securely in the device keychain / secure storage.

@@ -13,6 +13,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'app.dart';
 import 'core/di/injection.dart';
 import 'core/security/rasp_service.dart';
+import 'data/datasources/local/app_database.dart';
 //import 'core/security/screenshot_prevention_service.dart';
 import 'core/services/fcm_challenge_handler.dart';
 import 'firebase_options.dart';
@@ -77,6 +78,11 @@ Future<void> main() async {
 
   // Configure dependencies
   await configureDependencies();
+
+  // Warm up the encrypted DB connection (FlutterSecureStorage key read +
+  // SQLCipher open can take 1-3s). Fire-and-forget so it doesn't block startup,
+  // but starts early enough to be ready before the messaging screen mounts.
+  GetIt.instance<AppDatabase>().warmUp();
 
   // Initialize Runtime Application Self-Protection (skip in debug)
   // Fire-and-forget: don't block app startup; RASP has internal timeout

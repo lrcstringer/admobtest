@@ -12,6 +12,7 @@ import '../../core/services/offline_action_queue.dart';
 import '../../core/services/signal_protocol_service.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
+import '../../domain/enums/conversation_type.dart';
 import '../../domain/enums/message_status.dart';
 import '../../domain/enums/message_type.dart';
 import '../../domain/repositories/conversation_repository.dart';
@@ -212,11 +213,8 @@ class ConversationRepositoryImpl implements ConversationRepository {
         return const Left(Failure.serverError(message: 'Could not determine recipient'));
       }
 
-      // Verify session is still valid (peer may have regenerated keys)
-      await _ensureSessionFresh(actualRecipientId);
-
-      // E2EE encrypt — if this fails, the message fails. No plaintext fallback.
-      final encrypted = await _signalProtocolService.encryptP2P(actualRecipientId, text);
+      // E2EE encrypt with staleness check
+      final encrypted = await _encryptWithFreshnessCheck(actualRecipientId, text);
 
       final now = DateTime.now();
 
@@ -282,6 +280,7 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String recipientId,
     String? caption,
     int? durationSeconds,
+    String? replyToMessageId,
   }) async {
     try {
       if (currentUserId == null) {
@@ -312,9 +311,8 @@ class ConversationRepositoryImpl implements ConversationRepository {
         'media': uploadResult.toMediaMap(),
       });
 
-      // 3. Verify session, then encrypt the entire payload with Signal Protocol
-      await _ensureSessionFresh(recipientId);
-      final encrypted = await _signalProtocolService.encryptP2P(recipientId, payload);
+      // 3. Encrypt the entire payload with Signal Protocol (includes staleness check)
+      final encrypted = await _encryptWithFreshnessCheck(recipientId, payload);
 
       // Pre-cache plaintext by ciphertext fingerprint before sending
       final mediaCiphertextStr = encrypted['ciphertext'] as String;
@@ -333,18 +331,14 @@ class ConversationRepositoryImpl implements ConversationRepository {
         e2ee: encrypted['e2ee'] as Map<String, dynamic>,
         x3dhHeader: encrypted['x3dhHeader'] as Map<String, dynamic>?,
         messageType: msgType,
+        replyToMessageId: replyToMessageId,
       );
 
       // 5. Cache plaintext locally
       _sentPlaintextCache[messageId] = payload;
       _messageSyncService.sentPlaintextCache[messageId] = payload;
-      try {
-        await _appDatabase.cacheDecryptedPlaintext(messageId, payload);
-      } catch (e) {
-        debugPrint('Failed to persist plaintext for sent media msg $messageId: $e');
-      }
 
-      return Right(Message(
+      final sentMessage = Message(
         id: messageId,
         senderId: currentUserId!,
         senderName: '',
@@ -364,7 +358,20 @@ class ConversationRepositoryImpl implements ConversationRepository {
           thumbKey: uploadResult.thumbKey,
         ),
         createdAt: DateTime.now(),
-      ));
+      );
+
+      // Store in local DB so MessageSyncService finds isDecrypted=true
+      // and skips re-decryption on app restart (matches sendTextMessage).
+      try {
+        await _appDatabase.upsertLocalMessage(
+          LocalMessageMapper.toCompanion(sentMessage, conversationId),
+        );
+        await _appDatabase.cacheDecryptedPlaintext(messageId, payload);
+      } catch (e) {
+        debugPrint('Failed to persist sent media msg $messageId: $e');
+      }
+
+      return Right(sentMessage);
     } on AuthException {
       return const Left(Failure.unauthenticated());
     } on ServerException catch (e) {
@@ -391,8 +398,7 @@ class ConversationRepositoryImpl implements ConversationRepository {
       Map<String, dynamic>? msgE2ee;
       Map<String, dynamic>? msgX3dh;
       if (message != null && message.isNotEmpty) {
-        await _ensureSessionFresh(recipientId);
-        final encrypted = await _signalProtocolService.encryptP2P(recipientId, message);
+        final encrypted = await _encryptWithFreshnessCheck(recipientId, message);
         encryptedMsg = encrypted['ciphertext'] as String;
         msgE2ee = encrypted['e2ee'] as Map<String, dynamic>;
         msgX3dh = encrypted['x3dhHeader'] as Map<String, dynamic>?;
@@ -443,8 +449,7 @@ class ConversationRepositoryImpl implements ConversationRepository {
       Map<String, dynamic>? msgE2ee;
       Map<String, dynamic>? msgX3dh;
       if (message != null && message.isNotEmpty) {
-        await _ensureSessionFresh(recipientId);
-        final encrypted = await _signalProtocolService.encryptP2P(recipientId, message);
+        final encrypted = await _encryptWithFreshnessCheck(recipientId, message);
         encryptedMsg = encrypted['ciphertext'] as String;
         msgE2ee = encrypted['e2ee'] as Map<String, dynamic>;
         msgX3dh = encrypted['x3dhHeader'] as Map<String, dynamic>?;
@@ -820,37 +825,78 @@ class ConversationRepositoryImpl implements ConversationRepository {
   // Removed: in-memory _peerIdentityKeyCache was never invalidated, causing
   // stale sessions when the peer regenerated keys during the same app session.
 
-  /// Ensure the Signal Protocol session with [recipientId] is fresh.
+  /// Encrypt plaintext for [recipientId] with a pre- and post-encryption
+  /// staleness check on the recipient's key bundle.
   ///
-  /// Checks the recipient's current identity key (from their Firestore
-  /// profile) against what was stored in the session at establishment time.
-  /// If the keys differ (recipient reinstalled, key regeneration, etc.),
-  /// resets the session so the next `encryptP2P` call auto-establishes
-  /// a fresh session with the recipient's current key bundle.
-  Future<void> _ensureSessionFresh(String recipientId) async {
+  /// **Pre-check**: reads the recipient's current identity key from Firestore
+  /// and resets any stale session whose `peerIdentityKey` doesn't match.
+  ///
+  /// **Post-check**: after `encryptP2P` (which calls `establishSession` →
+  /// `fetchKeyBundle`), re-reads the identity key. If it changed between the
+  /// pre-check and the encrypt (recipient uploaded new keys while we were
+  /// establishing the session), the encrypted message uses stale keys and
+  /// the recipient can't decrypt it. In that case we reset and re-encrypt
+  /// once with the now-current bundle.
+  ///
+  /// This eliminates the race condition where the sender fetches a stale
+  /// key bundle just before the recipient finishes uploading new keys
+  /// (e.g., after a reinstall).
+  Future<Map<String, dynamic>> _encryptWithFreshnessCheck(
+    String recipientId,
+    String plaintext,
+  ) async {
+    // ── Pre-encrypt: reset stale session ──
+    String? preEncryptPeerKey;
     try {
-      // Always fetch fresh from Firestore — no in-memory cache.
-      // A stale cache caused OTK mismatch when the peer regenerated
-      // keys during the same app session.
-      final currentPeerKey =
+      preEncryptPeerKey =
           await _remoteDataSource.getUserE2eeIdentityKey(recipientId);
-      if (currentPeerKey == null) return; // peer hasn't uploaded keys yet
-
-      final isStale = await _signalProtocolService.isPeerKeyStale(
-        recipientId,
-        currentPeerKey,
-      );
-      if (isStale) {
-        debugPrint('E2EE: Peer $recipientId identity key changed — '
-            'resetting stale session for re-establishment');
-        await _signalProtocolService.resetSession(recipientId);
+      if (preEncryptPeerKey != null) {
+        final isStale = await _signalProtocolService.isPeerKeyStale(
+          recipientId,
+          preEncryptPeerKey,
+        );
+        if (isStale) {
+          debugPrint('E2EE: Peer $recipientId identity key changed — '
+              'resetting stale session for re-establishment');
+          await _signalProtocolService.resetSession(recipientId);
+        }
       }
     } catch (e) {
-      // Non-fatal — if the check fails, proceed with existing session.
-      // Worst case: encryption uses stale keys and peer can't decrypt,
-      // which triggers the receiver-side session recovery.
-      debugPrint('E2EE: Session freshness check failed for $recipientId: $e');
+      debugPrint('E2EE: Pre-encrypt freshness check failed: $e');
     }
+
+    // ── Encrypt (may call establishSession → fetchKeyBundle internally) ──
+    var encrypted = await _signalProtocolService.encryptP2P(
+      recipientId,
+      plaintext,
+    );
+
+    // ── Post-encrypt: verify the bundle didn't change while we were encrypting ──
+    try {
+      final postEncryptPeerKey =
+          await _remoteDataSource.getUserE2eeIdentityKey(recipientId);
+      if (postEncryptPeerKey != null && preEncryptPeerKey != null &&
+          postEncryptPeerKey != preEncryptPeerKey) {
+        // Recipient uploaded a new key bundle between our pre-check and the
+        // fetchKeyBundle call inside establishSession. The encrypted message
+        // uses the OLD bundle — recipient can't decrypt it.
+        debugPrint('E2EE: Recipient $recipientId key changed during encrypt '
+            '(pre=${preEncryptPeerKey.substring(0, 8)}… → '
+            'post=${postEncryptPeerKey.substring(0, 8)}…) — '
+            're-encrypting with fresh bundle');
+        await _signalProtocolService.resetSession(recipientId);
+        encrypted = await _signalProtocolService.encryptP2P(
+          recipientId,
+          plaintext,
+        );
+      }
+    } catch (e) {
+      debugPrint('E2EE: Post-encrypt freshness check failed: $e');
+      // Non-fatal — proceed with the original encrypted message.
+      // Worst case: recipient's recovery mechanism handles it.
+    }
+
+    return encrypted;
   }
 
   /// Compute a stable fingerprint from ciphertext for pre-caching plaintext.
@@ -922,16 +968,47 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String sourceConversationId,
     required String sourceMessageId,
     required String targetConversationId,
+    String? plaintextContent,
   }) async {
     try {
-      // For now, forward without re-encryption (plaintext forward).
-      // E2EE re-encryption can be added later if needed.
+      String? ciphertext;
+      Map<String, dynamic>? e2ee;
+      Map<String, dynamic>? x3dhHeader;
+
+      // Re-encrypt the plaintext for the target conversation's recipient.
+      if (plaintextContent != null && plaintextContent.isNotEmpty) {
+        final targetConvModel =
+            await _remoteDataSource.getConversationById(targetConversationId);
+        if (targetConvModel != null) {
+          final targetConv = targetConvModel.toEntity();
+          if (targetConv.type == ConversationType.p2p) {
+            final recipientId = targetConv.participantIds.firstWhere(
+              (id) => id != currentUserId,
+              orElse: () => '',
+            );
+            if (recipientId.isNotEmpty) {
+              final encrypted = await _encryptWithFreshnessCheck(
+                  recipientId, plaintextContent);
+              ciphertext = encrypted['ciphertext'] as String;
+              e2ee = encrypted['e2ee'] as Map<String, dynamic>;
+              x3dhHeader =
+                  encrypted['x3dhHeader'] as Map<String, dynamic>?;
+            }
+          }
+        }
+      }
+
       final messageId = await _remoteDataSource.forwardMessage(
         sourceConversationId: sourceConversationId,
         sourceMessageId: sourceMessageId,
         targetConversationId: targetConversationId,
+        ciphertext: ciphertext,
+        e2ee: e2ee,
+        x3dhHeader: x3dhHeader,
       );
       return Right(messageId);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
     } catch (e) {
       if (e is ServerException) {
         return Left(Failure.serverError(message: e.message ?? 'Forward failed'));
