@@ -10,7 +10,6 @@ import '../../../core/error/failures.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../../domain/entities/message.dart';
 import '../../../domain/enums/conversation_type.dart';
-import '../../../domain/enums/message_status.dart';
 import '../../../domain/enums/message_type.dart';
 import '../../../domain/repositories/conversation_repository.dart';
 
@@ -26,10 +25,6 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   StreamSubscription? _unreadSubscription;
   StreamSubscription? _typingSubscription;
   Timer? _typingDebounce;
-
-  /// IDs of optimistic messages that haven't been confirmed by the server stream yet.
-  /// Used by _onMessagesUpdated to keep optimistic messages visible during stream emissions.
-  final Set<String> _pendingOptimisticIds = {};
 
   ConversationBloc(this._conversationRepository)
       : super(const ConversationState()) {
@@ -243,7 +238,6 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       (messages) => messages,
     );
 
-    _pendingOptimisticIds.clear();
     emit(state.copyWith(
       selectedConversation: conversation,
       messages: initialMessages,
@@ -304,7 +298,6 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       (messages) => messages,
     );
 
-    _pendingOptimisticIds.clear();
     emit(state.copyWith(
       status: ConversationStatus.loaded,
       selectedConversation: conversation,
@@ -367,51 +360,8 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     _MessagesUpdated event,
     Emitter<ConversationState> emit,
   ) {
-    if (_pendingOptimisticIds.isNotEmpty) {
-      final optimistics = state.messages
-          .where((m) => _pendingOptimisticIds.contains(m.id))
-          .toList();
-      if (optimistics.isNotEmpty) {
-        // Check if any optimistic has been superseded by a real server message
-        // (Firestore listener may deliver the real message before the repository
-        // HTTP response returns). Match by sender + text content.
-        final resolvedIds = <String>{};
-        final usedRealIds = <String>{};
-        for (final opt in optimistics) {
-          final realMatch = event.messages.cast<Message?>().firstWhere(
-            (m) =>
-                m != null &&
-                !usedRealIds.contains(m.id) &&
-                m.senderId == opt.senderId &&
-                m.textContent == opt.textContent &&
-                m.textContent != null &&
-                m.textContent!.isNotEmpty &&
-                !m.id.startsWith('optimistic_'),
-            orElse: () => null,
-          );
-          if (realMatch != null) {
-            resolvedIds.add(opt.id);
-            usedRealIds.add(realMatch.id);
-          }
-        }
-        _pendingOptimisticIds.removeAll(resolvedIds);
-
-        // Keep only unresolved optimistics
-        final unresolved = optimistics
-            .where((m) => !resolvedIds.contains(m.id))
-            .toList();
-        if (unresolved.isNotEmpty) {
-          final filtered = event.messages
-              .where((m) => !_pendingOptimisticIds.contains(m.id))
-              .toList();
-          emit(state.copyWith(
-            messages: [...unresolved, ...filtered],
-            hasLoadedMessages: true,
-          ));
-          return;
-        }
-      }
-    }
+    // Single source of truth: local DB stream delivers all messages
+    // (including optimistic pending messages inserted by OutgoingMessageQueue).
     emit(state.copyWith(messages: event.messages, hasLoadedMessages: true));
   }
 
@@ -426,29 +376,8 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     final selectedConv = state.selectedConversation;
     if (selectedConv != null && selectedConv.type != ConversationType.p2p) return;
 
-    // --- Optimistic UI: show the message IMMEDIATELY ---
-    final currentUserId = _conversationRepository.currentUserId ?? '';
-    final optimisticId = 'optimistic_${DateTime.now().millisecondsSinceEpoch}';
-    final optimisticMessage = Message(
-      id: optimisticId,
-      senderId: currentUserId,
-      senderName: '',
-      type: MessageType.text,
-      status: MessageStatus.sending,
-      textContent: event.text,
-      createdAt: DateTime.now(),
-    );
-
-    _pendingOptimisticIds.add(optimisticId);
-
-    // Insert at the start (newest-first order) and clear sending flag
-    // so the input bar is immediately available for the next message.
-    emit(state.copyWith(
-      messages: [optimisticMessage, ...state.messages],
-    ));
-
-    // --- Send in background ---
     // Derive recipientId from state to skip the redundant Firestore read
+    final currentUserId = _conversationRepository.currentUserId ?? '';
     String? recipientId;
     final conv = state.selectedConversation;
     if (conv != null && currentUserId.isNotEmpty) {
@@ -461,6 +390,8 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       }
     }
 
+    // The queue inserts an optimistic message into local DB → the watch
+    // stream delivers it to _onMessagesUpdated automatically.
     final result = await _conversationRepository.sendTextMessage(
       conversationId: event.conversationId,
       text: event.text,
@@ -468,34 +399,9 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       recipientId: recipientId,
     );
 
-    _pendingOptimisticIds.remove(optimisticId);
-
     result.fold(
-      (failure) {
-        // Mark the optimistic message as failed
-        final updated = state.messages.map((m) {
-          if (m.id == optimisticId) {
-            return m.copyWith(status: MessageStatus.failed);
-          }
-          return m;
-        }).toList();
-        emit(state.copyWith(
-          messages: updated,
-          errorMessage: failure.displayMessage,
-        ));
-      },
-      (serverMessage) {
-        // Replace optimistic with the real message and deduplicate by ID.
-        // The stream may have already delivered the real message before
-        // this callback runs, so we need to prevent [msg, msg] duplicates.
-        final seen = <String>{};
-        final updated = <Message>[];
-        for (final m in state.messages) {
-          final msg = m.id == optimisticId ? serverMessage : m;
-          if (seen.add(msg.id)) updated.add(msg);
-        }
-        emit(state.copyWith(messages: updated));
-      },
+      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
+      (_) {},
     );
   }
 
@@ -507,7 +413,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     final conv = state.selectedConversation;
     if (conv == null || conv.type != ConversationType.p2p) return;
 
-    // Derive recipientId from state (same pattern as _onSendTextMessage)
+    // Derive recipientId from state
     final currentUserId = _conversationRepository.currentUserId ?? '';
     final recipientId = conv.participantIds.cast<String?>().firstWhere(
       (id) => id != currentUserId,
@@ -515,24 +421,10 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     );
     if (recipientId == null || recipientId.isEmpty) return;
 
-    // Optimistic placeholder so the media bubble appears immediately
-    final isAudio = event.mediaType.startsWith('audio');
-    final optimisticId = 'optimistic_${DateTime.now().millisecondsSinceEpoch}';
-    final optimisticMessage = Message(
-      id: optimisticId,
-      senderId: currentUserId,
-      senderName: '',
-      type: isAudio ? MessageType.voice : MessageType.image,
-      status: MessageStatus.sending,
-      textContent: event.caption,
-      createdAt: DateTime.now(),
-    );
-    _pendingOptimisticIds.add(optimisticId);
-    emit(state.copyWith(
-      isSending: true,
-      messages: [optimisticMessage, ...state.messages],
-    ));
+    emit(state.copyWith(isSending: true));
 
+    // The queue inserts an optimistic message into local DB → the watch
+    // stream delivers it to _onMessagesUpdated automatically.
     final result = await _conversationRepository.sendMediaMessage(
       conversationId: event.conversationId,
       mediaFile: event.mediaFile,
@@ -543,31 +435,12 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       replyToMessageId: event.replyToMessageId,
     );
 
-    _pendingOptimisticIds.remove(optimisticId);
-
     result.fold(
-      (failure) {
-        final updated = state.messages.map((m) {
-          if (m.id == optimisticId) {
-            return m.copyWith(status: MessageStatus.failed);
-          }
-          return m;
-        }).toList();
-        emit(state.copyWith(
-          isSending: false,
-          messages: updated,
-          errorMessage: failure.displayMessage,
-        ));
-      },
-      (serverMessage) {
-        final seen = <String>{};
-        final updated = <Message>[];
-        for (final m in state.messages) {
-          final msg = m.id == optimisticId ? serverMessage : m;
-          if (seen.add(msg.id)) updated.add(msg);
-        }
-        emit(state.copyWith(isSending: false, messages: updated));
-      },
+      (failure) => emit(state.copyWith(
+        isSending: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(isSending: false)),
     );
   }
 
@@ -726,30 +599,13 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     _RetryMessage event,
     Emitter<ConversationState> emit,
   ) async {
-    // Find the failed message in current messages list
-    Message? failedMessage;
-    try {
-      failedMessage = state.messages.firstWhere(
-        (m) => m.id == event.messageId,
-      );
-    } catch (_) {
-      // Message not found — nothing to retry
-      return;
-    }
-
-    // Re-send based on message type
-    if (failedMessage.hasMedia) {
-      // Media messages are E2EE — can't retry without the original file.
-      // The user must re-select the file from their device.
-      emit(state.copyWith(
-        errorMessage: 'Cannot retry media messages. Please re-attach the file.',
-      ));
-      return;
-    }
-    add(ConversationEvent.sendTextMessage(
-      conversationId: event.conversationId,
-      text: failedMessage.textContent ?? '',
-    ));
+    // Delegate to the OutgoingMessageQueue via the repository.
+    // The queue re-processes the pending message (preserves plaintext).
+    final result = await _conversationRepository.retryMessage(event.messageId);
+    result.fold(
+      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
+      (_) {},
+    );
   }
 
   // ===========================================================================

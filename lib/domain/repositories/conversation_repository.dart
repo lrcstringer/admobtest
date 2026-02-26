@@ -240,4 +240,7 @@ abstract class ConversationRepository {
     required String targetConversationId,
     String? plaintextContent,
   });
+
+  /// Retry a failed pending message (re-queues for send).
+  Future<Either<Failure, void>> retryMessage(String messageId);
 }

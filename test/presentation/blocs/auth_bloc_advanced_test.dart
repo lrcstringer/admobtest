@@ -10,8 +10,10 @@ import 'package:imalichat/core/security/device_binding_service.dart';
 import 'package:imalichat/core/services/biometric_login_service.dart';
 import 'package:imalichat/core/services/fcm_challenge_handler.dart';
 import 'package:imalichat/core/services/key_management_service.dart';
+import 'package:imalichat/core/services/community_sync_service.dart';
 import 'package:imalichat/core/services/message_sync_service.dart';
 import 'package:imalichat/core/services/offline_action_queue.dart';
+import 'package:imalichat/core/services/outgoing_message_queue.dart';
 import 'package:imalichat/core/services/signal_protocol_service.dart';
 import 'package:imalichat/domain/entities/trusted_device.dart';
 import 'package:imalichat/domain/entities/user.dart';
@@ -38,6 +40,10 @@ class MockSignalProtocolService extends Mock implements SignalProtocolService {}
 class MockMessageSyncService extends Mock implements MessageSyncService {}
 
 class MockOfflineActionQueue extends Mock implements OfflineActionQueue {}
+
+class MockCommunitySyncService extends Mock implements CommunitySyncService {}
+
+class MockOutgoingMessageQueue extends Mock implements OutgoingMessageQueue {}
 
 void main() {
   late MockAuthRepository mockAuthRepository;
@@ -69,6 +75,8 @@ void main() {
         mockSignalProtocolService,
         MockMessageSyncService(),
         MockOfflineActionQueue(),
+        MockCommunitySyncService(),
+        MockOutgoingMessageQueue(),
       );
 
   setUp(() {

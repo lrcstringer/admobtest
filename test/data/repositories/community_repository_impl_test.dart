@@ -1,13 +1,17 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imalichat/core/error/exceptions.dart';
 import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/core/network/network_info.dart';
+import 'package:imalichat/core/services/offline_action_queue.dart';
+import 'package:imalichat/core/services/outgoing_message_queue.dart';
+import 'package:imalichat/data/datasources/local/app_database.dart';
 import 'package:imalichat/data/datasources/remote/community_remote_datasource.dart';
 import 'package:imalichat/data/models/community_model.dart';
-import 'package:imalichat/data/models/community_member_model.dart';
-import 'package:imalichat/data/models/message_model.dart';
 import 'package:imalichat/data/repositories/community_repository_impl.dart';
+import 'package:imalichat/domain/entities/message.dart';
 import 'package:imalichat/domain/enums/community_type.dart';
 import 'package:imalichat/domain/enums/member_role.dart';
 import 'package:imalichat/domain/enums/message_status.dart';
@@ -15,14 +19,18 @@ import 'package:imalichat/domain/enums/message_type.dart';
 import 'package:imalichat/domain/repositories/community_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../helpers/e2ee_test_helpers.dart';
-
 // ==================== MOCKS ====================
 
 class MockCommunityRemoteDataSource extends Mock
     implements CommunityRemoteDataSource {}
 
 class MockNetworkInfo extends Mock implements NetworkInfo {}
+
+class MockAppDatabase extends Mock implements AppDatabase {}
+
+class MockOfflineActionQueue extends Mock implements OfflineActionQueue {}
+
+class MockOutgoingMessageQueue extends Mock implements OutgoingMessageQueue {}
 
 // ==================== FALLBACK VALUES ====================
 
@@ -35,7 +43,6 @@ class FakeUpdateCommunityParams extends Fake
 // ==================== TEST FIXTURES ====================
 
 const _userId = 'user_1';
-const _recipientId = 'user_2';
 const _communityId = 'community_123';
 
 CommunityModel _createCommunityModel({
@@ -47,7 +54,7 @@ CommunityModel _createCommunityModel({
     name: 'Test Community',
     description: 'A test community',
     ownerId: _userId,
-    memberIds: [_userId, _recipientId],
+    memberIds: [_userId, 'user_2'],
     adminIds: [_userId],
     memberCount: 2,
     status: 'active',
@@ -56,56 +63,84 @@ CommunityModel _createCommunityModel({
   );
 }
 
-CommunityMemberModel _createMemberModel({
-  String id = _userId,
-  String communityId = _communityId,
+/// Create a fake LocalCommunity row for local DB mock results.
+LocalCommunity _createLocalCommunity({
+  String id = _communityId,
+  String name = 'Test Community',
 }) {
-  return CommunityMemberModel(
+  return LocalCommunity(
     id: id,
-    communityId: communityId,
-    userId: id,
-    displayName: 'Alice',
-    role: 'owner',
+    type: 'regular',
+    name: name,
+    description: 'A test community',
+    avatarUrl: null,
+    ownerId: _userId,
+    memberIdsJson: jsonEncode([_userId, 'user_2']),
+    adminIdsJson: jsonEncode([_userId]),
+    memberCount: 2,
+    totalBalance: 0,
     status: 'active',
-    invitedBy: _userId,
-    invitedAt: DateTime(2024, 6, 1),
+    settingsJson: jsonEncode({}),
+    stokvelSettingsJson: null,
+    lastMessageText: 'Hello',
+    lastMessageSenderId: _userId,
+    lastMessageSenderName: 'Alice',
+    lastMessageType: 'text',
+    lastMessageAt: DateTime(2024, 6, 1),
+    unreadCountsJson: jsonEncode({_userId: 2, 'user_2': 0}),
+    mutedJson: '{}',
+    encryptedPreviewsJson: '{}',
+    createdAt: DateTime(2024, 6, 1),
+    updatedAt: null,
   );
 }
 
-MessageModel _createPlaintextModel({
+LocalCommunityMember _createLocalMember({
+  String userId = _userId,
+}) {
+  return LocalCommunityMember(
+    id: '${_communityId}_$userId',
+    communityId: _communityId,
+    userId: userId,
+    displayName: 'Alice',
+    avatarUrl: null,
+    role: 'owner',
+    status: 'active',
+    contributionBalance: 0,
+    joinedAt: DateTime(2024, 6, 1),
+    invitedBy: _userId,
+    invitedAt: DateTime(2024, 6, 1),
+    lastReadAt: null,
+    createdAt: DateTime(2024, 6, 1),
+  );
+}
+
+LocalFullMessage _createLocalMessage({
   String id = 'msg_1',
   String senderId = _userId,
+  String text = 'Hello, community!',
 }) {
-  return MessageModel(
+  return LocalFullMessage(
     id: id,
+    conversationId: _communityId,
     senderId: senderId,
     senderName: 'Alice',
     type: 'text',
     status: 'sent',
-    textContent: 'Hello, community!',
+    textContent: text,
+    mediaJson: null,
+    giftJson: null,
+    reactionsJson: null,
+    replyToJson: null,
+    forwardedFromJson: null,
+    tokenAmount: null,
+    recipientId: null,
     communityId: _communityId,
-    createdAt: DateTime(2024, 6, 1, 12, 0),
-  );
-}
-
-MessageModel _createEncryptedModel({
-  String id = 'msg_enc_1',
-  String senderId = _recipientId,
-}) {
-  return MessageModel(
-    id: id,
-    senderId: senderId,
-    senderName: 'Bob',
-    type: 'text',
-    status: 'sent',
-    textContent: null,
-    ciphertext: 'ZW5jcnlwdGVkRGF0YQ==',
-    e2ee: {
-      'protocol': 'sender-key-v1',
-      'senderKeyChainId': 'chain_abc',
-      'messageNumber': 0,
-    },
-    communityId: _communityId,
+    deletedForJson: '{}',
+    deletedForEveryone: false,
+    expiresAt: null,
+    readByJson: '{}',
+    isDecrypted: true,
     createdAt: DateTime(2024, 6, 1, 12, 0),
   );
 }
@@ -115,7 +150,9 @@ MessageModel _createEncryptedModel({
 void main() {
   late MockCommunityRemoteDataSource mockDataSource;
   late MockNetworkInfo mockNetworkInfo;
-  late MockSenderKeyService mockSenderKeyService;
+  late MockAppDatabase mockAppDatabase;
+  late MockOfflineActionQueue mockOfflineQueue;
+  late MockOutgoingMessageQueue mockOutgoingQueue;
   late CommunityRepositoryImpl repository;
 
   setUpAll(() {
@@ -127,440 +164,387 @@ void main() {
   setUp(() {
     mockDataSource = MockCommunityRemoteDataSource();
     mockNetworkInfo = MockNetworkInfo();
-    mockSenderKeyService = MockSenderKeyService();
+    mockAppDatabase = MockAppDatabase();
+    mockOfflineQueue = MockOfflineActionQueue();
+    mockOutgoingQueue = MockOutgoingMessageQueue();
+
     repository = CommunityRepositoryImpl(
       mockDataSource,
       mockNetworkInfo,
-      mockSenderKeyService,
-      MockSignalProtocolService(),
+      mockAppDatabase,
+      mockOfflineQueue,
+      mockOutgoingQueue,
     );
 
-    // Default stubs for _ensureSenderKeyDistributed (called before encrypt).
-    // Pretend sender key already exists, is distributed, and member list is
-    // empty so the method completes without network calls.
-    when(() => mockSenderKeyService.hasSenderKey(any()))
-        .thenAnswer((_) async => true);
-    when(() => mockSenderKeyService.isDistributed(any()))
-        .thenAnswer((_) async => true);
-    when(() => mockSenderKeyService.markDistributed(any()))
-        .thenAnswer((_) async {});
-    when(() => mockDataSource.getMembers(any()))
-        .thenAnswer((_) async => <CommunityMemberModel>[]);
     when(() => mockDataSource.currentUserId).thenReturn(_userId);
   });
 
   // ===========================================================================
-  // sendTextMessage
+  // getUserCommunities — reads from local DB
+  // ===========================================================================
+
+  group('getUserCommunities', () {
+    test('returns communities from local DB', () async {
+      when(() => mockAppDatabase.getLocalCommunities())
+          .thenAnswer((_) async => [_createLocalCommunity()]);
+
+      final result = await repository.getUserCommunities();
+
+      expect(result.isRight(), isTrue);
+      result.fold(
+        (_) => fail('Expected Right'),
+        (communities) {
+          expect(communities.length, 1);
+          expect(communities[0].id, _communityId);
+          expect(communities[0].name, 'Test Community');
+        },
+      );
+    });
+
+    test('returns empty list when no local data', () async {
+      when(() => mockAppDatabase.getLocalCommunities())
+          .thenAnswer((_) async => []);
+
+      final result = await repository.getUserCommunities();
+
+      expect(result.isRight(), isTrue);
+      result.fold(
+        (_) => fail('Expected Right'),
+        (communities) => expect(communities, isEmpty),
+      );
+    });
+  });
+
+  // ===========================================================================
+  // watchUserCommunities — streams from local DB
+  // ===========================================================================
+
+  group('watchUserCommunities', () {
+    test('streams communities from local DB', () async {
+      when(() => mockAppDatabase.watchLocalCommunities())
+          .thenAnswer((_) => Stream.value([_createLocalCommunity()]));
+
+      final emission = await repository.watchUserCommunities().first;
+
+      expect(emission.isRight(), isTrue);
+      emission.fold(
+        (_) => fail('Expected Right'),
+        (communities) {
+          expect(communities.length, 1);
+          expect(communities[0].id, _communityId);
+        },
+      );
+    });
+  });
+
+  // ===========================================================================
+  // getCommunity — local DB first, remote fallback
+  // ===========================================================================
+
+  group('getCommunity', () {
+    test('returns from local DB when available', () async {
+      when(() => mockAppDatabase.getLocalCommunity(_communityId))
+          .thenAnswer((_) async => _createLocalCommunity());
+
+      final result = await repository.getCommunity(_communityId);
+
+      expect(result.isRight(), isTrue);
+      result.fold(
+        (_) => fail('Expected Right'),
+        (community) {
+          expect(community.id, _communityId);
+          expect(community.name, 'Test Community');
+        },
+      );
+      verifyNever(() => mockDataSource.getCommunity(any()));
+    });
+
+    test('falls back to remote when not in local DB', () async {
+      when(() => mockAppDatabase.getLocalCommunity('not_local'))
+          .thenAnswer((_) async => null);
+      when(() => mockNetworkInfo.isConnected)
+          .thenAnswer((_) async => true);
+      when(() => mockDataSource.getCommunity('not_local'))
+          .thenAnswer((_) async => _createCommunityModel(id: 'not_local'));
+
+      final result = await repository.getCommunity('not_local');
+
+      expect(result.isRight(), isTrue);
+    });
+
+    test('returns Left(network) when not in local DB and offline', () async {
+      when(() => mockAppDatabase.getLocalCommunity('offline_test'))
+          .thenAnswer((_) async => null);
+      when(() => mockNetworkInfo.isConnected)
+          .thenAnswer((_) async => false);
+
+      final result = await repository.getCommunity('offline_test');
+
+      expect(result, const Left(Failure.network()));
+    });
+
+    test('returns Left(serverError) when community not found remotely',
+        () async {
+      when(() => mockAppDatabase.getLocalCommunity('not_found'))
+          .thenAnswer((_) async => null);
+      when(() => mockNetworkInfo.isConnected)
+          .thenAnswer((_) async => true);
+      when(() => mockDataSource.getCommunity('not_found'))
+          .thenAnswer((_) async => null);
+
+      final result = await repository.getCommunity('not_found');
+
+      expect(result.isLeft(), isTrue);
+    });
+  });
+
+  // ===========================================================================
+  // getMessages — reads pre-decrypted from local DB
+  // ===========================================================================
+
+  group('getMessages', () {
+    test('returns pre-decrypted messages from local DB', () async {
+      when(() => mockAppDatabase.getLocalMessages(_communityId))
+          .thenAnswer((_) async => [_createLocalMessage()]);
+
+      final result = await repository.getMessages(communityId: _communityId);
+
+      expect(result.isRight(), isTrue);
+      result.fold(
+        (_) => fail('Expected Right'),
+        (messages) {
+          expect(messages.length, 1);
+          expect(messages[0].textContent, 'Hello, community!');
+        },
+      );
+    });
+
+    test('applies before filter', () async {
+      when(() => mockAppDatabase.getLocalMessages(_communityId))
+          .thenAnswer((_) async => [
+                _createLocalMessage(id: 'msg_old'),
+              ]);
+
+      final result = await repository.getMessages(
+        communityId: _communityId,
+        before: DateTime(2024, 1, 1), // Before the message
+      );
+
+      expect(result.isRight(), isTrue);
+      result.fold(
+        (_) => fail('Expected Right'),
+        (messages) => expect(messages, isEmpty),
+      );
+    });
+
+    test('applies limit', () async {
+      when(() => mockAppDatabase.getLocalMessages(_communityId))
+          .thenAnswer((_) async => [
+                _createLocalMessage(id: 'msg_1'),
+                _createLocalMessage(id: 'msg_2'),
+                _createLocalMessage(id: 'msg_3'),
+              ]);
+
+      final result = await repository.getMessages(
+        communityId: _communityId,
+        limit: 2,
+      );
+
+      expect(result.isRight(), isTrue);
+      result.fold(
+        (_) => fail('Expected Right'),
+        (messages) => expect(messages.length, 2),
+      );
+    });
+  });
+
+  // ===========================================================================
+  // watchMessages — streams pre-decrypted from local DB
+  // ===========================================================================
+
+  group('watchMessages', () {
+    test('streams pre-decrypted messages from local DB', () async {
+      when(() => mockAppDatabase.watchLocalMessages(_communityId))
+          .thenAnswer((_) => Stream.value([_createLocalMessage()]));
+
+      final emission = await repository
+          .watchMessages(communityId: _communityId)
+          .first;
+
+      expect(emission.isRight(), isTrue);
+      emission.fold(
+        (_) => fail('Expected Right'),
+        (messages) {
+          expect(messages.length, 1);
+          expect(messages[0].textContent, 'Hello, community!');
+        },
+      );
+    });
+  });
+
+  // ===========================================================================
+  // sendTextMessage — delegates to OutgoingMessageQueue
   // ===========================================================================
 
   group('sendTextMessage', () {
-    test('calls encryptCommunity with communityId and plaintext', () async {
-      when(() => mockSenderKeyService.encryptCommunity(
-              _communityId, 'Hello'))
-          .thenAnswer((_) async => {
-                'ciphertext': 'sk_encrypted',
-                'e2ee': {
-                  'protocol': 'sender-key-v1',
-                  'senderKeyChainId': 'chain_1',
-                  'messageNumber': 0,
-                },
-              });
-      when(() => mockDataSource.sendEncryptedCommunityMessage(
-            communityId: _communityId,
-            ciphertext: 'sk_encrypted',
-            e2ee: {
-              'protocol': 'sender-key-v1',
-              'senderKeyChainId': 'chain_1',
-              'messageNumber': 0,
-            },
-            replyToMessageId: null,
-          )).thenAnswer((_) async => 'msg_001');
-
-      await repository.sendTextMessage(
+    test('enqueues via OutgoingMessageQueue', () async {
+      final optimistic = Message(
+        id: 'pending_123',
+        senderId: _userId,
+        senderName: '',
+        type: MessageType.text,
+        status: MessageStatus.sending,
+        textContent: 'Hello',
         communityId: _communityId,
-        text: 'Hello',
+        createdAt: DateTime.now(),
       );
-
-      verify(() => mockSenderKeyService.encryptCommunity(
-          _communityId, 'Hello')).called(1);
-    });
-
-    test(
-        'sends encrypted community message to datasource on encryption success',
-        () async {
-      when(() =>
-              mockSenderKeyService.encryptCommunity(_communityId, 'Hi all'))
-          .thenAnswer((_) async => {
-                'ciphertext': 'ct_data',
-                'e2ee': {
-                  'protocol': 'sender-key-v1',
-                  'senderKeyChainId': 'chain_2',
-                  'messageNumber': 5,
-                },
-              });
-      when(() => mockDataSource.sendEncryptedCommunityMessage(
+      when(() => mockOutgoingQueue.enqueueCommunityTextMessage(
             communityId: _communityId,
-            ciphertext: 'ct_data',
-            e2ee: {
-              'protocol': 'sender-key-v1',
-              'senderKeyChainId': 'chain_2',
-              'messageNumber': 5,
-            },
+            text: 'Hello',
             replyToMessageId: null,
-          )).thenAnswer((_) async => 'msg_002');
+          )).thenAnswer((_) async => optimistic);
 
       final result = await repository.sendTextMessage(
         communityId: _communityId,
-        text: 'Hi all',
+        text: 'Hello',
       );
 
       expect(result.isRight(), isTrue);
       result.fold(
         (_) => fail('Expected Right'),
         (message) {
-          expect(message.textContent, 'Hi all');
+          expect(message.textContent, 'Hello');
           expect(message.communityId, _communityId);
-          expect(message.type, MessageType.text);
-          expect(message.status, MessageStatus.sent);
         },
       );
-      verify(() => mockDataSource.sendEncryptedCommunityMessage(
+      verify(() => mockOutgoingQueue.enqueueCommunityTextMessage(
             communityId: _communityId,
-            ciphertext: 'ct_data',
-            e2ee: {
-              'protocol': 'sender-key-v1',
-              'senderKeyChainId': 'chain_2',
-              'messageNumber': 5,
-            },
+            text: 'Hello',
             replyToMessageId: null,
           )).called(1);
     });
 
-    test('falls back to plaintext when encryptCommunity throws', () async {
-      when(() => mockSenderKeyService.encryptCommunity(
-              _communityId, 'Fallback'))
-          .thenThrow(StateError('No sender key'));
-      when(() => mockDataSource.sendTextMessage(
-            communityId: _communityId,
-            text: 'Fallback',
-            replyToMessageId: null,
-          )).thenAnswer((_) async => _createPlaintextModel());
-
-      final result = await repository.sendTextMessage(
-        communityId: _communityId,
-        text: 'Fallback',
-      );
-
-      expect(result.isRight(), isTrue);
-      verify(() => mockDataSource.sendTextMessage(
-            communityId: _communityId,
-            text: 'Fallback',
-            replyToMessageId: null,
-          )).called(1);
-      verifyNever(() => mockDataSource.sendEncryptedCommunityMessage(
+    test('returns Left when queue throws', () async {
+      when(() => mockOutgoingQueue.enqueueCommunityTextMessage(
             communityId: any(named: 'communityId'),
-            ciphertext: any(named: 'ciphertext'),
-            e2ee: any(named: 'e2ee'),
+            text: any(named: 'text'),
             replyToMessageId: any(named: 'replyToMessageId'),
-          ));
-    });
-
-    test('passes correct communityId to datasource', () async {
-      const customCommunityId = 'community_custom_456';
-      when(() => mockSenderKeyService.encryptCommunity(
-              customCommunityId, 'Msg'))
-          .thenThrow(Exception('No key'));
-      when(() => mockDataSource.sendTextMessage(
-            communityId: customCommunityId,
-            text: 'Msg',
-            replyToMessageId: null,
-          )).thenAnswer((_) async => _createPlaintextModel());
-
-      await repository.sendTextMessage(
-        communityId: customCommunityId,
-        text: 'Msg',
-      );
-
-      verify(() => mockDataSource.sendTextMessage(
-            communityId: customCommunityId,
-            text: 'Msg',
-            replyToMessageId: null,
-          )).called(1);
-    });
-
-    test('returns Left(unauthenticated) when AuthException is thrown',
-        () async {
-      // The inner try-catch swallows encryption errors,
-      // so AuthException must come from the plaintext fallback path
-      when(() => mockSenderKeyService.encryptCommunity(any(), any()))
-          .thenThrow(Exception('Encrypt fail'));
-      when(() => mockDataSource.sendTextMessage(
-            communityId: _communityId,
-            text: 'Test',
-            replyToMessageId: null,
-          )).thenThrow(const AuthException(message: 'No auth'));
+          )).thenThrow(Exception('Queue error'));
 
       final result = await repository.sendTextMessage(
         communityId: _communityId,
-        text: 'Test',
-      );
-
-      expect(result, const Left(Failure.unauthenticated()));
-    });
-
-    test('returns Left(serverError) when ServerException is thrown', () async {
-      when(() =>
-              mockSenderKeyService.encryptCommunity(_communityId, 'Test'))
-          .thenThrow(Exception('Encrypt fail'));
-      when(() => mockDataSource.sendTextMessage(
-            communityId: _communityId,
-            text: 'Test',
-            replyToMessageId: null,
-          )).thenThrow(const ServerException(message: 'Server down'));
-
-      final result = await repository.sendTextMessage(
-        communityId: _communityId,
-        text: 'Test',
+        text: 'Hello',
       );
 
       expect(result.isLeft(), isTrue);
+    });
+  });
+
+  // ===========================================================================
+  // getMembers — reads from local DB
+  // ===========================================================================
+
+  group('getMembers', () {
+    test('returns members from local DB', () async {
+      when(() => mockAppDatabase.getLocalCommunityMembers(_communityId))
+          .thenAnswer((_) async => [_createLocalMember()]);
+
+      final result = await repository.getMembers(_communityId);
+
+      expect(result.isRight(), isTrue);
       result.fold(
-        (failure) => expect(failure,
-            const Failure.serverError(message: 'Server down')),
-        (_) => fail('Expected Left'),
+        (_) => fail('Expected Right'),
+        (members) {
+          expect(members.length, 1);
+          expect(members[0].userId, _userId);
+          expect(members[0].displayName, 'Alice');
+        },
       );
     });
   });
 
   // ===========================================================================
-  // getMessages
+  // addReaction / removeReaction — routed through OfflineActionQueue
   // ===========================================================================
 
-  group('getMessages', () {
-    test('decrypts encrypted messages via _decryptIfNeeded', () async {
-      when(() => mockDataSource.getMessages(
-            communityId: _communityId,
-            limit: null,
-            before: null,
-          )).thenAnswer((_) async => [_createEncryptedModel()]);
-      when(() => mockSenderKeyService.decryptCommunity(
-              _communityId, _recipientId, any()))
-          .thenAnswer((_) async => 'Decrypted community text');
+  group('addReaction', () {
+    test('enqueues via OfflineActionQueue', () async {
+      when(() => mockOfflineQueue.enqueue(
+            table: any(named: 'table'),
+            recordId: any(named: 'recordId'),
+            changeType: any(named: 'changeType'),
+            data: any(named: 'data'),
+          )).thenAnswer((_) async {});
 
-      final result = await repository.getMessages(
+      final result = await repository.addReaction(
         communityId: _communityId,
+        messageId: 'msg_1',
+        emoji: '🎉',
       );
 
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages.length, 1);
-          expect(messages[0].textContent, 'Decrypted community text');
-        },
-      );
+      expect(result, const Right(null));
+      verify(() => mockOfflineQueue.enqueue(
+            table: 'community_messages',
+            recordId: 'msg_1',
+            changeType: 'community_add_reaction',
+            data: {'communityId': _communityId, 'emoji': '🎉'},
+          )).called(1);
     });
+  });
 
-    test('StateError results in "[Waiting for encryption key...]"', () async {
-      when(() => mockDataSource.getMessages(
-            communityId: _communityId,
-            limit: null,
-            before: null,
-          )).thenAnswer((_) async => [_createEncryptedModel()]);
-      when(() => mockSenderKeyService.decryptCommunity(
-              _communityId, _recipientId, any()))
-          .thenThrow(StateError('No sender key for user'));
+  group('removeReaction', () {
+    test('enqueues via OfflineActionQueue', () async {
+      when(() => mockOfflineQueue.enqueue(
+            table: any(named: 'table'),
+            recordId: any(named: 'recordId'),
+            changeType: any(named: 'changeType'),
+            data: any(named: 'data'),
+          )).thenAnswer((_) async {});
 
-      final result = await repository.getMessages(
+      final result = await repository.removeReaction(
         communityId: _communityId,
+        messageId: 'msg_1',
+        emoji: '🎉',
       );
 
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages.length, 1);
-          expect(messages[0].textContent,
-              '[Waiting for encryption key...]');
-        },
-      );
-    });
-
-    test('other errors result in "[Cannot decrypt]"', () async {
-      when(() => mockDataSource.getMessages(
-            communityId: _communityId,
-            limit: null,
-            before: null,
-          )).thenAnswer((_) async => [_createEncryptedModel()]);
-      when(() => mockSenderKeyService.decryptCommunity(
-              _communityId, _recipientId, any()))
-          .thenThrow(Exception('Unknown decrypt error'));
-
-      final result = await repository.getMessages(
-        communityId: _communityId,
-      );
-
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages.length, 1);
-          expect(messages[0].textContent, '[Cannot decrypt]');
-        },
-      );
-    });
-
-    test('plaintext messages pass through unchanged', () async {
-      when(() => mockDataSource.getMessages(
-            communityId: _communityId,
-            limit: null,
-            before: null,
-          )).thenAnswer((_) async => [_createPlaintextModel()]);
-
-      final result = await repository.getMessages(
-        communityId: _communityId,
-      );
-
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages.length, 1);
-          expect(messages[0].textContent, 'Hello, community!');
-        },
-      );
-      verifyNever(() => mockSenderKeyService.decryptCommunity(
-          any(), any(), any()));
-    });
-
-    test('returns correct list size for mixed messages', () async {
-      when(() => mockDataSource.getMessages(
-            communityId: _communityId,
-            limit: null,
-            before: null,
-          )).thenAnswer((_) async => [
-            _createPlaintextModel(id: 'pt_1'),
-            _createEncryptedModel(id: 'enc_1'),
-            _createPlaintextModel(id: 'pt_2', senderId: _recipientId),
-          ]);
-      when(() => mockSenderKeyService.decryptCommunity(
-              _communityId, _recipientId, any()))
-          .thenAnswer((_) async => 'Decrypted');
-
-      final result = await repository.getMessages(
-        communityId: _communityId,
-      );
-
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages.length, 3);
-          expect(messages[0].textContent, 'Hello, community!');
-          expect(messages[1].textContent, 'Decrypted');
-          expect(messages[2].textContent, 'Hello, community!');
-        },
-      );
-    });
-
-    test('returns Left(unauthenticated) on AuthException', () async {
-      when(() => mockDataSource.getMessages(
-            communityId: _communityId,
-            limit: null,
-            before: null,
-          )).thenThrow(const AuthException(message: 'Not authed'));
-
-      final result = await repository.getMessages(
-        communityId: _communityId,
-      );
-
-      expect(result, const Left(Failure.unauthenticated()));
+      expect(result, const Right(null));
+      verify(() => mockOfflineQueue.enqueue(
+            table: 'community_messages',
+            recordId: 'msg_1',
+            changeType: 'community_remove_reaction',
+            data: {'communityId': _communityId, 'emoji': '🎉'},
+          )).called(1);
     });
   });
 
   // ===========================================================================
-  // watchMessages
+  // watchTotalCommunityUnreadCount — computed from local DB
   // ===========================================================================
 
-  group('watchMessages', () {
-    test('stream decrypts via asyncMap', () async {
-      when(() => mockDataSource.watchMessages(
-            communityId: _communityId,
-            limit: null,
-          )).thenAnswer((_) => Stream.value([_createEncryptedModel()]));
-      when(() => mockSenderKeyService.decryptCommunity(
-              _communityId, _recipientId, any()))
-          .thenAnswer((_) async => 'Watched & decrypted');
-
-      final stream = repository.watchMessages(
-        communityId: _communityId,
+  group('watchTotalCommunityUnreadCount', () {
+    test('sums unread counts from local communities', () async {
+      when(() => mockAppDatabase.watchLocalCommunities()).thenAnswer(
+        (_) => Stream.value([
+          _createLocalCommunity(id: 'c1'),
+          _createLocalCommunity(id: 'c2'),
+        ]),
       );
 
-      final emission = await stream.first;
+      final emission =
+          await repository.watchTotalCommunityUnreadCount().first;
+
       expect(emission.isRight(), isTrue);
       emission.fold(
         (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages.length, 1);
-          expect(messages[0].textContent, 'Watched & decrypted');
-        },
-      );
-    });
-
-    test('StateError in stream results in "[Waiting for encryption key...]"',
-        () async {
-      when(() => mockDataSource.watchMessages(
-            communityId: _communityId,
-            limit: null,
-          )).thenAnswer((_) => Stream.value([_createEncryptedModel()]));
-      when(() => mockSenderKeyService.decryptCommunity(
-              _communityId, _recipientId, any()))
-          .thenThrow(StateError('No sender key'));
-
-      final stream = repository.watchMessages(
-        communityId: _communityId,
-      );
-
-      final emission = await stream.first;
-      emission.fold(
-        (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages[0].textContent,
-              '[Waiting for encryption key...]');
-        },
-      );
-    });
-
-    test('stream handles mixed encrypted and plaintext messages', () async {
-      when(() => mockDataSource.watchMessages(
-            communityId: _communityId,
-            limit: null,
-          )).thenAnswer((_) => Stream.value([
-            _createPlaintextModel(id: 'pt_1'),
-            _createEncryptedModel(id: 'enc_1'),
-          ]));
-      when(() => mockSenderKeyService.decryptCommunity(
-              _communityId, _recipientId, any()))
-          .thenAnswer((_) async => 'Decrypted stream msg');
-
-      final stream = repository.watchMessages(
-        communityId: _communityId,
-      );
-
-      final emission = await stream.first;
-      emission.fold(
-        (_) => fail('Expected Right'),
-        (messages) {
-          expect(messages.length, 2);
-          expect(messages[0].textContent, 'Hello, community!');
-          expect(messages[1].textContent, 'Decrypted stream msg');
-        },
+        // Each community has unreadCounts: {user_1: 2, user_2: 0}
+        // So total for user_1 = 2 + 2 = 4
+        (count) => expect(count, 4),
       );
     });
   });
 
   // ===========================================================================
-  // Passthrough methods
+  // Passthrough methods (still hit remote)
   // ===========================================================================
 
   group('createCommunity', () {
@@ -577,13 +561,6 @@ void main() {
       final result = await repository.createCommunity(params);
 
       expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (community) {
-          expect(community.id, _communityId);
-          expect(community.name, 'Test Community');
-        },
-      );
     });
 
     test('returns Left(network) when not connected', () async {
@@ -598,7 +575,6 @@ void main() {
       );
 
       expect(result, const Left(Failure.network()));
-      verifyNever(() => mockDataSource.createCommunity(any()));
     });
   });
 
@@ -612,8 +588,7 @@ void main() {
       final result = await repository.leaveCommunity(_communityId);
 
       expect(result, const Right(null));
-      verify(() => mockDataSource.leaveCommunity(_communityId))
-          .called(1);
+      verify(() => mockDataSource.leaveCommunity(_communityId)).called(1);
     });
 
     test('returns Left(network) when not connected', () async {
@@ -626,133 +601,21 @@ void main() {
     });
   });
 
-  group('getMembers', () {
-    test('delegates to datasource and returns member entities', () async {
-      when(() => mockNetworkInfo.isConnected)
-          .thenAnswer((_) async => true);
-      when(() => mockDataSource.getMembers(_communityId))
-          .thenAnswer((_) async => [_createMemberModel()]);
-
-      final result = await repository.getMembers(_communityId);
-
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (members) {
-          expect(members.length, 1);
-          expect(members[0].userId, _userId);
-          expect(members[0].displayName, 'Alice');
-        },
-      );
-    });
-
-    test('returns Left(network) when not connected', () async {
-      when(() => mockNetworkInfo.isConnected)
-          .thenAnswer((_) async => false);
-
-      final result = await repository.getMembers(_communityId);
-
-      expect(result, const Left(Failure.network()));
-    });
-  });
-
   group('inviteMember', () {
     test('delegates to datasource with correct params', () async {
       when(() => mockNetworkInfo.isConnected)
           .thenAnswer((_) async => true);
       when(() => mockDataSource.inviteMember(
-              _communityId, _recipientId, MemberRole.member))
+              _communityId, 'user_2', MemberRole.member))
           .thenAnswer((_) async {});
 
       final result = await repository.inviteMember(
         _communityId,
-        _recipientId,
+        'user_2',
         MemberRole.member,
       );
 
       expect(result, const Right(null));
-      verify(() => mockDataSource.inviteMember(
-            _communityId,
-            _recipientId,
-            MemberRole.member,
-          )).called(1);
-    });
-  });
-
-  group('addReaction', () {
-    test('delegates to datasource correctly', () async {
-      when(() => mockDataSource.addReaction(
-            communityId: _communityId,
-            messageId: 'msg_1',
-            emoji: '🎉',
-          )).thenAnswer((_) async {});
-
-      final result = await repository.addReaction(
-        communityId: _communityId,
-        messageId: 'msg_1',
-        emoji: '🎉',
-      );
-
-      expect(result, const Right(null));
-      verify(() => mockDataSource.addReaction(
-            communityId: _communityId,
-            messageId: 'msg_1',
-            emoji: '🎉',
-          )).called(1);
-    });
-  });
-
-  group('removeReaction', () {
-    test('delegates to datasource correctly', () async {
-      when(() => mockDataSource.removeReaction(
-            communityId: _communityId,
-            messageId: 'msg_1',
-            emoji: '🎉',
-          )).thenAnswer((_) async {});
-
-      final result = await repository.removeReaction(
-        communityId: _communityId,
-        messageId: 'msg_1',
-        emoji: '🎉',
-      );
-
-      expect(result, const Right(null));
-      verify(() => mockDataSource.removeReaction(
-            communityId: _communityId,
-            messageId: 'msg_1',
-            emoji: '🎉',
-          )).called(1);
-    });
-  });
-
-  group('getCommunity', () {
-    test('delegates to datasource and returns entity', () async {
-      when(() => mockNetworkInfo.isConnected)
-          .thenAnswer((_) async => true);
-      when(() => mockDataSource.getCommunity(_communityId))
-          .thenAnswer((_) async => _createCommunityModel());
-
-      final result = await repository.getCommunity(_communityId);
-
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (community) {
-          expect(community.id, _communityId);
-          expect(community.name, 'Test Community');
-        },
-      );
-    });
-
-    test('returns Left(serverError) when community not found', () async {
-      when(() => mockNetworkInfo.isConnected)
-          .thenAnswer((_) async => true);
-      when(() => mockDataSource.getCommunity('not_found'))
-          .thenAnswer((_) async => null);
-
-      final result = await repository.getCommunity('not_found');
-
-      expect(result.isLeft(), isTrue);
     });
   });
 

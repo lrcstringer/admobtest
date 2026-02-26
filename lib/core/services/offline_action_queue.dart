@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../data/datasources/local/app_database.dart';
+import '../../data/datasources/remote/community_remote_datasource.dart';
 import '../../data/datasources/remote/conversation_remote_datasource.dart';
 import '../network/network_info.dart';
 
@@ -18,6 +19,7 @@ class OfflineActionQueue {
   final AppDatabase _appDatabase;
   final NetworkInfo _networkInfo;
   final ConversationRemoteDataSource _remoteDataSource;
+  final CommunityRemoteDataSource _communityRemoteDataSource;
 
   StreamSubscription<bool>? _connectivitySub;
   bool _isProcessing = false;
@@ -26,6 +28,7 @@ class OfflineActionQueue {
     this._appDatabase,
     this._networkInfo,
     this._remoteDataSource,
+    this._communityRemoteDataSource,
   );
 
   /// Start listening for connectivity changes.
@@ -170,6 +173,47 @@ class OfflineActionQueue {
         await _remoteDataSource.deleteMessageForEveryone(
           conversationId: data['conversationId'] as String,
           messageId: recordId,
+        );
+        break;
+
+      case 'accept_token_request':
+        await _remoteDataSource.acceptTokenRequest(
+          messageId: recordId,
+          conversationId: data['conversationId'] as String,
+        );
+        break;
+
+      case 'decline_token_request':
+        await _remoteDataSource.declineTokenRequest(
+          messageId: recordId,
+          conversationId: data['conversationId'] as String,
+        );
+        break;
+
+      case 'set_disappearing':
+        await _remoteDataSource.setDisappearingMessages(
+          conversationId: recordId,
+          durationMs: data['durationMs'] as int?,
+        );
+        break;
+
+      case 'community_mark_read':
+        await _communityRemoteDataSource.markAsRead(recordId);
+        break;
+
+      case 'community_add_reaction':
+        await _communityRemoteDataSource.addReaction(
+          communityId: data['communityId'] as String,
+          messageId: recordId,
+          emoji: data['emoji'] as String,
+        );
+        break;
+
+      case 'community_remove_reaction':
+        await _communityRemoteDataSource.removeReaction(
+          communityId: data['communityId'] as String,
+          messageId: recordId,
+          emoji: data['emoji'] as String,
         );
         break;
 

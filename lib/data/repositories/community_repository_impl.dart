@@ -1,48 +1,43 @@
-import 'package:dartz/dartz.dart';
-import 'package:flutter/foundation.dart';
-import 'package:injectable/injectable.dart';
-
 import 'dart:convert';
+
+import 'package:dartz/dartz.dart';
+import 'package:injectable/injectable.dart';
 
 import '../../core/error/exceptions.dart';
 import '../../core/error/failures.dart';
 import '../../core/network/network_info.dart';
-import '../../core/services/sender_key_service.dart';
-import '../../core/services/signal_protocol_service.dart';
+import '../../core/services/offline_action_queue.dart';
+import '../../core/services/outgoing_message_queue.dart';
 import '../../domain/entities/community.dart';
 import '../../domain/entities/community_member.dart';
 import '../../domain/entities/community_transaction.dart';
 import '../../domain/entities/message.dart';
-import '../../domain/enums/message_status.dart';
-import '../../domain/enums/message_type.dart';
 import '../../domain/entities/stokvel_analytics.dart';
 import '../../domain/enums/member_role.dart';
 import '../../domain/repositories/community_repository.dart';
+import '../datasources/local/app_database.dart';
 import '../datasources/remote/community_remote_datasource.dart';
+import '../mappers/local_community_mapper.dart';
+import '../mappers/local_community_member_mapper.dart';
+import '../mappers/local_message_mapper.dart';
 
 @LazySingleton(as: CommunityRepository)
 class CommunityRepositoryImpl implements CommunityRepository {
   final CommunityRemoteDataSource _remoteDataSource;
   final NetworkInfo _networkInfo;
-  final SenderKeyService _senderKeyService;
-  final SignalProtocolService _signalProtocolService;
+  final AppDatabase _appDatabase;
+  final OfflineActionQueue _offlineActionQueue;
+  final OutgoingMessageQueue _outgoingMessageQueue;
 
   CommunityRepositoryImpl(
     this._remoteDataSource,
     this._networkInfo,
-    this._senderKeyService,
-    this._signalProtocolService,
+    this._appDatabase,
+    this._offlineActionQueue,
+    this._outgoingMessageQueue,
   );
 
-  /// Cache of sent encrypted messages: messageId → plaintext.
-  /// Allows the sender to see their own community E2EE messages without
-  /// decryption (sender key is stored under _ownKeyPrefix, not _peerKeyPrefix).
-  final Map<String, String> _sentPlaintextCache = {};
-
-  /// Cache of received decrypted messages: messageId → plaintext.
-  /// Prevents re-decryption on subsequent stream emissions (which would
-  /// ratchet the sender key chain forward and corrupt the state).
-  final Map<String, String> _receivedPlaintextCache = {};
+  String? get _currentUserId => _remoteDataSource.currentUserId;
 
   // =========================================================================
   // COMMUNITY CRUD
@@ -70,11 +65,16 @@ class CommunityRepositoryImpl implements CommunityRepository {
 
   @override
   Future<Either<Failure, Community>> getCommunity(String communityId) async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(Failure.network());
-    }
-
     try {
+      // Offline-first: try local DB first
+      final local = await _appDatabase.getLocalCommunity(communityId);
+      if (local != null) {
+        return Right(LocalCommunityMapper.toEntity(local));
+      }
+      // Fallback to remote if not cached locally
+      if (!await _networkInfo.isConnected) {
+        return const Left(Failure.network());
+      }
       final model = await _remoteDataSource.getCommunity(communityId);
       if (model == null) {
         return const Left(
@@ -92,17 +92,10 @@ class CommunityRepositoryImpl implements CommunityRepository {
 
   @override
   Future<Either<Failure, List<Community>>> getUserCommunities() async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(Failure.network());
-    }
-
     try {
-      final models = await _remoteDataSource.getUserCommunities();
-      return Right(models.map((m) => m.toEntity()).toList());
-    } on AuthException {
-      return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
+      // Offline-first: read from local DB
+      final rows = await _appDatabase.getLocalCommunities();
+      return Right(rows.map(LocalCommunityMapper.toEntity).toList());
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -110,19 +103,17 @@ class CommunityRepositoryImpl implements CommunityRepository {
 
   @override
   Stream<Either<Failure, List<Community>>> watchUserCommunities() {
-    return _remoteDataSource.watchUserCommunities().map((models) {
-      return Right<Failure, List<Community>>(
-        models.map((m) => m.toEntity()).toList(),
-      );
-    }).handleError((error) {
-      if (error is AuthException) {
-        return const Left<Failure, List<Community>>(
-          Failure.unauthenticated(),
+    // Offline-first: stream from local DB (CommunitySyncService populates it)
+    return _appDatabase.watchLocalCommunities().map((rows) {
+      try {
+        final communities =
+            rows.map(LocalCommunityMapper.toEntity).toList();
+        return Right<Failure, List<Community>>(communities);
+      } catch (e) {
+        return Left<Failure, List<Community>>(
+          Failure.serverError(message: e.toString()),
         );
       }
-      return Left<Failure, List<Community>>(
-        Failure.serverError(message: error.toString()),
-      );
     });
   }
 
@@ -292,17 +283,10 @@ class CommunityRepositoryImpl implements CommunityRepository {
   Future<Either<Failure, List<CommunityMember>>> getMembers(
     String communityId,
   ) async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(Failure.network());
-    }
-
     try {
-      final models = await _remoteDataSource.getMembers(communityId);
-      return Right(models.map((m) => m.toEntity()).toList());
-    } on AuthException {
-      return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
+      // Offline-first: read from local DB
+      final rows = await _appDatabase.getLocalCommunityMembers(communityId);
+      return Right(rows.map(LocalCommunityMemberMapper.toEntity).toList());
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -312,19 +296,17 @@ class CommunityRepositoryImpl implements CommunityRepository {
   Stream<Either<Failure, List<CommunityMember>>> watchMembers(
     String communityId,
   ) {
-    return _remoteDataSource.watchMembers(communityId).map((models) {
-      return Right<Failure, List<CommunityMember>>(
-        models.map((m) => m.toEntity()).toList(),
-      );
-    }).handleError((error) {
-      if (error is AuthException) {
-        return const Left<Failure, List<CommunityMember>>(
-          Failure.unauthenticated(),
+    // Offline-first: stream from local DB (CommunitySyncService populates it)
+    return _appDatabase.watchLocalCommunityMembers(communityId).map((rows) {
+      try {
+        return Right<Failure, List<CommunityMember>>(
+          rows.map(LocalCommunityMemberMapper.toEntity).toList(),
+        );
+      } catch (e) {
+        return Left<Failure, List<CommunityMember>>(
+          Failure.serverError(message: e.toString()),
         );
       }
-      return Left<Failure, List<CommunityMember>>(
-        Failure.serverError(message: error.toString()),
-      );
     });
   }
 
@@ -358,23 +340,20 @@ class CommunityRepositoryImpl implements CommunityRepository {
     DateTime? before,
   }) async {
     try {
-      final models = await _remoteDataSource.getMessages(
-        communityId: communityId,
-        limit: limit,
-        before: before,
-      );
-      final messages = models.map((m) => m.toEntity()).toList();
-      // Decrypt sequentially to avoid concurrent chain key ratcheting
-      // for messages from the same sender (corrupts session state).
-      final decrypted = <Message>[];
-      for (final m in messages) {
-        decrypted.add(await _decryptIfNeeded(communityId, m));
+      // Offline-first: read pre-decrypted messages from local DB
+      final rows = await _appDatabase.getLocalMessages(communityId);
+      final messages = rows.map(LocalMessageMapper.toEntity).toList();
+      // Apply before/limit filtering
+      var filtered = messages;
+      if (before != null) {
+        filtered = filtered
+            .where((m) => m.createdAt.isBefore(before))
+            .toList();
       }
-      return Right(decrypted);
-    } on AuthException {
-      return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
+      if (limit != null && filtered.length > limit) {
+        filtered = filtered.take(limit).toList();
+      }
+      return Right(filtered);
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -385,25 +364,19 @@ class CommunityRepositoryImpl implements CommunityRepository {
     required String communityId,
     int? limit,
   }) {
-    return _remoteDataSource
-        .watchMessages(communityId: communityId, limit: limit)
-        .asyncMap((models) async {
-      final messages = models.map((m) => m.toEntity()).toList();
-      // Decrypt sequentially to avoid concurrent chain key ratcheting
-      final decrypted = <Message>[];
-      for (final m in messages) {
-        decrypted.add(await _decryptIfNeeded(communityId, m));
-      }
-      return Right<Failure, List<Message>>(decrypted);
-    }).handleError((error) {
-      if (error is AuthException) {
-        return const Left<Failure, List<Message>>(
-          Failure.unauthenticated(),
+    // Offline-first: stream pre-decrypted messages from local DB
+    return _appDatabase.watchLocalMessages(communityId).map((rows) {
+      try {
+        var messages = rows.map(LocalMessageMapper.toEntity).toList();
+        if (limit != null && messages.length > limit) {
+          messages = messages.take(limit).toList();
+        }
+        return Right<Failure, List<Message>>(messages);
+      } catch (e) {
+        return Left<Failure, List<Message>>(
+          Failure.serverError(message: e.toString()),
         );
       }
-      return Left<Failure, List<Message>>(
-        Failure.serverError(message: error.toString()),
-      );
     });
   }
 
@@ -414,49 +387,12 @@ class CommunityRepositoryImpl implements CommunityRepository {
     String? replyToMessageId,
   }) async {
     try {
-      // Try to encrypt via Sender Key protocol
-      try {
-        // Ensure sender key is distributed to all members before encrypting
-        await _ensureSenderKeyDistributed(communityId);
-
-        final encrypted = await _senderKeyService.encryptCommunity(
-          communityId,
-          text,
-        );
-        final messageId = await _remoteDataSource.sendEncryptedCommunityMessage(
-          communityId: communityId,
-          ciphertext: encrypted['ciphertext'] as String,
-          e2ee: encrypted['e2ee'] as Map<String, dynamic>,
-          replyToMessageId: replyToMessageId,
-        );
-        // Cache plaintext so sender can view their own E2EE message
-        _sentPlaintextCache[messageId] = text;
-        return Right(Message(
-          id: messageId,
-          senderId: _remoteDataSource.currentUserId ?? '',
-          senderName: '',
-          type: MessageType.text,
-          status: MessageStatus.sent,
-          textContent: text,
-          communityId: communityId,
-          createdAt: DateTime.now(),
-        ));
-      } catch (e) {
-        // Sender Key encryption failed — fall through to plaintext
-        debugPrint('Sender Key encrypt failed (falling back to plaintext): $e');
-      }
-
-      // Fallback: send plaintext
-      final model = await _remoteDataSource.sendTextMessage(
+      final message = await _outgoingMessageQueue.enqueueCommunityTextMessage(
         communityId: communityId,
         text: text,
         replyToMessageId: replyToMessageId,
       );
-      return Right(model.toEntity());
-    } on AuthException {
-      return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
+      return Right(message);
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -470,17 +406,13 @@ class CommunityRepositoryImpl implements CommunityRepository {
     String? caption,
   }) async {
     try {
-      final model = await _remoteDataSource.sendMediaMessage(
+      final message = await _outgoingMessageQueue.enqueueCommunityMediaMessage(
         communityId: communityId,
         mediaUrl: mediaUrl,
         mediaType: mediaType,
         caption: caption,
       );
-      return Right(model.toEntity());
-    } on AuthException {
-      return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
+      return Right(message);
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -738,7 +670,7 @@ class CommunityRepositoryImpl implements CommunityRepository {
   }
 
   // =========================================================================
-  // REACTIONS
+  // REACTIONS — routed through OfflineActionQueue
   // =========================================================================
 
   @override
@@ -748,16 +680,13 @@ class CommunityRepositoryImpl implements CommunityRepository {
     required String emoji,
   }) async {
     try {
-      await _remoteDataSource.addReaction(
-        communityId: communityId,
-        messageId: messageId,
-        emoji: emoji,
+      await _offlineActionQueue.enqueue(
+        table: 'community_messages',
+        recordId: messageId,
+        changeType: 'community_add_reaction',
+        data: {'communityId': communityId, 'emoji': emoji},
       );
       return const Right(null);
-    } on AuthException {
-      return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -770,199 +699,43 @@ class CommunityRepositoryImpl implements CommunityRepository {
     required String emoji,
   }) async {
     try {
-      await _remoteDataSource.removeReaction(
-        communityId: communityId,
-        messageId: messageId,
-        emoji: emoji,
+      await _offlineActionQueue.enqueue(
+        table: 'community_messages',
+        recordId: messageId,
+        changeType: 'community_remove_reaction',
+        data: {'communityId': communityId, 'emoji': emoji},
       );
       return const Right(null);
-    } on AuthException {
-      return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
   }
 
   // =========================================================================
-  // UNREAD COUNT
+  // UNREAD COUNT — computed from local DB
   // =========================================================================
 
   @override
   Stream<Either<Failure, int>> watchTotalCommunityUnreadCount() {
-    return _remoteDataSource.watchTotalCommunityUnreadCount().map((count) {
-      return Right<Failure, int>(count);
-    }).handleError((error) {
-      if (error is AuthException) {
-        return const Left<Failure, int>(Failure.unauthenticated());
-      }
-      return Left<Failure, int>(
-        Failure.serverError(message: error.toString()),
-      );
-    });
-  }
-
-  // =========================================================================
-  // E2EE HELPERS
-  // =========================================================================
-
-  /// Gap 1 fix: Ensure our sender key is generated and distributed to all
-  /// community members before sending an encrypted message.
-  ///
-  /// Uses persistent distribution flag (M3) instead of in-memory Set,
-  /// so the flag survives app restarts.
-  Future<void> _ensureSenderKeyDistributed(String communityId) async {
-    if (await _senderKeyService.isDistributed(communityId)) return;
-
-    final hasKey = await _senderKeyService.hasSenderKey(communityId);
-    if (!hasKey) {
-      await _senderKeyService.generateSenderKey(communityId);
-    }
-
-    // Fetch member list and distribute to all (excluding self)
-    final members = await _remoteDataSource.getMembers(communityId);
-    final currentUserId = _remoteDataSource.currentUserId;
-    final otherMemberIds = members
-        .map((m) => m.userId)
-        .where((id) => id != currentUserId)
-        .toList();
-
-    if (otherMemberIds.isNotEmpty) {
-      await _senderKeyService.distributeSenderKeyToAll(
-        communityId,
-        otherMemberIds,
-      );
-    }
-
-    await _senderKeyService.markDistributed(communityId);
-  }
-
-  /// Gap 2 fix: Fetch and process any pending sender key distributions
-  /// from other community members, so we can decrypt their messages.
-  Future<void> _processIncomingKeyDistributions(String communityId) async {
-    try {
-      final distributions =
-          await _remoteDataSource.fetchPendingKeyDistributions(communityId);
-
-      for (final dist in distributions) {
-        final fromUserId = dist['fromUserId'] as String;
-        final encryptedKeyData = dist['encryptedKeyData'] as String;
-        final e2ee = dist['e2ee'] as Map<String, dynamic>?;
-        final x3dhHeader = dist['x3dhHeader'] as Map<String, dynamic>?;
-        final distributionId = dist['distributionId'] as String;
-
-        try {
-          // Decrypt the sender key via P2P Signal Protocol channel
-          final decrypted = await _signalProtocolService.decryptP2P(
-            fromUserId,
-            {
-              'ciphertext': encryptedKeyData,
-              if (e2ee != null) 'e2ee': e2ee,
-              if (x3dhHeader != null) 'x3dhHeader': x3dhHeader,
-            },
-          );
-
-          // Parse and store the sender key
-          final keyData =
-              jsonDecode(decrypted) as Map<String, dynamic>;
-          await _senderKeyService.processReceivedSenderKey(
-            communityId,
-            fromUserId,
-            keyData,
-          );
-
-          // Mark as consumed on server
-          await _remoteDataSource.markKeyDistributionConsumed(
-            communityId,
-            distributionId,
-          );
-        } catch (e) {
-          debugPrint(
-            'Failed to process key distribution from $fromUserId: $e',
-          );
-        }
-      }
-    } catch (e) {
-      debugPrint('Failed to fetch key distributions for $communityId: $e');
-    }
-  }
-
-  Future<Message> _decryptIfNeeded(String communityId, Message msg) async {
-    if (!msg.isEncrypted) return msg;
-
-    // Sender cannot decrypt their own outgoing community E2EE messages because
-    // the sender key is stored under _ownKeyPrefix, not _peerKeyPrefix.
-    // Use the in-memory plaintext cache for messages sent this session.
-    final currentUserId = _remoteDataSource.currentUserId;
-    if (msg.senderId == currentUserId) {
-      final cached = _sentPlaintextCache[msg.id];
-      if (cached != null) {
-        return msg.copyWith(textContent: cached);
-      }
-      // Message was sent in a previous app session — plaintext is no longer
-      // available locally. Return as-is; UI shows the encrypted indicator.
-      return msg;
-    }
-
-    // Check received cache to avoid re-decrypting (which corrupts sender key state)
-    final cachedReceived = _receivedPlaintextCache[msg.id];
-    if (cachedReceived != null) {
-      return msg.copyWith(textContent: cachedReceived);
-    }
-
-    try {
-      final encrypted = {
-        'ciphertext': msg.ciphertext,
-        if (msg.e2ee != null)
-          'e2ee': {
-            'protocol': msg.e2ee!.protocol,
-            if (msg.e2ee!.senderKeyChainId != null)
-              'senderKeyChainId': msg.e2ee!.senderKeyChainId,
-            if (msg.e2ee!.messageNumber != null)
-              'messageNumber': msg.e2ee!.messageNumber,
-          },
-      };
-      final plaintext = await _senderKeyService.decryptCommunity(
-        communityId,
-        msg.senderId,
-        encrypted,
-      );
-      _receivedPlaintextCache[msg.id] = plaintext;
-      return msg.copyWith(textContent: plaintext);
-    } on StateError {
-      // Sender key missing — try fetching pending key distributions first
-      debugPrint('Sender key missing for ${msg.senderId} in $communityId, '
-          'checking for pending distributions...');
-      await _processIncomingKeyDistributions(communityId);
-
-      // Retry decryption after processing distributions
+    return _appDatabase.watchLocalCommunities().map((rows) {
       try {
-        final retryEncrypted = {
-          'ciphertext': msg.ciphertext,
-          if (msg.e2ee != null)
-            'e2ee': {
-              'protocol': msg.e2ee!.protocol,
-              if (msg.e2ee!.senderKeyChainId != null)
-                'senderKeyChainId': msg.e2ee!.senderKeyChainId,
-              if (msg.e2ee!.messageNumber != null)
-                'messageNumber': msg.e2ee!.messageNumber,
-            },
-        };
-        final plaintext = await _senderKeyService.decryptCommunity(
-          communityId,
-          msg.senderId,
-          retryEncrypted,
+        int total = 0;
+        final userId = _currentUserId;
+        if (userId != null) {
+          for (final row in rows) {
+            try {
+              final unread =
+                  jsonDecode(row.unreadCountsJson) as Map<String, dynamic>;
+              total += (unread[userId] as num?)?.toInt() ?? 0;
+            } catch (_) {}
+          }
+        }
+        return Right<Failure, int>(total);
+      } catch (e) {
+        return Left<Failure, int>(
+          Failure.serverError(message: e.toString()),
         );
-        _receivedPlaintextCache[msg.id] = plaintext;
-        return msg.copyWith(textContent: plaintext);
-      } catch (_) {
-        // Still can't decrypt — show waiting indicator
       }
-      return msg.copyWith(textContent: '[Waiting for encryption key...]');
-    } catch (e) {
-      debugPrint('Sender Key decrypt failed for msg ${msg.id}: $e');
-      return msg.copyWith(textContent: '[Cannot decrypt]');
-    }
+    });
   }
 }

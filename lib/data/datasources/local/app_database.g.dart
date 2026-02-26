@@ -8253,6 +8253,2853 @@ class LocalFullConversationsCompanion
   }
 }
 
+class $LocalPendingMessagesTable extends LocalPendingMessages
+    with TableInfo<$LocalPendingMessagesTable, LocalPendingMessage> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalPendingMessagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _conversationIdMeta = const VerificationMeta(
+    'conversationId',
+  );
+  @override
+  late final GeneratedColumn<String> conversationId = GeneratedColumn<String>(
+    'conversation_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _plaintextMeta = const VerificationMeta(
+    'plaintext',
+  );
+  @override
+  late final GeneratedColumn<String> plaintext = GeneratedColumn<String>(
+    'plaintext',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _recipientIdMeta = const VerificationMeta(
+    'recipientId',
+  );
+  @override
+  late final GeneratedColumn<String> recipientId = GeneratedColumn<String>(
+    'recipient_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _replyToMessageIdMeta = const VerificationMeta(
+    'replyToMessageId',
+  );
+  @override
+  late final GeneratedColumn<String> replyToMessageId = GeneratedColumn<String>(
+    'reply_to_message_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _payloadJsonMeta = const VerificationMeta(
+    'payloadJson',
+  );
+  @override
+  late final GeneratedColumn<String> payloadJson = GeneratedColumn<String>(
+    'payload_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _errorMessageMeta = const VerificationMeta(
+    'errorMessage',
+  );
+  @override
+  late final GeneratedColumn<String> errorMessage = GeneratedColumn<String>(
+    'error_message',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _retryCountMeta = const VerificationMeta(
+    'retryCount',
+  );
+  @override
+  late final GeneratedColumn<int> retryCount = GeneratedColumn<int>(
+    'retry_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastAttemptAtMeta = const VerificationMeta(
+    'lastAttemptAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastAttemptAt =
+      GeneratedColumn<DateTime>(
+        'last_attempt_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    conversationId,
+    type,
+    plaintext,
+    recipientId,
+    replyToMessageId,
+    payloadJson,
+    status,
+    errorMessage,
+    retryCount,
+    createdAt,
+    lastAttemptAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_pending_messages';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalPendingMessage> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('conversation_id')) {
+      context.handle(
+        _conversationIdMeta,
+        conversationId.isAcceptableOrUnknown(
+          data['conversation_id']!,
+          _conversationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_conversationIdMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('plaintext')) {
+      context.handle(
+        _plaintextMeta,
+        plaintext.isAcceptableOrUnknown(data['plaintext']!, _plaintextMeta),
+      );
+    }
+    if (data.containsKey('recipient_id')) {
+      context.handle(
+        _recipientIdMeta,
+        recipientId.isAcceptableOrUnknown(
+          data['recipient_id']!,
+          _recipientIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reply_to_message_id')) {
+      context.handle(
+        _replyToMessageIdMeta,
+        replyToMessageId.isAcceptableOrUnknown(
+          data['reply_to_message_id']!,
+          _replyToMessageIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('payload_json')) {
+      context.handle(
+        _payloadJsonMeta,
+        payloadJson.isAcceptableOrUnknown(
+          data['payload_json']!,
+          _payloadJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('error_message')) {
+      context.handle(
+        _errorMessageMeta,
+        errorMessage.isAcceptableOrUnknown(
+          data['error_message']!,
+          _errorMessageMeta,
+        ),
+      );
+    }
+    if (data.containsKey('retry_count')) {
+      context.handle(
+        _retryCountMeta,
+        retryCount.isAcceptableOrUnknown(data['retry_count']!, _retryCountMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('last_attempt_at')) {
+      context.handle(
+        _lastAttemptAtMeta,
+        lastAttemptAt.isAcceptableOrUnknown(
+          data['last_attempt_at']!,
+          _lastAttemptAtMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalPendingMessage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalPendingMessage(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      conversationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conversation_id'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      plaintext: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}plaintext'],
+      ),
+      recipientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}recipient_id'],
+      ),
+      replyToMessageId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reply_to_message_id'],
+      ),
+      payloadJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload_json'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      errorMessage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_message'],
+      ),
+      retryCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}retry_count'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      lastAttemptAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_attempt_at'],
+      ),
+    );
+  }
+
+  @override
+  $LocalPendingMessagesTable createAlias(String alias) {
+    return $LocalPendingMessagesTable(attachedDatabase, alias);
+  }
+}
+
+class LocalPendingMessage extends DataClass
+    implements Insertable<LocalPendingMessage> {
+  final String id;
+  final String conversationId;
+  final String type;
+  final String? plaintext;
+  final String? recipientId;
+  final String? replyToMessageId;
+  final String? payloadJson;
+  final String status;
+  final String? errorMessage;
+  final int retryCount;
+  final DateTime createdAt;
+  final DateTime? lastAttemptAt;
+  const LocalPendingMessage({
+    required this.id,
+    required this.conversationId,
+    required this.type,
+    this.plaintext,
+    this.recipientId,
+    this.replyToMessageId,
+    this.payloadJson,
+    required this.status,
+    this.errorMessage,
+    required this.retryCount,
+    required this.createdAt,
+    this.lastAttemptAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['conversation_id'] = Variable<String>(conversationId);
+    map['type'] = Variable<String>(type);
+    if (!nullToAbsent || plaintext != null) {
+      map['plaintext'] = Variable<String>(plaintext);
+    }
+    if (!nullToAbsent || recipientId != null) {
+      map['recipient_id'] = Variable<String>(recipientId);
+    }
+    if (!nullToAbsent || replyToMessageId != null) {
+      map['reply_to_message_id'] = Variable<String>(replyToMessageId);
+    }
+    if (!nullToAbsent || payloadJson != null) {
+      map['payload_json'] = Variable<String>(payloadJson);
+    }
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || errorMessage != null) {
+      map['error_message'] = Variable<String>(errorMessage);
+    }
+    map['retry_count'] = Variable<int>(retryCount);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || lastAttemptAt != null) {
+      map['last_attempt_at'] = Variable<DateTime>(lastAttemptAt);
+    }
+    return map;
+  }
+
+  LocalPendingMessagesCompanion toCompanion(bool nullToAbsent) {
+    return LocalPendingMessagesCompanion(
+      id: Value(id),
+      conversationId: Value(conversationId),
+      type: Value(type),
+      plaintext: plaintext == null && nullToAbsent
+          ? const Value.absent()
+          : Value(plaintext),
+      recipientId: recipientId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recipientId),
+      replyToMessageId: replyToMessageId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(replyToMessageId),
+      payloadJson: payloadJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(payloadJson),
+      status: Value(status),
+      errorMessage: errorMessage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorMessage),
+      retryCount: Value(retryCount),
+      createdAt: Value(createdAt),
+      lastAttemptAt: lastAttemptAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastAttemptAt),
+    );
+  }
+
+  factory LocalPendingMessage.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalPendingMessage(
+      id: serializer.fromJson<String>(json['id']),
+      conversationId: serializer.fromJson<String>(json['conversationId']),
+      type: serializer.fromJson<String>(json['type']),
+      plaintext: serializer.fromJson<String?>(json['plaintext']),
+      recipientId: serializer.fromJson<String?>(json['recipientId']),
+      replyToMessageId: serializer.fromJson<String?>(json['replyToMessageId']),
+      payloadJson: serializer.fromJson<String?>(json['payloadJson']),
+      status: serializer.fromJson<String>(json['status']),
+      errorMessage: serializer.fromJson<String?>(json['errorMessage']),
+      retryCount: serializer.fromJson<int>(json['retryCount']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      lastAttemptAt: serializer.fromJson<DateTime?>(json['lastAttemptAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'conversationId': serializer.toJson<String>(conversationId),
+      'type': serializer.toJson<String>(type),
+      'plaintext': serializer.toJson<String?>(plaintext),
+      'recipientId': serializer.toJson<String?>(recipientId),
+      'replyToMessageId': serializer.toJson<String?>(replyToMessageId),
+      'payloadJson': serializer.toJson<String?>(payloadJson),
+      'status': serializer.toJson<String>(status),
+      'errorMessage': serializer.toJson<String?>(errorMessage),
+      'retryCount': serializer.toJson<int>(retryCount),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'lastAttemptAt': serializer.toJson<DateTime?>(lastAttemptAt),
+    };
+  }
+
+  LocalPendingMessage copyWith({
+    String? id,
+    String? conversationId,
+    String? type,
+    Value<String?> plaintext = const Value.absent(),
+    Value<String?> recipientId = const Value.absent(),
+    Value<String?> replyToMessageId = const Value.absent(),
+    Value<String?> payloadJson = const Value.absent(),
+    String? status,
+    Value<String?> errorMessage = const Value.absent(),
+    int? retryCount,
+    DateTime? createdAt,
+    Value<DateTime?> lastAttemptAt = const Value.absent(),
+  }) => LocalPendingMessage(
+    id: id ?? this.id,
+    conversationId: conversationId ?? this.conversationId,
+    type: type ?? this.type,
+    plaintext: plaintext.present ? plaintext.value : this.plaintext,
+    recipientId: recipientId.present ? recipientId.value : this.recipientId,
+    replyToMessageId: replyToMessageId.present
+        ? replyToMessageId.value
+        : this.replyToMessageId,
+    payloadJson: payloadJson.present ? payloadJson.value : this.payloadJson,
+    status: status ?? this.status,
+    errorMessage: errorMessage.present ? errorMessage.value : this.errorMessage,
+    retryCount: retryCount ?? this.retryCount,
+    createdAt: createdAt ?? this.createdAt,
+    lastAttemptAt: lastAttemptAt.present
+        ? lastAttemptAt.value
+        : this.lastAttemptAt,
+  );
+  LocalPendingMessage copyWithCompanion(LocalPendingMessagesCompanion data) {
+    return LocalPendingMessage(
+      id: data.id.present ? data.id.value : this.id,
+      conversationId: data.conversationId.present
+          ? data.conversationId.value
+          : this.conversationId,
+      type: data.type.present ? data.type.value : this.type,
+      plaintext: data.plaintext.present ? data.plaintext.value : this.plaintext,
+      recipientId: data.recipientId.present
+          ? data.recipientId.value
+          : this.recipientId,
+      replyToMessageId: data.replyToMessageId.present
+          ? data.replyToMessageId.value
+          : this.replyToMessageId,
+      payloadJson: data.payloadJson.present
+          ? data.payloadJson.value
+          : this.payloadJson,
+      status: data.status.present ? data.status.value : this.status,
+      errorMessage: data.errorMessage.present
+          ? data.errorMessage.value
+          : this.errorMessage,
+      retryCount: data.retryCount.present
+          ? data.retryCount.value
+          : this.retryCount,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      lastAttemptAt: data.lastAttemptAt.present
+          ? data.lastAttemptAt.value
+          : this.lastAttemptAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalPendingMessage(')
+          ..write('id: $id, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('type: $type, ')
+          ..write('plaintext: $plaintext, ')
+          ..write('recipientId: $recipientId, ')
+          ..write('replyToMessageId: $replyToMessageId, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('status: $status, ')
+          ..write('errorMessage: $errorMessage, ')
+          ..write('retryCount: $retryCount, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('lastAttemptAt: $lastAttemptAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    conversationId,
+    type,
+    plaintext,
+    recipientId,
+    replyToMessageId,
+    payloadJson,
+    status,
+    errorMessage,
+    retryCount,
+    createdAt,
+    lastAttemptAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalPendingMessage &&
+          other.id == this.id &&
+          other.conversationId == this.conversationId &&
+          other.type == this.type &&
+          other.plaintext == this.plaintext &&
+          other.recipientId == this.recipientId &&
+          other.replyToMessageId == this.replyToMessageId &&
+          other.payloadJson == this.payloadJson &&
+          other.status == this.status &&
+          other.errorMessage == this.errorMessage &&
+          other.retryCount == this.retryCount &&
+          other.createdAt == this.createdAt &&
+          other.lastAttemptAt == this.lastAttemptAt);
+}
+
+class LocalPendingMessagesCompanion
+    extends UpdateCompanion<LocalPendingMessage> {
+  final Value<String> id;
+  final Value<String> conversationId;
+  final Value<String> type;
+  final Value<String?> plaintext;
+  final Value<String?> recipientId;
+  final Value<String?> replyToMessageId;
+  final Value<String?> payloadJson;
+  final Value<String> status;
+  final Value<String?> errorMessage;
+  final Value<int> retryCount;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> lastAttemptAt;
+  final Value<int> rowid;
+  const LocalPendingMessagesCompanion({
+    this.id = const Value.absent(),
+    this.conversationId = const Value.absent(),
+    this.type = const Value.absent(),
+    this.plaintext = const Value.absent(),
+    this.recipientId = const Value.absent(),
+    this.replyToMessageId = const Value.absent(),
+    this.payloadJson = const Value.absent(),
+    this.status = const Value.absent(),
+    this.errorMessage = const Value.absent(),
+    this.retryCount = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.lastAttemptAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalPendingMessagesCompanion.insert({
+    required String id,
+    required String conversationId,
+    required String type,
+    this.plaintext = const Value.absent(),
+    this.recipientId = const Value.absent(),
+    this.replyToMessageId = const Value.absent(),
+    this.payloadJson = const Value.absent(),
+    required String status,
+    this.errorMessage = const Value.absent(),
+    this.retryCount = const Value.absent(),
+    required DateTime createdAt,
+    this.lastAttemptAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       conversationId = Value(conversationId),
+       type = Value(type),
+       status = Value(status),
+       createdAt = Value(createdAt);
+  static Insertable<LocalPendingMessage> custom({
+    Expression<String>? id,
+    Expression<String>? conversationId,
+    Expression<String>? type,
+    Expression<String>? plaintext,
+    Expression<String>? recipientId,
+    Expression<String>? replyToMessageId,
+    Expression<String>? payloadJson,
+    Expression<String>? status,
+    Expression<String>? errorMessage,
+    Expression<int>? retryCount,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? lastAttemptAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (conversationId != null) 'conversation_id': conversationId,
+      if (type != null) 'type': type,
+      if (plaintext != null) 'plaintext': plaintext,
+      if (recipientId != null) 'recipient_id': recipientId,
+      if (replyToMessageId != null) 'reply_to_message_id': replyToMessageId,
+      if (payloadJson != null) 'payload_json': payloadJson,
+      if (status != null) 'status': status,
+      if (errorMessage != null) 'error_message': errorMessage,
+      if (retryCount != null) 'retry_count': retryCount,
+      if (createdAt != null) 'created_at': createdAt,
+      if (lastAttemptAt != null) 'last_attempt_at': lastAttemptAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalPendingMessagesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? conversationId,
+    Value<String>? type,
+    Value<String?>? plaintext,
+    Value<String?>? recipientId,
+    Value<String?>? replyToMessageId,
+    Value<String?>? payloadJson,
+    Value<String>? status,
+    Value<String?>? errorMessage,
+    Value<int>? retryCount,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? lastAttemptAt,
+    Value<int>? rowid,
+  }) {
+    return LocalPendingMessagesCompanion(
+      id: id ?? this.id,
+      conversationId: conversationId ?? this.conversationId,
+      type: type ?? this.type,
+      plaintext: plaintext ?? this.plaintext,
+      recipientId: recipientId ?? this.recipientId,
+      replyToMessageId: replyToMessageId ?? this.replyToMessageId,
+      payloadJson: payloadJson ?? this.payloadJson,
+      status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
+      retryCount: retryCount ?? this.retryCount,
+      createdAt: createdAt ?? this.createdAt,
+      lastAttemptAt: lastAttemptAt ?? this.lastAttemptAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (conversationId.present) {
+      map['conversation_id'] = Variable<String>(conversationId.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (plaintext.present) {
+      map['plaintext'] = Variable<String>(plaintext.value);
+    }
+    if (recipientId.present) {
+      map['recipient_id'] = Variable<String>(recipientId.value);
+    }
+    if (replyToMessageId.present) {
+      map['reply_to_message_id'] = Variable<String>(replyToMessageId.value);
+    }
+    if (payloadJson.present) {
+      map['payload_json'] = Variable<String>(payloadJson.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (errorMessage.present) {
+      map['error_message'] = Variable<String>(errorMessage.value);
+    }
+    if (retryCount.present) {
+      map['retry_count'] = Variable<int>(retryCount.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (lastAttemptAt.present) {
+      map['last_attempt_at'] = Variable<DateTime>(lastAttemptAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalPendingMessagesCompanion(')
+          ..write('id: $id, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('type: $type, ')
+          ..write('plaintext: $plaintext, ')
+          ..write('recipientId: $recipientId, ')
+          ..write('replyToMessageId: $replyToMessageId, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('status: $status, ')
+          ..write('errorMessage: $errorMessage, ')
+          ..write('retryCount: $retryCount, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('lastAttemptAt: $lastAttemptAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalCommunitiesTable extends LocalCommunities
+    with TableInfo<$LocalCommunitiesTable, LocalCommunity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalCommunitiesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _avatarUrlMeta = const VerificationMeta(
+    'avatarUrl',
+  );
+  @override
+  late final GeneratedColumn<String> avatarUrl = GeneratedColumn<String>(
+    'avatar_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ownerIdMeta = const VerificationMeta(
+    'ownerId',
+  );
+  @override
+  late final GeneratedColumn<String> ownerId = GeneratedColumn<String>(
+    'owner_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _memberIdsJsonMeta = const VerificationMeta(
+    'memberIdsJson',
+  );
+  @override
+  late final GeneratedColumn<String> memberIdsJson = GeneratedColumn<String>(
+    'member_ids_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _adminIdsJsonMeta = const VerificationMeta(
+    'adminIdsJson',
+  );
+  @override
+  late final GeneratedColumn<String> adminIdsJson = GeneratedColumn<String>(
+    'admin_ids_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _memberCountMeta = const VerificationMeta(
+    'memberCount',
+  );
+  @override
+  late final GeneratedColumn<int> memberCount = GeneratedColumn<int>(
+    'member_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalBalanceMeta = const VerificationMeta(
+    'totalBalance',
+  );
+  @override
+  late final GeneratedColumn<int> totalBalance = GeneratedColumn<int>(
+    'total_balance',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _settingsJsonMeta = const VerificationMeta(
+    'settingsJson',
+  );
+  @override
+  late final GeneratedColumn<String> settingsJson = GeneratedColumn<String>(
+    'settings_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _stokvelSettingsJsonMeta =
+      const VerificationMeta('stokvelSettingsJson');
+  @override
+  late final GeneratedColumn<String> stokvelSettingsJson =
+      GeneratedColumn<String>(
+        'stokvel_settings_json',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _lastMessageTextMeta = const VerificationMeta(
+    'lastMessageText',
+  );
+  @override
+  late final GeneratedColumn<String> lastMessageText = GeneratedColumn<String>(
+    'last_message_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastMessageSenderIdMeta =
+      const VerificationMeta('lastMessageSenderId');
+  @override
+  late final GeneratedColumn<String> lastMessageSenderId =
+      GeneratedColumn<String>(
+        'last_message_sender_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _lastMessageSenderNameMeta =
+      const VerificationMeta('lastMessageSenderName');
+  @override
+  late final GeneratedColumn<String> lastMessageSenderName =
+      GeneratedColumn<String>(
+        'last_message_sender_name',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _lastMessageTypeMeta = const VerificationMeta(
+    'lastMessageType',
+  );
+  @override
+  late final GeneratedColumn<String> lastMessageType = GeneratedColumn<String>(
+    'last_message_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastMessageAtMeta = const VerificationMeta(
+    'lastMessageAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastMessageAt =
+      GeneratedColumn<DateTime>(
+        'last_message_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _unreadCountsJsonMeta = const VerificationMeta(
+    'unreadCountsJson',
+  );
+  @override
+  late final GeneratedColumn<String> unreadCountsJson = GeneratedColumn<String>(
+    'unread_counts_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _mutedJsonMeta = const VerificationMeta(
+    'mutedJson',
+  );
+  @override
+  late final GeneratedColumn<String> mutedJson = GeneratedColumn<String>(
+    'muted_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _encryptedPreviewsJsonMeta =
+      const VerificationMeta('encryptedPreviewsJson');
+  @override
+  late final GeneratedColumn<String> encryptedPreviewsJson =
+      GeneratedColumn<String>(
+        'encrypted_previews_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('{}'),
+      );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    type,
+    name,
+    description,
+    avatarUrl,
+    ownerId,
+    memberIdsJson,
+    adminIdsJson,
+    memberCount,
+    totalBalance,
+    status,
+    settingsJson,
+    stokvelSettingsJson,
+    lastMessageText,
+    lastMessageSenderId,
+    lastMessageSenderName,
+    lastMessageType,
+    lastMessageAt,
+    unreadCountsJson,
+    mutedJson,
+    encryptedPreviewsJson,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_communities';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalCommunity> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('avatar_url')) {
+      context.handle(
+        _avatarUrlMeta,
+        avatarUrl.isAcceptableOrUnknown(data['avatar_url']!, _avatarUrlMeta),
+      );
+    }
+    if (data.containsKey('owner_id')) {
+      context.handle(
+        _ownerIdMeta,
+        ownerId.isAcceptableOrUnknown(data['owner_id']!, _ownerIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ownerIdMeta);
+    }
+    if (data.containsKey('member_ids_json')) {
+      context.handle(
+        _memberIdsJsonMeta,
+        memberIdsJson.isAcceptableOrUnknown(
+          data['member_ids_json']!,
+          _memberIdsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_memberIdsJsonMeta);
+    }
+    if (data.containsKey('admin_ids_json')) {
+      context.handle(
+        _adminIdsJsonMeta,
+        adminIdsJson.isAcceptableOrUnknown(
+          data['admin_ids_json']!,
+          _adminIdsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_adminIdsJsonMeta);
+    }
+    if (data.containsKey('member_count')) {
+      context.handle(
+        _memberCountMeta,
+        memberCount.isAcceptableOrUnknown(
+          data['member_count']!,
+          _memberCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_memberCountMeta);
+    }
+    if (data.containsKey('total_balance')) {
+      context.handle(
+        _totalBalanceMeta,
+        totalBalance.isAcceptableOrUnknown(
+          data['total_balance']!,
+          _totalBalanceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('settings_json')) {
+      context.handle(
+        _settingsJsonMeta,
+        settingsJson.isAcceptableOrUnknown(
+          data['settings_json']!,
+          _settingsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_settingsJsonMeta);
+    }
+    if (data.containsKey('stokvel_settings_json')) {
+      context.handle(
+        _stokvelSettingsJsonMeta,
+        stokvelSettingsJson.isAcceptableOrUnknown(
+          data['stokvel_settings_json']!,
+          _stokvelSettingsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_message_text')) {
+      context.handle(
+        _lastMessageTextMeta,
+        lastMessageText.isAcceptableOrUnknown(
+          data['last_message_text']!,
+          _lastMessageTextMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_message_sender_id')) {
+      context.handle(
+        _lastMessageSenderIdMeta,
+        lastMessageSenderId.isAcceptableOrUnknown(
+          data['last_message_sender_id']!,
+          _lastMessageSenderIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_message_sender_name')) {
+      context.handle(
+        _lastMessageSenderNameMeta,
+        lastMessageSenderName.isAcceptableOrUnknown(
+          data['last_message_sender_name']!,
+          _lastMessageSenderNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_message_type')) {
+      context.handle(
+        _lastMessageTypeMeta,
+        lastMessageType.isAcceptableOrUnknown(
+          data['last_message_type']!,
+          _lastMessageTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_message_at')) {
+      context.handle(
+        _lastMessageAtMeta,
+        lastMessageAt.isAcceptableOrUnknown(
+          data['last_message_at']!,
+          _lastMessageAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('unread_counts_json')) {
+      context.handle(
+        _unreadCountsJsonMeta,
+        unreadCountsJson.isAcceptableOrUnknown(
+          data['unread_counts_json']!,
+          _unreadCountsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('muted_json')) {
+      context.handle(
+        _mutedJsonMeta,
+        mutedJson.isAcceptableOrUnknown(data['muted_json']!, _mutedJsonMeta),
+      );
+    }
+    if (data.containsKey('encrypted_previews_json')) {
+      context.handle(
+        _encryptedPreviewsJsonMeta,
+        encryptedPreviewsJson.isAcceptableOrUnknown(
+          data['encrypted_previews_json']!,
+          _encryptedPreviewsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalCommunity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalCommunity(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      avatarUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}avatar_url'],
+      ),
+      ownerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_id'],
+      )!,
+      memberIdsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}member_ids_json'],
+      )!,
+      adminIdsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}admin_ids_json'],
+      )!,
+      memberCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}member_count'],
+      )!,
+      totalBalance: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_balance'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      settingsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}settings_json'],
+      )!,
+      stokvelSettingsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}stokvel_settings_json'],
+      ),
+      lastMessageText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_message_text'],
+      ),
+      lastMessageSenderId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_message_sender_id'],
+      ),
+      lastMessageSenderName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_message_sender_name'],
+      ),
+      lastMessageType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_message_type'],
+      ),
+      lastMessageAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_message_at'],
+      ),
+      unreadCountsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unread_counts_json'],
+      )!,
+      mutedJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}muted_json'],
+      )!,
+      encryptedPreviewsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}encrypted_previews_json'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+    );
+  }
+
+  @override
+  $LocalCommunitiesTable createAlias(String alias) {
+    return $LocalCommunitiesTable(attachedDatabase, alias);
+  }
+}
+
+class LocalCommunity extends DataClass implements Insertable<LocalCommunity> {
+  final String id;
+  final String type;
+  final String name;
+  final String? description;
+  final String? avatarUrl;
+  final String ownerId;
+  final String memberIdsJson;
+  final String adminIdsJson;
+  final int memberCount;
+  final int totalBalance;
+  final String status;
+  final String settingsJson;
+  final String? stokvelSettingsJson;
+  final String? lastMessageText;
+  final String? lastMessageSenderId;
+  final String? lastMessageSenderName;
+  final String? lastMessageType;
+  final DateTime? lastMessageAt;
+  final String unreadCountsJson;
+  final String mutedJson;
+  final String encryptedPreviewsJson;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  const LocalCommunity({
+    required this.id,
+    required this.type,
+    required this.name,
+    this.description,
+    this.avatarUrl,
+    required this.ownerId,
+    required this.memberIdsJson,
+    required this.adminIdsJson,
+    required this.memberCount,
+    required this.totalBalance,
+    required this.status,
+    required this.settingsJson,
+    this.stokvelSettingsJson,
+    this.lastMessageText,
+    this.lastMessageSenderId,
+    this.lastMessageSenderName,
+    this.lastMessageType,
+    this.lastMessageAt,
+    required this.unreadCountsJson,
+    required this.mutedJson,
+    required this.encryptedPreviewsJson,
+    required this.createdAt,
+    this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['type'] = Variable<String>(type);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || avatarUrl != null) {
+      map['avatar_url'] = Variable<String>(avatarUrl);
+    }
+    map['owner_id'] = Variable<String>(ownerId);
+    map['member_ids_json'] = Variable<String>(memberIdsJson);
+    map['admin_ids_json'] = Variable<String>(adminIdsJson);
+    map['member_count'] = Variable<int>(memberCount);
+    map['total_balance'] = Variable<int>(totalBalance);
+    map['status'] = Variable<String>(status);
+    map['settings_json'] = Variable<String>(settingsJson);
+    if (!nullToAbsent || stokvelSettingsJson != null) {
+      map['stokvel_settings_json'] = Variable<String>(stokvelSettingsJson);
+    }
+    if (!nullToAbsent || lastMessageText != null) {
+      map['last_message_text'] = Variable<String>(lastMessageText);
+    }
+    if (!nullToAbsent || lastMessageSenderId != null) {
+      map['last_message_sender_id'] = Variable<String>(lastMessageSenderId);
+    }
+    if (!nullToAbsent || lastMessageSenderName != null) {
+      map['last_message_sender_name'] = Variable<String>(lastMessageSenderName);
+    }
+    if (!nullToAbsent || lastMessageType != null) {
+      map['last_message_type'] = Variable<String>(lastMessageType);
+    }
+    if (!nullToAbsent || lastMessageAt != null) {
+      map['last_message_at'] = Variable<DateTime>(lastMessageAt);
+    }
+    map['unread_counts_json'] = Variable<String>(unreadCountsJson);
+    map['muted_json'] = Variable<String>(mutedJson);
+    map['encrypted_previews_json'] = Variable<String>(encryptedPreviewsJson);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    return map;
+  }
+
+  LocalCommunitiesCompanion toCompanion(bool nullToAbsent) {
+    return LocalCommunitiesCompanion(
+      id: Value(id),
+      type: Value(type),
+      name: Value(name),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      avatarUrl: avatarUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarUrl),
+      ownerId: Value(ownerId),
+      memberIdsJson: Value(memberIdsJson),
+      adminIdsJson: Value(adminIdsJson),
+      memberCount: Value(memberCount),
+      totalBalance: Value(totalBalance),
+      status: Value(status),
+      settingsJson: Value(settingsJson),
+      stokvelSettingsJson: stokvelSettingsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stokvelSettingsJson),
+      lastMessageText: lastMessageText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMessageText),
+      lastMessageSenderId: lastMessageSenderId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMessageSenderId),
+      lastMessageSenderName: lastMessageSenderName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMessageSenderName),
+      lastMessageType: lastMessageType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMessageType),
+      lastMessageAt: lastMessageAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMessageAt),
+      unreadCountsJson: Value(unreadCountsJson),
+      mutedJson: Value(mutedJson),
+      encryptedPreviewsJson: Value(encryptedPreviewsJson),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  factory LocalCommunity.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalCommunity(
+      id: serializer.fromJson<String>(json['id']),
+      type: serializer.fromJson<String>(json['type']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String?>(json['description']),
+      avatarUrl: serializer.fromJson<String?>(json['avatarUrl']),
+      ownerId: serializer.fromJson<String>(json['ownerId']),
+      memberIdsJson: serializer.fromJson<String>(json['memberIdsJson']),
+      adminIdsJson: serializer.fromJson<String>(json['adminIdsJson']),
+      memberCount: serializer.fromJson<int>(json['memberCount']),
+      totalBalance: serializer.fromJson<int>(json['totalBalance']),
+      status: serializer.fromJson<String>(json['status']),
+      settingsJson: serializer.fromJson<String>(json['settingsJson']),
+      stokvelSettingsJson: serializer.fromJson<String?>(
+        json['stokvelSettingsJson'],
+      ),
+      lastMessageText: serializer.fromJson<String?>(json['lastMessageText']),
+      lastMessageSenderId: serializer.fromJson<String?>(
+        json['lastMessageSenderId'],
+      ),
+      lastMessageSenderName: serializer.fromJson<String?>(
+        json['lastMessageSenderName'],
+      ),
+      lastMessageType: serializer.fromJson<String?>(json['lastMessageType']),
+      lastMessageAt: serializer.fromJson<DateTime?>(json['lastMessageAt']),
+      unreadCountsJson: serializer.fromJson<String>(json['unreadCountsJson']),
+      mutedJson: serializer.fromJson<String>(json['mutedJson']),
+      encryptedPreviewsJson: serializer.fromJson<String>(
+        json['encryptedPreviewsJson'],
+      ),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'type': serializer.toJson<String>(type),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String?>(description),
+      'avatarUrl': serializer.toJson<String?>(avatarUrl),
+      'ownerId': serializer.toJson<String>(ownerId),
+      'memberIdsJson': serializer.toJson<String>(memberIdsJson),
+      'adminIdsJson': serializer.toJson<String>(adminIdsJson),
+      'memberCount': serializer.toJson<int>(memberCount),
+      'totalBalance': serializer.toJson<int>(totalBalance),
+      'status': serializer.toJson<String>(status),
+      'settingsJson': serializer.toJson<String>(settingsJson),
+      'stokvelSettingsJson': serializer.toJson<String?>(stokvelSettingsJson),
+      'lastMessageText': serializer.toJson<String?>(lastMessageText),
+      'lastMessageSenderId': serializer.toJson<String?>(lastMessageSenderId),
+      'lastMessageSenderName': serializer.toJson<String?>(
+        lastMessageSenderName,
+      ),
+      'lastMessageType': serializer.toJson<String?>(lastMessageType),
+      'lastMessageAt': serializer.toJson<DateTime?>(lastMessageAt),
+      'unreadCountsJson': serializer.toJson<String>(unreadCountsJson),
+      'mutedJson': serializer.toJson<String>(mutedJson),
+      'encryptedPreviewsJson': serializer.toJson<String>(encryptedPreviewsJson),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+    };
+  }
+
+  LocalCommunity copyWith({
+    String? id,
+    String? type,
+    String? name,
+    Value<String?> description = const Value.absent(),
+    Value<String?> avatarUrl = const Value.absent(),
+    String? ownerId,
+    String? memberIdsJson,
+    String? adminIdsJson,
+    int? memberCount,
+    int? totalBalance,
+    String? status,
+    String? settingsJson,
+    Value<String?> stokvelSettingsJson = const Value.absent(),
+    Value<String?> lastMessageText = const Value.absent(),
+    Value<String?> lastMessageSenderId = const Value.absent(),
+    Value<String?> lastMessageSenderName = const Value.absent(),
+    Value<String?> lastMessageType = const Value.absent(),
+    Value<DateTime?> lastMessageAt = const Value.absent(),
+    String? unreadCountsJson,
+    String? mutedJson,
+    String? encryptedPreviewsJson,
+    DateTime? createdAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
+  }) => LocalCommunity(
+    id: id ?? this.id,
+    type: type ?? this.type,
+    name: name ?? this.name,
+    description: description.present ? description.value : this.description,
+    avatarUrl: avatarUrl.present ? avatarUrl.value : this.avatarUrl,
+    ownerId: ownerId ?? this.ownerId,
+    memberIdsJson: memberIdsJson ?? this.memberIdsJson,
+    adminIdsJson: adminIdsJson ?? this.adminIdsJson,
+    memberCount: memberCount ?? this.memberCount,
+    totalBalance: totalBalance ?? this.totalBalance,
+    status: status ?? this.status,
+    settingsJson: settingsJson ?? this.settingsJson,
+    stokvelSettingsJson: stokvelSettingsJson.present
+        ? stokvelSettingsJson.value
+        : this.stokvelSettingsJson,
+    lastMessageText: lastMessageText.present
+        ? lastMessageText.value
+        : this.lastMessageText,
+    lastMessageSenderId: lastMessageSenderId.present
+        ? lastMessageSenderId.value
+        : this.lastMessageSenderId,
+    lastMessageSenderName: lastMessageSenderName.present
+        ? lastMessageSenderName.value
+        : this.lastMessageSenderName,
+    lastMessageType: lastMessageType.present
+        ? lastMessageType.value
+        : this.lastMessageType,
+    lastMessageAt: lastMessageAt.present
+        ? lastMessageAt.value
+        : this.lastMessageAt,
+    unreadCountsJson: unreadCountsJson ?? this.unreadCountsJson,
+    mutedJson: mutedJson ?? this.mutedJson,
+    encryptedPreviewsJson: encryptedPreviewsJson ?? this.encryptedPreviewsJson,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+  );
+  LocalCommunity copyWithCompanion(LocalCommunitiesCompanion data) {
+    return LocalCommunity(
+      id: data.id.present ? data.id.value : this.id,
+      type: data.type.present ? data.type.value : this.type,
+      name: data.name.present ? data.name.value : this.name,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      avatarUrl: data.avatarUrl.present ? data.avatarUrl.value : this.avatarUrl,
+      ownerId: data.ownerId.present ? data.ownerId.value : this.ownerId,
+      memberIdsJson: data.memberIdsJson.present
+          ? data.memberIdsJson.value
+          : this.memberIdsJson,
+      adminIdsJson: data.adminIdsJson.present
+          ? data.adminIdsJson.value
+          : this.adminIdsJson,
+      memberCount: data.memberCount.present
+          ? data.memberCount.value
+          : this.memberCount,
+      totalBalance: data.totalBalance.present
+          ? data.totalBalance.value
+          : this.totalBalance,
+      status: data.status.present ? data.status.value : this.status,
+      settingsJson: data.settingsJson.present
+          ? data.settingsJson.value
+          : this.settingsJson,
+      stokvelSettingsJson: data.stokvelSettingsJson.present
+          ? data.stokvelSettingsJson.value
+          : this.stokvelSettingsJson,
+      lastMessageText: data.lastMessageText.present
+          ? data.lastMessageText.value
+          : this.lastMessageText,
+      lastMessageSenderId: data.lastMessageSenderId.present
+          ? data.lastMessageSenderId.value
+          : this.lastMessageSenderId,
+      lastMessageSenderName: data.lastMessageSenderName.present
+          ? data.lastMessageSenderName.value
+          : this.lastMessageSenderName,
+      lastMessageType: data.lastMessageType.present
+          ? data.lastMessageType.value
+          : this.lastMessageType,
+      lastMessageAt: data.lastMessageAt.present
+          ? data.lastMessageAt.value
+          : this.lastMessageAt,
+      unreadCountsJson: data.unreadCountsJson.present
+          ? data.unreadCountsJson.value
+          : this.unreadCountsJson,
+      mutedJson: data.mutedJson.present ? data.mutedJson.value : this.mutedJson,
+      encryptedPreviewsJson: data.encryptedPreviewsJson.present
+          ? data.encryptedPreviewsJson.value
+          : this.encryptedPreviewsJson,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalCommunity(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('avatarUrl: $avatarUrl, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('memberIdsJson: $memberIdsJson, ')
+          ..write('adminIdsJson: $adminIdsJson, ')
+          ..write('memberCount: $memberCount, ')
+          ..write('totalBalance: $totalBalance, ')
+          ..write('status: $status, ')
+          ..write('settingsJson: $settingsJson, ')
+          ..write('stokvelSettingsJson: $stokvelSettingsJson, ')
+          ..write('lastMessageText: $lastMessageText, ')
+          ..write('lastMessageSenderId: $lastMessageSenderId, ')
+          ..write('lastMessageSenderName: $lastMessageSenderName, ')
+          ..write('lastMessageType: $lastMessageType, ')
+          ..write('lastMessageAt: $lastMessageAt, ')
+          ..write('unreadCountsJson: $unreadCountsJson, ')
+          ..write('mutedJson: $mutedJson, ')
+          ..write('encryptedPreviewsJson: $encryptedPreviewsJson, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    type,
+    name,
+    description,
+    avatarUrl,
+    ownerId,
+    memberIdsJson,
+    adminIdsJson,
+    memberCount,
+    totalBalance,
+    status,
+    settingsJson,
+    stokvelSettingsJson,
+    lastMessageText,
+    lastMessageSenderId,
+    lastMessageSenderName,
+    lastMessageType,
+    lastMessageAt,
+    unreadCountsJson,
+    mutedJson,
+    encryptedPreviewsJson,
+    createdAt,
+    updatedAt,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalCommunity &&
+          other.id == this.id &&
+          other.type == this.type &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.avatarUrl == this.avatarUrl &&
+          other.ownerId == this.ownerId &&
+          other.memberIdsJson == this.memberIdsJson &&
+          other.adminIdsJson == this.adminIdsJson &&
+          other.memberCount == this.memberCount &&
+          other.totalBalance == this.totalBalance &&
+          other.status == this.status &&
+          other.settingsJson == this.settingsJson &&
+          other.stokvelSettingsJson == this.stokvelSettingsJson &&
+          other.lastMessageText == this.lastMessageText &&
+          other.lastMessageSenderId == this.lastMessageSenderId &&
+          other.lastMessageSenderName == this.lastMessageSenderName &&
+          other.lastMessageType == this.lastMessageType &&
+          other.lastMessageAt == this.lastMessageAt &&
+          other.unreadCountsJson == this.unreadCountsJson &&
+          other.mutedJson == this.mutedJson &&
+          other.encryptedPreviewsJson == this.encryptedPreviewsJson &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class LocalCommunitiesCompanion extends UpdateCompanion<LocalCommunity> {
+  final Value<String> id;
+  final Value<String> type;
+  final Value<String> name;
+  final Value<String?> description;
+  final Value<String?> avatarUrl;
+  final Value<String> ownerId;
+  final Value<String> memberIdsJson;
+  final Value<String> adminIdsJson;
+  final Value<int> memberCount;
+  final Value<int> totalBalance;
+  final Value<String> status;
+  final Value<String> settingsJson;
+  final Value<String?> stokvelSettingsJson;
+  final Value<String?> lastMessageText;
+  final Value<String?> lastMessageSenderId;
+  final Value<String?> lastMessageSenderName;
+  final Value<String?> lastMessageType;
+  final Value<DateTime?> lastMessageAt;
+  final Value<String> unreadCountsJson;
+  final Value<String> mutedJson;
+  final Value<String> encryptedPreviewsJson;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<int> rowid;
+  const LocalCommunitiesCompanion({
+    this.id = const Value.absent(),
+    this.type = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.avatarUrl = const Value.absent(),
+    this.ownerId = const Value.absent(),
+    this.memberIdsJson = const Value.absent(),
+    this.adminIdsJson = const Value.absent(),
+    this.memberCount = const Value.absent(),
+    this.totalBalance = const Value.absent(),
+    this.status = const Value.absent(),
+    this.settingsJson = const Value.absent(),
+    this.stokvelSettingsJson = const Value.absent(),
+    this.lastMessageText = const Value.absent(),
+    this.lastMessageSenderId = const Value.absent(),
+    this.lastMessageSenderName = const Value.absent(),
+    this.lastMessageType = const Value.absent(),
+    this.lastMessageAt = const Value.absent(),
+    this.unreadCountsJson = const Value.absent(),
+    this.mutedJson = const Value.absent(),
+    this.encryptedPreviewsJson = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalCommunitiesCompanion.insert({
+    required String id,
+    required String type,
+    required String name,
+    this.description = const Value.absent(),
+    this.avatarUrl = const Value.absent(),
+    required String ownerId,
+    required String memberIdsJson,
+    required String adminIdsJson,
+    required int memberCount,
+    this.totalBalance = const Value.absent(),
+    required String status,
+    required String settingsJson,
+    this.stokvelSettingsJson = const Value.absent(),
+    this.lastMessageText = const Value.absent(),
+    this.lastMessageSenderId = const Value.absent(),
+    this.lastMessageSenderName = const Value.absent(),
+    this.lastMessageType = const Value.absent(),
+    this.lastMessageAt = const Value.absent(),
+    this.unreadCountsJson = const Value.absent(),
+    this.mutedJson = const Value.absent(),
+    this.encryptedPreviewsJson = const Value.absent(),
+    required DateTime createdAt,
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       type = Value(type),
+       name = Value(name),
+       ownerId = Value(ownerId),
+       memberIdsJson = Value(memberIdsJson),
+       adminIdsJson = Value(adminIdsJson),
+       memberCount = Value(memberCount),
+       status = Value(status),
+       settingsJson = Value(settingsJson),
+       createdAt = Value(createdAt);
+  static Insertable<LocalCommunity> custom({
+    Expression<String>? id,
+    Expression<String>? type,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<String>? avatarUrl,
+    Expression<String>? ownerId,
+    Expression<String>? memberIdsJson,
+    Expression<String>? adminIdsJson,
+    Expression<int>? memberCount,
+    Expression<int>? totalBalance,
+    Expression<String>? status,
+    Expression<String>? settingsJson,
+    Expression<String>? stokvelSettingsJson,
+    Expression<String>? lastMessageText,
+    Expression<String>? lastMessageSenderId,
+    Expression<String>? lastMessageSenderName,
+    Expression<String>? lastMessageType,
+    Expression<DateTime>? lastMessageAt,
+    Expression<String>? unreadCountsJson,
+    Expression<String>? mutedJson,
+    Expression<String>? encryptedPreviewsJson,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (type != null) 'type': type,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (avatarUrl != null) 'avatar_url': avatarUrl,
+      if (ownerId != null) 'owner_id': ownerId,
+      if (memberIdsJson != null) 'member_ids_json': memberIdsJson,
+      if (adminIdsJson != null) 'admin_ids_json': adminIdsJson,
+      if (memberCount != null) 'member_count': memberCount,
+      if (totalBalance != null) 'total_balance': totalBalance,
+      if (status != null) 'status': status,
+      if (settingsJson != null) 'settings_json': settingsJson,
+      if (stokvelSettingsJson != null)
+        'stokvel_settings_json': stokvelSettingsJson,
+      if (lastMessageText != null) 'last_message_text': lastMessageText,
+      if (lastMessageSenderId != null)
+        'last_message_sender_id': lastMessageSenderId,
+      if (lastMessageSenderName != null)
+        'last_message_sender_name': lastMessageSenderName,
+      if (lastMessageType != null) 'last_message_type': lastMessageType,
+      if (lastMessageAt != null) 'last_message_at': lastMessageAt,
+      if (unreadCountsJson != null) 'unread_counts_json': unreadCountsJson,
+      if (mutedJson != null) 'muted_json': mutedJson,
+      if (encryptedPreviewsJson != null)
+        'encrypted_previews_json': encryptedPreviewsJson,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalCommunitiesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? type,
+    Value<String>? name,
+    Value<String?>? description,
+    Value<String?>? avatarUrl,
+    Value<String>? ownerId,
+    Value<String>? memberIdsJson,
+    Value<String>? adminIdsJson,
+    Value<int>? memberCount,
+    Value<int>? totalBalance,
+    Value<String>? status,
+    Value<String>? settingsJson,
+    Value<String?>? stokvelSettingsJson,
+    Value<String?>? lastMessageText,
+    Value<String?>? lastMessageSenderId,
+    Value<String?>? lastMessageSenderName,
+    Value<String?>? lastMessageType,
+    Value<DateTime?>? lastMessageAt,
+    Value<String>? unreadCountsJson,
+    Value<String>? mutedJson,
+    Value<String>? encryptedPreviewsJson,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return LocalCommunitiesCompanion(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      ownerId: ownerId ?? this.ownerId,
+      memberIdsJson: memberIdsJson ?? this.memberIdsJson,
+      adminIdsJson: adminIdsJson ?? this.adminIdsJson,
+      memberCount: memberCount ?? this.memberCount,
+      totalBalance: totalBalance ?? this.totalBalance,
+      status: status ?? this.status,
+      settingsJson: settingsJson ?? this.settingsJson,
+      stokvelSettingsJson: stokvelSettingsJson ?? this.stokvelSettingsJson,
+      lastMessageText: lastMessageText ?? this.lastMessageText,
+      lastMessageSenderId: lastMessageSenderId ?? this.lastMessageSenderId,
+      lastMessageSenderName:
+          lastMessageSenderName ?? this.lastMessageSenderName,
+      lastMessageType: lastMessageType ?? this.lastMessageType,
+      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+      unreadCountsJson: unreadCountsJson ?? this.unreadCountsJson,
+      mutedJson: mutedJson ?? this.mutedJson,
+      encryptedPreviewsJson:
+          encryptedPreviewsJson ?? this.encryptedPreviewsJson,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (avatarUrl.present) {
+      map['avatar_url'] = Variable<String>(avatarUrl.value);
+    }
+    if (ownerId.present) {
+      map['owner_id'] = Variable<String>(ownerId.value);
+    }
+    if (memberIdsJson.present) {
+      map['member_ids_json'] = Variable<String>(memberIdsJson.value);
+    }
+    if (adminIdsJson.present) {
+      map['admin_ids_json'] = Variable<String>(adminIdsJson.value);
+    }
+    if (memberCount.present) {
+      map['member_count'] = Variable<int>(memberCount.value);
+    }
+    if (totalBalance.present) {
+      map['total_balance'] = Variable<int>(totalBalance.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (settingsJson.present) {
+      map['settings_json'] = Variable<String>(settingsJson.value);
+    }
+    if (stokvelSettingsJson.present) {
+      map['stokvel_settings_json'] = Variable<String>(
+        stokvelSettingsJson.value,
+      );
+    }
+    if (lastMessageText.present) {
+      map['last_message_text'] = Variable<String>(lastMessageText.value);
+    }
+    if (lastMessageSenderId.present) {
+      map['last_message_sender_id'] = Variable<String>(
+        lastMessageSenderId.value,
+      );
+    }
+    if (lastMessageSenderName.present) {
+      map['last_message_sender_name'] = Variable<String>(
+        lastMessageSenderName.value,
+      );
+    }
+    if (lastMessageType.present) {
+      map['last_message_type'] = Variable<String>(lastMessageType.value);
+    }
+    if (lastMessageAt.present) {
+      map['last_message_at'] = Variable<DateTime>(lastMessageAt.value);
+    }
+    if (unreadCountsJson.present) {
+      map['unread_counts_json'] = Variable<String>(unreadCountsJson.value);
+    }
+    if (mutedJson.present) {
+      map['muted_json'] = Variable<String>(mutedJson.value);
+    }
+    if (encryptedPreviewsJson.present) {
+      map['encrypted_previews_json'] = Variable<String>(
+        encryptedPreviewsJson.value,
+      );
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalCommunitiesCompanion(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('avatarUrl: $avatarUrl, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('memberIdsJson: $memberIdsJson, ')
+          ..write('adminIdsJson: $adminIdsJson, ')
+          ..write('memberCount: $memberCount, ')
+          ..write('totalBalance: $totalBalance, ')
+          ..write('status: $status, ')
+          ..write('settingsJson: $settingsJson, ')
+          ..write('stokvelSettingsJson: $stokvelSettingsJson, ')
+          ..write('lastMessageText: $lastMessageText, ')
+          ..write('lastMessageSenderId: $lastMessageSenderId, ')
+          ..write('lastMessageSenderName: $lastMessageSenderName, ')
+          ..write('lastMessageType: $lastMessageType, ')
+          ..write('lastMessageAt: $lastMessageAt, ')
+          ..write('unreadCountsJson: $unreadCountsJson, ')
+          ..write('mutedJson: $mutedJson, ')
+          ..write('encryptedPreviewsJson: $encryptedPreviewsJson, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalCommunityMembersTable extends LocalCommunityMembers
+    with TableInfo<$LocalCommunityMembersTable, LocalCommunityMember> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalCommunityMembersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _communityIdMeta = const VerificationMeta(
+    'communityId',
+  );
+  @override
+  late final GeneratedColumn<String> communityId = GeneratedColumn<String>(
+    'community_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _displayNameMeta = const VerificationMeta(
+    'displayName',
+  );
+  @override
+  late final GeneratedColumn<String> displayName = GeneratedColumn<String>(
+    'display_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _avatarUrlMeta = const VerificationMeta(
+    'avatarUrl',
+  );
+  @override
+  late final GeneratedColumn<String> avatarUrl = GeneratedColumn<String>(
+    'avatar_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _roleMeta = const VerificationMeta('role');
+  @override
+  late final GeneratedColumn<String> role = GeneratedColumn<String>(
+    'role',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contributionBalanceMeta =
+      const VerificationMeta('contributionBalance');
+  @override
+  late final GeneratedColumn<int> contributionBalance = GeneratedColumn<int>(
+    'contribution_balance',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _joinedAtMeta = const VerificationMeta(
+    'joinedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> joinedAt = GeneratedColumn<DateTime>(
+    'joined_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _invitedByMeta = const VerificationMeta(
+    'invitedBy',
+  );
+  @override
+  late final GeneratedColumn<String> invitedBy = GeneratedColumn<String>(
+    'invited_by',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _invitedAtMeta = const VerificationMeta(
+    'invitedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> invitedAt = GeneratedColumn<DateTime>(
+    'invited_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastReadAtMeta = const VerificationMeta(
+    'lastReadAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastReadAt = GeneratedColumn<DateTime>(
+    'last_read_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    communityId,
+    userId,
+    displayName,
+    avatarUrl,
+    role,
+    status,
+    contributionBalance,
+    joinedAt,
+    invitedBy,
+    invitedAt,
+    lastReadAt,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_community_members';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalCommunityMember> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('community_id')) {
+      context.handle(
+        _communityIdMeta,
+        communityId.isAcceptableOrUnknown(
+          data['community_id']!,
+          _communityIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_communityIdMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('display_name')) {
+      context.handle(
+        _displayNameMeta,
+        displayName.isAcceptableOrUnknown(
+          data['display_name']!,
+          _displayNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_displayNameMeta);
+    }
+    if (data.containsKey('avatar_url')) {
+      context.handle(
+        _avatarUrlMeta,
+        avatarUrl.isAcceptableOrUnknown(data['avatar_url']!, _avatarUrlMeta),
+      );
+    }
+    if (data.containsKey('role')) {
+      context.handle(
+        _roleMeta,
+        role.isAcceptableOrUnknown(data['role']!, _roleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_roleMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('contribution_balance')) {
+      context.handle(
+        _contributionBalanceMeta,
+        contributionBalance.isAcceptableOrUnknown(
+          data['contribution_balance']!,
+          _contributionBalanceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('joined_at')) {
+      context.handle(
+        _joinedAtMeta,
+        joinedAt.isAcceptableOrUnknown(data['joined_at']!, _joinedAtMeta),
+      );
+    }
+    if (data.containsKey('invited_by')) {
+      context.handle(
+        _invitedByMeta,
+        invitedBy.isAcceptableOrUnknown(data['invited_by']!, _invitedByMeta),
+      );
+    }
+    if (data.containsKey('invited_at')) {
+      context.handle(
+        _invitedAtMeta,
+        invitedAt.isAcceptableOrUnknown(data['invited_at']!, _invitedAtMeta),
+      );
+    }
+    if (data.containsKey('last_read_at')) {
+      context.handle(
+        _lastReadAtMeta,
+        lastReadAt.isAcceptableOrUnknown(
+          data['last_read_at']!,
+          _lastReadAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalCommunityMember map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalCommunityMember(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      communityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}community_id'],
+      )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+      displayName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_name'],
+      )!,
+      avatarUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}avatar_url'],
+      ),
+      role: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}role'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      contributionBalance: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}contribution_balance'],
+      )!,
+      joinedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}joined_at'],
+      ),
+      invitedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}invited_by'],
+      )!,
+      invitedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}invited_at'],
+      ),
+      lastReadAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_read_at'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalCommunityMembersTable createAlias(String alias) {
+    return $LocalCommunityMembersTable(attachedDatabase, alias);
+  }
+}
+
+class LocalCommunityMember extends DataClass
+    implements Insertable<LocalCommunityMember> {
+  final String id;
+  final String communityId;
+  final String userId;
+  final String displayName;
+  final String? avatarUrl;
+  final String role;
+  final String status;
+  final int contributionBalance;
+  final DateTime? joinedAt;
+  final String invitedBy;
+  final DateTime? invitedAt;
+  final DateTime? lastReadAt;
+  final DateTime createdAt;
+  const LocalCommunityMember({
+    required this.id,
+    required this.communityId,
+    required this.userId,
+    required this.displayName,
+    this.avatarUrl,
+    required this.role,
+    required this.status,
+    required this.contributionBalance,
+    this.joinedAt,
+    required this.invitedBy,
+    this.invitedAt,
+    this.lastReadAt,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['community_id'] = Variable<String>(communityId);
+    map['user_id'] = Variable<String>(userId);
+    map['display_name'] = Variable<String>(displayName);
+    if (!nullToAbsent || avatarUrl != null) {
+      map['avatar_url'] = Variable<String>(avatarUrl);
+    }
+    map['role'] = Variable<String>(role);
+    map['status'] = Variable<String>(status);
+    map['contribution_balance'] = Variable<int>(contributionBalance);
+    if (!nullToAbsent || joinedAt != null) {
+      map['joined_at'] = Variable<DateTime>(joinedAt);
+    }
+    map['invited_by'] = Variable<String>(invitedBy);
+    if (!nullToAbsent || invitedAt != null) {
+      map['invited_at'] = Variable<DateTime>(invitedAt);
+    }
+    if (!nullToAbsent || lastReadAt != null) {
+      map['last_read_at'] = Variable<DateTime>(lastReadAt);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  LocalCommunityMembersCompanion toCompanion(bool nullToAbsent) {
+    return LocalCommunityMembersCompanion(
+      id: Value(id),
+      communityId: Value(communityId),
+      userId: Value(userId),
+      displayName: Value(displayName),
+      avatarUrl: avatarUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarUrl),
+      role: Value(role),
+      status: Value(status),
+      contributionBalance: Value(contributionBalance),
+      joinedAt: joinedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(joinedAt),
+      invitedBy: Value(invitedBy),
+      invitedAt: invitedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(invitedAt),
+      lastReadAt: lastReadAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastReadAt),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory LocalCommunityMember.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalCommunityMember(
+      id: serializer.fromJson<String>(json['id']),
+      communityId: serializer.fromJson<String>(json['communityId']),
+      userId: serializer.fromJson<String>(json['userId']),
+      displayName: serializer.fromJson<String>(json['displayName']),
+      avatarUrl: serializer.fromJson<String?>(json['avatarUrl']),
+      role: serializer.fromJson<String>(json['role']),
+      status: serializer.fromJson<String>(json['status']),
+      contributionBalance: serializer.fromJson<int>(
+        json['contributionBalance'],
+      ),
+      joinedAt: serializer.fromJson<DateTime?>(json['joinedAt']),
+      invitedBy: serializer.fromJson<String>(json['invitedBy']),
+      invitedAt: serializer.fromJson<DateTime?>(json['invitedAt']),
+      lastReadAt: serializer.fromJson<DateTime?>(json['lastReadAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'communityId': serializer.toJson<String>(communityId),
+      'userId': serializer.toJson<String>(userId),
+      'displayName': serializer.toJson<String>(displayName),
+      'avatarUrl': serializer.toJson<String?>(avatarUrl),
+      'role': serializer.toJson<String>(role),
+      'status': serializer.toJson<String>(status),
+      'contributionBalance': serializer.toJson<int>(contributionBalance),
+      'joinedAt': serializer.toJson<DateTime?>(joinedAt),
+      'invitedBy': serializer.toJson<String>(invitedBy),
+      'invitedAt': serializer.toJson<DateTime?>(invitedAt),
+      'lastReadAt': serializer.toJson<DateTime?>(lastReadAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  LocalCommunityMember copyWith({
+    String? id,
+    String? communityId,
+    String? userId,
+    String? displayName,
+    Value<String?> avatarUrl = const Value.absent(),
+    String? role,
+    String? status,
+    int? contributionBalance,
+    Value<DateTime?> joinedAt = const Value.absent(),
+    String? invitedBy,
+    Value<DateTime?> invitedAt = const Value.absent(),
+    Value<DateTime?> lastReadAt = const Value.absent(),
+    DateTime? createdAt,
+  }) => LocalCommunityMember(
+    id: id ?? this.id,
+    communityId: communityId ?? this.communityId,
+    userId: userId ?? this.userId,
+    displayName: displayName ?? this.displayName,
+    avatarUrl: avatarUrl.present ? avatarUrl.value : this.avatarUrl,
+    role: role ?? this.role,
+    status: status ?? this.status,
+    contributionBalance: contributionBalance ?? this.contributionBalance,
+    joinedAt: joinedAt.present ? joinedAt.value : this.joinedAt,
+    invitedBy: invitedBy ?? this.invitedBy,
+    invitedAt: invitedAt.present ? invitedAt.value : this.invitedAt,
+    lastReadAt: lastReadAt.present ? lastReadAt.value : this.lastReadAt,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  LocalCommunityMember copyWithCompanion(LocalCommunityMembersCompanion data) {
+    return LocalCommunityMember(
+      id: data.id.present ? data.id.value : this.id,
+      communityId: data.communityId.present
+          ? data.communityId.value
+          : this.communityId,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      displayName: data.displayName.present
+          ? data.displayName.value
+          : this.displayName,
+      avatarUrl: data.avatarUrl.present ? data.avatarUrl.value : this.avatarUrl,
+      role: data.role.present ? data.role.value : this.role,
+      status: data.status.present ? data.status.value : this.status,
+      contributionBalance: data.contributionBalance.present
+          ? data.contributionBalance.value
+          : this.contributionBalance,
+      joinedAt: data.joinedAt.present ? data.joinedAt.value : this.joinedAt,
+      invitedBy: data.invitedBy.present ? data.invitedBy.value : this.invitedBy,
+      invitedAt: data.invitedAt.present ? data.invitedAt.value : this.invitedAt,
+      lastReadAt: data.lastReadAt.present
+          ? data.lastReadAt.value
+          : this.lastReadAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalCommunityMember(')
+          ..write('id: $id, ')
+          ..write('communityId: $communityId, ')
+          ..write('userId: $userId, ')
+          ..write('displayName: $displayName, ')
+          ..write('avatarUrl: $avatarUrl, ')
+          ..write('role: $role, ')
+          ..write('status: $status, ')
+          ..write('contributionBalance: $contributionBalance, ')
+          ..write('joinedAt: $joinedAt, ')
+          ..write('invitedBy: $invitedBy, ')
+          ..write('invitedAt: $invitedAt, ')
+          ..write('lastReadAt: $lastReadAt, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    communityId,
+    userId,
+    displayName,
+    avatarUrl,
+    role,
+    status,
+    contributionBalance,
+    joinedAt,
+    invitedBy,
+    invitedAt,
+    lastReadAt,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalCommunityMember &&
+          other.id == this.id &&
+          other.communityId == this.communityId &&
+          other.userId == this.userId &&
+          other.displayName == this.displayName &&
+          other.avatarUrl == this.avatarUrl &&
+          other.role == this.role &&
+          other.status == this.status &&
+          other.contributionBalance == this.contributionBalance &&
+          other.joinedAt == this.joinedAt &&
+          other.invitedBy == this.invitedBy &&
+          other.invitedAt == this.invitedAt &&
+          other.lastReadAt == this.lastReadAt &&
+          other.createdAt == this.createdAt);
+}
+
+class LocalCommunityMembersCompanion
+    extends UpdateCompanion<LocalCommunityMember> {
+  final Value<String> id;
+  final Value<String> communityId;
+  final Value<String> userId;
+  final Value<String> displayName;
+  final Value<String?> avatarUrl;
+  final Value<String> role;
+  final Value<String> status;
+  final Value<int> contributionBalance;
+  final Value<DateTime?> joinedAt;
+  final Value<String> invitedBy;
+  final Value<DateTime?> invitedAt;
+  final Value<DateTime?> lastReadAt;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const LocalCommunityMembersCompanion({
+    this.id = const Value.absent(),
+    this.communityId = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.displayName = const Value.absent(),
+    this.avatarUrl = const Value.absent(),
+    this.role = const Value.absent(),
+    this.status = const Value.absent(),
+    this.contributionBalance = const Value.absent(),
+    this.joinedAt = const Value.absent(),
+    this.invitedBy = const Value.absent(),
+    this.invitedAt = const Value.absent(),
+    this.lastReadAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalCommunityMembersCompanion.insert({
+    required String id,
+    required String communityId,
+    required String userId,
+    required String displayName,
+    this.avatarUrl = const Value.absent(),
+    required String role,
+    required String status,
+    this.contributionBalance = const Value.absent(),
+    this.joinedAt = const Value.absent(),
+    this.invitedBy = const Value.absent(),
+    this.invitedAt = const Value.absent(),
+    this.lastReadAt = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       communityId = Value(communityId),
+       userId = Value(userId),
+       displayName = Value(displayName),
+       role = Value(role),
+       status = Value(status),
+       createdAt = Value(createdAt);
+  static Insertable<LocalCommunityMember> custom({
+    Expression<String>? id,
+    Expression<String>? communityId,
+    Expression<String>? userId,
+    Expression<String>? displayName,
+    Expression<String>? avatarUrl,
+    Expression<String>? role,
+    Expression<String>? status,
+    Expression<int>? contributionBalance,
+    Expression<DateTime>? joinedAt,
+    Expression<String>? invitedBy,
+    Expression<DateTime>? invitedAt,
+    Expression<DateTime>? lastReadAt,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (communityId != null) 'community_id': communityId,
+      if (userId != null) 'user_id': userId,
+      if (displayName != null) 'display_name': displayName,
+      if (avatarUrl != null) 'avatar_url': avatarUrl,
+      if (role != null) 'role': role,
+      if (status != null) 'status': status,
+      if (contributionBalance != null)
+        'contribution_balance': contributionBalance,
+      if (joinedAt != null) 'joined_at': joinedAt,
+      if (invitedBy != null) 'invited_by': invitedBy,
+      if (invitedAt != null) 'invited_at': invitedAt,
+      if (lastReadAt != null) 'last_read_at': lastReadAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalCommunityMembersCompanion copyWith({
+    Value<String>? id,
+    Value<String>? communityId,
+    Value<String>? userId,
+    Value<String>? displayName,
+    Value<String?>? avatarUrl,
+    Value<String>? role,
+    Value<String>? status,
+    Value<int>? contributionBalance,
+    Value<DateTime?>? joinedAt,
+    Value<String>? invitedBy,
+    Value<DateTime?>? invitedAt,
+    Value<DateTime?>? lastReadAt,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return LocalCommunityMembersCompanion(
+      id: id ?? this.id,
+      communityId: communityId ?? this.communityId,
+      userId: userId ?? this.userId,
+      displayName: displayName ?? this.displayName,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      role: role ?? this.role,
+      status: status ?? this.status,
+      contributionBalance: contributionBalance ?? this.contributionBalance,
+      joinedAt: joinedAt ?? this.joinedAt,
+      invitedBy: invitedBy ?? this.invitedBy,
+      invitedAt: invitedAt ?? this.invitedAt,
+      lastReadAt: lastReadAt ?? this.lastReadAt,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (communityId.present) {
+      map['community_id'] = Variable<String>(communityId.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
+    }
+    if (avatarUrl.present) {
+      map['avatar_url'] = Variable<String>(avatarUrl.value);
+    }
+    if (role.present) {
+      map['role'] = Variable<String>(role.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (contributionBalance.present) {
+      map['contribution_balance'] = Variable<int>(contributionBalance.value);
+    }
+    if (joinedAt.present) {
+      map['joined_at'] = Variable<DateTime>(joinedAt.value);
+    }
+    if (invitedBy.present) {
+      map['invited_by'] = Variable<String>(invitedBy.value);
+    }
+    if (invitedAt.present) {
+      map['invited_at'] = Variable<DateTime>(invitedAt.value);
+    }
+    if (lastReadAt.present) {
+      map['last_read_at'] = Variable<DateTime>(lastReadAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalCommunityMembersCompanion(')
+          ..write('id: $id, ')
+          ..write('communityId: $communityId, ')
+          ..write('userId: $userId, ')
+          ..write('displayName: $displayName, ')
+          ..write('avatarUrl: $avatarUrl, ')
+          ..write('role: $role, ')
+          ..write('status: $status, ')
+          ..write('contributionBalance: $contributionBalance, ')
+          ..write('joinedAt: $joinedAt, ')
+          ..write('invitedBy: $invitedBy, ')
+          ..write('invitedAt: $invitedAt, ')
+          ..write('lastReadAt: $lastReadAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -8278,6 +11125,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $LocalFullMessagesTable(this);
   late final $LocalFullConversationsTable localFullConversations =
       $LocalFullConversationsTable(this);
+  late final $LocalPendingMessagesTable localPendingMessages =
+      $LocalPendingMessagesTable(this);
+  late final $LocalCommunitiesTable localCommunities = $LocalCommunitiesTable(
+    this,
+  );
+  late final $LocalCommunityMembersTable localCommunityMembers =
+      $LocalCommunityMembersTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -8294,6 +11148,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     decryptedMessageCache,
     localFullMessages,
     localFullConversations,
+    localPendingMessages,
+    localCommunities,
+    localCommunityMembers,
   ];
 }
 
@@ -12259,6 +15116,1324 @@ typedef $$LocalFullConversationsTableProcessedTableManager =
       LocalFullConversation,
       PrefetchHooks Function()
     >;
+typedef $$LocalPendingMessagesTableCreateCompanionBuilder =
+    LocalPendingMessagesCompanion Function({
+      required String id,
+      required String conversationId,
+      required String type,
+      Value<String?> plaintext,
+      Value<String?> recipientId,
+      Value<String?> replyToMessageId,
+      Value<String?> payloadJson,
+      required String status,
+      Value<String?> errorMessage,
+      Value<int> retryCount,
+      required DateTime createdAt,
+      Value<DateTime?> lastAttemptAt,
+      Value<int> rowid,
+    });
+typedef $$LocalPendingMessagesTableUpdateCompanionBuilder =
+    LocalPendingMessagesCompanion Function({
+      Value<String> id,
+      Value<String> conversationId,
+      Value<String> type,
+      Value<String?> plaintext,
+      Value<String?> recipientId,
+      Value<String?> replyToMessageId,
+      Value<String?> payloadJson,
+      Value<String> status,
+      Value<String?> errorMessage,
+      Value<int> retryCount,
+      Value<DateTime> createdAt,
+      Value<DateTime?> lastAttemptAt,
+      Value<int> rowid,
+    });
+
+class $$LocalPendingMessagesTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalPendingMessagesTable> {
+  $$LocalPendingMessagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conversationId => $composableBuilder(
+    column: $table.conversationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get plaintext => $composableBuilder(
+    column: $table.plaintext,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recipientId => $composableBuilder(
+    column: $table.recipientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get replyToMessageId => $composableBuilder(
+    column: $table.replyToMessageId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payloadJson => $composableBuilder(
+    column: $table.payloadJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get errorMessage => $composableBuilder(
+    column: $table.errorMessage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get retryCount => $composableBuilder(
+    column: $table.retryCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastAttemptAt => $composableBuilder(
+    column: $table.lastAttemptAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalPendingMessagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalPendingMessagesTable> {
+  $$LocalPendingMessagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conversationId => $composableBuilder(
+    column: $table.conversationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get plaintext => $composableBuilder(
+    column: $table.plaintext,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recipientId => $composableBuilder(
+    column: $table.recipientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get replyToMessageId => $composableBuilder(
+    column: $table.replyToMessageId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payloadJson => $composableBuilder(
+    column: $table.payloadJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get errorMessage => $composableBuilder(
+    column: $table.errorMessage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get retryCount => $composableBuilder(
+    column: $table.retryCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastAttemptAt => $composableBuilder(
+    column: $table.lastAttemptAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalPendingMessagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalPendingMessagesTable> {
+  $$LocalPendingMessagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get conversationId => $composableBuilder(
+    column: $table.conversationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get plaintext =>
+      $composableBuilder(column: $table.plaintext, builder: (column) => column);
+
+  GeneratedColumn<String> get recipientId => $composableBuilder(
+    column: $table.recipientId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get replyToMessageId => $composableBuilder(
+    column: $table.replyToMessageId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get payloadJson => $composableBuilder(
+    column: $table.payloadJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get errorMessage => $composableBuilder(
+    column: $table.errorMessage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get retryCount => $composableBuilder(
+    column: $table.retryCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastAttemptAt => $composableBuilder(
+    column: $table.lastAttemptAt,
+    builder: (column) => column,
+  );
+}
+
+class $$LocalPendingMessagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalPendingMessagesTable,
+          LocalPendingMessage,
+          $$LocalPendingMessagesTableFilterComposer,
+          $$LocalPendingMessagesTableOrderingComposer,
+          $$LocalPendingMessagesTableAnnotationComposer,
+          $$LocalPendingMessagesTableCreateCompanionBuilder,
+          $$LocalPendingMessagesTableUpdateCompanionBuilder,
+          (
+            LocalPendingMessage,
+            BaseReferences<
+              _$AppDatabase,
+              $LocalPendingMessagesTable,
+              LocalPendingMessage
+            >,
+          ),
+          LocalPendingMessage,
+          PrefetchHooks Function()
+        > {
+  $$LocalPendingMessagesTableTableManager(
+    _$AppDatabase db,
+    $LocalPendingMessagesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalPendingMessagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalPendingMessagesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$LocalPendingMessagesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> conversationId = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String?> plaintext = const Value.absent(),
+                Value<String?> recipientId = const Value.absent(),
+                Value<String?> replyToMessageId = const Value.absent(),
+                Value<String?> payloadJson = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> errorMessage = const Value.absent(),
+                Value<int> retryCount = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> lastAttemptAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalPendingMessagesCompanion(
+                id: id,
+                conversationId: conversationId,
+                type: type,
+                plaintext: plaintext,
+                recipientId: recipientId,
+                replyToMessageId: replyToMessageId,
+                payloadJson: payloadJson,
+                status: status,
+                errorMessage: errorMessage,
+                retryCount: retryCount,
+                createdAt: createdAt,
+                lastAttemptAt: lastAttemptAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String conversationId,
+                required String type,
+                Value<String?> plaintext = const Value.absent(),
+                Value<String?> recipientId = const Value.absent(),
+                Value<String?> replyToMessageId = const Value.absent(),
+                Value<String?> payloadJson = const Value.absent(),
+                required String status,
+                Value<String?> errorMessage = const Value.absent(),
+                Value<int> retryCount = const Value.absent(),
+                required DateTime createdAt,
+                Value<DateTime?> lastAttemptAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalPendingMessagesCompanion.insert(
+                id: id,
+                conversationId: conversationId,
+                type: type,
+                plaintext: plaintext,
+                recipientId: recipientId,
+                replyToMessageId: replyToMessageId,
+                payloadJson: payloadJson,
+                status: status,
+                errorMessage: errorMessage,
+                retryCount: retryCount,
+                createdAt: createdAt,
+                lastAttemptAt: lastAttemptAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalPendingMessagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalPendingMessagesTable,
+      LocalPendingMessage,
+      $$LocalPendingMessagesTableFilterComposer,
+      $$LocalPendingMessagesTableOrderingComposer,
+      $$LocalPendingMessagesTableAnnotationComposer,
+      $$LocalPendingMessagesTableCreateCompanionBuilder,
+      $$LocalPendingMessagesTableUpdateCompanionBuilder,
+      (
+        LocalPendingMessage,
+        BaseReferences<
+          _$AppDatabase,
+          $LocalPendingMessagesTable,
+          LocalPendingMessage
+        >,
+      ),
+      LocalPendingMessage,
+      PrefetchHooks Function()
+    >;
+typedef $$LocalCommunitiesTableCreateCompanionBuilder =
+    LocalCommunitiesCompanion Function({
+      required String id,
+      required String type,
+      required String name,
+      Value<String?> description,
+      Value<String?> avatarUrl,
+      required String ownerId,
+      required String memberIdsJson,
+      required String adminIdsJson,
+      required int memberCount,
+      Value<int> totalBalance,
+      required String status,
+      required String settingsJson,
+      Value<String?> stokvelSettingsJson,
+      Value<String?> lastMessageText,
+      Value<String?> lastMessageSenderId,
+      Value<String?> lastMessageSenderName,
+      Value<String?> lastMessageType,
+      Value<DateTime?> lastMessageAt,
+      Value<String> unreadCountsJson,
+      Value<String> mutedJson,
+      Value<String> encryptedPreviewsJson,
+      required DateTime createdAt,
+      Value<DateTime?> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$LocalCommunitiesTableUpdateCompanionBuilder =
+    LocalCommunitiesCompanion Function({
+      Value<String> id,
+      Value<String> type,
+      Value<String> name,
+      Value<String?> description,
+      Value<String?> avatarUrl,
+      Value<String> ownerId,
+      Value<String> memberIdsJson,
+      Value<String> adminIdsJson,
+      Value<int> memberCount,
+      Value<int> totalBalance,
+      Value<String> status,
+      Value<String> settingsJson,
+      Value<String?> stokvelSettingsJson,
+      Value<String?> lastMessageText,
+      Value<String?> lastMessageSenderId,
+      Value<String?> lastMessageSenderName,
+      Value<String?> lastMessageType,
+      Value<DateTime?> lastMessageAt,
+      Value<String> unreadCountsJson,
+      Value<String> mutedJson,
+      Value<String> encryptedPreviewsJson,
+      Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$LocalCommunitiesTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalCommunitiesTable> {
+  $$LocalCommunitiesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get avatarUrl => $composableBuilder(
+    column: $table.avatarUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get memberIdsJson => $composableBuilder(
+    column: $table.memberIdsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get adminIdsJson => $composableBuilder(
+    column: $table.adminIdsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get memberCount => $composableBuilder(
+    column: $table.memberCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalBalance => $composableBuilder(
+    column: $table.totalBalance,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get settingsJson => $composableBuilder(
+    column: $table.settingsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get stokvelSettingsJson => $composableBuilder(
+    column: $table.stokvelSettingsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastMessageText => $composableBuilder(
+    column: $table.lastMessageText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastMessageSenderId => $composableBuilder(
+    column: $table.lastMessageSenderId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastMessageSenderName => $composableBuilder(
+    column: $table.lastMessageSenderName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastMessageType => $composableBuilder(
+    column: $table.lastMessageType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastMessageAt => $composableBuilder(
+    column: $table.lastMessageAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unreadCountsJson => $composableBuilder(
+    column: $table.unreadCountsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mutedJson => $composableBuilder(
+    column: $table.mutedJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get encryptedPreviewsJson => $composableBuilder(
+    column: $table.encryptedPreviewsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalCommunitiesTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalCommunitiesTable> {
+  $$LocalCommunitiesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get avatarUrl => $composableBuilder(
+    column: $table.avatarUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get memberIdsJson => $composableBuilder(
+    column: $table.memberIdsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get adminIdsJson => $composableBuilder(
+    column: $table.adminIdsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get memberCount => $composableBuilder(
+    column: $table.memberCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalBalance => $composableBuilder(
+    column: $table.totalBalance,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get settingsJson => $composableBuilder(
+    column: $table.settingsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get stokvelSettingsJson => $composableBuilder(
+    column: $table.stokvelSettingsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastMessageText => $composableBuilder(
+    column: $table.lastMessageText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastMessageSenderId => $composableBuilder(
+    column: $table.lastMessageSenderId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastMessageSenderName => $composableBuilder(
+    column: $table.lastMessageSenderName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastMessageType => $composableBuilder(
+    column: $table.lastMessageType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastMessageAt => $composableBuilder(
+    column: $table.lastMessageAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unreadCountsJson => $composableBuilder(
+    column: $table.unreadCountsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mutedJson => $composableBuilder(
+    column: $table.mutedJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get encryptedPreviewsJson => $composableBuilder(
+    column: $table.encryptedPreviewsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalCommunitiesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalCommunitiesTable> {
+  $$LocalCommunitiesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get avatarUrl =>
+      $composableBuilder(column: $table.avatarUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerId =>
+      $composableBuilder(column: $table.ownerId, builder: (column) => column);
+
+  GeneratedColumn<String> get memberIdsJson => $composableBuilder(
+    column: $table.memberIdsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get adminIdsJson => $composableBuilder(
+    column: $table.adminIdsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get memberCount => $composableBuilder(
+    column: $table.memberCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalBalance => $composableBuilder(
+    column: $table.totalBalance,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get settingsJson => $composableBuilder(
+    column: $table.settingsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get stokvelSettingsJson => $composableBuilder(
+    column: $table.stokvelSettingsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastMessageText => $composableBuilder(
+    column: $table.lastMessageText,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastMessageSenderId => $composableBuilder(
+    column: $table.lastMessageSenderId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastMessageSenderName => $composableBuilder(
+    column: $table.lastMessageSenderName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastMessageType => $composableBuilder(
+    column: $table.lastMessageType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastMessageAt => $composableBuilder(
+    column: $table.lastMessageAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get unreadCountsJson => $composableBuilder(
+    column: $table.unreadCountsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get mutedJson =>
+      $composableBuilder(column: $table.mutedJson, builder: (column) => column);
+
+  GeneratedColumn<String> get encryptedPreviewsJson => $composableBuilder(
+    column: $table.encryptedPreviewsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$LocalCommunitiesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalCommunitiesTable,
+          LocalCommunity,
+          $$LocalCommunitiesTableFilterComposer,
+          $$LocalCommunitiesTableOrderingComposer,
+          $$LocalCommunitiesTableAnnotationComposer,
+          $$LocalCommunitiesTableCreateCompanionBuilder,
+          $$LocalCommunitiesTableUpdateCompanionBuilder,
+          (
+            LocalCommunity,
+            BaseReferences<
+              _$AppDatabase,
+              $LocalCommunitiesTable,
+              LocalCommunity
+            >,
+          ),
+          LocalCommunity,
+          PrefetchHooks Function()
+        > {
+  $$LocalCommunitiesTableTableManager(
+    _$AppDatabase db,
+    $LocalCommunitiesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalCommunitiesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalCommunitiesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalCommunitiesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<String?> avatarUrl = const Value.absent(),
+                Value<String> ownerId = const Value.absent(),
+                Value<String> memberIdsJson = const Value.absent(),
+                Value<String> adminIdsJson = const Value.absent(),
+                Value<int> memberCount = const Value.absent(),
+                Value<int> totalBalance = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> settingsJson = const Value.absent(),
+                Value<String?> stokvelSettingsJson = const Value.absent(),
+                Value<String?> lastMessageText = const Value.absent(),
+                Value<String?> lastMessageSenderId = const Value.absent(),
+                Value<String?> lastMessageSenderName = const Value.absent(),
+                Value<String?> lastMessageType = const Value.absent(),
+                Value<DateTime?> lastMessageAt = const Value.absent(),
+                Value<String> unreadCountsJson = const Value.absent(),
+                Value<String> mutedJson = const Value.absent(),
+                Value<String> encryptedPreviewsJson = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalCommunitiesCompanion(
+                id: id,
+                type: type,
+                name: name,
+                description: description,
+                avatarUrl: avatarUrl,
+                ownerId: ownerId,
+                memberIdsJson: memberIdsJson,
+                adminIdsJson: adminIdsJson,
+                memberCount: memberCount,
+                totalBalance: totalBalance,
+                status: status,
+                settingsJson: settingsJson,
+                stokvelSettingsJson: stokvelSettingsJson,
+                lastMessageText: lastMessageText,
+                lastMessageSenderId: lastMessageSenderId,
+                lastMessageSenderName: lastMessageSenderName,
+                lastMessageType: lastMessageType,
+                lastMessageAt: lastMessageAt,
+                unreadCountsJson: unreadCountsJson,
+                mutedJson: mutedJson,
+                encryptedPreviewsJson: encryptedPreviewsJson,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String type,
+                required String name,
+                Value<String?> description = const Value.absent(),
+                Value<String?> avatarUrl = const Value.absent(),
+                required String ownerId,
+                required String memberIdsJson,
+                required String adminIdsJson,
+                required int memberCount,
+                Value<int> totalBalance = const Value.absent(),
+                required String status,
+                required String settingsJson,
+                Value<String?> stokvelSettingsJson = const Value.absent(),
+                Value<String?> lastMessageText = const Value.absent(),
+                Value<String?> lastMessageSenderId = const Value.absent(),
+                Value<String?> lastMessageSenderName = const Value.absent(),
+                Value<String?> lastMessageType = const Value.absent(),
+                Value<DateTime?> lastMessageAt = const Value.absent(),
+                Value<String> unreadCountsJson = const Value.absent(),
+                Value<String> mutedJson = const Value.absent(),
+                Value<String> encryptedPreviewsJson = const Value.absent(),
+                required DateTime createdAt,
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalCommunitiesCompanion.insert(
+                id: id,
+                type: type,
+                name: name,
+                description: description,
+                avatarUrl: avatarUrl,
+                ownerId: ownerId,
+                memberIdsJson: memberIdsJson,
+                adminIdsJson: adminIdsJson,
+                memberCount: memberCount,
+                totalBalance: totalBalance,
+                status: status,
+                settingsJson: settingsJson,
+                stokvelSettingsJson: stokvelSettingsJson,
+                lastMessageText: lastMessageText,
+                lastMessageSenderId: lastMessageSenderId,
+                lastMessageSenderName: lastMessageSenderName,
+                lastMessageType: lastMessageType,
+                lastMessageAt: lastMessageAt,
+                unreadCountsJson: unreadCountsJson,
+                mutedJson: mutedJson,
+                encryptedPreviewsJson: encryptedPreviewsJson,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalCommunitiesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalCommunitiesTable,
+      LocalCommunity,
+      $$LocalCommunitiesTableFilterComposer,
+      $$LocalCommunitiesTableOrderingComposer,
+      $$LocalCommunitiesTableAnnotationComposer,
+      $$LocalCommunitiesTableCreateCompanionBuilder,
+      $$LocalCommunitiesTableUpdateCompanionBuilder,
+      (
+        LocalCommunity,
+        BaseReferences<_$AppDatabase, $LocalCommunitiesTable, LocalCommunity>,
+      ),
+      LocalCommunity,
+      PrefetchHooks Function()
+    >;
+typedef $$LocalCommunityMembersTableCreateCompanionBuilder =
+    LocalCommunityMembersCompanion Function({
+      required String id,
+      required String communityId,
+      required String userId,
+      required String displayName,
+      Value<String?> avatarUrl,
+      required String role,
+      required String status,
+      Value<int> contributionBalance,
+      Value<DateTime?> joinedAt,
+      Value<String> invitedBy,
+      Value<DateTime?> invitedAt,
+      Value<DateTime?> lastReadAt,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$LocalCommunityMembersTableUpdateCompanionBuilder =
+    LocalCommunityMembersCompanion Function({
+      Value<String> id,
+      Value<String> communityId,
+      Value<String> userId,
+      Value<String> displayName,
+      Value<String?> avatarUrl,
+      Value<String> role,
+      Value<String> status,
+      Value<int> contributionBalance,
+      Value<DateTime?> joinedAt,
+      Value<String> invitedBy,
+      Value<DateTime?> invitedAt,
+      Value<DateTime?> lastReadAt,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$LocalCommunityMembersTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalCommunityMembersTable> {
+  $$LocalCommunityMembersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get communityId => $composableBuilder(
+    column: $table.communityId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get avatarUrl => $composableBuilder(
+    column: $table.avatarUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get contributionBalance => $composableBuilder(
+    column: $table.contributionBalance,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get joinedAt => $composableBuilder(
+    column: $table.joinedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get invitedBy => $composableBuilder(
+    column: $table.invitedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get invitedAt => $composableBuilder(
+    column: $table.invitedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastReadAt => $composableBuilder(
+    column: $table.lastReadAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalCommunityMembersTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalCommunityMembersTable> {
+  $$LocalCommunityMembersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get communityId => $composableBuilder(
+    column: $table.communityId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get avatarUrl => $composableBuilder(
+    column: $table.avatarUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get contributionBalance => $composableBuilder(
+    column: $table.contributionBalance,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get joinedAt => $composableBuilder(
+    column: $table.joinedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get invitedBy => $composableBuilder(
+    column: $table.invitedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get invitedAt => $composableBuilder(
+    column: $table.invitedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastReadAt => $composableBuilder(
+    column: $table.lastReadAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalCommunityMembersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalCommunityMembersTable> {
+  $$LocalCommunityMembersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get communityId => $composableBuilder(
+    column: $table.communityId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get avatarUrl =>
+      $composableBuilder(column: $table.avatarUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get role =>
+      $composableBuilder(column: $table.role, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get contributionBalance => $composableBuilder(
+    column: $table.contributionBalance,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get joinedAt =>
+      $composableBuilder(column: $table.joinedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get invitedBy =>
+      $composableBuilder(column: $table.invitedBy, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get invitedAt =>
+      $composableBuilder(column: $table.invitedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastReadAt => $composableBuilder(
+    column: $table.lastReadAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$LocalCommunityMembersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalCommunityMembersTable,
+          LocalCommunityMember,
+          $$LocalCommunityMembersTableFilterComposer,
+          $$LocalCommunityMembersTableOrderingComposer,
+          $$LocalCommunityMembersTableAnnotationComposer,
+          $$LocalCommunityMembersTableCreateCompanionBuilder,
+          $$LocalCommunityMembersTableUpdateCompanionBuilder,
+          (
+            LocalCommunityMember,
+            BaseReferences<
+              _$AppDatabase,
+              $LocalCommunityMembersTable,
+              LocalCommunityMember
+            >,
+          ),
+          LocalCommunityMember,
+          PrefetchHooks Function()
+        > {
+  $$LocalCommunityMembersTableTableManager(
+    _$AppDatabase db,
+    $LocalCommunityMembersTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalCommunityMembersTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$LocalCommunityMembersTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$LocalCommunityMembersTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> communityId = const Value.absent(),
+                Value<String> userId = const Value.absent(),
+                Value<String> displayName = const Value.absent(),
+                Value<String?> avatarUrl = const Value.absent(),
+                Value<String> role = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int> contributionBalance = const Value.absent(),
+                Value<DateTime?> joinedAt = const Value.absent(),
+                Value<String> invitedBy = const Value.absent(),
+                Value<DateTime?> invitedAt = const Value.absent(),
+                Value<DateTime?> lastReadAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalCommunityMembersCompanion(
+                id: id,
+                communityId: communityId,
+                userId: userId,
+                displayName: displayName,
+                avatarUrl: avatarUrl,
+                role: role,
+                status: status,
+                contributionBalance: contributionBalance,
+                joinedAt: joinedAt,
+                invitedBy: invitedBy,
+                invitedAt: invitedAt,
+                lastReadAt: lastReadAt,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String communityId,
+                required String userId,
+                required String displayName,
+                Value<String?> avatarUrl = const Value.absent(),
+                required String role,
+                required String status,
+                Value<int> contributionBalance = const Value.absent(),
+                Value<DateTime?> joinedAt = const Value.absent(),
+                Value<String> invitedBy = const Value.absent(),
+                Value<DateTime?> invitedAt = const Value.absent(),
+                Value<DateTime?> lastReadAt = const Value.absent(),
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => LocalCommunityMembersCompanion.insert(
+                id: id,
+                communityId: communityId,
+                userId: userId,
+                displayName: displayName,
+                avatarUrl: avatarUrl,
+                role: role,
+                status: status,
+                contributionBalance: contributionBalance,
+                joinedAt: joinedAt,
+                invitedBy: invitedBy,
+                invitedAt: invitedAt,
+                lastReadAt: lastReadAt,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalCommunityMembersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalCommunityMembersTable,
+      LocalCommunityMember,
+      $$LocalCommunityMembersTableFilterComposer,
+      $$LocalCommunityMembersTableOrderingComposer,
+      $$LocalCommunityMembersTableAnnotationComposer,
+      $$LocalCommunityMembersTableCreateCompanionBuilder,
+      $$LocalCommunityMembersTableUpdateCompanionBuilder,
+      (
+        LocalCommunityMember,
+        BaseReferences<
+          _$AppDatabase,
+          $LocalCommunityMembersTable,
+          LocalCommunityMember
+        >,
+      ),
+      LocalCommunityMember,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -12288,4 +16463,10 @@ class $AppDatabaseManager {
         _db,
         _db.localFullConversations,
       );
+  $$LocalPendingMessagesTableTableManager get localPendingMessages =>
+      $$LocalPendingMessagesTableTableManager(_db, _db.localPendingMessages);
+  $$LocalCommunitiesTableTableManager get localCommunities =>
+      $$LocalCommunitiesTableTableManager(_db, _db.localCommunities);
+  $$LocalCommunityMembersTableTableManager get localCommunityMembers =>
+      $$LocalCommunityMembersTableTableManager(_db, _db.localCommunityMembers);
 }

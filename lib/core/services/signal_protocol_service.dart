@@ -211,7 +211,7 @@ class SignalProtocolService {
     session.sendChainKey = await _ratchet.ratchetChainKey(session.sendChainKey);
 
     // Compute Associated Data per Signal spec (Issue 4)
-    final ad = _computeAssociatedData(
+    final ad = computeAssociatedData(
       session,
       dhPublicKey: session.dhSendPublic,
       messageNumber: session.sendMessageNumber,
@@ -348,7 +348,7 @@ class SignalProtocolService {
       final messageKey = session.skippedKeys.remove(skippedLookup)!;
       // Compute AD for this skipped message
       final ad = peerDhPublic != null
-          ? _computeAssociatedData(
+          ? computeAssociatedData(
               session,
               dhPublicKey: peerDhPublic,
               messageNumber: messageNumber,
@@ -402,7 +402,7 @@ class SignalProtocolService {
 
     // Compute AD for this message
     final ad = peerDhPublic != null
-        ? _computeAssociatedData(
+        ? computeAssociatedData(
             session,
             dhPublicKey: peerDhPublic,
             messageNumber: messageNumber,
@@ -552,7 +552,8 @@ class SignalProtocolService {
   ///
   /// Returns empty AD for legacy sessions where identity keys are unknown,
   /// ensuring graceful degradation.
-  Uint8List _computeAssociatedData(
+  @visibleForTesting
+  Uint8List computeAssociatedData(
     DoubleRatchetSession session, {
     required Uint8List dhPublicKey,
     required int messageNumber,

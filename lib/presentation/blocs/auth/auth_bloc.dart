@@ -13,8 +13,10 @@ import '../../../core/services/fcm_challenge_handler.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/services/key_backup_service.dart';
 import '../../../core/services/key_management_service.dart';
+import '../../../core/services/community_sync_service.dart';
 import '../../../core/services/message_sync_service.dart';
 import '../../../core/services/offline_action_queue.dart';
+import '../../../core/services/outgoing_message_queue.dart';
 import '../../../core/services/signal_protocol_service.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/repositories/auth_repository.dart';
@@ -35,6 +37,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignalProtocolService _signalProtocolService;
   final MessageSyncService _messageSyncService;
   final OfflineActionQueue _offlineActionQueue;
+  final CommunitySyncService _communitySyncService;
+  final OutgoingMessageQueue _outgoingMessageQueue;
   StreamSubscription<User?>? _authStateSubscription;
   Timer? _resendTimer;
   bool _e2eeInitInProgress = false;
@@ -49,6 +53,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     this._signalProtocolService,
     this._messageSyncService,
     this._offlineActionQueue,
+    this._communitySyncService,
+    this._outgoingMessageQueue,
   ) : super(const AuthState()) {
     on<_CheckAuthStatus>(_onCheckAuthStatus);
     on<_SendOtp>(_onSendOtp);
@@ -382,7 +388,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     // Stop message sync and offline queue before re-authentication
     _messageSyncService.stopSync();
+    _communitySyncService.stopSync();
     _offlineActionQueue.stopListening();
+    _outgoingMessageQueue.stopListening();
     // Clear E2EE sessions so a new device cannot decrypt old messages
     await _signalProtocolService.resetAllSessions();
     // Clear session and force full OTP re-authentication
@@ -399,7 +407,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     // Stop message sync and offline queue before signing out
     _messageSyncService.stopSync();
+    _communitySyncService.stopSync();
     _offlineActionQueue.stopListening();
+    _outgoingMessageQueue.stopListening();
     // Clear E2EE sessions so a new user on this device starts fresh
     await _signalProtocolService.resetAllSessions();
 
@@ -431,7 +441,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     // Stop message sync and offline queue before account deletion
     _messageSyncService.stopSync();
+    _communitySyncService.stopSync();
     _offlineActionQueue.stopListening();
+    _outgoingMessageQueue.stopListening();
 
     // Capture userId before deletion (needed for keystore cleanup)
     final userId = state.user?.id;
@@ -693,7 +705,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (uploadConfirmed) {
       debugPrint('E2EE INIT: Bundle upload confirmed — starting message sync');
       _messageSyncService.startSync();
+      _communitySyncService.startSync();
       _offlineActionQueue.startListening();
+      _outgoingMessageQueue.startListening();
       // Auto-backup keys to server (don't block startup)
       getIt<KeyBackupService>().autoBackup().catchError((e) {
         debugPrint('E2EE auto-backup failed: $e');
@@ -763,7 +777,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> close() {
     _disposed = true;
     _messageSyncService.stopSync();
+    _communitySyncService.stopSync();
     _offlineActionQueue.stopListening();
+    _outgoingMessageQueue.stopListening();
     _authStateSubscription?.cancel();
     _resendTimer?.cancel();
     return super.close();

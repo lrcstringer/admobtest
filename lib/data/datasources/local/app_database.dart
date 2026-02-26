@@ -152,6 +152,83 @@ class LocalSyncMetadata extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+/// Pending outgoing messages queue for offline-first sends.
+/// Messages are persisted here before network send, surviving app kills.
+class LocalPendingMessages extends Table {
+  TextColumn get id => text()(); // optimistic ID (uuid)
+  TextColumn get conversationId => text()(); // P2P conversationId or communityId
+  TextColumn get type =>
+      text()(); // text, media, forward, community_text, community_media,
+  //              token_send, token_request
+  TextColumn get plaintext => text().nullable()(); // message text
+  TextColumn get recipientId => text().nullable()(); // for P2P E2EE
+  TextColumn get replyToMessageId => text().nullable()();
+  TextColumn get payloadJson =>
+      text().nullable()(); // serialized extra params (media URL, amount, etc.)
+  TextColumn get status =>
+      text()(); // pending, encrypting, sending, sent, failed
+  TextColumn get errorMessage => text().nullable()();
+  IntColumn get retryCount => integer().withDefault(const Constant(0))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get lastAttemptAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Local community cache for offline-first architecture.
+class LocalCommunities extends Table {
+  TextColumn get id => text()();
+  TextColumn get type => text()(); // CommunityType enum name
+  TextColumn get name => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get avatarUrl => text().nullable()();
+  TextColumn get ownerId => text()();
+  TextColumn get memberIdsJson => text()(); // JSON List<String>
+  TextColumn get adminIdsJson => text()(); // JSON List<String>
+  IntColumn get memberCount => integer()();
+  IntColumn get totalBalance => integer().withDefault(const Constant(0))();
+  TextColumn get status => text()();
+  TextColumn get settingsJson => text()(); // JSON CommunitySettings
+  TextColumn get stokvelSettingsJson => text().nullable()();
+  TextColumn get lastMessageText => text().nullable()();
+  TextColumn get lastMessageSenderId => text().nullable()();
+  TextColumn get lastMessageSenderName => text().nullable()();
+  TextColumn get lastMessageType => text().nullable()();
+  DateTimeColumn get lastMessageAt => dateTime().nullable()();
+  TextColumn get unreadCountsJson =>
+      text().withDefault(const Constant('{}'))();
+  TextColumn get mutedJson => text().withDefault(const Constant('{}'))();
+  TextColumn get encryptedPreviewsJson =>
+      text().withDefault(const Constant('{}'))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Local community member cache for offline-first architecture.
+class LocalCommunityMembers extends Table {
+  TextColumn get id => text()(); // communityId_userId
+  TextColumn get communityId => text()();
+  TextColumn get userId => text()();
+  TextColumn get displayName => text()();
+  TextColumn get avatarUrl => text().nullable()();
+  TextColumn get role => text()(); // MemberRole enum name
+  TextColumn get status => text()(); // MemberStatus enum name
+  IntColumn get contributionBalance =>
+      integer().withDefault(const Constant(0))();
+  DateTimeColumn get joinedAt => dateTime().nullable()();
+  TextColumn get invitedBy => text().withDefault(const Constant(''))();
+  DateTimeColumn get invitedAt => dateTime().nullable()();
+  DateTimeColumn get lastReadAt => dateTime().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 /// Persistent cache of decrypted E2EE message plaintext.
 /// Prevents "Encrypted message" / "Cannot decrypt" after app restart.
 class DecryptedMessageCache extends Table {
@@ -249,6 +326,9 @@ class LocalFullConversations extends Table {
   DecryptedMessageCache,
   LocalFullMessages,
   LocalFullConversations,
+  LocalPendingMessages,
+  LocalCommunities,
+  LocalCommunityMembers,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -266,7 +346,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
@@ -296,6 +376,11 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(
               localFullConversations,
               localFullConversations.disappearingMessagesDurationMs);
+        }
+        if (from < 7) {
+          await m.createTable(localPendingMessages);
+          await m.createTable(localCommunities);
+          await m.createTable(localCommunityMembers);
         }
       },
     );
@@ -687,6 +772,24 @@ class AppDatabase extends _$AppDatabase {
         .go();
   }
 
+  /// Update only the last-message preview fields of a conversation.
+  Future<void> updateLocalConversationPreview({
+    required String conversationId,
+    required String lastMessageText,
+    required String lastMessageSenderId,
+    required DateTime lastMessageAt,
+    String? lastMessageType,
+  }) {
+    return (update(localFullConversations)
+          ..where((c) => c.id.equals(conversationId)))
+        .write(LocalFullConversationsCompanion(
+      lastMessageText: Value(lastMessageText),
+      lastMessageSenderId: Value(lastMessageSenderId),
+      lastMessageAt: Value(lastMessageAt),
+      lastMessageType: Value(lastMessageType),
+    ));
+  }
+
   /// Search messages in a conversation by text content (for in-conversation search).
   Future<List<LocalFullMessage>> searchLocalMessages(
     String conversationId,
@@ -711,6 +814,144 @@ class AppDatabase extends _$AppDatabase {
     return delete(localFullConversations).go();
   }
 
+  // ============ PENDING MESSAGES QUEUE ============
+
+  Future<void> insertPendingMessage(LocalPendingMessagesCompanion message) {
+    return into(localPendingMessages).insertOnConflictUpdate(message);
+  }
+
+  Future<List<LocalPendingMessage>> getPendingMessages() {
+    return (select(localPendingMessages)
+          ..where((m) =>
+              m.status.isIn(['pending', 'encrypting', 'sending', 'failed']))
+          ..orderBy([(m) => OrderingTerm.asc(m.createdAt)]))
+        .get();
+  }
+
+  Future<List<LocalPendingMessage>> getPendingMessagesForConversation(
+      String conversationId) {
+    return (select(localPendingMessages)
+          ..where((m) =>
+              m.conversationId.equals(conversationId) &
+              m.status.isIn(['pending', 'encrypting', 'sending', 'failed']))
+          ..orderBy([(m) => OrderingTerm.asc(m.createdAt)]))
+        .get();
+  }
+
+  Future<void> updatePendingMessageStatus(
+    String id,
+    String status, {
+    String? error,
+    DateTime? lastAttemptAt,
+  }) {
+    return (update(localPendingMessages)..where((m) => m.id.equals(id))).write(
+      LocalPendingMessagesCompanion(
+        status: Value(status),
+        errorMessage: Value(error),
+        lastAttemptAt: Value(lastAttemptAt ?? DateTime.now()),
+      ),
+    );
+  }
+
+  Future<void> incrementPendingMessageRetry(String id) async {
+    final msg = await (select(localPendingMessages)
+          ..where((m) => m.id.equals(id)))
+        .getSingleOrNull();
+    if (msg == null) return;
+    await (update(localPendingMessages)..where((m) => m.id.equals(id))).write(
+      LocalPendingMessagesCompanion(
+        retryCount: Value(msg.retryCount + 1),
+        lastAttemptAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  Future<void> deletePendingMessage(String id) {
+    return (delete(localPendingMessages)..where((m) => m.id.equals(id))).go();
+  }
+
+  Future<LocalPendingMessage?> getPendingMessageById(String id) {
+    return (select(localPendingMessages)..where((m) => m.id.equals(id)))
+        .getSingleOrNull();
+  }
+
+  // ============ LOCAL COMMUNITY OPERATIONS ============
+
+  Future<List<LocalCommunity>> getLocalCommunities() {
+    return (select(localCommunities)
+          ..orderBy([(c) => OrderingTerm.desc(c.lastMessageAt)]))
+        .get();
+  }
+
+  Stream<List<LocalCommunity>> watchLocalCommunities() {
+    return (select(localCommunities)
+          ..orderBy([(c) => OrderingTerm.desc(c.lastMessageAt)]))
+        .watch();
+  }
+
+  Future<LocalCommunity?> getLocalCommunity(String id) {
+    return (select(localCommunities)..where((c) => c.id.equals(id)))
+        .getSingleOrNull();
+  }
+
+  Future<void> upsertLocalCommunity(LocalCommunitiesCompanion community) {
+    return into(localCommunities).insertOnConflictUpdate(community);
+  }
+
+  Future<void> deleteLocalCommunity(String id) {
+    return (delete(localCommunities)..where((c) => c.id.equals(id))).go();
+  }
+
+  Future<void> clearLocalCommunities() {
+    return delete(localCommunities).go();
+  }
+
+  // ============ LOCAL COMMUNITY MEMBER OPERATIONS ============
+
+  Future<List<LocalCommunityMember>> getLocalCommunityMembers(
+      String communityId) {
+    return (select(localCommunityMembers)
+          ..where((m) => m.communityId.equals(communityId))
+          ..orderBy([(m) => OrderingTerm.asc(m.displayName)]))
+        .get();
+  }
+
+  Stream<List<LocalCommunityMember>> watchLocalCommunityMembers(
+      String communityId) {
+    return (select(localCommunityMembers)
+          ..where((m) => m.communityId.equals(communityId))
+          ..orderBy([(m) => OrderingTerm.asc(m.displayName)]))
+        .watch();
+  }
+
+  Future<void> upsertLocalCommunityMember(
+      LocalCommunityMembersCompanion member) {
+    return into(localCommunityMembers).insertOnConflictUpdate(member);
+  }
+
+  Future<void> deleteLocalCommunityMembersForCommunity(String communityId) {
+    return (delete(localCommunityMembers)
+          ..where((m) => m.communityId.equals(communityId)))
+        .go();
+  }
+
+  Future<void> clearLocalCommunityMembers() {
+    return delete(localCommunityMembers).go();
+  }
+
+  // ============ CONTACT SEARCH (offline fallback) ============
+
+  Future<List<LocalContact>> searchLocalContacts(String query) {
+    final pattern = '%${query.toLowerCase()}%';
+    return (select(localContacts)
+          ..where((c) =>
+              c.displayName.lower().like(pattern) |
+              (c.username.isNotNull() & c.username.lower().like(pattern)))
+          ..orderBy([(c) => OrderingTerm.asc(c.displayName)])
+          ..limit(20))
+        .get();
+  }
+
   // ============ CLEAR ALL DATA ============
 
   Future<void> clearAllData() async {
@@ -725,6 +966,9 @@ class AppDatabase extends _$AppDatabase {
     await clearDecryptedMessages();
     await clearLocalFullMessages();
     await clearLocalFullConversations();
+    await delete(localPendingMessages).go();
+    await clearLocalCommunities();
+    await clearLocalCommunityMembers();
   }
 
   Future<void> clearUserData(String userId) async {
@@ -736,6 +980,9 @@ class AppDatabase extends _$AppDatabase {
     await clearDecryptedMessages();
     await clearLocalFullMessages();
     await clearLocalFullConversations();
+    await delete(localPendingMessages).go();
+    await clearLocalCommunities();
+    await clearLocalCommunityMembers();
   }
 }
 

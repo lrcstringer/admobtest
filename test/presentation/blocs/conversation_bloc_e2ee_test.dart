@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:imalichat/core/error/failures.dart';
-import 'package:imalichat/domain/enums/message_status.dart';
 import 'package:imalichat/domain/repositories/conversation_repository.dart';
 import 'package:imalichat/presentation/blocs/conversation/conversation_bloc.dart';
 
@@ -202,7 +201,8 @@ void main() {
 
     group('sendTextMessage', () {
       blocTest<ConversationBloc, ConversationState>(
-        'calls repository.sendTextMessage and emits optimistic insert then success',
+        'calls repository.sendTextMessage — no BLoC state change on success '
+        '(optimistic insert done by OutgoingMessageQueue into local DB)',
         build: () {
           when(() => mockConversationRepository.sendTextMessage(
                 conversationId: any(named: 'conversationId'),
@@ -218,28 +218,9 @@ void main() {
           conversationId: 'conv_abc',
           text: 'Hello encrypted world!',
         )),
-        expect: () => [
-          // Optimistic insert: message added with status=sending
-          isA<ConversationState>()
-              .having((s) => s.messages.length, 'messages.length', 1)
-              .having(
-                (s) => s.messages.first.status,
-                'first message status',
-                MessageStatus.sending,
-              )
-              .having(
-                (s) => s.messages.first.textContent,
-                'textContent',
-                'Hello encrypted world!',
-              ),
-          // After send succeeds: optimistic message replaced with real one
-          isA<ConversationState>()
-              .having(
-                (s) => s.messages.first.status,
-                'first message status',
-                MessageStatus.sent,
-              ),
-        ],
+        // No BLoC state emissions on success — the optimistic message
+        // appears via the local DB watch stream, not via BLoC state.
+        expect: () => [],
         verify: (_) {
           verify(() => mockConversationRepository.sendTextMessage(
                 conversationId: 'conv_abc',
@@ -251,7 +232,7 @@ void main() {
       );
 
       blocTest<ConversationBloc, ConversationState>(
-        'emits error with failed status when sendTextMessage fails',
+        'emits errorMessage when sendTextMessage fails',
         build: () {
           when(() => mockConversationRepository.sendTextMessage(
                 conversationId: any(named: 'conversationId'),
@@ -268,21 +249,9 @@ void main() {
           text: 'This will fail',
         )),
         expect: () => [
-          // Optimistic insert: message added with status=sending
+          // Only an error message is emitted — failed status is managed
+          // by OutgoingMessageQueue in the local DB.
           isA<ConversationState>()
-              .having((s) => s.messages.length, 'messages.length', 1)
-              .having(
-                (s) => s.messages.first.status,
-                'first message status',
-                MessageStatus.sending,
-              ),
-          // After send fails: message status changed to failed + error set
-          isA<ConversationState>()
-              .having(
-                (s) => s.messages.first.status,
-                'first message status',
-                MessageStatus.failed,
-              )
               .having((s) => s.errorMessage, 'errorMessage', isNotNull),
         ],
       );
