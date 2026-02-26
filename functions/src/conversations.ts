@@ -725,8 +725,26 @@ export const toggleMessageReaction = onCall({ labels: { area: "social" } }, asyn
 // ============================================================================
 
 /**
+ * Returns all possible Storage paths for a message's media files.
+ * Covers images (full/thumb, plain/encrypted), documents, voice, and video.
+ */
+export function getAllMediaPaths(prefix: string, messageId: string): string[] {
+  return [
+    `${prefix}/images/${messageId}_full.jpg`,
+    `${prefix}/images/${messageId}_thumb.jpg`,
+    `${prefix}/images/${messageId}_full.enc`,
+    `${prefix}/images/${messageId}_thumb.enc`,
+    `${prefix}/documents/${messageId}.enc`,
+    `${prefix}/voice/${messageId}.m4a`,
+    `${prefix}/voice/${messageId}.enc`,
+    `${prefix}/videos/${messageId}.enc`,
+    `${prefix}/videos/${messageId}_thumb.enc`,
+  ];
+}
+
+/**
  * Delete media files associated with a single message from Firebase Storage.
- * Checks all possible file paths (image full/thumb, voice, encrypted variants).
+ * Checks all possible file paths for every media type.
  * Best-effort: logs warnings but does not throw on failure.
  */
 async function deleteMessageMedia(
@@ -738,15 +756,7 @@ async function deleteMessageMedia(
 
   const bucket = admin.storage().bucket();
   const prefix = `conversations/${conversationId}`;
-
-  const possiblePaths = [
-    `${prefix}/images/${messageId}_full.jpg`,
-    `${prefix}/images/${messageId}_thumb.jpg`,
-    `${prefix}/images/${messageId}_full.enc`,
-    `${prefix}/images/${messageId}_thumb.enc`,
-    `${prefix}/voice/${messageId}.m4a`,
-    `${prefix}/voice/${messageId}.enc`,
-  ];
+  const possiblePaths = getAllMediaPaths(prefix, messageId);
 
   await Promise.all(
     possiblePaths.map(async (path) => {

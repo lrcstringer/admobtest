@@ -392,6 +392,14 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildMedia(BuildContext context) {
+    // Media expired or removed — show placeholder
+    if (message.type.isMedia && message.media == null) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: _MediaExpiredPlaceholder(type: message.type, isMe: isMe),
+      );
+    }
+
     if (message.type == MessageType.image) {
       final media = message.media!;
       final isEncrypted =
@@ -1087,6 +1095,66 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
                   ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// MEDIA EXPIRED PLACEHOLDER
+// =============================================================================
+
+class _MediaExpiredPlaceholder extends StatelessWidget {
+  final MessageType type;
+  final bool isMe;
+
+  const _MediaExpiredPlaceholder({required this.type, required this.isMe});
+
+  IconData get _icon {
+    switch (type) {
+      case MessageType.image:
+        return Icons.image_not_supported_outlined;
+      case MessageType.video:
+        return Icons.videocam_off_outlined;
+      case MessageType.voice:
+        return Icons.mic_off_outlined;
+      case MessageType.document:
+        return Icons.description_outlined;
+      default:
+        return Icons.block_outlined;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor = isMe
+        ? AppColors.chatBubbleTimestamp
+        : AppColors.chatBubbleReceivedText.withValues(alpha: 0.6);
+
+    return Container(
+      width: 220,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: isMe
+            ? Colors.black.withValues(alpha: 0.1)
+            : Colors.white.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(_icon, color: textColor, size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Media no longer available',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: textColor,
+                    fontStyle: FontStyle.italic,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -8,6 +8,7 @@ import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { reverseJournal } from "./ledger";
 import { EscrowConfig } from "./ledger/types";
+import { getAllMediaPaths } from "./conversations";
 
 const db = admin.firestore();
 
@@ -399,14 +400,7 @@ export const cleanupExpiredMessages = onSchedule(
         // Delete media from Storage (best-effort)
         if (msgData.media) {
           const prefix = `conversations/${conversationId}`;
-          const possiblePaths = [
-            `${prefix}/images/${messageId}_full.jpg`,
-            `${prefix}/images/${messageId}_thumb.jpg`,
-            `${prefix}/images/${messageId}_full.enc`,
-            `${prefix}/images/${messageId}_thumb.enc`,
-            `${prefix}/voice/${messageId}.m4a`,
-            `${prefix}/voice/${messageId}.enc`,
-          ];
+          const possiblePaths = getAllMediaPaths(prefix, messageId);
           for (const path of possiblePaths) {
             try {
               const file = bucket.file(path);
@@ -442,6 +436,87 @@ export const cleanupExpiredMessages = onSchedule(
 
     logger.info(
       `cleanupExpiredMessages: cleaned=${totalCleaned}, mediaDeleted=${totalMediaDeleted}`
+    );
+  }
+);
+
+/**
+ * 30-day media retention cleanup.
+ * Runs daily at 3:00 AM. Deletes Storage blobs for media messages older than
+ * 30 days but keeps the message itself visible (sets media: null so clients
+ * show a "Media no longer available" placeholder).
+ */
+export const cleanupExpiredMedia = onSchedule(
+  {
+    schedule: "0 3 * * *",
+    timeZone: "Africa/Johannesburg",
+    region: "europe-west1",
+    timeoutSeconds: 300,
+    labels: { area: "lifecycle" },
+  },
+  async () => {
+    const cutoff = admin.firestore.Timestamp.fromMillis(
+      Date.now() - 30 * 24 * 60 * 60 * 1000
+    );
+
+    // Query old messages that haven't been fully deleted
+    const oldMessages = await db.collectionGroup("messages")
+      .where("createdAt", "<=", cutoff)
+      .where("deletedForEveryone", "==", false)
+      .limit(500)
+      .get();
+
+    if (oldMessages.empty) {
+      logger.info("cleanupExpiredMedia: no old messages to process");
+      return;
+    }
+
+    const bucket = admin.storage().bucket();
+    let expired = 0;
+    let mediaDeleted = 0;
+
+    for (const doc of oldMessages.docs) {
+      try {
+        const msgData = doc.data();
+
+        // Skip non-media messages and already-expired media
+        if (!msgData.media || msgData.mediaExpired === true) continue;
+
+        const pathParts = doc.ref.path.split("/");
+        const conversationId = pathParts[1];
+        const prefix = `conversations/${conversationId}`;
+        const possiblePaths = getAllMediaPaths(prefix, doc.id);
+
+        // Delete Storage blobs (best-effort)
+        for (const path of possiblePaths) {
+          try {
+            const file = bucket.file(path);
+            const [exists] = await file.exists();
+            if (exists) {
+              await file.delete();
+              mediaDeleted++;
+            }
+          } catch (err: unknown) {
+            const errMsg = err instanceof Error ? err.message : String(err);
+            logger.warn(`cleanupExpiredMedia: Failed to delete ${path}: ${errMsg}`);
+          }
+        }
+
+        // Mark media as expired — keep message visible, clear media metadata
+        await doc.ref.update({
+          media: null,
+          mediaExpired: true,
+        });
+
+        expired++;
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        logger.error(`cleanupExpiredMedia: Failed to process message ${doc.id}: ${errMsg}`);
+      }
+    }
+
+    logger.info(
+      `cleanupExpiredMedia: expired=${expired}, mediaDeleted=${mediaDeleted}`
     );
   }
 );
