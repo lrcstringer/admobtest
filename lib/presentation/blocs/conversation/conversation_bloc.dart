@@ -433,6 +433,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       caption: event.caption,
       durationSeconds: event.durationSeconds,
       replyToMessageId: event.replyToMessageId,
+      thumbnailFile: event.thumbnailFile,
     );
 
     result.fold(

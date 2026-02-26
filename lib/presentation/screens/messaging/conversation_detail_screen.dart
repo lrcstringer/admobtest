@@ -24,6 +24,7 @@ import '../../widgets/messaging/forward_conversation_picker.dart';
 import '../../widgets/messaging/message_search_bar.dart';
 import '../../widgets/messaging/reaction_picker.dart';
 import '../../widgets/messaging/typing_indicator.dart';
+import '../../widgets/messaging/video_message_recorder.dart';
 import '../../widgets/messaging/voice_recorder_widget.dart';
 
 /// P2P conversation detail screen showing messages and input bar.
@@ -45,7 +46,6 @@ class ConversationDetailScreen extends StatefulWidget {
 class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
-  bool _isRecording = false;
   bool _isSearchOpen = false;
 
   @override
@@ -193,30 +193,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                               conv?.participants[uid]?.displayName ?? 'Someone')
                           .toList(),
                     ),
-                  if (_isRecording)
-                    VoiceRecorderWidget(
-                      onRecordingComplete: (result) {
-                        setState(() => _isRecording = false);
-                        final recipientId =
-                            state.getRecipientId(currentUserId);
-                        if (recipientId == null || recipientId.isEmpty) {
-                          return;
-                        }
-                        context.read<ConversationBloc>().add(
-                              ConversationEvent.sendMediaMessage(
-                                conversationId: widget.conversationId,
-                                mediaFile: result.file,
-                                mediaType: 'audio/m4a',
-                                recipientId: recipientId,
-                                durationSeconds: result.durationSeconds,
-                              ),
-                            );
-                      },
-                      onCancel: () =>
-                          setState(() => _isRecording = false),
-                    )
-                  else
-                    MessageInputBar(
+                  MessageInputBar(
                       controller: _messageController,
                       isSending: state.isSending,
                       onSend: () => _sendMessage(context),
@@ -233,7 +210,8 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                       onVoiceRecord: conv != null &&
                               conv.isMessageRequestFor(currentUserId)
                           ? null
-                          : () => setState(() => _isRecording = true),
+                          : () => _openVoiceRecorder(
+                              context, state, currentUserId),
                       onTypingChanged: (isTyping) {
                         context.read<ConversationBloc>().add(
                               ConversationEvent.setTyping(
@@ -477,7 +455,71 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               ),
             );
       },
-      onVoiceRequested: () => setState(() => _isRecording = true),
+      onVoiceRequested: () =>
+          _openVoiceRecorder(context, state, currentUserId),
+      onVideoRequested: () =>
+          _openVideoRecorder(context, state, currentUserId),
+    );
+  }
+
+  void _openVoiceRecorder(
+    BuildContext context,
+    ConversationState state,
+    String currentUserId,
+  ) {
+    final recipientId = state.getRecipientId(currentUserId);
+    if (recipientId == null || recipientId.isEmpty) return;
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black,
+      pageBuilder: (ctx, _, __) => VoiceRecorderWidget(
+        onRecordingComplete: (result) {
+          Navigator.of(ctx).pop();
+          context.read<ConversationBloc>().add(
+                ConversationEvent.sendMediaMessage(
+                  conversationId: widget.conversationId,
+                  mediaFile: result.file,
+                  mediaType: 'audio/m4a',
+                  recipientId: recipientId,
+                  durationSeconds: result.durationSeconds,
+                ),
+              );
+        },
+        onCancel: () => Navigator.of(ctx).pop(),
+      ),
+    );
+  }
+
+  void _openVideoRecorder(
+    BuildContext context,
+    ConversationState state,
+    String currentUserId,
+  ) {
+    final recipientId = state.getRecipientId(currentUserId);
+    if (recipientId == null || recipientId.isEmpty) return;
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black,
+      pageBuilder: (ctx, _, __) => VideoMessageRecorder(
+        onRecordingComplete: (result) {
+          Navigator.of(ctx).pop();
+          context.read<ConversationBloc>().add(
+                ConversationEvent.sendMediaMessage(
+                  conversationId: widget.conversationId,
+                  mediaFile: result.videoFile,
+                  mediaType: 'video/mp4',
+                  recipientId: recipientId,
+                  durationSeconds: result.durationSeconds,
+                  thumbnailFile: result.thumbnailFile,
+                ),
+              );
+        },
+        onCancel: () => Navigator.of(ctx).pop(),
+      ),
     );
   }
 

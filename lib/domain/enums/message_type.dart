@@ -9,6 +9,12 @@ enum MessageType {
   /// Voice note
   voice,
 
+  /// Document attachment (PDF, DOC, etc.)
+  document,
+
+  /// Video message (max 60s, 480×480 square)
+  video,
+
   /// Token send (completed transfer)
   tokenSend,
 
@@ -27,7 +33,8 @@ enum MessageType {
 
 extension MessageTypeX on MessageType {
   bool get isText => this == MessageType.text;
-  bool get isMedia => this == MessageType.image || this == MessageType.voice;
+  bool get isMedia => this == MessageType.image || this == MessageType.voice || this == MessageType.document || this == MessageType.video;
+  bool get isVideo => this == MessageType.video;
   bool get isTokenRelated =>
       this == MessageType.tokenSend || this == MessageType.tokenRequest;
   bool get isSystem => this == MessageType.system;
@@ -50,6 +57,10 @@ extension MessageTypeX on MessageType {
         return 'Gift';
       case MessageType.tokenSpray:
         return 'Token Spray';
+      case MessageType.document:
+        return 'Document';
+      case MessageType.video:
+        return 'Video Message';
       case MessageType.system:
         return 'System';
     }

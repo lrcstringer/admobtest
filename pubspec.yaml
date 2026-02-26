@@ -89,6 +89,9 @@ dependencies:
   # Notifications
   flutter_local_notifications: ^18.0.1
 
+  # Emoji Picker
+  emoji_picker_flutter: ^4.3.0
+
   # Misc
   pin_code_fields: ^8.0.1
   sms_autofill: ^2.2.0

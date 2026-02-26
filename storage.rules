@@ -38,18 +38,21 @@ service firebase.storage {
       allow delete: if isOwner(userId);
     }
 
-    // Chat attachments
-    match /chat/{threadId}/{messageId}/{fileName} {
-      // Only thread participants can read attachments
-      // Note: This requires a way to verify thread participation
-      // For simplicity, allow authenticated users to read
+    // Conversation media (images + voice for P2P chats)
+    // Paths: conversations/{id}/images/{file}, conversations/{id}/voice/{file}
+    match /conversations/{conversationId}/{mediaType}/{fileName} {
       allow read: if isAuthenticated();
-
-      // Only authenticated users can upload chat attachments
       allow write: if isAuthenticated()
         && request.resource.size < 10 * 1024 * 1024; // Max 10MB
+      allow delete: if false;
+    }
 
-      // No deletion of chat attachments
+    // Community media (images + voice for group chats)
+    // Paths: communities/{id}/images/{file}, communities/{id}/voice/{file}
+    match /communities/{communityId}/{mediaType}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated()
+        && request.resource.size < 10 * 1024 * 1024; // Max 10MB
       allow delete: if false;
     }
 

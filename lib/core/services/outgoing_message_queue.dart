@@ -140,6 +140,8 @@ class OutgoingMessageQueue {
     final id = 'pending_${_uuid.v4()}';
     final now = DateTime.now();
     final isAudio = mediaType.startsWith('audio');
+    final isDocument = mediaType == 'document';
+    final isVideo = mediaType.startsWith('video');
 
     await _appDatabase.insertPendingMessage(LocalPendingMessagesCompanion(
       id: Value(id),
@@ -153,29 +155,61 @@ class OutgoingMessageQueue {
         'caption': caption,
         'durationSeconds': durationSeconds,
         'isAudio': isAudio,
+        'isDocument': isDocument,
+        'isVideo': isVideo,
       })),
       status: const Value('pending'),
       createdAt: Value(now),
     ));
 
+    // Parse media metadata from the payload so the optimistic message
+    // renders the image/voice/document correctly on the sender side.
+    MessageMedia? mediaData;
+    try {
+      final parsed = jsonDecode(encryptedPayloadJson) as Map<String, dynamic>;
+      if (parsed.containsKey('media')) {
+        mediaData = MessageMedia.fromJson(
+          parsed['media'] as Map<String, dynamic>,
+        );
+      }
+    } catch (_) {}
+
+    final MessageType msgType;
+    if (isAudio) {
+      msgType = MessageType.voice;
+    } else if (isDocument) {
+      msgType = MessageType.document;
+    } else if (isVideo) {
+      msgType = MessageType.video;
+    } else {
+      msgType = MessageType.image;
+    }
+
     final optimistic = Message(
       id: id,
       senderId: _conversationRemoteDS.currentUserId ?? '',
       senderName: '',
-      type: isAudio ? MessageType.voice : MessageType.image,
+      type: msgType,
       status: MessageStatus.sending,
       textContent: caption,
+      media: mediaData,
       createdAt: now,
     );
     await _appDatabase.upsertLocalMessage(
       LocalMessageMapper.toCompanion(optimistic, conversationId),
     );
 
-    await _updateConversationPreview(
-      conversationId,
-      isAudio ? '🎙 Voice message' : '📷 Photo',
-      now,
-    );
+    final String preview;
+    if (isAudio) {
+      preview = '🎙 Voice message';
+    } else if (isDocument) {
+      preview = '📄 Document';
+    } else if (isVideo) {
+      preview = '🎬 Video message';
+    } else {
+      preview = '📷 Photo';
+    }
+    await _updateConversationPreview(conversationId, preview, now);
 
     if (await _networkInfo.isConnected) {
       _processNextPending();
@@ -607,6 +641,8 @@ class OutgoingMessageQueue {
           ? jsonDecode(msg.payloadJson!) as Map<String, dynamic>
           : <String, dynamic>{};
       final isAudio = meta['isAudio'] as bool? ?? false;
+      final isDocument = meta['isDocument'] as bool? ?? false;
+      final isVideo = meta['isVideo'] as bool? ?? false;
 
       await _appDatabase.updatePendingMessageStatus(msg.id, 'encrypting');
       final encrypted =
@@ -620,7 +656,16 @@ class OutgoingMessageQueue {
       } catch (_) {}
 
       await _appDatabase.updatePendingMessageStatus(msg.id, 'sending');
-      final msgType = isAudio ? 'voice' : 'image';
+      final String msgType;
+      if (isAudio) {
+        msgType = 'voice';
+      } else if (isDocument) {
+        msgType = 'document';
+      } else if (isVideo) {
+        msgType = 'video';
+      } else {
+        msgType = 'image';
+      }
       final messageId = await _conversationRemoteDS.sendEncryptedMessage(
         conversationId: msg.conversationId,
         ciphertext: ciphertextStr,
@@ -630,12 +675,22 @@ class OutgoingMessageQueue {
         replyToMessageId: msg.replyToMessageId,
       );
 
+      final MessageType finalType;
+      if (isAudio) {
+        finalType = MessageType.voice;
+      } else if (isDocument) {
+        finalType = MessageType.document;
+      } else if (isVideo) {
+        finalType = MessageType.video;
+      } else {
+        finalType = MessageType.image;
+      }
       await _finalizeSent(
         pendingId: msg.id,
         realMessageId: messageId,
         conversationId: msg.conversationId,
         plaintext: encryptedPayloadJson,
-        type: isAudio ? MessageType.voice : MessageType.image,
+        type: finalType,
         createdAt: msg.createdAt,
       );
     } catch (e) {
@@ -962,6 +1017,24 @@ class OutgoingMessageQueue {
       await _appDatabase.cacheDecryptedPlaintext(realMessageId, plaintext);
     } catch (_) {}
 
+    // Parse structured payload to extract text and media separately.
+    // Media messages store JSON like {"text":"caption", "media":{...}}.
+    String? textContent = plaintext;
+    MessageMedia? mediaData;
+    if (type == MessageType.image || type == MessageType.voice || type == MessageType.document || type == MessageType.video) {
+      try {
+        final parsed = jsonDecode(plaintext) as Map<String, dynamic>;
+        textContent = parsed['text'] as String?;
+        if (parsed.containsKey('media')) {
+          mediaData = MessageMedia.fromJson(
+            parsed['media'] as Map<String, dynamic>,
+          );
+        }
+      } catch (_) {
+        // Not valid JSON — keep plaintext as textContent (text-only message)
+      }
+    }
+
     // Replace optimistic message with real one
     final sentMessage = Message(
       id: realMessageId,
@@ -969,7 +1042,8 @@ class OutgoingMessageQueue {
       senderName: '',
       type: type,
       status: MessageStatus.sent,
-      textContent: plaintext,
+      textContent: textContent,
+      media: mediaData,
       communityId: communityId,
       createdAt: createdAt ?? DateTime.now(),
     );

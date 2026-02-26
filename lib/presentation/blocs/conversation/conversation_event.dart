@@ -50,7 +50,7 @@ class ConversationEvent with _$ConversationEvent {
     String? replyToMessageId,
   }) = _SendTextMessage;
 
-  /// Send a media message (image or voice), encrypted end-to-end
+  /// Send a media message (image, voice, document, or video), encrypted E2E
   const factory ConversationEvent.sendMediaMessage({
     required String conversationId,
     required File mediaFile,
@@ -59,6 +59,7 @@ class ConversationEvent with _$ConversationEvent {
     String? caption,
     int? durationSeconds,
     String? replyToMessageId,
+    File? thumbnailFile,
   }) = _SendMediaMessage;
 
   // =========================================================================

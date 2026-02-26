@@ -3,66 +3,75 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui';
 
+import 'package:camera/camera.dart';
+import 'package:ffmpeg_kit_flutter_new_min/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_new_min/return_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:record/record.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../theme/app_colors.dart';
 
-/// Result returned when a voice recording completes.
-class VoiceRecordingResult {
-  final File file;
+/// Result returned when the user finishes recording a video message.
+class VideoRecordingResult {
+  final File videoFile;
+  final File thumbnailFile;
   final int durationSeconds;
 
-  const VoiceRecordingResult({required this.file, required this.durationSeconds});
+  const VideoRecordingResult({
+    required this.videoFile,
+    required this.thumbnailFile,
+    required this.durationSeconds,
+  });
 }
 
-/// Full-screen voice message recorder with animated microphone,
-/// progress ring, and review/send flow.
-///
-/// Matches the [VideoMessageRecorder] UI for visual consistency.
-class VoiceRecorderWidget extends StatefulWidget {
-  final ValueChanged<VoiceRecordingResult> onRecordingComplete;
+/// Full-screen video message recorder with square camera preview,
+/// animated progress ring, and review/send flow.
+class VideoMessageRecorder extends StatefulWidget {
+  final ValueChanged<VideoRecordingResult> onRecordingComplete;
   final VoidCallback onCancel;
 
-  const VoiceRecorderWidget({
+  const VideoMessageRecorder({
     super.key,
     required this.onRecordingComplete,
     required this.onCancel,
   });
 
   @override
-  State<VoiceRecorderWidget> createState() => _VoiceRecorderWidgetState();
+  State<VideoMessageRecorder> createState() => _VideoMessageRecorderState();
 }
 
-enum _RecorderPhase { initializing, ready, recording, review }
+enum _RecorderPhase { initializing, preview, recording, processing, review }
 
-class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
+class _VideoMessageRecorderState extends State<VideoMessageRecorder>
     with TickerProviderStateMixin {
-  static const _maxSeconds = 300; // 5 minutes
+  static const _maxSeconds = 60;
   static const _maxFileBytes = 5 * 1024 * 1024;
-  static const _warningSeconds = 250; // 4:10
-  static const _criticalSeconds = 290; // 4:50
+  static const _warningSeconds = 50;
+  static const _criticalSeconds = 55;
+
+  // Camera
+  CameraController? _cameraController;
+  List<CameraDescription> _cameras = [];
+  bool _isFrontCamera = true;
+  _RecorderPhase _phase = _RecorderPhase.initializing;
 
   // Recording
-  final AudioRecorder _recorder = AudioRecorder();
   Timer? _timer;
   int _elapsedSeconds = 0;
-  String? _filePath;
-  _RecorderPhase _phase = _RecorderPhase.initializing;
-  String? _errorMessage;
 
-  // Review
-  AudioPlayer? _reviewPlayer;
-  bool _isReviewPlaying = false;
+  // Processing / review
+  File? _rawVideoFile;
+  File? _compressedFile;
+  File? _thumbnailFile;
+  String? _errorMessage;
+  VideoPlayerController? _reviewController;
 
   // Animations
   late AnimationController _progressController;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
-  late AnimationController _ringController;
 
   @override
   void initState() {
@@ -78,11 +87,7 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
-    _ringController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    );
-    _checkPermission();
+    _initCamera();
   }
 
   @override
@@ -90,27 +95,64 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
     _timer?.cancel();
     _progressController.dispose();
     _pulseController.dispose();
-    _ringController.dispose();
-    _recorder.dispose();
-    _reviewPlayer?.dispose();
+    _cameraController?.dispose();
+    _reviewController?.dispose();
+    // Clean up temp files if not sent
+    _rawVideoFile?.delete().ignore();
     super.dispose();
   }
 
   // ===========================================================================
-  // PERMISSION
+  // CAMERA
   // ===========================================================================
 
-  Future<void> _checkPermission() async {
+  Future<void> _initCamera() async {
     try {
-      final hasPermission = await _recorder.hasPermission();
-      if (!hasPermission) {
-        widget.onCancel();
+      _cameras = await availableCameras();
+      if (_cameras.isEmpty) {
+        setState(() => _errorMessage = 'No cameras available');
         return;
       }
-      if (mounted) setState(() => _phase = _RecorderPhase.ready);
+      await _setupCamera(_frontCamera ?? _cameras.first);
     } catch (e) {
-      if (mounted) setState(() => _errorMessage = 'Microphone error: $e');
+      if (mounted) setState(() => _errorMessage = 'Camera error: $e');
     }
+  }
+
+  CameraDescription? get _frontCamera => _cameras.cast<CameraDescription?>().firstWhere(
+        (c) => c!.lensDirection == CameraLensDirection.front,
+        orElse: () => null,
+      );
+
+  CameraDescription? get _backCamera => _cameras.cast<CameraDescription?>().firstWhere(
+        (c) => c!.lensDirection == CameraLensDirection.back,
+        orElse: () => null,
+      );
+
+  Future<void> _setupCamera(CameraDescription camera) async {
+    _cameraController?.dispose();
+    final controller = CameraController(
+      camera,
+      ResolutionPreset.medium,
+      enableAudio: true,
+    );
+    _cameraController = controller;
+
+    try {
+      await controller.initialize();
+      if (mounted) setState(() => _phase = _RecorderPhase.preview);
+    } catch (e) {
+      if (mounted) setState(() => _errorMessage = 'Camera init failed: $e');
+    }
+  }
+
+  Future<void> _flipCamera() async {
+    if (_phase == _RecorderPhase.recording) return;
+    final target = _isFrontCamera ? _backCamera : _frontCamera;
+    if (target == null) return;
+    _isFrontCamera = !_isFrontCamera;
+    setState(() => _phase = _RecorderPhase.initializing);
+    await _setupCamera(target);
   }
 
   // ===========================================================================
@@ -118,21 +160,17 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
   // ===========================================================================
 
   Future<void> _startRecording() async {
-    try {
-      final tempDir = await getTemporaryDirectory();
-      _filePath =
-          '${tempDir.path}/recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final controller = _cameraController;
+    if (controller == null || !controller.value.isInitialized) return;
+    if (controller.value.isRecordingVideo) return;
 
-      await _recorder.start(
-        const RecordConfig(encoder: AudioEncoder.aacLc),
-        path: _filePath!,
-      );
+    try {
+      await controller.startVideoRecording();
       HapticFeedback.mediumImpact();
 
       _elapsedSeconds = 0;
       _progressController.forward(from: 0);
       _pulseController.repeat(reverse: true);
-      _ringController.repeat();
 
       _timer = Timer.periodic(const Duration(seconds: 1), (_) {
         if (!mounted) return;
@@ -153,65 +191,85 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
   Future<void> _stopRecording() async {
     _timer?.cancel();
     _pulseController.stop();
-    _ringController.stop();
     _progressController.stop();
+
+    final controller = _cameraController;
+    if (controller == null || !controller.value.isRecordingVideo) return;
 
     try {
       HapticFeedback.lightImpact();
-      final path = await _recorder.stop();
-
-      if (path == null || path.isEmpty) {
+      final xFile = await controller.stopVideoRecording();
+      _rawVideoFile = File(xFile.path);
+      setState(() => _phase = _RecorderPhase.processing);
+      await _compressVideo();
+    } catch (e) {
+      if (mounted) {
         setState(() {
-          _errorMessage = 'Recording failed';
-          _phase = _RecorderPhase.ready;
+          _errorMessage = 'Recording failed: $e';
+          _phase = _RecorderPhase.preview;
         });
-        return;
+      }
+    }
+  }
+
+  // ===========================================================================
+  // COMPRESSION
+  // ===========================================================================
+
+  Future<void> _compressVideo() async {
+    final rawFile = _rawVideoFile;
+    if (rawFile == null) return;
+
+    try {
+      final dir = await getTemporaryDirectory();
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final outputPath = '${dir.path}/vmsg_$ts.mp4';
+      final thumbPath = '${dir.path}/vmsg_thumb_$ts.jpg';
+
+      // Compress to 480×480 square, H.264 Main, 500k video, 64k audio
+      final compressCmd = '-i "${rawFile.path}" '
+          '-vf "crop=min(iw\\,ih):min(iw\\,ih),scale=480:480" '
+          '-c:v libx264 -profile:v main -preset medium -b:v 500k '
+          '-c:a aac -b:a 64k -movflags +faststart '
+          '-y "$outputPath"';
+
+      final session = await FFmpegKit.execute(compressCmd);
+      final returnCode = await session.getReturnCode();
+      if (!ReturnCode.isSuccess(returnCode)) {
+        throw Exception('Compression failed');
       }
 
-      final file = File(path);
-      if (!file.existsSync()) {
-        setState(() {
-          _errorMessage = 'Recording file not found';
-          _phase = _RecorderPhase.ready;
-        });
-        return;
+      final compressed = File(outputPath);
+      final size = await compressed.length();
+      if (size > _maxFileBytes) {
+        await compressed.delete();
+        throw Exception(
+            'Video too large (${(size / (1024 * 1024)).toStringAsFixed(1)} MB). '
+            'Try a shorter recording.');
       }
 
-      if (_elapsedSeconds < 1) {
-        await file.delete();
-        setState(() => _phase = _RecorderPhase.ready);
-        return;
-      }
+      // Generate thumbnail from first frame
+      final thumbCmd = '-i "$outputPath" '
+          '-ss 00:00:00.5 -vframes 1 '
+          '-vf "scale=480:480" '
+          '-y "$thumbPath"';
+      await FFmpegKit.execute(thumbCmd);
 
-      final fileSize = await file.length();
-      if (fileSize > _maxFileBytes) {
-        await file.delete();
-        setState(() {
-          _errorMessage =
-              'Recording too large (${(fileSize / (1024 * 1024)).toStringAsFixed(1)} MB). '
-              'Try a shorter recording.';
-          _phase = _RecorderPhase.ready;
-        });
-        return;
-      }
+      _compressedFile = compressed;
+      _thumbnailFile = File(thumbPath);
 
       // Set up review playback
-      _reviewPlayer = AudioPlayer();
-      await _reviewPlayer!.setFilePath(path);
-      await _reviewPlayer!.setLoopMode(LoopMode.one);
-      await _reviewPlayer!.play();
-
-      _reviewPlayer!.playerStateStream.listen((state) {
-        if (!mounted) return;
-        setState(() => _isReviewPlaying = state.playing);
-      });
+      _reviewController = VideoPlayerController.file(compressed)
+        ..setLooping(true);
+      await _reviewController!.initialize();
+      await _reviewController!.play();
 
       if (mounted) setState(() => _phase = _RecorderPhase.review);
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Recording failed: $e';
-          _phase = _RecorderPhase.ready;
+          _errorMessage = e.toString();
+          _phase = _RecorderPhase.preview;
         });
       }
     }
@@ -222,64 +280,30 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
   // ===========================================================================
 
   void _retake() {
-    _reviewPlayer?.dispose();
-    _reviewPlayer = null;
-    _isReviewPlaying = false;
-
-    if (_filePath != null) {
-      File(_filePath!).delete().ignore();
-    }
-    _filePath = null;
+    _reviewController?.dispose();
+    _reviewController = null;
+    _compressedFile?.delete().ignore();
+    _thumbnailFile?.delete().ignore();
+    _compressedFile = null;
+    _thumbnailFile = null;
+    _rawVideoFile?.delete().ignore();
+    _rawVideoFile = null;
     _elapsedSeconds = 0;
     _progressController.reset();
-    _errorMessage = null;
-    setState(() => _phase = _RecorderPhase.ready);
+    setState(() => _phase = _RecorderPhase.preview);
   }
 
   void _send() {
-    if (_filePath == null) return;
-
-    final file = File(_filePath!);
-    if (!file.existsSync()) return;
-
-    _reviewPlayer?.stop();
-    _reviewPlayer?.dispose();
-    _reviewPlayer = null;
-
-    widget.onRecordingComplete(VoiceRecordingResult(
-      file: file,
+    if (_compressedFile == null || _thumbnailFile == null) return;
+    widget.onRecordingComplete(VideoRecordingResult(
+      videoFile: _compressedFile!,
+      thumbnailFile: _thumbnailFile!,
       durationSeconds: _elapsedSeconds,
     ));
-
-    // Prevent cleanup in dispose — file is now owned by caller
-    _filePath = null;
-  }
-
-  Future<void> _cancel() async {
-    _timer?.cancel();
-    try {
-      await _recorder.stop();
-    } catch (_) {}
-
-    _reviewPlayer?.dispose();
-    _reviewPlayer = null;
-
-    if (_filePath != null) {
-      File(_filePath!).delete().ignore();
-    }
-
-    widget.onCancel();
-  }
-
-  void _toggleReviewPlayback() {
-    final player = _reviewPlayer;
-    if (player == null) return;
-
-    if (player.playing) {
-      player.pause();
-    } else {
-      player.play();
-    }
+    // Prevent cleanup in dispose — files are now owned by caller
+    _compressedFile = null;
+    _thumbnailFile = null;
+    _rawVideoFile = null;
   }
 
   // ===========================================================================
@@ -295,7 +319,7 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
   String get _timerText {
     final m = (_elapsedSeconds ~/ 60).toString();
     final s = (_elapsedSeconds % 60).toString().padLeft(2, '0');
-    return '$m:$s / 5:00';
+    return '$m:$s / 1:00';
   }
 
   // ===========================================================================
@@ -341,17 +365,24 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            onPressed: _cancel,
+            onPressed: widget.onCancel,
             icon: const Icon(Icons.close, color: Colors.white, size: 28),
           ),
           Text(
-            'Audio Message',
+            'Video Message',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
           ),
-          const SizedBox(width: 48), // spacer to balance layout
+          if (_phase == _RecorderPhase.preview ||
+              _phase == _RecorderPhase.initializing)
+            IconButton(
+              onPressed: _flipCamera,
+              icon: const Icon(Icons.flip_camera_ios, color: Colors.white, size: 28),
+            )
+          else
+            const SizedBox(width: 48),
         ],
       ),
     );
@@ -359,7 +390,7 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
 
   Widget _buildCenterContent() {
     final screenWidth = MediaQuery.of(context).size.width;
-    final previewSize = screenWidth * 0.5; // slightly smaller than video (0.78)
+    final previewSize = screenWidth * 0.78;
 
     if (_errorMessage != null) {
       return SizedBox(
@@ -388,40 +419,47 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
       );
     }
 
-    if (_phase == _RecorderPhase.review) {
+    if (_phase == _RecorderPhase.processing) {
       return SizedBox(
         width: previewSize,
         height: previewSize,
         child: Center(
-          child: GestureDetector(
-            onTap: _toggleReviewPlayback,
-            child: Container(
-              width: 160,
-              height: 160,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.08),
-                border: Border.all(
-                  color: AppColors.success.withValues(alpha: 0.5),
-                  width: 3,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(color: Colors.white),
+              const SizedBox(height: 16),
+              Text(
+                'Compressing...',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  fontSize: 14,
                 ),
               ),
-              child: Icon(
-                _isReviewPlaying ? Icons.pause : Icons.play_arrow,
-                color: Colors.white,
-                size: 64,
-              ),
-            ),
+            ],
           ),
         ),
       );
     }
 
-    // Ready or recording
-    final ringSize = previewSize + 12;
+    if (_phase == _RecorderPhase.review && _reviewController != null) {
+      return SizedBox(
+        width: previewSize,
+        height: previewSize,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: AspectRatio(
+            aspectRatio: 1.0,
+            child: VideoPlayer(_reviewController!),
+          ),
+        ),
+      );
+    }
+
+    // Preview or recording — show camera with progress ring
     return SizedBox(
-      width: ringSize,
-      height: ringSize,
+      width: previewSize + 12, // extra for ring stroke
+      height: previewSize + 12,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -435,38 +473,32 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
                     progress: _progressController.value,
                     color: _progressColor,
                     strokeWidth: 4,
+                    borderRadius: 18,
                   ),
                 ),
               ),
             ),
-          // Pulse rings (while recording)
-          if (_phase == _RecorderPhase.recording)
-            AnimatedBuilder(
-              animation: _ringController,
-              builder: (_, __) => CustomPaint(
-                size: Size(previewSize, previewSize),
-                painter: _PulseRingsPainter(
-                  progress: _ringController.value,
-                  color: _progressColor,
-                ),
-              ),
-            ),
-          // Microphone circle
-          Container(
-            width: 160,
-            height: 160,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.08),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.2),
-                width: 2,
-              ),
-            ),
-            child: const Icon(
-              Icons.mic,
-              color: Colors.white,
-              size: 80,
+          // Camera preview
+          SizedBox(
+            width: previewSize,
+            height: previewSize,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: _cameraController != null &&
+                      _cameraController!.value.isInitialized
+                  ? AspectRatio(
+                      aspectRatio: 1.0,
+                      child: FittedBox(
+                        fit: BoxFit.cover,
+                        clipBehavior: Clip.hardEdge,
+                        child: SizedBox(
+                          width: _cameraController!.value.previewSize?.height ?? 480,
+                          height: _cameraController!.value.previewSize?.width ?? 480,
+                          child: CameraPreview(_cameraController!),
+                        ),
+                      ),
+                    )
+                  : Container(color: Colors.black),
             ),
           ),
         ],
@@ -499,6 +531,7 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            // Retake
             _ActionButton(
               onTap: _retake,
               icon: Icons.refresh,
@@ -506,6 +539,7 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
               color: Colors.white,
               filled: false,
             ),
+            // Send
             _ActionButton(
               onTap: _send,
               icon: Icons.send,
@@ -518,11 +552,12 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
       );
     }
 
-    if (_phase == _RecorderPhase.initializing) {
+    if (_phase == _RecorderPhase.processing ||
+        _phase == _RecorderPhase.initializing) {
       return const SizedBox(height: 80);
     }
 
-    // Ready or recording — show record/stop button
+    // Preview or recording — show record/stop button
     final isRecording = _phase == _RecorderPhase.recording;
 
     return Column(
@@ -620,33 +655,40 @@ class _ActionButton extends StatelessWidget {
 }
 
 // =============================================================================
-// PROGRESS RING PAINTER — circular ring around the mic area
+// PROGRESS RING PAINTER — rounded-rect ring around the camera preview
 // =============================================================================
 
 class _ProgressRingPainter extends CustomPainter {
-  final double progress;
+  final double progress; // 0.0 → 1.0
   final Color color;
   final double strokeWidth;
+  final double borderRadius;
 
   _ProgressRingPainter({
     required this.progress,
     required this.color,
     required this.strokeWidth,
+    required this.borderRadius,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.shortestSide - strokeWidth) / 2;
+    final rect = Rect.fromLTWH(
+      strokeWidth / 2,
+      strokeWidth / 2,
+      size.width - strokeWidth,
+      size.height - strokeWidth,
+    );
+    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
 
     // Background track
     final bgPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
-    canvas.drawCircle(center, radius, bgPaint);
+    canvas.drawRRect(rrect, bgPaint);
 
-    // Progress arc
+    // Progress arc — approximate with a circle for smooth animation
     if (progress > 0) {
       final progressPaint = Paint()
         ..color = color
@@ -654,9 +696,12 @@ class _ProgressRingPainter extends CustomPainter {
         ..strokeWidth = strokeWidth
         ..strokeCap = StrokeCap.round;
 
+      final center = rect.center;
+      final radius = rect.shortestSide / 2;
+
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius),
-        -math.pi / 2,
+        -math.pi / 2, // start from top
         2 * math.pi * progress,
         false,
         progressPaint,
@@ -666,41 +711,5 @@ class _ProgressRingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _ProgressRingPainter oldDelegate) =>
-      progress != oldDelegate.progress || color != oldDelegate.color;
-}
-
-// =============================================================================
-// PULSE RINGS PAINTER — concentric expanding rings during recording
-// =============================================================================
-
-class _PulseRingsPainter extends CustomPainter {
-  final double progress; // 0.0 → 1.0 repeating
-  final Color color;
-
-  _PulseRingsPainter({required this.progress, required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final maxRadius = size.shortestSide / 2;
-    const ringCount = 3;
-
-    for (var i = 0; i < ringCount; i++) {
-      final phase = (progress + i / ringCount) % 1.0;
-      final radius = 80 + (maxRadius - 80) * phase; // start from mic circle
-      final opacity = (1.0 - phase) * 0.3;
-
-      if (opacity > 0) {
-        final paint = Paint()
-          ..color = color.withValues(alpha: opacity)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2;
-        canvas.drawCircle(center, radius, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _PulseRingsPainter oldDelegate) =>
       progress != oldDelegate.progress || color != oldDelegate.color;
 }

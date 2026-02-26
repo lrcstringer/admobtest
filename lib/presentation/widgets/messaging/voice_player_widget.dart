@@ -8,10 +8,10 @@ import '../../../core/services/audio_playback_service.dart';
 import '../../../domain/entities/message.dart';
 import '../../theme/app_colors.dart';
 
-/// Inline voice message player that replaces the static stub in message bubbles.
+/// Inline voice message player styled to match [VideoMessagePlayer].
 ///
-/// Shows play/pause, progress slider, and duration. Uses the singleton
-/// [AudioPlaybackService] so only one voice plays at a time.
+/// Shows a compact card with play/pause overlay, progress bar, and duration
+/// chip — the same visual language used for video message bubbles.
 class VoicePlayerWidget extends StatefulWidget {
   final Message message;
   final bool isMe;
@@ -44,7 +44,6 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget> {
   void initState() {
     super.initState();
 
-    // Set initial duration from message metadata
     final metaDuration = widget.message.media?.duration ?? 0;
     _duration = Duration(seconds: metaDuration);
 
@@ -53,12 +52,10 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget> {
       final active = _isActive;
       setState(() {
         _isThisPlaying = active && state.playing;
-        // Reset when this player's audio completes
         if (active && state.processingState == ProcessingState.completed) {
           _isThisPlaying = false;
           _position = Duration.zero;
         }
-        // If another message started playing, reset our state
         if (!active && (_isThisPlaying || _isLoading)) {
           _isThisPlaying = false;
           _isLoading = false;
@@ -115,12 +112,6 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget> {
     }
   }
 
-  void _onSliderChanged(double value) {
-    if (!_isActive) return;
-    final newPos = Duration(milliseconds: value.toInt());
-    _service.seek(newPos);
-  }
-
   String _formatDuration(Duration d) {
     final minutes = d.inMinutes.toString().padLeft(1, '0');
     final seconds = (d.inSeconds % 60).toString().padLeft(2, '0');
@@ -129,90 +120,176 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final voiceColor =
-        widget.isMe ? AppColors.chatBubbleText : AppColors.chatBubbleReceivedText;
-    final sliderActiveColor = widget.isMe
-        ? AppColors.chatBubbleText.withValues(alpha: 0.9)
-        : AppColors.chatBubbleReceivedText.withValues(alpha: 0.9);
-    final sliderInactiveColor = widget.isMe
-        ? AppColors.chatBubbleText.withValues(alpha: 0.3)
-        : AppColors.chatBubbleReceivedText.withValues(alpha: 0.3);
-
     final maxMs = _duration.inMilliseconds.toDouble();
     final posMs = _position.inMilliseconds.toDouble().clamp(0.0, maxMs);
+    final progress = maxMs > 0 ? posMs / maxMs : 0.0;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      constraints: const BoxConstraints(minWidth: 180),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Play/Pause/Loading button
-          SizedBox(
-            width: 36,
-            height: 36,
-            child: _isLoading
-                ? Padding(
-                    padding: const EdgeInsets.all(6),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: voiceColor,
-                    ),
-                  )
-                : IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(
-                      _hasError
-                          ? Icons.error_outline
-                          : _isThisPlaying
-                              ? Icons.pause_circle_filled
-                              : Icons.play_circle_filled,
-                      color: _hasError ? AppColors.error : voiceColor,
-                      size: 32,
-                    ),
-                    onPressed: _togglePlayPause,
-                  ),
-          ),
-          const SizedBox(width: 4),
-          // Slider + time
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+    final bgColor = widget.isMe
+        ? Colors.black.withValues(alpha: 0.15)
+        : Colors.white.withValues(alpha: 0.08);
+
+    return GestureDetector(
+      onTap: _togglePlayPause,
+      child: Container(
+        width: 220,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
               children: [
-                SliderTheme(
-                  data: SliderThemeData(
-                    trackHeight: 3,
-                    thumbShape: const RoundSliderThumbShape(
-                      enabledThumbRadius: 5,
-                    ),
-                    overlayShape: const RoundSliderOverlayShape(
-                      overlayRadius: 10,
-                    ),
-                    activeTrackColor: sliderActiveColor,
-                    inactiveTrackColor: sliderInactiveColor,
-                    thumbColor: sliderActiveColor,
-                  ),
-                  child: Slider(
-                    value: posMs,
-                    max: maxMs > 0 ? maxMs : 1,
-                    onChanged: _isActive ? _onSliderChanged : null,
+                // Play/pause button (circular overlay matching video style)
+                _buildPlayButton(),
+                const SizedBox(width: 10),
+                // Waveform-style bars + time
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Waveform visualization
+                      _buildWaveform(progress),
+                      const SizedBox(height: 6),
+                      // Progress bar
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(2),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 3,
+                          backgroundColor: widget.isMe
+                              ? AppColors.chatBubbleText.withValues(alpha: 0.2)
+                              : AppColors.chatBubbleReceivedText
+                                  .withValues(alpha: 0.2),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            widget.isMe
+                                ? AppColors.chatBubbleText
+                                    .withValues(alpha: 0.8)
+                                : AppColors.chatBubbleReceivedText
+                                    .withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            _isThisPlaying || _isActive
-                ? _formatDuration(_position)
-                : _formatDuration(_duration),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: voiceColor,
-                  fontFeatures: [const FontFeature.tabularFigures()],
+            const SizedBox(height: 6),
+            // Duration chip (bottom-right, matching video player)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.mic, color: Colors.white, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        _isThisPlaying || _isActive
+                            ? _formatDuration(_position)
+                            : _formatDuration(_duration),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlayButton() {
+    if (_isLoading) {
+      return Container(
+        width: 40,
+        height: 40,
+        decoration: const BoxDecoration(
+          color: Colors.black54,
+          shape: BoxShape.circle,
+        ),
+        child: const Padding(
+          padding: EdgeInsets.all(8),
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: Colors.white,
           ),
-        ],
+        ),
+      );
+    }
+
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: const BoxDecoration(
+        color: Colors.black54,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        _hasError
+            ? Icons.error_outline
+            : _isThisPlaying
+                ? Icons.pause
+                : Icons.play_arrow,
+        color: _hasError ? AppColors.error : Colors.white,
+        size: 24,
+      ),
+    );
+  }
+
+  /// Decorative waveform bars that animate with playback progress.
+  Widget _buildWaveform(double progress) {
+    // Fixed waveform pattern (pseudo-random heights)
+    const barHeights = [0.4, 0.7, 0.5, 0.9, 0.3, 0.8, 0.6, 1.0, 0.4, 0.7,
+        0.5, 0.8, 0.3, 0.6, 0.9, 0.5, 0.7, 0.4, 0.8, 0.6];
+    const maxHeight = 20.0;
+
+    return SizedBox(
+      height: maxHeight,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: List.generate(barHeights.length, (i) {
+          final barProgress = i / barHeights.length;
+          final isPlayed = barProgress < progress;
+          final activeColor = widget.isMe
+              ? AppColors.chatBubbleText
+              : AppColors.chatBubbleReceivedText;
+          final inactiveColor = widget.isMe
+              ? AppColors.chatBubbleText.withValues(alpha: 0.3)
+              : AppColors.chatBubbleReceivedText.withValues(alpha: 0.3);
+
+          return Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 0.5),
+              child: Container(
+                height: maxHeight * barHeights[i],
+                decoration: BoxDecoration(
+                  color: isPlayed ? activeColor : inactiveColor,
+                  borderRadius: BorderRadius.circular(1),
+                ),
+              ),
+            ),
+          );
+        }),
       ),
     );
   }

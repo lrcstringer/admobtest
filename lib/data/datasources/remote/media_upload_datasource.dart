@@ -288,6 +288,133 @@ class MediaUploadDatasource {
   }
 
   // =========================================================================
+  // ENCRYPTED DOCUMENTS (E2EE)
+  // =========================================================================
+
+  static const int _maxDocumentBytes = 10 * 1024 * 1024; // 10 MB
+
+  /// Upload a document encrypted with AES-256-GCM.
+  ///
+  /// No compression or thumbnails — documents are uploaded as-is after
+  /// encryption. Returns the download URL and encryption key.
+  Future<MediaUploadResult> uploadEncryptedDocument({
+    required File documentFile,
+    required String parentCollection,
+    required String parentId,
+    required String messageId,
+  }) async {
+    final fileSize = await documentFile.length();
+    if (fileSize > _maxDocumentBytes) {
+      throw Exception(
+          'Document exceeds ${_maxDocumentBytes ~/ (1024 * 1024)} MB limit');
+    }
+
+    final rawBytes = await documentFile.readAsBytes();
+    final docKey = _cryptoService.generateAesKey();
+    final encryptedBytes = await _cryptoService.encrypt(rawBytes, docKey);
+
+    final storagePath =
+        '$parentCollection/$parentId/documents/$messageId.enc';
+    final url = await _uploadBytes(
+        encryptedBytes, storagePath, 'application/octet-stream');
+
+    return MediaUploadResult(
+      url: url,
+      fileName: p.basename(documentFile.path),
+      fileSize: fileSize,
+      mimeType: _mimeTypeFromExtension(p.extension(documentFile.path)),
+      mediaKey: base64Encode(docKey),
+    );
+  }
+
+  /// Map file extension to MIME type for documents.
+  static String _mimeTypeFromExtension(String ext) {
+    switch (ext.toLowerCase()) {
+      case '.pdf':
+        return 'application/pdf';
+      case '.doc':
+        return 'application/msword';
+      case '.docx':
+        return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      case '.xls':
+        return 'application/vnd.ms-excel';
+      case '.xlsx':
+        return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      case '.ppt':
+        return 'application/vnd.ms-powerpoint';
+      case '.pptx':
+        return 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+      case '.txt':
+        return 'text/plain';
+      case '.csv':
+        return 'text/csv';
+      case '.zip':
+        return 'application/zip';
+      default:
+        return 'application/octet-stream';
+    }
+  }
+
+  // =========================================================================
+  // ENCRYPTED VIDEO (E2EE)
+  // =========================================================================
+
+  static const int _maxVideoBytes = 5 * 1024 * 1024; // 5 MB
+
+  /// Upload a video message encrypted with AES-256-GCM.
+  ///
+  /// Expects an already-compressed MP4 file (480×480, H.264, ≤5MB) and a
+  /// JPEG thumbnail. Encrypts both with separate random keys and uploads
+  /// in parallel.
+  Future<MediaUploadResult> uploadEncryptedVideo({
+    required File videoFile,
+    required File thumbnailFile,
+    required String parentCollection,
+    required String parentId,
+    required String messageId,
+    required int durationSeconds,
+  }) async {
+    final videoSize = await videoFile.length();
+    if (videoSize > _maxVideoBytes) {
+      throw Exception(
+          'Video exceeds ${_maxVideoBytes ~/ (1024 * 1024)} MB limit');
+    }
+
+    final videoBytes = await videoFile.readAsBytes();
+    final thumbBytes = await thumbnailFile.readAsBytes();
+
+    // Encrypt each with a separate random key
+    final videoKey = _cryptoService.generateAesKey();
+    final thumbKey = _cryptoService.generateAesKey();
+    final encryptedVideo = await _cryptoService.encrypt(videoBytes, videoKey);
+    final encryptedThumb = await _cryptoService.encrypt(thumbBytes, thumbKey);
+
+    // Upload encrypted bytes in parallel
+    final videoPath =
+        '$parentCollection/$parentId/videos/$messageId.enc';
+    final thumbPath =
+        '$parentCollection/$parentId/videos/${messageId}_thumb.enc';
+
+    final results = await Future.wait([
+      _uploadBytes(encryptedVideo, videoPath, 'application/octet-stream'),
+      _uploadBytes(encryptedThumb, thumbPath, 'application/octet-stream'),
+    ]);
+
+    return MediaUploadResult(
+      url: results[0],
+      thumbnailUrl: results[1],
+      fileName: p.basename(videoFile.path),
+      fileSize: videoBytes.length,
+      mimeType: 'video/mp4',
+      duration: durationSeconds,
+      width: 480,
+      height: 480,
+      mediaKey: base64Encode(videoKey),
+      thumbKey: base64Encode(thumbKey),
+    );
+  }
+
+  // =========================================================================
   // ENCRYPTED DOWNLOADS (E2EE)
   // =========================================================================
 

@@ -45,6 +45,7 @@ mixin _$ConversationEvent {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -108,6 +109,7 @@ mixin _$ConversationEvent {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -169,6 +171,7 @@ mixin _$ConversationEvent {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -382,6 +385,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -449,6 +453,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -514,6 +519,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -772,6 +778,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -839,6 +846,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -904,6 +912,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -1158,6 +1167,7 @@ class _$SelectConversationImpl implements _SelectConversation {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -1225,6 +1235,7 @@ class _$SelectConversationImpl implements _SelectConversation {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -1290,6 +1301,7 @@ class _$SelectConversationImpl implements _SelectConversation {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -1544,6 +1556,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -1611,6 +1624,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -1676,6 +1690,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -1950,6 +1965,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -2017,6 +2033,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -2082,6 +2099,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -2348,6 +2366,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -2415,6 +2434,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -2480,6 +2500,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -2759,6 +2780,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -2826,6 +2848,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -2891,6 +2914,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -3066,6 +3090,7 @@ abstract class _$$SendMediaMessageImplCopyWith<$Res> {
     String? caption,
     int? durationSeconds,
     String? replyToMessageId,
+    File? thumbnailFile,
   });
 }
 
@@ -3090,6 +3115,7 @@ class __$$SendMediaMessageImplCopyWithImpl<$Res>
     Object? caption = freezed,
     Object? durationSeconds = freezed,
     Object? replyToMessageId = freezed,
+    Object? thumbnailFile = freezed,
   }) {
     return _then(
       _$SendMediaMessageImpl(
@@ -3121,6 +3147,10 @@ class __$$SendMediaMessageImplCopyWithImpl<$Res>
             ? _value.replyToMessageId
             : replyToMessageId // ignore: cast_nullable_to_non_nullable
                   as String?,
+        thumbnailFile: freezed == thumbnailFile
+            ? _value.thumbnailFile
+            : thumbnailFile // ignore: cast_nullable_to_non_nullable
+                  as File?,
       ),
     );
   }
@@ -3137,6 +3167,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     this.caption,
     this.durationSeconds,
     this.replyToMessageId,
+    this.thumbnailFile,
   });
 
   @override
@@ -3153,10 +3184,12 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
   final int? durationSeconds;
   @override
   final String? replyToMessageId;
+  @override
+  final File? thumbnailFile;
 
   @override
   String toString() {
-    return 'ConversationEvent.sendMediaMessage(conversationId: $conversationId, mediaFile: $mediaFile, mediaType: $mediaType, recipientId: $recipientId, caption: $caption, durationSeconds: $durationSeconds, replyToMessageId: $replyToMessageId)';
+    return 'ConversationEvent.sendMediaMessage(conversationId: $conversationId, mediaFile: $mediaFile, mediaType: $mediaType, recipientId: $recipientId, caption: $caption, durationSeconds: $durationSeconds, replyToMessageId: $replyToMessageId, thumbnailFile: $thumbnailFile)';
   }
 
   @override
@@ -3176,7 +3209,9 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
             (identical(other.durationSeconds, durationSeconds) ||
                 other.durationSeconds == durationSeconds) &&
             (identical(other.replyToMessageId, replyToMessageId) ||
-                other.replyToMessageId == replyToMessageId));
+                other.replyToMessageId == replyToMessageId) &&
+            (identical(other.thumbnailFile, thumbnailFile) ||
+                other.thumbnailFile == thumbnailFile));
   }
 
   @override
@@ -3189,6 +3224,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     caption,
     durationSeconds,
     replyToMessageId,
+    thumbnailFile,
   );
 
   /// Create a copy of ConversationEvent
@@ -3231,6 +3267,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -3279,6 +3316,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       caption,
       durationSeconds,
       replyToMessageId,
+      thumbnailFile,
     );
   }
 
@@ -3306,6 +3344,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -3352,6 +3391,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       caption,
       durationSeconds,
       replyToMessageId,
+      thumbnailFile,
     );
   }
 
@@ -3379,6 +3419,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -3427,6 +3468,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
         caption,
         durationSeconds,
         replyToMessageId,
+        thumbnailFile,
       );
     }
     return orElse();
@@ -3538,6 +3580,7 @@ abstract class _SendMediaMessage implements ConversationEvent {
     final String? caption,
     final int? durationSeconds,
     final String? replyToMessageId,
+    final File? thumbnailFile,
   }) = _$SendMediaMessageImpl;
 
   String get conversationId;
@@ -3547,6 +3590,7 @@ abstract class _SendMediaMessage implements ConversationEvent {
   String? get caption;
   int? get durationSeconds;
   String? get replyToMessageId;
+  File? get thumbnailFile;
 
   /// Create a copy of ConversationEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -3690,6 +3734,7 @@ class _$SendTokensImpl implements _SendTokens {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -3757,6 +3802,7 @@ class _$SendTokensImpl implements _SendTokens {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -3822,6 +3868,7 @@ class _$SendTokensImpl implements _SendTokens {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -4119,6 +4166,7 @@ class _$RequestTokensImpl implements _RequestTokens {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -4186,6 +4234,7 @@ class _$RequestTokensImpl implements _RequestTokens {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -4251,6 +4300,7 @@ class _$RequestTokensImpl implements _RequestTokens {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -4524,6 +4574,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -4591,6 +4642,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -4656,6 +4708,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -4925,6 +4978,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -4992,6 +5046,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -5057,6 +5112,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -5315,6 +5371,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -5382,6 +5439,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -5447,6 +5505,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -5701,6 +5760,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -5768,6 +5828,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -5833,6 +5894,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -6084,6 +6146,7 @@ class _$ClearChatImpl implements _ClearChat {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -6151,6 +6214,7 @@ class _$ClearChatImpl implements _ClearChat {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -6216,6 +6280,7 @@ class _$ClearChatImpl implements _ClearChat {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -6478,6 +6543,7 @@ class _$RetryMessageImpl implements _RetryMessage {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -6545,6 +6611,7 @@ class _$RetryMessageImpl implements _RetryMessage {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -6610,6 +6677,7 @@ class _$RetryMessageImpl implements _RetryMessage {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -6873,6 +6941,7 @@ class _$SetTypingImpl implements _SetTyping {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -6940,6 +7009,7 @@ class _$SetTypingImpl implements _SetTyping {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -7005,6 +7075,7 @@ class _$SetTypingImpl implements _SetTyping {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -7274,6 +7345,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -7341,6 +7413,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -7406,6 +7479,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -7671,6 +7745,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -7738,6 +7813,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -7803,6 +7879,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -8030,6 +8107,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -8097,6 +8175,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -8162,6 +8241,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -8419,6 +8499,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -8486,6 +8567,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -8551,6 +8633,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -8842,6 +8925,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -8913,6 +8997,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -8982,6 +9067,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(
@@ -9215,6 +9301,7 @@ class _$ClearErrorImpl implements _ClearError {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(
@@ -9282,6 +9369,7 @@ class _$ClearErrorImpl implements _ClearError {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult? Function(
@@ -9347,6 +9435,7 @@ class _$ClearErrorImpl implements _ClearError {
       String? caption,
       int? durationSeconds,
       String? replyToMessageId,
+      File? thumbnailFile,
     )?
     sendMediaMessage,
     TResult Function(

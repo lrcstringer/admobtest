@@ -278,6 +278,8 @@ const _$MessageTypeEnumMap = {
   MessageType.text: 'text',
   MessageType.image: 'image',
   MessageType.voice: 'voice',
+  MessageType.document: 'document',
+  MessageType.video: 'video',
   MessageType.tokenSend: 'tokenSend',
   MessageType.tokenRequest: 'tokenRequest',
   MessageType.gift: 'gift',

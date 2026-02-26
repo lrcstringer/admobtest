@@ -1,3 +1,4 @@
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
@@ -6,6 +7,8 @@ import '../../theme/app_colors.dart';
 ///
 /// When text is empty and [onVoiceRecord] is non-null, the send button
 /// becomes a mic button. Tapping it triggers voice recording mode.
+///
+/// Includes an inline emoji picker that toggles with the keyboard.
 class MessageInputBar extends StatefulWidget {
   final TextEditingController controller;
   final bool isSending;
@@ -36,12 +39,15 @@ class MessageInputBar extends StatefulWidget {
 
 class _MessageInputBarState extends State<MessageInputBar> {
   bool _hasText = false;
+  bool _showEmojiPicker = false;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _hasText = widget.controller.text.trim().isNotEmpty;
     widget.controller.addListener(_onTextChanged);
+    _focusNode.addListener(_onFocusChanged);
   }
 
   @override
@@ -57,6 +63,8 @@ class _MessageInputBarState extends State<MessageInputBar> {
   @override
   void dispose() {
     widget.controller.removeListener(_onTextChanged);
+    _focusNode.removeListener(_onFocusChanged);
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -69,75 +77,178 @@ class _MessageInputBarState extends State<MessageInputBar> {
     widget.onTypingChanged?.call(hasText);
   }
 
+  void _onFocusChanged() {
+    // When the keyboard opens (text field gains focus), hide emoji picker
+    if (_focusNode.hasFocus && _showEmojiPicker) {
+      setState(() => _showEmojiPicker = false);
+    }
+  }
+
+  void _toggleEmojiPicker() {
+    if (_showEmojiPicker) {
+      // Switch from emoji picker → keyboard
+      setState(() => _showEmojiPicker = false);
+      _focusNode.requestFocus();
+    } else {
+      // Switch from keyboard → emoji picker
+      _focusNode.unfocus();
+      setState(() => _showEmojiPicker = true);
+    }
+  }
+
+  void _onEmojiSelected(Category? category, Emoji emoji) {
+    final controller = widget.controller;
+    final text = controller.text;
+    final selection = controller.selection;
+
+    // Insert emoji at cursor position (or append if no valid selection)
+    final int offset;
+    if (selection.isValid && selection.baseOffset >= 0) {
+      final newText = text.replaceRange(
+        selection.start,
+        selection.end,
+        emoji.emoji,
+      );
+      controller.text = newText;
+      offset = selection.start + emoji.emoji.length;
+    } else {
+      controller.text = text + emoji.emoji;
+      offset = controller.text.length;
+    }
+
+    controller.selection = TextSelection.collapsed(offset: offset);
+  }
+
   bool get _showMic => !_hasText && widget.onVoiceRecord != null;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: 12,
-        right: 12,
-        top: 8,
-        bottom: MediaQuery.of(context).padding.bottom + 8,
-      ),
-      decoration: const BoxDecoration(
-        color: AppColors.chatInputBackground,
-      ),
-      child: Row(
-        children: [
-          if (widget.onTokenAction != null)
-            IconButton(
-              icon: const Icon(Icons.attach_money),
-              color: AppColors.primary,
-              onPressed: widget.onTokenAction,
-            ),
-          if (widget.onAttachment != null)
-            IconButton(
-              icon: const Icon(Icons.attach_file),
-              color: AppColors.textSecondary,
-              onPressed: widget.onAttachment,
-            ),
-          Expanded(
-            child: TextField(
-              controller: widget.controller,
-              decoration: InputDecoration(
-                hintText: 'Type a message...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: EdgeInsets.only(
+            left: 12,
+            right: 12,
+            top: 8,
+            bottom: _showEmojiPicker
+                ? 8
+                : MediaQuery.of(context).padding.bottom + 8,
+          ),
+          decoration: const BoxDecoration(
+            color: AppColors.chatInputBackground,
+          ),
+          child: Row(
+            children: [
+              // Emoji toggle button — always visible
+              IconButton(
+                icon: Icon(
+                  _showEmojiPicker
+                      ? Icons.keyboard_outlined
+                      : Icons.emoji_emotions_outlined,
                 ),
-                filled: true,
-                fillColor: AppColors.chatInputField,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
+                color: AppColors.textSecondary,
+                onPressed: _toggleEmojiPicker,
+              ),
+              if (widget.onTokenAction != null)
+                IconButton(
+                  icon: const Icon(Icons.attach_money),
+                  color: AppColors.primary,
+                  onPressed: widget.onTokenAction,
+                ),
+              if (widget.onAttachment != null)
+                IconButton(
+                  icon: const Icon(Icons.attach_file),
+                  color: AppColors.textSecondary,
+                  onPressed: widget.onAttachment,
+                ),
+              Expanded(
+                child: TextField(
+                  controller: widget.controller,
+                  focusNode: _focusNode,
+                  decoration: InputDecoration(
+                    hintText: 'Type a message...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.chatInputField,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                  ),
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: null,
                 ),
               ),
-              textCapitalization: TextCapitalization.sentences,
-              maxLines: null,
+              const SizedBox(width: 8),
+              _showMic
+                  ? IconButton.filled(
+                      onPressed: widget.onVoiceRecord,
+                      icon: const Icon(Icons.mic),
+                    )
+                  : IconButton.filled(
+                      onPressed: widget.isSending ? null : widget.onSend,
+                      icon: widget.isSending
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.textOnPrimary,
+                              ),
+                            )
+                          : const Icon(Icons.send),
+                    ),
+            ],
+          ),
+        ),
+        if (_showEmojiPicker)
+          SizedBox(
+            height: 280,
+            child: EmojiPicker(
+              onEmojiSelected: _onEmojiSelected,
+              onBackspacePressed: () {
+                final controller = widget.controller;
+                final text = controller.text;
+                if (text.isNotEmpty) {
+                  // Remove last character (handles multi-byte emoji)
+                  final characters = text.characters;
+                  controller.text =
+                      characters.take(characters.length - 1).toString();
+                  controller.selection = TextSelection.collapsed(
+                    offset: controller.text.length,
+                  );
+                }
+              },
+              config: const Config(
+                height: 280,
+                emojiViewConfig: EmojiViewConfig(
+                  columns: 8,
+                  emojiSizeMax: 28,
+                  backgroundColor: AppColors.chatInputBackground,
+                ),
+                categoryViewConfig: CategoryViewConfig(
+                  backgroundColor: AppColors.chatInputBackground,
+                  iconColorSelected: AppColors.primary,
+                  indicatorColor: AppColors.primary,
+                  iconColor: AppColors.textSecondary,
+                ),
+                searchViewConfig: SearchViewConfig(
+                  backgroundColor: AppColors.chatInputBackground,
+                  buttonIconColor: AppColors.textSecondary,
+                ),
+                bottomActionBarConfig: BottomActionBarConfig(
+                  backgroundColor: AppColors.chatInputBackground,
+                  buttonIconColor: AppColors.textSecondary,
+                  buttonColor: AppColors.chatInputBackground,
+                ),
+              ),
             ),
           ),
-          const SizedBox(width: 8),
-          _showMic
-              ? IconButton.filled(
-                  onPressed: widget.onVoiceRecord,
-                  icon: const Icon(Icons.mic),
-                )
-              : IconButton.filled(
-                  onPressed: widget.isSending ? null : widget.onSend,
-                  icon: widget.isSending
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.textOnPrimary,
-                          ),
-                        )
-                      : const Icon(Icons.send),
-                ),
-        ],
-      ),
+      ],
     );
   }
 }

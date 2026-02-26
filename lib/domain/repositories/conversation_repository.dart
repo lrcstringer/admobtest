@@ -75,11 +75,12 @@ abstract class ConversationRepository {
     String? recipientId,
   });
 
-  /// Send a media message (image or voice), encrypted end-to-end.
+  /// Send a media message (image, voice, document, or video), encrypted E2E.
   ///
   /// [mediaFile] is the local file to encrypt and upload.
-  /// [mediaType] is the MIME type (e.g. "image/jpeg", "audio/m4a").
+  /// [mediaType] is the MIME type (e.g. "image/jpeg", "audio/m4a", "video/mp4").
   /// [recipientId] is the other participant (for E2EE key lookup).
+  /// [thumbnailFile] is required for video messages (JPEG poster frame).
   Future<Either<Failure, Message>> sendMediaMessage({
     required String conversationId,
     required File mediaFile,
@@ -88,6 +89,7 @@ abstract class ConversationRepository {
     String? caption,
     int? durationSeconds,
     String? replyToMessageId,
+    File? thumbnailFile,
   });
 
   // =========================================================================

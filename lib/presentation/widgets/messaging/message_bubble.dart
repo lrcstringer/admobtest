@@ -1,11 +1,19 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/di/injection.dart';
+import '../../../data/datasources/remote/media_upload_datasource.dart';
 import '../../../domain/entities/message.dart';
 import '../../../domain/enums/message_status.dart';
 import '../../../domain/enums/message_type.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import 'video_message_player.dart';
 import 'voice_player_widget.dart';
 
 /// WeChat-style message bubble with square avatars and speech triangles.
@@ -385,6 +393,10 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildMedia(BuildContext context) {
     if (message.type == MessageType.image) {
+      final media = message.media!;
+      final isEncrypted =
+          media.thumbKey != null && media.thumbKey!.isNotEmpty;
+
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: GestureDetector(
@@ -393,26 +405,48 @@ class MessageBubble extends StatelessWidget {
             tag: 'image_${message.id}',
             child: ClipRRect(
               borderRadius: AppSpacing.borderRadiusSm,
-              child: Image.network(
-                message.media!.thumbnailUrl ?? message.media!.url,
-                width: 220,
-                height: 180,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  width: 220,
-                  height: 100,
-                  color: AppColors.chatSurface,
-                  child: const Icon(Icons.broken_image, size: 40),
-                ),
-              ),
+              child: isEncrypted
+                  ? _EncryptedImageThumbnail(
+                      url: media.thumbnailUrl ?? media.url,
+                      mediaKeyBase64: media.thumbKey ?? media.mediaKey!,
+                    )
+                  : Image.network(
+                      media.thumbnailUrl ?? media.url,
+                      width: 220,
+                      height: 180,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 220,
+                        height: 100,
+                        color: AppColors.chatSurface,
+                        child: const Icon(Icons.broken_image, size: 40),
+                      ),
+                    ),
             ),
           ),
         ),
       );
     }
 
+    if (message.type == MessageType.document) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: _DocumentBubble(media: message.media!, isMe: isMe),
+      );
+    }
+
+    if (message.type == MessageType.video) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: VideoMessagePlayer(message: message, isMe: isMe),
+      );
+    }
+
     if (message.type == MessageType.voice) {
-      return VoicePlayerWidget(message: message, isMe: isMe);
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: VoicePlayerWidget(message: message, isMe: isMe),
+      );
     }
 
     return const SizedBox.shrink();
@@ -788,4 +822,272 @@ class _TrianglePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Downloads and decrypts an AES-256-GCM encrypted image thumbnail
+/// from Firebase Storage, then displays it with [Image.memory].
+class _EncryptedImageThumbnail extends StatefulWidget {
+  final String url;
+  final String mediaKeyBase64;
+
+  const _EncryptedImageThumbnail({
+    required this.url,
+    required this.mediaKeyBase64,
+  });
+
+  @override
+  State<_EncryptedImageThumbnail> createState() =>
+      _EncryptedImageThumbnailState();
+}
+
+class _EncryptedImageThumbnailState extends State<_EncryptedImageThumbnail> {
+  Uint8List? _bytes;
+  bool _isLoading = true;
+  bool _hasError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
+
+  Future<void> _loadImage() async {
+    try {
+      final datasource = getIt<MediaUploadDatasource>();
+      final bytes = await datasource.downloadAndDecrypt(
+        url: widget.url,
+        mediaKeyBase64: widget.mediaKeyBase64,
+      );
+      if (mounted) setState(() { _bytes = bytes; _isLoading = false; });
+    } catch (_) {
+      if (mounted) setState(() { _hasError = true; _isLoading = false; });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Container(
+        width: 220,
+        height: 180,
+        color: AppColors.chatSurface,
+        child: const Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    if (_hasError || _bytes == null) {
+      return Container(
+        width: 220,
+        height: 100,
+        color: AppColors.chatSurface,
+        child: const Icon(Icons.broken_image, size: 40),
+      );
+    }
+
+    return Image.memory(
+      _bytes!,
+      width: 220,
+      height: 180,
+      fit: BoxFit.cover,
+    );
+  }
+}
+
+/// Displays a document attachment with file icon, name, size, and
+/// downloads + decrypts + opens the file on tap.
+class _DocumentBubble extends StatefulWidget {
+  final MessageMedia media;
+  final bool isMe;
+
+  const _DocumentBubble({required this.media, required this.isMe});
+
+  @override
+  State<_DocumentBubble> createState() => _DocumentBubbleState();
+}
+
+class _DocumentBubbleState extends State<_DocumentBubble> {
+  bool _isDownloading = false;
+
+  String get _extension {
+    final name = widget.media.fileName;
+    final dot = name.lastIndexOf('.');
+    return dot != -1 ? name.substring(dot + 1).toLowerCase() : '';
+  }
+
+  IconData get _fileIcon {
+    switch (_extension) {
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'doc':
+      case 'docx':
+        return Icons.description;
+      case 'xls':
+      case 'xlsx':
+      case 'csv':
+        return Icons.table_chart;
+      case 'ppt':
+      case 'pptx':
+        return Icons.slideshow;
+      case 'zip':
+        return Icons.folder_zip;
+      default:
+        return Icons.insert_drive_file;
+    }
+  }
+
+  Color get _iconColor {
+    switch (_extension) {
+      case 'pdf':
+        return Colors.red;
+      case 'doc':
+      case 'docx':
+        return Colors.blue;
+      case 'xls':
+      case 'xlsx':
+      case 'csv':
+        return Colors.green;
+      case 'ppt':
+      case 'pptx':
+        return Colors.orange;
+      default:
+        return AppColors.textSecondary;
+    }
+  }
+
+  String get _formattedSize {
+    final bytes = widget.media.fileSize;
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+
+  Future<void> _openDocument() async {
+    if (_isDownloading) return;
+    setState(() => _isDownloading = true);
+
+    try {
+      final media = widget.media;
+      final isEncrypted = media.mediaKey != null && media.mediaKey!.isNotEmpty;
+
+      if (isEncrypted) {
+        // Download, decrypt, save to temp, and open
+        final datasource = getIt<MediaUploadDatasource>();
+        final bytes = await datasource.downloadAndDecrypt(
+          url: media.url,
+          mediaKeyBase64: media.mediaKey!,
+        );
+        final dir = await getTemporaryDirectory();
+        final file = File('${dir.path}/${media.fileName}');
+        await file.writeAsBytes(bytes);
+        final uri = Uri.file(file.path);
+        if (!await launchUrl(uri)) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Could not open document')),
+            );
+          }
+        }
+      } else {
+        // Direct URL — open in browser/system viewer
+        final uri = Uri.parse(media.url);
+        if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Could not open document')),
+            );
+          }
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to download document')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isDownloading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final borderColor = widget.isMe
+        ? AppColors.chatBubbleTimestamp.withValues(alpha: 0.3)
+        : AppColors.chatBubbleReceivedText.withValues(alpha: 0.2);
+
+    return GestureDetector(
+      onTap: _openDocument,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: borderColor),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: _iconColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(_fileIcon, color: _iconColor, size: 24),
+            ),
+            const SizedBox(width: 10),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.media.fileName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: widget.isMe
+                              ? AppColors.chatBubbleText
+                              : AppColors.chatBubbleReceivedText,
+                        ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$_formattedSize · ${_extension.toUpperCase()}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: widget.isMe
+                              ? AppColors.chatBubbleTimestamp
+                              : AppColors.chatBubbleReceivedText
+                                  .withValues(alpha: 0.6),
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            _isDownloading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Icon(
+                    Icons.download_rounded,
+                    size: 20,
+                    color: widget.isMe
+                        ? AppColors.chatBubbleTimestamp
+                        : AppColors.chatBubbleReceivedText
+                            .withValues(alpha: 0.6),
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
 }

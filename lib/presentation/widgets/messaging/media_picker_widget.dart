@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -8,7 +9,7 @@ import '../../theme/app_colors.dart';
 /// Result from the media picker.
 class MediaPickerResult {
   final File file;
-  final String mediaType; // 'image' or 'voice'
+  final String mediaType; // 'image', 'voice', or MIME type for documents
   final String? caption;
 
   const MediaPickerResult({
@@ -18,18 +19,25 @@ class MediaPickerResult {
   });
 }
 
-/// Media selection widget for attaching images or starting voice recording
-/// in message input.
+/// Allowed document extensions for the file picker.
+const _documentExtensions = [
+  'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'zip',
+];
+
+/// Media selection widget for attaching images, documents, or starting voice
+/// recording in message input.
 ///
-/// Shows as a bottom sheet with camera, gallery, and voice options.
+/// Shows as a bottom sheet with camera, gallery, document, and voice options.
 class MediaPickerWidget extends StatelessWidget {
   final ValueChanged<MediaPickerResult> onMediaSelected;
   final VoidCallback? onVoiceRequested;
+  final VoidCallback? onVideoRequested;
 
   const MediaPickerWidget({
     super.key,
     required this.onMediaSelected,
     this.onVoiceRequested,
+    this.onVideoRequested,
   });
 
   Future<void> _pickFromCamera(BuildContext context) async {
@@ -66,6 +74,25 @@ class MediaPickerWidget extends StatelessWidget {
     }
   }
 
+  Future<void> _pickDocument(BuildContext context) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: _documentExtensions,
+      allowMultiple: false,
+    );
+    if (result != null &&
+        result.files.isNotEmpty &&
+        result.files.first.path != null &&
+        context.mounted) {
+      Navigator.pop(context);
+      final file = File(result.files.first.path!);
+      onMediaSelected(MediaPickerResult(
+        file: file,
+        mediaType: 'document',
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -85,7 +112,7 @@ class MediaPickerWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Send Media',
+              'Attach',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
@@ -104,6 +131,22 @@ class MediaPickerWidget extends StatelessWidget {
                   color: AppColors.success,
                   onTap: () => _pickFromGallery(context),
                 ),
+                _MediaOption(
+                  icon: Icons.description,
+                  label: 'Document',
+                  color: AppColors.accent,
+                  onTap: () => _pickDocument(context),
+                ),
+                if (onVideoRequested != null)
+                  _MediaOption(
+                    icon: Icons.videocam,
+                    label: 'Video',
+                    color: AppColors.purple,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onVideoRequested!();
+                    },
+                  ),
                 if (onVoiceRequested != null)
                   _MediaOption(
                     icon: Icons.mic,
@@ -171,12 +214,14 @@ void showMediaPicker(
   BuildContext context, {
   required ValueChanged<MediaPickerResult> onMediaSelected,
   VoidCallback? onVoiceRequested,
+  VoidCallback? onVideoRequested,
 }) {
   showModalBottomSheet(
     context: context,
     builder: (ctx) => MediaPickerWidget(
       onMediaSelected: onMediaSelected,
       onVoiceRequested: onVoiceRequested,
+      onVideoRequested: onVideoRequested,
     ),
   );
 }

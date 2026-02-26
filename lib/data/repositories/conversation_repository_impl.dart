@@ -241,6 +241,7 @@ class ConversationRepositoryImpl implements ConversationRepository {
     String? caption,
     int? durationSeconds,
     String? replyToMessageId,
+    File? thumbnailFile,
   }) async {
     try {
       if (currentUserId == null) {
@@ -249,21 +250,42 @@ class ConversationRepositoryImpl implements ConversationRepository {
 
       // 1. Upload encrypted media to Firebase Storage (requires network)
       final isAudio = mediaType.startsWith('audio');
+      final isDocument = mediaType == 'document';
+      final isVideo = mediaType.startsWith('video');
       final tempMessageId = DateTime.now().millisecondsSinceEpoch.toString();
-      final uploadResult = isAudio
-          ? await _mediaUploadDatasource.uploadEncryptedVoice(
-              voiceFile: mediaFile,
-              parentCollection: 'conversations',
-              parentId: conversationId,
-              messageId: tempMessageId,
-              durationSeconds: durationSeconds ?? 0,
-            )
-          : await _mediaUploadDatasource.uploadEncryptedImage(
-              imageFile: mediaFile,
-              parentCollection: 'conversations',
-              parentId: conversationId,
-              messageId: tempMessageId,
-            );
+      final MediaUploadResult uploadResult;
+      if (isAudio) {
+        uploadResult = await _mediaUploadDatasource.uploadEncryptedVoice(
+          voiceFile: mediaFile,
+          parentCollection: 'conversations',
+          parentId: conversationId,
+          messageId: tempMessageId,
+          durationSeconds: durationSeconds ?? 0,
+        );
+      } else if (isDocument) {
+        uploadResult = await _mediaUploadDatasource.uploadEncryptedDocument(
+          documentFile: mediaFile,
+          parentCollection: 'conversations',
+          parentId: conversationId,
+          messageId: tempMessageId,
+        );
+      } else if (isVideo) {
+        uploadResult = await _mediaUploadDatasource.uploadEncryptedVideo(
+          videoFile: mediaFile,
+          thumbnailFile: thumbnailFile!,
+          parentCollection: 'conversations',
+          parentId: conversationId,
+          messageId: tempMessageId,
+          durationSeconds: durationSeconds ?? 0,
+        );
+      } else {
+        uploadResult = await _mediaUploadDatasource.uploadEncryptedImage(
+          imageFile: mediaFile,
+          parentCollection: 'conversations',
+          parentId: conversationId,
+          messageId: tempMessageId,
+        );
+      }
 
       // 2. Build structured JSON payload with encrypted media metadata
       final payload = jsonEncode({
