@@ -867,7 +867,9 @@ class _EncryptedImageThumbnailState extends State<_EncryptedImageThumbnail> {
         mediaKeyBase64: widget.mediaKeyBase64,
       );
       if (mounted) setState(() { _bytes = bytes; _isLoading = false; });
-    } catch (_) {
+    } catch (e) {
+      // Fix #14: Log encrypted image load errors
+      debugPrint('EncryptedImageThumbnail: load failed: $e');
       if (mounted) setState(() { _hasError = true; _isLoading = false; });
     }
   }
@@ -981,7 +983,17 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
 
     try {
       final media = widget.media;
+      // Fix #2: Safe null check instead of force-unwrap
       final isEncrypted = media.mediaKey != null && media.mediaKey!.isNotEmpty;
+      // Fix #5: Validate URL is not empty
+      if (media.url.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Document URL is missing')),
+          );
+        }
+        return;
+      }
 
       if (isEncrypted) {
         // Download, decrypt, save to temp, and open
@@ -990,6 +1002,7 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
           url: media.url,
           mediaKeyBase64: media.mediaKey!,
         );
+        if (!mounted) return;
         final dir = await getTemporaryDirectory();
         final file = File('${dir.path}/${media.fileName}');
         await file.writeAsBytes(bytes);
@@ -1001,6 +1014,10 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
             );
           }
         }
+        // Fix #7: Delete temp file after a delay to allow the viewer to open it
+        Future.delayed(const Duration(minutes: 2), () {
+          file.delete().ignore();
+        });
       } else {
         // Direct URL — open in browser/system viewer
         final uri = Uri.parse(media.url);
@@ -1012,7 +1029,9 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
           }
         }
       }
-    } catch (_) {
+    } catch (e) {
+      // Fix #14: Log document download errors
+      debugPrint('DocumentBubble: _openDocument failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to download document')),

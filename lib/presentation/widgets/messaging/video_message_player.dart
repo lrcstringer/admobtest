@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
@@ -33,6 +33,7 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
   bool _isLoadingThumb = true;
   bool _isLoadingVideo = false;
   bool _isPlaying = false;
+  bool _hasError = false; // Fix #13: track error state for retry
   VideoPlayerController? _videoController;
   File? _tempVideoFile;
 
@@ -45,6 +46,7 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
   @override
   void dispose() {
     _videoController?.dispose();
+    // Fix #9: Delete temp file synchronously in dispose (fire-and-forget)
     _tempVideoFile?.delete().ignore();
     super.dispose();
   }
@@ -57,6 +59,12 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
       final thumbUrl = media.thumbnailUrl ?? media.url;
       final thumbKey = media.thumbKey ?? media.mediaKey;
 
+      // Fix #5: Check for empty URL
+      if (thumbUrl.isEmpty) {
+        if (mounted) setState(() => _isLoadingThumb = false);
+        return;
+      }
+
       if (thumbKey != null && thumbKey.isNotEmpty) {
         final datasource = getIt<MediaUploadDatasource>();
         final bytes = await datasource.downloadAndDecrypt(
@@ -67,17 +75,30 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
       } else {
         if (mounted) setState(() => _isLoadingThumb = false);
       }
-    } catch (_) {
+    } catch (e) {
+      // Fix #14: Log thumbnail download errors
+      debugPrint('VideoMessagePlayer: thumbnail load failed: $e');
       if (mounted) setState(() => _isLoadingThumb = false);
     }
   }
 
   Future<void> _playVideo() async {
     if (_isLoadingVideo) return;
-    setState(() => _isLoadingVideo = true);
+
+    final media = widget.message.media;
+    // Fix #2: Null-safe check instead of force-unwrap
+    if (media == null || media.mediaKey == null || media.mediaKey!.isEmpty) {
+      debugPrint('VideoMessagePlayer: missing media or mediaKey');
+      if (mounted) setState(() => _hasError = true);
+      return;
+    }
+
+    setState(() {
+      _isLoadingVideo = true;
+      _hasError = false;
+    });
 
     try {
-      final media = widget.message.media!;
       final datasource = getIt<MediaUploadDatasource>();
 
       // Download and decrypt
@@ -86,13 +107,24 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
         mediaKeyBase64: media.mediaKey!,
       );
 
+      // Fix #16: Guard async writes with mounted check
+      if (!mounted) return;
+
       // Write to temp file
       final dir = await getTemporaryDirectory();
-      _tempVideoFile = File('${dir.path}/video_${widget.message.id}.mp4');
-      await _tempVideoFile!.writeAsBytes(bytes);
+      final tempFile = File('${dir.path}/video_${widget.message.id}.mp4');
+      await tempFile.writeAsBytes(bytes);
+
+      // Fix #16: Re-check mounted after async write
+      if (!mounted) {
+        tempFile.delete().ignore();
+        return;
+      }
+
+      _tempVideoFile = tempFile;
 
       // Initialize player
-      _videoController = VideoPlayerController.file(_tempVideoFile!)
+      _videoController = VideoPlayerController.file(tempFile)
         ..setLooping(true);
       await _videoController!.initialize();
       await _videoController!.play();
@@ -103,8 +135,15 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
           _isLoadingVideo = false;
         });
       }
-    } catch (_) {
-      if (mounted) setState(() => _isLoadingVideo = false);
+    } catch (e) {
+      // Fix #14: Log video playback errors
+      debugPrint('VideoMessagePlayer: playVideo failed: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingVideo = false;
+          _hasError = true;
+        });
+      }
     }
   }
 
@@ -132,7 +171,10 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
     final duration = media?.duration ?? 0;
 
     return GestureDetector(
-      onTap: _isPlaying ? _togglePlayPause : _playVideo,
+      // Fix #13: On error, tap retries the video download
+      onTap: _hasError
+          ? _playVideo
+          : (_isPlaying ? _togglePlayPause : _playVideo),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: SizedBox(
@@ -171,11 +213,26 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
                   child: const Icon(Icons.videocam, size: 40, color: AppColors.textHint),
                 ),
 
-              // Play button overlay (when not playing)
+              // Play button / loading / error overlay (when not playing)
               if (!_isPlaying)
                 Center(
                   child: _isLoadingVideo
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      // Fix #15: Show "Downloading..." text during video download
+                      ? const Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(color: Colors.white),
+                            SizedBox(height: 8),
+                            Text(
+                              'Downloading…',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        )
                       : Container(
                           width: 48,
                           height: 48,
@@ -183,9 +240,10 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
                             color: Colors.black54,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
-                            Icons.play_arrow,
-                            color: Colors.white,
+                          // Fix #13: Show error icon with retry hint
+                          child: Icon(
+                            _hasError ? Icons.refresh : Icons.play_arrow,
+                            color: _hasError ? AppColors.error : Colors.white,
                             size: 32,
                           ),
                         ),

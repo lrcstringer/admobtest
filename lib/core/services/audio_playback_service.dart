@@ -18,7 +18,10 @@ class AudioPlaybackService {
   final AudioPlayer _player = AudioPlayer();
 
   /// Cache of already-decrypted voice files: messageId → temp file path.
+  /// Fix #8: Bounded to [_maxCacheSize] entries with LRU eviction.
+  static const int _maxCacheSize = 50;
   final Map<String, String> _fileCache = {};
+  final List<String> _cacheOrder = []; // LRU order: oldest first
 
   /// Which message is currently loaded in the player.
   String? _currentMessageId;
@@ -51,6 +54,9 @@ class AudioPlaybackService {
     required String url,
     String? mediaKeyBase64,
   }) async {
+    // Fix #17: Prevent double-tap race — reject if already loading
+    if (_isLoading) return;
+
     // If same message and paused, just resume
     if (_currentMessageId == messageId && !_player.playing) {
       _player.play();
@@ -102,6 +108,7 @@ class AudioPlaybackService {
       } catch (_) {}
     }
     _fileCache.clear();
+    _cacheOrder.clear();
   }
 
   @disposeMethod
@@ -122,8 +129,14 @@ class AudioPlaybackService {
     // Return cached file if available
     if (_fileCache.containsKey(messageId)) {
       final cached = _fileCache[messageId]!;
-      if (File(cached).existsSync()) return cached;
+      if (File(cached).existsSync()) {
+        // Fix #8: Move to end of LRU order (most recently used)
+        _cacheOrder.remove(messageId);
+        _cacheOrder.add(messageId);
+        return cached;
+      }
       _fileCache.remove(messageId);
+      _cacheOrder.remove(messageId);
     }
 
     final tempDir = await getTemporaryDirectory();
@@ -136,6 +149,17 @@ class AudioPlaybackService {
     await File(filePath).writeAsBytes(decrypted);
 
     _fileCache[messageId] = filePath;
+    _cacheOrder.add(messageId);
+
+    // Fix #8: Evict oldest entries when cache exceeds limit
+    while (_cacheOrder.length > _maxCacheSize) {
+      final evictId = _cacheOrder.removeAt(0);
+      final evictPath = _fileCache.remove(evictId);
+      if (evictPath != null) {
+        File(evictPath).delete().ignore();
+      }
+    }
+
     return filePath;
   }
 }

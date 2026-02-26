@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../core/error/exceptions.dart';
 import '../../core/error/failures.dart';
@@ -250,9 +251,12 @@ class ConversationRepositoryImpl implements ConversationRepository {
 
       // 1. Upload encrypted media to Firebase Storage (requires network)
       final isAudio = mediaType.startsWith('audio');
-      final isDocument = mediaType == 'document';
+      // Fix #4: Accept both 'document' and 'application/' MIME types
+      final isDocument =
+          mediaType == 'document' || mediaType.startsWith('application');
       final isVideo = mediaType.startsWith('video');
-      final tempMessageId = DateTime.now().millisecondsSinceEpoch.toString();
+      // Fix #11: Use UUID to avoid temp message ID collisions
+      final tempMessageId = const Uuid().v4();
       final MediaUploadResult uploadResult;
       if (isAudio) {
         uploadResult = await _mediaUploadDatasource.uploadEncryptedVoice(
@@ -270,9 +274,15 @@ class ConversationRepositoryImpl implements ConversationRepository {
           messageId: tempMessageId,
         );
       } else if (isVideo) {
+        // Fix #3: Validate thumbnailFile before using it
+        if (thumbnailFile == null) {
+          return const Left(
+            Failure.serverError(message: 'Video upload requires a thumbnail'),
+          );
+        }
         uploadResult = await _mediaUploadDatasource.uploadEncryptedVideo(
           videoFile: mediaFile,
-          thumbnailFile: thumbnailFile!,
+          thumbnailFile: thumbnailFile,
           parentCollection: 'conversations',
           parentId: conversationId,
           messageId: tempMessageId,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -427,15 +428,47 @@ class MediaUploadDatasource {
     required String url,
     required String mediaKeyBase64,
   }) async {
+    // Fix #5: Validate URL is not empty before attempting download
+    if (url.isEmpty) {
+      throw ArgumentError('Media URL is empty');
+    }
+
+    // Fix #6: Validate base64 key before decoding
+    final Uint8List key;
+    try {
+      key = base64Decode(mediaKeyBase64);
+    } on FormatException catch (e) {
+      throw ArgumentError('Invalid base64 media key: $e');
+    }
+    if (key.length != 32) {
+      throw ArgumentError(
+        'Media key must be 32 bytes (AES-256), got ${key.length}',
+      );
+    }
+
     // Get storage reference from URL and download
     final ref = _storage.refFromURL(url);
-    final encryptedBytes = await ref.getData();
+    // Fix #12: Add 30-second timeout to prevent hanging downloads
+    final encryptedBytes = await ref.getData().timeout(
+          const Duration(seconds: 30),
+          onTimeout: () {
+            throw TimeoutException('Media download timed out after 30s');
+          },
+        );
     if (encryptedBytes == null) {
       throw Exception('Failed to download encrypted media');
     }
 
+    // Fix #1: Validate minimum size before splitting nonce/ciphertext
+    // Format: nonce(12 bytes) || ciphertext(>=1 byte) || GCM tag(16 bytes)
+    if (encryptedBytes.length < 29) {
+      throw Exception(
+        'Encrypted media too small (${encryptedBytes.length} bytes). '
+        'Expected at least 29 bytes (12 nonce + 1 data + 16 tag).',
+      );
+    }
+
     // Decrypt: format is nonce(12) || ciphertext || mac(16)
-    final key = base64Decode(mediaKeyBase64);
     final nonce = Uint8List.fromList(encryptedBytes.sublist(0, 12));
     final ciphertextWithMac = Uint8List.fromList(encryptedBytes.sublist(12));
     return _cryptoService.decrypt(ciphertextWithMac, key, nonce: nonce);
