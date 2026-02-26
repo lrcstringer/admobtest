@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
+import '../../blocs/conversation_actions/conversation_actions_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/messaging/chat_background.dart';
 import '../../widgets/messaging/conversation_list_tile.dart';
@@ -20,7 +21,22 @@ class MessageRequestsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
 
-    return Scaffold(
+    return BlocListener<ConversationActionsBloc, ConversationActionsState>(
+      listenWhen: (prev, curr) =>
+          curr.errorMessage != null &&
+          prev.errorMessage != curr.errorMessage,
+      listener: (context, state) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(state.errorMessage!),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        context.read<ConversationActionsBloc>().add(
+              const ConversationActionsEvent.clearError(),
+            );
+      },
+      child: Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.chatAppBar,
         surfaceTintColor: Colors.transparent,
@@ -95,6 +111,7 @@ class MessageRequestsScreen extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -139,8 +156,8 @@ class MessageRequestsScreen extends StatelessWidget {
               subtitle: const Text('Move to archived chats'),
               onTap: () {
                 Navigator.pop(ctx);
-                context.read<ConversationBloc>().add(
-                      ConversationEvent.archiveConversation(conv.id),
+                context.read<ConversationActionsBloc>().add(
+                      ConversationActionsEvent.archiveConversation(conv.id),
                     );
               },
             ),

@@ -288,29 +288,7 @@ void main() {
       );
     });
 
-    // =========================================================================
-    // markAsRead
-    // =========================================================================
-
-    group('markAsRead', () {
-      blocTest<ConversationBloc, ConversationState>(
-        'delegates to repository.markAsRead',
-        build: () {
-          when(() => mockConversationRepository.markAsRead(
-                conversationId: any(named: 'conversationId'),
-              )).thenAnswer((_) async => const Right(null));
-          return ConversationBloc(mockConversationRepository);
-        },
-        act: (bloc) =>
-            bloc.add(const ConversationEvent.markAsRead('conv_abc')),
-        expect: () => [],
-        verify: (_) {
-          verify(() => mockConversationRepository.markAsRead(
-                conversationId: 'conv_abc',
-              )).called(1);
-        },
-      );
-    });
+    // markAsRead moved to ConversationActionsBloc
 
     // =========================================================================
     // requestTokens

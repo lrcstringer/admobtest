@@ -235,6 +235,7 @@ void main() {
           return <String, dynamic>{
             'backupExists': true,
             'encryptedBlob': blob,
+            'backupVersion': 2,
           };
         });
 
@@ -298,6 +299,7 @@ void main() {
           return <String, dynamic>{
             'backupExists': true,
             'encryptedBlob': blob,
+            'backupVersion': 2,
           };
         });
 

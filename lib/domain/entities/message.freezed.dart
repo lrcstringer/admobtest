@@ -1462,6 +1462,7 @@ mixin _$E2eeMetadata {
   String? get senderKeyChainId => throw _privateConstructorUsedError;
   int? get messageNumber => throw _privateConstructorUsedError;
   String? get dhPublicKey => throw _privateConstructorUsedError;
+  int? get previousChainLength => throw _privateConstructorUsedError;
 
   /// Serializes this E2eeMetadata to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1485,6 +1486,7 @@ abstract class $E2eeMetadataCopyWith<$Res> {
     String? senderKeyChainId,
     int? messageNumber,
     String? dhPublicKey,
+    int? previousChainLength,
   });
 }
 
@@ -1507,6 +1509,7 @@ class _$E2eeMetadataCopyWithImpl<$Res, $Val extends E2eeMetadata>
     Object? senderKeyChainId = freezed,
     Object? messageNumber = freezed,
     Object? dhPublicKey = freezed,
+    Object? previousChainLength = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1526,6 +1529,10 @@ class _$E2eeMetadataCopyWithImpl<$Res, $Val extends E2eeMetadata>
                 ? _value.dhPublicKey
                 : dhPublicKey // ignore: cast_nullable_to_non_nullable
                       as String?,
+            previousChainLength: freezed == previousChainLength
+                ? _value.previousChainLength
+                : previousChainLength // ignore: cast_nullable_to_non_nullable
+                      as int?,
           )
           as $Val,
     );
@@ -1546,6 +1553,7 @@ abstract class _$$E2eeMetadataImplCopyWith<$Res>
     String? senderKeyChainId,
     int? messageNumber,
     String? dhPublicKey,
+    int? previousChainLength,
   });
 }
 
@@ -1567,6 +1575,7 @@ class __$$E2eeMetadataImplCopyWithImpl<$Res>
     Object? senderKeyChainId = freezed,
     Object? messageNumber = freezed,
     Object? dhPublicKey = freezed,
+    Object? previousChainLength = freezed,
   }) {
     return _then(
       _$E2eeMetadataImpl(
@@ -1586,6 +1595,10 @@ class __$$E2eeMetadataImplCopyWithImpl<$Res>
             ? _value.dhPublicKey
             : dhPublicKey // ignore: cast_nullable_to_non_nullable
                   as String?,
+        previousChainLength: freezed == previousChainLength
+            ? _value.previousChainLength
+            : previousChainLength // ignore: cast_nullable_to_non_nullable
+                  as int?,
       ),
     );
   }
@@ -1599,6 +1612,7 @@ class _$E2eeMetadataImpl implements _E2eeMetadata {
     this.senderKeyChainId,
     this.messageNumber,
     this.dhPublicKey,
+    this.previousChainLength,
   });
 
   factory _$E2eeMetadataImpl.fromJson(Map<String, dynamic> json) =>
@@ -1612,10 +1626,12 @@ class _$E2eeMetadataImpl implements _E2eeMetadata {
   final int? messageNumber;
   @override
   final String? dhPublicKey;
+  @override
+  final int? previousChainLength;
 
   @override
   String toString() {
-    return 'E2eeMetadata(protocol: $protocol, senderKeyChainId: $senderKeyChainId, messageNumber: $messageNumber, dhPublicKey: $dhPublicKey)';
+    return 'E2eeMetadata(protocol: $protocol, senderKeyChainId: $senderKeyChainId, messageNumber: $messageNumber, dhPublicKey: $dhPublicKey, previousChainLength: $previousChainLength)';
   }
 
   @override
@@ -1630,7 +1646,9 @@ class _$E2eeMetadataImpl implements _E2eeMetadata {
             (identical(other.messageNumber, messageNumber) ||
                 other.messageNumber == messageNumber) &&
             (identical(other.dhPublicKey, dhPublicKey) ||
-                other.dhPublicKey == dhPublicKey));
+                other.dhPublicKey == dhPublicKey) &&
+            (identical(other.previousChainLength, previousChainLength) ||
+                other.previousChainLength == previousChainLength));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1641,6 +1659,7 @@ class _$E2eeMetadataImpl implements _E2eeMetadata {
     senderKeyChainId,
     messageNumber,
     dhPublicKey,
+    previousChainLength,
   );
 
   /// Create a copy of E2eeMetadata
@@ -1663,6 +1682,7 @@ abstract class _E2eeMetadata implements E2eeMetadata {
     final String? senderKeyChainId,
     final int? messageNumber,
     final String? dhPublicKey,
+    final int? previousChainLength,
   }) = _$E2eeMetadataImpl;
 
   factory _E2eeMetadata.fromJson(Map<String, dynamic> json) =
@@ -1676,6 +1696,8 @@ abstract class _E2eeMetadata implements E2eeMetadata {
   int? get messageNumber;
   @override
   String? get dhPublicKey;
+  @override
+  int? get previousChainLength;
 
   /// Create a copy of E2eeMetadata
   /// with the given fields replaced by the non-null parameter values.

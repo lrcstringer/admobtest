@@ -231,6 +231,8 @@ void main() {
             .toList(),
         registrationId: aliceBundle.registrationId,
         userId: 'alice',
+        ed25519IdentityKey: aliceBundle.ed25519IdentityKeyPair?.split('|')[1],
+        ed25519Signature: aliceBundle.ed25519Signature,
       );
 
       final bobPublicBundle = PublicKeyBundle(
@@ -242,6 +244,8 @@ void main() {
             .toList(),
         registrationId: bobBundle.registrationId,
         userId: 'bob',
+        ed25519IdentityKey: bobBundle.ed25519IdentityKeyPair?.split('|')[1],
+        ed25519Signature: bobBundle.ed25519Signature,
       );
 
       // Create mock key management services for the Signal Protocol
@@ -252,11 +256,15 @@ void main() {
           .thenAnswer((_) async => aliceBundle);
       when(() => aliceMockKeyMgmt.fetchKeyBundle('bob'))
           .thenAnswer((_) async => bobPublicBundle);
+      when(() => aliceMockKeyMgmt.removeConsumedOtk(any()))
+          .thenAnswer((_) async {});
 
       when(() => bobMockKeyMgmt.loadPrivateKeys())
           .thenAnswer((_) async => bobBundle);
       when(() => bobMockKeyMgmt.fetchKeyBundle('alice'))
           .thenAnswer((_) async => alicePublicBundle);
+      when(() => bobMockKeyMgmt.removeConsumedOtk(any()))
+          .thenAnswer((_) async {});
 
       // Create Signal Protocol services
       final aliceSignal = SignalProtocolService(

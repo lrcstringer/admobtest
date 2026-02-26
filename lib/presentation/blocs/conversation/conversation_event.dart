@@ -94,29 +94,9 @@ class ConversationEvent with _$ConversationEvent {
   }) = _DeclineTokenRequest;
 
   // =========================================================================
-  // THREAD MANAGEMENT
+  // THREAD MANAGEMENT (markAsRead, togglePin, toggleMute, archiveConversation
+  // moved to ConversationActionsBloc)
   // =========================================================================
-
-  /// Mark all messages as read
-  const factory ConversationEvent.markAsRead(String conversationId) =
-      _MarkAsRead;
-
-  /// Pin or unpin a conversation
-  const factory ConversationEvent.togglePin({
-    required String conversationId,
-    required bool pinned,
-  }) = _TogglePin;
-
-  /// Mute or unmute a conversation
-  const factory ConversationEvent.toggleMute({
-    required String conversationId,
-    required bool muted,
-  }) = _ToggleMute;
-
-  /// Archive a conversation
-  const factory ConversationEvent.archiveConversation(
-    String conversationId,
-  ) = _ArchiveConversation;
 
   // =========================================================================
   // MESSAGE REQUESTS
@@ -128,22 +108,8 @@ class ConversationEvent with _$ConversationEvent {
   ) = _AcceptConversation;
 
   // =========================================================================
-  // REACTIONS
+  // REACTIONS (addReaction, removeReaction moved to ConversationActionsBloc)
   // =========================================================================
-
-  /// Add a reaction to a message
-  const factory ConversationEvent.addReaction({
-    required String conversationId,
-    required String messageId,
-    required String emoji,
-  }) = _AddReaction;
-
-  /// Remove a reaction from a message
-  const factory ConversationEvent.removeReaction({
-    required String conversationId,
-    required String messageId,
-    required String emoji,
-  }) = _RemoveReaction;
 
   // =========================================================================
   // UNREAD COUNT
@@ -154,14 +120,8 @@ class ConversationEvent with _$ConversationEvent {
       _UnreadCountUpdated;
 
   // =========================================================================
-  // MESSAGE DELETION
+  // MESSAGE DELETION (deleteMessageForEveryone moved to ConversationActionsBloc)
   // =========================================================================
-
-  /// Delete a single message for everyone
-  const factory ConversationEvent.deleteMessageForEveryone({
-    required String conversationId,
-    required String messageId,
-  }) = _DeleteMessageForEveryone;
 
   /// Clear all messages from a conversation (for current user only)
   const factory ConversationEvent.clearChat(String conversationId) = _ClearChat;
@@ -177,14 +137,8 @@ class ConversationEvent with _$ConversationEvent {
   }) = _RetryMessage;
 
   // =========================================================================
-  // USER SEARCH
+  // USER SEARCH (searchUsers, clearSearch moved to UserSearchBloc)
   // =========================================================================
-
-  /// Search users by display name or username
-  const factory ConversationEvent.searchUsers(String query) = _SearchUsers;
-
-  /// Clear search results
-  const factory ConversationEvent.clearSearch() = _ClearSearch;
 
   // =========================================================================
   // TYPING INDICATORS

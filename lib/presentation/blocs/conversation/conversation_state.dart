@@ -16,8 +16,6 @@ class ConversationState with _$ConversationState {
     @Default(false) bool isSending,
     @Default(false) bool isClearingChat,
     @Default(0) int totalUnreadCount,
-    @Default([]) List<UserSearchResult> searchResults,
-    @Default(false) bool isSearching,
     @Default(0) int messageRequestCount,
     String? errorMessage,
 

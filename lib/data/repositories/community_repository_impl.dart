@@ -807,14 +807,13 @@ class CommunityRepositoryImpl implements CommunityRepository {
   // E2EE HELPERS
   // =========================================================================
 
-  /// Set of communityIds where sender key has already been distributed
-  /// this session, to avoid redundant re-distribution on every message.
-  final Set<String> _distributedCommunities = {};
-
   /// Gap 1 fix: Ensure our sender key is generated and distributed to all
   /// community members before sending an encrypted message.
+  ///
+  /// Uses persistent distribution flag (M3) instead of in-memory Set,
+  /// so the flag survives app restarts.
   Future<void> _ensureSenderKeyDistributed(String communityId) async {
-    if (_distributedCommunities.contains(communityId)) return;
+    if (await _senderKeyService.isDistributed(communityId)) return;
 
     final hasKey = await _senderKeyService.hasSenderKey(communityId);
     if (!hasKey) {
@@ -836,7 +835,7 @@ class CommunityRepositoryImpl implements CommunityRepository {
       );
     }
 
-    _distributedCommunities.add(communityId);
+    await _senderKeyService.markDistributed(communityId);
   }
 
   /// Gap 2 fix: Fetch and process any pending sender key distributions

@@ -103,6 +103,7 @@ class E2eeMetadata with _$E2eeMetadata {
     String? senderKeyChainId,
     int? messageNumber,
     String? dhPublicKey,
+    int? previousChainLength,
   }) = _E2eeMetadata;
 
   factory E2eeMetadata.fromJson(Map<String, dynamic> json) =>

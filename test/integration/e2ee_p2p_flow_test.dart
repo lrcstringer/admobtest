@@ -93,11 +93,12 @@ class _Participant {
       : storage = InMemorySecureStorage(),
         keyMgmt = MockKeyManagementService();
 
-  /// Generate real X25519 key material and wire the mock.
+  /// Generate real X25519 + Ed25519 key material and wire the mock.
   Future<void> init(CryptoService crypto) async {
     final identityKp = await crypto.generateX25519KeyPair();
     final signedPreKp = await crypto.generateX25519KeyPair();
     final otkKp = await crypto.generateX25519KeyPair();
+    final ed25519Kp = await crypto.generateEd25519KeyPair();
 
     final identityEncoded =
         '${base64Encode(identityKp['privateKey']!)}|${base64Encode(identityKp['publicKey']!)}';
@@ -105,6 +106,15 @@ class _Participant {
         '${base64Encode(signedPreKp['privateKey']!)}|${base64Encode(signedPreKp['publicKey']!)}';
     final otkEncoded =
         '${base64Encode(otkKp['privateKey']!)}|${base64Encode(otkKp['publicKey']!)}';
+    final ed25519Encoded =
+        '${base64Encode(ed25519Kp['privateKey']!)}|${base64Encode(ed25519Kp['publicKey']!)}';
+
+    // Ed25519 signature over the signed pre-key public bytes
+    final ed25519Sig = await crypto.ed25519Sign(
+      signedPreKp['publicKey']!,
+      ed25519Kp['privateKey']!,
+    );
+    final ed25519SigBase64 = base64Encode(ed25519Sig);
 
     privateBundle = KeyBundle(
       identityKeyPair: identityEncoded,
@@ -112,6 +122,8 @@ class _Participant {
       signedPreKeySignature: 'sig',
       oneTimePreKeys: [otkEncoded],
       registrationId: 1,
+      ed25519IdentityKeyPair: ed25519Encoded,
+      ed25519Signature: ed25519SigBase64,
     );
 
     publicBundle = PublicKeyBundle(
@@ -121,6 +133,8 @@ class _Participant {
       oneTimePreKeys: [base64Encode(otkKp['publicKey']!)],
       registrationId: 1,
       userId: userId,
+      ed25519IdentityKey: base64Encode(ed25519Kp['publicKey']!),
+      ed25519Signature: ed25519SigBase64,
     );
 
     when(() => keyMgmt.loadPrivateKeys())
@@ -160,6 +174,10 @@ void main() {
           .thenAnswer((_) async => bob.publicBundle);
       when(() => bob.keyMgmt.fetchKeyBundle(aliceId))
           .thenAnswer((_) async => alice.publicBundle);
+      when(() => alice.keyMgmt.removeConsumedOtk(any()))
+          .thenAnswer((_) async {});
+      when(() => bob.keyMgmt.removeConsumedOtk(any()))
+          .thenAnswer((_) async {});
     });
 
     test('Full P2P flow: generate keys -> establish session -> encrypt -> decrypt',
@@ -345,6 +363,10 @@ void main() {
           .thenAnswer((_) async => bob.publicBundle);
       when(() => bob.keyMgmt.fetchKeyBundle(aliceId))
           .thenAnswer((_) async => alice.publicBundle);
+      when(() => alice.keyMgmt.removeConsumedOtk(any()))
+          .thenAnswer((_) async {});
+      when(() => bob.keyMgmt.removeConsumedOtk(any()))
+          .thenAnswer((_) async {});
     });
 
     /// Simulate what the Cloud Function does: build a Firestore message doc

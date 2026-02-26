@@ -8,7 +8,6 @@ import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/open.dart';
-import 'package:sqlite3/sqlite3.dart' as raw_sqlite;
 import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
 
 part 'app_database.g.dart';
@@ -752,8 +751,15 @@ LazyDatabase _openConnection() {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'imali_local_encrypted.db'));
 
-    // Retrieve or generate encryption key from secure storage
-    const storage = FlutterSecureStorage();
+    // Retrieve or generate encryption key from secure storage.
+    // Must use encryptedSharedPreferences: true to match the DI-registered
+    // FlutterSecureStorage instance used by the rest of the app.
+    // The default (raw Keystore) loses entries between sessions on many
+    // Android devices, causing the key to come back null, the DB to be
+    // deleted, and all cached plaintext to be permanently lost.
+    const storage = FlutterSecureStorage(
+      aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    );
     String? key = await storage.read(key: 'imali_db_encryption_key');
     if (key == null) {
       final random = Random.secure();
@@ -768,22 +774,13 @@ LazyDatabase _openConnection() {
       }
     }
 
-    // Validate existing DB is decryptable before Drift opens it.
-    // Catches key corruption / mismatch that the null-check above misses.
-    if (await file.exists()) {
-      try {
-        final testDb = raw_sqlite.sqlite3.open(file.path);
-        try {
-          testDb.execute("PRAGMA key = '$key'");
-          testDb.execute('SELECT count(*) FROM sqlite_master');
-        } finally {
-          testDb.dispose();
-        }
-      } catch (e) {
-        debugPrint('AppDatabase: DB validation failed ($e), recreating cache');
-        await file.delete();
-      }
-    }
+    // NOTE: The pre-emptive validation block that used to live here
+    // (raw sqlite3.open → PRAGMA key → SELECT count(*)) was removed.
+    // On Android, an unclean process kill leaves WAL files that caused
+    // the raw validation open to throw spuriously — deleting a perfectly
+    // intact DB and wiping all cached plaintext.  Drift's NativeDatabase
+    // handles WAL recovery correctly on its own; the validation was
+    // redundant and destructive.
 
     // Delete old unencrypted database if it exists (cache only — syncs from Firestore)
     final oldFile = File(p.join(dbFolder.path, 'imali_local.db'));

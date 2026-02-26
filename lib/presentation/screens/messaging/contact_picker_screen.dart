@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../blocs/conversation/conversation_bloc.dart';
+import '../../blocs/user_search/user_search_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
@@ -21,6 +22,7 @@ class ContactPickerScreen extends StatefulWidget {
 class _ContactPickerScreenState extends State<ContactPickerScreen> {
   final _searchController = TextEditingController();
   Timer? _debounce;
+  bool _awaitingConversation = false;
 
   @override
   void dispose() {
@@ -34,15 +36,16 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
     _debounce = Timer(const Duration(milliseconds: 400), () {
       if (query.length >= 2) {
         context
-            .read<ConversationBloc>()
-            .add(ConversationEvent.searchUsers(query));
+            .read<UserSearchBloc>()
+            .add(UserSearchEvent.searchUsers(query));
       } else {
-        context.read<ConversationBloc>().add(const ConversationEvent.clearSearch());
+        context.read<UserSearchBloc>().add(const UserSearchEvent.clearSearch());
       }
     });
   }
 
   void _onUserSelected(String userId) {
+    _awaitingConversation = true;
     context
         .read<ConversationBloc>()
         .add(ConversationEvent.getOrCreateConversation(userId));
@@ -71,8 +74,8 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                         onPressed: () {
                           _searchController.clear();
                           context
-                              .read<ConversationBloc>()
-                              .add(const ConversationEvent.clearSearch());
+                              .read<UserSearchBloc>()
+                              .add(const UserSearchEvent.clearSearch());
                           setState(() {});
                         },
                       )
@@ -91,15 +94,18 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
             ),
           ),
           Expanded(
-            child: BlocConsumer<ConversationBloc, ConversationState>(
+            child: BlocListener<ConversationBloc, ConversationState>(
               listenWhen: (prev, curr) =>
+                  _awaitingConversation &&
                   prev.selectedConversation != curr.selectedConversation &&
                   curr.selectedConversation != null,
               listener: (context, state) {
+                _awaitingConversation = false;
                 // Navigate to the new/existing conversation
                 final conv = state.selectedConversation!;
                 context.go('/chat/conversation/${conv.id}');
               },
+              child: BlocBuilder<UserSearchBloc, UserSearchState>(
               builder: (context, state) {
                 if (state.isSearching) {
                   return const Center(
@@ -175,6 +181,7 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                   },
                 );
               },
+            ),
             ),
           ),
         ],

@@ -17,6 +17,8 @@ import 'presentation/blocs/chat/chat_bloc.dart';
 import 'presentation/blocs/community/community_bloc.dart';
 import 'presentation/blocs/contact/contact_bloc.dart';
 import 'presentation/blocs/conversation/conversation_bloc.dart';
+import 'presentation/blocs/conversation_actions/conversation_actions_bloc.dart';
+import 'presentation/blocs/user_search/user_search_bloc.dart';
 import 'presentation/blocs/earn/earn_bloc.dart';
 import 'presentation/blocs/earn_inbox/earn_inbox_bloc.dart';
 import 'presentation/blocs/pot/pot_bloc.dart';
@@ -44,6 +46,8 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   late final CashoutBloc _cashoutBloc;
   late final ChatBloc _chatBloc;
   late final ConversationBloc _conversationBloc;
+  late final ConversationActionsBloc _conversationActionsBloc;
+  late final UserSearchBloc _userSearchBloc;
   late final CommunityBloc _communityBloc;
   late final ContactBloc _contactBloc;
   late final PotBloc _potBloc;
@@ -70,6 +74,8 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _cashoutBloc = getIt<CashoutBloc>();
     _chatBloc = getIt<ChatBloc>();
     _conversationBloc = getIt<ConversationBloc>();
+    _conversationActionsBloc = getIt<ConversationActionsBloc>();
+    _userSearchBloc = getIt<UserSearchBloc>();
     _communityBloc = getIt<CommunityBloc>();
     _contactBloc = getIt<ContactBloc>();
     _potBloc = getIt<PotBloc>();
@@ -241,6 +247,8 @@ class _IMaliChatAppState extends State<IMaliChatApp>
         BlocProvider<CashoutBloc>.value(value: _cashoutBloc),
         BlocProvider<ChatBloc>.value(value: _chatBloc),
         BlocProvider<ConversationBloc>.value(value: _conversationBloc),
+        BlocProvider<ConversationActionsBloc>.value(value: _conversationActionsBloc),
+        BlocProvider<UserSearchBloc>.value(value: _userSearchBloc),
         BlocProvider<CommunityBloc>.value(value: _communityBloc),
         BlocProvider<ContactBloc>.value(value: _contactBloc),
         BlocProvider<PotBloc>.value(value: _potBloc),

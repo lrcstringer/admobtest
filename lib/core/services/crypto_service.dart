@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 /// Low-level cryptographic primitives for the E2EE system.
@@ -26,14 +26,28 @@ class CryptoService {
   /// Generate a random AES-256 key (32 bytes).
   Uint8List generateAesKey() => randomBytes(32);
 
+  /// Overwrite [bytes] with zeros. Call after using sensitive key material.
+  static void zeroize(Uint8List bytes) {
+    for (var i = 0; i < bytes.length; i++) {
+      bytes[i] = 0;
+    }
+  }
+
+  /// Debug-only print for E2EE diagnostics (L1). No-op in release builds.
+  static void e2eeLog(String message) {
+    if (kDebugMode) debugPrint(message);
+  }
+
   /// Encrypt plaintext with AES-256-GCM.
   ///
   /// Returns the concatenation of nonce(12) + ciphertext + tag(16).
   /// If [nonce] is not provided, a random 12-byte nonce is generated.
+  /// [aad] is optional Associated Authenticated Data bound to the ciphertext.
   Future<Uint8List> encrypt(
     Uint8List plaintext,
     Uint8List key, {
     Uint8List? nonce,
+    Uint8List? aad,
   }) async {
     final iv = nonce ?? randomBytes(12);
     final secretKey = SecretKey(key);
@@ -41,6 +55,7 @@ class CryptoService {
       plaintext,
       secretKey: secretKey,
       nonce: iv,
+      aad: aad ?? const <int>[],
     );
     // Return: nonce(12) || ciphertext || mac(16)
     final result = Uint8List(iv.length + secretBox.cipherText.length + secretBox.mac.bytes.length);
@@ -54,10 +69,12 @@ class CryptoService {
   ///
   /// Expects input format: ciphertext + tag(16).
   /// [nonce] must be the same 12-byte nonce used during encryption.
+  /// [aad] must match the AAD used during encryption.
   Future<Uint8List> decrypt(
     Uint8List ciphertext,
     Uint8List key, {
     required Uint8List nonce,
+    Uint8List? aad,
   }) async {
     // Split: last 16 bytes = MAC, rest = actual ciphertext
     final macBytes = ciphertext.sublist(ciphertext.length - 16);
@@ -68,7 +85,11 @@ class CryptoService {
       nonce: nonce,
       mac: Mac(macBytes),
     );
-    final plaintext = await _aesGcm.decrypt(secretBox, secretKey: secretKey);
+    final plaintext = await _aesGcm.decrypt(
+      secretBox,
+      secretKey: secretKey,
+      aad: aad ?? const <int>[],
+    );
     return Uint8List.fromList(plaintext);
   }
 

@@ -136,10 +136,14 @@ void main() {
     );
 
     // Default stubs for _ensureSenderKeyDistributed (called before encrypt).
-    // Pretend sender key already exists and member list is empty so the method
-    // completes without network calls.
+    // Pretend sender key already exists, is distributed, and member list is
+    // empty so the method completes without network calls.
     when(() => mockSenderKeyService.hasSenderKey(any()))
         .thenAnswer((_) async => true);
+    when(() => mockSenderKeyService.isDistributed(any()))
+        .thenAnswer((_) async => true);
+    when(() => mockSenderKeyService.markDistributed(any()))
+        .thenAnswer((_) async {});
     when(() => mockDataSource.getMembers(any()))
         .thenAnswer((_) async => <CommunityMemberModel>[]);
     when(() => mockDataSource.currentUserId).thenReturn(_userId);

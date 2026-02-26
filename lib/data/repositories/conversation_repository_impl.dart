@@ -237,7 +237,7 @@ class ConversationRepositoryImpl implements ConversationRepository {
       );
 
       // Cache plaintext for sync service to pick up
-      _messageSyncService.sentPlaintextCache[messageId] = text;
+      _messageSyncService.cacheSentPlaintext(messageId, text);
 
       // Store real message in local DB
       final sentMessage = Message(
@@ -331,7 +331,7 @@ class ConversationRepositoryImpl implements ConversationRepository {
       );
 
       // 5. Cache plaintext locally
-      _messageSyncService.sentPlaintextCache[messageId] = payload;
+      _messageSyncService.cacheSentPlaintext(messageId, payload);
 
       final sentMessage = Message(
         id: messageId,

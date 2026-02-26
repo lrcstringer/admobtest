@@ -87,6 +87,7 @@ void main() {
   late MockBiometricLoginService mockBiometricLoginService;
   late MockFcmChallengeHandler mockFcmChallengeHandler;
   late MockKeyManagementService mockKeyManagementService;
+  late MockSignalProtocolService mockSignalProtocolService;
   late StreamController<User?> authStateController;
 
   AuthBloc createBloc() => AuthBloc(
@@ -96,7 +97,7 @@ void main() {
         mockBiometricLoginService,
         mockFcmChallengeHandler,
         mockKeyManagementService,
-        MockSignalProtocolService(),
+        mockSignalProtocolService,
         MockMessageSyncService(),
         MockOfflineActionQueue(),
       );
@@ -108,6 +109,7 @@ void main() {
     mockBiometricLoginService = MockBiometricLoginService();
     mockFcmChallengeHandler = MockFcmChallengeHandler();
     mockKeyManagementService = MockKeyManagementService();
+    mockSignalProtocolService = MockSignalProtocolService();
     authStateController = StreamController<User?>.broadcast();
 
     // Default stubs — the constructor subscribes to authStateChanges
@@ -122,6 +124,12 @@ void main() {
         .thenAnswer((_) async => Right(_mockTrustedDevice));
     when(() => mockKeyManagementService.loadPrivateKeys())
         .thenAnswer((_) async => null);
+    when(() => mockSignalProtocolService.resetAllSessions())
+        .thenAnswer((_) async {});
+    when(() => mockSignalProtocolService.clearAllSessions())
+        .thenAnswer((_) async {});
+    when(() => mockSignalProtocolService.migrateResetCorruptedSessions())
+        .thenAnswer((_) async => false);
   });
 
   tearDown(() {

@@ -307,6 +307,7 @@ class MessageModel with _$MessageModel {
       // Using (as num?)?.toInt() handles both int and double safely.
       messageNumber: (raw['messageNumber'] as num?)?.toInt(),
       dhPublicKey: raw['dhPublicKey'] as String?,
+      previousChainLength: (raw['previousChainLength'] as num?)?.toInt(),
     );
   }
 

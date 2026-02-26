@@ -333,6 +333,89 @@ void main() {
       expect(pt2, equals('Community 2 message'));
     });
 
+    test('Out-of-order: encrypt 5 msgs, decrypt in shuffled order', () async {
+      final aliceStorage = InMemorySecureStorage();
+      final aliceService = _createSenderKeyService(aliceStorage);
+
+      await aliceService.generateSenderKey(communityId);
+      final aliceKeyData = _extractSenderKeyData(aliceStorage, communityId);
+
+      // Alice encrypts 5 messages
+      final encrypted = <Map<String, dynamic>>[];
+      for (var i = 0; i < 5; i++) {
+        encrypted.add(
+            await aliceService.encryptCommunity(communityId, 'Msg #$i'));
+      }
+
+      // Bob receives sender key and decrypts in order: 0, 3, 1, 4, 2
+      final bobStorage = InMemorySecureStorage();
+      final bobService = _createSenderKeyService(bobStorage);
+      await bobService.processReceivedSenderKey(
+          communityId, aliceId, aliceKeyData);
+
+      final decryptOrder = [0, 3, 1, 4, 2];
+      for (final idx in decryptOrder) {
+        final plaintext = await bobService.decryptCommunity(
+            communityId, aliceId, encrypted[idx]);
+        expect(plaintext, equals('Msg #$idx'));
+      }
+    });
+
+    test('HMAC end-to-end: valid signature decrypts, tampered fails', () async {
+      final aliceStorage = InMemorySecureStorage();
+      final aliceService = _createSenderKeyService(aliceStorage);
+
+      await aliceService.generateSenderKey(communityId);
+      final aliceKeyData = _extractSenderKeyData(aliceStorage, communityId);
+
+      final encrypted =
+          await aliceService.encryptCommunity(communityId, 'HMAC test');
+
+      // Verify signature field exists
+      final e2ee = encrypted['e2ee'] as Map<String, dynamic>;
+      expect(e2ee['signature'], isA<String>());
+
+      // Bob decrypts with valid signature — succeeds
+      final bobStorage = InMemorySecureStorage();
+      final bobService = _createSenderKeyService(bobStorage);
+      await bobService.processReceivedSenderKey(
+          communityId, aliceId, aliceKeyData);
+
+      final plaintext = await bobService.decryptCommunity(
+          communityId, aliceId, encrypted);
+      expect(plaintext, equals('HMAC test'));
+
+      // Charlie gets same key but tampered signature — fails
+      final charlieStorage = InMemorySecureStorage();
+      final charlieService = _createSenderKeyService(charlieStorage);
+      await charlieService.processReceivedSenderKey(
+          communityId, aliceId, aliceKeyData);
+
+      // Re-encrypt to get a fresh message (Charlie hasn't consumed msg 0)
+      // Actually we need to use a fresh key for Charlie since Bob consumed msg 0
+      final charlieStorage2 = InMemorySecureStorage();
+      final charlieService2 = _createSenderKeyService(charlieStorage2);
+      await charlieService2.processReceivedSenderKey(
+          communityId, aliceId, aliceKeyData);
+
+      // Create a tampered copy
+      final tampered = Map<String, dynamic>.from(encrypted);
+      final tamperedE2ee = Map<String, dynamic>.from(e2ee);
+      tamperedE2ee['signature'] = base64Encode(
+          CryptoService().randomBytes(32));
+      tampered['e2ee'] = tamperedE2ee;
+
+      expect(
+        () => charlieService2.decryptCommunity(
+            communityId, aliceId, tampered),
+        throwsA(isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          contains('HMAC signature verification failed'),
+        )),
+      );
+    });
+
     test('Empty string roundtrip', () async {
       final aliceStorage = InMemorySecureStorage();
       final aliceService = _createSenderKeyService(aliceStorage);

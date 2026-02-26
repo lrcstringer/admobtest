@@ -227,6 +227,7 @@ void main() {
         when(() => result.data).thenReturn(<String, dynamic>{
           'backupExists': true,
           'encryptedBlob': backupBlob,
+          'backupVersion': 2,
         });
         return result;
       });

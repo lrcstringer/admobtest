@@ -90,12 +90,13 @@ class _Participant {
       : storage = InMemorySecureStorage(),
         keyMgmt = MockKeyManagementService();
 
-  /// Generate real X25519 key material and wire the mock.
+  /// Generate real X25519 + Ed25519 key material and wire the mock.
   Future<void> init(CryptoService crypto) async {
     // Generate real key pairs
     final identityKp = await crypto.generateX25519KeyPair();
     final signedPreKp = await crypto.generateX25519KeyPair();
     final otkKp = await crypto.generateX25519KeyPair();
+    final ed25519Kp = await crypto.generateEd25519KeyPair();
 
     final identityEncoded =
         '${base64Encode(identityKp['privateKey']!)}|${base64Encode(identityKp['publicKey']!)}';
@@ -103,6 +104,15 @@ class _Participant {
         '${base64Encode(signedPreKp['privateKey']!)}|${base64Encode(signedPreKp['publicKey']!)}';
     final otkEncoded =
         '${base64Encode(otkKp['privateKey']!)}|${base64Encode(otkKp['publicKey']!)}';
+    final ed25519Encoded =
+        '${base64Encode(ed25519Kp['privateKey']!)}|${base64Encode(ed25519Kp['publicKey']!)}';
+
+    // Ed25519 signature over the signed pre-key public bytes
+    final ed25519Sig = await crypto.ed25519Sign(
+      signedPreKp['publicKey']!,
+      ed25519Kp['privateKey']!,
+    );
+    final ed25519SigBase64 = base64Encode(ed25519Sig);
 
     privateBundle = KeyBundle(
       identityKeyPair: identityEncoded,
@@ -110,6 +120,8 @@ class _Participant {
       signedPreKeySignature: 'sig',
       oneTimePreKeys: [otkEncoded],
       registrationId: 1,
+      ed25519IdentityKeyPair: ed25519Encoded,
+      ed25519Signature: ed25519SigBase64,
     );
 
     publicBundle = PublicKeyBundle(
@@ -119,6 +131,8 @@ class _Participant {
       oneTimePreKeys: [base64Encode(otkKp['publicKey']!)],
       registrationId: 1,
       userId: userId,
+      ed25519IdentityKey: base64Encode(ed25519Kp['publicKey']!),
+      ed25519Signature: ed25519SigBase64,
     );
 
     // Wire mock: loadPrivateKeys always returns this participant's private bundle
@@ -150,14 +164,26 @@ void main() {
   setUp(() async {
     crypto = CryptoService();
 
-    // Generate real X25519 key pairs for Alice and Bob
+    // Generate real X25519 + Ed25519 key pairs for Alice and Bob
     final aliceIdentityKp = await crypto.generateX25519KeyPair();
     final aliceSignedPreKp = await crypto.generateX25519KeyPair();
     final aliceOtkKp = await crypto.generateX25519KeyPair();
+    final aliceEd25519Kp = await crypto.generateEd25519KeyPair();
 
     final bobIdentityKp = await crypto.generateX25519KeyPair();
     final bobSignedPreKp = await crypto.generateX25519KeyPair();
     final bobOtkKp = await crypto.generateX25519KeyPair();
+    final bobEd25519Kp = await crypto.generateEd25519KeyPair();
+
+    // Ed25519 signatures over the signed pre-key public bytes
+    final aliceEd25519Sig = await crypto.ed25519Sign(
+      aliceSignedPreKp['publicKey']!,
+      aliceEd25519Kp['privateKey']!,
+    );
+    final bobEd25519Sig = await crypto.ed25519Sign(
+      bobSignedPreKp['publicKey']!,
+      bobEd25519Kp['privateKey']!,
+    );
 
     // Build Alice's private bundle
     final aliceIdentityEncoded =
@@ -166,6 +192,8 @@ void main() {
         '${base64Encode(aliceSignedPreKp['privateKey']!)}|${base64Encode(aliceSignedPreKp['publicKey']!)}';
     final aliceOtkEncoded =
         '${base64Encode(aliceOtkKp['privateKey']!)}|${base64Encode(aliceOtkKp['publicKey']!)}';
+    final aliceEd25519Encoded =
+        '${base64Encode(aliceEd25519Kp['privateKey']!)}|${base64Encode(aliceEd25519Kp['publicKey']!)}';
 
     alicePrivateBundle = KeyBundle(
       identityKeyPair: aliceIdentityEncoded,
@@ -173,6 +201,8 @@ void main() {
       signedPreKeySignature: 'sig',
       oneTimePreKeys: [aliceOtkEncoded],
       registrationId: 1,
+      ed25519IdentityKeyPair: aliceEd25519Encoded,
+      ed25519Signature: base64Encode(aliceEd25519Sig),
     );
 
     // Build Bob's public-only bundle (as seen by Alice)
@@ -183,6 +213,8 @@ void main() {
       oneTimePreKeys: [base64Encode(bobOtkKp['publicKey']!)],
       registrationId: 2,
       userId: bobId,
+      ed25519IdentityKey: base64Encode(bobEd25519Kp['publicKey']!),
+      ed25519Signature: base64Encode(bobEd25519Sig),
     );
 
     aliceStorage = InMemorySecureStorage();
@@ -192,6 +224,8 @@ void main() {
         .thenAnswer((_) async => alicePrivateBundle);
     when(() => aliceKeyMgmt.fetchKeyBundle(bobId))
         .thenAnswer((_) async => bobPublicBundle);
+    when(() => aliceKeyMgmt.removeConsumedOtk(any()))
+        .thenAnswer((_) async {});
 
     aliceService = SignalProtocolService(aliceKeyMgmt, crypto, aliceStorage);
   });
@@ -259,6 +293,8 @@ void main() {
         oneTimePreKeys: [],
         registrationId: 2,
         userId: bobId,
+        ed25519IdentityKey: bobPublicBundle.ed25519IdentityKey,
+        ed25519Signature: bobPublicBundle.ed25519Signature,
       );
       when(() => aliceKeyMgmt.fetchKeyBundle(bobId))
           .thenAnswer((_) async => noOtkBundle);
@@ -445,6 +481,10 @@ void main() {
           .thenAnswer((_) async => bob.publicBundle);
       when(() => bob.keyMgmt.fetchKeyBundle(aliceId))
           .thenAnswer((_) async => alice.publicBundle);
+      when(() => alice.keyMgmt.removeConsumedOtk(any()))
+          .thenAnswer((_) async {});
+      when(() => bob.keyMgmt.removeConsumedOtk(any()))
+          .thenAnswer((_) async {});
     });
 
     test('Alice sends to Bob -> Bob decrypts successfully', () async {
@@ -569,6 +609,8 @@ void main() {
         oneTimePreKeys: [],
         registrationId: bob.publicBundle.registrationId,
         userId: bobId,
+        ed25519IdentityKey: bob.publicBundle.ed25519IdentityKey,
+        ed25519Signature: bob.publicBundle.ed25519Signature,
       );
       when(() => alice.keyMgmt.fetchKeyBundle(bobId))
           .thenAnswer((_) async => noOtkBundle);
@@ -581,6 +623,8 @@ void main() {
         signedPreKeySignature: bob.privateBundle.signedPreKeySignature,
         oneTimePreKeys: [],
         registrationId: bob.privateBundle.registrationId,
+        ed25519IdentityKeyPair: bob.privateBundle.ed25519IdentityKeyPair,
+        ed25519Signature: bob.privateBundle.ed25519Signature,
       );
       when(() => bob.keyMgmt.loadPrivateKeys())
           .thenAnswer((_) async => noOtkPrivateBundle);

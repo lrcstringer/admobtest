@@ -88,16 +88,16 @@ class KeyManagementService {
     try {
       final firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser == null) {
-        debugPrint('E2EE UPLOAD: WARNING — FirebaseAuth.currentUser is null '
+        CryptoService.e2eeLog('E2EE UPLOAD: WARNING — FirebaseAuth.currentUser is null '
             '(auth token not ready, CF will reject with "unauthenticated"). '
             'Proceeding anyway so retry logic can handle it.');
       } else {
-        debugPrint('E2EE UPLOAD: Pre-flight OK — uid=${firebaseUser.uid.substring(0, 8)}…, '
+        CryptoService.e2eeLog('E2EE UPLOAD: Pre-flight OK — uid=${firebaseUser.uid.substring(0, 8)}…, '
             'identity=${_extractPublicBase64(bundle.identityKeyPair).substring(0, 8)}…, '
             '${bundle.oneTimePreKeys.length} OTKs');
       }
     } catch (e) {
-      debugPrint('E2EE UPLOAD: Pre-flight check skipped ($e)');
+      CryptoService.e2eeLog('E2EE UPLOAD: Pre-flight check skipped ($e)');
     }
 
     final callable = _functions.httpsCallable('uploadKeyBundle');
@@ -115,44 +115,44 @@ class KeyManagementService {
         if (bundle.ed25519Signature != null)
           'ed25519Signature': bundle.ed25519Signature,
       });
-      debugPrint('E2EE UPLOAD: SUCCESS — bundle uploaded to server');
+      CryptoService.e2eeLog('E2EE UPLOAD: SUCCESS — bundle uploaded to server');
     } on FirebaseFunctionsException catch (e) {
       // Classify the specific failure point for diagnostics
       switch (e.code) {
         case 'unauthenticated':
-          debugPrint('E2EE UPLOAD: FAIL — server rejected: AUTH TOKEN INVALID '
+          CryptoService.e2eeLog('E2EE UPLOAD: FAIL — server rejected: AUTH TOKEN INVALID '
               '(requireAuth failed — token expired or not attached) '
               '[code=${e.code}, message=${e.message}]');
           break;
         case 'permission-denied':
-          debugPrint('E2EE UPLOAD: FAIL — server rejected: IAM PERMISSION DENIED '
+          CryptoService.e2eeLog('E2EE UPLOAD: FAIL — server rejected: IAM PERMISSION DENIED '
               '(403 — Cloud Function IAM binding missing for allUsers, '
               'or App Check enforcement blocked the request) '
               '[code=${e.code}, message=${e.message}]');
           break;
         case 'unavailable':
-          debugPrint('E2EE UPLOAD: FAIL — NETWORK UNAVAILABLE '
+          CryptoService.e2eeLog('E2EE UPLOAD: FAIL — NETWORK UNAVAILABLE '
               '(device offline, DNS failure, or server unreachable) '
               '[code=${e.code}, message=${e.message}]');
           break;
         case 'deadline-exceeded':
-          debugPrint('E2EE UPLOAD: FAIL — TIMEOUT '
+          CryptoService.e2eeLog('E2EE UPLOAD: FAIL — TIMEOUT '
               '(Cloud Function cold start too slow or network latency) '
               '[code=${e.code}, message=${e.message}]');
           break;
         case 'internal':
-          debugPrint('E2EE UPLOAD: FAIL — SERVER INTERNAL ERROR '
+          CryptoService.e2eeLog('E2EE UPLOAD: FAIL — SERVER INTERNAL ERROR '
               '(Firestore batch.commit() failed or unhandled CF exception) '
               '[code=${e.code}, message=${e.message}, details=${e.details}]');
           break;
         default:
-          debugPrint('E2EE UPLOAD: FAIL — UNEXPECTED CF ERROR '
+          CryptoService.e2eeLog('E2EE UPLOAD: FAIL — UNEXPECTED CF ERROR '
               '[code=${e.code}, message=${e.message}, details=${e.details}]');
       }
       rethrow;
     } catch (e) {
       // Non-CF error (e.g., serialization, platform channel)
-      debugPrint('E2EE UPLOAD: FAIL — NON-CF EXCEPTION '
+      CryptoService.e2eeLog('E2EE UPLOAD: FAIL — NON-CF EXCEPTION '
           '[type=${e.runtimeType}, error=$e]');
       rethrow;
     }
@@ -165,7 +165,7 @@ class KeyManagementService {
         value: _extractPublicBase64(bundle.identityKeyPair),
       );
     } catch (e) {
-      debugPrint('E2EE UPLOAD: WARNING — bundle uploaded OK but failed to '
+      CryptoService.e2eeLog('E2EE UPLOAD: WARNING — bundle uploaded OK but failed to '
           'write upload marker to secure storage: $e '
           '(will re-upload on next app start, which is safe)');
       // Don't rethrow — the upload itself succeeded
@@ -185,7 +185,7 @@ class KeyManagementService {
     final remainingOtks = (data['oneTimePreKeyCount'] as num?)?.toInt();
     final updatedAt = data['updatedAt'] as String?;
 
-    debugPrint('E2EE FETCH-BUNDLE [$userId]: '
+    CryptoService.e2eeLog('E2EE FETCH-BUNDLE [$userId]: '
         'identity=${identityKey.substring(0, 8)}… '
         'otk=${otk != null ? "${otk.substring(0, 8)}…" : "NONE"} '
         'remainingOtks=$remainingOtks '
@@ -224,16 +224,16 @@ class KeyManagementService {
       lastUploaded =
           await _secureStorage.read(key: 'e2ee_uploaded_identity');
     } catch (e) {
-      debugPrint('E2EE ENSURE: WARNING — failed to read upload marker '
+      CryptoService.e2eeLog('E2EE ENSURE: WARNING — failed to read upload marker '
           'from secure storage: $e (will re-upload to be safe)');
     }
     if (lastUploaded == localIdentityPub) {
-      debugPrint('E2EE ENSURE: Bundle already confirmed uploaded '
+      CryptoService.e2eeLog('E2EE ENSURE: Bundle already confirmed uploaded '
           '(identity=${localIdentityPub.substring(0, 8)}…)');
       return; // already in sync
     }
 
-    debugPrint('E2EE ENSURE: Bundle not confirmed uploaded — re-uploading '
+    CryptoService.e2eeLog('E2EE ENSURE: Bundle not confirmed uploaded — re-uploading '
         '(local=${localIdentityPub.substring(0, 8)}… '
         'lastUploaded=${lastUploaded?.substring(0, 8) ?? "never"}…)');
     // uploadKeyBundle handles its own error logging
@@ -337,10 +337,10 @@ class KeyManagementService {
         key: _spkLastRotationKey,
         value: DateTime.now().toIso8601String(),
       );
-      debugPrint('E2EE SPK: Rotation complete');
+      CryptoService.e2eeLog('E2EE SPK: Rotation complete');
     } catch (e) {
       // Non-fatal — will retry on next app start
-      debugPrint('E2EE SPK: Rotation failed (will retry on next startup): $e');
+      CryptoService.e2eeLog('E2EE SPK: Rotation failed (will retry on next startup): $e');
     }
   }
 
@@ -361,9 +361,19 @@ class KeyManagementService {
         .toList();
     if (updated.length != bundle.oneTimePreKeys.length) {
       await storePrivateKeys(bundle.copyWith(oneTimePreKeys: updated));
-      debugPrint('E2EE OTK: Removed consumed OTK '
+      CryptoService.e2eeLog('E2EE OTK: Removed consumed OTK '
           '${publicKey.substring(0, 8)}… '
           '(${updated.length} remaining locally)');
+
+      // M4: Trigger OTK replenishment if below threshold
+      if (updated.length < _otkThreshold) {
+        try {
+          await replenishOneTimePreKeysIfNeeded();
+        } catch (e) {
+          // Non-fatal — will retry on next app start or consumption
+          CryptoService.e2eeLog('E2EE OTK: Auto-replenish after consume failed: $e');
+        }
+      }
     }
   }
 
@@ -371,7 +381,7 @@ class KeyManagementService {
   Future<void> storePrivateKeys(KeyBundle bundle) async {
     final idParts = bundle.identityKeyPair.split('|');
     final idPub = idParts.length > 1 ? idParts[1] : bundle.identityKeyPair;
-    debugPrint('E2EE KEYSTORE: Writing keys — '
+    CryptoService.e2eeLog('E2EE KEYSTORE: Writing keys — '
         'identity=${idPub.length >= 8 ? idPub.substring(0, 8) : idPub}…, '
         '${bundle.oneTimePreKeys.length} OTKs');
 
@@ -414,15 +424,15 @@ class KeyManagementService {
     // (e.g., EncryptedSharedPreferences keystore invalidated by reinstall).
     final readback = await _secureStorage.read(key: _identityKeyKey);
     if (readback == null) {
-      debugPrint('E2EE KEYSTORE: ⚠ CRITICAL — readback of identity key returned '
+      CryptoService.e2eeLog('E2EE KEYSTORE: ⚠ CRITICAL — readback of identity key returned '
           'null immediately after write! Secure storage is broken (Android '
           'Keystore master key may have been invalidated by app reinstall). '
           'Keys will NOT persist across app restarts.');
     } else if (readback != bundle.identityKeyPair) {
-      debugPrint('E2EE KEYSTORE: ⚠ CRITICAL — readback of identity key does not '
+      CryptoService.e2eeLog('E2EE KEYSTORE: ⚠ CRITICAL — readback of identity key does not '
           'match written value! Data corruption in secure storage.');
     } else {
-      debugPrint('E2EE KEYSTORE: Readback OK — keys persisted successfully');
+      CryptoService.e2eeLog('E2EE KEYSTORE: Readback OK — keys persisted successfully');
     }
   }
 
@@ -437,12 +447,12 @@ class KeyManagementService {
       try {
         final allKeys = await _secureStorage.readAll();
         final e2eeKeys = allKeys.keys.where((k) => k.startsWith('e2ee_')).toList();
-        debugPrint('E2EE KEYSTORE: loadPrivateKeys → identity key is NULL. '
+        CryptoService.e2eeLog('E2EE KEYSTORE: loadPrivateKeys → identity key is NULL. '
             'Total secure storage keys: ${allKeys.length}, '
             'E2EE keys found: ${e2eeKeys.length} '
             '${e2eeKeys.isEmpty ? "(empty — first launch or storage wiped by reinstall)" : e2eeKeys.toString()}');
       } catch (e) {
-        debugPrint('E2EE KEYSTORE: loadPrivateKeys → identity key NULL, '
+        CryptoService.e2eeLog('E2EE KEYSTORE: loadPrivateKeys → identity key NULL, '
             'readAll() also failed: $e (secure storage may be completely broken)');
       }
       return null;
@@ -456,7 +466,7 @@ class KeyManagementService {
     final ed25519Sig = await _secureStorage.read(key: _ed25519SigKey);
 
     if (signedPreEncoded == null || signedPreSig == null || regIdStr == null) {
-      debugPrint('E2EE KEYSTORE: loadPrivateKeys → identity key exists but '
+      CryptoService.e2eeLog('E2EE KEYSTORE: loadPrivateKeys → identity key exists but '
           'other keys missing (signedPre=${signedPreEncoded != null}, '
           'sig=${signedPreSig != null}, regId=${regIdStr != null}). '
           'Partial key data — secure storage may be corrupted.');
@@ -469,7 +479,7 @@ class KeyManagementService {
 
     final idParts = identityEncoded.split('|');
     final idPub = idParts.length > 1 ? idParts[1] : identityEncoded;
-    debugPrint('E2EE KEYSTORE: loadPrivateKeys → SUCCESS — '
+    CryptoService.e2eeLog('E2EE KEYSTORE: loadPrivateKeys → SUCCESS — '
         'identity=${idPub.length >= 8 ? idPub.substring(0, 8) : idPub}…, '
         '${otks.length} OTKs, regId=$regIdStr');
 
@@ -554,6 +564,12 @@ class KeyManagementService {
   }
 
   /// Sign data with HMAC-SHA256 using the given signing key.
+  ///
+  /// This HMAC "signature" provides no real authentication value because
+  /// verifying it requires the private identity key (which only the signer
+  /// has). It was the original SPK signature mechanism before Ed25519 was
+  /// added. Ed25519 is the authoritative signature — this is kept solely
+  /// for backward compatibility with bundles that may not have Ed25519 yet.
   Uint8List _signKey(Uint8List signingKey, Uint8List data) {
     final hmac = hmac_lib.Hmac(hmac_lib.sha256, signingKey);
     final digest = hmac.convert(data);

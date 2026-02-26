@@ -8,6 +8,7 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../blocs/contact/contact_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
+import '../../blocs/conversation_actions/conversation_actions_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
@@ -81,7 +82,20 @@ class _MessagingScreenState extends State<MessagingScreen>
     final currentUserId =
         context.read<AuthBloc>().state.user?.id ?? '';
 
-    return Scaffold(
+    return BlocListener<ConversationActionsBloc, ConversationActionsState>(
+      listenWhen: (prev, curr) => curr.errorMessage != null && prev.errorMessage != curr.errorMessage,
+      listener: (context, state) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(state.errorMessage!),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        context.read<ConversationActionsBloc>().add(
+              const ConversationActionsEvent.clearError(),
+            );
+      },
+      child: Scaffold(
       backgroundColor: AppColors.chatBackground,
       appBar: _isSearching
           ? AppBar(
@@ -185,6 +199,7 @@ class _MessagingScreenState extends State<MessagingScreen>
         ],
       ),
       floatingActionButton: _currentTab == 0 ? _buildFAB(context) : null,
+    ),
     );
   }
 
@@ -583,8 +598,8 @@ class _MessagingScreenState extends State<MessagingScreen>
               ),
               onTap: () {
                 Navigator.pop(ctx);
-                context.read<ConversationBloc>().add(
-                      ConversationEvent.togglePin(
+                context.read<ConversationActionsBloc>().add(
+                      ConversationActionsEvent.togglePin(
                         conversationId: conv.id,
                         pinned: !conv.isPinnedFor(currentUserId),
                       ),
@@ -602,8 +617,8 @@ class _MessagingScreenState extends State<MessagingScreen>
               ),
               onTap: () {
                 Navigator.pop(ctx);
-                context.read<ConversationBloc>().add(
-                      ConversationEvent.toggleMute(
+                context.read<ConversationActionsBloc>().add(
+                      ConversationActionsEvent.toggleMute(
                         conversationId: conv.id,
                         muted: !conv.isMutedFor(currentUserId),
                       ),
@@ -616,8 +631,8 @@ class _MessagingScreenState extends State<MessagingScreen>
               onTap: () {
                 Navigator.pop(ctx);
                 context
-                    .read<ConversationBloc>()
-                    .add(ConversationEvent.archiveConversation(conv.id));
+                    .read<ConversationActionsBloc>()
+                    .add(ConversationActionsEvent.archiveConversation(conv.id));
               },
             ),
             const SizedBox(height: 8),

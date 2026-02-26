@@ -168,6 +168,8 @@ class _Participant {
 
     when(() => keyMgmt.loadPrivateKeys())
         .thenAnswer((_) async => privateBundle);
+    when(() => keyMgmt.removeConsumedOtk(any()))
+        .thenAnswer((_) async {});
 
     service = SignalProtocolService(keyMgmt, crypto, storage);
   }

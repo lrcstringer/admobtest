@@ -46,6 +46,7 @@ void main() {
   late MockBiometricLoginService mockBiometricLoginService;
   late MockFcmChallengeHandler mockFcmChallengeHandler;
   late MockKeyManagementService mockKeyManagementService;
+  late MockSignalProtocolService mockSignalProtocolService;
   late StreamController<User?> authStateController;
 
   AuthBloc createBloc() => AuthBloc(
@@ -55,7 +56,7 @@ void main() {
         mockBiometricLoginService,
         mockFcmChallengeHandler,
         mockKeyManagementService,
-        MockSignalProtocolService(),
+        mockSignalProtocolService,
         MockMessageSyncService(),
         MockOfflineActionQueue(),
       );
@@ -67,7 +68,16 @@ void main() {
     mockBiometricLoginService = MockBiometricLoginService();
     mockFcmChallengeHandler = MockFcmChallengeHandler();
     mockKeyManagementService = MockKeyManagementService();
+    mockSignalProtocolService = MockSignalProtocolService();
     authStateController = StreamController<User?>.broadcast();
+
+    // Stub SignalProtocolService methods called during sign-out / E2EE init
+    when(() => mockSignalProtocolService.resetAllSessions())
+        .thenAnswer((_) async {});
+    when(() => mockSignalProtocolService.clearAllSessions())
+        .thenAnswer((_) async {});
+    when(() => mockSignalProtocolService.migrateResetCorruptedSessions())
+        .thenAnswer((_) async => false);
 
     when(() => mockAuthRepository.authStateChanges)
         .thenAnswer((_) => authStateController.stream);

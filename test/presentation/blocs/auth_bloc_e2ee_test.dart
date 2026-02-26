@@ -92,6 +92,10 @@ void main() {
     // Stub migration method added in Phase 0
     when(() => mockSignalProtocolService.migrateResetCorruptedSessions())
         .thenAnswer((_) async => false);
+    when(() => mockSignalProtocolService.resetAllSessions())
+        .thenAnswer((_) async {});
+    when(() => mockSignalProtocolService.clearAllSessions())
+        .thenAnswer((_) async {});
 
     // Default stubs shared by all tests
     when(() => mockAuthRepository.authStateChanges)
@@ -123,6 +127,8 @@ void main() {
     when(() => mockKeyManagementService.replenishOneTimePreKeysIfNeeded())
         .thenAnswer((_) async {});
     when(() => mockKeyManagementService.ensureBundleUploaded(any()))
+        .thenAnswer((_) async {});
+    when(() => mockKeyManagementService.removeConsumedOtk(any()))
         .thenAnswer((_) async {});
   });
 

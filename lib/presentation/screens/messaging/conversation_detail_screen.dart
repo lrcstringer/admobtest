@@ -12,6 +12,7 @@ import '../../../domain/repositories/moderation_repository.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
+import '../../blocs/conversation_actions/conversation_actions_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/messaging/chat_background.dart';
@@ -54,8 +55,8 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         .read<ConversationBloc>()
         .add(ConversationEvent.selectConversation(widget.conversationId));
     context
-        .read<ConversationBloc>()
-        .add(ConversationEvent.markAsRead(widget.conversationId));
+        .read<ConversationActionsBloc>()
+        .add(ConversationActionsEvent.markAsRead(widget.conversationId));
   }
 
   @override
@@ -77,7 +78,22 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   Widget build(BuildContext context) {
     final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
 
-    return BlocBuilder<ConversationBloc, ConversationState>(
+    return BlocListener<ConversationActionsBloc, ConversationActionsState>(
+      listenWhen: (prev, curr) =>
+          curr.errorMessage != null &&
+          prev.errorMessage != curr.errorMessage,
+      listener: (context, actionsState) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(actionsState.errorMessage!),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        context.read<ConversationActionsBloc>().add(
+              const ConversationActionsEvent.clearError(),
+            );
+      },
+      child: BlocBuilder<ConversationBloc, ConversationState>(
       builder: (context, state) {
         final conv = state.selectedConversation;
 
@@ -233,6 +249,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           ),
         );
       },
+    ),
     );
   }
 
@@ -568,21 +585,21 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   }
 
   void _showReactionPicker(BuildContext context, Message message) async {
-    final bloc = context.read<ConversationBloc>();
+    final actionsBloc = context.read<ConversationActionsBloc>();
     final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
     final emoji = await showReactionPicker(context);
     if (emoji != null && mounted) {
       if (message.hasReacted(currentUserId, emoji)) {
-        bloc.add(
-          ConversationEvent.removeReaction(
+        actionsBloc.add(
+          ConversationActionsEvent.removeReaction(
             conversationId: widget.conversationId,
             messageId: message.id,
             emoji: emoji,
           ),
         );
       } else {
-        bloc.add(
-          ConversationEvent.addReaction(
+        actionsBloc.add(
+          ConversationActionsEvent.addReaction(
             conversationId: widget.conversationId,
             messageId: message.id,
             emoji: emoji,
@@ -666,8 +683,8 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               ),
               onTap: () {
                 Navigator.pop(ctx);
-                context.read<ConversationBloc>().add(
-                      ConversationEvent.toggleMute(
+                context.read<ConversationActionsBloc>().add(
+                      ConversationActionsEvent.toggleMute(
                         conversationId: conv.id,
                         muted: !conv.isMutedFor(currentUserId),
                       ),
@@ -868,8 +885,8 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 
     if (confirmed != true || !mounted) return;
 
-    context.read<ConversationBloc>().add(
-          ConversationEvent.deleteMessageForEveryone(
+    context.read<ConversationActionsBloc>().add(
+          ConversationActionsEvent.deleteMessageForEveryone(
             conversationId: widget.conversationId,
             messageId: messageId,
           ),

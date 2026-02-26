@@ -144,6 +144,7 @@ _$E2eeMetadataImpl _$$E2eeMetadataImplFromJson(Map<String, dynamic> json) =>
       senderKeyChainId: json['senderKeyChainId'] as String?,
       messageNumber: (json['messageNumber'] as num?)?.toInt(),
       dhPublicKey: json['dhPublicKey'] as String?,
+      previousChainLength: (json['previousChainLength'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$E2eeMetadataImplToJson(_$E2eeMetadataImpl instance) =>
@@ -152,6 +153,7 @@ Map<String, dynamic> _$$E2eeMetadataImplToJson(_$E2eeMetadataImpl instance) =>
       'senderKeyChainId': instance.senderKeyChainId,
       'messageNumber': instance.messageNumber,
       'dhPublicKey': instance.dhPublicKey,
+      'previousChainLength': instance.previousChainLength,
     };
 
 _$X3dhHeaderImpl _$$X3dhHeaderImplFromJson(Map<String, dynamic> json) =>

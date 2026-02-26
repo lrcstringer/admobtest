@@ -13,7 +13,7 @@ import {
   getOrCreateUserAccount,
 } from "./ledger";
 import { createEngagementStats } from "./engagementStats";
-import { autoCreateContacts } from "./conversations";
+import { autoCreateContacts } from "./contacts";
 
 const db = admin.firestore();
 

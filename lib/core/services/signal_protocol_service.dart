@@ -1,21 +1,20 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 
+import '../concurrency/keyed_mutex.dart';
+import '../e2ee/permanent_decryption_error.dart';
+import '../e2ee/ratchet/double_ratchet.dart';
+import '../e2ee/ratchet/x3dh.dart';
+import '../e2ee/session/double_ratchet_session.dart';
+import '../e2ee/session/secure_storage_session_store.dart';
+import '../e2ee/session/session_store.dart';
 import 'crypto_service.dart';
 import 'key_management_service.dart';
 
-/// Thrown when a message can never be decrypted, regardless of retries.
-///
-/// Causes: missing x3dhHeader (pre-fix legacy message), OTK mismatch
-/// (sender used an OTK the receiver no longer has after key regeneration),
-/// or stale session with no recovery path.
-class PermanentDecryptionError extends StateError {
-  PermanentDecryptionError(super.message);
-}
+export '../e2ee/permanent_decryption_error.dart';
 
 /// Implements the Signal Protocol for peer-to-peer encrypted messaging.
 ///
@@ -24,25 +23,28 @@ class PermanentDecryptionError extends StateError {
 @lazySingleton
 class SignalProtocolService {
   final KeyManagementService _keyManagementService;
-  final CryptoService _cryptoService;
-  final FlutterSecureStorage _secureStorage;
+  final SessionStore _sessionStore;
+  final DoubleRatchet _ratchet;
+  final X3dhProtocol _x3dh;
 
   SignalProtocolService(
     this._keyManagementService,
-    this._cryptoService,
-    this._secureStorage,
-  );
+    CryptoService cryptoService,
+    FlutterSecureStorage secureStorage,
+  )   : _sessionStore = SecureStorageSessionStore(secureStorage),
+        _ratchet = DoubleRatchet(cryptoService),
+        _x3dh = X3dhProtocol(cryptoService);
 
-  static const _sessionPrefix = 'e2ee_session_';
-  static const _maxSkippedKeys = 200;
-
-  /// Per-recipient encrypt queue. Two rapid sends to the same recipient would
-  /// both load the same session state (sendMessageNumber=N), derive the same
-  /// message key, and produce two messages both claiming message number N.
-  /// The receiver decrypts the first, then sees N < recvMessageNumber → sentinel.
-  /// Chaining ensures each encryptP2P call sees the session state written by the
-  /// previous call.
-  final Map<String, Future<void>> _encryptLocks = {};
+  /// Per-recipient session lock. Serializes ALL session-mutating operations
+  /// (encrypt, decrypt, establish) for the same peer.
+  ///
+  /// Why a single shared lock for both encrypt and decrypt:
+  /// - The DH ratchet step during decrypt mutates rootKey, dhSendPrivate,
+  ///   dhSendPublic, and sendChainKey — the same fields encrypt reads/writes.
+  /// - Two concurrent encrypts must see sequential sendMessageNumber values.
+  /// - Two concurrent decrypts must see sequential recvMessageNumber values.
+  /// - An interleaved encrypt + decrypt would corrupt the shared root key.
+  final _sessionLock = KeyedMutex();
 
   /// Short fingerprint of key bytes for diagnostic logging.
   static String _fp(Uint8List? bytes) =>
@@ -65,7 +67,7 @@ class SignalProtocolService {
         base64Decode(ourBundle.identityKeyPair.split('|')[1]);
 
     // 2. Generate ephemeral key pair
-    final ephemeralKp = await _cryptoService.generateX25519KeyPair();
+    final ephemeralKp = await _x3dh.generateKeyPair();
 
     // 3. Fetch recipient's public key bundle
     final theirBundle =
@@ -73,75 +75,64 @@ class SignalProtocolService {
     final theirIdentityKey = base64Decode(theirBundle.identityKey);
     final theirSignedPreKey = base64Decode(theirBundle.signedPreKey);
 
-    // Verify Ed25519 signature on the signed pre-key before using it
-    if (theirBundle.ed25519IdentityKey != null &&
-        theirBundle.ed25519Signature != null) {
-      final ed25519PubKey = base64Decode(theirBundle.ed25519IdentityKey!);
-      final ed25519Sig = base64Decode(theirBundle.ed25519Signature!);
-      final valid = await _cryptoService.ed25519Verify(
-        theirSignedPreKey, ed25519Sig, ed25519PubKey,
+    // Verify Ed25519 signature on the signed pre-key (REQUIRED).
+    // Without this, a server-side attacker could substitute their own SPK
+    // and perform a MITM attack on the X3DH key agreement.
+    if (theirBundle.ed25519IdentityKey == null ||
+        theirBundle.ed25519Signature == null) {
+      throw StateError(
+        'E2EE: Key bundle for $recipientUserId is missing Ed25519 fields — '
+        'cannot verify signed pre-key authenticity. '
+        'Bundle may be corrupted or from an incompatible version.',
       );
-      if (!valid) {
-        throw StateError(
-          'E2EE: Signed pre-key signature verification failed for $recipientUserId — '
-          'possible MITM attack',
-        );
-      }
+    }
+    final ed25519PubKey = base64Decode(theirBundle.ed25519IdentityKey!);
+    final ed25519Sig = base64Decode(theirBundle.ed25519Signature!);
+    final valid = await _x3dh.verifySignedPreKey(
+      theirSignedPreKey, ed25519Sig, ed25519PubKey,
+    );
+    if (!valid) {
+      throw StateError(
+        'E2EE: Signed pre-key signature verification failed for $recipientUserId — '
+        'possible MITM attack',
+      );
     }
 
-    // 4. Compute DH shared secrets
-    // DH1 = DH(ourIdentityPrivate, theirSignedPreKey)
-    final dh1 =
-        await _cryptoService.diffieHellman(ourIdentityPrivate, theirSignedPreKey);
-    // DH2 = DH(ourEphemeralPrivate, theirIdentityKey)
-    final dh2 = await _cryptoService.diffieHellman(
-        ephemeralKp['privateKey']!, theirIdentityKey);
-    // DH3 = DH(ourEphemeralPrivate, theirSignedPreKey)
-    final dh3 = await _cryptoService.diffieHellman(
-        ephemeralKp['privateKey']!, theirSignedPreKey);
-
-    // DH4 = DH(ourEphemeralPrivate, theirOneTimePreKey) [if available]
-    Uint8List? dh4;
+    // 4-6. Compute X3DH shared secret (SK) — 32 bytes per spec
     String? consumedOtkPublicKey;
+    Uint8List? theirOtk;
     if (theirBundle.oneTimePreKeys.isNotEmpty) {
-      final theirOtk = base64Decode(theirBundle.oneTimePreKeys.first);
-      dh4 = await _cryptoService.diffieHellman(
-          ephemeralKp['privateKey']!, theirOtk);
+      theirOtk = base64Decode(theirBundle.oneTimePreKeys.first);
       consumedOtkPublicKey = theirBundle.oneTimePreKeys.first;
     }
 
-    // 5. Concatenate master secret
-    final masterSecretLength =
-        dh1.length + dh2.length + dh3.length + (dh4?.length ?? 0);
-    final masterSecret = Uint8List(masterSecretLength);
-    var offset = 0;
-    masterSecret.setRange(offset, offset + dh1.length, dh1);
-    offset += dh1.length;
-    masterSecret.setRange(offset, offset + dh2.length, dh2);
-    offset += dh2.length;
-    masterSecret.setRange(offset, offset + dh3.length, dh3);
-    offset += dh3.length;
-    if (dh4 != null) {
-      masterSecret.setRange(offset, offset + dh4.length, dh4);
-    }
-
-    // 6. Derive root key + send chain key via HKDF
-    final derived = await _cryptoService.hkdf(
-      inputKeyMaterial: masterSecret,
-      length: 64,
-      salt: Uint8List(32), // zeros
-      info: utf8.encode('X3DH-init'),
+    final sk = await _x3dh.computeInitiatorSharedSecret(
+      ourIdentityPrivate: ourIdentityPrivate,
+      ourEphemeralPrivate: ephemeralKp['privateKey']!,
+      theirIdentityKey: theirIdentityKey,
+      theirSignedPreKey: theirSignedPreKey,
+      theirOneTimePreKey: theirOtk,
     );
-    final rootKey = Uint8List.fromList(derived.sublist(0, 32));
-    final sendChainKey = Uint8List.fromList(derived.sublist(32, 64));
 
     // 7. Generate initial DH ratchet key pair for sending
-    final dhSendKp = await _cryptoService.generateX25519KeyPair();
+    final dhSendKp = await _x3dh.generateKeyPair();
 
-    // 8. Create Double Ratchet session
-    final session = _DoubleRatchetSession(
-      rootKey: rootKey,
-      sendChainKey: sendChainKey,
+    // 8. Derive initial root key + send chain key via KDF_RK(SK, DH(dhSend, theirSPK))
+    // Per Signal spec: initiator's first DH ratchet uses SK as the root key
+    // and DH(our new ratchet key, their signed pre-key) as input.
+    final initial = await _ratchet.kdfRk(
+      sk,
+      dhSendKp['privateKey']!,
+      theirSignedPreKey,
+    );
+
+    // 9. Create Double Ratchet session
+    final session = DoubleRatchetSession(
+      rootKey: initial.rootKey,
+      sendChainKey: initial.chainKey,
+      // Sentinel: zero-initialized recvChainKey. Overwritten by the first DH
+      // ratchet step when the responder sends their first message. If somehow
+      // used directly, AES-GCM MAC verification would fail safely.
       recvChainKey: Uint8List(32),
       dhSendPrivate: dhSendKp['privateKey']!,
       dhSendPublic: dhSendKp['publicKey']!,
@@ -151,10 +142,11 @@ class SignalProtocolService {
       pendingEphemeralKey: base64Encode(ephemeralKp['publicKey']!),
       pendingOtkPublicKey: consumedOtkPublicKey,
       peerIdentityKey: base64Encode(theirIdentityKey),
+      ourIdentityKey: base64Encode(ourIdentityPublic),
     );
 
-    debugPrint('E2EE INIT-SEND [$recipientUserId]: '
-        'rootKey=${_fp(rootKey)} sendCK=${_fp(sendChainKey)} '
+    CryptoService.e2eeLog('E2EE INIT-SEND [$recipientUserId]: '
+        'rootKey=${_fp(initial.rootKey)} sendCK=${_fp(initial.chainKey)} '
         'dhSendPub=${_fp(dhSendKp['publicKey']!)} '
         'theirIdPub=${_fp(theirIdentityKey)} '
         'theirSPKPub=${_fp(theirSignedPreKey)} '
@@ -178,19 +170,14 @@ class SignalProtocolService {
     String recipientUserId,
     String plaintext,
   ) {
-    final completer = Completer<Map<String, dynamic>>();
-    _encryptLocks[recipientUserId] =
-        (_encryptLocks[recipientUserId] ?? Future<void>.value())
-            .then((_) async {
-      try {
-        completer.complete(
-            await _encryptP2PImpl(recipientUserId, plaintext));
-      } catch (e, st) {
-        completer.completeError(e, st);
-      }
-    });
-    return completer.future;
+    return _sessionLock.protect(
+      recipientUserId,
+      () => _encryptP2PImpl(recipientUserId, plaintext),
+    );
   }
+
+  static const _sessionTtl = Duration(days: 30);
+  static const _maxMessageNumber = 1 << 31;
 
   Future<Map<String, dynamic>> _encryptP2PImpl(
     String recipientUserId,
@@ -198,23 +185,17 @@ class SignalProtocolService {
   ) async {
     // Load or establish session
     var session = await _loadSession(recipientUserId);
-    // Re-establish when:
-    //  1. No session exists
-    //  2. Session is receiver-side (no pendingIdentityKey by design — can't
-    //     send x3dhHeader without the sender's ephemeral key material)
-    //  3. Session is a legacy pre-fix initiator session that has
-    //     pendingIdentityKey == null: these were stored before the "always keep
-    //     x3dhHeader" change. Without pendingIdentityKey the outgoing message
-    //     lacks an x3dh header; a recipient on a fresh install has no session
-    //     and cannot decrypt → immediate PermanentDecryptionError.
-    if (session == null || !session.isInitiator || session.pendingIdentityKey == null) {
-      if (session != null && !session.isInitiator) {
-        debugPrint('E2EE ENCRYPT [$recipientUserId]: Discarding receiver-side '
-            'session — establishing fresh sender session for proper x3dh header');
-      } else if (session != null && session.pendingIdentityKey == null) {
-        debugPrint('E2EE ENCRYPT [$recipientUserId]: Discarding legacy initiator '
-            'session (pendingIdentityKey==null) — re-establishing to ensure '
-            'x3dh header is always present');
+
+    // Re-establish only when:
+    //  1. No session exists at all
+    //  2. Session TTL expired (Issue 11)
+    //  3. Send message number overflow (Issue 12)
+    if (session == null ||
+        DateTime.now().difference(session.createdAt) > _sessionTtl ||
+        session.sendMessageNumber >= _maxMessageNumber) {
+      if (session != null) {
+        CryptoService.e2eeLog('E2EE ENCRYPT [$recipientUserId]: Re-establishing session '
+            '(TTL expired or message number overflow)');
       }
       await establishSession(recipientUserId);
       session = await _loadSession(recipientUserId);
@@ -224,28 +205,30 @@ class SignalProtocolService {
     }
 
     // Derive message key from send chain key
-    final messageKey = await _cryptoService.hkdf(
-      inputKeyMaterial: session.sendChainKey,
-      length: 32,
-      info: utf8.encode('MsgKey'),
-    );
+    final messageKey = await _ratchet.deriveMessageKey(session.sendChainKey);
 
     // Ratchet send chain key forward
-    session.sendChainKey = await _cryptoService.hkdf(
-      inputKeyMaterial: session.sendChainKey,
-      length: 32,
-      info: utf8.encode('ChainKey'),
+    session.sendChainKey = await _ratchet.ratchetChainKey(session.sendChainKey);
+
+    // Compute Associated Data per Signal spec (Issue 4)
+    final ad = _computeAssociatedData(
+      session,
+      dhPublicKey: session.dhSendPublic,
+      messageNumber: session.sendMessageNumber,
+      previousChainLength: session.previousChainLength,
     );
 
-    // Encrypt with AES-256-GCM
-    final plaintextBytes = Uint8List.fromList(utf8.encode(plaintext));
-    final encrypted = await _cryptoService.encrypt(plaintextBytes, messageKey);
+    // Encrypt with AES-256-GCM + AD
+    final encrypted = await _ratchet.encrypt(plaintext, messageKey, aad: ad);
 
-    debugPrint('E2EE ENCRYPT [$recipientUserId]: '
+    // Zeroize message key after use (Issue 9)
+    CryptoService.zeroize(messageKey);
+
+    CryptoService.e2eeLog('E2EE ENCRYPT [$recipientUserId]: '
         'msgNum=${session.sendMessageNumber} '
         'sendCK=${_fp(session.sendChainKey)} '
-        'msgKey=${_fp(messageKey)} '
         'dhSendPub=${_fp(session.dhSendPublic)} '
+        'isInitiator=${session.isInitiator} '
         'hasX3DH=${session.pendingIdentityKey != null}');
 
     // Build result
@@ -254,15 +237,16 @@ class SignalProtocolService {
       'e2ee': {
         'protocol': 'signal-v1',
         'messageNumber': session.sendMessageNumber,
+        'previousChainLength': session.previousChainLength,
         'dhPublicKey': base64Encode(session.dhSendPublic),
       },
     };
 
-    // Always include X3DH header when pending keys exist (which is now
-    // always, since we never clear them). This ensures the recipient can
-    // perform a fresh receiver-side X3DH at any time — critical when the
-    // peer regenerates their key bundle (reinstall, data clear, etc.).
-    // The receiver ignores the header when peerX3dhEphemeralKey matches.
+    // Include X3DH header only on initiator sessions (they have the
+    // ephemeral key material). Receiver sessions send without x3dhHeader —
+    // the peer already has a session from their own X3DH initiation.
+    // If the peer reinstalls, they send the first message (as initiator
+    // with x3dhHeader), triggering receiver X3DH on our side.
     if (session.pendingIdentityKey != null) {
       result['x3dhHeader'] = {
         'identityKey': session.pendingIdentityKey,
@@ -280,6 +264,16 @@ class SignalProtocolService {
   Future<String> decryptP2P(
     String senderUserId,
     Map<String, dynamic> encryptedMessage,
+  ) {
+    return _sessionLock.protect(
+      senderUserId,
+      () => _decryptP2PImpl(senderUserId, encryptedMessage),
+    );
+  }
+
+  Future<String> _decryptP2PImpl(
+    String senderUserId,
+    Map<String, dynamic> encryptedMessage,
   ) async {
     final ciphertextBase64 = encryptedMessage['ciphertext'] as String;
     final e2ee = encryptedMessage['e2ee'] as Map<String, dynamic>?;
@@ -287,11 +281,12 @@ class SignalProtocolService {
         encryptedMessage['x3dhHeader'] as Map<String, dynamic>?;
 
     final messageNumber = (e2ee?['messageNumber'] as num?)?.toInt() ?? 0;
+    final previousChainLength = (e2ee?['previousChainLength'] as num?)?.toInt() ?? 0;
     final peerDhPublicBase64 = e2ee?['dhPublicKey'] as String?;
     final peerDhPublic =
         peerDhPublicBase64 != null ? base64Decode(peerDhPublicBase64) : null;
 
-    debugPrint('E2EE DECRYPT-START [$senderUserId]: '
+    CryptoService.e2eeLog('E2EE DECRYPT-START [$senderUserId]: '
         'msgNum=$messageNumber '
         'hasE2ee=${e2ee != null} '
         'hasX3DH=${x3dhHeader != null} '
@@ -300,7 +295,7 @@ class SignalProtocolService {
 
     var session = await _loadSession(senderUserId);
 
-    debugPrint('E2EE DECRYPT-SESSION [$senderUserId]: '
+    CryptoService.e2eeLog('E2EE DECRYPT-SESSION [$senderUserId]: '
         'hasSession=${session != null} '
         'isInitiator=${session?.isInitiator} '
         'recvMsgNum=${session?.recvMessageNumber}');
@@ -329,7 +324,7 @@ class SignalProtocolService {
 
     String? consumedOtkPublicKey;
     if (needsReceiverX3dh) {
-      debugPrint('E2EE: Performing receiver X3DH for $senderUserId '
+      CryptoService.e2eeLog('E2EE: Performing receiver X3DH for $senderUserId '
           '(reason: session=${session == null ? "none" : session.isInitiator ? "initiator" : "stale"})');
       final x3dhResult =
           await _performReceiverX3DH(senderUserId, x3dhHeader, peerDhPublic);
@@ -351,55 +346,33 @@ class SignalProtocolService {
         : null;
     if (skippedLookup != null && session.skippedKeys.containsKey(skippedLookup)) {
       final messageKey = session.skippedKeys.remove(skippedLookup)!;
+      // Compute AD for this skipped message
+      final ad = peerDhPublic != null
+          ? _computeAssociatedData(
+              session,
+              dhPublicKey: peerDhPublic,
+              messageNumber: messageNumber,
+              previousChainLength: previousChainLength,
+            )
+          : Uint8List(0);
       // Decrypt BEFORE saving — if it fails, the on-disk session still
       // has the skipped key so we can retry.
-      final plaintext = await _decryptWithKey(ciphertextBase64, messageKey);
+      final plaintext = await _ratchet.decrypt(ciphertextBase64, messageKey, aad: ad);
+      CryptoService.zeroize(messageKey);
       await _saveSession(senderUserId, session);
       return plaintext;
     }
 
     // DH ratchet step if peer's DH key changed
-    if (peerDhPublic != null && !_bytesEqual(peerDhPublic, session.dhRecvPublic)) {
-      // Store skipped keys for current recv chain
-      await _skipRecvKeys(session, session.recvMessageNumber, messageNumber);
+    if (peerDhPublic != null && !_ratchet.bytesEqual(peerDhPublic, session.dhRecvPublic)) {
+      await _ratchet.performDhRatchetStep(session, peerDhPublic, previousChainLength);
+    }
 
-      // Update recv side
-      session.dhRecvPublic = peerDhPublic;
-      session.previousChainLength = session.recvMessageNumber;
-      session.recvMessageNumber = 0;
-
-      // DH ratchet: recv side
-      final dhResult = await _cryptoService.diffieHellman(
-        session.dhSendPrivate,
-        peerDhPublic,
+    // Guard: recv message number overflow (Issue 12)
+    if (session.recvMessageNumber >= _maxMessageNumber) {
+      throw StateError(
+        'E2EE: Recv message number overflow — session must be re-established',
       );
-      final combined = _concat(session.rootKey, dhResult);
-      final derived = await _cryptoService.hkdf(
-        inputKeyMaterial: combined,
-        length: 64,
-        info: utf8.encode('Ratchet'),
-      );
-      session.rootKey = Uint8List.fromList(derived.sublist(0, 32));
-      session.recvChainKey = Uint8List.fromList(derived.sublist(32, 64));
-
-      // DH ratchet: send side — generate new DH key pair
-      final newDhKp = await _cryptoService.generateX25519KeyPair();
-      session.dhSendPrivate = newDhKp['privateKey']!;
-      session.dhSendPublic = newDhKp['publicKey']!;
-
-      final dhResult2 = await _cryptoService.diffieHellman(
-        session.dhSendPrivate,
-        peerDhPublic,
-      );
-      final combined2 = _concat(session.rootKey, dhResult2);
-      final derived2 = await _cryptoService.hkdf(
-        inputKeyMaterial: combined2,
-        length: 64,
-        info: utf8.encode('Ratchet'),
-      );
-      session.rootKey = Uint8List.fromList(derived2.sublist(0, 32));
-      session.sendChainKey = Uint8List.fromList(derived2.sublist(32, 64));
-      session.sendMessageNumber = 0;
     }
 
     // Guard: if message number is behind the current chain position AND
@@ -413,32 +386,37 @@ class SignalProtocolService {
     }
 
     // Skip to target message number in recv chain
-    while (session.recvMessageNumber < messageNumber) {
-      final skippedKey = await _deriveMessageKey(session.recvChainKey);
-      final lookupKey =
-          '${base64Encode(session.dhRecvPublic!)}:${session.recvMessageNumber}';
-      session.skippedKeys[lookupKey] = skippedKey;
-      session.recvChainKey = await _ratchetChainKey(session.recvChainKey);
-      session.recvMessageNumber++;
-      _pruneSkippedKeys(session);
-    }
+    await _ratchet.skipRecvKeys(session, session.recvMessageNumber, messageNumber);
+    session.recvMessageNumber = messageNumber;
 
     // Derive message key for this message
-    final messageKey = await _deriveMessageKey(session.recvChainKey);
+    final messageKey = await _ratchet.deriveMessageKey(session.recvChainKey);
 
-    debugPrint('E2EE DECRYPT-KEY [$senderUserId]: '
+    CryptoService.e2eeLog('E2EE DECRYPT-KEY [$senderUserId]: '
         'msgNum=$messageNumber '
         'recvCK=${_fp(session.recvChainKey)} '
-        'msgKey=${_fp(messageKey)} '
         'dhRecvPub=${_fp(session.dhRecvPublic)}');
 
-    session.recvChainKey = await _ratchetChainKey(session.recvChainKey);
+    session.recvChainKey = await _ratchet.ratchetChainKey(session.recvChainKey);
     session.recvMessageNumber++;
+
+    // Compute AD for this message
+    final ad = peerDhPublic != null
+        ? _computeAssociatedData(
+            session,
+            dhPublicKey: peerDhPublic,
+            messageNumber: messageNumber,
+            previousChainLength: previousChainLength,
+          )
+        : Uint8List(0);
 
     // Decrypt BEFORE saving session. If AES-GCM auth fails, the session
     // state is NOT persisted, so the chain doesn't advance past this
     // message — allowing retry when the correct session is established.
-    final plaintext = await _decryptWithKey(ciphertextBase64, messageKey);
+    final plaintext = await _ratchet.decrypt(ciphertextBase64, messageKey, aad: ad);
+
+    // Zeroize message key after successful decrypt (Issue 9)
+    CryptoService.zeroize(messageKey);
 
     // NOTE: We deliberately do NOT clear pendingIdentityKey/pendingEphemeralKey
     // here. Keeping the X3DH header on every outgoing message ensures that if
@@ -447,7 +425,7 @@ class SignalProtocolService {
     // session. The receiver already ignores duplicate x3dhHeaders when the
     // ephemeral key matches (peerX3dhEphemeralKey check in decryptP2P).
     if (session.pendingIdentityKey != null) {
-      debugPrint('E2EE: Decrypt succeeded with $senderUserId — keeping X3DH header for future messages');
+      CryptoService.e2eeLog('E2EE: Decrypt succeeded with $senderUserId — keeping X3DH header for future messages');
     }
 
     await _saveSession(senderUserId, session);
@@ -466,8 +444,7 @@ class SignalProtocolService {
 
   /// Check whether an active Double Ratchet session exists with [userId].
   Future<bool> hasSession(String userId) async {
-    final stored = await _secureStorage.read(key: '$_sessionPrefix$userId');
-    return stored != null;
+    return _sessionStore.exists(userId);
   }
 
   /// Reset the session with [userId], deleting all local state.
@@ -475,7 +452,7 @@ class SignalProtocolService {
   /// The next message exchange will trigger a fresh X3DH handshake.
   /// Use this when decryption failures indicate a corrupted session.
   Future<void> resetSession(String userId) async {
-    await _secureStorage.delete(key: '$_sessionPrefix$userId');
+    await _sessionStore.delete(userId);
   }
 
   /// Wipe ALL Double Ratchet sessions from secure storage.
@@ -487,67 +464,56 @@ class SignalProtocolService {
   /// keys the peer will no longer recognise.
   Future<void> clearAllSessions() async {
     try {
-      final allKeys = await _secureStorage.readAll();
-      final sessionKeys = allKeys.keys
-          .where((k) => k.startsWith(_sessionPrefix))
-          .toList();
-      for (final key in sessionKeys) {
-        await _secureStorage.delete(key: key);
-      }
-      debugPrint('E2EE: Cleared ${sessionKeys.length} stale session(s) '
+      final count = await _sessionStore.sessionCount();
+      await _sessionStore.deleteAll();
+      CryptoService.e2eeLog('E2EE: Cleared $count stale session(s) '
           'after identity key regeneration');
     } catch (e) {
       // Non-fatal — sessions will be re-established on next send/receive.
-      debugPrint('E2EE: clearAllSessions failed (non-fatal): $e');
+      CryptoService.e2eeLog('E2EE: clearAllSessions failed (non-fatal): $e');
     }
   }
 
   /// One-time migration: reset sessions corrupted by the legacy
   /// peerX3dhEphemeralKey bug. Returns true if migration was performed.
   Future<bool> migrateResetCorruptedSessions() async {
-    final migrated = await _secureStorage.read(key: 'e2ee_session_migration_v1');
+    final migrated =
+        await _sessionStore.readMeta('e2ee_session_migration_v2');
     if (migrated != null) {
-      debugPrint('E2EE: Session migration already done (flag present)');
+      CryptoService.e2eeLog('E2EE: Session migration already done (flag present)');
       return false;
     }
 
-    // Diagnostic: check total secure storage state to understand if this is
+    // Diagnostic: check total session count to understand if this is
     // a first launch or if storage was wiped by app reinstall.
     try {
-      final all = await _secureStorage.readAll();
-      final sessionKeys = all.keys.where((k) => k.startsWith(_sessionPrefix)).toList();
-      final e2eeKeys = all.keys.where((k) => k.startsWith('e2ee_')).toList();
-      debugPrint('E2EE: Migration flag NOT found — total keys: ${all.length}, '
-          'E2EE keys: ${e2eeKeys.length}, sessions: ${sessionKeys.length}. '
-          '${all.isEmpty ? "Storage is EMPTY (first launch or wiped by reinstall)" : ""}');
+      final count = await _sessionStore.sessionCount();
+      CryptoService.e2eeLog('E2EE: Migration flag NOT found — sessions: $count. '
+          '${count == 0 ? "Storage is EMPTY (first launch or wiped by reinstall)" : ""}');
     } catch (e) {
-      debugPrint('E2EE: Migration flag NOT found, readAll failed: $e');
+      CryptoService.e2eeLog('E2EE: Migration flag NOT found, sessionCount failed: $e');
     }
 
     await resetAllSessions();
-    await _secureStorage.write(key: 'e2ee_session_migration_v1', value: 'done');
+    await _sessionStore.writeMeta('e2ee_session_migration_v2', 'done');
 
     // Readback verification for migration flag
-    final readback = await _secureStorage.read(key: 'e2ee_session_migration_v1');
+    final readback =
+        await _sessionStore.readMeta('e2ee_session_migration_v2');
     if (readback == null) {
-      debugPrint('E2EE: ⚠ CRITICAL — migration flag readback is NULL immediately '
+      CryptoService.e2eeLog('E2EE: ⚠ CRITICAL — migration flag readback is NULL immediately '
           'after write! Secure storage writes are NOT persisting. This device '
           'will regenerate keys on every app restart.');
     }
 
-    debugPrint('E2EE: One-time session migration — all sessions reset');
+    CryptoService.e2eeLog('E2EE: One-time session migration — all sessions reset');
     return true;
   }
 
   /// Reset all sessions. Used during key bundle re-generation or
   /// device-level key wipe.
   Future<void> resetAllSessions() async {
-    final all = await _secureStorage.readAll();
-    for (final key in all.keys) {
-      if (key.startsWith(_sessionPrefix)) {
-        await _secureStorage.delete(key: key);
-      }
-    }
+    await _sessionStore.deleteAll();
   }
 
   /// Get the peer's identity public key (base64) stored in the session.
@@ -575,12 +541,67 @@ class SignalProtocolService {
   }
 
   // ===========================================================================
+  // ASSOCIATED DATA (AD)
+  // ===========================================================================
+
+  /// Compute Associated Data for AEAD encryption per Signal spec.
+  ///
+  /// AD = senderIdentityKey || receiverIdentityKey || dhPublicKey
+  ///      || messageNumber (4 bytes big-endian)
+  ///      || previousChainLength (4 bytes big-endian)
+  ///
+  /// Returns empty AD for legacy sessions where identity keys are unknown,
+  /// ensuring graceful degradation.
+  Uint8List _computeAssociatedData(
+    DoubleRatchetSession session, {
+    required Uint8List dhPublicKey,
+    required int messageNumber,
+    required int previousChainLength,
+  }) {
+    final ourIdKey = session.ourIdentityKey;
+    final peerIdKey = session.peerIdentityKey;
+    if (ourIdKey == null || peerIdKey == null) {
+      // Legacy session — cannot compute AD, return empty
+      return Uint8List(0);
+    }
+
+    final senderKey = session.isInitiator
+        ? base64Decode(ourIdKey)
+        : base64Decode(peerIdKey);
+    final receiverKey = session.isInitiator
+        ? base64Decode(peerIdKey)
+        : base64Decode(ourIdKey);
+
+    // Encode message header fields as fixed-width big-endian integers
+    final msgNumBytes = Uint8List(4)
+      ..buffer.asByteData().setInt32(0, messageNumber, Endian.big);
+    final prevChainBytes = Uint8List(4)
+      ..buffer.asByteData().setInt32(0, previousChainLength, Endian.big);
+
+    // AD = senderIdentity || receiverIdentity || dhPublicKey || msgNum || prevChainLen
+    final ad = Uint8List(
+      senderKey.length + receiverKey.length + dhPublicKey.length + 4 + 4,
+    );
+    var offset = 0;
+    ad.setRange(offset, offset + senderKey.length, senderKey);
+    offset += senderKey.length;
+    ad.setRange(offset, offset + receiverKey.length, receiverKey);
+    offset += receiverKey.length;
+    ad.setRange(offset, offset + dhPublicKey.length, dhPublicKey);
+    offset += dhPublicKey.length;
+    ad.setRange(offset, offset + 4, msgNumBytes);
+    offset += 4;
+    ad.setRange(offset, offset + 4, prevChainBytes);
+    return ad;
+  }
+
+  // ===========================================================================
   // RECEIVER-SIDE X3DH
   // ===========================================================================
 
   /// Returns a record containing the new session and the public key of the
   /// consumed OTK (if any), so the caller can remove it from local storage.
-  Future<({_DoubleRatchetSession session, String? consumedOtkPublicKey})>
+  Future<({DoubleRatchetSession session, String? consumedOtkPublicKey})>
       _performReceiverX3DH(
     String senderUserId,
     Map<String, dynamic> x3dhHeader,
@@ -601,52 +622,31 @@ class SignalProtocolService {
     final theirEphemeralPub =
         base64Decode(x3dhHeader['ephemeralKey'] as String);
 
-    // Verify Ed25519 signature on our signed pre-key if the sender included
-    // verification data. This is self-verification that our own bundle is intact.
-    // (The sender already verified the signature before using our pre-key.)
-
-    // Compute DH secrets (reversed roles)
-    // DH1 = DH(ourSignedPreKeyPriv, theirIdentityPub)
-    final dh1 = await _cryptoService.diffieHellman(
-        ourSignedPreKeyPrivate, theirIdentityPub);
-    // DH2 = DH(ourIdentityPriv, theirEphemeralPub)
-    final dh2 = await _cryptoService.diffieHellman(
-        ourIdentityPrivate, theirEphemeralPub);
-    // DH3 = DH(ourSignedPreKeyPriv, theirEphemeralPub)
-    final dh3 = await _cryptoService.diffieHellman(
-        ourSignedPreKeyPrivate, theirEphemeralPub);
-
-    // DH4 = DH(ourOtkPriv, theirEphemeralPub) [if OTK was used]
-    // Gap 11 fix: match OTK by public key content instead of fragile array index
-    Uint8List? dh4;
+    // Resolve OTK private key from header (content-based matching)
     final otkPublicKey = x3dhHeader['oneTimePreKeyPublicKey'] as String?;
-    // Log all local OTK public keys for correlation with sender logs
-    debugPrint('E2EE RECV-X3DH [$senderUserId]: looking for OTK '
+    CryptoService.e2eeLog('E2EE RECV-X3DH [$senderUserId]: looking for OTK '
         '${otkPublicKey != null ? "${otkPublicKey.substring(0, 12)}…" : "null"} '
         'in ${ourBundle.oneTimePreKeys.length} local OTKs:');
     for (var i = 0; i < ourBundle.oneTimePreKeys.length; i++) {
       final pub = ourBundle.oneTimePreKeys[i].split('|')[1];
-      debugPrint('  OTK[$i] = ${pub.substring(0, 12)}… '
+      CryptoService.e2eeLog('  OTK[$i] = ${pub.substring(0, 12)}… '
           '${pub == otkPublicKey ? "← MATCH" : ""}');
     }
-    // Also support legacy 'oneTimePreKeyId' (int index) for backward compatibility
+
+    Uint8List? ourOtkPrivate;
     final legacyOtkId = (x3dhHeader['oneTimePreKeyId'] as num?)?.toInt();
     if (otkPublicKey != null) {
-      // Content-based matching: find the OTK whose public key matches
       for (final otkEncoded in ourBundle.oneTimePreKeys) {
         final pubPart = otkEncoded.split('|')[1];
         if (pubPart == otkPublicKey) {
-          final otkPrivate = base64Decode(otkEncoded.split('|')[0]);
-          dh4 = await _cryptoService.diffieHellman(otkPrivate, theirEphemeralPub);
+          ourOtkPrivate = base64Decode(otkEncoded.split('|')[0]);
           break;
         }
       }
-      if (dh4 == null) {
-        debugPrint('E2EE WARN [$senderUserId]: OTK public key from x3dhHeader '
+      if (ourOtkPrivate == null) {
+        CryptoService.e2eeLog('E2EE WARN [$senderUserId]: OTK public key from x3dhHeader '
             'not found in local OTK bundle (${ourBundle.oneTimePreKeys.length} '
             'keys available). Key may have been consumed or bundle regenerated.');
-        // Sender computed DH4 with this OTK but we can't — master secrets
-        // will ALWAYS differ. This message is permanently undecryptable.
         throw PermanentDecryptionError(
           'E2EE: OTK mismatch with $senderUserId — sender used OTK '
           '${otkPublicKey.substring(0, 8)}… which is not in our local bundle. '
@@ -655,14 +655,6 @@ class SignalProtocolService {
         );
       }
     } else if (legacyOtkId != null) {
-      // Legacy integer-index OTK (sent by old client code before content-based
-      // matching was introduced). The index refers to the slot in the KEY BUNDLE
-      // THAT EXISTED WHEN THE SENDER ESTABLISHED THE SESSION — which may be
-      // completely different from our current bundle (e.g. after reinstall or
-      // OTK replenishment). Using ourBundle.oneTimePreKeys[legacyOtkId] would
-      // pick the WRONG private key, producing a wrong DH4 → wrong master
-      // secret → MAC failure on every attempt. Better to fail permanently
-      // immediately (triggering a session reset) than to waste 3 retries.
       throw PermanentDecryptionError(
         'E2EE: Legacy OTK index ($legacyOtkId) from $senderUserId cannot be '
         'safely resolved — bundle may have changed since session was established. '
@@ -670,56 +662,27 @@ class SignalProtocolService {
       );
     }
 
-    // Log OUR public keys (derived from local private keys) alongside the
-    // sender's keys. If our public keys DON'T match what the sender fetched
-    // from the server, that means our key bundle was regenerated since the
-    // sender established their session → master secrets will differ → MAC fail.
+    // Compute receiver-side X3DH shared secret (SK) — 32 bytes per spec
     final ourIdentityPublic = base64Decode(ourBundle.identityKeyPair.split('|')[1]);
     final ourSignedPreKeyPublic = base64Decode(ourBundle.signedPreKey.split('|')[1]);
-    debugPrint('E2EE RECV-X3DH [$senderUserId]: '
+    CryptoService.e2eeLog('E2EE RECV-X3DH [$senderUserId]: '
         'ourIdPub=${_fp(ourIdentityPublic)} '
         'ourSPKPub=${_fp(ourSignedPreKeyPublic)} '
         'ourOTKCount=${ourBundle.oneTimePreKeys.length} '
         'theirIdPub=${_fp(theirIdentityPub)} '
         'theirEphPub=${_fp(theirEphemeralPub)} '
-        'otkMatch=${dh4 != null} '
+        'otkMatch=${ourOtkPrivate != null} '
         'otkRequested=$otkPublicKey');
 
-    // Concatenate master secret
-    final masterSecretLength =
-        dh1.length + dh2.length + dh3.length + (dh4?.length ?? 0);
-    final masterSecret = Uint8List(masterSecretLength);
-    var offset = 0;
-    masterSecret.setRange(offset, offset + dh1.length, dh1);
-    offset += dh1.length;
-    masterSecret.setRange(offset, offset + dh2.length, dh2);
-    offset += dh2.length;
-    masterSecret.setRange(offset, offset + dh3.length, dh3);
-    offset += dh3.length;
-    if (dh4 != null) {
-      masterSecret.setRange(offset, offset + dh4.length, dh4);
-    }
-
-    // Derive keys
-    final derived = await _cryptoService.hkdf(
-      inputKeyMaterial: masterSecret,
-      length: 64,
-      salt: Uint8List(32),
-      info: utf8.encode('X3DH-init'),
+    final sk = await _x3dh.computeReceiverSharedSecret(
+      ourIdentityPrivate: ourIdentityPrivate,
+      ourSignedPreKeyPrivate: ourSignedPreKeyPrivate,
+      theirIdentityPub: theirIdentityPub,
+      theirEphemeralPub: theirEphemeralPub,
+      ourOtkPrivate: ourOtkPrivate,
     );
-    final rootKey = Uint8List.fromList(derived.sublist(0, 32));
-    final recvChainKey = Uint8List.fromList(derived.sublist(32, 64));
 
-    debugPrint('E2EE RECV-X3DH [$senderUserId]: '
-        'masterSecret=${_fp(masterSecret)} '
-        'rootKey=${_fp(rootKey)} recvCK=${_fp(recvChainKey)}');
-
-    // Generate our DH ratchet key pair for send direction
-    final dhSendKp = await _cryptoService.generateX25519KeyPair();
-
-    // Guard: peerDhPublic is required for the send-side DH ratchet.
-    // It comes from e2ee.dhPublicKey in the incoming message. If missing,
-    // the sender's client didn't include it — can't derive sendChainKey.
+    // Guard: peerDhPublic is required for the DH ratchet steps.
     if (peerDhPublic == null) {
       throw StateError(
         'E2EE: peerDhPublic is null in receiver X3DH for $senderUserId — '
@@ -727,31 +690,35 @@ class SignalProtocolService {
       );
     }
 
-    // Perform DH ratchet for send direction so sendChainKey is properly
-    // derived (not zeros). The initiator will perform the matching recv-side
-    // ratchet when it sees our new dhSendPublic in the first reply message.
-    final dhSendResult = await _cryptoService.diffieHellman(
-      dhSendKp['privateKey']!, peerDhPublic,
-    );
-    final combinedSend = _concat(rootKey, dhSendResult);
-    final derivedSend = await _cryptoService.hkdf(
-      inputKeyMaterial: combinedSend,
-      length: 64,
-      info: utf8.encode('Ratchet'),
-    );
-    final sendRootKey = Uint8List.fromList(derivedSend.sublist(0, 32));
-    final sendChainKey = Uint8List.fromList(derivedSend.sublist(32, 64));
+    // Receiver Double Ratchet initialization per Signal spec:
+    // Step 1: KDF_RK(SK, DH(ourSPKPrivate, peerDhPublic)) → (RK1, recvChainKey)
+    final recv = await _ratchet.kdfRk(sk, ourSignedPreKeyPrivate, peerDhPublic);
 
-    final session = _DoubleRatchetSession(
-      rootKey: sendRootKey,
-      sendChainKey: sendChainKey,
-      recvChainKey: recvChainKey,
+    // Step 2: Generate our DH ratchet key pair for send direction
+    final dhSendKp = await _x3dh.generateKeyPair();
+
+    // Step 3: KDF_RK(RK1, DH(dhSendPrivate, peerDhPublic)) → (RK2, sendChainKey)
+    final send = await _ratchet.kdfRk(
+      recv.rootKey,
+      dhSendKp['privateKey']!,
+      peerDhPublic,
+    );
+
+    CryptoService.e2eeLog('E2EE RECV-X3DH [$senderUserId]: '
+        'rootKey=${_fp(send.rootKey)} recvCK=${_fp(recv.chainKey)} '
+        'sendCK=${_fp(send.chainKey)}');
+
+    final session = DoubleRatchetSession(
+      rootKey: send.rootKey,
+      sendChainKey: send.chainKey,
+      recvChainKey: recv.chainKey,
       dhSendPrivate: dhSendKp['privateKey']!,
       dhSendPublic: dhSendKp['publicKey']!,
       dhRecvPublic: peerDhPublic,
       isInitiator: false,
       peerX3dhEphemeralKey: x3dhHeader['ephemeralKey'] as String?,
       peerIdentityKey: x3dhHeader['identityKey'] as String?,
+      ourIdentityKey: base64Encode(ourIdentityPublic),
     );
 
     // NOTE: Do NOT save the session here. The session must only be persisted
@@ -764,198 +731,14 @@ class SignalProtocolService {
   }
 
   // ===========================================================================
-  // DOUBLE RATCHET HELPERS
-  // ===========================================================================
-
-  Future<Uint8List> _deriveMessageKey(Uint8List chainKey) async {
-    return _cryptoService.hkdf(
-      inputKeyMaterial: chainKey,
-      length: 32,
-      info: utf8.encode('MsgKey'),
-    );
-  }
-
-  Future<Uint8List> _ratchetChainKey(Uint8List chainKey) async {
-    return _cryptoService.hkdf(
-      inputKeyMaterial: chainKey,
-      length: 32,
-      info: utf8.encode('ChainKey'),
-    );
-  }
-
-  Future<void> _skipRecvKeys(
-    _DoubleRatchetSession session,
-    int currentNum,
-    int targetNum,
-  ) async {
-    // Don't skip more than _maxSkippedKeys to prevent DoS
-    final toSkip = targetNum - currentNum;
-    if (toSkip > _maxSkippedKeys) return;
-
-    for (var i = currentNum; i < targetNum; i++) {
-      final key = await _deriveMessageKey(session.recvChainKey);
-      final lookup =
-          '${base64Encode(session.dhRecvPublic!)}:$i';
-      session.skippedKeys[lookup] = key;
-      session.recvChainKey = await _ratchetChainKey(session.recvChainKey);
-    }
-    _pruneSkippedKeys(session);
-  }
-
-  void _pruneSkippedKeys(_DoubleRatchetSession session) {
-    while (session.skippedKeys.length > _maxSkippedKeys) {
-      session.skippedKeys.remove(session.skippedKeys.keys.first);
-    }
-  }
-
-  Future<String> _decryptWithKey(String ciphertextBase64, Uint8List messageKey) async {
-    final encrypted = base64Decode(ciphertextBase64);
-    // Format: nonce(12) || ciphertext || mac(16) — minimum 28 bytes
-    if (encrypted.length < 28) {
-      throw StateError('E2EE: ciphertext too short (${encrypted.length} bytes)');
-    }
-    final nonce = Uint8List.fromList(encrypted.sublist(0, 12));
-    final ciphertextWithMac = Uint8List.fromList(encrypted.sublist(12));
-    final plaintext = await _cryptoService.decrypt(
-      ciphertextWithMac,
-      messageKey,
-      nonce: nonce,
-    );
-    return utf8.decode(plaintext);
-  }
-
-  // ===========================================================================
   // SESSION PERSISTENCE
   // ===========================================================================
 
-  Future<void> _saveSession(String userId, _DoubleRatchetSession session) async {
-    final json = jsonEncode(session.toJson());
-    await _secureStorage.write(key: '$_sessionPrefix$userId', value: json);
+  Future<void> _saveSession(String userId, DoubleRatchetSession session) async {
+    await _sessionStore.save(userId, session);
   }
 
-  Future<_DoubleRatchetSession?> _loadSession(String userId) async {
-    final stored = await _secureStorage.read(key: '$_sessionPrefix$userId');
-    if (stored == null) return null;
-    return _DoubleRatchetSession.fromJson(
-        jsonDecode(stored) as Map<String, dynamic>);
-  }
-
-  // ===========================================================================
-  // BYTE HELPERS
-  // ===========================================================================
-
-  Uint8List _concat(Uint8List a, Uint8List b) {
-    final result = Uint8List(a.length + b.length);
-    result.setRange(0, a.length, a);
-    result.setRange(a.length, result.length, b);
-    return result;
-  }
-
-  bool _bytesEqual(Uint8List a, Uint8List? b) {
-    if (b == null) return false;
-    if (a.length != b.length) return false;
-    for (var i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
-  }
-}
-
-// =============================================================================
-// DOUBLE RATCHET SESSION STATE
-// =============================================================================
-
-class _DoubleRatchetSession {
-  Uint8List rootKey;
-  Uint8List sendChainKey;
-  Uint8List recvChainKey;
-  Uint8List dhSendPrivate;
-  Uint8List dhSendPublic;
-  Uint8List? dhRecvPublic;
-  int sendMessageNumber;
-  int recvMessageNumber;
-  int previousChainLength;
-  Map<String, Uint8List> skippedKeys;
-  bool isInitiator;
-  String? pendingIdentityKey;
-  String? pendingEphemeralKey;
-  String? pendingOtkPublicKey;
-
-  /// The ephemeral key from the x3dhHeader that established this session.
-  /// Used to detect when the peer re-established with new keys — if a new
-  /// x3dhHeader arrives with a different ephemeral key, receiver X3DH must
-  /// be re-performed to pick up the new session keys.
-  String? peerX3dhEphemeralKey;
-
-  /// The peer's identity public key (base64) at the time the session was
-  /// established. Used to detect when the peer has regenerated their key
-  /// bundle — if their current identity key differs from this, the session
-  /// is stale and must be re-established.
-  String? peerIdentityKey;
-
-  _DoubleRatchetSession({
-    required this.rootKey,
-    required this.sendChainKey,
-    required this.recvChainKey,
-    required this.dhSendPrivate,
-    required this.dhSendPublic,
-    this.dhRecvPublic,
-    this.sendMessageNumber = 0,
-    this.recvMessageNumber = 0,
-    this.previousChainLength = 0,
-    Map<String, Uint8List>? skippedKeys,
-    this.isInitiator = false,
-    this.pendingIdentityKey,
-    this.pendingEphemeralKey,
-    this.pendingOtkPublicKey,
-    this.peerX3dhEphemeralKey,
-    this.peerIdentityKey,
-  }) : skippedKeys = skippedKeys ?? {};
-
-  Map<String, dynamic> toJson() {
-    return {
-      'rootKey': base64Encode(rootKey),
-      'sendChainKey': base64Encode(sendChainKey),
-      'recvChainKey': base64Encode(recvChainKey),
-      'dhSendPrivate': base64Encode(dhSendPrivate),
-      'dhSendPublic': base64Encode(dhSendPublic),
-      'dhRecvPublic': dhRecvPublic != null ? base64Encode(dhRecvPublic!) : null,
-      'sendMessageNumber': sendMessageNumber,
-      'recvMessageNumber': recvMessageNumber,
-      'previousChainLength': previousChainLength,
-      'skippedKeys': skippedKeys
-          .map((k, v) => MapEntry(k, base64Encode(v))),
-      'isInitiator': isInitiator,
-      'pendingIdentityKey': pendingIdentityKey,
-      'pendingEphemeralKey': pendingEphemeralKey,
-      'pendingOtkPublicKey': pendingOtkPublicKey,
-      'peerX3dhEphemeralKey': peerX3dhEphemeralKey,
-      'peerIdentityKey': peerIdentityKey,
-    };
-  }
-
-  factory _DoubleRatchetSession.fromJson(Map<String, dynamic> json) {
-    final skippedRaw = json['skippedKeys'] as Map<String, dynamic>? ?? {};
-    return _DoubleRatchetSession(
-      rootKey: base64Decode(json['rootKey'] as String),
-      sendChainKey: base64Decode(json['sendChainKey'] as String),
-      recvChainKey: base64Decode(json['recvChainKey'] as String),
-      dhSendPrivate: base64Decode(json['dhSendPrivate'] as String),
-      dhSendPublic: base64Decode(json['dhSendPublic'] as String),
-      dhRecvPublic: json['dhRecvPublic'] != null
-          ? base64Decode(json['dhRecvPublic'] as String)
-          : null,
-      sendMessageNumber: json['sendMessageNumber'] as int? ?? 0,
-      recvMessageNumber: json['recvMessageNumber'] as int? ?? 0,
-      previousChainLength: json['previousChainLength'] as int? ?? 0,
-      skippedKeys: skippedRaw
-          .map((k, v) => MapEntry(k, base64Decode(v as String))),
-      isInitiator: json['isInitiator'] as bool? ?? false,
-      pendingIdentityKey: json['pendingIdentityKey'] as String?,
-      pendingEphemeralKey: json['pendingEphemeralKey'] as String?,
-      pendingOtkPublicKey: json['pendingOtkPublicKey'] as String?,
-      peerX3dhEphemeralKey: json['peerX3dhEphemeralKey'] as String?,
-      peerIdentityKey: json['peerIdentityKey'] as String?,
-    );
+  Future<DoubleRatchetSession?> _loadSession(String userId) async {
+    return _sessionStore.load(userId);
   }
 }

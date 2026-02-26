@@ -13,7 +13,6 @@ import '../../../domain/enums/conversation_type.dart';
 import '../../../domain/enums/message_status.dart';
 import '../../../domain/enums/message_type.dart';
 import '../../../domain/repositories/conversation_repository.dart';
-import '../../../domain/value_objects/user_search_result.dart';
 
 part 'conversation_event.dart';
 part 'conversation_state.dart';
@@ -54,21 +53,14 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     on<_AcceptTokenRequest>(_onAcceptTokenRequest);
     on<_DeclineTokenRequest>(_onDeclineTokenRequest);
 
-    // Thread management
-    on<_MarkAsRead>(_onMarkAsRead);
-    on<_TogglePin>(_onTogglePin);
-    on<_ToggleMute>(_onToggleMute);
-    on<_ArchiveConversation>(_onArchiveConversation);
+    // Thread management (markAsRead, togglePin, toggleMute, archiveConversation
+    // moved to ConversationActionsBloc)
 
     // Message requests
     on<_AcceptConversation>(_onAcceptConversation);
 
-    // Reactions
-    on<_AddReaction>(_onAddReaction);
-    on<_RemoveReaction>(_onRemoveReaction);
-
-    // Message deletion
-    on<_DeleteMessageForEveryone>(_onDeleteMessageForEveryone);
+    // Reactions (addReaction, removeReaction moved to ConversationActionsBloc)
+    // Message deletion (deleteMessageForEveryone moved to ConversationActionsBloc)
     on<_ClearChat>(_onClearChat);
 
     // Unread
@@ -77,9 +69,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     // Retry
     on<_RetryMessage>(_onRetryMessage);
 
-    // User search
-    on<_SearchUsers>(_onSearchUsers);
-    on<_ClearSearch>(_onClearSearch);
+    // User search (searchUsers, clearSearch moved to UserSearchBloc)
 
     // Typing indicators
     on<_SetTyping>(_onSetTyping);
@@ -658,59 +648,6 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   }
 
   // ===========================================================================
-  // THREAD MANAGEMENT HANDLERS
-  // ===========================================================================
-
-  Future<void> _onMarkAsRead(
-    _MarkAsRead event,
-    Emitter<ConversationState> emit,
-  ) async {
-    await _conversationRepository.markAsRead(
-      conversationId: event.conversationId,
-    );
-  }
-
-  Future<void> _onTogglePin(
-    _TogglePin event,
-    Emitter<ConversationState> emit,
-  ) async {
-    final result = await _conversationRepository.togglePin(
-      conversationId: event.conversationId,
-      pinned: event.pinned,
-    );
-    result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
-      (_) {},
-    );
-  }
-
-  Future<void> _onToggleMute(
-    _ToggleMute event,
-    Emitter<ConversationState> emit,
-  ) async {
-    final result = await _conversationRepository.toggleMute(
-      conversationId: event.conversationId,
-      muted: event.muted,
-    );
-    result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
-      (_) {},
-    );
-  }
-
-  Future<void> _onArchiveConversation(
-    _ArchiveConversation event,
-    Emitter<ConversationState> emit,
-  ) async {
-    final result = await _conversationRepository
-        .archiveConversation(event.conversationId);
-    result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
-      (_) {},
-    );
-  }
-
-  // ===========================================================================
   // MESSAGE REQUEST HANDLERS
   // ===========================================================================
 
@@ -759,24 +696,6 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     );
   }
 
-  // ===========================================================================
-  // MESSAGE DELETION HANDLERS
-  // ===========================================================================
-
-  Future<void> _onDeleteMessageForEveryone(
-    _DeleteMessageForEveryone event,
-    Emitter<ConversationState> emit,
-  ) async {
-    final result = await _conversationRepository.deleteMessageForEveryone(
-      conversationId: event.conversationId,
-      messageId: event.messageId,
-    );
-    result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
-      (_) {}, // watchMessages stream auto-updates the message list
-    );
-  }
-
   Future<void> _onClearChat(
     _ClearChat event,
     Emitter<ConversationState> emit,
@@ -796,40 +715,6 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
         isClearingChat: false,
         messages: [], // Clear local messages immediately
       )),
-    );
-  }
-
-  // ===========================================================================
-  // REACTION HANDLERS
-  // ===========================================================================
-
-  Future<void> _onAddReaction(
-    _AddReaction event,
-    Emitter<ConversationState> emit,
-  ) async {
-    final result = await _conversationRepository.addReaction(
-      conversationId: event.conversationId,
-      messageId: event.messageId,
-      emoji: event.emoji,
-    );
-    result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
-      (_) {},
-    );
-  }
-
-  Future<void> _onRemoveReaction(
-    _RemoveReaction event,
-    Emitter<ConversationState> emit,
-  ) async {
-    final result = await _conversationRepository.removeReaction(
-      conversationId: event.conversationId,
-      messageId: event.messageId,
-      emoji: event.emoji,
-    );
-    result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
-      (_) {},
     );
   }
 
@@ -865,41 +750,6 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       conversationId: event.conversationId,
       text: failedMessage.textContent ?? '',
     ));
-  }
-
-  // ===========================================================================
-  // USER SEARCH
-  // ===========================================================================
-
-  Future<void> _onSearchUsers(
-    _SearchUsers event,
-    Emitter<ConversationState> emit,
-  ) async {
-    if (event.query.length < 2) {
-      emit(state.copyWith(searchResults: [], isSearching: false));
-      return;
-    }
-
-    emit(state.copyWith(isSearching: true));
-
-    final result = await _conversationRepository.searchUsers(event.query);
-    result.fold(
-      (failure) => emit(state.copyWith(
-        isSearching: false,
-        searchResults: [],
-      )),
-      (users) => emit(state.copyWith(
-        isSearching: false,
-        searchResults: users,
-      )),
-    );
-  }
-
-  void _onClearSearch(
-    _ClearSearch event,
-    Emitter<ConversationState> emit,
-  ) {
-    emit(state.copyWith(searchResults: [], isSearching: false));
   }
 
   // ===========================================================================

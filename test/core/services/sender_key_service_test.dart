@@ -503,6 +503,188 @@ void main() {
   });
 
   // ===========================================================================
+  // HMAC SIGNATURE (C2)
+  // ===========================================================================
+  group('HMAC signature', () {
+    test('encryptCommunity includes HMAC signature in e2ee', () async {
+      await service.generateSenderKey(communityId);
+      final result = await service.encryptCommunity(communityId, 'test');
+      final e2ee = result['e2ee'] as Map<String, dynamic>;
+
+      expect(e2ee.containsKey('signature'), isTrue);
+      expect(e2ee['signature'], isA<String>());
+      // Should be valid base64 decoding to 32 bytes (SHA-256)
+      final sigBytes = base64Decode(e2ee['signature'] as String);
+      expect(sigBytes.length, equals(32));
+    });
+
+    test('decryptCommunity throws when HMAC signature wrong', () async {
+      final senderStorage = InMemorySecureStorage();
+      final receiverStorage = InMemorySecureStorage();
+      final sender = SenderKeyService(
+          crypto, mockSignal, senderStorage, mockFunctions);
+      final receiver = SenderKeyService(
+          crypto, mockSignal, receiverStorage, mockFunctions);
+
+      await sender.generateSenderKey(communityId);
+      final keyJson = senderStorage.store['e2ee_sk_own_$communityId']!;
+      final keyData = jsonDecode(keyJson) as Map<String, dynamic>;
+      await receiver.processReceivedSenderKey(
+          communityId, senderId, keyData);
+
+      final encrypted = await sender.encryptCommunity(communityId, 'test');
+
+      // Tamper with signature
+      final e2ee = encrypted['e2ee'] as Map<String, dynamic>;
+      e2ee['signature'] = base64Encode(crypto.randomBytes(32));
+
+      expect(
+        () => receiver.decryptCommunity(communityId, senderId, encrypted),
+        throwsA(isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          contains('HMAC signature verification failed'),
+        )),
+      );
+    });
+  });
+
+  // ===========================================================================
+  // MESSAGE NUMBER OVERFLOW (H2)
+  // ===========================================================================
+  group('message number overflow', () {
+    test('throws StateError when messageNumber reaches limit', () async {
+      await service.generateSenderKey(communityId);
+
+      // Manually set messageNumber to the limit
+      final stateJson = storage.store['e2ee_sk_own_$communityId']!;
+      final state = jsonDecode(stateJson) as Map<String, dynamic>;
+      state['messageNumber'] = 1 << 31;
+      storage.store['e2ee_sk_own_$communityId'] = jsonEncode(state);
+
+      expect(
+        () => service.encryptCommunity(communityId, 'overflow'),
+        throwsA(isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          contains('overflow'),
+        )),
+      );
+    });
+  });
+
+  // ===========================================================================
+  // OUT-OF-ORDER MESSAGES (H4)
+  // ===========================================================================
+  group('out-of-order messages', () {
+    test('encrypt 0,1,2 → decrypt 0,2,1 succeeds', () async {
+      final senderStorage = InMemorySecureStorage();
+      final receiverStorage = InMemorySecureStorage();
+      final sender = SenderKeyService(
+          crypto, mockSignal, senderStorage, mockFunctions);
+      final receiver = SenderKeyService(
+          crypto, mockSignal, receiverStorage, mockFunctions);
+
+      await sender.generateSenderKey(communityId);
+      final keyJson = senderStorage.store['e2ee_sk_own_$communityId']!;
+      final keyData = jsonDecode(keyJson) as Map<String, dynamic>;
+      await receiver.processReceivedSenderKey(
+          communityId, senderId, keyData);
+
+      final enc0 = await sender.encryptCommunity(communityId, 'msg 0');
+      final enc1 = await sender.encryptCommunity(communityId, 'msg 1');
+      final enc2 = await sender.encryptCommunity(communityId, 'msg 2');
+
+      // Decrypt in order: 0, 2, 1
+      final pt0 = await receiver.decryptCommunity(
+          communityId, senderId, enc0);
+      expect(pt0, equals('msg 0'));
+
+      final pt2 = await receiver.decryptCommunity(
+          communityId, senderId, enc2);
+      expect(pt2, equals('msg 2'));
+
+      final pt1 = await receiver.decryptCommunity(
+          communityId, senderId, enc1);
+      expect(pt1, equals('msg 1'));
+    });
+  });
+
+  // ===========================================================================
+  // DECRYPT-BEFORE-SAVE (H3)
+  // ===========================================================================
+  group('decrypt-before-save', () {
+    test('failed decrypt does not advance chain state', () async {
+      final senderStorage = InMemorySecureStorage();
+      final receiverStorage = InMemorySecureStorage();
+      final sender = SenderKeyService(
+          crypto, mockSignal, senderStorage, mockFunctions);
+      final receiver = SenderKeyService(
+          crypto, mockSignal, receiverStorage, mockFunctions);
+
+      await sender.generateSenderKey(communityId);
+      final keyJson = senderStorage.store['e2ee_sk_own_$communityId']!;
+      final keyData = jsonDecode(keyJson) as Map<String, dynamic>;
+      await receiver.processReceivedSenderKey(
+          communityId, senderId, keyData);
+
+      // Get state before failed decrypt
+      final storageKey = 'e2ee_sk_${communityId}_$senderId';
+      final stateBefore = receiverStorage.store[storageKey]!;
+
+      // Try to decrypt garbage — should fail
+      final badEncrypted = <String, dynamic>{
+        'ciphertext': base64Encode(crypto.randomBytes(60)),
+        'e2ee': <String, dynamic>{
+          'protocol': 'sender-key-v1',
+          'senderKeyChainId': keyData['chainId'],
+          'messageNumber': 0,
+          'signature': base64Encode(crypto.randomBytes(32)),
+        },
+      };
+
+      try {
+        await receiver.decryptCommunity(communityId, senderId, badEncrypted);
+      } catch (_) {
+        // Expected to fail
+      }
+
+      // State should NOT have changed after failed decrypt
+      final stateAfter = receiverStorage.store[storageKey]!;
+      expect(stateAfter, equals(stateBefore));
+    });
+  });
+
+  // ===========================================================================
+  // DISTRIBUTION PERSISTENCE (M3)
+  // ===========================================================================
+  group('distribution persistence', () {
+    test('isDistributed returns false initially', () async {
+      expect(await service.isDistributed(communityId), isFalse);
+    });
+
+    test('markDistributed → isDistributed returns true', () async {
+      await service.markDistributed(communityId);
+      expect(await service.isDistributed(communityId), isTrue);
+    });
+
+    test('clearDistributed → isDistributed returns false', () async {
+      await service.markDistributed(communityId);
+      await service.clearDistributed(communityId);
+      expect(await service.isDistributed(communityId), isFalse);
+    });
+
+    test('rekeyAllSenderKeys clears distribution flag', () async {
+      await service.generateSenderKey(communityId);
+      await service.markDistributed(communityId);
+      expect(await service.isDistributed(communityId), isTrue);
+
+      await service.rekeyAllSenderKeys(communityId);
+      expect(await service.isDistributed(communityId), isFalse);
+    });
+  });
+
+  // ===========================================================================
   // decryptCommunity
   // ===========================================================================
   group('decryptCommunity', () {
