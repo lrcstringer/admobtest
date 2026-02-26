@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
@@ -107,13 +106,43 @@ class NotificationService {
   // LAUNCHER ICON BADGE
   // ===========================================================================
 
-  /// Update the launcher icon badge count. Call whenever unread count changes.
+  static final FlutterLocalNotificationsPlugin _badgePlugin =
+      FlutterLocalNotificationsPlugin();
+
+  /// Notification ID reserved for the silent badge-count notification.
+  static const _badgeNotificationId = 0;
+
+  /// Update the launcher icon badge count. On Android, the badge is driven
+  /// by the `number` field on an active notification. We maintain a single
+  /// silent, zero-priority notification whose sole purpose is carrying the
+  /// unread count for launchers that display it (Samsung, Xiaomi, etc.).
   static Future<void> updateBadgeCount(int count) async {
     try {
       if (count > 0) {
-        await FlutterAppBadger.updateBadgeCount(count);
+        await _badgePlugin.show(
+          _badgeNotificationId,
+          null, // no title — silent
+          null, // no body — silent
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              _defaultChannelId,
+              _defaultChannelName,
+              channelDescription: _defaultChannelDesc,
+              importance: Importance.min,
+              priority: Priority.min,
+              number: count,
+              playSound: false,
+              enableVibration: false,
+              ongoing: false,
+              onlyAlertOnce: true,
+              showWhen: false,
+              // Make notification invisible but still carry badge count
+              visibility: NotificationVisibility.secret,
+            ),
+          ),
+        );
       } else {
-        await FlutterAppBadger.removeBadge();
+        await _badgePlugin.cancel(_badgeNotificationId);
       }
     } catch (e) {
       debugPrint('NotificationService: Badge update failed: $e');
