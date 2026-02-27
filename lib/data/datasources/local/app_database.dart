@@ -737,6 +737,23 @@ class AppDatabase extends _$AppDatabase {
         .getSingleOrNull();
   }
 
+  /// Get undecrypted messages from a specific sender in a conversation.
+  ///
+  /// Used to retry decryption after a session is established with the sender.
+  Future<List<LocalFullMessage>> getUndecryptedMessages(
+    String conversationId,
+    String senderId,
+  ) {
+    return (select(localFullMessages)
+          ..where((m) =>
+              m.conversationId.equals(conversationId) &
+              m.senderId.equals(senderId) &
+              m.isDecrypted.equals(false))
+          ..orderBy([(m) => OrderingTerm.asc(m.createdAt)])
+          ..limit(50))
+        .get();
+  }
+
   Future<void> updateLocalMessageStatus(String messageId, String status) {
     return (update(localFullMessages)..where((m) => m.id.equals(messageId)))
         .write(LocalFullMessagesCompanion(status: Value(status)));

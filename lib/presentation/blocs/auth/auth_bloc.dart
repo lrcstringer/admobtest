@@ -650,8 +650,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         uploadConfirmed = true;
         // Replenish OTKs if running low
         await _keyManagementService.replenishOneTimePreKeysIfNeeded();
-        // Rotate signed pre-key if due (every 7 days, fire-and-forget)
-        unawaited(_keyManagementService.rotateSignedPreKeyIfNeeded());
+        // Rotate signed pre-key if due (every 7 days).
+        // MUST await: if the CF uploads the new SPK to Firestore before the
+        // local write completes, a sender could fetch the new SPK while the
+        // receiver still has the old one locally — causing AES-GCM MAC failure.
+        await _keyManagementService.rotateSignedPreKeyIfNeeded();
       } else {
         // No local keys — try automatic restore from server backup first
         debugPrint('E2EE INIT: No local keys — attempting auto-restore from backup');

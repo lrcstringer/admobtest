@@ -474,13 +474,21 @@ class SignalProtocolService {
     }
   }
 
-  /// One-time migration: reset sessions corrupted by the legacy
-  /// peerX3dhEphemeralKey bug. Returns true if migration was performed.
+  /// Latest migration version. Bump this to force a one-time session reset
+  /// when E2EE protocol changes make old sessions incompatible.
+  static const _migrationVersion = 'e2ee_session_migration_v3';
+
+  /// One-time migration: reset sessions that may be incompatible with the
+  /// current E2EE code. Returns true if migration was performed.
+  ///
+  /// v2: Fixed peerX3dhEphemeralKey bug.
+  /// v3: Clear stale sessions after AD, SPK rotation, and key-staleness
+  ///     changes across commits 00d68e8–0132969 that may have left sessions
+  ///     with mismatched chain state.
   Future<bool> migrateResetCorruptedSessions() async {
-    final migrated =
-        await _sessionStore.readMeta('e2ee_session_migration_v2');
+    final migrated = await _sessionStore.readMeta(_migrationVersion);
     if (migrated != null) {
-      CryptoService.e2eeLog('E2EE: Session migration already done (flag present)');
+      CryptoService.e2eeLog('E2EE: Session migration already done ($_migrationVersion)');
       return false;
     }
 
@@ -488,25 +496,24 @@ class SignalProtocolService {
     // a first launch or if storage was wiped by app reinstall.
     try {
       final count = await _sessionStore.sessionCount();
-      CryptoService.e2eeLog('E2EE: Migration flag NOT found — sessions: $count. '
+      CryptoService.e2eeLog('E2EE: Migration $_migrationVersion NOT found — sessions: $count. '
           '${count == 0 ? "Storage is EMPTY (first launch or wiped by reinstall)" : ""}');
     } catch (e) {
-      CryptoService.e2eeLog('E2EE: Migration flag NOT found, sessionCount failed: $e');
+      CryptoService.e2eeLog('E2EE: Migration $_migrationVersion NOT found, sessionCount failed: $e');
     }
 
     await resetAllSessions();
-    await _sessionStore.writeMeta('e2ee_session_migration_v2', 'done');
+    await _sessionStore.writeMeta(_migrationVersion, 'done');
 
     // Readback verification for migration flag
-    final readback =
-        await _sessionStore.readMeta('e2ee_session_migration_v2');
+    final readback = await _sessionStore.readMeta(_migrationVersion);
     if (readback == null) {
       CryptoService.e2eeLog('E2EE: ⚠ CRITICAL — migration flag readback is NULL immediately '
           'after write! Secure storage writes are NOT persisting. This device '
           'will regenerate keys on every app restart.');
     }
 
-    CryptoService.e2eeLog('E2EE: One-time session migration — all sessions reset');
+    CryptoService.e2eeLog('E2EE: One-time session migration ($_migrationVersion) — all sessions reset');
     return true;
   }
 

@@ -231,6 +231,16 @@ class MessageDecryptionService {
     decryptFailures[messageId] = maxDecryptAttempts;
   }
 
+  /// Reset failure counters for specific message IDs.
+  ///
+  /// Called when a session is established with a sender, allowing previously
+  /// failed messages from that sender to be retried.
+  void resetFailures(List<String> messageIds) {
+    for (final id in messageIds) {
+      decryptFailures.remove(id);
+    }
+  }
+
   void _evictFailuresIfNeeded() {
     if (decryptFailures.length >= _maxFailureEntries) {
       decryptFailures.remove(decryptFailures.keys.first);

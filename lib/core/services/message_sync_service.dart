@@ -198,17 +198,29 @@ class MessageSyncService {
 
   /// Process incoming messages from Firestore: decrypt new ones, store locally.
   ///
-  /// Messages arrive newest-first from the Firestore query. This method tracks
-  /// senders that have successfully decrypted a message in this batch — for
-  /// subsequent OLDER messages from the same sender, destructive recovery
-  /// (session reset + retry) is skipped to prevent corrupting the working
-  /// session established by the newer message.
+  /// Messages arrive newest-first from the Firestore query but are **sorted
+  /// oldest-first** for decryption. This ensures the initial message in a
+  /// session (which carries the x3dhHeader for receiver-side X3DH) is decrypted
+  /// first, establishing the session before newer messages are processed.
+  ///
+  /// Without oldest-first ordering, newer messages (without x3dhHeader) would
+  /// fail before the session-establishing message is reached, causing a cascade
+  /// of "[Cannot decrypt]" failures.
+  ///
+  /// After the first pass, any messages that failed due to a missing session
+  /// (but might now succeed because an older message established one) are
+  /// retried in a second pass.
   Future<void> _processIncomingMessages(
     String conversationId,
     List<MessageModel> messageModels,
   ) async {
     final currentUserId = _remoteDataSource.currentUserId;
     if (currentUserId == null) return;
+
+    // Sort oldest-first so x3dhHeader messages (which establish the session)
+    // are processed before newer messages that depend on that session.
+    final sorted = List<MessageModel>.from(messageModels)
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
     // Load chatClearedAt once for the batch to avoid per-message DB reads
     DateTime? chatClearedAt;
@@ -218,13 +230,16 @@ class MessageSyncService {
     }
 
     // Track senders whose session was successfully used in this batch.
-    // Once a newer message decrypts OK, older messages from the same sender
-    // must NOT trigger destructive recovery (session reset) — that would
-    // overwrite the working session with stale X3DH keys and break future
-    // messages.
+    // Once an older message establishes the session, newer messages from the
+    // same sender use protectSession=true to avoid destructive recovery that
+    // would overwrite the working session.
     final sendersWithGoodSession = <String>{};
 
-    for (final model in messageModels) {
+    // Track messages that failed decryption in this pass so we can retry them
+    // after a session-establishing message may have succeeded.
+    final failedInThisPass = <MessageModel>[];
+
+    for (final model in sorted) {
       try {
         final msg = model.toEntity();
 
@@ -283,8 +298,8 @@ class MessageSyncService {
         var isDecrypted = true;
 
         if (msg.isEncrypted) {
-          // If a newer message from this sender already succeeded, protect
-          // that session by skipping destructive recovery on this older message.
+          // If an earlier message from this sender already established the
+          // session in this batch, protect it from destructive recovery.
           final protectSession =
               sendersWithGoodSession.contains(msg.senderId);
 
@@ -309,6 +324,11 @@ class MessageSyncService {
             }
 
             isDecrypted = false;
+            // Track for second-pass retry: a later message in this batch
+            // (with x3dhHeader) might establish the session.
+            if (!_decryptionService.isPermanentlyFailed(msg.id)) {
+              failedInThisPass.add(model);
+            }
             final isPermanent =
                 _decryptionService.isPermanentlyFailed(msg.id);
             decryptedMsg = msg.copyWith(
@@ -349,6 +369,74 @@ class MessageSyncService {
         await _updateConversationPreview(conversationId, decryptedMsg);
       } catch (e) {
         debugPrint('MessageSyncService: Failed to process msg ${model.id}: $e');
+      }
+    }
+
+    // Second pass: retry messages that failed in this batch because the session
+    // hadn't been established yet. A newer message with x3dhHeader may have
+    // since established the session via receiver X3DH.
+    if (failedInThisPass.isNotEmpty && sendersWithGoodSession.isNotEmpty) {
+      debugPrint('MessageSyncService: Retrying ${failedInThisPass.length} '
+          'messages after session established in this batch');
+      for (final model in failedInThisPass) {
+        try {
+          final msg = model.toEntity();
+          if (!sendersWithGoodSession.contains(msg.senderId)) continue;
+          if (_decryptionService.isPermanentlyFailed(msg.id)) continue;
+
+          final plaintext = await _decryptionService.decryptMessage(
+            msg,
+            currentUserId,
+            protectSession: true, // session was established — protect it
+          );
+          if (plaintext != null) {
+            final decryptedMsg =
+                _decryptionService.applyDecryptedPayload(msg, plaintext);
+            _decryptionService.decryptFailures.remove(msg.id);
+            await _appDatabase.upsertLocalMessage(
+              LocalMessageMapper.toCompanion(
+                decryptedMsg,
+                conversationId,
+                isDecrypted: true,
+              ),
+            );
+            if (decryptedMsg.textContent != null) {
+              try {
+                await _appDatabase.cacheDecryptedPlaintext(
+                  msg.id,
+                  decryptedMsg.textContent!,
+                );
+              } catch (_) {}
+            }
+            await _updateConversationPreview(conversationId, decryptedMsg);
+            debugPrint('MessageSyncService: Retry SUCCESS for ${msg.id}');
+          }
+        } catch (e) {
+          debugPrint('MessageSyncService: Retry failed for ${model.id}: $e');
+        }
+      }
+    }
+
+    // Reset failure counters for senders whose sessions are now established.
+    // The next Firestore sync event will re-process undecrypted messages
+    // from these senders (ciphertext is only available from Firestore, not
+    // the local DB, so we rely on the stream to retry).
+    if (sendersWithGoodSession.isNotEmpty) {
+      final undecryptedIds = <String>[];
+      for (final senderId in sendersWithGoodSession) {
+        try {
+          final undecrypted = await _appDatabase.getUndecryptedMessages(
+            conversationId,
+            senderId,
+          );
+          undecryptedIds.addAll(undecrypted.map((m) => m.id));
+        } catch (_) {}
+      }
+      if (undecryptedIds.isNotEmpty) {
+        _decryptionService.resetFailures(undecryptedIds);
+        debugPrint('MessageSyncService: Reset failure counters for '
+            '${undecryptedIds.length} undecrypted messages — '
+            'will retry on next sync event');
       }
     }
   }
