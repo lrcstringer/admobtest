@@ -1464,6 +1464,9 @@ mixin _$E2eeMetadata {
   String? get dhPublicKey => throw _privateConstructorUsedError;
   int? get previousChainLength => throw _privateConstructorUsedError;
 
+  /// HMAC-SHA256 sender authentication signature for sender-key messages.
+  String? get signature => throw _privateConstructorUsedError;
+
   /// Serializes this E2eeMetadata to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
@@ -1487,6 +1490,7 @@ abstract class $E2eeMetadataCopyWith<$Res> {
     int? messageNumber,
     String? dhPublicKey,
     int? previousChainLength,
+    String? signature,
   });
 }
 
@@ -1510,6 +1514,7 @@ class _$E2eeMetadataCopyWithImpl<$Res, $Val extends E2eeMetadata>
     Object? messageNumber = freezed,
     Object? dhPublicKey = freezed,
     Object? previousChainLength = freezed,
+    Object? signature = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1533,6 +1538,10 @@ class _$E2eeMetadataCopyWithImpl<$Res, $Val extends E2eeMetadata>
                 ? _value.previousChainLength
                 : previousChainLength // ignore: cast_nullable_to_non_nullable
                       as int?,
+            signature: freezed == signature
+                ? _value.signature
+                : signature // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -1554,6 +1563,7 @@ abstract class _$$E2eeMetadataImplCopyWith<$Res>
     int? messageNumber,
     String? dhPublicKey,
     int? previousChainLength,
+    String? signature,
   });
 }
 
@@ -1576,6 +1586,7 @@ class __$$E2eeMetadataImplCopyWithImpl<$Res>
     Object? messageNumber = freezed,
     Object? dhPublicKey = freezed,
     Object? previousChainLength = freezed,
+    Object? signature = freezed,
   }) {
     return _then(
       _$E2eeMetadataImpl(
@@ -1599,6 +1610,10 @@ class __$$E2eeMetadataImplCopyWithImpl<$Res>
             ? _value.previousChainLength
             : previousChainLength // ignore: cast_nullable_to_non_nullable
                   as int?,
+        signature: freezed == signature
+            ? _value.signature
+            : signature // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -1613,6 +1628,7 @@ class _$E2eeMetadataImpl implements _E2eeMetadata {
     this.messageNumber,
     this.dhPublicKey,
     this.previousChainLength,
+    this.signature,
   });
 
   factory _$E2eeMetadataImpl.fromJson(Map<String, dynamic> json) =>
@@ -1629,9 +1645,13 @@ class _$E2eeMetadataImpl implements _E2eeMetadata {
   @override
   final int? previousChainLength;
 
+  /// HMAC-SHA256 sender authentication signature for sender-key messages.
+  @override
+  final String? signature;
+
   @override
   String toString() {
-    return 'E2eeMetadata(protocol: $protocol, senderKeyChainId: $senderKeyChainId, messageNumber: $messageNumber, dhPublicKey: $dhPublicKey, previousChainLength: $previousChainLength)';
+    return 'E2eeMetadata(protocol: $protocol, senderKeyChainId: $senderKeyChainId, messageNumber: $messageNumber, dhPublicKey: $dhPublicKey, previousChainLength: $previousChainLength, signature: $signature)';
   }
 
   @override
@@ -1648,7 +1668,9 @@ class _$E2eeMetadataImpl implements _E2eeMetadata {
             (identical(other.dhPublicKey, dhPublicKey) ||
                 other.dhPublicKey == dhPublicKey) &&
             (identical(other.previousChainLength, previousChainLength) ||
-                other.previousChainLength == previousChainLength));
+                other.previousChainLength == previousChainLength) &&
+            (identical(other.signature, signature) ||
+                other.signature == signature));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1660,6 +1682,7 @@ class _$E2eeMetadataImpl implements _E2eeMetadata {
     messageNumber,
     dhPublicKey,
     previousChainLength,
+    signature,
   );
 
   /// Create a copy of E2eeMetadata
@@ -1683,6 +1706,7 @@ abstract class _E2eeMetadata implements E2eeMetadata {
     final int? messageNumber,
     final String? dhPublicKey,
     final int? previousChainLength,
+    final String? signature,
   }) = _$E2eeMetadataImpl;
 
   factory _E2eeMetadata.fromJson(Map<String, dynamic> json) =
@@ -1698,6 +1722,10 @@ abstract class _E2eeMetadata implements E2eeMetadata {
   String? get dhPublicKey;
   @override
   int? get previousChainLength;
+
+  /// HMAC-SHA256 sender authentication signature for sender-key messages.
+  @override
+  String? get signature;
 
   /// Create a copy of E2eeMetadata
   /// with the given fields replaced by the non-null parameter values.
@@ -1716,7 +1744,10 @@ mixin _$X3dhHeader {
   String get identityKey => throw _privateConstructorUsedError;
   String get ephemeralKey => throw _privateConstructorUsedError;
   int? get oneTimePreKeyId => throw _privateConstructorUsedError;
-  String? get oneTimePreKeyPublicKey => throw _privateConstructorUsedError;
+
+  /// Integer ID of the signed pre-key used during X3DH.
+  /// Required for SPK grace period resolution after rotation.
+  int? get signedPreKeyId => throw _privateConstructorUsedError;
 
   /// Serializes this X3dhHeader to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1739,7 +1770,7 @@ abstract class $X3dhHeaderCopyWith<$Res> {
     String identityKey,
     String ephemeralKey,
     int? oneTimePreKeyId,
-    String? oneTimePreKeyPublicKey,
+    int? signedPreKeyId,
   });
 }
 
@@ -1761,7 +1792,7 @@ class _$X3dhHeaderCopyWithImpl<$Res, $Val extends X3dhHeader>
     Object? identityKey = null,
     Object? ephemeralKey = null,
     Object? oneTimePreKeyId = freezed,
-    Object? oneTimePreKeyPublicKey = freezed,
+    Object? signedPreKeyId = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1777,10 +1808,10 @@ class _$X3dhHeaderCopyWithImpl<$Res, $Val extends X3dhHeader>
                 ? _value.oneTimePreKeyId
                 : oneTimePreKeyId // ignore: cast_nullable_to_non_nullable
                       as int?,
-            oneTimePreKeyPublicKey: freezed == oneTimePreKeyPublicKey
-                ? _value.oneTimePreKeyPublicKey
-                : oneTimePreKeyPublicKey // ignore: cast_nullable_to_non_nullable
-                      as String?,
+            signedPreKeyId: freezed == signedPreKeyId
+                ? _value.signedPreKeyId
+                : signedPreKeyId // ignore: cast_nullable_to_non_nullable
+                      as int?,
           )
           as $Val,
     );
@@ -1800,7 +1831,7 @@ abstract class _$$X3dhHeaderImplCopyWith<$Res>
     String identityKey,
     String ephemeralKey,
     int? oneTimePreKeyId,
-    String? oneTimePreKeyPublicKey,
+    int? signedPreKeyId,
   });
 }
 
@@ -1821,7 +1852,7 @@ class __$$X3dhHeaderImplCopyWithImpl<$Res>
     Object? identityKey = null,
     Object? ephemeralKey = null,
     Object? oneTimePreKeyId = freezed,
-    Object? oneTimePreKeyPublicKey = freezed,
+    Object? signedPreKeyId = freezed,
   }) {
     return _then(
       _$X3dhHeaderImpl(
@@ -1837,10 +1868,10 @@ class __$$X3dhHeaderImplCopyWithImpl<$Res>
             ? _value.oneTimePreKeyId
             : oneTimePreKeyId // ignore: cast_nullable_to_non_nullable
                   as int?,
-        oneTimePreKeyPublicKey: freezed == oneTimePreKeyPublicKey
-            ? _value.oneTimePreKeyPublicKey
-            : oneTimePreKeyPublicKey // ignore: cast_nullable_to_non_nullable
-                  as String?,
+        signedPreKeyId: freezed == signedPreKeyId
+            ? _value.signedPreKeyId
+            : signedPreKeyId // ignore: cast_nullable_to_non_nullable
+                  as int?,
       ),
     );
   }
@@ -1853,7 +1884,7 @@ class _$X3dhHeaderImpl implements _X3dhHeader {
     required this.identityKey,
     required this.ephemeralKey,
     this.oneTimePreKeyId,
-    this.oneTimePreKeyPublicKey,
+    this.signedPreKeyId,
   });
 
   factory _$X3dhHeaderImpl.fromJson(Map<String, dynamic> json) =>
@@ -1865,12 +1896,15 @@ class _$X3dhHeaderImpl implements _X3dhHeader {
   final String ephemeralKey;
   @override
   final int? oneTimePreKeyId;
+
+  /// Integer ID of the signed pre-key used during X3DH.
+  /// Required for SPK grace period resolution after rotation.
   @override
-  final String? oneTimePreKeyPublicKey;
+  final int? signedPreKeyId;
 
   @override
   String toString() {
-    return 'X3dhHeader(identityKey: $identityKey, ephemeralKey: $ephemeralKey, oneTimePreKeyId: $oneTimePreKeyId, oneTimePreKeyPublicKey: $oneTimePreKeyPublicKey)';
+    return 'X3dhHeader(identityKey: $identityKey, ephemeralKey: $ephemeralKey, oneTimePreKeyId: $oneTimePreKeyId, signedPreKeyId: $signedPreKeyId)';
   }
 
   @override
@@ -1884,8 +1918,8 @@ class _$X3dhHeaderImpl implements _X3dhHeader {
                 other.ephemeralKey == ephemeralKey) &&
             (identical(other.oneTimePreKeyId, oneTimePreKeyId) ||
                 other.oneTimePreKeyId == oneTimePreKeyId) &&
-            (identical(other.oneTimePreKeyPublicKey, oneTimePreKeyPublicKey) ||
-                other.oneTimePreKeyPublicKey == oneTimePreKeyPublicKey));
+            (identical(other.signedPreKeyId, signedPreKeyId) ||
+                other.signedPreKeyId == signedPreKeyId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1895,7 +1929,7 @@ class _$X3dhHeaderImpl implements _X3dhHeader {
     identityKey,
     ephemeralKey,
     oneTimePreKeyId,
-    oneTimePreKeyPublicKey,
+    signedPreKeyId,
   );
 
   /// Create a copy of X3dhHeader
@@ -1917,7 +1951,7 @@ abstract class _X3dhHeader implements X3dhHeader {
     required final String identityKey,
     required final String ephemeralKey,
     final int? oneTimePreKeyId,
-    final String? oneTimePreKeyPublicKey,
+    final int? signedPreKeyId,
   }) = _$X3dhHeaderImpl;
 
   factory _X3dhHeader.fromJson(Map<String, dynamic> json) =
@@ -1929,8 +1963,11 @@ abstract class _X3dhHeader implements X3dhHeader {
   String get ephemeralKey;
   @override
   int? get oneTimePreKeyId;
+
+  /// Integer ID of the signed pre-key used during X3DH.
+  /// Required for SPK grace period resolution after rotation.
   @override
-  String? get oneTimePreKeyPublicKey;
+  int? get signedPreKeyId;
 
   /// Create a copy of X3dhHeader
   /// with the given fields replaced by the non-null parameter values.

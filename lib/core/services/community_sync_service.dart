@@ -40,6 +40,9 @@ class CommunitySyncService {
   /// Per-community member stream subscriptions.
   final Map<String, StreamSubscription> _memberSubs = {};
 
+  /// Previous member IDs per community (for detecting departures → rekey).
+  final Map<String, Set<String>> _previousMemberIds = {};
+
   /// Per-community processing lock for sequential message processing.
   final _processingLock = KeyedMutex();
 
@@ -203,12 +206,31 @@ class CommunitySyncService {
         _remoteDataSource.watchMembers(communityId).listen(
       (memberModels) async {
         try {
+          final currentIds = <String>{};
           for (final model in memberModels) {
             final entity = model.toEntity();
+            currentIds.add(entity.userId);
             await _appDatabase.upsertLocalCommunityMember(
               LocalCommunityMemberMapper.toCompanion(entity),
             );
           }
+
+          // Detect member departures → rekey sender key for forward secrecy
+          final previousIds = _previousMemberIds[communityId];
+          if (previousIds != null && previousIds.isNotEmpty) {
+            final removed = previousIds.difference(currentIds);
+            if (removed.isNotEmpty) {
+              debugPrint('CommunitySyncService: ${removed.length} member(s) '
+                  'left $communityId — rekeying sender key');
+              try {
+                await _senderKeyService.rekeyAllSenderKeys(communityId);
+              } catch (e) {
+                debugPrint('CommunitySyncService: Rekey failed for '
+                    '$communityId: $e');
+              }
+            }
+          }
+          _previousMemberIds[communityId] = currentIds;
         } catch (e) {
           debugPrint(
               'CommunitySyncService: Member sync error for $communityId: $e');
@@ -286,7 +308,7 @@ class CommunitySyncService {
             currentUserId,
           );
           if (plaintext != null) {
-            decryptedMsg = msg.copyWith(textContent: plaintext);
+            decryptedMsg = _applyDecryptedPayload(msg, plaintext);
           } else {
             isDecrypted = false;
             decryptedMsg =
@@ -322,6 +344,26 @@ class CommunitySyncService {
     }
   }
 
+  /// Apply decrypted plaintext to a message, parsing structured JSON payloads
+  /// for media messages (e.g. `{"text":"caption","media":{...}}`).
+  Message _applyDecryptedPayload(Message msg, String plaintext) {
+    if (plaintext.startsWith('{')) {
+      try {
+        final payload = jsonDecode(plaintext) as Map<String, dynamic>;
+        if (payload.containsKey('media')) {
+          final mediaJson = payload['media'] as Map<String, dynamic>;
+          return msg.copyWith(
+            textContent: payload['text'] as String?,
+            media: MessageMedia.fromJson(mediaJson),
+          );
+        }
+      } catch (_) {
+        // Not valid JSON — treat as plain text
+      }
+    }
+    return msg.copyWith(textContent: plaintext);
+  }
+
   /// Decrypt a community message using SenderKeyService.
   ///
   /// For own sent messages: uses the in-memory plaintext cache.
@@ -353,6 +395,8 @@ class CommunitySyncService {
             'senderKeyChainId': msg.e2ee!.senderKeyChainId,
           if (msg.e2ee!.messageNumber != null)
             'messageNumber': msg.e2ee!.messageNumber,
+          if (msg.e2ee!.signature != null)
+            'signature': msg.e2ee!.signature,
         },
     };
 

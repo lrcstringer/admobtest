@@ -147,7 +147,7 @@ describe("sendConversationMessage — E2EE", () => {
       {
         conversationId: "conv_001",
         ciphertext: "base64_encrypted_payload",
-        e2ee: { protocol: "x3dh+doubleRatchet", sessionId: "sess_001", messageNumber: 0 },
+        e2ee: { protocol: "x3dh+doubleRatchet", dhPublicKey: "dh_pub_001", messageNumber: 0 },
       },
       authContext
     );
@@ -163,7 +163,7 @@ describe("sendConversationMessage — E2EE", () => {
   it("stores e2ee metadata in the message document", async () => {
     const e2eeMeta = {
       protocol: "x3dh+doubleRatchet",
-      sessionId: "sess_abc",
+      dhPublicKey: "dh_pub_abc",
       messageNumber: 5,
     };
 
@@ -192,7 +192,7 @@ describe("sendConversationMessage — E2EE", () => {
       {
         conversationId: "conv_001",
         ciphertext: "encrypted_data",
-        e2ee: { protocol: "x3dh" },
+        e2ee: { protocol: "x3dh", dhPublicKey: "dh_pub_x3dh", messageNumber: 0 },
         x3dhHeader,
       },
       authContext
@@ -208,7 +208,7 @@ describe("sendConversationMessage — E2EE", () => {
       {
         conversationId: "conv_001",
         ciphertext: "encrypted_data",
-        e2ee: { protocol: "x3dh" },
+        e2ee: { protocol: "x3dh", dhPublicKey: "dh_pub_null", messageNumber: 0 },
       },
       authContext
     );
@@ -227,21 +227,16 @@ describe("sendConversationMessage — E2EE", () => {
     ).rejects.toThrow("Either text, mediaUrl, or ciphertext is required");
   });
 
-  it("supports plaintext backwards compatibility", async () => {
-    await sendConversationMessage(
-      {
-        conversationId: "conv_001",
-        text: "Hello, this is plaintext!",
-      },
-      authContext
-    );
-
-    const msgData = getMessageFromBatch();
-    expect(msgData).toBeDefined();
-    expect(msgData!.textContent).toBe("Hello, this is plaintext!");
-    expect(msgData!.ciphertext).toBeNull();
-    expect(msgData!.e2ee).toBeNull();
-    expect(msgData!.x3dhHeader).toBeNull();
+  it("rejects plaintext for P2P conversations (E2EE required)", async () => {
+    await expect(
+      sendConversationMessage(
+        {
+          conversationId: "conv_001",
+          text: "Hello, this is plaintext!",
+        },
+        authContext
+      )
+    ).rejects.toThrow("P2P conversations require end-to-end encryption");
   });
 
   it("sets lastMessageText to null on conversation when ciphertext is present", async () => {
@@ -249,7 +244,7 @@ describe("sendConversationMessage — E2EE", () => {
       {
         conversationId: "conv_001",
         ciphertext: "encrypted_data",
-        e2ee: { protocol: "x3dh" },
+        e2ee: { protocol: "x3dh", dhPublicKey: "dh_pub_last", messageNumber: 0 },
       },
       authContext
     );
@@ -268,7 +263,7 @@ describe("sendConversationMessage — E2EE", () => {
       {
         conversationId: "conv_001",
         ciphertext: "encrypted_data",
-        e2ee: { protocol: "x3dh" },
+        e2ee: { protocol: "x3dh", dhPublicKey: "dh_pub_preview", messageNumber: 0 },
         encryptedPreviews: previews,
       },
       authContext

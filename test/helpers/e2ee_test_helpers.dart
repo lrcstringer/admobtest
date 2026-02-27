@@ -118,7 +118,7 @@ class E2EETestData {
     String? dhPublicKey,
   }) =>
       E2eeMetadata(
-        protocol: 'signal-v1',
+        protocol: 'signal-v2',
         messageNumber: messageNumber,
         dhPublicKey: dhPublicKey ?? 'ZGhQdWJsaWNLZXk=',
       );
@@ -128,7 +128,7 @@ class E2EETestData {
     String? senderKeyChainId,
   }) =>
       E2eeMetadata(
-        protocol: 'sender-key-v1',
+        protocol: 'sender-key-v2',
         senderKeyChainId: senderKeyChainId ?? 'chain_abc',
         messageNumber: messageNumber,
       );

@@ -276,6 +276,26 @@ function createMockCollectionRef(
   };
 }
 
+// Shared batch mock — returned by every batch() call so tests can inspect it
+const mockBatch = {
+  set: jest.fn().mockImplementation((docRef: { path: string; id: string }, data: unknown) => {
+    const path = docRef.path || "";
+    const parts = path.split("/");
+    const docId = parts.pop() || docRef.id;
+    const collection = parts.join("/");
+    mockOperations.sets.push({ collection, doc: docId, data });
+  }),
+  update: jest.fn().mockImplementation((docRef: { path: string; id: string }, data: unknown) => {
+    const path = docRef.path || "";
+    const parts = path.split("/");
+    const docId = parts.pop() || docRef.id;
+    const collection = parts.join("/");
+    mockOperations.updates.push({ collection, doc: docId, data });
+  }),
+  delete: jest.fn(),
+  commit: jest.fn().mockResolvedValue([]),
+};
+
 // Mock Firestore instance
 const mockFirestore = {
   collection: jest.fn().mockImplementation((name: string) => {
@@ -288,19 +308,20 @@ const mockFirestore = {
     }
     throw new Error(`Invalid document path: ${path}`);
   }),
-  batch: jest.fn().mockReturnValue({
-    set: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    commit: jest.fn().mockResolvedValue([]),
-  }),
+  batch: jest.fn().mockReturnValue(mockBatch),
   runTransaction: jest.fn().mockImplementation(async (callback) => {
     const transaction = {
       get: jest.fn().mockImplementation(async (docRef: { get: () => Promise<unknown> }) => {
         return docRef.get();
       }),
       set: jest.fn(),
-      update: jest.fn(),
+      update: jest.fn().mockImplementation((docRef: { path: string; id: string }, data: unknown) => {
+        const path = docRef.path || "";
+        const parts = path.split("/");
+        const docId = parts.pop() || docRef.id;
+        const collection = parts.join("/");
+        mockOperations.updates.push({ collection, doc: docId, data });
+      }),
       delete: jest.fn(),
     };
     return callback(transaction);

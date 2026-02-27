@@ -145,6 +145,7 @@ _$E2eeMetadataImpl _$$E2eeMetadataImplFromJson(Map<String, dynamic> json) =>
       messageNumber: (json['messageNumber'] as num?)?.toInt(),
       dhPublicKey: json['dhPublicKey'] as String?,
       previousChainLength: (json['previousChainLength'] as num?)?.toInt(),
+      signature: json['signature'] as String?,
     );
 
 Map<String, dynamic> _$$E2eeMetadataImplToJson(_$E2eeMetadataImpl instance) =>
@@ -154,6 +155,7 @@ Map<String, dynamic> _$$E2eeMetadataImplToJson(_$E2eeMetadataImpl instance) =>
       'messageNumber': instance.messageNumber,
       'dhPublicKey': instance.dhPublicKey,
       'previousChainLength': instance.previousChainLength,
+      'signature': instance.signature,
     };
 
 _$X3dhHeaderImpl _$$X3dhHeaderImplFromJson(Map<String, dynamic> json) =>
@@ -161,7 +163,7 @@ _$X3dhHeaderImpl _$$X3dhHeaderImplFromJson(Map<String, dynamic> json) =>
       identityKey: json['identityKey'] as String,
       ephemeralKey: json['ephemeralKey'] as String,
       oneTimePreKeyId: (json['oneTimePreKeyId'] as num?)?.toInt(),
-      oneTimePreKeyPublicKey: json['oneTimePreKeyPublicKey'] as String?,
+      signedPreKeyId: (json['signedPreKeyId'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$X3dhHeaderImplToJson(_$X3dhHeaderImpl instance) =>
@@ -169,7 +171,7 @@ Map<String, dynamic> _$$X3dhHeaderImplToJson(_$X3dhHeaderImpl instance) =>
       'identityKey': instance.identityKey,
       'ephemeralKey': instance.ephemeralKey,
       'oneTimePreKeyId': instance.oneTimePreKeyId,
-      'oneTimePreKeyPublicKey': instance.oneTimePreKeyPublicKey,
+      'signedPreKeyId': instance.signedPreKeyId,
     };
 
 _$MessageImpl _$$MessageImplFromJson(

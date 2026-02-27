@@ -217,7 +217,7 @@ void main() {
     test('protocol is required and set correctly', () {
       final metadata = E2EETestData.createSignalMetadata();
 
-      expect(metadata.protocol, 'signal-v1');
+      expect(metadata.protocol, 'signal-v2');
     });
 
     test('senderKeyChainId is optional', () {
@@ -232,7 +232,7 @@ void main() {
 
     test('messageNumber is optional', () {
       final with42 = E2EETestData.createSignalMetadata(messageNumber: 42);
-      final withNull = const E2eeMetadata(protocol: 'signal-v1');
+      final withNull = const E2eeMetadata(protocol: 'signal-v2');
 
       expect(with42.messageNumber, 42);
       expect(withNull.messageNumber, isNull);
@@ -242,7 +242,7 @@ void main() {
       final withKey = E2EETestData.createSignalMetadata(
         dhPublicKey: 'Y3VzdG9tREhLZXk=',
       );
-      final withoutKey = const E2eeMetadata(protocol: 'signal-v1');
+      final withoutKey = const E2eeMetadata(protocol: 'signal-v2');
 
       expect(withKey.dhPublicKey, 'Y3VzdG9tREhLZXk=');
       expect(withoutKey.dhPublicKey, isNull);
@@ -250,7 +250,7 @@ void main() {
 
     test('fromJson/toJson roundtrip preserves all fields', () {
       final original = E2eeMetadata(
-        protocol: 'signal-v1',
+        protocol: 'signal-v2',
         senderKeyChainId: 'chain_roundtrip',
         messageNumber: 99,
         dhPublicKey: 'ZGhLZXk=',

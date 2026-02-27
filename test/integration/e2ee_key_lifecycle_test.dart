@@ -123,12 +123,13 @@ void main() {
 
       expect(bundle.oneTimePreKeys.length, equals(10));
 
-      // Each OTK should be a "private|public" pair
+      // Each OTK should be an "id|private|public" triple
       for (final otk in bundle.oneTimePreKeys) {
         final parts = otk.split('|');
-        expect(parts.length, equals(2));
-        expect(parts[0], isNotEmpty);
-        expect(parts[1], isNotEmpty);
+        expect(parts.length, equals(3));
+        expect(parts[0], isNotEmpty); // integer id
+        expect(parts[1], isNotEmpty); // private key base64
+        expect(parts[2], isNotEmpty); // public key base64
       }
     });
 
@@ -227,12 +228,15 @@ void main() {
         signedPreKey: aliceBundle.signedPreKey.split('|')[1],
         signedPreKeySignature: aliceBundle.signedPreKeySignature,
         oneTimePreKeys: aliceBundle.oneTimePreKeys
-            .map((otk) => otk.split('|')[1])
+            .map((otk) => otk.split('|')[2])
             .toList(),
         registrationId: aliceBundle.registrationId,
         userId: 'alice',
         ed25519IdentityKey: aliceBundle.ed25519IdentityKeyPair?.split('|')[1],
         ed25519Signature: aliceBundle.ed25519Signature,
+        signedPreKeyId: 1,
+        oneTimePreKeyId: 1,
+        protocolVersion: 2,
       );
 
       final bobPublicBundle = PublicKeyBundle(
@@ -240,12 +244,15 @@ void main() {
         signedPreKey: bobBundle.signedPreKey.split('|')[1],
         signedPreKeySignature: bobBundle.signedPreKeySignature,
         oneTimePreKeys: bobBundle.oneTimePreKeys
-            .map((otk) => otk.split('|')[1])
+            .map((otk) => otk.split('|')[2])
             .toList(),
         registrationId: bobBundle.registrationId,
         userId: 'bob',
         ed25519IdentityKey: bobBundle.ed25519IdentityKeyPair?.split('|')[1],
         ed25519Signature: bobBundle.ed25519Signature,
+        signedPreKeyId: 1,
+        oneTimePreKeyId: 1,
+        protocolVersion: 2,
       );
 
       // Create mock key management services for the Signal Protocol
@@ -272,8 +279,7 @@ void main() {
       final bobSignal = SignalProtocolService(
           bobMockKeyMgmt, crypto, InMemorySecureStorage());
 
-      // Alice encrypts a message for Bob
-      await aliceSignal.establishSession('bob');
+      // Alice encrypts a message for Bob (encryptP2P auto-establishes session)
       final encrypted =
           await aliceSignal.encryptP2P('bob', 'Keys work for encryption!');
 

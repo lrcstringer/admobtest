@@ -36,10 +36,16 @@ export const uploadKeyBundle = onCall(
       identityKey: string;
       signedPreKey: string;
       signedPreKeySignature: string;
-      oneTimePreKeys: string[];
+      oneTimePreKeys: Array<{ id: number; key: string }>;
       registrationId: number;
       ed25519IdentityKey?: string;
       ed25519Signature?: string;
+      // v2 fields
+      signedPreKeyId?: number;
+      protocolVersion?: number;
+      previousSignedPreKey?: string;
+      previousSignedPreKeyId?: number;
+      previousSignedPreKeySignature?: string;
     };
     const userId = requireAuth(request);
     requireAppCheck(request, "uploadKeyBundle");
@@ -48,6 +54,9 @@ export const uploadKeyBundle = onCall(
       identityKey, signedPreKey, signedPreKeySignature,
       oneTimePreKeys, registrationId,
       ed25519IdentityKey, ed25519Signature,
+      signedPreKeyId, protocolVersion,
+      previousSignedPreKey, previousSignedPreKeyId,
+      previousSignedPreKeySignature,
     } = data;
 
     if (!identityKey || !signedPreKey || !signedPreKeySignature) {
@@ -73,6 +82,19 @@ export const uploadKeyBundle = onCall(
     }
     if (ed25519Signature) {
       bundleData.ed25519Signature = ed25519Signature;
+    }
+
+    // Store v2 protocol fields if provided
+    if (signedPreKeyId != null) {
+      bundleData.signedPreKeyId = signedPreKeyId;
+    }
+    if (protocolVersion != null) {
+      bundleData.protocolVersion = protocolVersion;
+    }
+    if (previousSignedPreKey) {
+      bundleData.previousSignedPreKey = previousSignedPreKey;
+      bundleData.previousSignedPreKeyId = previousSignedPreKeyId;
+      bundleData.previousSignedPreKeySignature = previousSignedPreKeySignature;
     }
 
     const batch = db.batch();
@@ -132,14 +154,18 @@ export const fetchKeyBundle = onCall(
       }
 
       const bundle = bundleDoc.data()!;
-      const oneTimePreKeys: string[] = bundle.oneTimePreKeys || [];
+      const oneTimePreKeys: Array<{ id: number; key: string }> =
+        bundle.oneTimePreKeys || [];
 
-      // Consume one one-time pre-key (FIFO)
+      // Consume one one-time pre-key (FIFO).
       let consumedPreKey: string | null = null;
+      let consumedPreKeyId: number | null = null;
       if (oneTimePreKeys.length > 0) {
-        consumedPreKey = oneTimePreKeys[0];
+        const first = oneTimePreKeys[0];
+        consumedPreKey = first.key;
+        consumedPreKeyId = first.id;
         txn.update(bundleRef, {
-          oneTimePreKeys: admin.firestore.FieldValue.arrayRemove(consumedPreKey),
+          oneTimePreKeys: admin.firestore.FieldValue.arrayRemove(first),
         });
       }
 
@@ -149,11 +175,18 @@ export const fetchKeyBundle = onCall(
         signedPreKey: bundle.signedPreKey,
         signedPreKeySignature: bundle.signedPreKeySignature,
         oneTimePreKey: consumedPreKey,
+        oneTimePreKeyId: consumedPreKeyId,
         oneTimePreKeyCount: oneTimePreKeys.length - (consumedPreKey ? 1 : 0),
         registrationId: bundle.registrationId || 0,
         ed25519IdentityKey: bundle.ed25519IdentityKey || null,
         ed25519Signature: bundle.ed25519Signature || null,
         updatedAt: bundle.updatedAt?.toDate?.()?.toISOString?.() || null,
+        // v2 fields
+        signedPreKeyId: bundle.signedPreKeyId ?? null,
+        protocolVersion: bundle.protocolVersion ?? 2,
+        previousSignedPreKey: bundle.previousSignedPreKey ?? null,
+        previousSignedPreKeyId: bundle.previousSignedPreKeyId ?? null,
+        previousSignedPreKeySignature: bundle.previousSignedPreKeySignature ?? null,
       };
     });
 
@@ -167,7 +200,9 @@ export const fetchKeyBundle = onCall(
 export const replenishOneTimePreKeys = onCall(
   { labels: { area: "auth" } },
   async (request) => {
-    const data = request.data as { newPreKeys: string[] };
+    const data = request.data as {
+      newPreKeys: Array<{ id: number; key: string }>;
+    };
     const userId = requireAuth(request);
     requireAppCheck(request, "replenishOneTimePreKeys");
 
@@ -203,11 +238,20 @@ export const rotateSignedPreKey = onCall(
       newSignedPreKey: string;
       newSignedPreKeySignature: string;
       newEd25519Signature?: string;
+      // v2 fields
+      signedPreKeyId?: number;
+      previousSignedPreKey?: string;
+      previousSignedPreKeyId?: number;
+      previousSignedPreKeySignature?: string;
     };
     const userId = requireAuth(request);
     requireAppCheck(request, "rotateSignedPreKey");
 
-    const { newSignedPreKey, newSignedPreKeySignature, newEd25519Signature } = data;
+    const {
+      newSignedPreKey, newSignedPreKeySignature, newEd25519Signature,
+      signedPreKeyId, previousSignedPreKey,
+      previousSignedPreKeyId, previousSignedPreKeySignature,
+    } = data;
     if (!newSignedPreKey || !newSignedPreKeySignature) {
       throw new HttpsError(
         "invalid-argument",
@@ -223,6 +267,25 @@ export const rotateSignedPreKey = onCall(
 
     if (newEd25519Signature) {
       updateData.ed25519Signature = newEd25519Signature;
+    }
+
+    // v2: store SPK ID and previous SPK grace-period fields
+    if (signedPreKeyId != null) {
+      updateData.signedPreKeyId = signedPreKeyId;
+    }
+    if (previousSignedPreKey) {
+      updateData.previousSignedPreKey = previousSignedPreKey;
+      updateData.previousSignedPreKeyId = previousSignedPreKeyId ?? null;
+      updateData.previousSignedPreKeySignature =
+        previousSignedPreKeySignature ?? null;
+    } else {
+      // Clear previous SPK fields if not provided (grace period expired)
+      updateData.previousSignedPreKey =
+        admin.firestore.FieldValue.delete();
+      updateData.previousSignedPreKeyId =
+        admin.firestore.FieldValue.delete();
+      updateData.previousSignedPreKeySignature =
+        admin.firestore.FieldValue.delete();
     }
 
     await db

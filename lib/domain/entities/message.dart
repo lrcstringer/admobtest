@@ -104,6 +104,9 @@ class E2eeMetadata with _$E2eeMetadata {
     int? messageNumber,
     String? dhPublicKey,
     int? previousChainLength,
+
+    /// HMAC-SHA256 sender authentication signature for sender-key messages.
+    String? signature,
   }) = _E2eeMetadata;
 
   factory E2eeMetadata.fromJson(Map<String, dynamic> json) =>
@@ -117,7 +120,10 @@ class X3dhHeader with _$X3dhHeader {
     required String identityKey,
     required String ephemeralKey,
     int? oneTimePreKeyId,
-    String? oneTimePreKeyPublicKey,
+
+    /// Integer ID of the signed pre-key used during X3DH.
+    /// Required for SPK grace period resolution after rotation.
+    int? signedPreKeyId,
   }) = _X3dhHeader;
 
   factory X3dhHeader.fromJson(Map<String, dynamic> json) =>
@@ -199,7 +205,7 @@ class Message with _$Message {
   bool get isSpray => type == MessageType.tokenSpray;
   bool get isEncrypted => ciphertext != null;
 
-  bool get hasMedia => media != null;
+  bool get hasMedia => media != null || type.isMedia;
   bool get isForwarded => forwardedFrom != null;
 
   /// Whether this message has been read by a specific user

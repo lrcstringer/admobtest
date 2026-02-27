@@ -108,7 +108,7 @@ void main() {
     when(() => mockSignal.encryptP2P(any(), any())).thenAnswer(
       (_) async => <String, dynamic>{
         'ciphertext': 'encrypted_sender_key_data',
-        'e2ee': <String, dynamic>{'protocol': 'signal-v1'},
+        'e2ee': <String, dynamic>{'protocol': 'signal-v2'},
       },
     );
 
@@ -188,6 +188,18 @@ void main() {
       expect(jsonA['chainId'], isNot(equals(jsonB['chainId'])));
     });
 
+    test('stored JSON has expected fields for newly generated keys', () async {
+      await service.generateSenderKey(communityId);
+
+      final stored = storage.store['e2ee_sk_own_$communityId']!;
+      final json = jsonDecode(stored) as Map<String, dynamic>;
+
+      expect(json.containsKey('chainId'), isTrue);
+      expect(json.containsKey('chainKey'), isTrue);
+      expect(json.containsKey('signingKey'), isTrue);
+      expect(json.containsKey('messageNumber'), isTrue);
+    });
+
     test('regenerating for the same community overwrites previous key',
         () async {
       await service.generateSenderKey(communityId);
@@ -256,7 +268,7 @@ void main() {
 
       expect(
         captured['e2ee'],
-        equals(<String, dynamic>{'protocol': 'signal-v1'}),
+        equals(<String, dynamic>{'protocol': 'signal-v2'}),
       );
     });
 
@@ -291,7 +303,7 @@ void main() {
       when(() => mockSignal.encryptP2P(any(), any())).thenAnswer(
         (_) async => <String, dynamic>{
           'ciphertext': 'encrypted_data',
-          'e2ee': <String, dynamic>{'protocol': 'signal-v1'},
+          'e2ee': <String, dynamic>{'protocol': 'signal-v2'},
           'x3dhHeader': <String, dynamic>{
             'identityKey': 'abc123',
             'ephemeralKey': 'def456',
@@ -317,7 +329,7 @@ void main() {
       when(() => mockSignal.encryptP2P(any(), any())).thenAnswer(
         (_) async => <String, dynamic>{
           'ciphertext': 'encrypted_data',
-          'e2ee': <String, dynamic>{'protocol': 'signal-v1'},
+          'e2ee': <String, dynamic>{'protocol': 'signal-v2'},
           'x3dhHeader': null,
         },
       );
@@ -400,13 +412,13 @@ void main() {
       expect(base64Decode(ciphertext).isNotEmpty, isTrue);
     });
 
-    test('e2ee.protocol is sender-key-v1', () async {
+    test('e2ee.protocol is sender-key-v2 for new keys', () async {
       await service.generateSenderKey(communityId);
 
       final result = await service.encryptCommunity(communityId, 'test');
       final e2ee = result['e2ee'] as Map<String, dynamic>;
 
-      expect(e2ee['protocol'], equals('sender-key-v1'));
+      expect(e2ee['protocol'], equals('sender-key-v2'));
     });
 
     test('e2ee contains senderKeyChainId', () async {
@@ -636,7 +648,7 @@ void main() {
       final badEncrypted = <String, dynamic>{
         'ciphertext': base64Encode(crypto.randomBytes(60)),
         'e2ee': <String, dynamic>{
-          'protocol': 'sender-key-v1',
+          'protocol': 'sender-key-v2',
           'senderKeyChainId': keyData['chainId'],
           'messageNumber': 0,
           'signature': base64Encode(crypto.randomBytes(32)),
@@ -692,7 +704,7 @@ void main() {
       final fakeEncrypted = <String, dynamic>{
         'ciphertext': base64Encode([1, 2, 3]),
         'e2ee': <String, dynamic>{
-          'protocol': 'sender-key-v1',
+          'protocol': 'sender-key-v2',
           'senderKeyChainId': 'some-chain',
           'messageNumber': 0,
         },
@@ -712,7 +724,7 @@ void main() {
       final fakeEncrypted = <String, dynamic>{
         'ciphertext': base64Encode([1, 2, 3]),
         'e2ee': <String, dynamic>{
-          'protocol': 'sender-key-v1',
+          'protocol': 'sender-key-v2',
           'messageNumber': 0,
         },
       };
@@ -1048,6 +1060,179 @@ void main() {
 
       // After decrypting message 0, messageNumber should be 1
       expect(state['messageNumber'], equals(1));
+    });
+  });
+
+  // ===========================================================================
+  // V2 SENDER KEY PROTOCOL TESTS
+  // ===========================================================================
+  group('v2 sender key protocol', () {
+    late InMemorySecureStorage senderStorage;
+    late InMemorySecureStorage receiverStorage;
+    late SenderKeyService senderService;
+    late SenderKeyService receiverService;
+
+    const senderUserId = 'v2_sender';
+
+    setUp(() {
+      senderStorage = InMemorySecureStorage();
+      receiverStorage = InMemorySecureStorage();
+      senderService = SenderKeyService(
+          crypto, mockSignal, senderStorage, mockFunctions);
+      receiverService = SenderKeyService(
+          crypto, mockSignal, receiverStorage, mockFunctions);
+    });
+
+    Future<void> shareV2Key() async {
+      final keyJson =
+          senderStorage.store['e2ee_sk_own_$communityId']!;
+      final keyData =
+          jsonDecode(keyJson) as Map<String, dynamic>;
+      await receiverService.processReceivedSenderKey(
+        communityId, senderUserId, keyData,
+      );
+    }
+
+    test('v2 encrypt uses HMAC-SHA256 chain ratchet (not HKDF)', () async {
+      await senderService.generateSenderKey(communityId);
+
+      final result =
+          await senderService.encryptCommunity(communityId, 'test v2');
+      final e2ee = result['e2ee'] as Map<String, dynamic>;
+
+      expect(e2ee['protocol'], equals('sender-key-v2'));
+    });
+
+    test('v2 roundtrip works end-to-end', () async {
+      await senderService.generateSenderKey(communityId);
+      await shareV2Key();
+
+      const plaintext = 'Hello v2 community!';
+      final encrypted =
+          await senderService.encryptCommunity(communityId, plaintext);
+      final decrypted = await receiverService.decryptCommunity(
+        communityId, senderUserId, encrypted,
+      );
+
+      expect(decrypted, equals(plaintext));
+    });
+
+    test('v2 sequential messages (10 messages)', () async {
+      await senderService.generateSenderKey(communityId);
+      await shareV2Key();
+
+      for (var i = 0; i < 10; i++) {
+        final msg = 'v2 message #$i';
+        final encrypted =
+            await senderService.encryptCommunity(communityId, msg);
+        final decrypted = await receiverService.decryptCommunity(
+          communityId, senderUserId, encrypted,
+        );
+        expect(decrypted, equals(msg));
+      }
+    });
+
+    test('v2 out-of-order: encrypt 0-4, decrypt 0,3,1,4,2', () async {
+      await senderService.generateSenderKey(communityId);
+      await shareV2Key();
+
+      final encrypted = <Map<String, dynamic>>[];
+      for (var i = 0; i < 5; i++) {
+        encrypted.add(
+          await senderService.encryptCommunity(communityId, 'msg-$i'),
+        );
+      }
+
+      // Decrypt out-of-order
+      final order = [0, 3, 1, 4, 2];
+      for (final idx in order) {
+        final pt = await receiverService.decryptCommunity(
+          communityId, senderUserId, encrypted[idx],
+        );
+        expect(pt, equals('msg-$idx'));
+      }
+    });
+
+    test('v2 empty string roundtrip', () async {
+      await senderService.generateSenderKey(communityId);
+      await shareV2Key();
+
+      final encrypted =
+          await senderService.encryptCommunity(communityId, '');
+      final decrypted = await receiverService.decryptCommunity(
+        communityId, senderUserId, encrypted,
+      );
+
+      expect(decrypted, equals(''));
+    });
+
+    test('v2 unicode roundtrip', () async {
+      await senderService.generateSenderKey(communityId);
+      await shareV2Key();
+
+      const msg = 'Sawubona! \u{1F1FF}\u{1F1E6} \u{1F44B}';
+      final encrypted =
+          await senderService.encryptCommunity(communityId, msg);
+      final decrypted = await receiverService.decryptCommunity(
+        communityId, senderUserId, encrypted,
+      );
+
+      expect(decrypted, equals(msg));
+    });
+
+    test('v2 HMAC signature prevents tampering', () async {
+      await senderService.generateSenderKey(communityId);
+      await shareV2Key();
+
+      final encrypted =
+          await senderService.encryptCommunity(communityId, 'secure msg');
+
+      // Tamper with ciphertext
+      final ctBytes = base64Decode(encrypted['ciphertext'] as String);
+      ctBytes[0] ^= 0xFF;
+      encrypted['ciphertext'] = base64Encode(ctBytes);
+
+      expect(
+        () => receiverService.decryptCommunity(
+            communityId, senderUserId, encrypted),
+        throwsA(isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          contains('HMAC signature verification failed'),
+        )),
+      );
+    });
+
+    test('processReceivedSenderKey stores key data correctly', () async {
+      final keyData = <String, dynamic>{
+        'chainId': base64Encode(crypto.randomBytes(16)),
+        'chainKey': base64Encode(crypto.generateAesKey()),
+        'signingKey': base64Encode(crypto.generateAesKey()),
+        'messageNumber': 0,
+      };
+
+      await service.processReceivedSenderKey(communityId, senderId, keyData);
+
+      final storageKey = 'e2ee_sk_${communityId}_$senderId';
+      final stored = storage.store[storageKey]!;
+      final json = jsonDecode(stored) as Map<String, dynamic>;
+
+      expect(json['chainId'], equals(keyData['chainId']));
+      expect(json['chainKey'], equals(keyData['chainKey']));
+      expect(json['signingKey'], equals(keyData['signingKey']));
+      expect(json['messageNumber'], equals(0));
+    });
+
+    test('rekey produces fresh key with reset messageNumber', () async {
+      await senderService.generateSenderKey(communityId);
+      await senderService.rekeyAllSenderKeys(communityId);
+
+      final stored = senderStorage.store['e2ee_sk_own_$communityId']!;
+      final json = jsonDecode(stored) as Map<String, dynamic>;
+
+      expect(json['messageNumber'], equals(0));
+      expect(json.containsKey('chainId'), isTrue);
+      expect(json.containsKey('chainKey'), isTrue);
     });
   });
 }

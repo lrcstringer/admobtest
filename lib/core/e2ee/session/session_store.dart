@@ -1,4 +1,4 @@
-import 'double_ratchet_session.dart';
+import 'session_record.dart';
 
 /// Abstract interface for Double Ratchet session persistence.
 ///
@@ -6,17 +6,17 @@ import 'double_ratchet_session.dart';
 /// backends (secure storage, in-memory for tests, etc.) and making the
 /// storage concerns independently testable.
 abstract class SessionStore {
-  /// Load the session for [userId], or `null` if none exists.
-  Future<DoubleRatchetSession?> load(String userId);
+  /// Load the session record for [userId], or `null` if none exists.
+  Future<SessionRecord?> loadRecord(String userId);
 
-  /// Persist the session for [userId].
-  Future<void> save(String userId, DoubleRatchetSession session);
+  /// Persist the session record for [userId].
+  Future<void> saveRecord(String userId, SessionRecord record);
 
-  /// Delete the session for [userId].
-  Future<void> delete(String userId);
+  /// Delete the session record for [userId].
+  Future<void> deleteRecord(String userId);
 
-  /// Check whether a session exists for [userId].
-  Future<bool> exists(String userId);
+  /// Check whether a session record exists for [userId].
+  Future<bool> recordExists(String userId);
 
   /// Delete all sessions.
   Future<void> deleteAll();

@@ -43,7 +43,35 @@ mixin _$KeyBundle {
 
   /// Ed25519 signature over the signed pre-key's public key bytes.
   /// Verifiable by any party using the Ed25519 public key.
-  String? get ed25519Signature => throw _privateConstructorUsedError;
+  String? get ed25519Signature =>
+      throw _privateConstructorUsedError; // ── v2 (Signal-compliant) fields ──────────────────────────────
+  /// Integer ID of the current signed pre-key (for SPK rotation tracking).
+  /// Null for v1 bundles.
+  int? get signedPreKeyId => throw _privateConstructorUsedError;
+
+  /// Next one-time pre-key ID counter (monotonically increasing).
+  /// Used to assign integer IDs to newly generated OTKs.
+  int? get nextOneTimePreKeyId => throw _privateConstructorUsedError;
+
+  /// Protocol version (2 = spec-compliant Signal Protocol).
+  int get protocolVersion => throw _privateConstructorUsedError;
+
+  /// Previous signed pre-key (retained during grace period), base64 "priv|pub".
+  String? get previousSignedPreKey => throw _privateConstructorUsedError;
+
+  /// ID of the previous signed pre-key.
+  int? get previousSignedPreKeyId => throw _privateConstructorUsedError;
+
+  /// Signature of the previous signed pre-key.
+  String? get previousSignedPreKeySignature =>
+      throw _privateConstructorUsedError;
+
+  /// Timestamp when the current SPK was created (for grace period calculation).
+  DateTime? get signedPreKeyTimestamp => throw _privateConstructorUsedError;
+
+  /// Timestamp when the previous SPK was created (for grace period expiry).
+  DateTime? get previousSignedPreKeyTimestamp =>
+      throw _privateConstructorUsedError;
 
   /// Serializes this KeyBundle to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -68,6 +96,14 @@ abstract class $KeyBundleCopyWith<$Res> {
     int registrationId,
     String? ed25519IdentityKeyPair,
     String? ed25519Signature,
+    int? signedPreKeyId,
+    int? nextOneTimePreKeyId,
+    int protocolVersion,
+    String? previousSignedPreKey,
+    int? previousSignedPreKeyId,
+    String? previousSignedPreKeySignature,
+    DateTime? signedPreKeyTimestamp,
+    DateTime? previousSignedPreKeyTimestamp,
   });
 }
 
@@ -93,6 +129,14 @@ class _$KeyBundleCopyWithImpl<$Res, $Val extends KeyBundle>
     Object? registrationId = null,
     Object? ed25519IdentityKeyPair = freezed,
     Object? ed25519Signature = freezed,
+    Object? signedPreKeyId = freezed,
+    Object? nextOneTimePreKeyId = freezed,
+    Object? protocolVersion = null,
+    Object? previousSignedPreKey = freezed,
+    Object? previousSignedPreKeyId = freezed,
+    Object? previousSignedPreKeySignature = freezed,
+    Object? signedPreKeyTimestamp = freezed,
+    Object? previousSignedPreKeyTimestamp = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -124,6 +168,40 @@ class _$KeyBundleCopyWithImpl<$Res, $Val extends KeyBundle>
                 ? _value.ed25519Signature
                 : ed25519Signature // ignore: cast_nullable_to_non_nullable
                       as String?,
+            signedPreKeyId: freezed == signedPreKeyId
+                ? _value.signedPreKeyId
+                : signedPreKeyId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            nextOneTimePreKeyId: freezed == nextOneTimePreKeyId
+                ? _value.nextOneTimePreKeyId
+                : nextOneTimePreKeyId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            protocolVersion: null == protocolVersion
+                ? _value.protocolVersion
+                : protocolVersion // ignore: cast_nullable_to_non_nullable
+                      as int,
+            previousSignedPreKey: freezed == previousSignedPreKey
+                ? _value.previousSignedPreKey
+                : previousSignedPreKey // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            previousSignedPreKeyId: freezed == previousSignedPreKeyId
+                ? _value.previousSignedPreKeyId
+                : previousSignedPreKeyId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            previousSignedPreKeySignature:
+                freezed == previousSignedPreKeySignature
+                ? _value.previousSignedPreKeySignature
+                : previousSignedPreKeySignature // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            signedPreKeyTimestamp: freezed == signedPreKeyTimestamp
+                ? _value.signedPreKeyTimestamp
+                : signedPreKeyTimestamp // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            previousSignedPreKeyTimestamp:
+                freezed == previousSignedPreKeyTimestamp
+                ? _value.previousSignedPreKeyTimestamp
+                : previousSignedPreKeyTimestamp // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -147,6 +225,14 @@ abstract class _$$KeyBundleImplCopyWith<$Res>
     int registrationId,
     String? ed25519IdentityKeyPair,
     String? ed25519Signature,
+    int? signedPreKeyId,
+    int? nextOneTimePreKeyId,
+    int protocolVersion,
+    String? previousSignedPreKey,
+    int? previousSignedPreKeyId,
+    String? previousSignedPreKeySignature,
+    DateTime? signedPreKeyTimestamp,
+    DateTime? previousSignedPreKeyTimestamp,
   });
 }
 
@@ -171,6 +257,14 @@ class __$$KeyBundleImplCopyWithImpl<$Res>
     Object? registrationId = null,
     Object? ed25519IdentityKeyPair = freezed,
     Object? ed25519Signature = freezed,
+    Object? signedPreKeyId = freezed,
+    Object? nextOneTimePreKeyId = freezed,
+    Object? protocolVersion = null,
+    Object? previousSignedPreKey = freezed,
+    Object? previousSignedPreKeyId = freezed,
+    Object? previousSignedPreKeySignature = freezed,
+    Object? signedPreKeyTimestamp = freezed,
+    Object? previousSignedPreKeyTimestamp = freezed,
   }) {
     return _then(
       _$KeyBundleImpl(
@@ -202,6 +296,38 @@ class __$$KeyBundleImplCopyWithImpl<$Res>
             ? _value.ed25519Signature
             : ed25519Signature // ignore: cast_nullable_to_non_nullable
                   as String?,
+        signedPreKeyId: freezed == signedPreKeyId
+            ? _value.signedPreKeyId
+            : signedPreKeyId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        nextOneTimePreKeyId: freezed == nextOneTimePreKeyId
+            ? _value.nextOneTimePreKeyId
+            : nextOneTimePreKeyId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        protocolVersion: null == protocolVersion
+            ? _value.protocolVersion
+            : protocolVersion // ignore: cast_nullable_to_non_nullable
+                  as int,
+        previousSignedPreKey: freezed == previousSignedPreKey
+            ? _value.previousSignedPreKey
+            : previousSignedPreKey // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        previousSignedPreKeyId: freezed == previousSignedPreKeyId
+            ? _value.previousSignedPreKeyId
+            : previousSignedPreKeyId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        previousSignedPreKeySignature: freezed == previousSignedPreKeySignature
+            ? _value.previousSignedPreKeySignature
+            : previousSignedPreKeySignature // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        signedPreKeyTimestamp: freezed == signedPreKeyTimestamp
+            ? _value.signedPreKeyTimestamp
+            : signedPreKeyTimestamp // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        previousSignedPreKeyTimestamp: freezed == previousSignedPreKeyTimestamp
+            ? _value.previousSignedPreKeyTimestamp
+            : previousSignedPreKeyTimestamp // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -218,6 +344,14 @@ class _$KeyBundleImpl implements _KeyBundle {
     required this.registrationId,
     this.ed25519IdentityKeyPair,
     this.ed25519Signature,
+    this.signedPreKeyId,
+    this.nextOneTimePreKeyId,
+    this.protocolVersion = 2,
+    this.previousSignedPreKey,
+    this.previousSignedPreKeyId,
+    this.previousSignedPreKeySignature,
+    this.signedPreKeyTimestamp,
+    this.previousSignedPreKeyTimestamp,
   }) : _oneTimePreKeys = oneTimePreKeys;
 
   factory _$KeyBundleImpl.fromJson(Map<String, dynamic> json) =>
@@ -260,10 +394,45 @@ class _$KeyBundleImpl implements _KeyBundle {
   /// Verifiable by any party using the Ed25519 public key.
   @override
   final String? ed25519Signature;
+  // ── v2 (Signal-compliant) fields ──────────────────────────────
+  /// Integer ID of the current signed pre-key (for SPK rotation tracking).
+  /// Null for v1 bundles.
+  @override
+  final int? signedPreKeyId;
+
+  /// Next one-time pre-key ID counter (monotonically increasing).
+  /// Used to assign integer IDs to newly generated OTKs.
+  @override
+  final int? nextOneTimePreKeyId;
+
+  /// Protocol version (2 = spec-compliant Signal Protocol).
+  @override
+  @JsonKey()
+  final int protocolVersion;
+
+  /// Previous signed pre-key (retained during grace period), base64 "priv|pub".
+  @override
+  final String? previousSignedPreKey;
+
+  /// ID of the previous signed pre-key.
+  @override
+  final int? previousSignedPreKeyId;
+
+  /// Signature of the previous signed pre-key.
+  @override
+  final String? previousSignedPreKeySignature;
+
+  /// Timestamp when the current SPK was created (for grace period calculation).
+  @override
+  final DateTime? signedPreKeyTimestamp;
+
+  /// Timestamp when the previous SPK was created (for grace period expiry).
+  @override
+  final DateTime? previousSignedPreKeyTimestamp;
 
   @override
   String toString() {
-    return 'KeyBundle(identityKeyPair: $identityKeyPair, signedPreKey: $signedPreKey, signedPreKeySignature: $signedPreKeySignature, oneTimePreKeys: $oneTimePreKeys, registrationId: $registrationId, ed25519IdentityKeyPair: $ed25519IdentityKeyPair, ed25519Signature: $ed25519Signature)';
+    return 'KeyBundle(identityKeyPair: $identityKeyPair, signedPreKey: $signedPreKey, signedPreKeySignature: $signedPreKeySignature, oneTimePreKeys: $oneTimePreKeys, registrationId: $registrationId, ed25519IdentityKeyPair: $ed25519IdentityKeyPair, ed25519Signature: $ed25519Signature, signedPreKeyId: $signedPreKeyId, nextOneTimePreKeyId: $nextOneTimePreKeyId, protocolVersion: $protocolVersion, previousSignedPreKey: $previousSignedPreKey, previousSignedPreKeyId: $previousSignedPreKeyId, previousSignedPreKeySignature: $previousSignedPreKeySignature, signedPreKeyTimestamp: $signedPreKeyTimestamp, previousSignedPreKeyTimestamp: $previousSignedPreKeyTimestamp)';
   }
 
   @override
@@ -286,7 +455,31 @@ class _$KeyBundleImpl implements _KeyBundle {
             (identical(other.ed25519IdentityKeyPair, ed25519IdentityKeyPair) ||
                 other.ed25519IdentityKeyPair == ed25519IdentityKeyPair) &&
             (identical(other.ed25519Signature, ed25519Signature) ||
-                other.ed25519Signature == ed25519Signature));
+                other.ed25519Signature == ed25519Signature) &&
+            (identical(other.signedPreKeyId, signedPreKeyId) ||
+                other.signedPreKeyId == signedPreKeyId) &&
+            (identical(other.nextOneTimePreKeyId, nextOneTimePreKeyId) ||
+                other.nextOneTimePreKeyId == nextOneTimePreKeyId) &&
+            (identical(other.protocolVersion, protocolVersion) ||
+                other.protocolVersion == protocolVersion) &&
+            (identical(other.previousSignedPreKey, previousSignedPreKey) ||
+                other.previousSignedPreKey == previousSignedPreKey) &&
+            (identical(other.previousSignedPreKeyId, previousSignedPreKeyId) ||
+                other.previousSignedPreKeyId == previousSignedPreKeyId) &&
+            (identical(
+                  other.previousSignedPreKeySignature,
+                  previousSignedPreKeySignature,
+                ) ||
+                other.previousSignedPreKeySignature ==
+                    previousSignedPreKeySignature) &&
+            (identical(other.signedPreKeyTimestamp, signedPreKeyTimestamp) ||
+                other.signedPreKeyTimestamp == signedPreKeyTimestamp) &&
+            (identical(
+                  other.previousSignedPreKeyTimestamp,
+                  previousSignedPreKeyTimestamp,
+                ) ||
+                other.previousSignedPreKeyTimestamp ==
+                    previousSignedPreKeyTimestamp));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -300,6 +493,14 @@ class _$KeyBundleImpl implements _KeyBundle {
     registrationId,
     ed25519IdentityKeyPair,
     ed25519Signature,
+    signedPreKeyId,
+    nextOneTimePreKeyId,
+    protocolVersion,
+    previousSignedPreKey,
+    previousSignedPreKeyId,
+    previousSignedPreKeySignature,
+    signedPreKeyTimestamp,
+    previousSignedPreKeyTimestamp,
   );
 
   /// Create a copy of KeyBundle
@@ -325,6 +526,14 @@ abstract class _KeyBundle implements KeyBundle {
     required final int registrationId,
     final String? ed25519IdentityKeyPair,
     final String? ed25519Signature,
+    final int? signedPreKeyId,
+    final int? nextOneTimePreKeyId,
+    final int protocolVersion,
+    final String? previousSignedPreKey,
+    final int? previousSignedPreKeyId,
+    final String? previousSignedPreKeySignature,
+    final DateTime? signedPreKeyTimestamp,
+    final DateTime? previousSignedPreKeyTimestamp,
   }) = _$KeyBundleImpl;
 
   factory _KeyBundle.fromJson(Map<String, dynamic> json) =
@@ -359,7 +568,40 @@ abstract class _KeyBundle implements KeyBundle {
   /// Ed25519 signature over the signed pre-key's public key bytes.
   /// Verifiable by any party using the Ed25519 public key.
   @override
-  String? get ed25519Signature;
+  String? get ed25519Signature; // ── v2 (Signal-compliant) fields ──────────────────────────────
+  /// Integer ID of the current signed pre-key (for SPK rotation tracking).
+  /// Null for v1 bundles.
+  @override
+  int? get signedPreKeyId;
+
+  /// Next one-time pre-key ID counter (monotonically increasing).
+  /// Used to assign integer IDs to newly generated OTKs.
+  @override
+  int? get nextOneTimePreKeyId;
+
+  /// Protocol version (2 = spec-compliant Signal Protocol).
+  @override
+  int get protocolVersion;
+
+  /// Previous signed pre-key (retained during grace period), base64 "priv|pub".
+  @override
+  String? get previousSignedPreKey;
+
+  /// ID of the previous signed pre-key.
+  @override
+  int? get previousSignedPreKeyId;
+
+  /// Signature of the previous signed pre-key.
+  @override
+  String? get previousSignedPreKeySignature;
+
+  /// Timestamp when the current SPK was created (for grace period calculation).
+  @override
+  DateTime? get signedPreKeyTimestamp;
+
+  /// Timestamp when the previous SPK was created (for grace period expiry).
+  @override
+  DateTime? get previousSignedPreKeyTimestamp;
 
   /// Create a copy of KeyBundle
   /// with the given fields replaced by the non-null parameter values.
@@ -399,7 +641,17 @@ mixin _$PublicKeyBundle {
 
   /// Ed25519 signature over the signed pre-key public bytes, base64-encoded.
   /// Verifiable using [ed25519IdentityKey].
-  String? get ed25519Signature => throw _privateConstructorUsedError;
+  String? get ed25519Signature =>
+      throw _privateConstructorUsedError; // ── v2 (Signal-compliant) fields ──────────────────────────────
+  /// Integer ID of the signed pre-key (for X3DH header).
+  int? get signedPreKeyId => throw _privateConstructorUsedError;
+
+  /// Integer ID of the one-time pre-key returned by the server.
+  /// Null if no OTK was available (X3DH without DH4).
+  int? get oneTimePreKeyId => throw _privateConstructorUsedError;
+
+  /// Protocol version supported by this peer (2 = spec-compliant).
+  int get protocolVersion => throw _privateConstructorUsedError;
 
   /// Serializes this PublicKeyBundle to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -427,6 +679,9 @@ abstract class $PublicKeyBundleCopyWith<$Res> {
     String userId,
     String? ed25519IdentityKey,
     String? ed25519Signature,
+    int? signedPreKeyId,
+    int? oneTimePreKeyId,
+    int protocolVersion,
   });
 }
 
@@ -453,6 +708,9 @@ class _$PublicKeyBundleCopyWithImpl<$Res, $Val extends PublicKeyBundle>
     Object? userId = null,
     Object? ed25519IdentityKey = freezed,
     Object? ed25519Signature = freezed,
+    Object? signedPreKeyId = freezed,
+    Object? oneTimePreKeyId = freezed,
+    Object? protocolVersion = null,
   }) {
     return _then(
       _value.copyWith(
@@ -488,6 +746,18 @@ class _$PublicKeyBundleCopyWithImpl<$Res, $Val extends PublicKeyBundle>
                 ? _value.ed25519Signature
                 : ed25519Signature // ignore: cast_nullable_to_non_nullable
                       as String?,
+            signedPreKeyId: freezed == signedPreKeyId
+                ? _value.signedPreKeyId
+                : signedPreKeyId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            oneTimePreKeyId: freezed == oneTimePreKeyId
+                ? _value.oneTimePreKeyId
+                : oneTimePreKeyId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            protocolVersion: null == protocolVersion
+                ? _value.protocolVersion
+                : protocolVersion // ignore: cast_nullable_to_non_nullable
+                      as int,
           )
           as $Val,
     );
@@ -512,6 +782,9 @@ abstract class _$$PublicKeyBundleImplCopyWith<$Res>
     String userId,
     String? ed25519IdentityKey,
     String? ed25519Signature,
+    int? signedPreKeyId,
+    int? oneTimePreKeyId,
+    int protocolVersion,
   });
 }
 
@@ -537,6 +810,9 @@ class __$$PublicKeyBundleImplCopyWithImpl<$Res>
     Object? userId = null,
     Object? ed25519IdentityKey = freezed,
     Object? ed25519Signature = freezed,
+    Object? signedPreKeyId = freezed,
+    Object? oneTimePreKeyId = freezed,
+    Object? protocolVersion = null,
   }) {
     return _then(
       _$PublicKeyBundleImpl(
@@ -572,6 +848,18 @@ class __$$PublicKeyBundleImplCopyWithImpl<$Res>
             ? _value.ed25519Signature
             : ed25519Signature // ignore: cast_nullable_to_non_nullable
                   as String?,
+        signedPreKeyId: freezed == signedPreKeyId
+            ? _value.signedPreKeyId
+            : signedPreKeyId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        oneTimePreKeyId: freezed == oneTimePreKeyId
+            ? _value.oneTimePreKeyId
+            : oneTimePreKeyId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        protocolVersion: null == protocolVersion
+            ? _value.protocolVersion
+            : protocolVersion // ignore: cast_nullable_to_non_nullable
+                  as int,
       ),
     );
   }
@@ -589,6 +877,9 @@ class _$PublicKeyBundleImpl implements _PublicKeyBundle {
     required this.userId,
     this.ed25519IdentityKey,
     this.ed25519Signature,
+    this.signedPreKeyId,
+    this.oneTimePreKeyId,
+    this.protocolVersion = 2,
   }) : _oneTimePreKeys = oneTimePreKeys;
 
   factory _$PublicKeyBundleImpl.fromJson(Map<String, dynamic> json) =>
@@ -634,10 +925,24 @@ class _$PublicKeyBundleImpl implements _PublicKeyBundle {
   /// Verifiable using [ed25519IdentityKey].
   @override
   final String? ed25519Signature;
+  // ── v2 (Signal-compliant) fields ──────────────────────────────
+  /// Integer ID of the signed pre-key (for X3DH header).
+  @override
+  final int? signedPreKeyId;
+
+  /// Integer ID of the one-time pre-key returned by the server.
+  /// Null if no OTK was available (X3DH without DH4).
+  @override
+  final int? oneTimePreKeyId;
+
+  /// Protocol version supported by this peer (2 = spec-compliant).
+  @override
+  @JsonKey()
+  final int protocolVersion;
 
   @override
   String toString() {
-    return 'PublicKeyBundle(identityKey: $identityKey, signedPreKey: $signedPreKey, signedPreKeySignature: $signedPreKeySignature, oneTimePreKeys: $oneTimePreKeys, registrationId: $registrationId, userId: $userId, ed25519IdentityKey: $ed25519IdentityKey, ed25519Signature: $ed25519Signature)';
+    return 'PublicKeyBundle(identityKey: $identityKey, signedPreKey: $signedPreKey, signedPreKeySignature: $signedPreKeySignature, oneTimePreKeys: $oneTimePreKeys, registrationId: $registrationId, userId: $userId, ed25519IdentityKey: $ed25519IdentityKey, ed25519Signature: $ed25519Signature, signedPreKeyId: $signedPreKeyId, oneTimePreKeyId: $oneTimePreKeyId, protocolVersion: $protocolVersion)';
   }
 
   @override
@@ -661,7 +966,13 @@ class _$PublicKeyBundleImpl implements _PublicKeyBundle {
             (identical(other.ed25519IdentityKey, ed25519IdentityKey) ||
                 other.ed25519IdentityKey == ed25519IdentityKey) &&
             (identical(other.ed25519Signature, ed25519Signature) ||
-                other.ed25519Signature == ed25519Signature));
+                other.ed25519Signature == ed25519Signature) &&
+            (identical(other.signedPreKeyId, signedPreKeyId) ||
+                other.signedPreKeyId == signedPreKeyId) &&
+            (identical(other.oneTimePreKeyId, oneTimePreKeyId) ||
+                other.oneTimePreKeyId == oneTimePreKeyId) &&
+            (identical(other.protocolVersion, protocolVersion) ||
+                other.protocolVersion == protocolVersion));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -676,6 +987,9 @@ class _$PublicKeyBundleImpl implements _PublicKeyBundle {
     userId,
     ed25519IdentityKey,
     ed25519Signature,
+    signedPreKeyId,
+    oneTimePreKeyId,
+    protocolVersion,
   );
 
   /// Create a copy of PublicKeyBundle
@@ -705,6 +1019,9 @@ abstract class _PublicKeyBundle implements PublicKeyBundle {
     required final String userId,
     final String? ed25519IdentityKey,
     final String? ed25519Signature,
+    final int? signedPreKeyId,
+    final int? oneTimePreKeyId,
+    final int protocolVersion,
   }) = _$PublicKeyBundleImpl;
 
   factory _PublicKeyBundle.fromJson(Map<String, dynamic> json) =
@@ -742,7 +1059,19 @@ abstract class _PublicKeyBundle implements PublicKeyBundle {
   /// Ed25519 signature over the signed pre-key public bytes, base64-encoded.
   /// Verifiable using [ed25519IdentityKey].
   @override
-  String? get ed25519Signature;
+  String? get ed25519Signature; // ── v2 (Signal-compliant) fields ──────────────────────────────
+  /// Integer ID of the signed pre-key (for X3DH header).
+  @override
+  int? get signedPreKeyId;
+
+  /// Integer ID of the one-time pre-key returned by the server.
+  /// Null if no OTK was available (X3DH without DH4).
+  @override
+  int? get oneTimePreKeyId;
+
+  /// Protocol version supported by this peer (2 = spec-compliant).
+  @override
+  int get protocolVersion;
 
   /// Create a copy of PublicKeyBundle
   /// with the given fields replaced by the non-null parameter values.

@@ -17,18 +17,42 @@ _$KeyBundleImpl _$$KeyBundleImplFromJson(Map<String, dynamic> json) =>
       registrationId: (json['registrationId'] as num).toInt(),
       ed25519IdentityKeyPair: json['ed25519IdentityKeyPair'] as String?,
       ed25519Signature: json['ed25519Signature'] as String?,
+      signedPreKeyId: (json['signedPreKeyId'] as num?)?.toInt(),
+      nextOneTimePreKeyId: (json['nextOneTimePreKeyId'] as num?)?.toInt(),
+      protocolVersion: (json['protocolVersion'] as num?)?.toInt() ?? 2,
+      previousSignedPreKey: json['previousSignedPreKey'] as String?,
+      previousSignedPreKeyId: (json['previousSignedPreKeyId'] as num?)?.toInt(),
+      previousSignedPreKeySignature:
+          json['previousSignedPreKeySignature'] as String?,
+      signedPreKeyTimestamp: json['signedPreKeyTimestamp'] == null
+          ? null
+          : DateTime.parse(json['signedPreKeyTimestamp'] as String),
+      previousSignedPreKeyTimestamp:
+          json['previousSignedPreKeyTimestamp'] == null
+          ? null
+          : DateTime.parse(json['previousSignedPreKeyTimestamp'] as String),
     );
 
-Map<String, dynamic> _$$KeyBundleImplToJson(_$KeyBundleImpl instance) =>
-    <String, dynamic>{
-      'identityKeyPair': instance.identityKeyPair,
-      'signedPreKey': instance.signedPreKey,
-      'signedPreKeySignature': instance.signedPreKeySignature,
-      'oneTimePreKeys': instance.oneTimePreKeys,
-      'registrationId': instance.registrationId,
-      'ed25519IdentityKeyPair': instance.ed25519IdentityKeyPair,
-      'ed25519Signature': instance.ed25519Signature,
-    };
+Map<String, dynamic> _$$KeyBundleImplToJson(
+  _$KeyBundleImpl instance,
+) => <String, dynamic>{
+  'identityKeyPair': instance.identityKeyPair,
+  'signedPreKey': instance.signedPreKey,
+  'signedPreKeySignature': instance.signedPreKeySignature,
+  'oneTimePreKeys': instance.oneTimePreKeys,
+  'registrationId': instance.registrationId,
+  'ed25519IdentityKeyPair': instance.ed25519IdentityKeyPair,
+  'ed25519Signature': instance.ed25519Signature,
+  'signedPreKeyId': instance.signedPreKeyId,
+  'nextOneTimePreKeyId': instance.nextOneTimePreKeyId,
+  'protocolVersion': instance.protocolVersion,
+  'previousSignedPreKey': instance.previousSignedPreKey,
+  'previousSignedPreKeyId': instance.previousSignedPreKeyId,
+  'previousSignedPreKeySignature': instance.previousSignedPreKeySignature,
+  'signedPreKeyTimestamp': instance.signedPreKeyTimestamp?.toIso8601String(),
+  'previousSignedPreKeyTimestamp': instance.previousSignedPreKeyTimestamp
+      ?.toIso8601String(),
+};
 
 _$PublicKeyBundleImpl _$$PublicKeyBundleImplFromJson(
   Map<String, dynamic> json,
@@ -43,6 +67,9 @@ _$PublicKeyBundleImpl _$$PublicKeyBundleImplFromJson(
   userId: json['userId'] as String,
   ed25519IdentityKey: json['ed25519IdentityKey'] as String?,
   ed25519Signature: json['ed25519Signature'] as String?,
+  signedPreKeyId: (json['signedPreKeyId'] as num?)?.toInt(),
+  oneTimePreKeyId: (json['oneTimePreKeyId'] as num?)?.toInt(),
+  protocolVersion: (json['protocolVersion'] as num?)?.toInt() ?? 2,
 );
 
 Map<String, dynamic> _$$PublicKeyBundleImplToJson(
@@ -56,6 +83,9 @@ Map<String, dynamic> _$$PublicKeyBundleImplToJson(
   'userId': instance.userId,
   'ed25519IdentityKey': instance.ed25519IdentityKey,
   'ed25519Signature': instance.ed25519Signature,
+  'signedPreKeyId': instance.signedPreKeyId,
+  'oneTimePreKeyId': instance.oneTimePreKeyId,
+  'protocolVersion': instance.protocolVersion,
 };
 
 _$BackupMetadataImpl _$$BackupMetadataImplFromJson(Map<String, dynamic> json) =>

@@ -102,10 +102,13 @@ class _Participant {
         '${base64Encode(identityKp['privateKey']!)}|${base64Encode(identityKp['publicKey']!)}';
     final signedPreEncoded =
         '${base64Encode(signedPreKp['privateKey']!)}|${base64Encode(signedPreKp['publicKey']!)}';
-    final otkEncoded =
-        '${base64Encode(otkKp['privateKey']!)}|${base64Encode(otkKp['publicKey']!)}';
     final ed25519Encoded =
         '${base64Encode(ed25519Kp['privateKey']!)}|${base64Encode(ed25519Kp['publicKey']!)}';
+
+    // v2 OTK format: "id|priv|pub"
+    final otkPriv = base64Encode(otkKp['privateKey']!);
+    final otkPub = base64Encode(otkKp['publicKey']!);
+    final otkEncoded = '1|$otkPriv|$otkPub';
 
     // Ed25519 signature over the signed pre-key public bytes
     final ed25519Sig = await crypto.ed25519Sign(
@@ -122,17 +125,22 @@ class _Participant {
       registrationId: 1,
       ed25519IdentityKeyPair: ed25519Encoded,
       ed25519Signature: ed25519SigBase64,
+      signedPreKeyId: 1,
+      protocolVersion: 2,
     );
 
     publicBundle = PublicKeyBundle(
       identityKey: base64Encode(identityKp['publicKey']!),
       signedPreKey: base64Encode(signedPreKp['publicKey']!),
       signedPreKeySignature: 'sig',
-      oneTimePreKeys: [base64Encode(otkKp['publicKey']!)],
+      oneTimePreKeys: [otkPub],
       registrationId: 1,
       userId: userId,
       ed25519IdentityKey: base64Encode(ed25519Kp['publicKey']!),
       ed25519Signature: ed25519SigBase64,
+      signedPreKeyId: 1,
+      oneTimePreKeyId: 1,
+      protocolVersion: 2,
     );
 
     // Wire mock: loadPrivateKeys always returns this participant's private bundle
@@ -185,15 +193,16 @@ void main() {
       bobEd25519Kp['privateKey']!,
     );
 
-    // Build Alice's private bundle
+    // Build Alice's private bundle (v2 format)
     final aliceIdentityEncoded =
         '${base64Encode(aliceIdentityKp['privateKey']!)}|${base64Encode(aliceIdentityKp['publicKey']!)}';
     final aliceSignedPreEncoded =
         '${base64Encode(aliceSignedPreKp['privateKey']!)}|${base64Encode(aliceSignedPreKp['publicKey']!)}';
-    final aliceOtkEncoded =
-        '${base64Encode(aliceOtkKp['privateKey']!)}|${base64Encode(aliceOtkKp['publicKey']!)}';
     final aliceEd25519Encoded =
         '${base64Encode(aliceEd25519Kp['privateKey']!)}|${base64Encode(aliceEd25519Kp['publicKey']!)}';
+    // v2 OTK: "id|priv|pub"
+    final aliceOtkEncoded =
+        '1|${base64Encode(aliceOtkKp['privateKey']!)}|${base64Encode(aliceOtkKp['publicKey']!)}';
 
     alicePrivateBundle = KeyBundle(
       identityKeyPair: aliceIdentityEncoded,
@@ -203,6 +212,8 @@ void main() {
       registrationId: 1,
       ed25519IdentityKeyPair: aliceEd25519Encoded,
       ed25519Signature: base64Encode(aliceEd25519Sig),
+      signedPreKeyId: 1,
+      protocolVersion: 2,
     );
 
     // Build Bob's public-only bundle (as seen by Alice)
@@ -215,6 +226,9 @@ void main() {
       userId: bobId,
       ed25519IdentityKey: base64Encode(bobEd25519Kp['publicKey']!),
       ed25519Signature: base64Encode(bobEd25519Sig),
+      signedPreKeyId: 1,
+      oneTimePreKeyId: 1,
+      protocolVersion: 2,
     );
 
     aliceStorage = InMemorySecureStorage();
@@ -231,118 +245,32 @@ void main() {
   });
 
   // ===========================================================================
-  // establishSession
-  // ===========================================================================
-  group('establishSession', () {
-    test('creates session and persists to storage', () async {
-      await aliceService.establishSession(bobId);
-
-      final stored = aliceStorage.store['e2ee_session_$bobId'];
-      expect(stored, isNotNull);
-
-      // The stored value must be valid JSON with expected keys
-      final json = jsonDecode(stored!) as Map<String, dynamic>;
-      expect(json.containsKey('rootKey'), isTrue);
-      expect(json.containsKey('sendChainKey'), isTrue);
-      expect(json.containsKey('dhSendPublic'), isTrue);
-      expect(json['isInitiator'], isTrue);
-    });
-
-    test('calls loadPrivateKeys for own keys', () async {
-      await aliceService.establishSession(bobId);
-      verify(() => aliceKeyMgmt.loadPrivateKeys()).called(1);
-    });
-
-    test('calls fetchKeyBundle for recipient', () async {
-      await aliceService.establishSession(bobId);
-      verify(() => aliceKeyMgmt.fetchKeyBundle(bobId)).called(1);
-    });
-
-    test('throws StateError when own private keys are null', () async {
-      when(() => aliceKeyMgmt.loadPrivateKeys()).thenAnswer((_) async => null);
-
-      expect(
-        () => aliceService.establishSession(bobId),
-        throwsA(isA<StateError>().having(
-          (e) => e.message,
-          'message',
-          contains('No local key bundle'),
-        )),
-      );
-    });
-
-    test('performs X3DH with OTK when available (4 DH operations)', () async {
-      // Bob's public bundle already has oneTimePreKeys
-      expect(bobPublicBundle.oneTimePreKeys, isNotEmpty);
-      await aliceService.establishSession(bobId);
-
-      // Session should record the consumed OTK public key in pending data
-      final stored = aliceStorage.store['e2ee_session_$bobId']!;
-      final json = jsonDecode(stored) as Map<String, dynamic>;
-      expect(json['pendingOtkPublicKey'], isNotNull);
-      expect(json['pendingOtkPublicKey'], equals(bobPublicBundle.oneTimePreKeys.first));
-    });
-
-    test('performs X3DH without OTK when none available (3 DH operations)',
-        () async {
-      // Return a bundle with no OTKs
-      final noOtkBundle = PublicKeyBundle(
-        identityKey: bobPublicBundle.identityKey,
-        signedPreKey: bobPublicBundle.signedPreKey,
-        signedPreKeySignature: bobPublicBundle.signedPreKeySignature,
-        oneTimePreKeys: [],
-        registrationId: 2,
-        userId: bobId,
-        ed25519IdentityKey: bobPublicBundle.ed25519IdentityKey,
-        ed25519Signature: bobPublicBundle.ed25519Signature,
-      );
-      when(() => aliceKeyMgmt.fetchKeyBundle(bobId))
-          .thenAnswer((_) async => noOtkBundle);
-
-      await aliceService.establishSession(bobId);
-
-      final stored = aliceStorage.store['e2ee_session_$bobId']!;
-      final json = jsonDecode(stored) as Map<String, dynamic>;
-      // No OTK consumed
-      expect(json['pendingOtkPublicKey'], isNull);
-      // Session still created successfully
-      expect(json['rootKey'], isNotNull);
-    });
-  });
-
-  // ===========================================================================
   // encryptP2P
   // ===========================================================================
   group('encryptP2P', () {
     test('auto-establishes session if none exists', () async {
-      // No prior establishSession call
       final result = await aliceService.encryptP2P(bobId, 'Hello');
       expect(result['ciphertext'], isA<String>());
-      // Session should now exist
-      expect(aliceStorage.store.containsKey('e2ee_session_$bobId'), isTrue);
+      // v2 session should exist
+      expect(aliceStorage.store.containsKey('v2_session_$bobId'), isTrue);
     });
 
     test('returns map with ciphertext (base64) and e2ee (map)', () async {
-      await aliceService.establishSession(bobId);
       final result = await aliceService.encryptP2P(bobId, 'test message');
 
       expect(result['ciphertext'], isA<String>());
-      // Verify it's valid base64
       expect(() => base64Decode(result['ciphertext'] as String), returnsNormally);
       expect(result['e2ee'], isA<Map<String, dynamic>>());
     });
 
-    test('e2ee.protocol is signal-v1', () async {
-      await aliceService.establishSession(bobId);
+    test('e2ee.protocol is signal-v2', () async {
       final result = await aliceService.encryptP2P(bobId, 'test');
 
       final e2ee = result['e2ee'] as Map<String, dynamic>;
-      expect(e2ee['protocol'], equals('signal-v1'));
+      expect(e2ee['protocol'], equals('signal-v2'));
     });
 
     test('e2ee.messageNumber starts at 0 and increments', () async {
-      await aliceService.establishSession(bobId);
-
       final msg0 = await aliceService.encryptP2P(bobId, 'message 0');
       final msg1 = await aliceService.encryptP2P(bobId, 'message 1');
       final msg2 = await aliceService.encryptP2P(bobId, 'message 2');
@@ -353,44 +281,42 @@ void main() {
     });
 
     test('e2ee.dhPublicKey is present (base64 string)', () async {
-      await aliceService.establishSession(bobId);
       final result = await aliceService.encryptP2P(bobId, 'test');
 
       final e2ee = result['e2ee'] as Map<String, dynamic>;
       final dhPubKey = e2ee['dhPublicKey'] as String;
       expect(dhPubKey, isNotEmpty);
-      // Must be valid base64 that decodes to 32 bytes (X25519 public key)
       final decoded = base64Decode(dhPubKey);
       expect(decoded.length, equals(32));
     });
 
     test('first message includes x3dhHeader with identityKey, ephemeralKey',
         () async {
-      await aliceService.establishSession(bobId);
       final first = await aliceService.encryptP2P(bobId, 'first message');
 
       expect(first.containsKey('x3dhHeader'), isTrue);
       final header = first['x3dhHeader'] as Map<String, dynamic>;
       expect(header['identityKey'], isA<String>());
       expect(header['ephemeralKey'], isA<String>());
-      // Keys should be valid base64
       expect(() => base64Decode(header['identityKey'] as String), returnsNormally);
       expect(
           () => base64Decode(header['ephemeralKey'] as String), returnsNormally);
     });
 
-    test('x3dhHeader is included on all messages until session confirmed', () async {
-      await aliceService.establishSession(bobId);
+    test('x3dhHeader includes signedPreKeyId and oneTimePreKeyId', () async {
+      final first = await aliceService.encryptP2P(bobId, 'first');
+      final header = first['x3dhHeader'] as Map<String, dynamic>;
+      expect(header['signedPreKeyId'], equals(1));
+      expect(header['oneTimePreKeyId'], equals(1));
+    });
 
+    test('x3dhHeader is included on all messages until session confirmed', () async {
       final first = await aliceService.encryptP2P(bobId, 'first');
       final second = await aliceService.encryptP2P(bobId, 'second');
 
-      // Both messages include x3dhHeader because pending keys are kept
-      // until the sender receives a decrypted reply (session confirmation).
       expect(first.containsKey('x3dhHeader'), isTrue);
       expect(second.containsKey('x3dhHeader'), isTrue);
 
-      // Both headers contain the same keys
       final h1 = first['x3dhHeader'] as Map<String, dynamic>;
       final h2 = second['x3dhHeader'] as Map<String, dynamic>;
       expect(h1['identityKey'], equals(h2['identityKey']));
@@ -398,7 +324,6 @@ void main() {
     });
 
     test('different messages produce different ciphertext', () async {
-      await aliceService.establishSession(bobId);
       // Consume x3dhHeader on first message
       await aliceService.encryptP2P(bobId, 'primer');
 
@@ -409,7 +334,6 @@ void main() {
     });
 
     test('encrypts empty string without error', () async {
-      await aliceService.establishSession(bobId);
       final result = await aliceService.encryptP2P(bobId, '');
 
       expect(result['ciphertext'], isA<String>());
@@ -421,24 +345,21 @@ void main() {
   // decryptP2P
   // ===========================================================================
   group('decryptP2P', () {
-    test('throws StateError when no session exists and no x3dhHeader',
+    test('throws PermanentDecryptionError when no session and no x3dhHeader',
         () async {
       final fakeEncrypted = {
         'ciphertext': base64Encode([1, 2, 3]),
         'e2ee': {
-          'protocol': 'signal-v1',
+          'protocol': 'signal-v2',
           'messageNumber': 0,
+          'previousChainLength': 0,
           'dhPublicKey': base64Encode(crypto.randomBytes(32)),
         },
       };
 
       expect(
         () => aliceService.decryptP2P(bobId, fakeEncrypted),
-        throwsA(isA<StateError>().having(
-          (e) => e.message,
-          'message',
-          contains('No session'),
-        )),
+        throwsA(isA<PermanentDecryptionError>()),
       );
     });
   });
@@ -451,13 +372,13 @@ void main() {
       expect(await aliceService.hasSession(bobId), isFalse);
     });
 
-    test('returns true after establishSession called', () async {
-      await aliceService.establishSession(bobId);
+    test('returns true after encryptP2P auto-establishes', () async {
+      await aliceService.encryptP2P(bobId, 'hello');
       expect(await aliceService.hasSession(bobId), isTrue);
     });
 
     test('returns false for a different user', () async {
-      await aliceService.establishSession(bobId);
+      await aliceService.encryptP2P(bobId, 'hello');
       expect(await aliceService.hasSession('charlie_user_id'), isFalse);
     });
   });
@@ -488,12 +409,9 @@ void main() {
     });
 
     test('Alice sends to Bob -> Bob decrypts successfully', () async {
-      // Alice establishes session and encrypts
-      await alice.service.establishSession(bobId);
       final encrypted =
           await alice.service.encryptP2P(bobId, 'Hello from Alice!');
 
-      // Bob receives and decrypts (receiver-side X3DH via x3dhHeader)
       final plaintext =
           await bob.service.decryptP2P(aliceId, encrypted);
 
@@ -501,13 +419,10 @@ void main() {
     });
 
     test('Alice sends 3 messages -> Bob decrypts all 3', () async {
-      await alice.service.establishSession(bobId);
-
       final enc0 = await alice.service.encryptP2P(bobId, 'Message 0');
       final enc1 = await alice.service.encryptP2P(bobId, 'Message 1');
       final enc2 = await alice.service.encryptP2P(bobId, 'Message 2');
 
-      // Bob decrypts in order
       final pt0 = await bob.service.decryptP2P(aliceId, enc0);
       final pt1 = await bob.service.decryptP2P(aliceId, enc1);
       final pt2 = await bob.service.decryptP2P(aliceId, enc2);
@@ -518,20 +433,15 @@ void main() {
     });
 
     test('Bob replies to Alice -> Alice decrypts', () async {
-      // Alice initiates
-      await alice.service.establishSession(bobId);
       final encrypted =
           await alice.service.encryptP2P(bobId, 'Hello Bob');
 
-      // Bob decrypts (establishes receiver-side session)
       final ptFromAlice =
           await bob.service.decryptP2P(aliceId, encrypted);
       expect(ptFromAlice, equals('Hello Bob'));
 
-      // Bob replies
       final reply = await bob.service.encryptP2P(aliceId, 'Hello Alice');
 
-      // Alice decrypts Bob's reply
       final ptFromBob =
           await alice.service.decryptP2P(bobId, reply);
       expect(ptFromBob, equals('Hello Alice'));
@@ -539,31 +449,25 @@ void main() {
 
     test('hasSession returns true on Bob after decryptP2P with x3dhHeader',
         () async {
-      // Bob has no session yet
       expect(await bob.service.hasSession(aliceId), isFalse);
 
-      // Alice sends a message with x3dhHeader
-      await alice.service.establishSession(bobId);
       final encrypted =
           await alice.service.encryptP2P(bobId, 'trigger session');
 
-      // Bob decrypts -> receiver-side X3DH creates session
       await bob.service.decryptP2P(aliceId, encrypted);
 
       expect(await bob.service.hasSession(aliceId), isTrue);
     });
 
     test('empty string roundtrip', () async {
-      await alice.service.establishSession(bobId);
       final encrypted = await alice.service.encryptP2P(bobId, '');
       final plaintext =
           await bob.service.decryptP2P(aliceId, encrypted);
       expect(plaintext, equals(''));
     });
 
-    test('unicode / emoji roundtrip', () async {
+    test('unicode / special chars roundtrip', () async {
       const message = 'Hello World! 12345 abcdef special chars: <>&"\'';
-      await alice.service.establishSession(bobId);
       final encrypted = await alice.service.encryptP2P(bobId, message);
       final plaintext =
           await bob.service.decryptP2P(aliceId, encrypted);
@@ -572,7 +476,6 @@ void main() {
 
     test('long message roundtrip (1KB)', () async {
       final message = 'A' * 1024;
-      await alice.service.establishSession(bobId);
       final encrypted = await alice.service.encryptP2P(bobId, message);
       final plaintext =
           await bob.service.decryptP2P(aliceId, encrypted);
@@ -580,10 +483,7 @@ void main() {
     });
 
     test('bidirectional multi-turn conversation', () async {
-      // Alice initiates
-      await alice.service.establishSession(bobId);
-
-      // Alice -> Bob (msg 0, with x3dhHeader)
+      // Alice -> Bob
       final a2b0 = await alice.service.encryptP2P(bobId, 'A->B #0');
       expect(await bob.service.decryptP2P(aliceId, a2b0), 'A->B #0');
 
@@ -591,7 +491,7 @@ void main() {
       final b2a0 = await bob.service.encryptP2P(aliceId, 'B->A #0');
       expect(await alice.service.decryptP2P(bobId, b2a0), 'B->A #0');
 
-      // Alice -> Bob (msg 1, no x3dhHeader)
+      // Alice -> Bob
       final a2b1 = await alice.service.encryptP2P(bobId, 'A->B #1');
       expect(await bob.service.decryptP2P(aliceId, a2b1), 'A->B #1');
 
@@ -611,12 +511,13 @@ void main() {
         userId: bobId,
         ed25519IdentityKey: bob.publicBundle.ed25519IdentityKey,
         ed25519Signature: bob.publicBundle.ed25519Signature,
+        signedPreKeyId: 1,
+        protocolVersion: 2,
       );
       when(() => alice.keyMgmt.fetchKeyBundle(bobId))
           .thenAnswer((_) async => noOtkBundle);
 
-      // Also update Bob's private bundle to have no OTKs so receiver-side
-      // X3DH skips DH4
+      // Also update Bob's private bundle to have no OTKs
       final noOtkPrivateBundle = KeyBundle(
         identityKeyPair: bob.privateBundle.identityKeyPair,
         signedPreKey: bob.privateBundle.signedPreKey,
@@ -625,15 +526,15 @@ void main() {
         registrationId: bob.privateBundle.registrationId,
         ed25519IdentityKeyPair: bob.privateBundle.ed25519IdentityKeyPair,
         ed25519Signature: bob.privateBundle.ed25519Signature,
+        signedPreKeyId: 1,
+        protocolVersion: 2,
       );
       when(() => bob.keyMgmt.loadPrivateKeys())
           .thenAnswer((_) async => noOtkPrivateBundle);
 
-      await alice.service.establishSession(bobId);
       final encrypted =
           await alice.service.encryptP2P(bobId, 'No OTK message');
 
-      // x3dhHeader should have oneTimePreKeyId = null
       final header = encrypted['x3dhHeader'] as Map<String, dynamic>?;
       expect(header, isNotNull);
       expect(header!['oneTimePreKeyId'], isNull);
@@ -645,9 +546,6 @@ void main() {
 
     test('session persists across encryptP2P calls (state consistency)',
         () async {
-      await alice.service.establishSession(bobId);
-
-      // Send 5 messages and verify monotonically increasing message numbers
       for (var i = 0; i < 5; i++) {
         final result =
             await alice.service.encryptP2P(bobId, 'Message $i');
@@ -658,19 +556,16 @@ void main() {
 
     test('x3dhHeader identity key matches Alice public identity key',
         () async {
-      await alice.service.establishSession(bobId);
       final encrypted =
           await alice.service.encryptP2P(bobId, 'check keys');
 
       final header = encrypted['x3dhHeader'] as Map<String, dynamic>;
-      // The identity key in the header should be Alice's public identity key
       final aliceIdentityPublic =
           alice.privateBundle.identityKeyPair.split('|')[1];
       expect(header['identityKey'], equals(aliceIdentityPublic));
     });
 
     test('auto-establish in encryptP2P produces valid roundtrip', () async {
-      // Skip explicit establishSession - let encryptP2P do it
       final encrypted =
           await alice.service.encryptP2P(bobId, 'Auto-established');
 

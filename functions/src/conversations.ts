@@ -149,7 +149,7 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
   const userId = requireAuth(request);
   requireAppCheck(request, "sendConversationMessage");
 
-  const { conversationId, text, mediaUrl, mediaType, messageType: messageTypeParam, replyToMessageId, ciphertext, e2ee, x3dhHeader } = request.data;
+  const { conversationId, text, mediaUrl, mediaType, messageType: messageTypeParam, replyToMessageId, ciphertext, e2ee, x3dhHeader, encryptedPreviews } = request.data;
 
   if (!conversationId) {
     throw new HttpsError("invalid-argument", "conversationId is required");
@@ -324,6 +324,7 @@ export const sendConversationMessage = onCall({ labels: { area: "social" } }, as
     updatedAt: now,
     ...unreadUpdates,
     ...acceptUpdate,
+    ...(encryptedPreviews ? { lastMessageEncryptedPreviews: encryptedPreviews } : {}),
   });
 
   await batch.commit();

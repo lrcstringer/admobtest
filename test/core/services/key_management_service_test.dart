@@ -89,7 +89,10 @@ void main() {
     final signedPreKp = fakeKeyPair(10);
     final otks = <String>[];
     for (var i = 0; i < otkCount; i++) {
-      otks.add(encodeKeyPair(fakeKeyPair(20 + i * 10)));
+      final kp = fakeKeyPair(20 + i * 10);
+      final priv = base64Encode(kp['privateKey']!);
+      final pub = base64Encode(kp['publicKey']!);
+      otks.add('${i + 1}|$priv|$pub');
     }
     return KeyBundle(
       identityKeyPair: encodeKeyPair(identityKp),
@@ -116,14 +119,53 @@ void main() {
         .thenAnswer((_) async => bundle.ed25519IdentityKeyPair);
     when(() => mockSecureStorage.read(key: 'e2ee_ed25519_signature'))
         .thenAnswer((_) async => bundle.ed25519Signature);
+    // v2 storage keys read by loadPrivateKeys
+    when(() => mockSecureStorage.read(key: 'e2ee_spk_id'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_next_otk_id'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_protocol_version'))
+        .thenAnswer((_) async => '2');
+    when(() => mockSecureStorage.read(key: 'e2ee_prev_signed_pre_key'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_prev_spk_id'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_prev_spk_sig'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_spk_timestamp'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_prev_spk_timestamp'))
+        .thenAnswer((_) async => null);
   }
 
-  /// Stubs all secure storage writes to succeed.
+  /// Stubs v2 storage key reads to return null (or '2' for protocol version).
+  void stubV2StorageReads() {
+    when(() => mockSecureStorage.read(key: 'e2ee_spk_id'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_next_otk_id'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_protocol_version'))
+        .thenAnswer((_) async => '2');
+    when(() => mockSecureStorage.read(key: 'e2ee_prev_signed_pre_key'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_prev_spk_id'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_prev_spk_sig'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_spk_timestamp'))
+        .thenAnswer((_) async => null);
+    when(() => mockSecureStorage.read(key: 'e2ee_prev_spk_timestamp'))
+        .thenAnswer((_) async => null);
+  }
+
+  /// Stubs all secure storage writes and deletes to succeed.
   void stubStorageWrites() {
     when(() => mockSecureStorage.write(
           key: any(named: 'key'),
           value: any(named: 'value'),
         )).thenAnswer((_) async {});
+    when(() => mockSecureStorage.delete(key: any(named: 'key')))
+        .thenAnswer((_) async {});
   }
 
   /// Stubs writes + identity key readback for storePrivateKeys tests.
@@ -132,6 +174,9 @@ void main() {
     // storePrivateKeys reads back the identity key to verify persistence
     when(() => mockSecureStorage.read(key: 'e2ee_identity_key'))
         .thenAnswer((_) async => 'readback_ok');
+    // storePrivateKeys calls delete for previous SPK keys when null
+    when(() => mockSecureStorage.delete(key: any(named: 'key')))
+        .thenAnswer((_) async {});
   }
 
   group('KeyManagementService', () {
@@ -196,7 +241,7 @@ void main() {
         expect(bundle.oneTimePreKeys.length, 10);
       });
 
-      test('each one-time pre-key is encoded as base64Private|base64Public',
+      test('each one-time pre-key is encoded as id|base64Private|base64Public',
           () async {
         stubKeyPairGeneration();
         stubRandomBytes();
@@ -205,9 +250,12 @@ void main() {
 
         for (final otk in bundle.oneTimePreKeys) {
           final parts = otk.split('|');
-          expect(parts.length, 2);
-          expect(() => base64Decode(parts[0]), returnsNormally);
+          expect(parts.length, 3);
+          // First part is an integer ID
+          expect(int.tryParse(parts[0]), isNotNull);
+          // Second and third parts are valid base64
           expect(() => base64Decode(parts[1]), returnsNormally);
+          expect(() => base64Decode(parts[2]), returnsNormally);
         }
       });
 
@@ -305,13 +353,15 @@ void main() {
           capturedPayload!['signedPreKey'],
           extractPublicBase64(bundle.signedPreKey),
         );
-        // oneTimePreKeys should be public halves only
+        // oneTimePreKeys should be {id, key} objects with public halves only
         final otkPublics = capturedPayload!['oneTimePreKeys'] as List<dynamic>;
         for (var i = 0; i < bundle.oneTimePreKeys.length; i++) {
-          expect(
-            otkPublics[i],
-            extractPublicBase64(bundle.oneTimePreKeys[i]),
-          );
+          final otkMap = otkPublics[i] as Map<String, dynamic>;
+          final otkParts = bundle.oneTimePreKeys[i].split('|');
+          // id should match the integer ID from the stored OTK
+          expect(otkMap['id'], int.parse(otkParts[0]));
+          // key should be the public half only (third part of "id|priv|pub")
+          expect(otkMap['key'], otkParts[2]);
         }
         // Signature and registrationId should be passed through
         expect(capturedPayload!['signedPreKeySignature'],
@@ -519,16 +569,17 @@ void main() {
             )).called(1);
       });
 
-      test('writes all 5 storage keys exactly once', () async {
+      test('writes all core storage keys plus v2 protocol version', () async {
         final bundle = createStoredBundle();
         stubStorageWritesWithReadback();
 
         await service.storePrivateKeys(bundle);
 
+        // 5 core keys + 1 protocol version = 6 writes
         verify(() => mockSecureStorage.write(
               key: any(named: 'key'),
               value: any(named: 'value'),
-            )).called(5);
+            )).called(6);
       });
     });
 
@@ -623,6 +674,7 @@ void main() {
             .thenAnswer((_) async => null);
         when(() => mockSecureStorage.read(key: 'e2ee_registration_id'))
             .thenAnswer((_) async => '99');
+        stubV2StorageReads();
 
         final result = await service.loadPrivateKeys();
 
@@ -641,6 +693,7 @@ void main() {
             .thenAnswer((_) async => '[]');
         when(() => mockSecureStorage.read(key: 'e2ee_registration_id'))
             .thenAnswer((_) async => '54321');
+        stubV2StorageReads();
 
         final result = await service.loadPrivateKeys();
 
@@ -717,9 +770,11 @@ void main() {
 
         final newPreKeys = capturedPayload!['newPreKeys'] as List<dynamic>;
         expect(newPreKeys.length, 10);
-        // Each should be a base64 string without pipe separator (public only)
-        for (final key in newPreKeys) {
-          expect((key as String).contains('|'), isFalse);
+        // Each should be {id: int, key: string} with public key only (no pipe)
+        for (final entry in newPreKeys) {
+          final map = entry as Map<String, dynamic>;
+          expect(map['id'], isA<int>());
+          expect((map['key'] as String).contains('|'), isFalse);
         }
       });
 

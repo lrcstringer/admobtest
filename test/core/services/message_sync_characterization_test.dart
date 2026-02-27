@@ -70,7 +70,7 @@ MessageModel _createEncryptedMessageModel({
     ciphertext: ciphertext,
     e2ee: e2ee ??
         {
-          'protocol': 'signal-v1',
+          'protocol': 'signal-v2',
           'messageNumber': 0,
           'dhPublicKey': 'dh_pub_key_base64',
         },
@@ -98,7 +98,7 @@ MessageModel _createOwnEncryptedMessageModel({
     textContent: null,
     ciphertext: ciphertext,
     e2ee: {
-      'protocol': 'signal-v1',
+      'protocol': 'signal-v2',
       'messageNumber': 0,
       'dhPublicKey': 'own_dh_pub',
     },
@@ -358,7 +358,7 @@ void main() {
       final msg1 = _createEncryptedMessageModel(
         id: 'msg_1',
         e2ee: {
-          'protocol': 'signal-v1',
+          'protocol': 'signal-v2',
           'messageNumber': 1,
           'dhPublicKey': 'dh_pub_key_base64',
         },

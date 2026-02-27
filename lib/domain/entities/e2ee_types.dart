@@ -33,6 +33,34 @@ class KeyBundle with _$KeyBundle {
     /// Ed25519 signature over the signed pre-key's public key bytes.
     /// Verifiable by any party using the Ed25519 public key.
     String? ed25519Signature,
+
+    // ── v2 (Signal-compliant) fields ──────────────────────────────
+
+    /// Integer ID of the current signed pre-key (for SPK rotation tracking).
+    /// Null for v1 bundles.
+    int? signedPreKeyId,
+
+    /// Next one-time pre-key ID counter (monotonically increasing).
+    /// Used to assign integer IDs to newly generated OTKs.
+    int? nextOneTimePreKeyId,
+
+    /// Protocol version (2 = spec-compliant Signal Protocol).
+    @Default(2) int protocolVersion,
+
+    /// Previous signed pre-key (retained during grace period), base64 "priv|pub".
+    String? previousSignedPreKey,
+
+    /// ID of the previous signed pre-key.
+    int? previousSignedPreKeyId,
+
+    /// Signature of the previous signed pre-key.
+    String? previousSignedPreKeySignature,
+
+    /// Timestamp when the current SPK was created (for grace period calculation).
+    DateTime? signedPreKeyTimestamp,
+
+    /// Timestamp when the previous SPK was created (for grace period expiry).
+    DateTime? previousSignedPreKeyTimestamp,
   }) = _KeyBundle;
 
   factory KeyBundle.fromJson(Map<String, dynamic> json) =>
@@ -70,6 +98,18 @@ class PublicKeyBundle with _$PublicKeyBundle {
     /// Ed25519 signature over the signed pre-key public bytes, base64-encoded.
     /// Verifiable using [ed25519IdentityKey].
     String? ed25519Signature,
+
+    // ── v2 (Signal-compliant) fields ──────────────────────────────
+
+    /// Integer ID of the signed pre-key (for X3DH header).
+    int? signedPreKeyId,
+
+    /// Integer ID of the one-time pre-key returned by the server.
+    /// Null if no OTK was available (X3DH without DH4).
+    int? oneTimePreKeyId,
+
+    /// Protocol version supported by this peer (2 = spec-compliant).
+    @Default(2) int protocolVersion,
   }) = _PublicKeyBundle;
 
   factory PublicKeyBundle.fromJson(Map<String, dynamic> json) =>

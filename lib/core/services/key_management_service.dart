@@ -31,6 +31,17 @@ class KeyManagementService {
   static const _otkThreshold = 5;
   static const _otkBatchSize = 10;
 
+  // v2 storage keys
+  static const _spkIdKey = 'e2ee_spk_id';
+  static const _nextOtkIdKey = 'e2ee_next_otk_id';
+  static const _protocolVersionKey = 'e2ee_protocol_version';
+  static const _prevSpkKey = 'e2ee_prev_signed_pre_key';
+  static const _prevSpkIdKey = 'e2ee_prev_spk_id';
+  static const _prevSpkSigKey = 'e2ee_prev_spk_sig';
+  static const _spkTimestampKey = 'e2ee_spk_timestamp';
+  static const _prevSpkTimestampKey = 'e2ee_prev_spk_timestamp';
+  static const _spkGracePeriodDays = 14;
+
   /// Generate a full key bundle (identity key pair, signed pre-key,
   /// one-time pre-keys) for initial device registration.
   Future<KeyBundle> generateKeyBundle() async {
@@ -57,11 +68,15 @@ class KeyManagementService {
     );
     final ed25519SigBase64 = base64Encode(ed25519Sig);
 
-    // One-time pre-keys
+    // One-time pre-keys with integer IDs (v2 format: "id|priv|pub")
     final otks = <String>[];
+    var nextOtkId = 1;
     for (var i = 0; i < _otkBatchSize; i++) {
       final otkKp = await _cryptoService.generateX25519KeyPair();
-      otks.add(_encodeKeyPair(otkKp));
+      final priv = base64Encode(otkKp['privateKey']!);
+      final pub = base64Encode(otkKp['publicKey']!);
+      otks.add('$nextOtkId|$priv|$pub');
+      nextOtkId++;
     }
 
     // Registration ID (16-bit random)
@@ -76,6 +91,11 @@ class KeyManagementService {
       registrationId: registrationId,
       ed25519IdentityKeyPair: ed25519Encoded,
       ed25519Signature: ed25519SigBase64,
+      // v2 fields
+      signedPreKeyId: 1,
+      nextOneTimePreKeyId: nextOtkId,
+      protocolVersion: 2,
+      signedPreKeyTimestamp: DateTime.now(),
     );
   }
 
@@ -106,14 +126,21 @@ class KeyManagementService {
         'identityKey': _extractPublicBase64(bundle.identityKeyPair),
         'signedPreKey': _extractPublicBase64(bundle.signedPreKey),
         'signedPreKeySignature': bundle.signedPreKeySignature,
-        'oneTimePreKeys': bundle.oneTimePreKeys
-            .map((encoded) => _extractPublicBase64(encoded))
-            .toList(),
+        'oneTimePreKeys': bundle.oneTimePreKeys.map((encoded) {
+          // Format: "id|priv|pub" → upload as {id, key}
+          final parts = encoded.split('|');
+          return {'id': int.parse(parts[0]), 'key': parts[2]};
+        }).toList(),
         'registrationId': bundle.registrationId,
         if (bundle.ed25519IdentityKeyPair != null)
           'ed25519IdentityKey': _extractPublicBase64(bundle.ed25519IdentityKeyPair!),
         if (bundle.ed25519Signature != null)
           'ed25519Signature': bundle.ed25519Signature,
+        // v2 fields
+        if (bundle.signedPreKeyId != null)
+          'signedPreKeyId': bundle.signedPreKeyId,
+        if (bundle.protocolVersion >= 2)
+          'protocolVersion': bundle.protocolVersion,
       });
       CryptoService.e2eeLog('E2EE UPLOAD: SUCCESS — bundle uploaded to server');
     } on FirebaseFunctionsException catch (e) {
@@ -200,6 +227,10 @@ class KeyManagementService {
       userId: userId,
       ed25519IdentityKey: data['ed25519IdentityKey'] as String?,
       ed25519Signature: data['ed25519Signature'] as String?,
+      // v2 fields
+      signedPreKeyId: (data['signedPreKeyId'] as num?)?.toInt(),
+      oneTimePreKeyId: (data['oneTimePreKeyId'] as num?)?.toInt(),
+      protocolVersion: (data['protocolVersion'] as num?)?.toInt() ?? 2,
     );
   }
 
@@ -248,21 +279,29 @@ class KeyManagementService {
 
     if (bundle.oneTimePreKeys.length < _otkThreshold) {
       final newOtks = <String>[];
-      final newPublicOtks = <String>[];
+      final newPublicOtks = <dynamic>[];
+      var nextId = bundle.nextOneTimePreKeyId ?? 1;
+
       for (var i = 0; i < _otkBatchSize; i++) {
         final otkKp = await _cryptoService.generateX25519KeyPair();
-        final encoded = _encodeKeyPair(otkKp);
-        newOtks.add(encoded);
-        newPublicOtks.add(_extractPublicBase64(encoded));
+        final priv = base64Encode(otkKp['privateKey']!);
+        final pub = base64Encode(otkKp['publicKey']!);
+        // Format: "id|priv|pub"
+        newOtks.add('$nextId|$priv|$pub');
+        newPublicOtks.add({'id': nextId, 'key': pub});
+        nextId++;
       }
 
       // Upload public parts to server
       final callable = _functions.httpsCallable('replenishOneTimePreKeys');
       await callable.call<dynamic>({'newPreKeys': newPublicOtks});
 
-      // Append private parts to local storage
+      // Append to local storage and update OTK counter
       final allOtks = [...bundle.oneTimePreKeys, ...newOtks];
-      await storePrivateKeys(bundle.copyWith(oneTimePreKeys: allOtks));
+      await storePrivateKeys(bundle.copyWith(
+        oneTimePreKeys: allOtks,
+        nextOneTimePreKeyId: nextId,
+      ));
     }
   }
 
@@ -270,6 +309,9 @@ class KeyManagementService {
   ///
   /// Should be called periodically (e.g., every 7 days) to limit the
   /// window of compromise if a signed pre-key is leaked.
+  ///
+  /// The current SPK is retained as the "previous" SPK for a grace period
+  /// (14 days) to handle in-flight X3DH messages that reference it.
   Future<void> rotateSignedPreKey() async {
     final bundle = await loadPrivateKeys();
     if (bundle == null) return;
@@ -294,6 +336,25 @@ class KeyManagementService {
       ed25519SigBase64 = base64Encode(ed25519Sig);
     }
 
+    // New SPK ID (increment from current, default to 1 for v1→v2 upgrade)
+    final newSpkId = (bundle.signedPreKeyId ?? 0) + 1;
+
+    // Grace period: retain current SPK as previous
+    final prevSpk = bundle.signedPreKey;
+    final prevSpkId = bundle.signedPreKeyId;
+    final prevSpkSig = bundle.signedPreKeySignature;
+    final prevSpkTimestamp = bundle.signedPreKeyTimestamp ?? DateTime.now();
+
+    // Delete expired previous SPK (>14 days old)
+    if (bundle.previousSignedPreKeyTimestamp != null &&
+        DateTime.now()
+                .difference(bundle.previousSignedPreKeyTimestamp!)
+                .inDays >
+            _spkGracePeriodDays) {
+      CryptoService.e2eeLog(
+          'E2EE SPK: Previous SPK expired (>${_spkGracePeriodDays}d) — deleting');
+    }
+
     // Upload to server
     final callable = _functions.httpsCallable('rotateSignedPreKey');
     await callable.call<dynamic>({
@@ -301,13 +362,23 @@ class KeyManagementService {
       'newSignedPreKeySignature': hmacSigBase64,
       if (ed25519SigBase64 != null)
         'newEd25519Signature': ed25519SigBase64,
+      'signedPreKeyId': newSpkId,
+      'previousSignedPreKey': _extractPublicBase64(prevSpk),
+      if (prevSpkId != null) 'previousSignedPreKeyId': prevSpkId,
+      'previousSignedPreKeySignature': prevSpkSig,
     });
 
-    // Update local storage
+    // Update local storage with grace period fields
     await storePrivateKeys(bundle.copyWith(
       signedPreKey: newSignedPreEncoded,
       signedPreKeySignature: hmacSigBase64,
       ed25519Signature: ed25519SigBase64,
+      signedPreKeyId: newSpkId,
+      signedPreKeyTimestamp: DateTime.now(),
+      previousSignedPreKey: prevSpk,
+      previousSignedPreKeyId: prevSpkId,
+      previousSignedPreKeySignature: prevSpkSig,
+      previousSignedPreKeyTimestamp: prevSpkTimestamp,
     ));
   }
 
@@ -356,9 +427,11 @@ class KeyManagementService {
   Future<void> removeConsumedOtk(String publicKey) async {
     final bundle = await loadPrivateKeys();
     if (bundle == null) return;
-    final updated = bundle.oneTimePreKeys
-        .where((otk) => otk.split('|')[1] != publicKey)
-        .toList();
+    final updated = bundle.oneTimePreKeys.where((otk) {
+      // Format: "id|priv|pub" → pub is parts[2]
+      final pub = otk.split('|')[2];
+      return pub != publicKey;
+    }).toList();
     if (updated.length != bundle.oneTimePreKeys.length) {
       await storePrivateKeys(bundle.copyWith(oneTimePreKeys: updated));
       CryptoService.e2eeLog('E2EE OTK: Removed consumed OTK '
@@ -419,6 +492,56 @@ class KeyManagementService {
       );
     }
 
+    // v2 fields
+    await _secureStorage.write(
+      key: _protocolVersionKey,
+      value: bundle.protocolVersion.toString(),
+    );
+    if (bundle.signedPreKeyId != null) {
+      await _secureStorage.write(
+        key: _spkIdKey,
+        value: bundle.signedPreKeyId.toString(),
+      );
+    }
+    if (bundle.nextOneTimePreKeyId != null) {
+      await _secureStorage.write(
+        key: _nextOtkIdKey,
+        value: bundle.nextOneTimePreKeyId.toString(),
+      );
+    }
+    if (bundle.signedPreKeyTimestamp != null) {
+      await _secureStorage.write(
+        key: _spkTimestampKey,
+        value: bundle.signedPreKeyTimestamp!.toIso8601String(),
+      );
+    }
+    // Previous SPK (grace period) — write or delete
+    if (bundle.previousSignedPreKey != null) {
+      await _secureStorage.write(
+          key: _prevSpkKey, value: bundle.previousSignedPreKey!);
+      if (bundle.previousSignedPreKeyId != null) {
+        await _secureStorage.write(
+            key: _prevSpkIdKey,
+            value: bundle.previousSignedPreKeyId.toString());
+      }
+      if (bundle.previousSignedPreKeySignature != null) {
+        await _secureStorage.write(
+            key: _prevSpkSigKey,
+            value: bundle.previousSignedPreKeySignature!);
+      }
+      if (bundle.previousSignedPreKeyTimestamp != null) {
+        await _secureStorage.write(
+            key: _prevSpkTimestampKey,
+            value: bundle.previousSignedPreKeyTimestamp!.toIso8601String());
+      }
+    } else {
+      // No previous SPK — clean up stale keys
+      await _secureStorage.delete(key: _prevSpkKey);
+      await _secureStorage.delete(key: _prevSpkIdKey);
+      await _secureStorage.delete(key: _prevSpkSigKey);
+      await _secureStorage.delete(key: _prevSpkTimestampKey);
+    }
+
     // ── Readback verification ──
     // Immediately read back the identity key to detect silent write failures
     // (e.g., EncryptedSharedPreferences keystore invalidated by reinstall).
@@ -477,11 +600,25 @@ class KeyManagementService {
         ? List<String>.from(jsonDecode(otkJson) as List)
         : <String>[];
 
+    // v2 fields
+    final spkIdStr = await _secureStorage.read(key: _spkIdKey);
+    final nextOtkIdStr = await _secureStorage.read(key: _nextOtkIdKey);
+    final protocolVersionStr =
+        await _secureStorage.read(key: _protocolVersionKey);
+    final prevSpk = await _secureStorage.read(key: _prevSpkKey);
+    final prevSpkIdStr = await _secureStorage.read(key: _prevSpkIdKey);
+    final prevSpkSig = await _secureStorage.read(key: _prevSpkSigKey);
+    final spkTimestampStr = await _secureStorage.read(key: _spkTimestampKey);
+    final prevSpkTimestampStr =
+        await _secureStorage.read(key: _prevSpkTimestampKey);
+
     final idParts = identityEncoded.split('|');
     final idPub = idParts.length > 1 ? idParts[1] : identityEncoded;
+    final protocolVersion =
+        protocolVersionStr != null ? int.parse(protocolVersionStr) : 2;
     CryptoService.e2eeLog('E2EE KEYSTORE: loadPrivateKeys → SUCCESS — '
         'identity=${idPub.length >= 8 ? idPub.substring(0, 8) : idPub}…, '
-        '${otks.length} OTKs, regId=$regIdStr');
+        '${otks.length} OTKs, regId=$regIdStr, v=$protocolVersion');
 
     return KeyBundle(
       identityKeyPair: identityEncoded,
@@ -491,6 +628,20 @@ class KeyManagementService {
       registrationId: int.parse(regIdStr),
       ed25519IdentityKeyPair: ed25519KeyEncoded,
       ed25519Signature: ed25519Sig,
+      // v2 fields
+      signedPreKeyId: spkIdStr != null ? int.parse(spkIdStr) : null,
+      nextOneTimePreKeyId:
+          nextOtkIdStr != null ? int.parse(nextOtkIdStr) : null,
+      protocolVersion: protocolVersion,
+      previousSignedPreKey: prevSpk,
+      previousSignedPreKeyId:
+          prevSpkIdStr != null ? int.parse(prevSpkIdStr) : null,
+      previousSignedPreKeySignature: prevSpkSig,
+      signedPreKeyTimestamp:
+          spkTimestampStr != null ? DateTime.parse(spkTimestampStr) : null,
+      previousSignedPreKeyTimestamp: prevSpkTimestampStr != null
+          ? DateTime.parse(prevSpkTimestampStr)
+          : null,
     );
   }
 

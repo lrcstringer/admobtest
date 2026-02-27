@@ -31,7 +31,7 @@ void main() {
       'textContent': null,
       'ciphertext': 'ZW5jcnlwdGVkRGF0YQ==',
       'e2ee': {
-        'protocol': 'signal-v1',
+        'protocol': 'signal-v2',
         'dhPublicKey': 'ZGhQdWJsaWNLZXk=',
         'messageNumber': 42,
         'senderKeyChainId': 'chain_abc',
@@ -73,7 +73,7 @@ void main() {
       final model = MessageModel.fromJson(
         baseTextJson(overrides: {
           'e2ee': {
-            'protocol': 'signal-v1',
+            'protocol': 'signal-v2',
             'dhPublicKey': 'ZGhQdWJsaWNLZXk=',
             'messageNumber': 42,
             'senderKeyChainId': 'chain_abc',
@@ -82,7 +82,7 @@ void main() {
       );
 
       expect(model.e2ee, isNotNull);
-      expect(model.e2ee!['protocol'], equals('signal-v1'));
+      expect(model.e2ee!['protocol'], equals('signal-v2'));
       expect(model.e2ee!['dhPublicKey'], equals('ZGhQdWJsaWNLZXk='));
       expect(model.e2ee!['messageNumber'], equals(42));
       expect(model.e2ee!['senderKeyChainId'], equals('chain_abc'));
@@ -110,7 +110,7 @@ void main() {
 
       expect(model.ciphertext, equals('ZW5jcnlwdGVkRGF0YQ=='));
       expect(model.e2ee, isNotNull);
-      expect(model.e2ee!['protocol'], equals('signal-v1'));
+      expect(model.e2ee!['protocol'], equals('signal-v2'));
       expect(model.x3dhHeader, isNotNull);
       expect(model.x3dhHeader!['identityKey'], equals('aWRlbnRpdHlLZXk='));
     });
@@ -264,7 +264,7 @@ void main() {
       final model = MessageModel.fromJson(
         baseTextJson(overrides: {
           'e2ee': {
-            'protocol': 'signal-v1',
+            'protocol': 'signal-v2',
             'dhPublicKey': 'ZGhQdWJsaWNLZXk=',
             'messageNumber': 42,
             'senderKeyChainId': 'chain_abc',
@@ -275,7 +275,7 @@ void main() {
 
       expect(entity.e2ee, isNotNull);
       expect(entity.e2ee, isA<E2eeMetadata>());
-      expect(entity.e2ee!.protocol, equals('signal-v1'));
+      expect(entity.e2ee!.protocol, equals('signal-v2'));
       expect(entity.e2ee!.dhPublicKey, equals('ZGhQdWJsaWNLZXk='));
       expect(entity.e2ee!.messageNumber, equals(42));
       expect(entity.e2ee!.senderKeyChainId, equals('chain_abc'));
@@ -308,7 +308,7 @@ void main() {
       expect(entity.isEncrypted, isTrue);
 
       expect(entity.e2ee, isNotNull);
-      expect(entity.e2ee!.protocol, equals('signal-v1'));
+      expect(entity.e2ee!.protocol, equals('signal-v2'));
       expect(entity.e2ee!.messageNumber, equals(42));
       expect(entity.e2ee!.dhPublicKey, equals('ZGhQdWJsaWNLZXk='));
       expect(entity.e2ee!.senderKeyChainId, equals('chain_abc'));
@@ -324,7 +324,7 @@ void main() {
         baseTextJson(overrides: {
           'type': 'image',
           'ciphertext': 'ZW5jcnlwdGVk',
-          'e2ee': {'protocol': 'signal-v1'},
+          'e2ee': {'protocol': 'signal-v2'},
           'media': {
             'url': 'https://example.com/image.jpg',
             'thumbnailUrl': 'https://example.com/thumb.jpg',
@@ -364,13 +364,13 @@ void main() {
     test('e2ee without optional fields uses defaults', () {
       final model = MessageModel.fromJson(
         baseTextJson(overrides: {
-          'e2ee': {'protocol': 'sender-key-v1'},
+          'e2ee': {'protocol': 'sender-key-v2'},
         }),
       );
       final entity = model.toEntity();
 
       expect(entity.e2ee, isNotNull);
-      expect(entity.e2ee!.protocol, equals('sender-key-v1'));
+      expect(entity.e2ee!.protocol, equals('sender-key-v2'));
       expect(entity.e2ee!.dhPublicKey, isNull);
       expect(entity.e2ee!.messageNumber, isNull);
       expect(entity.e2ee!.senderKeyChainId, isNull);
@@ -470,7 +470,7 @@ void main() {
 
       expect(backToEntity.ciphertext, equals('cm91bmR0cmlwQ2lwaGVy'));
       expect(backToEntity.isEncrypted, isTrue);
-      expect(backToEntity.e2ee!.protocol, equals('signal-v1'));
+      expect(backToEntity.e2ee!.protocol, equals('signal-v2'));
       expect(backToEntity.e2ee!.messageNumber, equals(99));
       expect(backToEntity.x3dhHeader!.oneTimePreKeyId, equals(3));
     });

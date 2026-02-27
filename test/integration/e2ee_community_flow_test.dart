@@ -279,7 +279,7 @@ void main() {
       final fakeEncrypted = {
         'ciphertext': base64Encode([1, 2, 3]),
         'e2ee': {
-          'protocol': 'sender-key-v1',
+          'protocol': 'sender-key-v2',
           'senderKeyChainId': 'unknown_chain',
           'messageNumber': 0,
         },

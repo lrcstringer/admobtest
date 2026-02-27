@@ -130,10 +130,10 @@ class MessageDecryptionService {
         'x3dhHeader': {
           'identityKey': msg.x3dhHeader!.identityKey,
           'ephemeralKey': msg.x3dhHeader!.ephemeralKey,
-          if (msg.x3dhHeader!.oneTimePreKeyPublicKey != null)
-            'oneTimePreKeyPublicKey': msg.x3dhHeader!.oneTimePreKeyPublicKey,
           if (msg.x3dhHeader!.oneTimePreKeyId != null)
             'oneTimePreKeyId': msg.x3dhHeader!.oneTimePreKeyId,
+          if (msg.x3dhHeader!.signedPreKeyId != null)
+            'signedPreKeyId': msg.x3dhHeader!.signedPreKeyId,
         },
     };
 

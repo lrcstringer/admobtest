@@ -85,13 +85,13 @@ void main() {
 
     test('E2eeMetadata can be created with all fields', () {
       final metadata = E2eeMetadata(
-        protocol: 'signal-v1',
+        protocol: 'signal-v2',
         senderKeyChainId: 'chain_xyz',
         messageNumber: 42,
         dhPublicKey: 'ZGhQdWJsaWNLZXk=',
       );
 
-      expect(metadata.protocol, 'signal-v1');
+      expect(metadata.protocol, 'signal-v2');
       expect(metadata.senderKeyChainId, 'chain_xyz');
       expect(metadata.messageNumber, 42);
       expect(metadata.dhPublicKey, 'ZGhQdWJsaWNLZXk=');
@@ -124,7 +124,7 @@ void main() {
 
       expect(copied.ciphertext, 'c29tZUNpcGhlcnRleHQ=');
       expect(copied.e2ee, isNotNull);
-      expect(copied.e2ee!.protocol, 'signal-v1');
+      expect(copied.e2ee!.protocol, 'signal-v2');
       expect(copied.e2ee!.messageNumber, 5);
       expect(copied.x3dhHeader, isNotNull);
       expect(copied.x3dhHeader!.identityKey, 'aWRlbnRpdHlLZXk=');

@@ -45,7 +45,7 @@ Map<String, dynamic> _encryptedResult({
 }) =>
     {
       'ciphertext': ciphertext,
-      'e2ee': {'protocol': 'signal-v1', 'messageNumber': messageNumber},
+      'e2ee': {'protocol': 'signal-v2', 'messageNumber': messageNumber},
       'x3dhHeader': {
         'identityKey': 'ik',
         'ephemeralKey': 'ek',

@@ -6,6 +6,8 @@ import 'package:crypto/crypto.dart' as hmac_lib;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 
+import '../e2ee/protocol/kdf.dart';
+import '../e2ee/protocol/sender_key.dart';
 import 'crypto_service.dart';
 import 'signal_protocol_service.dart';
 
@@ -16,6 +18,10 @@ import 'signal_protocol_service.dart';
 /// the Signal Protocol pairwise channel) to all other members. Messages
 /// are then encrypted with symmetric ratcheting, so only one encryption
 /// operation is needed per message regardless of group size.
+///
+/// Chain ratchet: HMAC-SHA256 per Signal spec (message key = HMAC(CK, 0x01),
+/// next CK = HMAC(CK, 0x02)). Encryption uses AES-256-GCM with a
+/// deterministic nonce derived from the message key via HKDF.
 ///
 /// Security features:
 /// - HMAC-SHA256 signature on every message (sender authentication)
@@ -30,13 +36,16 @@ class SenderKeyService {
   final SignalProtocolService _signalProtocolService;
   final FlutterSecureStorage _secureStorage;
   final FirebaseFunctions _functions;
+  late final SenderKeyRatchet _ratchet;
 
   SenderKeyService(
     this._cryptoService,
     this._signalProtocolService,
     this._secureStorage,
     this._functions,
-  );
+  ) {
+    _ratchet = SenderKeyRatchet(_cryptoService, SignalKdf(_cryptoService));
+  }
 
   static const _ownKeyPrefix = 'e2ee_sk_own_';
   static const _peerKeyPrefix = 'e2ee_sk_';
@@ -126,7 +135,7 @@ class SenderKeyService {
   }
 
   // ===========================================================================
-  // DISTRIBUTION PERSISTENCE (M3)
+  // DISTRIBUTION PERSISTENCE
   // ===========================================================================
 
   /// Check whether the sender key for [communityId] has been distributed
@@ -156,7 +165,7 @@ class SenderKeyService {
   /// Encrypt a plaintext message for [communityId] using the sender key.
   ///
   /// Returns a map containing:
-  /// - `ciphertext`: the encrypted message (base64)
+  /// - `ciphertext`: the encrypted message (base64, format: ct||mac(16))
   /// - `e2ee`: metadata with protocol, senderKeyChainId, messageNumber,
   ///   and HMAC signature for sender authentication
   Future<Map<String, dynamic>> encryptCommunity(
@@ -174,7 +183,7 @@ class SenderKeyService {
     final state =
         _SenderKeyState.fromJson(jsonDecode(stateJson) as Map<String, dynamic>);
 
-    // Message number overflow guard (H2)
+    // Message number overflow guard
     if (state.messageNumber >= _maxMessageNumber) {
       throw StateError(
         'E2EE: Sender key message number overflow for community $communityId — '
@@ -182,46 +191,24 @@ class SenderKeyService {
       );
     }
 
-    // Derive message key from chain key via HKDF
-    final messageKey = await _cryptoService.hkdf(
-      inputKeyMaterial: state.chainKey,
-      length: 32,
-      info: utf8.encode('SKMsgKey'),
-    );
-
-    // Ratchet chain key forward
-    state.chainKey = await _cryptoService.hkdf(
-      inputKeyMaterial: state.chainKey,
-      length: 32,
-      info: utf8.encode('SKChainKey'),
-    );
-
-    // Compute AAD: communityId || chainId || messageNumber (M6)
+    // Compute AAD: communityId || chainId || messageNumber
     final aad = _computeSenderKeyAAD(
       communityId, state.chainId, state.messageNumber,
     );
-
-    // Encrypt with AES-256-GCM + AAD
     final plaintextBytes = Uint8List.fromList(utf8.encode(plaintext));
-    final encrypted = await _cryptoService.encrypt(
-      plaintextBytes, messageKey, aad: aad,
-    );
 
-    // Zeroize message key after use (H1)
+    // HMAC-SHA256 chain ratchet
+    final step = _ratchet.ratchetStep(state.chainKey);
+    final messageKey = step.messageKey;
+    state.chainKey = step.nextChainKey;
+
+    // Encrypt with deterministic nonce (nonce stripped from output)
+    final ctWithMac = await _ratchet.encrypt(plaintextBytes, messageKey, aad);
+
     CryptoService.zeroize(messageKey);
 
-    // HMAC-SHA256 signature for sender authentication (C2)
-    final signature = _hmacSign(state.signingKey, encrypted);
-
-    final result = <String, dynamic>{
-      'ciphertext': base64Encode(encrypted),
-      'e2ee': {
-        'protocol': 'sender-key-v1',
-        'senderKeyChainId': state.chainId,
-        'messageNumber': state.messageNumber,
-        'signature': base64Encode(signature),
-      },
-    };
+    // HMAC-SHA256 signature for sender authentication
+    final signature = _hmacSign(state.signingKey, ctWithMac);
 
     state.messageNumber++;
 
@@ -231,7 +218,15 @@ class SenderKeyService {
       value: jsonEncode(state.toJson()),
     );
 
-    return result;
+    return {
+      'ciphertext': base64Encode(ctWithMac),
+      'e2ee': {
+        'protocol': 'sender-key-v2',
+        'senderKeyChainId': state.chainId,
+        'messageNumber': state.messageNumber - 1,
+        'signature': base64Encode(signature),
+      },
+    };
   }
 
   // ===========================================================================
@@ -265,7 +260,7 @@ class SenderKeyService {
     final state =
         _SenderKeyState.fromJson(jsonDecode(stateJson) as Map<String, dynamic>);
 
-    // Verify HMAC signature for sender authentication (C2)
+    // Verify HMAC signature for sender authentication
     final ciphertextBytes = base64Decode(ciphertextBase64);
     if (signatureBase64 != null) {
       final expectedSig = _hmacSign(state.signingKey, ciphertextBytes);
@@ -278,7 +273,7 @@ class SenderKeyService {
       }
     }
 
-    // Compute AAD (M6)
+    // Compute AAD
     final aad = _computeSenderKeyAAD(
       communityId, state.chainId, targetMessageNumber,
     );
@@ -286,7 +281,7 @@ class SenderKeyService {
     Uint8List messageKey;
 
     if (targetMessageNumber < state.messageNumber) {
-      // Out-of-order: check skipped keys (H4)
+      // Out-of-order: check skipped keys
       final skippedKeyBase64 = state.skippedKeys.remove(targetMessageNumber);
       if (skippedKeyBase64 == null) {
         throw StateError(
@@ -296,7 +291,7 @@ class SenderKeyService {
       }
       messageKey = base64Decode(skippedKeyBase64);
     } else {
-      // Forward ratchet: store skipped keys for any messages we skip over (H4)
+      // Forward ratchet: store skipped keys for any messages we skip over
       final toSkip = targetMessageNumber - state.messageNumber;
       if (toSkip > _SenderKeyState._maxSkippedKeys) {
         throw StateError(
@@ -307,57 +302,29 @@ class SenderKeyService {
 
       var currentChainKey = state.chainKey;
       for (var i = state.messageNumber; i < targetMessageNumber; i++) {
-        // Store skipped message key
-        final skippedMsgKey = await _cryptoService.hkdf(
-          inputKeyMaterial: currentChainKey,
-          length: 32,
-          info: utf8.encode('SKMsgKey'),
-        );
+        final step = _ratchet.ratchetStep(currentChainKey);
         if (state.skippedKeys.length < _SenderKeyState._maxSkippedKeys) {
-          state.skippedKeys[i] = base64Encode(skippedMsgKey);
+          state.skippedKeys[i] = base64Encode(step.messageKey);
         }
-        // Ratchet chain key forward
-        currentChainKey = await _cryptoService.hkdf(
-          inputKeyMaterial: currentChainKey,
-          length: 32,
-          info: utf8.encode('SKChainKey'),
-        );
+        currentChainKey = step.nextChainKey;
       }
-
-      // Derive message key for the target message number
-      messageKey = await _cryptoService.hkdf(
-        inputKeyMaterial: currentChainKey,
-        length: 32,
-        info: utf8.encode('SKMsgKey'),
-      );
-
-      // Ratchet one more for next message
-      state.chainKey = await _cryptoService.hkdf(
-        inputKeyMaterial: currentChainKey,
-        length: 32,
-        info: utf8.encode('SKChainKey'),
-      );
+      final step = _ratchet.ratchetStep(currentChainKey);
+      messageKey = step.messageKey;
+      state.chainKey = step.nextChainKey;
       state.messageNumber = targetMessageNumber + 1;
     }
 
     // Prune skipped keys to stay under limit
     _pruneSkippedKeys(state);
 
-    // Decrypt BEFORE persisting state (H3)
-    // If AES-GCM auth fails, state is NOT saved — chain is not corrupted.
-    final nonce = Uint8List.fromList(ciphertextBytes.sublist(0, 12));
-    final ciphertextWithMac = Uint8List.fromList(ciphertextBytes.sublist(12));
-    final plaintext = await _cryptoService.decrypt(
-      ciphertextWithMac,
-      messageKey,
-      nonce: nonce,
-      aad: aad,
-    );
+    // Decrypt BEFORE persisting state — if AES-GCM auth fails, state is
+    // NOT saved, so the chain is not corrupted.
+    final plaintext = await _ratchet.decrypt(ciphertextBytes, messageKey, aad);
 
-    // Zeroize message key after use (H1)
+    // Zeroize message key after use
     CryptoService.zeroize(messageKey);
 
-    // Persist state AFTER successful decrypt (H3)
+    // Persist state AFTER successful decrypt
     await _secureStorage.write(
       key: '$_peerKeyPrefix${communityId}_$senderUserId',
       value: jsonEncode(state.toJson()),
@@ -427,7 +394,7 @@ class SenderKeyService {
   // PRIVATE HELPERS
   // ===========================================================================
 
-  /// HMAC-SHA256 signature for sender authentication (C2).
+  /// HMAC-SHA256 signature for sender authentication.
   Uint8List _hmacSign(Uint8List signingKey, Uint8List data) {
     final hmac = hmac_lib.Hmac(hmac_lib.sha256, signingKey);
     final digest = hmac.convert(data);
@@ -444,7 +411,7 @@ class SenderKeyService {
     return result == 0;
   }
 
-  /// Compute AAD for Sender Key AEAD encryption (M6).
+  /// Compute AAD for Sender Key AEAD encryption.
   ///
   /// AAD = communityId_utf8 || chainId_utf8 || messageNumber(4B big-endian)
   /// Binds the ciphertext to the community, chain, and message position,
@@ -489,7 +456,7 @@ class _SenderKeyState {
   Uint8List signingKey;
   int messageNumber;
 
-  /// Stored message keys for out-of-order message decryption (H4).
+  /// Stored message keys for out-of-order message decryption.
   /// Map of messageNumber → base64-encoded message key.
   Map<int, String> skippedKeys;
 

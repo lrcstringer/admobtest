@@ -105,7 +105,7 @@ class _Participant {
     final signedPreEncoded =
         '${base64Encode(signedPreKp['privateKey']!)}|${base64Encode(signedPreKp['publicKey']!)}';
     final otkEncoded =
-        '${base64Encode(otkKp['privateKey']!)}|${base64Encode(otkKp['publicKey']!)}';
+        '1|${base64Encode(otkKp['privateKey']!)}|${base64Encode(otkKp['publicKey']!)}';
     final ed25519Encoded =
         '${base64Encode(ed25519Kp['privateKey']!)}|${base64Encode(ed25519Kp['publicKey']!)}';
 
@@ -124,6 +124,8 @@ class _Participant {
       registrationId: 1,
       ed25519IdentityKeyPair: ed25519Encoded,
       ed25519Signature: ed25519SigBase64,
+      signedPreKeyId: 1,
+      protocolVersion: 2,
     );
 
     publicBundle = PublicKeyBundle(
@@ -135,6 +137,9 @@ class _Participant {
       userId: userId,
       ed25519IdentityKey: base64Encode(ed25519Kp['publicKey']!),
       ed25519Signature: ed25519SigBase64,
+      signedPreKeyId: 1,
+      oneTimePreKeyId: 1,
+      protocolVersion: 2,
     );
 
     when(() => keyMgmt.loadPrivateKeys())
@@ -180,17 +185,14 @@ void main() {
           .thenAnswer((_) async {});
     });
 
-    test('Full P2P flow: generate keys -> establish session -> encrypt -> decrypt',
+    test('Full P2P flow: generate keys -> encrypt (auto-establishes) -> decrypt',
         () async {
-      // Alice establishes session with Bob
-      await alice.service.establishSession(bobId);
-
-      // Verify session is stored
-      expect(await alice.service.hasSession(bobId), isTrue);
-
-      // Alice encrypts a message
+      // Alice encrypts a message (auto-establishes session with Bob)
       final encrypted =
           await alice.service.encryptP2P(bobId, 'Hello from Alice!');
+
+      // Verify session was auto-established
+      expect(await alice.service.hasSession(bobId), isTrue);
 
       // Verify encrypted output shape
       expect(encrypted['ciphertext'], isA<String>());
@@ -204,7 +206,6 @@ void main() {
     test('Alice + Bob exchange keys -> Alice encrypts, Bob decrypts (one direction)',
         () async {
       // Alice sends 3 messages to Bob — all decrypt correctly
-      await alice.service.establishSession(bobId);
 
       final enc1 = await alice.service.encryptP2P(bobId, 'First message');
       final enc2 = await alice.service.encryptP2P(bobId, 'Second message');
@@ -222,7 +223,6 @@ void main() {
     test('Roundtrip: plaintext -> encrypt -> ciphertext -> decrypt -> same plaintext',
         () async {
       const original = 'The quick brown fox jumps over the lazy dog.';
-      await alice.service.establishSession(bobId);
 
       final encrypted = await alice.service.encryptP2P(bobId, original);
 
@@ -236,7 +236,6 @@ void main() {
     });
 
     test('Multiple sequential messages maintain session', () async {
-      await alice.service.establishSession(bobId);
 
       final messages = <String>[];
       final encrypted = <Map<String, dynamic>>[];
@@ -255,7 +254,6 @@ void main() {
     });
 
     test('All messages include x3dhHeader until session confirmed', () async {
-      await alice.service.establishSession(bobId);
 
       final first = await alice.service.encryptP2P(bobId, 'first message');
       final second = await alice.service.encryptP2P(bobId, 'second message');
@@ -274,7 +272,6 @@ void main() {
 
     test('Large message (5000 chars) encrypts and decrypts correctly', () async {
       final largeMessage = 'A' * 5000;
-      await alice.service.establishSession(bobId);
 
       final encrypted = await alice.service.encryptP2P(bobId, largeMessage);
       final plaintext = await bob.service.decryptP2P(aliceId, encrypted);
@@ -288,7 +285,6 @@ void main() {
           'Hello World! Hej! Salut! Ciao! Emoji test: \u2764\ufe0f\ud83d\ude80\ud83c\udf1f\ud83d\ude00 '
           'CJK: \u4f60\u597d\u4e16\u754c Cyrillic: \u041f\u0440\u0438\u0432\u0435\u0442 '
           'Arabic: \u0645\u0631\u062d\u0628\u0627 Special: <>&"\'\\/ \u00e9\u00e8\u00ea\u00eb\u00fc\u00f6\u00e4';
-      await alice.service.establishSession(bobId);
 
       final encrypted = await alice.service.encryptP2P(bobId, message);
       final plaintext = await bob.service.decryptP2P(aliceId, encrypted);
@@ -297,7 +293,6 @@ void main() {
     });
 
     test('Empty string encrypts and decrypts correctly', () async {
-      await alice.service.establishSession(bobId);
 
       final encrypted = await alice.service.encryptP2P(bobId, '');
       final plaintext = await bob.service.decryptP2P(aliceId, encrypted);
@@ -306,7 +301,6 @@ void main() {
     });
 
     test('Different messages produce different ciphertext', () async {
-      await alice.service.establishSession(bobId);
 
       // Consume the x3dhHeader first
       await alice.service.encryptP2P(bobId, 'primer');
@@ -322,7 +316,6 @@ void main() {
     test(
       'Bidirectional P2P messaging (Alice->Bob then Bob->Alice)',
       () async {
-        await alice.service.establishSession(bobId);
         final encrypted =
             await alice.service.encryptP2P(bobId, 'Hello Bob');
         await bob.service.decryptP2P(aliceId, encrypted);
@@ -400,24 +393,23 @@ void main() {
           'e2ee': {
             'protocol': message.e2ee.protocol,
             'messageNumber': message.e2ee.messageNumber,
+            'previousChainLength': message.e2ee.previousChainLength,
             'dhPublicKey': message.e2ee.dhPublicKey,
           },
         if (message.x3dhHeader != null)
           'x3dhHeader': {
             'identityKey': message.x3dhHeader.identityKey,
             'ephemeralKey': message.x3dhHeader.ephemeralKey,
-            if (message.x3dhHeader.oneTimePreKeyPublicKey != null)
-              'oneTimePreKeyPublicKey':
-                  message.x3dhHeader.oneTimePreKeyPublicKey,
             if (message.x3dhHeader.oneTimePreKeyId != null)
               'oneTimePreKeyId': message.x3dhHeader.oneTimePreKeyId,
+            if (message.x3dhHeader.signedPreKeyId != null)
+              'signedPreKeyId': message.x3dhHeader.signedPreKeyId,
           },
       };
     }
 
     test('encrypt → Firestore doc → MessageModel → entity → rebuild → decrypt',
         () async {
-      await alice.service.establishSession(bobId);
       final encrypted =
           await alice.service.encryptP2P(bobId, 'Hello via Firestore!');
 
@@ -449,7 +441,6 @@ void main() {
 
     test('JSON round-trip simulating JavaScript number serialisation',
         () async {
-      await alice.service.establishSession(bobId);
       final encrypted =
           await alice.service.encryptP2P(bobId, 'JSON round-trip test');
 
@@ -475,7 +466,6 @@ void main() {
 
     test('messageNumber as double (Firestore web edge case) still decrypts',
         () async {
-      await alice.service.establishSession(bobId);
       final encrypted =
           await alice.service.encryptP2P(bobId, 'double messageNumber');
 
@@ -508,7 +498,6 @@ void main() {
     });
 
     test('multiple messages through Firestore round-trip', () async {
-      await alice.service.establishSession(bobId);
 
       for (var i = 0; i < 5; i++) {
         final msg = 'Firestore message #$i';
@@ -526,7 +515,6 @@ void main() {
 
     test('bidirectional through Firestore round-trip', () async {
       // Alice → Bob
-      await alice.service.establishSession(bobId);
       final enc1 =
           await alice.service.encryptP2P(bobId, 'Hello from Alice');
       final doc1 = buildFirestoreDoc(enc1, aliceId);
@@ -547,26 +535,25 @@ void main() {
       expect(pt2, equals('Hello from Bob'));
     });
 
-    test('x3dhHeader.oneTimePreKeyPublicKey preserved through round-trip',
+    test('x3dhHeader.oneTimePreKeyId preserved through round-trip',
         () async {
-      await alice.service.establishSession(bobId);
       final encrypted =
           await alice.service.encryptP2P(bobId, 'OTK round-trip');
 
-      // Verify original has OTK
+      // Verify original has OTK ID (v2 uses integer ID, not public key)
       final origHeader = encrypted['x3dhHeader'] as Map<String, dynamic>;
-      expect(origHeader['oneTimePreKeyPublicKey'], isNotNull,
-          reason: 'sender must include OTK public key in x3dhHeader');
+      expect(origHeader['oneTimePreKeyId'], isNotNull,
+          reason: 'sender must include OTK ID in x3dhHeader');
 
       // Round-trip
       final firestoreDoc = buildFirestoreDoc(encrypted, aliceId);
       final model = MessageModel.fromJson(firestoreDoc);
       final entity = model.toEntity();
 
-      // Verify OTK survived
-      expect(entity.x3dhHeader!.oneTimePreKeyPublicKey, isNotNull);
-      expect(entity.x3dhHeader!.oneTimePreKeyPublicKey,
-          equals(origHeader['oneTimePreKeyPublicKey']));
+      // Verify OTK ID survived
+      expect(entity.x3dhHeader!.oneTimePreKeyId, isNotNull);
+      expect(entity.x3dhHeader!.oneTimePreKeyId,
+          equals(origHeader['oneTimePreKeyId']));
 
       // Decrypt
       final rebuiltMap = rebuildEncryptedMap(entity);

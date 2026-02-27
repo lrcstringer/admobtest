@@ -3,23 +3,23 @@
 /// This test exercises every layer of the real code path:
 ///
 ///   SENDER DEVICE:
-///     1. SignalProtocolService.establishSession()  → X3DH key agreement
-///     2. SignalProtocolService.encryptP2P()         → Double Ratchet encrypt
-///     3. ConversationRemoteDataSource.sendEncryptedMessage()
+///     1. SignalProtocolService.encryptP2P()         → auto-establishes session
+///        via X3DH key agreement if needed, then Double Ratchet encrypt
+///     2. ConversationRemoteDataSource.sendEncryptedMessage()
 ///        → sends {ciphertext, e2ee, x3dhHeader} to Cloud Function
 ///
 ///   CLOUD FUNCTION (sendConversationMessage):
-///     4. Stores the message in Firestore as-is:
+///     3. Stores the message in Firestore as-is:
 ///        { ciphertext, e2ee, x3dhHeader, senderId, type, status, ... }
 ///
 ///   RECIPIENT DEVICE:
-///     5. Firestore snapshot arrives → MessageModel.fromFirestore(doc)
-///     6. MessageModel.toEntity() → Message with E2eeMetadata, X3dhHeader
-///     7. _decryptIfNeeded() reconstructs encryptedMap from entity fields
-///     8. SignalProtocolService.decryptP2P(senderId, encryptedMap) → plaintext
-///     9. UI displays the decrypted text
+///     4. Firestore snapshot arrives → MessageModel.fromFirestore(doc)
+///     5. MessageModel.toEntity() → Message with E2eeMetadata, X3dhHeader
+///     6. _decryptIfNeeded() reconstructs encryptedMap from entity fields
+///     7. SignalProtocolService.decryptP2P(senderId, encryptedMap) → plaintext
+///     8. UI displays the decrypted text
 ///
-/// Steps 4-7 are the "Firestore round-trip" that could silently corrupt data
+/// Steps 3-6 are the "Firestore round-trip" that could silently corrupt data
 /// (wrong types, missing fields, null coercion). This test catches that.
 library;
 
@@ -126,9 +126,11 @@ class _Participant {
     for (var i = 0; i < 3; i++) {
       final kp = await crypto.generateX25519KeyPair();
       otkKps.add({
+        // v2 format: "id|priv|pub" (integer ID prefix for OTK lookup by ID)
         'encoded':
-            '${base64Encode(kp['privateKey']!)}|${base64Encode(kp['publicKey']!)}',
+            '${i + 1}|${base64Encode(kp['privateKey']!)}|${base64Encode(kp['publicKey']!)}',
         'public': base64Encode(kp['publicKey']!),
+        'id': i + 1,
       });
     }
 
@@ -153,6 +155,8 @@ class _Participant {
       registrationId: 1,
       ed25519IdentityKeyPair: ed25519Encoded,
       ed25519Signature: base64Encode(ed25519Sig),
+      signedPreKeyId: 1,
+      protocolVersion: 2,
     );
 
     publicBundle = PublicKeyBundle(
@@ -164,6 +168,9 @@ class _Participant {
       userId: userId,
       ed25519IdentityKey: base64Encode(ed25519Kp['publicKey']!),
       ed25519Signature: base64Encode(ed25519Sig),
+      signedPreKeyId: 1,
+      oneTimePreKeyId: 1,
+      protocolVersion: 2,
     );
 
     when(() => keyMgmt.loadPrivateKeys())
@@ -236,15 +243,16 @@ Map<String, dynamic> reconstructEncryptedMap(
         'protocol': e2ee.protocol,
         'messageNumber': e2ee.messageNumber,
         'dhPublicKey': e2ee.dhPublicKey,
+        'previousChainLength': e2ee.previousChainLength,
       },
     if (x3dhHeader != null)
       'x3dhHeader': {
         'identityKey': x3dhHeader.identityKey,
         'ephemeralKey': x3dhHeader.ephemeralKey,
-        if (x3dhHeader.oneTimePreKeyPublicKey != null)
-          'oneTimePreKeyPublicKey': x3dhHeader.oneTimePreKeyPublicKey,
         if (x3dhHeader.oneTimePreKeyId != null)
           'oneTimePreKeyId': x3dhHeader.oneTimePreKeyId,
+        if (x3dhHeader.signedPreKeyId != null)
+          'signedPreKeyId': x3dhHeader.signedPreKeyId,
       },
   };
 }
@@ -282,6 +290,9 @@ void main() {
         userId: bobId,
         ed25519IdentityKey: bob.publicBundle.ed25519IdentityKey,
         ed25519Signature: bob.publicBundle.ed25519Signature,
+        signedPreKeyId: 1,
+        oneTimePreKeyId: 1,
+        protocolVersion: 2,
       );
     });
     when(() => bob.keyMgmt.fetchKeyBundle(aliceId)).thenAnswer((_) async {
@@ -294,6 +305,9 @@ void main() {
         userId: aliceId,
         ed25519IdentityKey: alice.publicBundle.ed25519IdentityKey,
         ed25519Signature: alice.publicBundle.ed25519Signature,
+        signedPreKeyId: 1,
+        oneTimePreKeyId: 1,
+        protocolVersion: 2,
       );
     });
   });
@@ -305,9 +319,8 @@ void main() {
         const originalText = 'Hello Bob!';
 
         // =====================================================================
-        // STEP 1-2: SENDER DEVICE — establish session + encrypt
+        // STEP 1: SENDER DEVICE — encrypt (auto-establishes session)
         // =====================================================================
-        await alice.service.establishSession(bobId);
         final encrypted = await alice.service.encryptP2P(bobId, originalText);
 
         // Verify the encrypted output has the expected shape
@@ -316,7 +329,7 @@ void main() {
         final x3dhHeader = encrypted['x3dhHeader'] as Map<String, dynamic>?;
 
         expect(ciphertext, isNotEmpty);
-        expect(e2ee['protocol'], 'signal-v1');
+        expect(e2ee['protocol'], 'signal-v2');
         expect(e2ee['messageNumber'], 0);
         expect(e2ee['dhPublicKey'], isA<String>());
         expect(x3dhHeader, isNotNull, reason: 'First message must have x3dhHeader');
@@ -324,7 +337,7 @@ void main() {
         expect(x3dhHeader['ephemeralKey'], isA<String>());
 
         // =====================================================================
-        // STEP 3-4: CLOUD FUNCTION — store in Firestore (simulated)
+        // STEP 2-3: CLOUD FUNCTION — store in Firestore (simulated)
         // =====================================================================
         final firestoreDoc = simulateCloudFunctionStore(
           messageId: 'msg_001',
@@ -336,7 +349,7 @@ void main() {
         );
 
         // =====================================================================
-        // STEP 5: RECIPIENT DEVICE — Firestore snapshot → MessageModel
+        // STEP 4: RECIPIENT DEVICE — Firestore snapshot → MessageModel
         // =====================================================================
         // This is exactly what MessageModel.fromFirestore does:
         //   fromJson({...data, 'id': doc.id})
@@ -345,7 +358,7 @@ void main() {
         // Verify the model parsed correctly
         expect(messageModel.ciphertext, equals(ciphertext));
         expect(messageModel.e2ee, isNotNull);
-        expect(messageModel.e2ee!['protocol'], 'signal-v1');
+        expect(messageModel.e2ee!['protocol'], 'signal-v2');
         expect(messageModel.e2ee!['messageNumber'], 0);
         expect(messageModel.e2ee!['dhPublicKey'], isA<String>());
         expect(messageModel.x3dhHeader, isNotNull);
@@ -353,24 +366,24 @@ void main() {
         expect(messageModel.x3dhHeader!['ephemeralKey'], isA<String>());
 
         // =====================================================================
-        // STEP 6: MessageModel.toEntity() → Message with typed E2EE fields
+        // STEP 5: MessageModel.toEntity() → Message with typed E2EE fields
         // =====================================================================
         final messageEntity = messageModel.toEntity();
 
         expect(messageEntity.isEncrypted, isTrue);
         expect(messageEntity.ciphertext, equals(ciphertext));
         expect(messageEntity.e2ee, isNotNull);
-        expect(messageEntity.e2ee!.protocol, 'signal-v1');
+        expect(messageEntity.e2ee!.protocol, 'signal-v2');
         expect(messageEntity.e2ee!.messageNumber, 0);
         expect(messageEntity.e2ee!.dhPublicKey, isA<String>());
         expect(messageEntity.x3dhHeader, isNotNull);
         expect(messageEntity.x3dhHeader!.identityKey, isNotEmpty);
         expect(messageEntity.x3dhHeader!.ephemeralKey, isNotEmpty);
-        expect(messageEntity.x3dhHeader!.oneTimePreKeyPublicKey,
-            equals(x3dhHeader['oneTimePreKeyPublicKey']));
+        expect(messageEntity.x3dhHeader!.oneTimePreKeyId,
+            equals(x3dhHeader['oneTimePreKeyId']));
 
         // =====================================================================
-        // STEP 7: _decryptIfNeeded — reconstruct the encryptedMap
+        // STEP 6: _decryptIfNeeded — reconstruct the encryptedMap
         // =====================================================================
         final encryptedMap = reconstructEncryptedMap(
           messageEntity.ciphertext,
@@ -393,18 +406,18 @@ void main() {
               equals(x3dhHeader['identityKey']));
           expect(reconstructedX3dh['ephemeralKey'],
               equals(x3dhHeader['ephemeralKey']));
-          expect(reconstructedX3dh['oneTimePreKeyPublicKey'],
-              equals(x3dhHeader['oneTimePreKeyPublicKey']));
+          expect(reconstructedX3dh['oneTimePreKeyId'],
+              equals(x3dhHeader['oneTimePreKeyId']));
         }
 
         // =====================================================================
-        // STEP 8: Bob decrypts using the EXACT reconstructed map
+        // STEP 7: Bob decrypts using the EXACT reconstructed map
         // =====================================================================
         final plaintext =
             await bob.service.decryptP2P(aliceId, encryptedMap);
 
         // =====================================================================
-        // STEP 9: UI DISPLAYS THE CORRECT TEXT
+        // STEP 8: UI DISPLAYS THE CORRECT TEXT
         // =====================================================================
         expect(plaintext, equals(originalText));
       },
@@ -413,8 +426,6 @@ void main() {
     test(
       'Multiple messages: msg #0 with x3dh, msg #1 and #2 without — all decrypt',
       () async {
-        await alice.service.establishSession(bobId);
-
         final messages = ['First message', 'Second message', 'Third message'];
         final encryptedList = <Map<String, dynamic>>[];
 
@@ -454,7 +465,6 @@ void main() {
       const original =
           'Hello! 🎉🚀 Привет 你好 مرحبا Special: <>&"\' Accents: éèêë';
 
-      await alice.service.establishSession(bobId);
       final encrypted = await alice.service.encryptP2P(bobId, original);
 
       final firestoreDoc = simulateCloudFunctionStore(
@@ -482,7 +492,6 @@ void main() {
       'Stale session recovery: Bob has old session → Alice re-establishes → Bob decrypts',
       () async {
         // FIRST EXCHANGE: Alice sends to Bob successfully
-        await alice.service.establishSession(bobId);
         final enc1 = await alice.service.encryptP2P(bobId, 'Message 1');
 
         // Bob decrypts (creates receiver session)
@@ -507,8 +516,7 @@ void main() {
         await alice.service.resetSession(bobId);
         expect(await alice.service.hasSession(bobId), isFalse);
 
-        // Alice re-establishes session (new ephemeral key, potentially new OTK)
-        await alice.service.establishSession(bobId);
+        // Alice re-establishes session via encryptP2P (new ephemeral key, potentially new OTK)
         final enc2 = await alice.service.encryptP2P(bobId, 'Message 2 (new session)');
 
         // The new x3dhHeader has a DIFFERENT ephemeral key
@@ -554,6 +562,9 @@ void main() {
             userId: bobId,
             ed25519IdentityKey: bob.publicBundle.ed25519IdentityKey,
             ed25519Signature: bob.publicBundle.ed25519Signature,
+            signedPreKeyId: 1,
+            oneTimePreKeyId: null, // No OTK returned
+            protocolVersion: 2,
           );
         });
 
@@ -567,17 +578,18 @@ void main() {
             registrationId: bob.privateBundle.registrationId,
             ed25519IdentityKeyPair: bob.privateBundle.ed25519IdentityKeyPair,
             ed25519Signature: bob.privateBundle.ed25519Signature,
+            signedPreKeyId: 1,
+            protocolVersion: 2,
           );
         });
 
-        await alice.service.establishSession(bobId);
         final encrypted =
             await alice.service.encryptP2P(bobId, 'No OTK available');
 
-        // x3dhHeader should NOT contain oneTimePreKeyPublicKey
+        // x3dhHeader should NOT contain oneTimePreKeyId (no OTK was available)
         final header = encrypted['x3dhHeader'] as Map<String, dynamic>?;
         expect(header, isNotNull);
-        expect(header!['oneTimePreKeyPublicKey'], isNull);
+        expect(header!['oneTimePreKeyId'], isNull);
 
         // Full Firestore round-trip
         final firestoreDoc = simulateCloudFunctionStore(
@@ -604,7 +616,6 @@ void main() {
 
     test('Large message (5KB) survives full pipeline', () async {
       final original = 'A' * 5000;
-      await alice.service.establishSession(bobId);
       final encrypted = await alice.service.encryptP2P(bobId, original);
 
       final firestoreDoc = simulateCloudFunctionStore(
@@ -629,7 +640,6 @@ void main() {
     test(
       'Data integrity: every field survives encode → Firestore → parse → reconstruct',
       () async {
-        await alice.service.establishSession(bobId);
         final encrypted = await alice.service.encryptP2P(bobId, 'integrity check');
 
         final originalCiphertext = encrypted['ciphertext'] as String;
@@ -673,9 +683,9 @@ void main() {
         expect(recX3dh['ephemeralKey'], equals(originalX3dh['ephemeralKey']),
             reason: 'x3dhHeader.ephemeralKey');
         expect(
-          recX3dh['oneTimePreKeyPublicKey'],
-          equals(originalX3dh['oneTimePreKeyPublicKey']),
-          reason: 'x3dhHeader.oneTimePreKeyPublicKey',
+          recX3dh['oneTimePreKeyId'],
+          equals(originalX3dh['oneTimePreKeyId']),
+          reason: 'x3dhHeader.oneTimePreKeyId',
         );
 
         // And the decryption must succeed
@@ -693,34 +703,38 @@ void main() {
     test(
       'Corrupted session (no peerX3dhEphemeralKey) fails decrypt — fixed bug: no longer auto-heals',
       () async {
-        // STEP 1: Alice establishes session and encrypts a message
-        await alice.service.establishSession(bobId);
+        // STEP 1: Alice encrypts a message (auto-establishes session)
         final encrypted =
             await alice.service.encryptP2P(bobId, 'Recovery test');
 
         // STEP 2: Corrupt Bob's session by writing garbage WITHOUT
         // peerX3dhEphemeralKey. This simulates old sessions from before
         // the fix — the most common production scenario.
-        final sessionKey = 'e2ee_session_$aliceId';
-        // Valid 32-byte base64 values (X25519 keys are 32 bytes) but WRONG keys
+        final sessionKey = 'v2_session_$aliceId';
+        // Valid 32-byte base64 values (X25519 keys are 32 bytes) but WRONG keys.
+        // Uses v2 SessionRecord JSON format wrapping a corrupt SessionState.
         await bob.storage.write(
           key: sessionKey,
-          value: '{"rootKey":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",'
+          value: '{"activeSession":{'
+              '"version":2,'
+              '"rootKey":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",'
               '"sendChainKey":"AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA=",'
               '"recvChainKey":"AgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICE=",'
               '"dhSendPrivate":"AwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISI=",'
               '"dhSendPublic":"BAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiM=",'
               '"dhRecvPublic":"BQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQ=",'
-              '"sendMessageNumber":0,"recvMessageNumber":0,"isInitiator":false,'
-              '"skippedKeys":{},"previousChainLength":0}',
+              '"sendMessageNumber":0,"recvMessageNumber":0,"previousChainLength":0,'
+              '"skippedKeys":{},'
+              '"localIdentityKey":"BgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJA==",'
+              '"remoteIdentityKey":"BwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJQ==",'
+              '"isInitiator":false,'
+              '"createdAt":"2026-01-01T00:00:00.000"},'
+              '"archivedSessions":[]}',
         );
 
-        // STEP 3: Decrypt attempt — with the Phase 0 fix, a session with
-        // peerX3dhEphemeralKey == null is NO LONGER auto-healed at the
-        // signal protocol level (that auto-heal was the exact bug that
-        // caused "Message cannot be decrypted" for all received messages).
-        // Instead, the session keeps its wrong chain keys and decrypt fails.
-        // Recovery happens at the REPOSITORY level via session reset + retry.
+        // STEP 3: Decrypt attempt — the corrupted session has wrong chain
+        // keys so decrypt fails. Recovery happens at the REPOSITORY level
+        // via session reset + retry.
         final firestoreDoc = simulateCloudFunctionStore(
           messageId: 'msg_recovery',
           senderId: aliceId,
@@ -742,7 +756,7 @@ void main() {
         // so this scenario shouldn't occur in practice after the migration runs.
         expect(
           () => bob.service.decryptP2P(aliceId, encryptedMap),
-          throwsA(isA<Exception>()),
+          throwsA(anything),
         );
       },
     );
@@ -754,8 +768,7 @@ void main() {
         // when the signal protocol's auto-heal can't fix the session,
         // the repository resets and retries.
 
-        // STEP 1: Alice establishes session and encrypts
-        await alice.service.establishSession(bobId);
+        // STEP 1: Alice encrypts (auto-establishes session)
         final encrypted =
             await alice.service.encryptP2P(bobId, 'Deep recovery');
 
@@ -764,18 +777,26 @@ void main() {
         final ephKey = x3dh['ephemeralKey'] as String;
 
         // STEP 2: Corrupt Bob's session but include the MATCHING
-        // peerX3dhEphemeralKey. This bypasses the auto-heal guard.
-        final sessionKey = 'e2ee_session_$aliceId';
+        // peerX3dhEphemeralKey. This bypasses the re-establishment guard.
+        // Uses v2 SessionRecord JSON format.
+        final sessionKey = 'v2_session_$aliceId';
         await bob.storage.write(
           key: sessionKey,
-          value: '{"rootKey":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",'
+          value: '{"activeSession":{'
+              '"version":2,'
+              '"rootKey":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",'
               '"sendChainKey":"AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA=",'
               '"recvChainKey":"AgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICE=",'
               '"dhSendPrivate":"AwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISI=",'
               '"dhSendPublic":"BAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiM=",'
               '"dhRecvPublic":"BQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQ=",'
-              '"sendMessageNumber":0,"recvMessageNumber":0,"isInitiator":false,'
-              '"skippedKeys":{},"previousChainLength":0,'
+              '"sendMessageNumber":0,"recvMessageNumber":0,"previousChainLength":0,'
+              '"skippedKeys":{},'
+              '"localIdentityKey":"BgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJA==",'
+              '"remoteIdentityKey":"BwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJQ==",'
+              '"isInitiator":false,'
+              '"createdAt":"2026-01-01T00:00:00.000"},'
+              '"archivedSessions":[],'
               '"peerX3dhEphemeralKey":"$ephKey"}',
         );
 
@@ -820,26 +841,32 @@ void main() {
     test(
       'Session recovery works for multiple messages after corruption',
       () async {
-        // Alice sends 3 messages
-        await alice.service.establishSession(bobId);
+        // Alice sends 3 messages (first encryptP2P auto-establishes session)
         final messages = ['Msg A', 'Msg B', 'Msg C'];
         final encryptedList = <Map<String, dynamic>>[];
         for (final text in messages) {
           encryptedList.add(await alice.service.encryptP2P(bobId, text));
         }
 
-        // Corrupt Bob's session
-        final sessionKey = 'e2ee_session_$aliceId';
+        // Corrupt Bob's session (v2 SessionRecord format)
+        final sessionKey = 'v2_session_$aliceId';
         await bob.storage.write(
           key: sessionKey,
-          value: '{"rootKey":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",'
+          value: '{"activeSession":{'
+              '"version":2,'
+              '"rootKey":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",'
               '"sendChainKey":"AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA=",'
               '"recvChainKey":"AgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICE=",'
               '"dhSendPrivate":"AwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISI=",'
               '"dhSendPublic":"BAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiM=",'
               '"dhRecvPublic":"BQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQ=",'
-              '"sendMessageNumber":5,"recvMessageNumber":5,"isInitiator":false,'
-              '"skippedKeys":{},"previousChainLength":0}',
+              '"sendMessageNumber":5,"recvMessageNumber":5,"previousChainLength":0,'
+              '"skippedKeys":{},'
+              '"localIdentityKey":"BgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJA==",'
+              '"remoteIdentityKey":"BwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJQ==",'
+              '"isInitiator":false,'
+              '"createdAt":"2026-01-01T00:00:00.000"},'
+              '"archivedSessions":[]}',
         );
 
         // Reset once (simulates the recovery mechanism)

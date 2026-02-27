@@ -241,7 +241,7 @@ void main() {
               )
               .having(
                 (s) => s.messages
-                    .any((m) => m.e2ee?.protocol == 'sender-key-v1'),
+                    .any((m) => m.e2ee?.protocol == 'sender-key-v2'),
                 'has sender-key protocol metadata',
                 true,
               ),

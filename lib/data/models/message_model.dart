@@ -206,6 +206,10 @@ class MessageModel with _$MessageModel {
         return MessageType.image;
       case 'voice':
         return MessageType.voice;
+      case 'document':
+        return MessageType.document;
+      case 'video':
+        return MessageType.video;
       case 'tokenSend':
         return MessageType.tokenSend;
       case 'tokenRequest':
@@ -308,6 +312,7 @@ class MessageModel with _$MessageModel {
       messageNumber: (raw['messageNumber'] as num?)?.toInt(),
       dhPublicKey: raw['dhPublicKey'] as String?,
       previousChainLength: (raw['previousChainLength'] as num?)?.toInt(),
+      signature: raw['signature'] as String?,
     );
   }
 
@@ -317,7 +322,7 @@ class MessageModel with _$MessageModel {
       identityKey: raw['identityKey'] as String? ?? '',
       ephemeralKey: raw['ephemeralKey'] as String? ?? '',
       oneTimePreKeyId: (raw['oneTimePreKeyId'] as num?)?.toInt(),
-      oneTimePreKeyPublicKey: raw['oneTimePreKeyPublicKey'] as String?,
+      signedPreKeyId: (raw['signedPreKeyId'] as num?)?.toInt(),
     );
   }
 

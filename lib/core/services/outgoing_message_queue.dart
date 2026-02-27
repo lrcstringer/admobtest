@@ -769,21 +769,54 @@ class OutgoingMessageQueue {
         return;
       }
 
-      await _appDatabase.updatePendingMessageStatus(msg.id, 'sending');
-      final model = await _communityRemoteDS.sendMediaMessage(
-        communityId: communityId,
-        mediaUrl: mediaUrl,
-        mediaType: mediaType,
-        caption: caption,
+      // Ensure sender key is distributed (same as text messages)
+      try {
+        await _ensureSenderKeyDistributed(communityId);
+      } catch (e) {
+        await _markFailed(
+            msg.id, 'Waiting for connection to distribute encryption key');
+        return;
+      }
+
+      // Build structured JSON payload and encrypt via Sender Key
+      final payload = jsonEncode({
+        if (caption != null) 'text': caption,
+        'media': {
+          'url': mediaUrl,
+          'mediaType': mediaType,
+        },
+      });
+
+      await _appDatabase.updatePendingMessageStatus(msg.id, 'encrypting');
+      final encrypted = await _senderKeyService.encryptCommunity(
+        communityId,
+        payload,
       );
 
-      final sentMessage = model.toEntity();
-      // Replace optimistic with real
-      await _appDatabase.deleteLocalMessage(msg.id);
-      await _appDatabase.upsertLocalMessage(
-        LocalMessageMapper.toCompanion(sentMessage, communityId),
+      await _appDatabase.updatePendingMessageStatus(msg.id, 'sending');
+      final messageId =
+          await _communityRemoteDS.sendEncryptedCommunityMessage(
+        communityId: communityId,
+        ciphertext: encrypted['ciphertext'] as String,
+        e2ee: encrypted['e2ee'] as Map<String, dynamic>,
+        replyToMessageId: msg.replyToMessageId,
       );
-      await _appDatabase.deletePendingMessage(msg.id);
+
+      // Cache for community sync service
+      _messageSyncService.cacheSentPlaintext(messageId, payload);
+
+      await _finalizeSent(
+        pendingId: msg.id,
+        realMessageId: messageId,
+        conversationId: communityId,
+        plaintext: payload,
+        type: MessageType.values.firstWhere(
+          (t) => t.name == mediaType,
+          orElse: () => MessageType.image,
+        ),
+        communityId: communityId,
+        createdAt: msg.createdAt,
+      );
     } catch (e) {
       await _markFailed(msg.id, _userFriendlyError(e));
     }

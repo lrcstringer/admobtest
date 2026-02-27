@@ -6,8 +6,8 @@
  * - fetchKeyBundle
  * - replenishOneTimePreKeys
  * - rotateSignedPreKey
- * - saveBackupMetadata
- * - getBackupMetadata
+ * - saveKeyBackup
+ * - getKeyBackup
  * - distributeSenderKey
  * - markKeyDistributionConsumed
  */
@@ -57,8 +57,8 @@ import {
   fetchKeyBundle as _fetchKeyBundle,
   replenishOneTimePreKeys as _replenishOneTimePreKeys,
   rotateSignedPreKey as _rotateSignedPreKey,
-  saveBackupMetadata as _saveBackupMetadata,
-  getBackupMetadata as _getBackupMetadata,
+  saveKeyBackup as _saveKeyBackup,
+  getKeyBackup as _getKeyBackup,
   distributeSenderKey as _distributeSenderKey,
   markKeyDistributionConsumed as _markKeyDistributionConsumed,
 } from "../keyManagement";
@@ -70,8 +70,8 @@ const uploadKeyBundle = _uploadKeyBundle as unknown as CallableFn;
 const fetchKeyBundle = _fetchKeyBundle as unknown as CallableFn;
 const replenishOneTimePreKeys = _replenishOneTimePreKeys as unknown as CallableFn;
 const rotateSignedPreKey = _rotateSignedPreKey as unknown as CallableFn;
-const saveBackupMetadata = _saveBackupMetadata as unknown as CallableFn;
-const getBackupMetadata = _getBackupMetadata as unknown as CallableFn;
+const saveKeyBackup = _saveKeyBackup as unknown as CallableFn;
+const getKeyBackup = _getKeyBackup as unknown as CallableFn;
 const distributeSenderKey = _distributeSenderKey as unknown as CallableFn;
 const markKeyDistributionConsumed = _markKeyDistributionConsumed as unknown as CallableFn;
 
@@ -285,14 +285,18 @@ describe("fetchKeyBundle", () => {
       identityKey: "target_identity_key",
       signedPreKey: "target_signed_pre_key",
       signedPreKeySignature: "target_signature",
-      oneTimePreKeys: ["otk_first", "otk_second"],
+      oneTimePreKeys: [
+        { id: 1, key: "otk_first" },
+        { id: 2, key: "otk_second" },
+      ],
       registrationId: 100,
     });
 
     const result = await fetchKeyBundle({ targetUserId: "user_002" }, authContext);
 
-    // Should return the first OTK
+    // Should return the first OTK's key
     expect(result.oneTimePreKey).toBe("otk_first");
+    expect(result.oneTimePreKeyId).toBe(1);
 
     // Should have called update to remove the consumed OTK via arrayRemove
     const updateOp = mockOperations.updates.find(
@@ -300,7 +304,9 @@ describe("fetchKeyBundle", () => {
     );
     expect(updateOp).toBeDefined();
     const updateData = updateOp!.data as Record<string, unknown>;
-    expect(updateData.oneTimePreKeys).toEqual({ _arrayRemove: ["otk_first"] });
+    expect(updateData.oneTimePreKeys).toEqual({
+      _arrayRemove: [{ id: 1, key: "otk_first" }],
+    });
   });
 
   it("returns null oneTimePreKey when no OTKs available", async () => {
@@ -476,10 +482,10 @@ describe("rotateSignedPreKey", () => {
 });
 
 // ============================================================================
-// saveBackupMetadata
+// saveKeyBackup
 // ============================================================================
 
-describe("saveBackupMetadata", () => {
+describe("saveKeyBackup", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     resetMocks();
@@ -487,13 +493,13 @@ describe("saveBackupMetadata", () => {
 
   it("requires authentication", async () => {
     await expect(
-      saveBackupMetadata({ backupVersion: 1, encryptedKeysHash: "hash123" }, unauthContext)
+      saveKeyBackup({ backupVersion: 1, encryptedBlob: "encrypted_data" }, unauthContext)
     ).rejects.toThrow("Authentication required.");
   });
 
-  it("stores backup metadata in Firestore", async () => {
-    const result = await saveBackupMetadata(
-      { backupVersion: 2, encryptedKeysHash: "sha256_hash" },
+  it("stores backup data in Firestore", async () => {
+    const result = await saveKeyBackup(
+      { backupVersion: 2, encryptedBlob: "encrypted_blob_data" },
       authContext
     );
 
@@ -508,14 +514,14 @@ describe("saveBackupMetadata", () => {
     expect(data.userId).toBe("user_001");
     expect(data.backupExists).toBe(true);
     expect(data.backupVersion).toBe(2);
-    expect(data.encryptedKeysHash).toBe("sha256_hash");
+    expect(data.encryptedBlob).toBe("encrypted_blob_data");
     expect(data.lastBackupAt).toEqual({ _serverTimestamp: true });
     expect(data.updatedAt).toEqual({ _serverTimestamp: true });
   });
 
   it("defaults backupVersion to 1 when not provided", async () => {
-    await saveBackupMetadata(
-      { backupVersion: undefined as unknown as number, encryptedKeysHash: "hash" },
+    await saveKeyBackup(
+      { backupVersion: undefined as unknown as number, encryptedBlob: "blob" },
       authContext
     );
 
@@ -526,33 +532,39 @@ describe("saveBackupMetadata", () => {
     expect(data.backupVersion).toBe(1);
   });
 
-  it("sets encryptedKeysHash to null when not provided", async () => {
-    await saveBackupMetadata(
-      { backupVersion: 1, encryptedKeysHash: undefined as unknown as string },
-      authContext
-    );
+  it("rejects missing encryptedBlob", async () => {
+    await expect(
+      saveKeyBackup(
+        { backupVersion: 1, encryptedBlob: "" },
+        authContext
+      )
+    ).rejects.toThrow("encryptedBlob required");
+  });
 
-    const setOp = mockOperations.sets.find(
-      (op) => op.collection === "users/user_001/keys" && op.doc === "backup"
-    );
-    const data = setOp!.data as Record<string, unknown>;
-    expect(data.encryptedKeysHash).toBeNull();
+  it("rejects oversized encryptedBlob", async () => {
+    const hugeBlob = "x".repeat(50001);
+    await expect(
+      saveKeyBackup(
+        { backupVersion: 1, encryptedBlob: hugeBlob },
+        authContext
+      )
+    ).rejects.toThrow("Backup too large");
   });
 
   it("calls requireAppCheck", async () => {
-    await saveBackupMetadata(
-      { backupVersion: 1, encryptedKeysHash: "hash" },
+    await saveKeyBackup(
+      { backupVersion: 1, encryptedBlob: "blob" },
       authContext
     );
-    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "saveBackupMetadata");
+    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "saveKeyBackup");
   });
 });
 
 // ============================================================================
-// getBackupMetadata
+// getKeyBackup
 // ============================================================================
 
-describe("getBackupMetadata", () => {
+describe("getKeyBackup", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     resetMocks();
@@ -560,68 +572,47 @@ describe("getBackupMetadata", () => {
 
   it("requires authentication", async () => {
     await expect(
-      getBackupMetadata({}, unauthContext)
+      getKeyBackup({}, unauthContext)
     ).rejects.toThrow("Authentication required.");
   });
 
-  it("returns metadata when backup exists", async () => {
+  it("returns backup data when backup exists", async () => {
     setupMockDocument("users/user_001/keys", "backup", {
       userId: "user_001",
       backupExists: true,
+      encryptedBlob: "encrypted_data_here",
       backupVersion: 3,
       lastBackupAt: { toDate: () => new Date("2026-01-15T10:00:00Z") },
     });
 
-    const result = await getBackupMetadata({}, authContext);
+    const result = await getKeyBackup({}, authContext);
 
     expect(result.backupExists).toBe(true);
+    expect(result.encryptedBlob).toBe("encrypted_data_here");
     expect(result.backupVersion).toBe(3);
   });
 
   it("returns backupExists=false when no backup document exists", async () => {
     // No backup document set up
-    const result = await getBackupMetadata({}, authContext);
+    const result = await getKeyBackup({}, authContext);
 
     expect(result.backupExists).toBe(false);
   });
 
-  it("defaults backupVersion to 0 when not in document", async () => {
-    setupMockDocument("users/user_001/keys", "backup", {
-      userId: "user_001",
-      backupExists: true,
-    });
-
-    const result = await getBackupMetadata({}, authContext);
-    expect(result.backupVersion).toBe(0);
-  });
-
-  it("returns lastBackupAt from the document", async () => {
-    const timestamp = { toDate: () => new Date("2026-02-01") };
-    setupMockDocument("users/user_001/keys", "backup", {
-      userId: "user_001",
-      backupExists: true,
-      backupVersion: 1,
-      lastBackupAt: timestamp,
-    });
-
-    const result = await getBackupMetadata({}, authContext);
-    expect(result.lastBackupAt).toEqual(timestamp);
-  });
-
-  it("returns null lastBackupAt when not in document", async () => {
+  it("returns backupExists=false when encryptedBlob is missing", async () => {
     setupMockDocument("users/user_001/keys", "backup", {
       userId: "user_001",
       backupExists: true,
       backupVersion: 1,
     });
 
-    const result = await getBackupMetadata({}, authContext);
-    expect(result.lastBackupAt).toBeNull();
+    const result = await getKeyBackup({}, authContext);
+    expect(result.backupExists).toBe(false);
   });
 
   it("calls requireAppCheck", async () => {
-    await getBackupMetadata({}, authContext);
-    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "getBackupMetadata");
+    await getKeyBackup({}, authContext);
+    expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "getKeyBackup");
   });
 });
 

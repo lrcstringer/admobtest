@@ -2,41 +2,40 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import 'double_ratchet_session.dart';
+import 'session_record.dart';
 import 'session_store.dart';
 
 /// [SessionStore] backed by [FlutterSecureStorage].
 ///
-/// Session keys are stored with the prefix `e2ee_session_` followed by the
-/// user ID, matching the existing storage layout for backward compatibility.
+/// Session records use key prefix `v2_session_`.
 class SecureStorageSessionStore implements SessionStore {
   final FlutterSecureStorage _storage;
 
-  static const _sessionPrefix = 'e2ee_session_';
+  static const _sessionPrefix = 'v2_session_';
 
   SecureStorageSessionStore(this._storage);
 
   @override
-  Future<DoubleRatchetSession?> load(String userId) async {
+  Future<SessionRecord?> loadRecord(String userId) async {
     final stored = await _storage.read(key: '$_sessionPrefix$userId');
     if (stored == null) return null;
-    return DoubleRatchetSession.fromJson(
+    return SessionRecord.fromJson(
         jsonDecode(stored) as Map<String, dynamic>);
   }
 
   @override
-  Future<void> save(String userId, DoubleRatchetSession session) async {
-    final json = jsonEncode(session.toJson());
+  Future<void> saveRecord(String userId, SessionRecord record) async {
+    final json = jsonEncode(record.toJson());
     await _storage.write(key: '$_sessionPrefix$userId', value: json);
   }
 
   @override
-  Future<void> delete(String userId) async {
+  Future<void> deleteRecord(String userId) async {
     await _storage.delete(key: '$_sessionPrefix$userId');
   }
 
   @override
-  Future<bool> exists(String userId) async {
+  Future<bool> recordExists(String userId) async {
     final stored = await _storage.read(key: '$_sessionPrefix$userId');
     return stored != null;
   }
@@ -45,7 +44,8 @@ class SecureStorageSessionStore implements SessionStore {
   Future<void> deleteAll() async {
     final all = await _storage.readAll();
     for (final key in all.keys) {
-      if (key.startsWith(_sessionPrefix)) {
+      if (key.startsWith(_sessionPrefix) ||
+          key.startsWith('e2ee_session_')) {
         await _storage.delete(key: key);
       }
     }
