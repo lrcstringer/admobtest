@@ -49,6 +49,11 @@ class MessageSyncService {
   /// Track conversation IDs we're currently syncing.
   final Set<String> _syncingConversationIds = {};
 
+  /// Conversation IDs from the most recent conversation list snapshot.
+  /// Used to kick-start message sync when startSync() is called after
+  /// startConversationListSync() has already been running.
+  final Set<String> _latestConversationIds = {};
+
   /// Forwarding getter — the repository writes to this cache on send;
   /// the decryption service reads it when resolving own outgoing messages.
   Map<String, String> get sentPlaintextCache =>
@@ -59,31 +64,21 @@ class MessageSyncService {
       _decryptionService.cacheSentPlaintext(messageId, plaintext);
 
   bool _isSyncing = false;
+  bool _conversationListSyncing = false;
 
   /// Periodic timer that purges locally-stored messages past their [expiresAt].
   Timer? _cleanupTimer;
 
-  /// Start syncing all conversations for the current user.
+  /// Start syncing just the conversation list (metadata only).
   ///
-  /// Subscribes to the Firestore conversation list, then creates
-  /// per-conversation message subscriptions that decrypt and store locally.
-  void startSync() {
-    if (_isSyncing) return;
-    _isSyncing = true;
+  /// Called immediately after auth to populate the conversation list UI
+  /// before E2EE keys are ready. Message-level syncing (decryption) starts
+  /// later via [startSync] after E2EE initialization completes.
+  void startConversationListSync() {
+    if (_conversationListSyncing) return;
+    _conversationListSyncing = true;
 
-    debugPrint('MessageSyncService: Starting sync');
-
-    // Purge expired (disappearing) messages every minute
-    _cleanupTimer = Timer.periodic(const Duration(minutes: 1), (_) async {
-      try {
-        final deleted = await _appDatabase.deleteExpiredMessages();
-        if (deleted > 0) {
-          debugPrint('MessageSyncService: Deleted $deleted expired messages');
-        }
-      } catch (e) {
-        debugPrint('MessageSyncService: Error cleaning expired messages: $e');
-      }
-    });
+    debugPrint('MessageSyncService: Starting conversation list sync');
 
     _conversationListSub = _remoteDataSource.watchConversations().listen(
       (conversationModels) {
@@ -91,6 +86,9 @@ class MessageSyncService {
           final conversations =
               conversationModels.map((m) => m.toEntity()).toList();
           final currentIds = conversations.map((c) => c.id).toSet();
+          _latestConversationIds
+            ..clear()
+            ..addAll(currentIds);
 
           // Store/update conversation metadata locally.
           // Preserve local lastMessageText when Firestore sends null (E2EE
@@ -117,17 +115,18 @@ class MessageSyncService {
             }
           }
 
-          // Start syncing new conversations
-          for (final convId in currentIds) {
-            if (!_syncingConversationIds.contains(convId)) {
-              _startMessageSync(convId);
+          // Start message-level sync only if full sync is active (E2EE ready)
+          if (_isSyncing) {
+            for (final convId in currentIds) {
+              if (!_syncingConversationIds.contains(convId)) {
+                _startMessageSync(convId);
+              }
             }
-          }
 
-          // Stop syncing removed conversations
-          final removedIds = _syncingConversationIds.difference(currentIds);
-          for (final convId in removedIds) {
-            _stopMessageSync(convId);
+            final removedIds = _syncingConversationIds.difference(currentIds);
+            for (final convId in removedIds) {
+              _stopMessageSync(convId);
+            }
           }
         }).catchError((Object e) {
           debugPrint('MessageSyncService: Conversation list error: $e');
@@ -139,10 +138,47 @@ class MessageSyncService {
     );
   }
 
+  /// Start full message syncing (decryption + storage).
+  ///
+  /// Requires E2EE keys to be ready. If [startConversationListSync] was
+  /// already called, message-level sync is kicked off for all known
+  /// conversations. Otherwise, starts the conversation list sync too.
+  void startSync() {
+    if (_isSyncing) return;
+    _isSyncing = true;
+
+    debugPrint('MessageSyncService: Starting full message sync');
+
+    // Purge expired (disappearing) messages every minute
+    _cleanupTimer = Timer.periodic(const Duration(minutes: 1), (_) async {
+      try {
+        final deleted = await _appDatabase.deleteExpiredMessages();
+        if (deleted > 0) {
+          debugPrint('MessageSyncService: Deleted $deleted expired messages');
+        }
+      } catch (e) {
+        debugPrint('MessageSyncService: Error cleaning expired messages: $e');
+      }
+    });
+
+    if (!_conversationListSyncing) {
+      // Conversation list sync wasn't started early — start it now
+      startConversationListSync();
+    } else {
+      // Already running — kick-start message sync for known conversations
+      for (final convId in _latestConversationIds) {
+        if (!_syncingConversationIds.contains(convId)) {
+          _startMessageSync(convId);
+        }
+      }
+    }
+  }
+
   /// Stop all syncing (on sign-out or app background).
   void stopSync() {
-    if (!_isSyncing) return;
+    if (!_isSyncing && !_conversationListSyncing) return;
     _isSyncing = false;
+    _conversationListSyncing = false;
 
     debugPrint('MessageSyncService: Stopping sync');
 
@@ -156,6 +192,7 @@ class MessageSyncService {
     }
     _messageSubs.clear();
     _syncingConversationIds.clear();
+    _latestConversationIds.clear();
     _processingLock.clear();
   }
 

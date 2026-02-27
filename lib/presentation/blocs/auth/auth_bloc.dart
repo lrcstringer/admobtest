@@ -90,6 +90,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               user: user,
               isLoading: false,
             ));
+            // Start conversation list sync immediately so the Chat tab
+            // shows conversations before E2EE keys are ready.
+            _messageSyncService.startConversationListSync();
             // Fire-and-forget E2EE key initialization
             _initializeE2EEKeys();
           }
@@ -161,6 +164,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             user: user,
             isLoading: false,
           ));
+          // Start conversation list sync immediately so the Chat tab
+          // shows conversations before E2EE keys are ready.
+          _messageSyncService.startConversationListSync();
           // Fire-and-forget E2EE key initialization
           _initializeE2EEKeys();
         }
@@ -546,6 +552,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       isLoading: false,
     ));
 
+    // Start conversation list sync immediately so the Chat tab
+    // shows conversations before E2EE keys are ready.
+    _messageSyncService.startConversationListSync();
     // Fire-and-forget E2EE key initialization after onboarding
     _initializeE2EEKeys();
   }
@@ -619,14 +628,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   /// Generate and upload E2EE keys, retrying until the upload is confirmed.
   ///
-  /// If the upload fails, the server still has the OLD key bundle from a
-  /// previous install. Any sender who fetches that stale bundle will get
-  /// OTKs we no longer have → permanent OTK mismatch → undecryptable.
+  /// When local keys already exist (returning user), message sync starts
+  /// IMMEDIATELY after loading them — decryption uses local keys and does
+  /// not require the server bundle to be verified first. Server verification
+  /// (ensureBundleUploaded) runs in the background and only affects future
+  /// senders.
   ///
-  /// Message sync does NOT start until the upload is confirmed — there is
-  /// no point decrypting incoming messages with keys the sender doesn't have.
-  /// The UI loads immediately (callers fire-and-forget), so the user isn't
-  /// blocked — messages simply appear once E2EE setup completes.
+  /// When no local keys exist (fresh install), keys must be generated or
+  /// restored before message sync can start.
   Future<void> _initializeE2EEKeys() async {
     if (_e2eeInitInProgress) return;
     _e2eeInitInProgress = true;
@@ -642,6 +651,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         debugPrint('E2EE INIT: Loaded existing keys — '
             '${existing.oneTimePreKeys.length} local OTKs, '
             'identity=${existing.identityKeyPair.split("|")[1].substring(0, 8)}…');
+
+        // Local keys are ready — start message sync IMMEDIATELY.
+        // Decryption uses local keys; server verification only affects
+        // future senders and can run in parallel.
+        debugPrint('E2EE INIT: Local keys loaded — starting message sync now');
+        _startMessageAndQueueServices();
+
         // Verify Firestore bundle matches local keys (catches failed uploads).
         // Retries indefinitely until confirmed or BLoC is disposed.
         await _uploadUntilConfirmed(
@@ -706,11 +722,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
 
     if (uploadConfirmed) {
-      debugPrint('E2EE INIT: Bundle upload confirmed — starting message sync');
-      _messageSyncService.startSync();
-      _communitySyncService.startSync();
-      _offlineActionQueue.startListening();
-      _outgoingMessageQueue.startListening();
+      debugPrint('E2EE INIT: Bundle upload confirmed — ensuring services started');
+      // Idempotent — safe even if already started above for existing keys
+      _startMessageAndQueueServices();
       // Auto-backup keys to server (don't block startup)
       getIt<KeyBackupService>().autoBackup().catchError((e) {
         debugPrint('E2EE auto-backup failed: $e');
@@ -720,6 +734,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       debugPrint('E2EE INIT: Bundle upload NOT confirmed — '
           'message sync will NOT start until keys are on the server');
     }
+  }
+
+  /// Start all message/queue services. Idempotent — safe to call multiple times.
+  void _startMessageAndQueueServices() {
+    _messageSyncService.startSync();
+    _communitySyncService.startSync();
+    _offlineActionQueue.startListening();
+    _outgoingMessageQueue.startListening();
   }
 
   /// Retry an upload indefinitely with exponential backoff (capped at 30s).
