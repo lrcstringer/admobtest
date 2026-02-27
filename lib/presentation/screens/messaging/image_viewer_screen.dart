@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:gal/gal.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
 
 import '../../../core/di/injection.dart';
@@ -30,10 +33,15 @@ class ImageViewerScreen extends StatefulWidget {
 class _ImageViewerScreenState extends State<ImageViewerScreen> {
   Uint8List? _decryptedBytes;
   bool _isLoading = false;
+  bool _isSaving = false;
   String? _error;
 
   bool get _isEncrypted =>
       widget.mediaKeyBase64 != null && widget.mediaKeyBase64!.isNotEmpty;
+
+  /// Image is ready to save (loaded or plain network image).
+  bool get _canSave =>
+      !_isLoading && _error == null && (!_isEncrypted || _decryptedBytes != null);
 
   @override
   void initState() {
@@ -71,6 +79,59 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
     }
   }
 
+  Future<void> _saveToGallery() async {
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+
+    try {
+      final Uint8List bytes;
+      if (_isEncrypted && _decryptedBytes != null) {
+        bytes = _decryptedBytes!;
+      } else if (!_isEncrypted) {
+        // Plain network image — download the bytes
+        final client = HttpClient();
+        final request = await client.getUrl(Uri.parse(widget.imageUrl));
+        final response = await request.close();
+        final builder = BytesBuilder();
+        await for (final chunk in response) {
+          builder.add(chunk);
+        }
+        bytes = builder.toBytes();
+        client.close();
+      } else {
+        return;
+      }
+
+      // Write to temp file for Gal
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/save_${widget.messageId}.jpg');
+      await file.writeAsBytes(bytes);
+
+      await Gal.putImage(file.path, album: 'iMaliChat');
+      await file.delete().catchError((_) => file);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Saved to gallery'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to save image'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,6 +141,23 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          if (_canSave)
+            IconButton(
+              icon: _isSaving
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Icon(Icons.download),
+              onPressed: _isSaving ? null : _saveToGallery,
+              tooltip: 'Save to gallery',
+            ),
+        ],
       ),
       body: _buildBody(),
     );

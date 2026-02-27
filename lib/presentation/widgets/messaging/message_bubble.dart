@@ -440,7 +440,11 @@ class MessageBubble extends StatelessWidget {
     if (message.type == MessageType.document) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: _DocumentBubble(media: message.media!, isMe: isMe),
+        child: _DocumentBubble(
+          media: message.media!,
+          isMe: isMe,
+          messageId: message.id,
+        ),
       );
     }
 
@@ -915,8 +919,13 @@ class _EncryptedImageThumbnailState extends State<_EncryptedImageThumbnail> {
 class _DocumentBubble extends StatefulWidget {
   final MessageMedia media;
   final bool isMe;
+  final String messageId;
 
-  const _DocumentBubble({required this.media, required this.isMe});
+  const _DocumentBubble({
+    required this.media,
+    required this.isMe,
+    required this.messageId,
+  });
 
   @override
   State<_DocumentBubble> createState() => _DocumentBubbleState();
@@ -924,6 +933,7 @@ class _DocumentBubble extends StatefulWidget {
 
 class _DocumentBubbleState extends State<_DocumentBubble> {
   bool _isDownloading = false;
+  bool _isDownloaded = false;
 
   String get _extension {
     final name = widget.media.fileName;
@@ -978,15 +988,37 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _checkIfDownloaded();
+  }
+
+  Future<File> _getPersistentFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final docDir = Directory('${dir.path}/iMaliChat/Documents');
+    if (!docDir.existsSync()) {
+      docDir.createSync(recursive: true);
+    }
+    return File('${docDir.path}/${widget.messageId}_${widget.media.fileName}');
+  }
+
+  Future<void> _checkIfDownloaded() async {
+    try {
+      final file = await _getPersistentFile();
+      if (file.existsSync() && mounted) {
+        setState(() => _isDownloaded = true);
+      }
+    } catch (_) {}
+  }
+
   Future<void> _openDocument() async {
     if (_isDownloading) return;
-    setState(() => _isDownloading = true);
 
     try {
       final media = widget.media;
-      // Fix #2: Safe null check instead of force-unwrap
       final isEncrypted = media.mediaKey != null && media.mediaKey!.isNotEmpty;
-      // Fix #5: Validate URL is not empty
+
       if (media.url.isEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -996,21 +1028,11 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
         return;
       }
 
-      if (isEncrypted) {
-        // Download, decrypt, save to temp, and open
-        final datasource = getIt<MediaUploadDatasource>();
-        final bytes = await datasource.downloadAndDecrypt(
-          url: media.url,
-          mediaKeyBase64: media.mediaKey!,
-        );
-        if (!mounted) return;
-        final dir = await getTemporaryDirectory();
-        final file = File('${dir.path}/${media.fileName}');
-        await file.writeAsBytes(bytes);
-        // Use OpenFilex which handles Android content:// URIs via FileProvider.
-        // launchUrl(Uri.file(...)) throws FileUriExposedException on Android 7+.
+      // Check if already downloaded
+      final persistentFile = await _getPersistentFile();
+      if (persistentFile.existsSync()) {
         final result = await OpenFilex.open(
-          file.path,
+          persistentFile.path,
           type: media.mimeType,
         );
         if (result.type != ResultType.done && mounted) {
@@ -1018,10 +1040,33 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
             SnackBar(content: Text('Could not open document: ${result.message}')),
           );
         }
-        // Delete temp file after a delay to allow the viewer to open it
-        Future.delayed(const Duration(minutes: 2), () {
-          file.delete().ignore();
+        return;
+      }
+
+      // Download required
+      setState(() => _isDownloading = true);
+
+      if (isEncrypted) {
+        final datasource = getIt<MediaUploadDatasource>();
+        final bytes = await datasource.downloadAndDecrypt(
+          url: media.url,
+          mediaKeyBase64: media.mediaKey!,
+        );
+        if (!mounted) return;
+        await persistentFile.writeAsBytes(bytes);
+        setState(() {
+          _isDownloading = false;
+          _isDownloaded = true;
         });
+        final result = await OpenFilex.open(
+          persistentFile.path,
+          type: media.mimeType,
+        );
+        if (result.type != ResultType.done && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Could not open document: ${result.message}')),
+          );
+        }
       } else {
         // Direct URL — open in browser/system viewer
         final uri = Uri.parse(media.url);
@@ -1034,7 +1079,6 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
         }
       }
     } catch (e) {
-      // Fix #14: Log document download errors
       debugPrint('DocumentBubble: _openDocument failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1051,6 +1095,9 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
     final borderColor = widget.isMe
         ? AppColors.chatBubbleTimestamp.withValues(alpha: 0.3)
         : AppColors.chatBubbleReceivedText.withValues(alpha: 0.2);
+    final metaColor = widget.isMe
+        ? AppColors.chatBubbleTimestamp
+        : AppColors.chatBubbleReceivedText.withValues(alpha: 0.6);
 
     return GestureDetector(
       onTap: _openDocument,
@@ -1092,10 +1139,7 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
                   Text(
                     '$_formattedSize · ${_extension.toUpperCase()}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: widget.isMe
-                              ? AppColors.chatBubbleTimestamp
-                              : AppColors.chatBubbleReceivedText
-                                  .withValues(alpha: 0.6),
+                          color: metaColor,
                         ),
                   ),
                 ],
@@ -1109,12 +1153,11 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : Icon(
-                    Icons.download_rounded,
+                    _isDownloaded
+                        ? Icons.check_circle_outline
+                        : Icons.download_rounded,
                     size: 20,
-                    color: widget.isMe
-                        ? AppColors.chatBubbleTimestamp
-                        : AppColors.chatBubbleReceivedText
-                            .withValues(alpha: 0.6),
+                    color: _isDownloaded ? AppColors.success : metaColor,
                   ),
           ],
         ),

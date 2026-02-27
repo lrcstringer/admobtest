@@ -17,6 +17,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/messaging/chat_background.dart';
 import '../../widgets/messaging/date_separator.dart';
+import '../../widgets/messaging/media_compose_screen.dart';
 import '../../widgets/messaging/media_picker_widget.dart';
 import '../../widgets/messaging/message_bubble.dart';
 import '../../widgets/messaging/message_input_bar.dart';
@@ -445,15 +446,24 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     showMediaPicker(
       context,
       onMediaSelected: (result) {
-        context.read<ConversationBloc>().add(
-              ConversationEvent.sendMediaMessage(
-                conversationId: widget.conversationId,
-                mediaFile: result.file,
-                mediaType: result.mediaType,
-                recipientId: recipientId,
-                caption: result.caption,
-              ),
-            );
+        Navigator.of(context).push(MaterialPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => MediaComposeScreen(
+            mediaFile: result.file,
+            mediaType: result.mediaType,
+            onSend: (caption) {
+              context.read<ConversationBloc>().add(
+                    ConversationEvent.sendMediaMessage(
+                      conversationId: widget.conversationId,
+                      mediaFile: result.file,
+                      mediaType: result.mediaType,
+                      recipientId: recipientId,
+                      caption: caption,
+                    ),
+                  );
+            },
+          ),
+        ));
       },
       onVoiceRequested: () =>
           _openVoiceRecorder(context, state, currentUserId),
@@ -507,16 +517,28 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       pageBuilder: (ctx, _, __) => VideoMessageRecorder(
         onRecordingComplete: (result) {
           Navigator.of(ctx).pop();
-          context.read<ConversationBloc>().add(
-                ConversationEvent.sendMediaMessage(
-                  conversationId: widget.conversationId,
-                  mediaFile: result.videoFile,
-                  mediaType: 'video/mp4',
-                  recipientId: recipientId,
-                  durationSeconds: result.durationSeconds,
-                  thumbnailFile: result.thumbnailFile,
-                ),
-              );
+          Navigator.of(context).push(MaterialPageRoute<void>(
+            fullscreenDialog: true,
+            builder: (_) => MediaComposeScreen(
+              mediaFile: result.videoFile,
+              mediaType: 'video/mp4',
+              thumbnailFile: result.thumbnailFile,
+              durationSeconds: result.durationSeconds,
+              onSend: (caption) {
+                context.read<ConversationBloc>().add(
+                      ConversationEvent.sendMediaMessage(
+                        conversationId: widget.conversationId,
+                        mediaFile: result.videoFile,
+                        mediaType: 'video/mp4',
+                        recipientId: recipientId,
+                        durationSeconds: result.durationSeconds,
+                        thumbnailFile: result.thumbnailFile,
+                        caption: caption,
+                      ),
+                    );
+              },
+            ),
+          ));
         },
         onCancel: () => Navigator.of(ctx).pop(),
       ),

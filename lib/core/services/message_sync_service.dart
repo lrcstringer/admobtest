@@ -11,6 +11,7 @@ import '../../data/mappers/local_conversation_mapper.dart';
 import '../../data/mappers/local_message_mapper.dart';
 import '../../data/models/message_model.dart';
 import '../../domain/entities/message.dart';
+import '../../domain/enums/message_type.dart';
 import 'message_decryption_service.dart';
 
 /// Background service that syncs Firestore messages → decrypts once → stores
@@ -495,10 +496,23 @@ class MessageSyncService {
 
       final conv = LocalConversationMapper.toEntity(existing);
       String? preview;
-      if (msg.textContent != null) {
+      if (msg.textContent != null && msg.textContent!.isNotEmpty) {
         preview = msg.textContent!.length > 100
             ? '${msg.textContent!.substring(0, 100)}...'
             : msg.textContent!;
+      } else if (msg.hasMedia) {
+        switch (msg.type) {
+          case MessageType.voice:
+            preview = '🎙 Voice message';
+          case MessageType.document:
+            preview = '📄 Document';
+          case MessageType.video:
+            preview = '🎬 Video message';
+          case MessageType.image:
+            preview = '📷 Photo';
+          default:
+            preview = '📎 Attachment';
+        }
       }
 
       await _appDatabase.upsertLocalConversation(
