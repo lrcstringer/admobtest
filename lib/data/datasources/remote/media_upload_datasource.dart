@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
@@ -447,21 +446,17 @@ class MediaUploadDatasource {
       );
     }
 
-    // Download via HTTP using the download URL (includes access token).
-    // This avoids going through Firebase Storage SDK security rules,
-    // which would block recipients who didn't upload the file.
-    final response = await http.get(Uri.parse(url)).timeout(
+    // Get storage reference from URL and download
+    final ref = _storage.refFromURL(url);
+    final encryptedBytes = await ref.getData().timeout(
           const Duration(seconds: 30),
           onTimeout: () {
             throw TimeoutException('Media download timed out after 30s');
           },
         );
-    if (response.statusCode != 200) {
-      throw Exception(
-        'Failed to download encrypted media (HTTP ${response.statusCode})',
-      );
+    if (encryptedBytes == null) {
+      throw Exception('Failed to download encrypted media');
     }
-    final encryptedBytes = response.bodyBytes;
 
     // Fix #1: Validate minimum size before splitting nonce/ciphertext
     // Format: nonce(12 bytes) || ciphertext(>=1 byte) || GCM tag(16 bytes)

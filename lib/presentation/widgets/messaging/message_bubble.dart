@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -1006,15 +1007,18 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
         final dir = await getTemporaryDirectory();
         final file = File('${dir.path}/${media.fileName}');
         await file.writeAsBytes(bytes);
-        final uri = Uri.file(file.path);
-        if (!await launchUrl(uri)) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Could not open document')),
-            );
-          }
+        // Use OpenFilex which handles Android content:// URIs via FileProvider.
+        // launchUrl(Uri.file(...)) throws FileUriExposedException on Android 7+.
+        final result = await OpenFilex.open(
+          file.path,
+          type: media.mimeType,
+        );
+        if (result.type != ResultType.done && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Could not open document: ${result.message}')),
+          );
         }
-        // Fix #7: Delete temp file after a delay to allow the viewer to open it
+        // Delete temp file after a delay to allow the viewer to open it
         Future.delayed(const Duration(minutes: 2), () {
           file.delete().ignore();
         });
