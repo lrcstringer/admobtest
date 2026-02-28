@@ -31,6 +31,9 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
+  /// Whether [initialize] has already completed.
+  bool _initialized = false;
+
   /// The conversation/community ID currently open on screen.
   /// Set by the BLoC/screen when a chat is opened, cleared when closed.
   /// Used to suppress foreground notifications for the active chat.
@@ -48,11 +51,20 @@ class NotificationService {
 
   /// Initialize FCM + local notifications: request permission, save token,
   /// set up listeners, create Android notification channels.
+  ///
+  /// Idempotent — safe to call multiple times (e.g. on auth state changes).
+  /// The FCM token is always re-saved to keep it fresh.
   Future<void> initialize() async {
-    await _initLocalNotifications();
-    await _requestPermission();
+    // Always save the latest FCM token (may rotate between sessions)
     final token = await FirebaseMessaging.instance.getToken();
     if (token != null) await _saveTokenToFirestore(token);
+
+    // Only set up listeners and channels once
+    if (_initialized) return;
+    _initialized = true;
+
+    await _initLocalNotifications();
+    await _requestPermission();
     FirebaseMessaging.instance.onTokenRefresh.listen(_saveTokenToFirestore);
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
     FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);

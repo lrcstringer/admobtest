@@ -13,6 +13,8 @@ import '../../../core/services/fcm_challenge_handler.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/services/key_backup_service.dart';
 import '../../../core/services/media_recovery_service.dart';
+import '../../../core/services/notification_service.dart';
+import '../../../core/services/call_notification_service.dart';
 import '../../../core/services/key_management_service.dart';
 import '../../../core/services/community_sync_service.dart';
 import '../../../core/services/message_sync_service.dart';
@@ -96,6 +98,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             _messageSyncService.startConversationListSync();
             // Fire-and-forget E2EE key initialization
             _initializeE2EEKeys();
+            // Fire-and-forget notification + VoIP token setup
+            _initializeNotifications();
           }
         }
       },
@@ -170,6 +174,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           _messageSyncService.startConversationListSync();
           // Fire-and-forget E2EE key initialization
           _initializeE2EEKeys();
+          // Fire-and-forget notification + VoIP token setup
+          _initializeNotifications();
         }
       },
     );
@@ -558,6 +564,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _messageSyncService.startConversationListSync();
     // Fire-and-forget E2EE key initialization after onboarding
     _initializeE2EEKeys();
+    // Fire-and-forget notification + VoIP token setup
+    _initializeNotifications();
   }
 
   Future<void> _onRequestPushLogin(
@@ -740,6 +748,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       debugPrint('E2EE INIT: Bundle upload NOT confirmed — '
           'message sync will NOT start until keys are on the server');
     }
+  }
+
+  /// Initialize FCM notifications (token save + foreground listener) and
+  /// VoIP token for incoming calls. Fire-and-forget — failures logged only.
+  void _initializeNotifications() {
+    getIt<NotificationService>().initialize().catchError((e) {
+      debugPrint('NotificationService init failed: $e');
+    });
+    getIt<CallNotificationService>().saveVoipToken().catchError((e) {
+      debugPrint('VoIP token save failed: $e');
+    });
   }
 
   /// Start all message/queue services. Idempotent — safe to call multiple times.

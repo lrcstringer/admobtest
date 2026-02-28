@@ -169,7 +169,7 @@ export const initiateCall = onCall(
             conversationId,
             callerName: callData.callerName,
             callerId: userId,
-            callerAvatar: callData.callerAvatarUrl,
+            callerAvatarUrl: callData.callerAvatarUrl,
           },
           android: {
             priority: "high",
