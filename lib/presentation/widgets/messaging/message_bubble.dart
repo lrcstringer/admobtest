@@ -307,7 +307,9 @@ class MessageBubble extends StatelessWidget {
               ),
             ),
           if (message.hasMedia) _buildMedia(context),
-          if (_isDecryptionFailed)
+          if (_isSentByYouFallback)
+            const SizedBox.shrink() // Handled by _SentByYouPlaceholder in media
+          else if (_isDecryptionFailed)
             _buildDecryptionFailed(context)
           else if (_isJsonMediaPayload)
             const SizedBox.shrink() // Suppress leaked JSON media payload
@@ -397,6 +399,14 @@ class MessageBubble extends StatelessWidget {
   Widget _buildMedia(BuildContext context) {
     // Media expired or removed — show placeholder
     if (message.type.isMedia && message.media == null) {
+      // Sender's own message after reinstall — show graceful type indicator
+      // instead of the alarming "Media no longer available".
+      if (_isSentByYouFallback) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: _SentByYouPlaceholder(type: message.type),
+        );
+      }
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: _MediaExpiredPlaceholder(type: message.type, isMe: isMe),
@@ -835,6 +845,11 @@ class MessageBubble extends StatelessWidget {
     final text = message.textContent;
     return text != null && text.startsWith('{"media":');
   }
+
+  /// Sender's own message whose plaintext was lost (e.g. after reinstall).
+  /// The local E2EE cache is gone and the message can't be recovered.
+  bool get _isSentByYouFallback =>
+      message.textContent == '[Sent by you]';
 
   Widget _buildDecryptionFailed(BuildContext context) {
     final text = message.textContent ?? '';
@@ -1313,6 +1328,76 @@ class _MediaExpiredPlaceholder extends StatelessWidget {
           Expanded(
             child: Text(
               'Media no longer available',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: textColor,
+                    fontStyle: FontStyle.italic,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// SENT BY YOU PLACEHOLDER (after reinstall, plaintext cache lost)
+// =============================================================================
+
+class _SentByYouPlaceholder extends StatelessWidget {
+  final MessageType type;
+
+  const _SentByYouPlaceholder({required this.type});
+
+  IconData get _icon {
+    switch (type) {
+      case MessageType.image:
+        return Icons.image_outlined;
+      case MessageType.video:
+        return Icons.videocam_outlined;
+      case MessageType.voice:
+        return Icons.mic_outlined;
+      case MessageType.document:
+        return Icons.description_outlined;
+      default:
+        return Icons.chat_bubble_outline;
+    }
+  }
+
+  String get _label {
+    switch (type) {
+      case MessageType.image:
+        return 'You sent a photo';
+      case MessageType.video:
+        return 'You sent a video';
+      case MessageType.voice:
+        return 'You sent a voice message';
+      case MessageType.document:
+        return 'You sent a document';
+      default:
+        return 'You sent a message';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const textColor = AppColors.chatBubbleTimestamp;
+
+    return Container(
+      width: 120,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(_icon, color: textColor, size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              _label,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: textColor,
                     fontStyle: FontStyle.italic,

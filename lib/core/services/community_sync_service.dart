@@ -310,6 +310,22 @@ class CommunitySyncService {
           if (plaintext != null) {
             decryptedMsg = _applyDecryptedPayload(msg, plaintext);
           } else {
+            // Sender's own: local cache wiped (reinstall). Store graceful
+            // fallback. If outgoing queue is still processing (race), its
+            // _finalizeSent will overwrite with real content.
+            if (msg.senderId == currentUserId) {
+              debugPrint('CommunitySyncService: Sender own-message cache miss '
+                  '${msg.id} — storing fallback');
+              decryptedMsg = msg.copyWith(textContent: '[Sent by you]');
+              await _appDatabase.upsertLocalMessage(
+                LocalMessageMapper.toCompanion(
+                  decryptedMsg.copyWith(communityId: communityId),
+                  communityId,
+                  isDecrypted: true,
+                ),
+              );
+              continue;
+            }
             isDecrypted = false;
             decryptedMsg =
                 msg.copyWith(textContent: '[Cannot decrypt community message]');

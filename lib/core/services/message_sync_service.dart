@@ -361,6 +361,31 @@ class MessageSyncService {
               continue;
             }
 
+            // Sender's own messages: plaintext was only in the local cache.
+            // After reinstall the cache is gone and the message can't be
+            // recovered (it was encrypted for the recipient, not the sender).
+            // Store a graceful fallback with isDecrypted:true so the sync
+            // doesn't re-process on every snapshot. If the outgoing queue
+            // is still processing (race condition), _finalizeSent will
+            // overwrite this with the real content.
+            if (msg.senderId == currentUserId) {
+              debugPrint('MessageSyncService: Sender own-message cache miss '
+                  '${msg.id} — storing fallback');
+              decryptedMsg = msg.copyWith(
+                textContent: '[Sent by you]',
+              );
+              // Mark as "decrypted" so we don't retry every sync cycle
+              await _appDatabase.upsertLocalMessage(
+                LocalMessageMapper.toCompanion(
+                  decryptedMsg,
+                  conversationId,
+                  isDecrypted: true,
+                ),
+              );
+              await _updateConversationPreview(conversationId, decryptedMsg);
+              continue;
+            }
+
             isDecrypted = false;
             // Track for second-pass retry: a later message in this batch
             // (with x3dhHeader) might establish the session.
