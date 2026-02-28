@@ -8,7 +8,12 @@ import '../../../core/error/failures.dart';
 import '../../../core/services/audio_playback_service.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../../domain/entities/message.dart';
+import '../../../domain/enums/call_type.dart';
+import '../../../domain/enums/conversation_type.dart';
+import '../../../domain/enums/report_reason.dart';
+import '../../../domain/enums/report_type.dart';
 import '../../../domain/repositories/moderation_repository.dart';
+import '../../blocs/call/call_bloc.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
@@ -27,6 +32,7 @@ import '../../widgets/messaging/reaction_picker.dart';
 import '../../widgets/messaging/typing_indicator.dart';
 import '../../widgets/messaging/video_message_recorder.dart';
 import '../../widgets/messaging/voice_recorder_widget.dart';
+import '../../widgets/moderation/report_sheet.dart';
 
 /// P2P conversation detail screen showing messages and input bar.
 ///
@@ -136,6 +142,21 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                   )
                 : const Text('Chat'),
             actions: [
+              // Call buttons (P2P only)
+              if (conv != null && conv.type == ConversationType.p2p) ...[
+                IconButton(
+                  icon: const Icon(Icons.call_outlined),
+                  tooltip: 'Voice call',
+                  onPressed: () => _initiateCall(
+                      context, conv, currentUserId, CallType.voice),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.videocam_outlined),
+                  tooltip: 'Video call',
+                  onPressed: () => _initiateCall(
+                      context, conv, currentUserId, CallType.video),
+                ),
+              ],
               IconButton(
                 icon: const Icon(Icons.search),
                 onPressed: () {
@@ -207,11 +228,6 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                               conv.isMessageRequestFor(currentUserId)
                           ? null
                           : () => _showTokenActions(
-                              context, state, currentUserId),
-                      onVoiceRecord: conv != null &&
-                              conv.isMessageRequestFor(currentUserId)
-                          ? null
-                          : () => _openVoiceRecorder(
                               context, state, currentUserId),
                       onTypingChanged: (isTyping) {
                         context.read<ConversationBloc>().add(
@@ -717,6 +733,31 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     );
   }
 
+  void _initiateCall(
+    BuildContext context,
+    Conversation conv,
+    String currentUserId,
+    CallType callType,
+  ) {
+    final recipientId = conv.otherParticipantId(currentUserId);
+    final recipientInfo = conv.getOtherParticipant(currentUserId);
+
+    // Dispatch call initiation event
+    context.read<CallBloc>().add(CallEvent.initiateCall(
+          conversationId: widget.conversationId,
+          recipientId: recipientId,
+          recipientName: recipientInfo.displayName,
+          recipientAvatarUrl: recipientInfo.avatarUrl,
+          callType: callType,
+        ));
+
+    // Navigate to call screen
+    context.push(
+      '/chat/conversation/${widget.conversationId}/call/outgoing',
+      extra: {'isVideo': callType == CallType.video},
+    );
+  }
+
   void _showChatOptions(BuildContext context, Conversation? conv) {
     if (conv == null) return;
     final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
@@ -791,6 +832,18 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               onTap: () {
                 Navigator.pop(ctx);
                 _confirmBlockUser(
+                  context,
+                  conv.otherParticipantId(currentUserId),
+                  conv.displayNameFor(currentUserId),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.flag_outlined, color: AppColors.error),
+              title: const Text('Report User'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _reportUser(
                   context,
                   conv.otherParticipantId(currentUserId),
                   conv.displayNameFor(currentUserId),
@@ -1001,6 +1054,42 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         );
         context.go('/chat');
       },
+    );
+  }
+
+  void _reportUser(
+    BuildContext context,
+    String userId,
+    String displayName,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => ReportSheet(
+        targetName: displayName,
+        onSubmit: (reason, additionalInfo) async {
+          final result =
+              await getIt<ModerationRepository>().submitReport(
+            type: ReportType.user,
+            targetId: userId,
+            reason: reason,
+            additionalInfo: additionalInfo,
+          );
+          if (!mounted) return;
+          result.fold(
+            (failure) => ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    'Failed to submit report: ${failure.displayMessage}'),
+                backgroundColor: AppColors.error,
+              ),
+            ),
+            (_) => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Report submitted')),
+            ),
+          );
+        },
+      ),
     );
   }
 }

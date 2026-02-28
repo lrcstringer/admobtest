@@ -8,6 +8,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
+import 'call_notification_service.dart';
+
 /// Notification channel IDs matching the Cloud Functions payload.
 const _chatChannelId = 'chat_messages';
 const _chatChannelName = 'Chat Messages';
@@ -24,6 +26,7 @@ const _defaultChannelDesc = 'General notifications';
 @lazySingleton
 class NotificationService {
   GoRouter? _router;
+  CallNotificationService? _callNotificationService;
 
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
@@ -36,6 +39,11 @@ class NotificationService {
   /// Set the router for deep link navigation from notification taps
   void setRouter(GoRouter router) {
     _router = router;
+  }
+
+  /// Set the call notification service for incoming call handling
+  void setCallNotificationService(CallNotificationService service) {
+    _callNotificationService = service;
   }
 
   /// Initialize FCM + local notifications: request permission, save token,
@@ -173,11 +181,25 @@ class NotificationService {
   /// Handle FCM messages that arrive while the app is in the foreground.
   /// Shows a local notification banner so the user sees it.
   void _handleForegroundMessage(RemoteMessage message) {
+    final type = message.data['type'] as String?;
+
+    // Handle incoming call data messages (no notification payload)
+    if (type == 'incoming_call') {
+      _callNotificationService?.showIncomingCall(
+        callId: message.data['callId'] as String? ?? '',
+        callerName: message.data['callerName'] as String? ?? 'Unknown',
+        callerAvatarUrl: message.data['callerAvatarUrl'] as String?,
+        callType: message.data['callType'] as String? ?? 'voice',
+        conversationId: message.data['conversationId'] as String? ?? '',
+        callerId: message.data['callerId'] as String? ?? '',
+      );
+      return;
+    }
+
     final notification = message.notification;
     if (notification == null) return;
 
     // Suppress notification if the user is currently viewing this conversation
-    final type = message.data['type'] as String?;
     final conversationId = message.data['conversationId'] as String?;
     final communityId = message.data['communityId'] as String?;
 

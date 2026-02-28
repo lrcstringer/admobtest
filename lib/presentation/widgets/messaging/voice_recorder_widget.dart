@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -62,7 +61,6 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
   late AnimationController _progressController;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
-  late AnimationController _ringController;
 
   @override
   void initState() {
@@ -78,10 +76,6 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
-    _ringController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    );
     _checkPermission();
   }
 
@@ -90,7 +84,6 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
     _timer?.cancel();
     _progressController.dispose();
     _pulseController.dispose();
-    _ringController.dispose();
     _recorder.dispose();
     _reviewPlayer?.dispose();
     super.dispose();
@@ -132,7 +125,6 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
       _elapsedSeconds = 0;
       _progressController.forward(from: 0);
       _pulseController.repeat(reverse: true);
-      _ringController.repeat();
 
       _timer = Timer.periodic(const Duration(seconds: 1), (_) {
         if (!mounted) return;
@@ -153,7 +145,6 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
   Future<void> _stopRecording() async {
     _timer?.cancel();
     _pulseController.stop();
-    _ringController.stop();
     _progressController.stop();
 
     try {
@@ -195,11 +186,10 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
         return;
       }
 
-      // Set up review playback
+      // Set up review player (don't auto-play — let user decide)
       _reviewPlayer = AudioPlayer();
       await _reviewPlayer!.setFilePath(path);
-      await _reviewPlayer!.setLoopMode(LoopMode.one);
-      await _reviewPlayer!.play();
+      await _reviewPlayer!.setLoopMode(LoopMode.off);
 
       _reviewPlayer!.playerStateStream.listen((state) {
         if (!mounted) return;
@@ -359,7 +349,7 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
 
   Widget _buildCenterContent() {
     final screenWidth = MediaQuery.of(context).size.width;
-    final previewSize = screenWidth * 0.5; // slightly smaller than video (0.78)
+    final previewSize = screenWidth * 0.5;
 
     if (_errorMessage != null) {
       return SizedBox(
@@ -396,10 +386,10 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
           child: GestureDetector(
             onTap: _toggleReviewPlayback,
             child: Container(
-              width: 160,
-              height: 160,
+              width: previewSize,
+              height: previewSize,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(16),
                 color: Colors.white.withValues(alpha: 0.08),
                 border: Border.all(
                   color: AppColors.success.withValues(alpha: 0.5),
@@ -417,49 +407,40 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
       );
     }
 
-    // Ready or recording
-    final ringSize = previewSize + 12;
+    // Ready or recording — rounded square mic area with progress ring
+    final ringSize = previewSize + 12; // extra for ring stroke
     return SizedBox(
       width: ringSize,
       height: ringSize,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Progress ring (only visible while recording)
+          // Progress ring tracing the rounded-rect edges (only while recording)
           if (_phase == _RecorderPhase.recording)
             Positioned.fill(
               child: AnimatedBuilder(
                 animation: _progressController,
                 builder: (_, __) => CustomPaint(
-                  painter: _ProgressRingPainter(
+                  painter: _RoundedRectProgressPainter(
                     progress: _progressController.value,
                     color: _progressColor,
-                    strokeWidth: 4,
+                    strokeWidth: 6,
+                    borderRadius: 18,
                   ),
                 ),
               ),
             ),
-          // Pulse rings (while recording)
-          if (_phase == _RecorderPhase.recording)
-            AnimatedBuilder(
-              animation: _ringController,
-              builder: (_, __) => CustomPaint(
-                size: Size(previewSize, previewSize),
-                painter: _PulseRingsPainter(
-                  progress: _ringController.value,
-                  color: _progressColor,
-                ),
-              ),
-            ),
-          // Microphone circle
+          // Microphone rounded square
           Container(
-            width: 160,
-            height: 160,
+            width: previewSize,
+            height: previewSize,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(16),
               color: Colors.white.withValues(alpha: 0.08),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: _phase == _RecorderPhase.recording
+                    ? _progressColor.withValues(alpha: 0.3)
+                    : Colors.white.withValues(alpha: 0.2),
                 width: 2,
               ),
             ),
@@ -620,87 +601,84 @@ class _ActionButton extends StatelessWidget {
 }
 
 // =============================================================================
-// PROGRESS RING PAINTER — circular ring around the mic area
+// ROUNDED-RECT PROGRESS PAINTER — traces the box edges from top-center clockwise
 // =============================================================================
 
-class _ProgressRingPainter extends CustomPainter {
-  final double progress;
+class _RoundedRectProgressPainter extends CustomPainter {
+  final double progress; // 0.0 → 1.0
   final Color color;
   final double strokeWidth;
+  final double borderRadius;
 
-  _ProgressRingPainter({
+  _RoundedRectProgressPainter({
     required this.progress,
     required this.color,
     required this.strokeWidth,
+    required this.borderRadius,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.shortestSide - strokeWidth) / 2;
+    final rect = Rect.fromLTWH(
+      strokeWidth / 2,
+      strokeWidth / 2,
+      size.width - strokeWidth,
+      size.height - strokeWidth,
+    );
+    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
 
     // Background track
     final bgPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.2)
+      ..color = Colors.white.withValues(alpha: 0.12)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
-    canvas.drawCircle(center, radius, bgPaint);
+    canvas.drawRRect(rrect, bgPaint);
 
-    // Progress arc
-    if (progress > 0) {
-      final progressPaint = Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.round;
+    if (progress <= 0) return;
 
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        -math.pi / 2,
-        2 * math.pi * progress,
-        false,
-        progressPaint,
+    // Build path starting from top-center, going clockwise around the box
+    final r = borderRadius;
+    final l = rect.left;
+    final t = rect.top;
+    final ri = rect.right;
+    final b = rect.bottom;
+    final cx = rect.center.dx;
+
+    final path = Path()
+      ..moveTo(cx, t)
+      ..lineTo(ri - r, t) // top edge → right
+      ..arcToPoint(Offset(ri, t + r), radius: Radius.circular(r))
+      ..lineTo(ri, b - r) // right edge ↓
+      ..arcToPoint(Offset(ri - r, b), radius: Radius.circular(r))
+      ..lineTo(l + r, b) // bottom edge ← left
+      ..arcToPoint(Offset(l, b - r), radius: Radius.circular(r))
+      ..lineTo(l, t + r) // left edge ↑
+      ..arcToPoint(Offset(l + r, t), radius: Radius.circular(r))
+      ..lineTo(cx, t); // top edge ← back to center
+
+    final metric = path.computeMetrics().first;
+    final progressPath = metric.extractPath(0, metric.length * progress);
+
+    // Draw the progress arc
+    final progressPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+    canvas.drawPath(progressPath, progressPaint);
+
+    // Bright dot at leading edge
+    final tangent = metric.getTangentForOffset(metric.length * progress);
+    if (tangent != null) {
+      canvas.drawCircle(
+        tangent.position,
+        strokeWidth * 1.2,
+        Paint()..color = color,
       );
     }
   }
 
   @override
-  bool shouldRepaint(covariant _ProgressRingPainter oldDelegate) =>
-      progress != oldDelegate.progress || color != oldDelegate.color;
-}
-
-// =============================================================================
-// PULSE RINGS PAINTER — concentric expanding rings during recording
-// =============================================================================
-
-class _PulseRingsPainter extends CustomPainter {
-  final double progress; // 0.0 → 1.0 repeating
-  final Color color;
-
-  _PulseRingsPainter({required this.progress, required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final maxRadius = size.shortestSide / 2;
-    const ringCount = 3;
-
-    for (var i = 0; i < ringCount; i++) {
-      final phase = (progress + i / ringCount) % 1.0;
-      final radius = 80 + (maxRadius - 80) * phase; // start from mic circle
-      final opacity = (1.0 - phase) * 0.3;
-
-      if (opacity > 0) {
-        final paint = Paint()
-          ..color = color.withValues(alpha: opacity)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2;
-        canvas.drawCircle(center, radius, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _PulseRingsPainter oldDelegate) =>
+  bool shouldRepaint(covariant _RoundedRectProgressPainter oldDelegate) =>
       progress != oldDelegate.progress || color != oldDelegate.color;
 }

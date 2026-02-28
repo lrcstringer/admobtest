@@ -4,6 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+import 'package:flutter_callkit_incoming/entities/entities.dart'
+    as callkit;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,6 +26,53 @@ import 'firebase_options.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Handle incoming call push in background/killed state
+  final type = message.data['type'] as String?;
+  if (type == 'incoming_call') {
+    final callId = message.data['callId'] as String? ?? '';
+    final callerName = message.data['callerName'] as String? ?? 'Unknown';
+    final callerAvatarUrl = message.data['callerAvatarUrl'] as String?;
+    final callType = message.data['callType'] as String? ?? 'voice';
+    final hasVideo = callType == 'video';
+
+    final params = callkit.CallKitParams(
+      id: callId,
+      nameCaller: callerName,
+      avatar: callerAvatarUrl,
+      type: hasVideo ? 1 : 0,
+      textAccept: 'Accept',
+      textDecline: 'Decline',
+      duration: 30000,
+      extra: <String, dynamic>{
+        'callId': callId,
+        'conversationId': message.data['conversationId'] ?? '',
+        'callerId': message.data['callerId'] ?? '',
+        'callerName': callerName,
+        'callerAvatarUrl': callerAvatarUrl ?? '',
+        'callType': callType,
+      },
+      android: const callkit.AndroidParams(
+        isCustomNotification: false,
+        isShowLogo: false,
+        ringtonePath: 'system_ringtone_default',
+        backgroundColor: '#0955fa',
+        actionColor: '#4CAF50',
+        isShowFullLockedScreen: true,
+      ),
+      ios: const callkit.IOSParams(
+        handleType: 'generic',
+        supportsVideo: true,
+        maximumCallGroups: 1,
+        maximumCallsPerCallGroup: 1,
+        ringtonePath: 'system_ringtone_default',
+      ),
+    );
+
+    await FlutterCallkitIncoming.showCallkitIncoming(params);
+    return;
+  }
+
   // Background challenges are handled when the app opens via
   // getInitialMessage / onMessageOpenedApp in app.dart
 }

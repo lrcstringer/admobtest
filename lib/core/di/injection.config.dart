@@ -28,6 +28,7 @@ import '../../data/datasources/local/app_database.dart' as _i483;
 import '../../data/datasources/remote/admin_earn_remote_datasource.dart'
     as _i48;
 import '../../data/datasources/remote/auth_remote_datasource.dart' as _i1057;
+import '../../data/datasources/remote/call_remote_datasource.dart' as _i340;
 import '../../data/datasources/remote/chat_remote_datasource.dart' as _i224;
 import '../../data/datasources/remote/community_remote_datasource.dart'
     as _i560;
@@ -51,6 +52,7 @@ import '../../data/datasources/remote/token_spray_remote_datasource.dart'
 import '../../data/datasources/remote/user_remote_datasource.dart' as _i50;
 import '../../data/datasources/remote/wallet_remote_datasource.dart' as _i389;
 import '../../data/repositories/auth_repository_impl.dart' as _i895;
+import '../../data/repositories/call_repository_impl.dart' as _i294;
 import '../../data/repositories/chat_repository_impl.dart' as _i838;
 import '../../data/repositories/community_repository_impl.dart' as _i462;
 import '../../data/repositories/contact_repository_impl.dart' as _i133;
@@ -71,6 +73,7 @@ import '../../data/repositories/wallet_repository_impl.dart' as _i520;
 import '../../data/services/admob_service.dart' as _i284;
 import '../../data/services/upload_service.dart' as _i434;
 import '../../domain/repositories/auth_repository.dart' as _i1073;
+import '../../domain/repositories/call_repository.dart' as _i658;
 import '../../domain/repositories/chat_repository.dart' as _i1072;
 import '../../domain/repositories/community_repository.dart' as _i936;
 import '../../domain/repositories/contact_repository.dart' as _i482;
@@ -91,6 +94,7 @@ import '../../domain/repositories/wallet_repository.dart' as _i851;
 import '../../presentation/admin/blocs/admin_earn/admin_earn_bloc.dart'
     as _i1026;
 import '../../presentation/blocs/auth/auth_bloc.dart' as _i141;
+import '../../presentation/blocs/call/call_bloc.dart' as _i807;
 import '../../presentation/blocs/cashout/cashout_bloc.dart' as _i772;
 import '../../presentation/blocs/chat/chat_bloc.dart' as _i142;
 import '../../presentation/blocs/community/community_bloc.dart' as _i856;
@@ -128,6 +132,8 @@ import '../security/sim_change_detector.dart' as _i925;
 import '../security/step_up_auth_service.dart' as _i720;
 import '../services/audio_playback_service.dart' as _i38;
 import '../services/biometric_login_service.dart' as _i290;
+import '../services/call_notification_service.dart' as _i673;
+import '../services/call_signaling_service.dart' as _i846;
 import '../services/chat_analytics_service.dart' as _i550;
 import '../services/community_sync_service.dart' as _i310;
 import '../services/crypto_service.dart' as _i1024;
@@ -143,6 +149,7 @@ import '../services/outgoing_message_queue.dart' as _i111;
 import '../services/sender_key_service.dart' as _i407;
 import '../services/share_service.dart' as _i474;
 import '../services/signal_protocol_service.dart' as _i161;
+import '../services/webrtc_service.dart' as _i980;
 import '../utils/error_handler.dart' as _i383;
 import 'register_module.dart' as _i291;
 
@@ -194,8 +201,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i941.NotificationService>(
       () => _i941.NotificationService(),
     );
+    gh.lazySingleton<_i980.WebRtcServiceFactory>(
+      () => _i980.WebRtcServiceFactory(),
+    );
     gh.lazySingleton<_i383.ErrorHandler>(() => _i383.ErrorHandler());
     gh.lazySingleton<_i483.AppDatabase>(() => _i483.AppDatabase());
+    gh.lazySingleton<_i673.CallNotificationService>(
+      () => _i673.CallNotificationService(),
+    );
     gh.lazySingleton<_i434.UploadService>(
       () => _i434.UploadService(gh<_i457.FirebaseStorage>()),
     );
@@ -287,6 +300,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i988.AuditLogger>(
       () => _i988.AuditLogger(gh<_i974.FirebaseFirestore>()),
     );
+    gh.lazySingleton<_i846.CallSignalingService>(
+      () => _i846.CallSignalingService(gh<_i974.FirebaseFirestore>()),
+    );
     gh.lazySingleton<_i313.ModerationRemoteDatasource>(
       () => _i313.ModerationRemoteDatasourceImpl(gh<_i809.FirebaseFunctions>()),
     );
@@ -328,6 +344,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i351.PlayIntegrityService>(
       () => _i351.PlayIntegrityService(gh<_i809.FirebaseFunctions>()),
+    );
+    gh.lazySingleton<_i340.CallRemoteDatasource>(
+      () => _i340.CallRemoteDatasource(gh<_i809.FirebaseFunctions>()),
     );
     gh.lazySingleton<_i909.PollRemoteDataSource>(
       () => _i909.PollRemoteDataSource(gh<_i809.FirebaseFunctions>()),
@@ -402,6 +421,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i313.ModerationRemoteDatasource>(),
       ),
     );
+    gh.lazySingleton<_i658.CallRepository>(
+      () => _i294.CallRepositoryImpl(
+        gh<_i340.CallRemoteDatasource>(),
+        gh<_i974.FirebaseFirestore>(),
+      ),
+    );
     gh.lazySingleton<_i942.SessionLockService>(
       () => _i942.SessionLockService(
         gh<_i309.DeviceCapabilityService>(),
@@ -450,6 +475,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
         gh<_i351.PlayIntegrityService>(),
+      ),
+    );
+    gh.factory<_i807.CallBloc>(
+      () => _i807.CallBloc(
+        gh<_i658.CallRepository>(),
+        gh<_i980.WebRtcServiceFactory>(),
+        gh<_i846.CallSignalingService>(),
       ),
     );
     gh.lazySingleton<_i310.CommunitySyncService>(

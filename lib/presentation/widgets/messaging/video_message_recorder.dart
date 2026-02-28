@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:camera/camera.dart';
@@ -226,16 +225,19 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
       final outputPath = '${dir.path}/vmsg_$ts.mp4';
       final thumbPath = '${dir.path}/vmsg_thumb_$ts.jpg';
 
-      // Compress to 480×480 square, H.264 Main, 500k video, 64k audio
+      // Compress to 480×480 square, mpeg4 video (always available in min FFmpeg
+      // build — libx264 is NOT included in ffmpeg_kit_flutter_new_min), 64k audio
       final compressCmd = '-i "${rawFile.path}" '
           '-vf "crop=min(iw\\,ih):min(iw\\,ih),scale=480:480" '
-          '-c:v libx264 -profile:v main -preset medium -b:v 500k '
+          '-c:v mpeg4 -b:v 600k '
           '-c:a aac -b:a 64k -movflags +faststart '
           '-y "$outputPath"';
 
       final session = await FFmpegKit.execute(compressCmd);
       final returnCode = await session.getReturnCode();
       if (!ReturnCode.isSuccess(returnCode)) {
+        final logs = await session.getAllLogsAsString();
+        debugPrint('VideoRecorder: FFmpeg compression failed: $logs');
         throw Exception('Compression failed');
       }
 
@@ -472,7 +474,7 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
                   painter: _ProgressRingPainter(
                     progress: _progressController.value,
                     color: _progressColor,
-                    strokeWidth: 4,
+                    strokeWidth: 6,
                     borderRadius: 18,
                   ),
                 ),
@@ -683,28 +685,51 @@ class _ProgressRingPainter extends CustomPainter {
 
     // Background track
     final bgPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.2)
+      ..color = Colors.white.withValues(alpha: 0.15)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
     canvas.drawRRect(rrect, bgPaint);
 
-    // Progress arc — approximate with a circle for smooth animation
-    if (progress > 0) {
-      final progressPaint = Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.round;
+    if (progress <= 0) return;
 
-      final center = rect.center;
-      final radius = rect.shortestSide / 2;
+    // Build path starting from top-center, going clockwise around the box
+    final r = borderRadius;
+    final l = rect.left;
+    final t = rect.top;
+    final ri = rect.right;
+    final b = rect.bottom;
+    final cx = rect.center.dx;
 
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        -math.pi / 2, // start from top
-        2 * math.pi * progress,
-        false,
-        progressPaint,
+    final path = Path()
+      ..moveTo(cx, t)
+      ..lineTo(ri - r, t) // top edge → right
+      ..arcToPoint(Offset(ri, t + r), radius: Radius.circular(r))
+      ..lineTo(ri, b - r) // right edge ↓
+      ..arcToPoint(Offset(ri - r, b), radius: Radius.circular(r))
+      ..lineTo(l + r, b) // bottom edge ← left
+      ..arcToPoint(Offset(l, b - r), radius: Radius.circular(r))
+      ..lineTo(l, t + r) // left edge ↑
+      ..arcToPoint(Offset(l + r, t), radius: Radius.circular(r))
+      ..lineTo(cx, t); // top edge ← back to center
+
+    final metric = path.computeMetrics().first;
+    final progressPath = metric.extractPath(0, metric.length * progress);
+
+    // Draw the progress arc along the box edges
+    final progressPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+    canvas.drawPath(progressPath, progressPaint);
+
+    // Bright dot at leading edge
+    final tangent = metric.getTangentForOffset(metric.length * progress);
+    if (tangent != null) {
+      canvas.drawCircle(
+        tangent.position,
+        strokeWidth * 1.2,
+        Paint()..color = color,
       );
     }
   }

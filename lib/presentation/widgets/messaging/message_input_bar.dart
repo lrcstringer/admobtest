@@ -5,19 +5,15 @@ import '../../theme/app_colors.dart';
 
 /// Reusable message input bar for both conversations and community chat.
 ///
-/// When text is empty and [onVoiceRecord] is non-null, the send button
-/// becomes a mic button. Tapping it triggers voice recording mode.
-///
 /// Includes an inline emoji picker that toggles with the keyboard.
+/// When text is empty, shows a Plus attachment button on the right.
+/// When text is entered, switches to a Send button.
 class MessageInputBar extends StatefulWidget {
   final TextEditingController controller;
   final bool isSending;
   final VoidCallback onSend;
   final VoidCallback? onAttachment;
   final VoidCallback? onTokenAction;
-
-  /// Called when the user taps the mic icon to start recording.
-  final VoidCallback? onVoiceRecord;
 
   /// Called when typing state changes (for typing indicators).
   final ValueChanged<bool>? onTypingChanged;
@@ -29,7 +25,6 @@ class MessageInputBar extends StatefulWidget {
     required this.onSend,
     this.onAttachment,
     this.onTokenAction,
-    this.onVoiceRecord,
     this.onTypingChanged,
   });
 
@@ -119,8 +114,6 @@ class _MessageInputBarState extends State<MessageInputBar> {
     controller.selection = TextSelection.collapsed(offset: offset);
   }
 
-  bool get _showMic => !_hasText && widget.onVoiceRecord != null;
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -156,12 +149,6 @@ class _MessageInputBarState extends State<MessageInputBar> {
                   color: AppColors.primary,
                   onPressed: widget.onTokenAction,
                 ),
-              if (widget.onAttachment != null)
-                IconButton(
-                  icon: const Icon(Icons.attach_file),
-                  color: AppColors.textSecondary,
-                  onPressed: widget.onAttachment,
-                ),
               Expanded(
                 child: TextField(
                   controller: widget.controller,
@@ -184,12 +171,9 @@ class _MessageInputBarState extends State<MessageInputBar> {
                 ),
               ),
               const SizedBox(width: 8),
-              _showMic
+              // Right button: Plus (attachment) when empty, Send when has text
+              _hasText
                   ? IconButton.filled(
-                      onPressed: widget.onVoiceRecord,
-                      icon: const Icon(Icons.mic),
-                    )
-                  : IconButton.filled(
                       onPressed: widget.isSending ? null : widget.onSend,
                       icon: widget.isSending
                           ? const SizedBox(
@@ -201,6 +185,10 @@ class _MessageInputBarState extends State<MessageInputBar> {
                               ),
                             )
                           : const Icon(Icons.send),
+                    )
+                  : IconButton.filled(
+                      onPressed: widget.onAttachment,
+                      icon: const Icon(Icons.add),
                     ),
             ],
           ),

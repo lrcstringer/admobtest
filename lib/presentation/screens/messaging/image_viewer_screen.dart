@@ -137,27 +137,42 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          if (_canSave)
-            IconButton(
-              icon: _isSaving
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Icon(Icons.download),
-              onPressed: _isSaving ? null : _saveToGallery,
-              tooltip: 'Save to gallery',
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xCC000000), // 80% black at top
+                Color(0x00000000), // transparent at bottom
+              ],
             ),
-        ],
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.white),
+            actions: [
+              if (_canSave)
+                IconButton(
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Icon(Icons.download),
+                  onPressed: _isSaving ? null : _saveToGallery,
+                  tooltip: 'Save to gallery',
+                ),
+            ],
+          ),
+        ),
       ),
       body: _buildBody(),
     );

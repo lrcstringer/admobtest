@@ -173,7 +173,7 @@ function createMockQuery(
       const docs: Array<{
         id: string;
         exists: boolean;
-        ref: { id: string; path: string };
+        ref: Record<string, unknown>;
         data: () => unknown;
       }> = [];
 
@@ -182,7 +182,7 @@ function createMockQuery(
           docs.push({
             id,
             exists: true,
-            ref: { id, path: `${collectionName}/${id}` },
+            ref: createMockDocRef(collectionName, id),
             data: () => data,
           });
         });
@@ -243,7 +243,7 @@ function createMockCollectionRef(
       const docs: Array<{
         id: string;
         exists: boolean;
-        ref: { id: string; path: string };
+        ref: Record<string, unknown>;
         data: () => unknown;
       }> = [];
 
@@ -252,7 +252,7 @@ function createMockCollectionRef(
           docs.push({
             id,
             exists: true,
-            ref: { id, path: `${collectionName}/${id}` },
+            ref: createMockDocRef(collectionName, id),
             data: () => data,
           });
         });

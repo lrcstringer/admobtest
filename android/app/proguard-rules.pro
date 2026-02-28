@@ -51,6 +51,14 @@
 -keep class com.google.android.gms.** { *; }
 -dontwarn com.google.android.gms.**
 
+# WebRTC
+-keep class org.webrtc.** { *; }
+-keep class com.cloudwebrtc.webrtc.** { *; }
+-dontwarn org.webrtc.**
+
+# Flutter CallKit Incoming
+-keep class com.hiennv.flutter_callkit_incoming.** { *; }
+
 # Suppress warnings
 -dontwarn org.bouncycastle.**
 -dontwarn org.conscrypt.**

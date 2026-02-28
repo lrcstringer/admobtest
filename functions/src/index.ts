@@ -65,6 +65,7 @@ export * from "./tokenSprays";
 export * from "./giftNotifications";
 export * from "./moderation";
 export * from "./keyManagement";
+export * from "./calls";
 export * from "./migrations/earnOverhaulMigration";
 export { runAdMobSystemMigration, runUpdateAdMobQuestion, adminRunPlatformSetup } from "./migrations/admobSystemThreadMigration";
 

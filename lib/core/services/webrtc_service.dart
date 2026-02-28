@@ -1,0 +1,269 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:injectable/injectable.dart';
+
+/// Per-call WebRTC wrapper. Create via [WebRtcServiceFactory], dispose after
+/// the call ends. NOT a singleton — each call gets a fresh instance to avoid
+/// stale StreamController issues.
+class WebRtcService {
+  RTCPeerConnection? _peerConnection;
+  MediaStream? _localStream;
+  MediaStream? _remoteStream;
+  RTCRtpTransceiver? _videoTransceiver;
+  final List<RTCRtpSender> _senders = [];
+
+  bool _isFrontCamera = true;
+  bool _isAudioEnabled = true;
+  bool _isVideoEnabled = true;
+  bool _isSpeakerOn = false;
+  bool _isDisposed = false;
+
+  // Stream controllers — fresh per instance, safe to close once
+  final _remoteStreamController = StreamController<MediaStream?>.broadcast();
+  final _localStreamController = StreamController<MediaStream?>.broadcast();
+  final _connectionStateController =
+      StreamController<RTCPeerConnectionState>.broadcast();
+  final _iceConnectionStateController =
+      StreamController<RTCIceConnectionState>.broadcast();
+  final _iceGatheringStateController =
+      StreamController<RTCIceGatheringState>.broadcast();
+
+  Stream<MediaStream?> get onRemoteStream => _remoteStreamController.stream;
+  Stream<MediaStream?> get onLocalStream => _localStreamController.stream;
+  Stream<RTCPeerConnectionState> get onConnectionState =>
+      _connectionStateController.stream;
+  Stream<RTCIceConnectionState> get onIceConnectionState =>
+      _iceConnectionStateController.stream;
+  Stream<RTCIceGatheringState> get onIceGatheringState =>
+      _iceGatheringStateController.stream;
+
+  RTCPeerConnection? get peerConnection => _peerConnection;
+  MediaStream? get localStream => _localStream;
+  bool get isFrontCamera => _isFrontCamera;
+  bool get isAudioEnabled => _isAudioEnabled;
+  bool get isVideoEnabled => _isVideoEnabled;
+  bool get isSpeakerOn => _isSpeakerOn;
+  bool get isDisposed => _isDisposed;
+
+  /// Initialize peer connection and acquire local media.
+  ///
+  /// [isVideo]: true for video call, false for voice-only.
+  /// [iceServers]: ICE server config from getTurnCredentials().
+  /// [onIceCandidate]: callback for each local ICE candidate.
+  Future<void> initialize({
+    required bool isVideo,
+    required Map<String, dynamic> iceServers,
+    required void Function(RTCIceCandidate) onIceCandidate,
+  }) async {
+    // Safety: dispose previous state if initialize() called twice
+    if (_peerConnection != null) {
+      await dispose();
+      _isDisposed = false; // Reset so this instance is usable
+    }
+
+    // Platform audio configuration
+    if (!kIsWeb && Platform.isAndroid) {
+      await Helper.setAndroidAudioConfiguration(
+        AndroidAudioConfiguration(
+          androidAudioMode: AndroidAudioMode.inCommunication,
+          androidAudioFocusMode: AndroidAudioFocusMode.gain,
+          androidAudioStreamType: AndroidAudioStreamType.voiceCall,
+        ),
+      );
+    } else if (!kIsWeb && Platform.isIOS) {
+      await Helper.setAppleAudioConfiguration(
+        AppleAudioConfiguration(
+          appleAudioCategory: AppleAudioCategory.playAndRecord,
+          appleAudioCategoryOptions: {
+            AppleAudioCategoryOption.allowBluetooth,
+            AppleAudioCategoryOption.allowBluetoothA2DP,
+            AppleAudioCategoryOption.defaultToSpeaker,
+          },
+          appleAudioMode: AppleAudioMode.voiceChat,
+        ),
+      );
+    }
+
+    // Create peer connection
+    _peerConnection = await createPeerConnection(
+      iceServers,
+      {
+        'optional': [
+          {'DtlsSrtpKeyAgreement': true},
+        ],
+      },
+    );
+
+    // Register event handlers
+    _peerConnection!.onIceCandidate = (candidate) {
+      if (candidate.candidate != null && !_isDisposed) {
+        onIceCandidate(candidate);
+      }
+    };
+
+    _peerConnection!.onTrack = (event) {
+      if (event.streams.isNotEmpty && !_isDisposed) {
+        _remoteStream = event.streams.first;
+        _remoteStreamController.add(_remoteStream);
+      }
+    };
+
+    _peerConnection!.onConnectionState = (state) {
+      if (!_isDisposed) _connectionStateController.add(state);
+    };
+
+    _peerConnection!.onIceConnectionState = (state) {
+      if (!_isDisposed) _iceConnectionStateController.add(state);
+    };
+
+    _peerConnection!.onIceGatheringState = (state) {
+      if (!_isDisposed) _iceGatheringStateController.add(state);
+    };
+
+    // Acquire local media
+    try {
+      _localStream = await navigator.mediaDevices.getUserMedia({
+        'audio': {
+          'echoCancellation': true,
+          'noiseSuppression': true,
+          'autoGainControl': true,
+        },
+        'video': isVideo
+            ? {
+                'mandatory': {
+                  'minWidth': 480,
+                  'minHeight': 640,
+                  'minFrameRate': 24,
+                },
+                'facingMode': 'user',
+                'optional': <Map<String, dynamic>>[],
+              }
+            : false,
+      });
+    } catch (e) {
+      await dispose();
+      rethrow; // Permission denied or hardware failure
+    }
+    _localStreamController.add(_localStream);
+
+    // Add tracks to peer connection
+    for (final track in _localStream!.getTracks()) {
+      final sender = await _peerConnection!.addTrack(track, _localStream!);
+      _senders.add(sender);
+    }
+
+    // Reserve video transceiver for voice calls (enables upgrade without full renegotiation)
+    if (!isVideo) {
+      _videoTransceiver = await _peerConnection!.addTransceiver(
+        kind: RTCRtpMediaType.RTCRtpMediaTypeVideo,
+        init: RTCRtpTransceiverInit(
+            direction: TransceiverDirection.RecvOnly),
+      );
+    }
+  }
+
+  // ── Media Controls ──
+
+  void toggleMute() {
+    if (_localStream == null) return;
+    final audioTracks = _localStream!.getAudioTracks();
+    if (audioTracks.isEmpty) return;
+    final audioTrack = audioTracks.first;
+    audioTrack.enabled = !audioTrack.enabled;
+    _isAudioEnabled = audioTrack.enabled;
+  }
+
+  void toggleVideo() {
+    if (_localStream == null) return;
+    final videoTracks = _localStream!.getVideoTracks();
+    if (videoTracks.isEmpty) return;
+    videoTracks.first.enabled = !videoTracks.first.enabled;
+    _isVideoEnabled = videoTracks.first.enabled;
+  }
+
+  Future<void> switchCamera() async {
+    if (_localStream == null) return;
+    final videoTracks = _localStream!.getVideoTracks();
+    if (videoTracks.isEmpty) return;
+    await Helper.switchCamera(videoTracks.first);
+    _isFrontCamera = !_isFrontCamera;
+  }
+
+  Future<void> toggleSpeaker() async {
+    _isSpeakerOn = !_isSpeakerOn;
+    await Helper.setSpeakerphoneOn(_isSpeakerOn);
+  }
+
+  /// Upgrade voice call to video by replacing the reserved transceiver's track.
+  Future<void> upgradeToVideo() async {
+    final mediaStream = await navigator.mediaDevices.getUserMedia({
+      'video': {
+        'mandatory': {
+          'minWidth': 480,
+          'minHeight': 640,
+          'minFrameRate': 24,
+        },
+        'facingMode': 'user',
+      },
+    });
+    final videoTrack = mediaStream.getVideoTracks().first;
+
+    if (_videoTransceiver != null) {
+      await _videoTransceiver!.sender.replaceTrack(videoTrack);
+      await _videoTransceiver!
+          .setDirection(TransceiverDirection.SendRecv);
+    }
+
+    // Add video track to local stream for preview
+    _localStream?.addTrack(videoTrack);
+    _localStreamController.add(_localStream);
+    _isVideoEnabled = true;
+  }
+
+  // ── Cleanup ──
+
+  Future<void> dispose() async {
+    if (_isDisposed) return;
+    _isDisposed = true;
+
+    // 1. Stop all local tracks (use for loop, NOT forEach with async)
+    for (final track in _localStream?.getTracks() ?? <MediaStreamTrack>[]) {
+      await track.stop();
+    }
+
+    // 2. Dispose local stream
+    await _localStream?.dispose();
+    _localStream = null;
+    if (!_localStreamController.isClosed) {
+      _localStreamController.add(null);
+    }
+
+    // 3. Close peer connection
+    await _peerConnection?.close();
+    _peerConnection = null;
+
+    // 4. Clear state
+    _senders.clear();
+    _videoTransceiver = null;
+    _remoteStream = null;
+    if (!_remoteStreamController.isClosed) {
+      _remoteStreamController.add(null);
+    }
+
+    // 5. Close all stream controllers
+    _remoteStreamController.close();
+    _localStreamController.close();
+    _connectionStateController.close();
+    _iceConnectionStateController.close();
+    _iceGatheringStateController.close();
+  }
+}
+
+/// Factory registered with GetIt. Creates fresh [WebRtcService] per call.
+@lazySingleton
+class WebRtcServiceFactory {
+  WebRtcService create() => WebRtcService();
+}

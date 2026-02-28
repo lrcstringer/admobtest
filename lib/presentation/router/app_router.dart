@@ -36,6 +36,8 @@ import '../screens/messaging/messaging_screen.dart';
 import '../screens/messaging/contact_picker_screen.dart';
 import '../screens/messaging/conversation_detail_screen.dart';
 import '../screens/messaging/image_viewer_screen.dart';
+import '../screens/messaging/voice_call_screen.dart';
+import '../screens/messaging/video_call_screen.dart';
 import '../screens/messaging/contact_requests_screen.dart';
 import '../screens/messaging/import_contacts_screen.dart';
 import '../screens/messaging/brand_accounts_screen.dart';
@@ -682,6 +684,23 @@ class AppRouter {
                             mediaKeyBase64:
                                 extra['mediaKeyBase64'] as String?,
                           );
+                        },
+                      ),
+                      // 8.1.4) Voice/Video Call
+                      GoRoute(
+                        path: 'call/:callId',
+                        name: 'conversationCall',
+                        builder: (context, state) {
+                          final callId =
+                              state.pathParameters['callId'] ?? '';
+                          final extra =
+                              state.extra as Map<String, dynamic>? ?? {};
+                          final isVideo =
+                              extra['isVideo'] as bool? ?? false;
+                          if (isVideo) {
+                            return VideoCallScreen(callId: callId);
+                          }
+                          return VoiceCallScreen(callId: callId);
                         },
                       ),
                     ],

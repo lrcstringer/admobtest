@@ -202,13 +202,26 @@ class MessageDecryptionService {
         final payload = jsonDecode(plaintext) as Map<String, dynamic>;
         if (payload.containsKey('media')) {
           final mediaJson = payload['media'] as Map<String, dynamic>;
-          return msg.copyWith(
-            textContent: payload['text'] as String?,
-            media: MessageMedia.fromJson(mediaJson),
-          );
+          try {
+            return msg.copyWith(
+              textContent: payload['text'] as String?,
+              media: MessageMedia.fromJson(mediaJson),
+            );
+          } catch (e) {
+            // Media parsing failed — log for debugging but DO NOT dump
+            // the raw JSON payload as textContent (that's the bug).
+            CryptoService.e2eeLog('applyDecryptedPayload: MessageMedia.fromJson '
+                'failed for ${msg.id}: $e');
+            // Return with null textContent (no raw JSON leak) and try
+            // to at least preserve what we can from the media map.
+            return msg.copyWith(
+              textContent: payload['text'] as String?,
+            );
+          }
         }
-      } catch (_) {
-        // Not valid JSON — treat as plain text
+      } catch (e) {
+        CryptoService.e2eeLog('applyDecryptedPayload: JSON parse failed '
+            'for ${msg.id}: $e');
       }
     }
     return msg.copyWith(textContent: plaintext);

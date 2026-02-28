@@ -19,6 +19,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@parse/node-apn": "^5.2.0",
     "firebase-admin": "^11.11.1",
     "firebase-functions": "^6.6.0",
     "googleapis": "^126.0.0"

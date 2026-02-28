@@ -9,9 +9,12 @@ import 'package:get_it/get_it.dart';
 import 'core/di/injection.dart';
 import 'core/security/session_lock_service.dart';
 import 'core/security/sim_change_detector.dart';
+import 'core/services/call_notification_service.dart';
 import 'core/services/deep_link_service.dart';
 import 'core/services/fcm_challenge_handler.dart';
+import 'core/services/notification_service.dart';
 import 'presentation/blocs/auth/auth_bloc.dart';
+import 'presentation/blocs/call/call_bloc.dart';
 import 'presentation/blocs/cashout/cashout_bloc.dart';
 import 'presentation/blocs/chat/chat_bloc.dart';
 import 'presentation/blocs/community/community_bloc.dart';
@@ -55,6 +58,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   late final ReferralBloc _referralBloc;
   late final RewardBloc _rewardBloc;
   late final EarnInboxBloc _earnInboxBloc;
+  late final CallBloc _callBloc;
   late final AppRouter _appRouter;
   late final SessionLockService _sessionLockService;
   late final SimChangeDetector _simChangeDetector;
@@ -83,6 +87,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _referralBloc = getIt<ReferralBloc>();
     _rewardBloc = getIt<RewardBloc>();
     _earnInboxBloc = getIt<EarnInboxBloc>();
+    _callBloc = getIt<CallBloc>();
     _sessionLockService = GetIt.instance<SessionLockService>();
     _simChangeDetector = GetIt.instance<SimChangeDetector>();
     _challengeHandler = GetIt.instance<FcmChallengeHandler>();
@@ -91,6 +96,15 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     // Wire up deep link handling
     getIt<DeepLinkService>().setRouter(_appRouter.router);
     _setupAppLinks();
+
+    // Wire up call notification handling
+    final callNotificationService = getIt<CallNotificationService>();
+    callNotificationService.configure(
+      router: _appRouter.router,
+      callBloc: _callBloc,
+    );
+    getIt<NotificationService>()
+        .setCallNotificationService(callNotificationService);
 
     _setupChallengeNavigation();
     _setupUserIdPropagation();
@@ -256,6 +270,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
         BlocProvider<ReferralBloc>.value(value: _referralBloc),
         BlocProvider<RewardBloc>.value(value: _rewardBloc),
         BlocProvider<EarnInboxBloc>.value(value: _earnInboxBloc),
+        BlocProvider<CallBloc>.value(value: _callBloc),
       ],
       child: MaterialApp.router(
         title: 'iMali',

@@ -32,7 +32,7 @@ class UploadService {
     final command = '-i "${input.path}" '
         '-vf "scale=854:480:force_original_aspect_ratio=decrease,'
         'pad=854:480:(ow-iw)/2:(oh-ih)/2" '
-        '-r 24 -c:v libx264 -profile:v main -preset medium -crf 23 '
+        '-r 24 -c:v mpeg4 -q:v 5 '
         '-c:a aac -b:a 128k -movflags +faststart '
         '-y "$outputPath"';
 

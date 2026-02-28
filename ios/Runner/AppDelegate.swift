@@ -1,8 +1,10 @@
 import Flutter
 import UIKit
+import PushKit
+import flutter_callkit_incoming
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
   private let keystoreChannel = KeystoreChannel()
   private var secureField: UITextField?
 
@@ -45,7 +47,18 @@ import UIKit
       object: nil
     )
 
+    // Register for VoIP push notifications
+    registerVoIPPush()
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  // MARK: - VoIP Push Registration
+
+  private func registerVoIPPush() {
+    let registry = PKPushRegistry(queue: DispatchQueue.main)
+    registry.delegate = self
+    registry.desiredPushTypes = [.voIP]
   }
 
   private func enableScreenshotPrevention() {
@@ -69,5 +82,52 @@ import UIKit
 
   @objc private func userDidTakeScreenshot() {
     print("[Security] Screenshot detected")
+  }
+
+  // MARK: - PKPushRegistryDelegate
+
+  func pushRegistry(_ registry: PKPushRegistry,
+                     didUpdate pushCredentials: PKPushCredentials,
+                     for type: PKPushType) {
+    let token = pushCredentials.token.map { String(format: "%02x", $0) }.joined()
+    print("[VoIP] Push token: \(token)")
+    // Pass token to Flutter via FlutterCallkitIncoming
+    SwiftFlutterCallkitIncomingPlugin.sharedInstance?.setDevicePushTokenVoIP(token)
+  }
+
+  func pushRegistry(_ registry: PKPushRegistry,
+                     didReceiveIncomingPushWith payload: PKPushPayload,
+                     for type: PKPushType,
+                     completion: @escaping () -> Void) {
+    guard type == .voIP else {
+      completion()
+      return
+    }
+
+    let data = payload.dictionaryPayload
+    let callId = data["callId"] as? String ?? UUID().uuidString
+    let callerName = data["callerName"] as? String ?? "Unknown"
+    let callType = data["callType"] as? String ?? "voice"
+    let hasVideo = callType == "video"
+
+    // CRITICAL: Must report CallKit call in same run loop as VoIP push
+    // to avoid iOS killing the app for not reporting a call.
+    let callData = flutter_callkit_incoming.Data(id: callId, nameCaller: callerName, handle: callerName, type: hasVideo ? 1 : 0)
+    callData.extra = [
+      "callId": callId,
+      "conversationId": data["conversationId"] as? String ?? "",
+      "callerId": data["callerId"] as? String ?? "",
+      "callerName": callerName,
+      "callerAvatarUrl": data["callerAvatarUrl"] as? String ?? "",
+      "callType": callType,
+    ]
+
+    SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(callData, fromPushKit: true)
+    completion()
+  }
+
+  func pushRegistry(_ registry: PKPushRegistry,
+                     didInvalidatePushTokenFor type: PKPushType) {
+    print("[VoIP] Push token invalidated")
   }
 }

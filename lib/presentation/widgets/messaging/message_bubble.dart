@@ -309,6 +309,8 @@ class MessageBubble extends StatelessWidget {
           if (message.hasMedia) _buildMedia(context),
           if (_isDecryptionFailed)
             _buildDecryptionFailed(context)
+          else if (_isJsonMediaPayload)
+            const SizedBox.shrink() // Suppress leaked JSON media payload
           else if (message.isEncrypted &&
               (message.textContent == null || message.textContent!.isEmpty))
             _buildEncryptedSentIndicator(context)
@@ -421,14 +423,14 @@ class MessageBubble extends StatelessWidget {
                     )
                   : Image.network(
                       media.thumbnailUrl ?? media.url,
-                      width: 220,
-                      height: 180,
+                      width: 120,
+                      height: 100,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Container(
-                        width: 220,
-                        height: 100,
+                        width: 120,
+                        height: 60,
                         color: AppColors.chatSurface,
-                        child: const Icon(Icons.broken_image, size: 40),
+                        child: const Icon(Icons.broken_image, size: 28),
                       ),
                     ),
             ),
@@ -655,6 +657,12 @@ class MessageBubble extends StatelessWidget {
   Widget _buildSystemMessage(BuildContext context) {
     final isDisappearingEvent =
         message.systemEventType == 'disappearing_messages_changed';
+    final isCallEvent = message.systemEventType == 'call_ended';
+
+    // Call system message: show icon + formatted text
+    if (isCallEvent) {
+      return _buildCallSystemMessage(context);
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -686,6 +694,90 @@ class MessageBubble extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildCallSystemMessage(BuildContext context) {
+    final data = message.systemEventData ?? {};
+    final callType = data['callType'] as String? ?? 'voice';
+    final endReason = data['endReason'] as String? ?? 'normal';
+    final durationSeconds = data['durationSeconds'] as int?;
+    final isVideo = callType == 'video';
+
+    // Determine icon and color based on end reason
+    final IconData icon;
+    final Color iconColor;
+    final String text;
+
+    switch (endReason) {
+      case 'missed':
+        icon = Icons.call_missed;
+        iconColor = Colors.red;
+        text = isVideo ? 'Missed video call' : 'Missed voice call';
+      case 'declined':
+        icon = isVideo ? Icons.videocam_off : Icons.call_end;
+        iconColor = Colors.red;
+        text = isVideo ? 'Video call declined' : 'Voice call declined';
+      case 'cancelled':
+        icon = isVideo ? Icons.videocam_off : Icons.call_end;
+        iconColor = AppColors.textSecondary;
+        text = isVideo ? 'Cancelled video call' : 'Cancelled voice call';
+      case 'busy':
+        icon = Icons.phone_disabled;
+        iconColor = Colors.orange;
+        text = 'Line busy';
+      case 'reconnection_failed':
+      case 'error':
+        icon = Icons.call_end;
+        iconColor = Colors.red;
+        text = isVideo ? 'Video call failed' : 'Voice call failed';
+      default:
+        icon = isVideo ? Icons.videocam : Icons.call;
+        iconColor = AppColors.accent;
+        final durationText = durationSeconds != null && durationSeconds > 0
+            ? _formatCallDuration(durationSeconds)
+            : null;
+        text = isVideo
+            ? 'Video call${durationText != null ? ', $durationText' : ''}'
+            : 'Voice call${durationText != null ? ', $durationText' : ''}';
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.chatSurface,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: iconColor),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  text,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatCallDuration(int seconds) {
+    final hours = seconds ~/ 3600;
+    final minutes = (seconds % 3600) ~/ 60;
+    final secs = seconds % 60;
+    if (hours > 0) {
+      return '$hours:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+    }
+    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
   Widget _buildTextContent(BuildContext context, Color textColor) {
@@ -735,6 +827,13 @@ class MessageBubble extends StatelessWidget {
     return text == '[Cannot decrypt]' ||
         text == '[Waiting for encryption key...]' ||
         (text != null && text.startsWith('[Session expired'));
+  }
+
+  /// Detect leaked JSON media payloads in textContent (e.g. `{"media":{...}}`).
+  /// These are E2EE decryption artefacts that should NOT be rendered as text.
+  bool get _isJsonMediaPayload {
+    final text = message.textContent;
+    return text != null && text.startsWith('{"media":');
   }
 
   Widget _buildDecryptionFailed(BuildContext context) {
@@ -883,8 +982,8 @@ class _EncryptedImageThumbnailState extends State<_EncryptedImageThumbnail> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Container(
-        width: 220,
-        height: 180,
+        width: 120,
+        height: 100,
         color: AppColors.chatSurface,
         child: const Center(
           child: SizedBox(
@@ -898,17 +997,17 @@ class _EncryptedImageThumbnailState extends State<_EncryptedImageThumbnail> {
 
     if (_hasError || _bytes == null) {
       return Container(
-        width: 220,
-        height: 100,
+        width: 120,
+        height: 60,
         color: AppColors.chatSurface,
-        child: const Icon(Icons.broken_image, size: 40),
+        child: const Icon(Icons.broken_image, size: 28),
       );
     }
 
     return Image.memory(
       _bytes!,
-      width: 220,
-      height: 180,
+      width: 120,
+      height: 100,
       fit: BoxFit.cover,
     );
   }
@@ -1198,8 +1297,8 @@ class _MediaExpiredPlaceholder extends StatelessWidget {
         : AppColors.chatBubbleReceivedText.withValues(alpha: 0.6);
 
     return Container(
-      width: 220,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      width: 120,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
         color: isMe
             ? Colors.black.withValues(alpha: 0.1)

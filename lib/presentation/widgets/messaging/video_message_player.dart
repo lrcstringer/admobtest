@@ -178,8 +178,8 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: SizedBox(
-          width: 220,
-          height: 220,
+          width: 120,
+          height: 120,
           child: Stack(
             fit: StackFit.expand,
             children: [
