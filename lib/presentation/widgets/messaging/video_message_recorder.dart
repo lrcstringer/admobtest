@@ -66,6 +66,7 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
   File? _thumbnailFile;
   String? _errorMessage;
   VideoPlayerController? _reviewController;
+  bool _isReviewPlaying = false;
 
   // Animations
   late AnimationController _progressController;
@@ -95,6 +96,7 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
     _progressController.dispose();
     _pulseController.dispose();
     _cameraController?.dispose();
+    _reviewController?.removeListener(_onReviewPlayerUpdate);
     _reviewController?.dispose();
     // Clean up temp files if not sent
     _rawVideoFile?.delete().ignore();
@@ -260,11 +262,12 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
       _compressedFile = compressed;
       _thumbnailFile = File(thumbPath);
 
-      // Set up review playback
+      // Set up review player (don't auto-play — let user decide)
       _reviewController = VideoPlayerController.file(compressed)
-        ..setLooping(true);
+        ..setLooping(false);
       await _reviewController!.initialize();
-      await _reviewController!.play();
+
+      _reviewController!.addListener(_onReviewPlayerUpdate);
 
       if (mounted) setState(() => _phase = _RecorderPhase.review);
     } catch (e) {
@@ -281,7 +284,33 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
   // ACTIONS
   // ===========================================================================
 
+  void _onReviewPlayerUpdate() {
+    if (!mounted) return;
+    final controller = _reviewController;
+    if (controller == null) return;
+    final playing = controller.value.isPlaying;
+    if (playing != _isReviewPlaying) {
+      setState(() => _isReviewPlaying = playing);
+    }
+  }
+
+  void _toggleReviewPlayback() {
+    final controller = _reviewController;
+    if (controller == null) return;
+
+    if (controller.value.isPlaying) {
+      controller.pause();
+    } else {
+      // If playback finished, seek to start before playing again
+      if (controller.value.position >= controller.value.duration) {
+        controller.seekTo(Duration.zero);
+      }
+      controller.play();
+    }
+  }
+
   void _retake() {
+    _reviewController?.removeListener(_onReviewPlayerUpdate);
     _reviewController?.dispose();
     _reviewController = null;
     _compressedFile?.delete().ignore();
@@ -297,6 +326,12 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
 
   void _send() {
     if (_compressedFile == null || _thumbnailFile == null) return;
+
+    _reviewController?.pause();
+    _reviewController?.removeListener(_onReviewPlayerUpdate);
+    _reviewController?.dispose();
+    _reviewController = null;
+
     widget.onRecordingComplete(VideoRecordingResult(
       videoFile: _compressedFile!,
       thumbnailFile: _thumbnailFile!,
@@ -445,14 +480,37 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
     }
 
     if (_phase == _RecorderPhase.review && _reviewController != null) {
-      return SizedBox(
-        width: previewSize,
-        height: previewSize,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: AspectRatio(
-            aspectRatio: 1.0,
-            child: VideoPlayer(_reviewController!),
+      return GestureDetector(
+        onTap: _toggleReviewPlayback,
+        child: SizedBox(
+          width: previewSize,
+          height: previewSize,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                AspectRatio(
+                  aspectRatio: 1.0,
+                  child: VideoPlayer(_reviewController!),
+                ),
+                // Play/pause overlay
+                if (!_isReviewPlaying)
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 48,
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       );
