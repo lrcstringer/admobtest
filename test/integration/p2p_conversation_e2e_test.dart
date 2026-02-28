@@ -248,6 +248,7 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imalichat/core/services/media_recovery_service.dart';
 import 'package:imalichat/core/services/message_decryption_service.dart';
 import 'package:imalichat/core/services/message_sync_service.dart';
 import 'package:imalichat/core/services/outgoing_message_queue.dart';
@@ -282,6 +283,8 @@ class MockSignalProtocolService extends Mock
 class MockSenderKeyService extends Mock implements SenderKeyService {}
 
 class MockNetworkInfo extends Mock implements NetworkInfo {}
+
+class MockMediaRecoveryService extends Mock implements MediaRecoveryService {}
 
 class MockMessageSyncService extends Mock implements MessageSyncService {}
 
@@ -565,6 +568,7 @@ void main() {
       signalA,
       senderKeyA,
       syncServiceA,
+      MockMediaRecoveryService(),
     );
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -619,6 +623,7 @@ void main() {
       remoteDsB,
       decryptionServiceB,
       dbB,
+      MockMediaRecoveryService(),
     );
   });
 
@@ -1286,6 +1291,7 @@ void main() {
         remoteDsARestart,
         decryptionServiceARestart,
         dbARestart,
+        MockMediaRecoveryService(),
       );
 
       // Simulate the Firestore stream emitting the same message

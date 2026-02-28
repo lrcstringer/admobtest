@@ -11,6 +11,7 @@ import '../../data/mappers/local_community_mapper.dart';
 import '../../data/mappers/local_community_member_mapper.dart';
 import '../../data/mappers/local_message_mapper.dart';
 import '../../domain/entities/message.dart';
+import 'media_recovery_service.dart';
 import 'sender_key_service.dart';
 import 'signal_protocol_service.dart';
 
@@ -23,12 +24,14 @@ class CommunitySyncService {
   final SenderKeyService _senderKeyService;
   final SignalProtocolService _signalProtocolService;
   final AppDatabase _appDatabase;
+  final MediaRecoveryService _mediaRecoveryService;
 
   CommunitySyncService(
     this._remoteDataSource,
     this._senderKeyService,
     this._signalProtocolService,
     this._appDatabase,
+    this._mediaRecoveryService,
   );
 
   /// Community list stream subscription.
@@ -309,11 +312,31 @@ class CommunitySyncService {
           );
           if (plaintext != null) {
             decryptedMsg = _applyDecryptedPayload(msg, plaintext);
+            // Store in vault for recovery after reinstall
+            if (_mediaRecoveryService.isReady) {
+              _mediaRecoveryService.storePayload(msg.id, plaintext).catchError((_) {});
+            }
           } else {
-            // Sender's own: local cache wiped (reinstall). Store graceful
-            // fallback. If outgoing queue is still processing (race), its
-            // _finalizeSent will overwrite with real content.
+            // Sender's own: try vault recovery before falling back to placeholder
             if (msg.senderId == currentUserId) {
+              if (_mediaRecoveryService.isReady) {
+                final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
+                if (recovered != null) {
+                  debugPrint('CommunitySyncService: Vault recovery SUCCESS for '
+                      '${msg.id}');
+                  decryptedMsg = _applyDecryptedPayload(msg, recovered);
+                  await _appDatabase.upsertLocalMessage(
+                    LocalMessageMapper.toCompanion(
+                      decryptedMsg.copyWith(communityId: communityId),
+                      communityId,
+                      isDecrypted: true,
+                    ),
+                  );
+                  await _appDatabase.cacheDecryptedPlaintext(msg.id, recovered);
+                  await _updateCommunityPreview(communityId, decryptedMsg);
+                  continue;
+                }
+              }
               debugPrint('CommunitySyncService: Sender own-message cache miss '
                   '${msg.id} — storing fallback');
               decryptedMsg = msg.copyWith(textContent: '[Sent by you]');
@@ -325,6 +348,25 @@ class CommunitySyncService {
                 ),
               );
               continue;
+            }
+            // Try vault recovery (may have been decrypted before reinstall)
+            if (_mediaRecoveryService.isReady) {
+              final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
+              if (recovered != null) {
+                debugPrint('CommunitySyncService: Vault recovery SUCCESS for '
+                    'received msg ${msg.id}');
+                decryptedMsg = _applyDecryptedPayload(msg, recovered);
+                await _appDatabase.upsertLocalMessage(
+                  LocalMessageMapper.toCompanion(
+                    decryptedMsg.copyWith(communityId: communityId),
+                    communityId,
+                    isDecrypted: true,
+                  ),
+                );
+                await _appDatabase.cacheDecryptedPlaintext(msg.id, recovered);
+                await _updateCommunityPreview(communityId, decryptedMsg);
+                continue;
+              }
             }
             isDecrypted = false;
             decryptedMsg =

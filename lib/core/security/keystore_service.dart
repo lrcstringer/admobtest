@@ -185,4 +185,110 @@ class KeystoreService {
 
   /// Get the key alias for a given user.
   static String keyAlias(String userId) => 'imali_device_key_$userId';
+
+  /// Get the wrapping key alias for a given user's recovery key.
+  static String wrappingKeyAlias(String userId) => 'imali_recovery_$userId';
+
+  // ===========================================================================
+  // AES-256-GCM Wrapping Key Operations (for E2EE payload recovery)
+  // ===========================================================================
+
+  /// Generate an AES-256-GCM wrapping key in hardware-backed storage.
+  ///
+  /// This key is used to wrap the media recovery key so it can be stored
+  /// safely on Firestore. The key never leaves the TEE (Android) or
+  /// Keychain (iOS) and survives app reinstall.
+  ///
+  /// IMPORTANT: This key MUST NOT be overwritten. Use [hasWrappingKey] first.
+  Future<Either<Failure, bool>> generateWrappingKey(String alias) async {
+    try {
+      final result = await _channel.invokeMethod<bool>('generateWrappingKey', {
+        'alias': alias,
+      });
+      return Right(result ?? false);
+    } on PlatformException catch (e) {
+      if (e.code == 'KEY_EXISTS') {
+        // Key already exists — this is expected, not an error
+        return const Right(true);
+      }
+      debugPrint('Keystore generateWrappingKey error: ${e.message}');
+      return Left(
+          Failure.unknown(message: 'Wrapping key error: ${e.message}'));
+    } catch (e) {
+      debugPrint('Keystore generateWrappingKey unexpected error: $e');
+      return Left(
+          Failure.unknown(message: 'Unexpected wrapping key error: $e'));
+    }
+  }
+
+  /// Check if a wrapping key exists in hardware-backed storage.
+  Future<Either<Failure, bool>> hasWrappingKey(String alias) async {
+    try {
+      final result = await _channel.invokeMethod<bool>('hasWrappingKey', {
+        'alias': alias,
+      });
+      return Right(result ?? false);
+    } on PlatformException catch (e) {
+      debugPrint('Keystore hasWrappingKey error: ${e.message}');
+      return Left(
+          Failure.unknown(message: 'HasWrappingKey error: ${e.message}'));
+    } catch (e) {
+      debugPrint('Keystore hasWrappingKey unexpected error: $e');
+      return Left(Failure.unknown(message: 'Unexpected error: $e'));
+    }
+  }
+
+  /// Wrap (encrypt) data using the TEE/Keychain AES wrapping key.
+  ///
+  /// [data] is base64-encoded plaintext.
+  /// Returns a map with `ciphertext` and `iv`, both base64-encoded.
+  Future<Either<Failure, Map<String, String>>> wrapData(
+      String alias, String data) async {
+    try {
+      final result =
+          await _channel.invokeMapMethod<String, dynamic>('wrapData', {
+        'alias': alias,
+        'data': data,
+      });
+      if (result == null) {
+        return const Left(Failure.unknown(message: 'No wrap result'));
+      }
+      return Right({
+        'ciphertext': result['ciphertext'] as String,
+        'iv': result['iv'] as String,
+      });
+    } on PlatformException catch (e) {
+      debugPrint('Keystore wrapData error: ${e.message}');
+      return Left(Failure.unknown(message: 'Wrap error: ${e.message}'));
+    } catch (e) {
+      debugPrint('Keystore wrapData unexpected error: $e');
+      return Left(
+          Failure.unknown(message: 'Unexpected wrap error: $e'));
+    }
+  }
+
+  /// Unwrap (decrypt) data using the TEE/Keychain AES wrapping key.
+  ///
+  /// Returns the decrypted plaintext as a base64-encoded string.
+  Future<Either<Failure, String>> unwrapData(
+      String alias, String ciphertext, String iv) async {
+    try {
+      final result = await _channel.invokeMethod<String>('unwrapData', {
+        'alias': alias,
+        'ciphertext': ciphertext,
+        'iv': iv,
+      });
+      if (result == null) {
+        return const Left(Failure.unknown(message: 'No unwrap result'));
+      }
+      return Right(result);
+    } on PlatformException catch (e) {
+      debugPrint('Keystore unwrapData error: ${e.message}');
+      return Left(Failure.unknown(message: 'Unwrap error: ${e.message}'));
+    } catch (e) {
+      debugPrint('Keystore unwrapData unexpected error: $e');
+      return Left(
+          Failure.unknown(message: 'Unexpected unwrap error: $e'));
+    }
+  }
 }

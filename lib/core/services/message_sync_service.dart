@@ -12,6 +12,7 @@ import '../../data/mappers/local_message_mapper.dart';
 import '../../data/models/message_model.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/enums/message_type.dart';
+import 'media_recovery_service.dart';
 import 'message_decryption_service.dart';
 
 /// Background service that syncs Firestore messages → decrypts once → stores
@@ -23,11 +24,13 @@ class MessageSyncService {
   final ConversationRemoteDataSource _remoteDataSource;
   final MessageDecryptionService _decryptionService;
   final AppDatabase _appDatabase;
+  final MediaRecoveryService _mediaRecoveryService;
 
   MessageSyncService(
     this._remoteDataSource,
     this._decryptionService,
     this._appDatabase,
+    this._mediaRecoveryService,
   );
 
   /// Per-conversation message stream subscriptions.
@@ -350,6 +353,10 @@ class MessageSyncService {
             decryptedMsg = _decryptionService.applyDecryptedPayload(msg, plaintext);
             _decryptionService.decryptFailures.remove(msg.id);
             sendersWithGoodSession.add(msg.senderId);
+            // Store in vault for recovery after reinstall
+            if (_mediaRecoveryService.isReady) {
+              _mediaRecoveryService.storePayload(msg.id, plaintext).catchError((_) {});
+            }
           } else {
             // Defensive re-read: if any parallel path (e.g. a lock bypass or
             // future refactor) already committed isDecrypted:true for this
@@ -369,6 +376,27 @@ class MessageSyncService {
             // is still processing (race condition), _finalizeSent will
             // overwrite this with the real content.
             if (msg.senderId == currentUserId) {
+              // Try vault recovery before falling back to placeholder
+              if (_mediaRecoveryService.isReady) {
+                final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
+                if (recovered != null) {
+                  debugPrint('MessageSyncService: Vault recovery SUCCESS for '
+                      '${msg.id}');
+                  decryptedMsg = _decryptionService.applyDecryptedPayload(
+                      msg, recovered);
+                  await _appDatabase.upsertLocalMessage(
+                    LocalMessageMapper.toCompanion(
+                      decryptedMsg,
+                      conversationId,
+                      isDecrypted: true,
+                    ),
+                  );
+                  await _appDatabase.cacheDecryptedPlaintext(msg.id, recovered);
+                  await _updateConversationPreview(
+                      conversationId, decryptedMsg);
+                  continue;
+                }
+              }
               debugPrint('MessageSyncService: Sender own-message cache miss '
                   '${msg.id} — storing fallback');
               decryptedMsg = msg.copyWith(
@@ -384,6 +412,29 @@ class MessageSyncService {
               );
               await _updateConversationPreview(conversationId, decryptedMsg);
               continue;
+            }
+
+            // Try vault recovery for received messages (may have been
+            // decrypted in a previous install and stored in the vault)
+            if (_mediaRecoveryService.isReady) {
+              final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
+              if (recovered != null) {
+                debugPrint('MessageSyncService: Vault recovery SUCCESS for '
+                    'received msg ${msg.id}');
+                decryptedMsg = _decryptionService.applyDecryptedPayload(
+                    msg, recovered);
+                await _appDatabase.upsertLocalMessage(
+                  LocalMessageMapper.toCompanion(
+                    decryptedMsg,
+                    conversationId,
+                    isDecrypted: true,
+                  ),
+                );
+                await _appDatabase.cacheDecryptedPlaintext(msg.id, recovered);
+                await _updateConversationPreview(conversationId, decryptedMsg);
+                _decryptionService.decryptFailures.remove(msg.id);
+                continue;
+              }
             }
 
             isDecrypted = false;
@@ -456,6 +507,10 @@ class MessageSyncService {
             final decryptedMsg =
                 _decryptionService.applyDecryptedPayload(msg, plaintext);
             _decryptionService.decryptFailures.remove(msg.id);
+            // Store in vault for recovery after reinstall
+            if (_mediaRecoveryService.isReady) {
+              _mediaRecoveryService.storePayload(msg.id, plaintext).catchError((_) {});
+            }
             await _appDatabase.upsertLocalMessage(
               LocalMessageMapper.toCompanion(
                 decryptedMsg,

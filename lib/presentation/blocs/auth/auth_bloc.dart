@@ -12,6 +12,7 @@ import '../../../core/services/biometric_login_service.dart';
 import '../../../core/services/fcm_challenge_handler.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/services/key_backup_service.dart';
+import '../../../core/services/media_recovery_service.dart';
 import '../../../core/services/key_management_service.dart';
 import '../../../core/services/community_sync_service.dart';
 import '../../../core/services/message_sync_service.dart';
@@ -729,6 +730,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       getIt<KeyBackupService>().autoBackup().catchError((e) {
         debugPrint('E2EE auto-backup failed: $e');
         return; // Swallow error — backup is best-effort
+      });
+      // Initialize payload recovery for E2EE message vault
+      getIt<MediaRecoveryService>().initialize().catchError((e) {
+        debugPrint('Media recovery init failed: $e');
+        return false;
       });
     } else {
       debugPrint('E2EE INIT: Bundle upload NOT confirmed — '

@@ -7,6 +7,7 @@ import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/core/security/audit_logger.dart';
 import 'package:imalichat/core/security/device_binding_service.dart';
 import 'package:imalichat/core/security/keystore_service.dart';
+import 'package:imalichat/core/services/media_recovery_service.dart';
 import 'package:imalichat/domain/repositories/device_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -22,6 +23,8 @@ class MockFirebaseMessaging extends Mock implements FirebaseMessaging {}
 class MockAuditLogger extends Mock implements AuditLogger {}
 
 class MockFirebaseFunctions extends Mock implements FirebaseFunctions {}
+
+class MockMediaRecoveryService extends Mock implements MediaRecoveryService {}
 
 // ---------------------------------------------------------------------------
 // In-memory FlutterSecureStorage (same pattern as pin_manager_test.dart)
@@ -123,6 +126,7 @@ void main() {
       secureStorage,
       mockAuditLogger,
       mockFirebaseFunctions,
+      MockMediaRecoveryService(),
     );
   });
 
@@ -219,6 +223,7 @@ void main() {
         throwingStorage,
         mockAuditLogger,
         mockFirebaseFunctions,
+        MockMediaRecoveryService(),
       );
 
       final result = await errorService.getCachedDeviceId();
@@ -324,6 +329,7 @@ void main() {
         throwingStorage,
         mockAuditLogger,
         mockFirebaseFunctions,
+        MockMediaRecoveryService(),
       );
 
       // Should complete without throwing

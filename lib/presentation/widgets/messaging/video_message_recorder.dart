@@ -326,12 +326,9 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
 
   void _send() {
     if (_compressedFile == null || _thumbnailFile == null) return;
-
+    // Don't dispose _reviewController here — VideoPlayer widget still
+    // references it. Let dispose() handle cleanup after Navigator.pop().
     _reviewController?.pause();
-    _reviewController?.removeListener(_onReviewPlayerUpdate);
-    _reviewController?.dispose();
-    _reviewController = null;
-
     widget.onRecordingComplete(VideoRecordingResult(
       videoFile: _compressedFile!,
       thumbnailFile: _thumbnailFile!,

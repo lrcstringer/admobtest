@@ -261,9 +261,14 @@ service cloud.firestore {
 
     // Trusted devices collection (server-only writes via Cloud Functions)
     // Users can read their own devices; all writes through Admin SDK
+    // Exception: owner can update recovery key fields for E2EE payload recovery
     match /devices/{deviceId} {
       allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
-      allow create, update, delete: if false;
+      allow update: if isAuthenticated()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['recoveryKeyBlob', 'recoveryKeyIv']);
+      allow create, delete: if false;
     }
 
     // Auth challenges collection (server-only via Cloud Functions)
@@ -690,6 +695,16 @@ service cloud.firestore {
       allow read: if isAuthenticated() &&
         (keyDoc == 'bundle' || request.auth.uid == userId);
       allow write: if false;
+    }
+
+    // =========================================================================
+    // PAYLOAD VAULT (E2EE recovery payloads)
+    // Encrypted message payloads for recovery after reinstall.
+    // Owner-only read/write — data is AES-GCM encrypted with recovery key.
+    // =========================================================================
+
+    match /users/{userId}/payloadVault/{msgId} {
+      allow read, write: if isOwner(userId);
     }
 
     // =========================================================================

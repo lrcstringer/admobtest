@@ -6,6 +6,7 @@
 // freshness checks — the regression safety net for the refactoring.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imalichat/core/services/media_recovery_service.dart';
 import 'package:imalichat/core/services/message_sync_service.dart';
 import 'package:imalichat/core/services/outgoing_message_queue.dart';
 import 'package:imalichat/core/services/sender_key_service.dart';
@@ -30,6 +31,8 @@ class MockCommunityRemoteDataSource extends Mock
     implements CommunityRemoteDataSource {}
 
 class MockSenderKeyService extends Mock implements SenderKeyService {}
+
+class MockMediaRecoveryService extends Mock implements MediaRecoveryService {}
 
 class MockMessageSyncService extends Mock implements MessageSyncService {}
 
@@ -146,6 +149,7 @@ void main() {
       mockSignalProtocol,
       mockSenderKeyService,
       mockSyncService,
+      MockMediaRecoveryService(),
     );
   });
 

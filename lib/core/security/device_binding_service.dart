@@ -11,6 +11,7 @@ import 'package:injectable/injectable.dart';
 import '../error/failures.dart';
 import '../../domain/entities/trusted_device.dart';
 import '../../domain/repositories/device_repository.dart';
+import '../services/media_recovery_service.dart';
 import 'audit_logger.dart';
 import 'keystore_service.dart';
 
@@ -28,6 +29,7 @@ class DeviceBindingService {
   final FlutterSecureStorage _secureStorage;
   final AuditLogger _auditLogger;
   final FirebaseFunctions _functions;
+  final MediaRecoveryService _mediaRecoveryService;
   final DeviceInfoPlugin _deviceInfo;
 
   static const _deviceIdKey = 'imali_bound_device_id';
@@ -41,6 +43,7 @@ class DeviceBindingService {
     this._secureStorage,
     this._auditLogger,
     this._functions,
+    this._mediaRecoveryService,
   ) : _deviceInfo = DeviceInfoPlugin();
 
   /// Bind the current device for the given user.
@@ -109,6 +112,11 @@ class DeviceBindingService {
                 deviceModel: device.deviceModel,
                 platform: device.platform,
               );
+              // Step 6: Initialize payload recovery (non-blocking)
+              _mediaRecoveryService.initialize().catchError((e) {
+                debugPrint('Media recovery init failed: $e');
+                return false;
+              });
               return Right(device);
             },
           );
@@ -187,6 +195,7 @@ class DeviceBindingService {
   /// Clear local device binding state (used on sign out).
   Future<void> clearBinding() async {
     try {
+      await _mediaRecoveryService.clear();
       await _secureStorage.delete(key: _deviceIdKey);
       await _secureStorage.delete(key: _deviceTrustedKey);
       await _secureStorage.delete(key: _userIdKey);

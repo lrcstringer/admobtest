@@ -7,6 +7,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imalichat/core/services/media_recovery_service.dart';
 import 'package:imalichat/core/services/message_decryption_service.dart';
 import 'package:imalichat/core/services/message_sync_service.dart';
 import 'package:imalichat/core/services/signal_protocol_service.dart';
@@ -26,6 +27,8 @@ class MockSignalProtocolService extends Mock
     implements SignalProtocolService {}
 
 class MockAppDatabase extends Mock implements AppDatabase {}
+
+class MockMediaRecoveryService extends Mock implements MediaRecoveryService {}
 
 // ==================== FIXTURES ====================
 
@@ -210,6 +213,7 @@ void main() {
       mockDataSource,
       decryptionService,
       mockAppDatabase,
+      MockMediaRecoveryService(),
     );
   });
 

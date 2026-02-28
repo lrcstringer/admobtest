@@ -11,6 +11,9 @@ import io.flutter.plugin.common.MethodChannel
 import java.security.*
 import java.security.spec.ECGenParameterSpec
 import java.util.Base64
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.spec.GCMParameterSpec
 
 /**
  * Platform channel for Android Keystore operations.
@@ -82,6 +85,41 @@ class KeystoreChannel(private val context: Context) : MethodChannel.MethodCallHa
             }
             "getSimInfo" -> {
                 getSimInfo(result)
+            }
+            "generateWrappingKey" -> {
+                val alias = call.argument<String>("alias")
+                if (alias == null) {
+                    result.error("INVALID_ARGUMENT", "alias is required", null)
+                    return
+                }
+                generateWrappingKey(alias, result)
+            }
+            "hasWrappingKey" -> {
+                val alias = call.argument<String>("alias")
+                if (alias == null) {
+                    result.error("INVALID_ARGUMENT", "alias is required", null)
+                    return
+                }
+                hasWrappingKey(alias, result)
+            }
+            "wrapData" -> {
+                val alias = call.argument<String>("alias")
+                val data = call.argument<String>("data")
+                if (alias == null || data == null) {
+                    result.error("INVALID_ARGUMENT", "alias and data are required", null)
+                    return
+                }
+                wrapData(alias, data, result)
+            }
+            "unwrapData" -> {
+                val alias = call.argument<String>("alias")
+                val ciphertext = call.argument<String>("ciphertext")
+                val iv = call.argument<String>("iv")
+                if (alias == null || ciphertext == null || iv == null) {
+                    result.error("INVALID_ARGUMENT", "alias, ciphertext, and iv are required", null)
+                    return
+                }
+                unwrapData(alias, ciphertext, iv, result)
             }
             else -> result.notImplemented()
         }
@@ -271,6 +309,110 @@ class KeystoreChannel(private val context: Context) : MethodChannel.MethodCallHa
 
         } catch (e: Exception) {
             result.error("SIM_INFO_ERROR", "Failed to get SIM info: ${e.message}", null)
+        }
+    }
+
+    // =========================================================================
+    // AES-256-GCM Wrapping Key Operations (for E2EE payload recovery)
+    // =========================================================================
+
+    /**
+     * Generate an AES-256-GCM key in the Android Keystore.
+     *
+     * This key is used to wrap (encrypt) the media recovery key so it can be
+     * stored safely on Firestore. The AES key never leaves the TEE/StrongBox.
+     *
+     * IMPORTANT: Never overwrites an existing key. The recovery key must
+     * persist across app reinstalls — the Android Keystore survives uninstall.
+     */
+    private fun generateWrappingKey(alias: String, result: MethodChannel.Result) {
+        try {
+            val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER)
+            keyStore.load(null)
+
+            // CRITICAL: Never overwrite an existing wrapping key
+            if (keyStore.containsAlias(alias)) {
+                result.error("KEY_EXISTS", "Wrapping key already exists: $alias", null)
+                return
+            }
+
+            val keyGen = KeyGenerator.getInstance(
+                KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_PROVIDER
+            )
+            val spec = KeyGenParameterSpec.Builder(
+                alias,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+            )
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setKeySize(256)
+                .build()
+            keyGen.init(spec)
+            keyGen.generateKey()
+
+            result.success(true)
+        } catch (e: Exception) {
+            result.error("KEYSTORE_ERROR", "Failed to generate wrapping key: ${e.message}", null)
+        }
+    }
+
+    /**
+     * Check if a wrapping key exists in the Android Keystore.
+     */
+    private fun hasWrappingKey(alias: String, result: MethodChannel.Result) {
+        try {
+            val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER)
+            keyStore.load(null)
+            result.success(keyStore.containsAlias(alias))
+        } catch (e: Exception) {
+            result.error("KEYSTORE_ERROR", "Failed to check wrapping key: ${e.message}", null)
+        }
+    }
+
+    /**
+     * Wrap (encrypt) data using the TEE AES-256-GCM wrapping key.
+     *
+     * [data] is base64-encoded plaintext.
+     * Returns a map with 'ciphertext' and 'iv', both base64-encoded.
+     * The GCM tag is appended to the ciphertext by the Android Cipher.
+     */
+    private fun wrapData(alias: String, data: String, result: MethodChannel.Result) {
+        try {
+            val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER)
+            keyStore.load(null)
+            val key = keyStore.getKey(alias, null) as javax.crypto.SecretKey
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.ENCRYPT_MODE, key)
+            val iv = cipher.iv // GCM generates a 12-byte IV automatically
+            val plaintext = Base64.getDecoder().decode(data)
+            val ciphertext = cipher.doFinal(plaintext)
+            result.success(mapOf(
+                "ciphertext" to Base64.getEncoder().encodeToString(ciphertext),
+                "iv" to Base64.getEncoder().encodeToString(iv)
+            ))
+        } catch (e: Exception) {
+            result.error("WRAP_ERROR", "Failed to wrap data: ${e.message}", null)
+        }
+    }
+
+    /**
+     * Unwrap (decrypt) data using the TEE AES-256-GCM wrapping key.
+     *
+     * [ciphertext] and [iv] are base64-encoded.
+     * Returns the decrypted plaintext as a base64-encoded string.
+     */
+    private fun unwrapData(alias: String, ciphertext: String, iv: String, result: MethodChannel.Result) {
+        try {
+            val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER)
+            keyStore.load(null)
+            val key = keyStore.getKey(alias, null) as javax.crypto.SecretKey
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            val spec = GCMParameterSpec(128, Base64.getDecoder().decode(iv))
+            cipher.init(Cipher.DECRYPT_MODE, key, spec)
+            val plaintext = cipher.doFinal(Base64.getDecoder().decode(ciphertext))
+            result.success(Base64.getEncoder().encodeToString(plaintext))
+        } catch (e: Exception) {
+            result.error("UNWRAP_ERROR", "Failed to unwrap data: ${e.message}", null)
         }
     }
 

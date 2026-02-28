@@ -14,6 +14,7 @@ import '../../data/mappers/local_message_mapper.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/enums/message_status.dart';
 import '../../domain/enums/message_type.dart';
+import 'media_recovery_service.dart';
 import 'sender_key_service.dart';
 import 'signal_protocol_service.dart';
 import '../network/network_info.dart';
@@ -35,6 +36,7 @@ class OutgoingMessageQueue {
   final SignalProtocolService _signalProtocolService;
   final SenderKeyService _senderKeyService;
   final MessageSyncService _messageSyncService;
+  final MediaRecoveryService _mediaRecoveryService;
 
   StreamSubscription<bool>? _connectivitySub;
   bool _isProcessing = false;
@@ -47,6 +49,7 @@ class OutgoingMessageQueue {
     this._signalProtocolService,
     this._senderKeyService,
     this._messageSyncService,
+    this._mediaRecoveryService,
   );
 
   // =========================================================================
@@ -1049,6 +1052,13 @@ class OutgoingMessageQueue {
     try {
       await _appDatabase.cacheDecryptedPlaintext(realMessageId, plaintext);
     } catch (_) {}
+
+    // Store encrypted payload in vault for recovery after reinstall
+    if (_mediaRecoveryService.isReady) {
+      _mediaRecoveryService.storePayload(realMessageId, plaintext).catchError((e) {
+        debugPrint('OutgoingMessageQueue: payload vault store failed: $e');
+      });
+    }
 
     // Parse structured payload to extract text and media separately.
     // Media messages store JSON like {"text":"caption", "media":{...}}.
