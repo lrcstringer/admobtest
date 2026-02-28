@@ -111,13 +111,17 @@ class ConversationListTile extends StatelessWidget {
     }
 
     if (!chatCleared && conversation.lastMessageAt != null) {
-      // Show a human-readable fallback for media messages whose plaintext
-      // preview is not stored (e.g. image-only or voice-only messages).
+      // Show a human-readable fallback for messages whose plaintext
+      // preview hasn't been populated yet (e.g. still decrypting, or
+      // media-only messages without caption).
       final type = conversation.lastMessageType;
       final (IconData icon, String label) = switch (type) {
         'image' => (Icons.photo, 'Photo'),
         'voice' => (Icons.mic, 'Voice message'),
-        _ => (Icons.lock, 'Encrypted message'),
+        'video' => (Icons.videocam, 'Video'),
+        'document' => (Icons.description, 'Document'),
+        'text' => (Icons.lock, 'Encrypted message'),
+        _ => (Icons.chat_bubble_outline, 'New message'),
       };
       return Row(
         children: [

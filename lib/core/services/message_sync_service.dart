@@ -480,56 +480,65 @@ class MessageSyncService {
   }
 
   /// Update conversation's last message preview in local DB.
+  ///
+  /// Serialized under [_convListLock] to prevent the Firestore conversation
+  /// list sync from overwriting the decrypted preview with null (race
+  /// condition: the list handler reads stale null, then overwrites the
+  /// freshly-written decrypted text).
   Future<void> _updateConversationPreview(
     String conversationId,
     Message msg,
   ) async {
-    try {
-      final existing = await _appDatabase.getLocalConversation(conversationId);
-      if (existing == null) return;
+    await _convListLock.protect('_', () async {
+      try {
+        final existing =
+            await _appDatabase.getLocalConversation(conversationId);
+        if (existing == null) return;
 
-      // Only update if this message is newer
-      if (existing.lastMessageAt != null &&
-          msg.createdAt.isBefore(existing.lastMessageAt!)) {
-        return;
-      }
-
-      final conv = LocalConversationMapper.toEntity(existing);
-      String? preview;
-      if (msg.textContent != null && msg.textContent!.isNotEmpty) {
-        preview = msg.textContent!.length > 100
-            ? '${msg.textContent!.substring(0, 100)}...'
-            : msg.textContent!;
-      } else if (msg.hasMedia) {
-        switch (msg.type) {
-          case MessageType.voice:
-            preview = '🎙 Voice message';
-          case MessageType.document:
-            preview = '📄 Document';
-          case MessageType.video:
-            preview = '🎬 Video message';
-          case MessageType.image:
-            preview = '📷 Photo';
-          default:
-            preview = '📎 Attachment';
+        // Only update if this message is newer
+        if (existing.lastMessageAt != null &&
+            msg.createdAt.isBefore(existing.lastMessageAt!)) {
+          return;
         }
-      }
 
-      await _appDatabase.upsertLocalConversation(
-        LocalConversationMapper.toCompanion(
-          conv.copyWith(
-            lastMessageId: msg.id,
-            lastMessageText: preview,
-            lastMessageSenderId: msg.senderId,
-            lastMessageSenderName: msg.senderName,
-            lastMessageType: msg.type.name,
-            lastMessageAt: msg.createdAt,
+        final conv = LocalConversationMapper.toEntity(existing);
+        String? preview;
+        if (msg.textContent != null && msg.textContent!.isNotEmpty) {
+          preview = msg.textContent!.length > 100
+              ? '${msg.textContent!.substring(0, 100)}...'
+              : msg.textContent!;
+        } else if (msg.hasMedia) {
+          switch (msg.type) {
+            case MessageType.voice:
+              preview = '🎙 Voice message';
+            case MessageType.document:
+              preview = '📄 Document';
+            case MessageType.video:
+              preview = '🎬 Video message';
+            case MessageType.image:
+              preview = '📷 Photo';
+            default:
+              preview = '📎 Attachment';
+          }
+        }
+
+        await _appDatabase.upsertLocalConversation(
+          LocalConversationMapper.toCompanion(
+            conv.copyWith(
+              lastMessageId: msg.id,
+              lastMessageText: preview,
+              lastMessageSenderId: msg.senderId,
+              lastMessageSenderName: msg.senderName,
+              lastMessageType: msg.type.name,
+              lastMessageAt: msg.createdAt,
+            ),
           ),
-        ),
-      );
-    } catch (e) {
-      debugPrint('MessageSyncService: Failed to update preview for $conversationId: $e');
-    }
+        );
+      } catch (e) {
+        debugPrint(
+            'MessageSyncService: Failed to update preview for $conversationId: $e');
+      }
+    });
   }
 
   String? _encodeReactions(Map<String, List<String>> reactions) {
