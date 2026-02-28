@@ -42,6 +42,12 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   int _iceRestartAttempts = 0;
   static const _maxIceRestarts = 3;
 
+  /// Prevent duplicate SDP processing — Firestore snapshots include the full
+  /// document on every change, so the offer/answer fields appear on every
+  /// update even when they haven't changed.
+  bool _offerProcessed = false;
+  bool _answerProcessed = false;
+
   CallBloc(
     this._callRepository,
     this._webRtcServiceFactory,
@@ -203,7 +209,37 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         },
       );
 
-      // Set up Perfect Negotiation (callee = polite)
+      // ── Process the caller's offer BEFORE setting up PerfectNegotiationHandler ──
+      //
+      // Why: initialize() adds tracks which queues onRenegotiationNeeded events.
+      // If we set up PerfectNegotiationHandler immediately, those events fire and
+      // the callee creates its own spurious offer — overwriting the caller's offer
+      // on Firestore. By processing the offer manually first, the PC reaches
+      // stable state before PerfectNegotiationHandler is installed. The queued
+      // onRenegotiationNeeded events fire during the awaits below while
+      // pc.onRenegotiationNeeded is still null, so they are harmlessly dropped.
+      final currentSession = await _signalingService.getCall(callId);
+      if (currentSession?.offer != null) {
+        final offerSdp = currentSession!.offer!['sdp'];
+        final offerType = currentSession.offer!['type'];
+        if (offerSdp != null && offerType != null) {
+          final pc = _webRtcService!.peerConnection!;
+          await pc.setRemoteDescription(
+            RTCSessionDescription(offerSdp, offerType),
+          );
+          final answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          final localDesc = await pc.getLocalDescription();
+          if (localDesc != null) {
+            await _signalingService.sendAnswer(callId, localDesc);
+          }
+          _offerProcessed = true;
+        }
+      }
+
+      // Set up Perfect Negotiation for future renegotiation (e.g. video upgrade).
+      // At this point the PC is stable (offer/answer exchanged above), so
+      // onRenegotiationNeeded won't fire spuriously.
       _negotiationHandler = PerfectNegotiationHandler(
         pc: _webRtcService!.peerConnection!,
         polite: true,
@@ -227,10 +263,6 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       _iceStateSub = _webRtcService!.onIceConnectionState.listen(
         (iceState) => add(CallEvent.iceConnectionStateChanged(iceState)),
       );
-
-      // The call document watcher (already active from _onIncomingCall)
-      // will fire _onCallDocUpdated which handles the buffered offer via
-      // _negotiationHandler.handleDescription()
     } catch (e) {
       emit(state.copyWith(
         status: CallStatus.failed,
@@ -375,22 +407,33 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       return;
     }
 
-    // Handle SDP offer (callee receives this)
-    if (session.offer != null && !state.isCaller && _negotiationHandler != null) {
+    // Handle SDP offer (callee receives this).
+    // Guard with _offerProcessed to avoid reprocessing on every doc update
+    // (Firestore snapshots include the full doc, not a diff).
+    if (session.offer != null &&
+        !state.isCaller &&
+        _negotiationHandler != null &&
+        !_offerProcessed) {
       final offerSdp = session.offer!['sdp'];
       final offerType = session.offer!['type'];
       if (offerSdp != null && offerType != null) {
+        _offerProcessed = true;
         await _negotiationHandler!.handleDescription(
           RTCSessionDescription(offerSdp, offerType),
         );
       }
     }
 
-    // Handle SDP answer (caller receives this)
-    if (session.answer != null && state.isCaller && _negotiationHandler != null) {
+    // Handle SDP answer (caller receives this).
+    // Guard with _answerProcessed to avoid reprocessing on every doc update.
+    if (session.answer != null &&
+        state.isCaller &&
+        _negotiationHandler != null &&
+        !_answerProcessed) {
       final answerSdp = session.answer!['sdp'];
       final answerType = session.answer!['type'];
       if (answerSdp != null && answerType != null) {
+        _answerProcessed = true;
         await _negotiationHandler!.handleDescription(
           RTCSessionDescription(answerSdp, answerType),
         );
@@ -551,6 +594,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     _webRtcService = null;
 
     _iceRestartAttempts = 0;
+    _offerProcessed = false;
+    _answerProcessed = false;
   }
 
   @override

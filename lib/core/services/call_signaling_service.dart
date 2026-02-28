@@ -92,7 +92,15 @@ class CallSignalingService {
             }));
   }
 
-  // ── Call Document Watching ──
+  // ── Call Document Fetching / Watching ──
+
+  /// Fetch the current call document once (for initial offer processing).
+  Future<CallSession?> getCall(String callId) async {
+    final snap = await _callDoc(callId).get();
+    final data = snap.data() as Map<String, dynamic>?;
+    if (data == null) return null;
+    return CallSessionModel.fromJson(data).toEntity();
+  }
 
   /// Watch the call document for real-time changes (status, SDP, upgrade).
   Stream<CallSession> watchCall(String callId) {
