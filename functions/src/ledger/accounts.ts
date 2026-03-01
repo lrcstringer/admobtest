@@ -292,6 +292,16 @@ export async function initializeSystemAccounts(): Promise<void> {
       type: "system",
       name: "Pot Distribution Residual",
     },
+    {
+      id: SystemAccounts.GIFT_ESCROW,
+      type: "system",
+      name: "Gift Escrow Holding",
+    },
+    {
+      id: SystemAccounts.SPRAY_ESCROW,
+      type: "system",
+      name: "Token Spray Escrow Holding",
+    },
   ];
 
   const batch = db.batch();

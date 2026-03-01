@@ -39,6 +39,12 @@ mixin _$ConversationModel {
   Map<String, DateTime> get chatClearedAt =>
       throw _privateConstructorUsedError; // Per-user acceptance status (message request system)
   Map<String, bool> get accepted =>
+      throw _privateConstructorUsedError; // Token pool back-reference (for collection-type conversations)
+  String? get tokenPoolId =>
+      throw _privateConstructorUsedError; // Pool title (denormalized for collection-type conversations)
+  String? get poolTitle =>
+      throw _privateConstructorUsedError; // Pool mode: 'sasaza' or 'save' (denormalized for collection-type conversations)
+  String? get poolMode =>
       throw _privateConstructorUsedError; // Disappearing messages duration in milliseconds (null = off)
   int? get disappearingMessagesDurationMs =>
       throw _privateConstructorUsedError; // Timestamps
@@ -77,6 +83,9 @@ abstract class $ConversationModelCopyWith<$Res> {
     Map<String, String> lastMessageEncryptedPreviews,
     Map<String, DateTime> chatClearedAt,
     Map<String, bool> accepted,
+    String? tokenPoolId,
+    String? poolTitle,
+    String? poolMode,
     int? disappearingMessagesDurationMs,
     DateTime createdAt,
     DateTime? updatedAt,
@@ -115,6 +124,9 @@ class _$ConversationModelCopyWithImpl<$Res, $Val extends ConversationModel>
     Object? lastMessageEncryptedPreviews = null,
     Object? chatClearedAt = null,
     Object? accepted = null,
+    Object? tokenPoolId = freezed,
+    Object? poolTitle = freezed,
+    Object? poolMode = freezed,
     Object? disappearingMessagesDurationMs = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
@@ -189,6 +201,18 @@ class _$ConversationModelCopyWithImpl<$Res, $Val extends ConversationModel>
                 ? _value.accepted
                 : accepted // ignore: cast_nullable_to_non_nullable
                       as Map<String, bool>,
+            tokenPoolId: freezed == tokenPoolId
+                ? _value.tokenPoolId
+                : tokenPoolId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            poolTitle: freezed == poolTitle
+                ? _value.poolTitle
+                : poolTitle // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            poolMode: freezed == poolMode
+                ? _value.poolMode
+                : poolMode // ignore: cast_nullable_to_non_nullable
+                      as String?,
             disappearingMessagesDurationMs:
                 freezed == disappearingMessagesDurationMs
                 ? _value.disappearingMessagesDurationMs
@@ -235,6 +259,9 @@ abstract class _$$ConversationModelImplCopyWith<$Res>
     Map<String, String> lastMessageEncryptedPreviews,
     Map<String, DateTime> chatClearedAt,
     Map<String, bool> accepted,
+    String? tokenPoolId,
+    String? poolTitle,
+    String? poolMode,
     int? disappearingMessagesDurationMs,
     DateTime createdAt,
     DateTime? updatedAt,
@@ -272,6 +299,9 @@ class __$$ConversationModelImplCopyWithImpl<$Res>
     Object? lastMessageEncryptedPreviews = null,
     Object? chatClearedAt = null,
     Object? accepted = null,
+    Object? tokenPoolId = freezed,
+    Object? poolTitle = freezed,
+    Object? poolMode = freezed,
     Object? disappearingMessagesDurationMs = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
@@ -346,6 +376,18 @@ class __$$ConversationModelImplCopyWithImpl<$Res>
             ? _value._accepted
             : accepted // ignore: cast_nullable_to_non_nullable
                   as Map<String, bool>,
+        tokenPoolId: freezed == tokenPoolId
+            ? _value.tokenPoolId
+            : tokenPoolId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        poolTitle: freezed == poolTitle
+            ? _value.poolTitle
+            : poolTitle // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        poolMode: freezed == poolMode
+            ? _value.poolMode
+            : poolMode // ignore: cast_nullable_to_non_nullable
+                  as String?,
         disappearingMessagesDurationMs:
             freezed == disappearingMessagesDurationMs
             ? _value.disappearingMessagesDurationMs
@@ -385,6 +427,9 @@ class _$ConversationModelImpl extends _ConversationModel {
     final Map<String, String> lastMessageEncryptedPreviews = const {},
     final Map<String, DateTime> chatClearedAt = const {},
     final Map<String, bool> accepted = const {},
+    this.tokenPoolId,
+    this.poolTitle,
+    this.poolMode,
     this.disappearingMessagesDurationMs,
     required this.createdAt,
     this.updatedAt,
@@ -500,6 +545,15 @@ class _$ConversationModelImpl extends _ConversationModel {
     return EqualUnmodifiableMapView(_accepted);
   }
 
+  // Token pool back-reference (for collection-type conversations)
+  @override
+  final String? tokenPoolId;
+  // Pool title (denormalized for collection-type conversations)
+  @override
+  final String? poolTitle;
+  // Pool mode: 'sasaza' or 'save' (denormalized for collection-type conversations)
+  @override
+  final String? poolMode;
   // Disappearing messages duration in milliseconds (null = off)
   @override
   final int? disappearingMessagesDurationMs;
@@ -511,7 +565,7 @@ class _$ConversationModelImpl extends _ConversationModel {
 
   @override
   String toString() {
-    return 'ConversationModel(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageId: $lastMessageId, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, accepted: $accepted, disappearingMessagesDurationMs: $disappearingMessagesDurationMs, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ConversationModel(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageId: $lastMessageId, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, accepted: $accepted, tokenPoolId: $tokenPoolId, poolTitle: $poolTitle, poolMode: $poolMode, disappearingMessagesDurationMs: $disappearingMessagesDurationMs, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -557,6 +611,12 @@ class _$ConversationModelImpl extends _ConversationModel {
               _chatClearedAt,
             ) &&
             const DeepCollectionEquality().equals(other._accepted, _accepted) &&
+            (identical(other.tokenPoolId, tokenPoolId) ||
+                other.tokenPoolId == tokenPoolId) &&
+            (identical(other.poolTitle, poolTitle) ||
+                other.poolTitle == poolTitle) &&
+            (identical(other.poolMode, poolMode) ||
+                other.poolMode == poolMode) &&
             (identical(
                   other.disappearingMessagesDurationMs,
                   disappearingMessagesDurationMs,
@@ -589,6 +649,9 @@ class _$ConversationModelImpl extends _ConversationModel {
     const DeepCollectionEquality().hash(_lastMessageEncryptedPreviews),
     const DeepCollectionEquality().hash(_chatClearedAt),
     const DeepCollectionEquality().hash(_accepted),
+    tokenPoolId,
+    poolTitle,
+    poolMode,
     disappearingMessagesDurationMs,
     createdAt,
     updatedAt,
@@ -625,6 +688,9 @@ abstract class _ConversationModel extends ConversationModel {
     final Map<String, String> lastMessageEncryptedPreviews,
     final Map<String, DateTime> chatClearedAt,
     final Map<String, bool> accepted,
+    final String? tokenPoolId,
+    final String? poolTitle,
+    final String? poolMode,
     final int? disappearingMessagesDurationMs,
     required final DateTime createdAt,
     final DateTime? updatedAt,
@@ -664,7 +730,13 @@ abstract class _ConversationModel extends ConversationModel {
   @override
   Map<String, DateTime> get chatClearedAt; // Per-user acceptance status (message request system)
   @override
-  Map<String, bool> get accepted; // Disappearing messages duration in milliseconds (null = off)
+  Map<String, bool> get accepted; // Token pool back-reference (for collection-type conversations)
+  @override
+  String? get tokenPoolId; // Pool title (denormalized for collection-type conversations)
+  @override
+  String? get poolTitle; // Pool mode: 'sasaza' or 'save' (denormalized for collection-type conversations)
+  @override
+  String? get poolMode; // Disappearing messages duration in milliseconds (null = off)
   @override
   int? get disappearingMessagesDurationMs; // Timestamps
   @override

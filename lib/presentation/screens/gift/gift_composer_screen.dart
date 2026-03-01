@@ -36,6 +36,14 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
   GiftStyle _selectedStyle = GiftStyle.celebration;
 
   @override
+  void initState() {
+    super.initState();
+    // Clear stale activeGift so the BlocConsumer listener doesn't
+    // immediately fire from a previous gift's state.
+    context.read<GiftBloc>().add(const GiftEvent.reset());
+  }
+
+  @override
   void dispose() {
     _amountController.dispose();
     _messageController.dispose();

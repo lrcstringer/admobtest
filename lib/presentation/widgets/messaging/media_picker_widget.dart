@@ -218,6 +218,7 @@ class ActionPickerWidget extends StatelessWidget {
   final VoidCallback? onVoiceCallRequested;
   final VoidCallback? onVideoCallRequested;
   final VoidCallback? onGiftRequested;
+  final VoidCallback? onGroupGiftRequested;
   final VoidCallback? onTokenAction;
 
   const ActionPickerWidget({
@@ -227,6 +228,7 @@ class ActionPickerWidget extends StatelessWidget {
     this.onVoiceCallRequested,
     this.onVideoCallRequested,
     this.onGiftRequested,
+    this.onGroupGiftRequested,
     this.onTokenAction,
   });
 
@@ -298,6 +300,16 @@ class ActionPickerWidget extends StatelessWidget {
                       onGiftRequested!();
                     },
                   ),
+                if (onGroupGiftRequested != null)
+                  _MediaOption(
+                    icon: Icons.card_giftcard,
+                    label: 'Group\nSasaza',
+                    color: AppColors.secondary,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onGroupGiftRequested!();
+                    },
+                  ),
                 // Row 2: Voice Call, Video Call
                 if (onVoiceCallRequested != null)
                   _MediaOption(
@@ -337,6 +349,7 @@ void showActionPicker(
   VoidCallback? onVoiceCallRequested,
   VoidCallback? onVideoCallRequested,
   VoidCallback? onGiftRequested,
+  VoidCallback? onGroupGiftRequested,
   VoidCallback? onTokenAction,
 }) {
   showModalBottomSheet(
@@ -347,6 +360,7 @@ void showActionPicker(
       onVoiceCallRequested: onVoiceCallRequested,
       onVideoCallRequested: onVideoCallRequested,
       onGiftRequested: onGiftRequested,
+      onGroupGiftRequested: onGroupGiftRequested,
       onTokenAction: onTokenAction,
     ),
   );

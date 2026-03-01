@@ -11,12 +11,16 @@ import 'package:imalichat/domain/entities/ledger_journal.dart';
 import 'package:imalichat/domain/entities/sub_account.dart';
 import 'package:imalichat/domain/entities/cashout.dart';
 import 'package:imalichat/domain/entities/user_engagement_stats.dart';
+import 'package:imalichat/domain/entities/token_pool.dart';
 import 'package:imalichat/domain/enums/user_status.dart';
 import 'package:imalichat/domain/enums/engagement_status.dart';
 import 'package:imalichat/domain/enums/pot_type.dart';
 import 'package:imalichat/domain/enums/chat_card_type.dart';
 import 'package:imalichat/domain/enums/chat_card_status.dart';
 import 'package:imalichat/domain/enums/cashout_status.dart';
+import 'package:imalichat/domain/enums/pool_mode.dart';
+import 'package:imalichat/domain/enums/pool_status.dart';
+import 'package:imalichat/domain/enums/gift_style.dart';
 import 'package:imalichat/domain/entities/user_score.dart';
 import 'package:imalichat/domain/repositories/earn_repository.dart';
 import 'package:imalichat/domain/value_objects/engagement_evidence.dart';
@@ -917,6 +921,145 @@ class TestData {
           createdAt: DateTime(2024, 1, 3),
           completedAt: DateTime(2024, 1, 3),
         ),
+      ];
+
+  // ==================== TOKEN POOLS ====================
+
+  static final _poolBaseTime = DateTime(2024, 6, 1);
+
+  /// Collecting sasaza pool with contributions (one anonymous)
+  static TokenPool get collectingSasazaPool => TokenPool(
+        id: 'pool_sasaza_1',
+        mode: PoolMode.sasaza,
+        status: PoolStatus.collecting,
+        organizerId: 'user123',
+        organizerName: 'Test Organizer',
+        recipientId: 'user789',
+        recipientName: 'Gift Recipient',
+        conversationId: 'conv_123',
+        title: 'Birthday Gift',
+        message: 'Happy Birthday!',
+        style: GiftStyle.birthday,
+        totalAmount: 5000,
+        contributionCount: 3,
+        contributorCount: 2,
+        contributions: {
+          'user123': PoolContribution(
+            userId: 'user123',
+            displayName: 'Test Organizer',
+            totalAmount: 3000,
+            contributionCount: 2,
+            anonymous: false,
+            lastContributedAt: _poolBaseTime,
+          ),
+          'user456': PoolContribution(
+            userId: 'user456',
+            displayName: 'Anonymous Friend',
+            totalAmount: 2000,
+            contributionCount: 1,
+            anonymous: true,
+            lastContributedAt: _poolBaseTime,
+          ),
+        },
+        inviteeIds: const ['user456', 'user789_inv'],
+        expiresAt: DateTime(2024, 7, 1),
+        createdAt: _poolBaseTime,
+        updatedAt: _poolBaseTime,
+        groupAccountId: 'group:pool_sasaza_1',
+      );
+
+  /// Collecting save pool (no recipient)
+  static TokenPool get collectingSavePool => TokenPool(
+        id: 'pool_save_1',
+        mode: PoolMode.save,
+        status: PoolStatus.collecting,
+        organizerId: 'user123',
+        organizerName: 'Test Organizer',
+        conversationId: 'conv_456',
+        title: 'Holiday Savings',
+        message: 'Let us save together!',
+        style: GiftStyle.celebration,
+        totalAmount: 10000,
+        contributionCount: 5,
+        contributorCount: 3,
+        contributions: {
+          'user123': PoolContribution(
+            userId: 'user123',
+            displayName: 'Test Organizer',
+            totalAmount: 5000,
+            contributionCount: 2,
+            anonymous: false,
+            lastContributedAt: _poolBaseTime,
+          ),
+          'user456': PoolContribution(
+            userId: 'user456',
+            displayName: 'Saver 2',
+            totalAmount: 3000,
+            contributionCount: 2,
+            anonymous: false,
+            lastContributedAt: _poolBaseTime,
+          ),
+          'user789': PoolContribution(
+            userId: 'user789',
+            displayName: 'Saver 3',
+            totalAmount: 2000,
+            contributionCount: 1,
+            anonymous: true,
+            lastContributedAt: _poolBaseTime,
+          ),
+        },
+        inviteeIds: const ['user456', 'user789'],
+        createdAt: _poolBaseTime,
+        updatedAt: _poolBaseTime,
+        groupAccountId: 'group:pool_save_1',
+      );
+
+  /// Sent sasaza pool (awaiting recipient)
+  static TokenPool get sentSasazaPool => collectingSasazaPool.copyWith(
+        status: PoolStatus.sent,
+        sentAt: _poolBaseTime.add(const Duration(days: 1)),
+        giftMessageId: 'msg_gift_1',
+        giftConversationId: 'conv_gift_1',
+      );
+
+  /// Completed pool
+  static TokenPool get completedPool => collectingSasazaPool.copyWith(
+        status: PoolStatus.completed,
+        completedAt: _poolBaseTime.add(const Duration(days: 2)),
+      );
+
+  /// Cancelled pool
+  static TokenPool get cancelledPool => collectingSasazaPool.copyWith(
+        status: PoolStatus.cancelled,
+        cancelledAt: _poolBaseTime.add(const Duration(days: 1)),
+      );
+
+  /// Expired pool
+  static TokenPool get expiredPool => collectingSasazaPool.copyWith(
+        status: PoolStatus.expired,
+      );
+
+  /// Empty pool (collecting, zero contributions)
+  static TokenPool get emptyCollectingPool => TokenPool(
+        id: 'pool_empty',
+        mode: PoolMode.sasaza,
+        status: PoolStatus.collecting,
+        organizerId: 'user123',
+        organizerName: 'Test Organizer',
+        conversationId: 'conv_empty',
+        title: 'New Pool',
+        style: GiftStyle.celebration,
+        inviteeIds: const ['user456'],
+        createdAt: _poolBaseTime,
+        updatedAt: _poolBaseTime,
+        groupAccountId: 'group:pool_empty',
+      );
+
+  /// List of pools for getMyPools tests
+  static List<TokenPool> get tokenPoolList => [
+        collectingSasazaPool,
+        collectingSavePool,
+        sentSasazaPool,
       ];
 
   // ==================== VALIDATION DATA ====================

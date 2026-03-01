@@ -301,21 +301,40 @@ class MessageSyncService {
               existing.deletedForJson != jsonEncode(msg.deletedFor);
           final deletedForEveryoneChanged =
               existing.deletedForEveryone != msg.deletedForEveryone;
+          // Gift/spray status is updated directly on the Firestore document
+          // by Cloud Functions (openGift, claimGift, etc.), outside the
+          // encrypted payload, so msg.gift/msg.tokenSpray are reliable here.
+          final localEntity = LocalMessageMapper.toEntity(existing);
+          final giftStatusChanged = msg.gift != null &&
+              localEntity.gift != null &&
+              localEntity.gift!.status != msg.gift!.status;
+          final sprayStatusChanged = msg.tokenSpray != null &&
+              localEntity.tokenSpray != null &&
+              localEntity.tokenSpray!.status != msg.tokenSpray!.status;
           if (existing.status != msg.status.name ||
               existing.reactionsJson != _encodeReactions(msg.reactions) ||
               deletedForChanged ||
-              deletedForEveryoneChanged) {
+              deletedForEveryoneChanged ||
+              giftStatusChanged ||
+              sprayStatusChanged) {
             // Update ONLY mutable fields — preserve all decrypted content
-            // (textContent, media, gift, etc.) from the local row. Using the
-            // Firestore `msg` as base would overwrite media/gift with null
-            // because those fields are inside the encrypted payload on the server.
-            final localEntity = LocalMessageMapper.toEntity(existing);
+            // (textContent, media, etc.) from the local row. Using the
+            // Firestore `msg` as base would overwrite those with null
+            // because they're inside the encrypted payload on the server.
+            // Gift/spray status is the exception — CFs update it directly.
             final updated = localEntity.copyWith(
               status: msg.status,
               reactions: msg.reactions,
               deletedFor: msg.deletedFor,
               deletedForEveryone: msg.deletedForEveryone,
               readBy: msg.readBy,
+              gift: giftStatusChanged
+                  ? localEntity.gift!.copyWith(status: msg.gift!.status)
+                  : localEntity.gift,
+              tokenSpray: sprayStatusChanged
+                  ? localEntity.tokenSpray!
+                      .copyWith(status: msg.tokenSpray!.status)
+                  : localEntity.tokenSpray,
             );
             await _appDatabase.upsertLocalMessage(
               LocalMessageMapper.toCompanion(updated, conversationId),

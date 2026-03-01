@@ -63,6 +63,8 @@ export * from "./messagingNotifications";
 export * from "./gifts";
 export * from "./tokenSprays";
 export * from "./giftNotifications";
+export * from "./tokenPools";
+export * from "./tokenPoolNotifications";
 export * from "./moderation";
 export * from "./keyManagement";
 export * from "./calls";

@@ -29,6 +29,9 @@ enum MessageType {
 
   /// System-generated message
   system,
+
+  /// Group gift delivery message (Group Sasaza)
+  groupGift,
 }
 
 extension MessageTypeX on MessageType {
@@ -39,6 +42,7 @@ extension MessageTypeX on MessageType {
       this == MessageType.tokenSend || this == MessageType.tokenRequest;
   bool get isSystem => this == MessageType.system;
   bool get isGift => this == MessageType.gift;
+  bool get isGroupGift => this == MessageType.groupGift;
   bool get isSpray => this == MessageType.tokenSpray;
 
   String get displayName {
@@ -63,6 +67,8 @@ extension MessageTypeX on MessageType {
         return 'Video Message';
       case MessageType.system:
         return 'System';
+      case MessageType.groupGift:
+        return 'Group Sasaza';
     }
   }
 }

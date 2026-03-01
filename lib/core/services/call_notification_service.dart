@@ -113,14 +113,13 @@ class CallNotificationService {
             conversationId: conversationId,
             callerId: callerId,
           ));
-          // Small delay to let the bloc process before navigation
-          Future.delayed(const Duration(milliseconds: 100), () {
-            _callBloc?.add(const CallEvent.acceptCall());
-            _router?.push(
-              '/chat/conversation/$conversationId/call/$callId',
-              extra: {'isVideo': callType == CallType.video},
-            );
-          });
+          // BLoC processes events sequentially — acceptCall won't start
+          // until incomingCall handler completes. No delay needed.
+          _callBloc?.add(const CallEvent.acceptCall());
+          _router?.push(
+            '/chat/conversation/$conversationId/call/$callId',
+            extra: {'isVideo': callType == CallType.video},
+          );
 
         case callkit.Event.actionCallDecline:
           // User declined — notify the bloc to send declined reason
@@ -132,9 +131,7 @@ class CallNotificationService {
             conversationId: conversationId,
             callerId: callerId,
           ));
-          Future.delayed(const Duration(milliseconds: 100), () {
-            _callBloc?.add(const CallEvent.rejectCall());
-          });
+          _callBloc?.add(const CallEvent.rejectCall());
 
         case callkit.Event.actionCallTimeout:
           // Ring timeout — let the scheduled CF handle marking as missed

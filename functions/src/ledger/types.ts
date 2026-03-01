@@ -507,6 +507,11 @@ export const IdempotencyKey = {
   groupPayout: (groupId: string, transactionId: string) => `group_payout:${groupId}:${transactionId}`,
   groupPenalty: (groupId: string, memberId: string, date: string) => `group_penalty:${groupId}:${memberId}:${date}`,
   groupTransfer: (groupId: string, transactionId: string) => `group_transfer:${groupId}:${transactionId}`,
+  // Token pool keys
+  poolSend: (poolId: string) => `pool_send:${poolId}`,
+  poolDistribute: (poolId: string) => `pool_distribute:${poolId}`,
+  poolCancel: (poolId: string) => `pool_cancel:${poolId}`,
+  poolExpire: (poolId: string) => `pool_expire:${poolId}`,
 };
 
 // ============================================================================

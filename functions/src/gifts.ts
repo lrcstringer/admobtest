@@ -2,8 +2,9 @@
  * Gifts Cloud Functions
  *
  * iMali gift system — send wrapped token gifts to other users.
- * Gifts use an escrow pattern: tokens are debited from the sender immediately,
- * held in the system, and credited to the recipient when they claim.
+ * Gifts use a true escrow pattern: tokens are debited from sender into
+ * GIFT_ESCROW on send, credited from GIFT_ESCROW to recipient on claim,
+ * and refunded from GIFT_ESCROW to sender on expiry.
  *
  * Collection: /gifts/{giftId}
  *
@@ -15,10 +16,12 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
+import { validateMainWalletBalance } from "./ledger";
 import {
-  processP2PTransfer,
-  validateMainWalletBalance,
-} from "./ledger";
+  processGiftDebit,
+  processGiftCredit,
+  processGiftRefund,
+} from "./ledger/giftSprayEscrow";
 
 const db = admin.firestore();
 
@@ -43,6 +46,7 @@ async function getUserProfile(userId: string) {
 
 const VALID_STYLES = ["ndlovukazi", "celebration", "love", "birthday", "professional"];
 const MIN_GIFT_AMOUNT = 10; // 10 tokens minimum
+const MAX_GIFT_AMOUNT = 100000; // 100k tokens maximum
 const GIFT_EXPIRY_DAYS = 7;
 
 // ============================================================================
@@ -52,11 +56,13 @@ const GIFT_EXPIRY_DAYS = 7;
 /**
  * Send a gift to another user.
  *
- * 1. Validates balance
- * 2. Debits sender via ledger (P2P transfer to system escrow)
- * 3. Creates /gifts/{id} document
- * 4. Writes a "gift" type message into conversation or community
- * 5. Returns the created gift
+ * 1. Validates inputs (integer, range, parent doc exists)
+ * 2. Validates sender balance
+ * 3. Debits sender → GIFT_ESCROW via processGiftDebit
+ * 4. Creates /gifts/{id} document
+ * 5. Writes a "gift" type message into conversation or community
+ * 6. Sends FCM push to recipient
+ * 7. Returns the created gift
  */
 export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) => {
   const userId = requireAuth(request);
@@ -65,12 +71,18 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
 
   const { recipientId, amount, message, style, conversationId, communityId } = request.data;
 
-  // Validate inputs
+  // --- Input validation ---
   if (!recipientId || typeof recipientId !== "string") {
     throw new HttpsError("invalid-argument", "recipientId is required");
   }
-  if (!amount || typeof amount !== "number" || amount < MIN_GIFT_AMOUNT) {
+  if (typeof amount !== "number" || !Number.isInteger(amount)) {
+    throw new HttpsError("invalid-argument", "amount must be an integer");
+  }
+  if (amount < MIN_GIFT_AMOUNT) {
     throw new HttpsError("invalid-argument", `Minimum gift is ${MIN_GIFT_AMOUNT} tokens`);
+  }
+  if (amount > MAX_GIFT_AMOUNT) {
+    throw new HttpsError("invalid-argument", `Maximum gift is ${MAX_GIFT_AMOUNT} tokens`);
   }
   if (!message || typeof message !== "string" || message.trim().length === 0) {
     throw new HttpsError("invalid-argument", "Gift message is required");
@@ -85,41 +97,56 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
     throw new HttpsError("invalid-argument", "Cannot send a gift to yourself");
   }
 
-  // Get user profiles
+  // --- Validate parent document exists ---
+  const collection = conversationId ? "conversations" : "communities";
+  const parentId = conversationId || communityId;
+  const parentDoc = await db.collection(collection).doc(parentId!).get();
+  if (!parentDoc.exists) {
+    throw new HttpsError("not-found", `${collection === "conversations" ? "Conversation" : "Community"} not found`);
+  }
+
+  // --- Get user profiles ---
   const [sender, recipient] = await Promise.all([
     getUserProfile(userId),
     getUserProfile(recipientId),
   ]);
 
-  // Validate sender balance (main ledger account IS the default wallet)
-  await validateMainWalletBalance(userId, amount);
+  // --- Validate sender balance ---
+  const balanceCheck = await validateMainWalletBalance(userId, amount);
+  if (!balanceCheck.sufficient) {
+    throw new HttpsError(
+      "failed-precondition",
+      `Insufficient balance. You have ${balanceCheck.available} tokens but need ${amount}.`
+    );
+  }
 
-  // Generate IDs
+  // --- Generate IDs ---
   const giftRef = db.collection("gifts").doc();
   const giftId = giftRef.id;
-
-  // Determine which message collection to write to
-  const collection = conversationId ? "conversations" : "communities";
-  const parentId = conversationId || communityId;
   const msgRef = db.collection(collection).doc(parentId!).collection("messages").doc();
 
-  // Process debit via ledger (P2P to system — tokens held until claim)
-  // No senderSubAccountId — processP2PTransfer validates against main wallet balance
-  const idempotencyKey = `gift:send:${giftId}`;
-  const transferResult = await processP2PTransfer(
-    userId,
-    recipientId,
-    amount,
-    `Gift to ${recipient.displayName || recipientId}`,
-    undefined, // main wallet — no sub-account needed
-    undefined, // recipientSubAccountId — uses default
-    idempotencyKey,
-  );
+  // --- Debit sender → GIFT_ESCROW ---
+  let debitJournalId: string;
+  try {
+    debitJournalId = await processGiftDebit(
+      userId,
+      amount,
+      giftId,
+      `Sasaza to ${recipient.displayName || recipientId}`,
+    );
+  } catch (e: unknown) {
+    const errMsg = e instanceof Error ? e.message : String(e);
+    logger.error(`Gift debit failed for ${giftId}:`, e);
+    if (errMsg.includes("INSUFFICIENT_BALANCE")) {
+      throw new HttpsError("failed-precondition", "Insufficient balance to send this gift");
+    }
+    throw new HttpsError("internal", "Failed to process gift payment");
+  }
 
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + GIFT_EXPIRY_DAYS);
 
-  // Construct the gift document
+  // --- Construct the gift document ---
   const giftDoc = {
     id: giftId,
     senderId: userId,
@@ -137,13 +164,13 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
     openedAt: null,
     claimedAt: null,
     expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
-    debitTransactionId: transferResult.journalId || null,
+    debitTransactionId: debitJournalId,
     creditTransactionId: null,
     notificationSent: false,
     reminderSent: false,
   };
 
-  // Construct the gift message
+  // --- Construct the gift message ---
   const giftMessage: Record<string, unknown> = {
     id: msgRef.id,
     senderId: userId,
@@ -162,6 +189,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
       status: "pending",
       recipientId,
       recipientName: recipient.displayName || "Unknown",
+      expiresAt: expiresAt.toISOString(),
     },
     reactions: {},
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -174,7 +202,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
     giftMessage.communityId = communityId;
   }
 
-  // Batch write: gift doc + message + update parent lastMessage
+  // --- Batch write: gift doc + message + update parent lastMessage ---
   const batch = db.batch();
   batch.set(giftRef, giftDoc);
   batch.set(msgRef, giftMessage);
@@ -182,7 +210,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
   // Update lastMessage on parent document
   const parentUpdate: Record<string, unknown> = {
     lastMessage: {
-      text: `Sent a gift of ${amount} tokens`,
+      text: `Sent a Sasaza of ${amount} tokens`,
       senderId: userId,
       senderName: sender.displayName || "Unknown",
       type: "gift",
@@ -195,14 +223,10 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
   if (conversationId) {
     parentUpdate[`unreadCounts.${recipientId}`] = admin.firestore.FieldValue.increment(1);
   } else if (communityId) {
-    // For community gifts, increment unread for all members except sender
-    const communityDoc = await db.collection("communities").doc(communityId).get();
-    if (communityDoc.exists) {
-      const memberIds: string[] = communityDoc.data()?.memberIds || [];
-      for (const memberId of memberIds) {
-        if (memberId !== userId) {
-          parentUpdate[`unreadCounts.${memberId}`] = admin.firestore.FieldValue.increment(1);
-        }
+    const memberIds: string[] = parentDoc.data()?.memberIds || [];
+    for (const memberId of memberIds) {
+      if (memberId !== userId) {
+        parentUpdate[`unreadCounts.${memberId}`] = admin.firestore.FieldValue.increment(1);
       }
     }
   }
@@ -210,7 +234,39 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
   batch.update(db.collection(collection).doc(parentId!), parentUpdate);
   await batch.commit();
 
-  // Return the gift data for the client
+  // --- Send FCM push to recipient ---
+  try {
+    const recipientFcmToken = recipient.fcmToken;
+    if (recipientFcmToken) {
+      await admin.messaging().send({
+        token: recipientFcmToken,
+        notification: {
+          title: "You received a Sasaza!",
+          body: `${sender.displayName || "Someone"} sent you ${amount} tokens`,
+        },
+        data: {
+          type: "gift_received",
+          giftId,
+          senderId: userId,
+          conversationId: conversationId || "",
+          communityId: communityId || "",
+        },
+        android: {
+          priority: "high",
+          notification: { channelId: "gifts", sound: "default" },
+        },
+        apns: {
+          headers: { "apns-priority": "10" },
+          payload: { aps: { sound: "default", badge: 1 } },
+        },
+      });
+    }
+  } catch (e) {
+    logger.warn("Failed to send gift FCM notification:", e);
+    // Non-fatal — gift is already created
+  }
+
+  // --- Return the gift data for the client ---
   return {
     id: giftId,
     senderId: userId,
@@ -228,7 +284,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
     openedAt: null,
     claimedAt: null,
     expiresAt: expiresAt.toISOString(),
-    debitTransactionId: transferResult.journalId || null,
+    debitTransactionId: debitJournalId,
     creditTransactionId: null,
   };
 });
@@ -240,6 +296,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
 /**
  * Mark a gift as opened (recipient saw it).
  * Only the recipient can open a gift.
+ * Uses a Firestore transaction to prevent TOCTOU races.
  */
 export const openGift = onCall({ labels: { area: "gifts" } }, async (request) => {
   const userId = requireAuth(request);
@@ -251,57 +308,64 @@ export const openGift = onCall({ labels: { area: "gifts" } }, async (request) =>
   }
 
   const giftRef = db.collection("gifts").doc(giftId);
-  const giftDoc = await giftRef.get();
 
-  if (!giftDoc.exists) {
-    throw new HttpsError("not-found", "Gift not found");
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result: Record<string, any> = await db.runTransaction(async (tx) => {
+    const giftDoc = await tx.get(giftRef);
 
-  const gift = giftDoc.data()!;
+    if (!giftDoc.exists) {
+      throw new HttpsError("not-found", "Gift not found");
+    }
 
-  // Only recipient can open
-  if (gift.recipientId !== userId) {
-    throw new HttpsError("permission-denied", "Only the recipient can open this gift");
-  }
+    const gift = giftDoc.data()!;
 
-  // Check status
-  if (gift.status !== "pending") {
-    throw new HttpsError("failed-precondition", `Gift is already ${gift.status}`);
-  }
+    // Only recipient can open
+    if (gift.recipientId !== userId) {
+      throw new HttpsError("permission-denied", "Only the recipient can open this gift");
+    }
 
-  // Check expiry
-  const expiresAt = gift.expiresAt?.toDate ? gift.expiresAt.toDate() : new Date(gift.expiresAt);
-  if (new Date() > expiresAt) {
-    throw new HttpsError("failed-precondition", "Gift has expired");
-  }
+    // Already opened or claimed — return current state (idempotent)
+    if (gift.status === "opened" || gift.status === "claimed") {
+      return { ...gift, id: giftId };
+    }
 
-  // Update gift status
-  await giftRef.update({
-    status: "opened",
-    openedAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
+    // Check status — must be pending
+    if (gift.status !== "pending") {
+      throw new HttpsError("failed-precondition", `Gift is already ${gift.status}`);
+    }
 
-  // Update the embedded gift data in the message
-  if (gift.messageId) {
-    const collection = gift.conversationId ? "conversations" : "communities";
-    const parentId = gift.conversationId || gift.communityId;
-    if (parentId) {
-      try {
-        await db.collection(collection).doc(parentId).collection("messages").doc(gift.messageId).update({
-          "gift.status": "opened",
-        });
-      } catch (e) {
-        logger.warn("Failed to update gift message status:", e);
+    // Check expiry
+    const expiresAt = gift.expiresAt?.toDate ? gift.expiresAt.toDate() : new Date(gift.expiresAt);
+    if (new Date() > expiresAt) {
+      throw new HttpsError("failed-precondition", "Gift has expired");
+    }
+
+    // Update gift status within transaction
+    tx.update(giftRef, {
+      status: "opened",
+      openedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Update the embedded gift data in the message
+    if (gift.messageId) {
+      const msgCollection = gift.conversationId ? "conversations" : "communities";
+      const msgParentId = gift.conversationId || gift.communityId;
+      if (msgParentId) {
+        const msgRef = db.collection(msgCollection).doc(msgParentId).collection("messages").doc(gift.messageId);
+        tx.update(msgRef, { "gift.status": "opened" });
       }
     }
-  }
+
+    return { ...gift, id: giftId, status: "opened" };
+  });
+
+  const expiresAt = result.expiresAt?.toDate ? result.expiresAt.toDate() : new Date(result.expiresAt);
 
   return {
-    ...gift,
-    id: giftId,
+    ...result,
     status: "opened",
     openedAt: new Date().toISOString(),
-    createdAt: gift.createdAt?.toDate ? gift.createdAt.toDate().toISOString() : gift.createdAt,
+    createdAt: result.createdAt?.toDate ? result.createdAt.toDate().toISOString() : result.createdAt,
     expiresAt: expiresAt.toISOString(),
   };
 });
@@ -311,8 +375,9 @@ export const openGift = onCall({ labels: { area: "gifts" } }, async (request) =>
 // ============================================================================
 
 /**
- * Claim a gift — transfers tokens to recipient's wallet.
+ * Claim a gift — transfers tokens from GIFT_ESCROW to recipient's wallet.
  * Only the recipient can claim. Gift must be "opened" and not expired.
+ * Uses a Firestore transaction to prevent TOCTOU races + double-claim.
  */
 export const claimGift = onCall({ labels: { area: "gifts" } }, async (request) => {
   const userId = requireAuth(request);
@@ -325,61 +390,103 @@ export const claimGift = onCall({ labels: { area: "gifts" } }, async (request) =
   }
 
   const giftRef = db.collection("gifts").doc(giftId);
-  const giftDoc = await giftRef.get();
 
-  if (!giftDoc.exists) {
-    throw new HttpsError("not-found", "Gift not found");
-  }
+  // Phase 1: Validate and mark as claimed in a transaction
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const gift: Record<string, any> = await db.runTransaction(async (tx) => {
+    const giftDoc = await tx.get(giftRef);
 
-  const gift = giftDoc.data()!;
+    if (!giftDoc.exists) {
+      throw new HttpsError("not-found", "Gift not found");
+    }
 
-  // Only recipient can claim
-  if (gift.recipientId !== userId) {
-    throw new HttpsError("permission-denied", "Only the recipient can claim this gift");
-  }
+    const data = giftDoc.data()!;
 
-  // Must be opened (not pending or already claimed)
-  if (gift.status !== "opened") {
-    throw new HttpsError("failed-precondition", `Gift cannot be claimed — status is ${gift.status}`);
-  }
+    // Only recipient can claim
+    if (data.recipientId !== userId) {
+      throw new HttpsError("permission-denied", "Only the recipient can claim this gift");
+    }
 
-  // Check expiry
-  const expiresAt = gift.expiresAt?.toDate ? gift.expiresAt.toDate() : new Date(gift.expiresAt);
-  if (new Date() > expiresAt) {
-    throw new HttpsError("failed-precondition", "Gift has expired");
-  }
+    // Already claimed — idempotent return
+    if (data.status === "claimed") {
+      return { ...data, id: giftId, alreadyClaimed: true };
+    }
 
-  // Tokens were already transferred via processP2PTransfer in sendGift.
-  // The recipient already has the tokens in their default sub-account.
-  // We just need to update the gift status.
+    // Must be opened (not pending or expired)
+    if (data.status !== "opened") {
+      throw new HttpsError("failed-precondition", `Gift cannot be claimed — status is ${data.status}`);
+    }
 
-  await giftRef.update({
-    status: "claimed",
-    claimedAt: admin.firestore.FieldValue.serverTimestamp(),
+    // Check expiry
+    const expiresAt = data.expiresAt?.toDate ? data.expiresAt.toDate() : new Date(data.expiresAt);
+    if (new Date() > expiresAt) {
+      throw new HttpsError("failed-precondition", "Gift has expired");
+    }
+
+    // Mark as claimed within the transaction to prevent double-claim
+    tx.update(giftRef, {
+      status: "claimed",
+      claimedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Update the embedded gift data in the message
+    if (data.messageId) {
+      const msgCollection = data.conversationId ? "conversations" : "communities";
+      const msgParentId = data.conversationId || data.communityId;
+      if (msgParentId) {
+        const msgRef = db.collection(msgCollection).doc(msgParentId).collection("messages").doc(data.messageId);
+        tx.update(msgRef, { "gift.status": "claimed" });
+      }
+    }
+
+    return { ...data, id: giftId, alreadyClaimed: false };
   });
 
-  // Update the embedded gift data in the message
-  if (gift.messageId) {
-    const collection = gift.conversationId ? "conversations" : "communities";
-    const parentId = gift.conversationId || gift.communityId;
-    if (parentId) {
-      try {
-        await db.collection(collection).doc(parentId).collection("messages").doc(gift.messageId).update({
-          "gift.status": "claimed",
-        });
-      } catch (e) {
-        logger.warn("Failed to update gift message status:", e);
+  // Phase 2: Transfer tokens from GIFT_ESCROW → recipient (idempotent via idempotency key)
+  if (!gift.alreadyClaimed) {
+    let creditJournalId: string;
+    try {
+      creditJournalId = await processGiftCredit(
+        userId,
+        gift.amount,
+        giftId,
+        `Sasaza claimed from ${gift.senderName}`,
+      );
+
+      // Update gift with credit transaction ID
+      await giftRef.update({ creditTransactionId: creditJournalId });
+    } catch (e) {
+      // If credit fails, we need to roll back the status change
+      logger.error(`Gift credit failed for ${giftId}, rolling back status:`, e);
+      await giftRef.update({ status: "opened", claimedAt: null });
+
+      // Also roll back the message embed
+      if (gift.messageId) {
+        const msgCollection = gift.conversationId ? "conversations" : "communities";
+        const msgParentId = gift.conversationId || gift.communityId;
+        if (msgParentId) {
+          try {
+            await db.collection(msgCollection).doc(msgParentId).collection("messages").doc(gift.messageId).update({
+              "gift.status": "opened",
+            });
+          } catch (rollbackErr) {
+            logger.warn("Failed to rollback message gift status:", rollbackErr);
+          }
+        }
       }
+      throw new HttpsError("internal", "Failed to transfer tokens. Please try again.");
     }
   }
 
+  const expiresAt = gift.expiresAt?.toDate ? gift.expiresAt.toDate() : new Date(gift.expiresAt);
+
   return {
     ...gift,
-    id: giftId,
     status: "claimed",
     claimedAt: new Date().toISOString(),
     createdAt: gift.createdAt?.toDate ? gift.createdAt.toDate().toISOString() : gift.createdAt,
     expiresAt: expiresAt.toISOString(),
+    alreadyClaimed: undefined,
   };
 });
 
@@ -388,9 +495,8 @@ export const claimGift = onCall({ labels: { area: "gifts" } }, async (request) =
 // ============================================================================
 
 /**
- * Hourly job: find pending/opened gifts past their expiresAt and mark them expired.
- * Since tokens were already transferred via P2P, expired gifts don't need a refund —
- * the recipient simply has the tokens. The gift wrapper is just a presentation layer.
+ * Hourly job: find pending/opened gifts past their expiresAt, refund from
+ * GIFT_ESCROW back to sender, and mark them expired.
  */
 export const expireGifts = onSchedule(
   { schedule: "0 * * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "gifts" } },
@@ -410,24 +516,50 @@ export const expireGifts = onSchedule(
 
     logger.info(`Expiring ${expiredGifts.size} gifts`);
 
-    const batch = db.batch();
+    let successCount = 0;
+    let failCount = 0;
+
     for (const doc of expiredGifts.docs) {
+      const gift = doc.data();
+
+      // Refund sender from GIFT_ESCROW (idempotent via idempotency key)
+      try {
+        await processGiftRefund(
+          gift.senderId,
+          gift.amount,
+          doc.id,
+          `Sasaza expired — refund to ${gift.senderName}`,
+        );
+      } catch (e) {
+        logger.error(`Failed to refund gift ${doc.id}:`, e);
+        failCount++;
+        continue; // Skip this gift, retry next hour
+      }
+
+      // Mark as expired + update message embed
+      const batch = db.batch();
       batch.update(doc.ref, { status: "expired" });
 
-      // Update the message embed too
-      const gift = doc.data();
       if (gift.messageId) {
-        const collection = gift.conversationId ? "conversations" : "communities";
-        const parentId = gift.conversationId || gift.communityId;
-        if (parentId) {
-          const msgRef = db.collection(collection).doc(parentId).collection("messages").doc(gift.messageId);
-          batch.update(msgRef, { "gift.status": "expired" });
+        const msgCollection = gift.conversationId ? "conversations" : "communities";
+        const msgParentId = gift.conversationId || gift.communityId;
+        if (msgParentId) {
+          const msgRef = db.collection(msgCollection).doc(msgParentId).collection("messages").doc(gift.messageId);
+          // Use set with merge in case message was deleted
+          batch.set(msgRef, { gift: { status: "expired" } }, { merge: true });
         }
+      }
+
+      try {
+        await batch.commit();
+        successCount++;
+      } catch (e) {
+        logger.error(`Failed to update expired gift ${doc.id}:`, e);
+        failCount++;
       }
     }
 
-    await batch.commit();
-    logger.info(`Expired ${expiredGifts.size} gifts`);
+    logger.info(`Expired ${successCount} gifts, ${failCount} failures`);
   }
 );
 
@@ -472,8 +604,8 @@ export const sendGiftExpiryReminders = onSchedule(
           await admin.messaging().send({
             token: fcmToken,
             notification: {
-              title: "Gift expiring soon!",
-              body: `Your ${gift.amount} token gift from ${gift.senderName} expires in 2 days. Tap to claim!`,
+              title: "Sasaza expiring soon!",
+              body: `Your ${gift.amount} token Sasaza from ${gift.senderName} expires in 2 days. Tap to claim!`,
             },
             data: {
               type: "gift_expiry_reminder",

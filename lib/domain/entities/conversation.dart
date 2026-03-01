@@ -51,6 +51,15 @@ class Conversation with _$Conversation {
     // Per-user acceptance status (message request system)
     @Default({}) Map<String, bool> accepted,
 
+    /// Token pool ID (for collection-type conversations)
+    String? tokenPoolId,
+
+    /// Pool title (denormalized for collection-type conversations)
+    String? poolTitle,
+
+    /// Pool mode: 'sasaza' or 'save' (denormalized for collection-type conversations)
+    String? poolMode,
+
     /// Disappearing messages duration. Null means off.
     Duration? disappearingMessagesDuration,
 
@@ -92,6 +101,9 @@ class Conversation with _$Conversation {
 
   /// Whether this is a message request for the given user
   bool isMessageRequestFor(String userId) => !isAcceptedFor(userId);
+
+  /// Whether this is a collection room (Group Sasaza / Group Save)
+  bool get isCollectionRoom => type == ConversationType.collection;
 
   /// Whether disappearing messages are enabled for this conversation
   bool get hasDisappearingMessages => disappearingMessagesDuration != null;

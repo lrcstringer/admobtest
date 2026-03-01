@@ -403,7 +403,7 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
             icon: const Icon(Icons.close, color: Colors.white, size: 28),
           ),
           Text(
-            'Video Message',
+            'Video Note',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,

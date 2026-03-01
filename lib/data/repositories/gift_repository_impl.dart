@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 
@@ -129,16 +131,20 @@ class GiftRepositoryImpl implements GiftRepository {
 
   @override
   Stream<Either<Failure, Gift>> watchGift(String giftId) {
-    return _remoteDataSource.watchGift(giftId).map((model) {
-      return Right<Failure, Gift>(model.toEntity());
-    }).handleError((error) {
-      if (error is AuthException) {
-        return const Left<Failure, Gift>(Failure.unauthenticated());
-      }
-      return Left<Failure, Gift>(
-        Failure.serverError(message: error.toString()),
-      );
-    });
+    return _remoteDataSource.watchGift(giftId).map<Either<Failure, Gift>>(
+      (model) => Right(model.toEntity()),
+    ).transform(
+      StreamTransformer<Either<Failure, Gift>, Either<Failure, Gift>>.fromHandlers(
+        handleData: (data, sink) => sink.add(data),
+        handleError: (error, stackTrace, sink) {
+          if (error is AuthException) {
+            sink.add(const Left(Failure.unauthenticated()));
+          } else {
+            sink.add(Left(Failure.serverError(message: error.toString())));
+          }
+        },
+      ),
+    );
   }
 
   // =========================================================================

@@ -21,7 +21,7 @@ import '../../blocs/call/call_bloc.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
 import '../../blocs/conversation_actions/conversation_actions_bloc.dart';
-import '../../blocs/gift/gift_bloc.dart';
+
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/messaging/chat_background.dart';
@@ -89,54 +89,21 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   Widget build(BuildContext context) {
     final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
 
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<ConversationActionsBloc, ConversationActionsState>(
-          listenWhen: (prev, curr) =>
-              curr.errorMessage != null &&
-              prev.errorMessage != curr.errorMessage,
-          listener: (context, actionsState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(actionsState.errorMessage!),
-                backgroundColor: AppColors.error,
-              ),
+    return BlocListener<ConversationActionsBloc, ConversationActionsState>(
+      listenWhen: (prev, curr) =>
+          curr.errorMessage != null &&
+          prev.errorMessage != curr.errorMessage,
+      listener: (context, actionsState) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(actionsState.errorMessage!),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        context.read<ConversationActionsBloc>().add(
+              const ConversationActionsEvent.clearError(),
             );
-            context.read<ConversationActionsBloc>().add(
-                  const ConversationActionsEvent.clearError(),
-                );
-          },
-        ),
-        BlocListener<GiftBloc, GiftState>(
-          listenWhen: (prev, curr) =>
-              prev.isLoading != curr.isLoading ||
-              prev.isClaiming != curr.isClaiming ||
-              (curr.errorMessage != null &&
-                  prev.errorMessage != curr.errorMessage),
-          listener: (context, giftState) {
-            if (giftState.errorMessage != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(giftState.errorMessage!),
-                  backgroundColor: AppColors.error,
-                ),
-              );
-              context.read<GiftBloc>().add(const GiftEvent.clearError());
-            } else if (!giftState.isLoading &&
-                !giftState.isClaiming &&
-                giftState.activeGift != null) {
-              final status = giftState.activeGift!.status.displayName;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Gift $status!'),
-                  backgroundColor: AppColors.success,
-                  duration: const Duration(seconds: 2),
-                ),
-              );
-            }
-          },
-        ),
-      ],
+      },
       child: BlocBuilder<ConversationBloc, ConversationState>(
       builder: (context, state) {
         final conv = state.selectedConversation;
@@ -541,6 +508,20 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           },
         );
       },
+      onGroupGiftRequested: isP2P
+          ? () {
+              final recipientName =
+                  state.selectedConversation?.displayNameFor(currentUserId) ??
+                      '';
+              context.push(
+                '/chat/create-pool',
+                extra: {
+                  'recipientId': recipientId,
+                  'recipientName': recipientName,
+                },
+              );
+            }
+          : null,
       onTokenAction: () =>
           _showTokenActions(context, state, currentUserId),
     );

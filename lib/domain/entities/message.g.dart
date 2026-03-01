@@ -60,6 +60,9 @@ _$GiftMessageDataImpl _$$GiftMessageDataImplFromJson(
   status: $enumDecode(_$GiftStatusEnumMap, json['status']),
   recipientId: json['recipientId'] as String?,
   recipientName: json['recipientName'] as String?,
+  expiresAt: json['expiresAt'] == null
+      ? null
+      : DateTime.parse(json['expiresAt'] as String),
 );
 
 Map<String, dynamic> _$$GiftMessageDataImplToJson(
@@ -72,6 +75,7 @@ Map<String, dynamic> _$$GiftMessageDataImplToJson(
   'status': _$GiftStatusEnumMap[instance.status]!,
   'recipientId': instance.recipientId,
   'recipientName': instance.recipientName,
+  'expiresAt': instance.expiresAt?.toIso8601String(),
 };
 
 const _$GiftStyleEnumMap = {
@@ -122,6 +126,52 @@ const _$SprayStatusEnumMap = {
   SprayStatus.closed: 'closed',
   SprayStatus.claimed: 'claimed',
   SprayStatus.expired: 'expired',
+};
+
+_$GroupGiftMessageDataImpl _$$GroupGiftMessageDataImplFromJson(
+  Map<String, dynamic> json,
+) => _$GroupGiftMessageDataImpl(
+  poolId: json['poolId'] as String,
+  amount: (json['amount'] as num).toInt(),
+  message: json['message'] as String,
+  style: $enumDecode(_$GiftStyleEnumMap, json['style']),
+  organizerId: json['organizerId'] as String,
+  organizerName: json['organizerName'] as String,
+  contributorCount: (json['contributorCount'] as num).toInt(),
+  visibleContributorNames:
+      (json['visibleContributorNames'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  anonymousCount: (json['anonymousCount'] as num?)?.toInt() ?? 0,
+  status: $enumDecode(_$PoolStatusEnumMap, json['status']),
+  expiresAt: json['expiresAt'] == null
+      ? null
+      : DateTime.parse(json['expiresAt'] as String),
+);
+
+Map<String, dynamic> _$$GroupGiftMessageDataImplToJson(
+  _$GroupGiftMessageDataImpl instance,
+) => <String, dynamic>{
+  'poolId': instance.poolId,
+  'amount': instance.amount,
+  'message': instance.message,
+  'style': _$GiftStyleEnumMap[instance.style]!,
+  'organizerId': instance.organizerId,
+  'organizerName': instance.organizerName,
+  'contributorCount': instance.contributorCount,
+  'visibleContributorNames': instance.visibleContributorNames,
+  'anonymousCount': instance.anonymousCount,
+  'status': _$PoolStatusEnumMap[instance.status]!,
+  'expiresAt': instance.expiresAt?.toIso8601String(),
+};
+
+const _$PoolStatusEnumMap = {
+  PoolStatus.collecting: 'collecting',
+  PoolStatus.sent: 'sent',
+  PoolStatus.completed: 'completed',
+  PoolStatus.cancelled: 'cancelled',
+  PoolStatus.expired: 'expired',
 };
 
 _$ForwardedFromImpl _$$ForwardedFromImplFromJson(Map<String, dynamic> json) =>
@@ -210,6 +260,11 @@ _$MessageImpl _$$MessageImplFromJson(
   gift: json['gift'] == null
       ? null
       : GiftMessageData.fromJson(json['gift'] as Map<String, dynamic>),
+  groupGift: json['groupGift'] == null
+      ? null
+      : GroupGiftMessageData.fromJson(
+          json['groupGift'] as Map<String, dynamic>,
+        ),
   tokenSpray: json['tokenSpray'] == null
       ? null
       : TokenSprayMessageData.fromJson(
@@ -261,6 +316,7 @@ Map<String, dynamic> _$$MessageImplToJson(_$MessageImpl instance) =>
       'readBy': instance.readBy.map((k, e) => MapEntry(k, e.toIso8601String())),
       'forwardedFrom': instance.forwardedFrom,
       'gift': instance.gift,
+      'groupGift': instance.groupGift,
       'tokenSpray': instance.tokenSpray,
       'communityId': instance.communityId,
       'systemEventType': instance.systemEventType,
@@ -287,6 +343,7 @@ const _$MessageTypeEnumMap = {
   MessageType.gift: 'gift',
   MessageType.tokenSpray: 'tokenSpray',
   MessageType.system: 'system',
+  MessageType.groupGift: 'groupGift',
 };
 
 const _$MessageStatusEnumMap = {

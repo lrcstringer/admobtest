@@ -14,6 +14,7 @@ import 'package:cloud_functions/cloud_functions.dart' as _i809;
 import 'package:firebase_analytics/firebase_analytics.dart' as _i398;
 import 'package:firebase_app_check/firebase_app_check.dart' as _i56;
 import 'package:firebase_auth/firebase_auth.dart' as _i59;
+import 'package:firebase_database/firebase_database.dart' as _i345;
 import 'package:firebase_messaging/firebase_messaging.dart' as _i892;
 import 'package:firebase_storage/firebase_storage.dart' as _i457;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
@@ -47,6 +48,8 @@ import '../../data/datasources/remote/poll_remote_datasource.dart' as _i909;
 import '../../data/datasources/remote/purchase_remote_datasource.dart' as _i267;
 import '../../data/datasources/remote/referral_remote_datasource.dart' as _i9;
 import '../../data/datasources/remote/reward_remote_datasource.dart' as _i366;
+import '../../data/datasources/remote/token_pool_remote_datasource.dart'
+    as _i684;
 import '../../data/datasources/remote/token_spray_remote_datasource.dart'
     as _i1009;
 import '../../data/datasources/remote/user_remote_datasource.dart' as _i50;
@@ -67,6 +70,7 @@ import '../../data/repositories/poll_repository_impl.dart' as _i570;
 import '../../data/repositories/purchase_repository_impl.dart' as _i1044;
 import '../../data/repositories/referral_repository_impl.dart' as _i904;
 import '../../data/repositories/reward_repository_impl.dart' as _i905;
+import '../../data/repositories/token_pool_repository_impl.dart' as _i889;
 import '../../data/repositories/token_spray_repository_impl.dart' as _i895;
 import '../../data/repositories/user_repository_impl.dart' as _i790;
 import '../../data/repositories/wallet_repository_impl.dart' as _i520;
@@ -88,6 +92,7 @@ import '../../domain/repositories/poll_repository.dart' as _i731;
 import '../../domain/repositories/purchase_repository.dart' as _i742;
 import '../../domain/repositories/referral_repository.dart' as _i633;
 import '../../domain/repositories/reward_repository.dart' as _i191;
+import '../../domain/repositories/token_pool_repository.dart' as _i119;
 import '../../domain/repositories/token_spray_repository.dart' as _i943;
 import '../../domain/repositories/user_repository.dart' as _i271;
 import '../../domain/repositories/wallet_repository.dart' as _i851;
@@ -114,6 +119,7 @@ import '../../presentation/blocs/profile/profile_bloc.dart' as _i344;
 import '../../presentation/blocs/purchase/purchase_bloc.dart' as _i936;
 import '../../presentation/blocs/referral/referral_bloc.dart' as _i595;
 import '../../presentation/blocs/reward/reward_bloc.dart' as _i206;
+import '../../presentation/blocs/token_pool/token_pool_bloc.dart' as _i969;
 import '../../presentation/blocs/token_spray/token_spray_bloc.dart' as _i609;
 import '../../presentation/blocs/user_search/user_search_bloc.dart' as _i812;
 import '../../presentation/blocs/wallet/wallet_bloc.dart' as _i1019;
@@ -183,6 +189,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i809.FirebaseFunctions>(
       () => registerModule.firebaseFunctions,
     );
+    gh.lazySingleton<_i345.FirebaseDatabase>(
+      () => registerModule.firebaseDatabase,
+    );
     gh.lazySingleton<_i161.InternetConnection>(
       () => registerModule.internetConnection,
     );
@@ -213,6 +222,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i434.UploadService>(
       () => _i434.UploadService(gh<_i457.FirebaseStorage>()),
     );
+    gh.lazySingleton<_i684.TokenPoolRemoteDataSource>(
+      () => _i684.TokenPoolRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+      ),
+    );
     gh.lazySingleton<_i50.UserRemoteDataSource>(
       () => _i50.UserRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
@@ -223,6 +239,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i1057.AuthRemoteDataSourceImpl(
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
+      ),
+    );
+    gh.lazySingleton<_i846.CallSignalingService>(
+      () => _i846.CallSignalingService(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i345.FirebaseDatabase>(),
       ),
     );
     gh.lazySingleton<_i654.MediaUploadDatasource>(
@@ -301,9 +323,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i988.AuditLogger>(
       () => _i988.AuditLogger(gh<_i974.FirebaseFirestore>()),
     );
-    gh.lazySingleton<_i846.CallSignalingService>(
-      () => _i846.CallSignalingService(gh<_i974.FirebaseFirestore>()),
-    );
     gh.lazySingleton<_i124.MediaRecoveryService>(
       () => _i124.MediaRecoveryService(
         gh<_i892.KeystoreService>(),
@@ -351,6 +370,10 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i988.AuditLogger>(),
         gh<_i809.FirebaseFunctions>(),
       ),
+    );
+    gh.lazySingleton<_i119.TokenPoolRepository>(
+      () =>
+          _i889.TokenPoolRepositoryImpl(gh<_i684.TokenPoolRemoteDataSource>()),
     );
     gh.lazySingleton<_i351.PlayIntegrityService>(
       () => _i351.PlayIntegrityService(gh<_i809.FirebaseFunctions>()),
@@ -450,6 +473,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i500.GamificationRepositoryImpl(
         gh<_i749.GamificationRemoteDataSource>(),
       ),
+    );
+    gh.factory<_i969.TokenPoolBloc>(
+      () => _i969.TokenPoolBloc(gh<_i119.TokenPoolRepository>()),
     );
     gh.lazySingleton<_i693.DeviceBindingService>(
       () => _i693.DeviceBindingService(

@@ -618,6 +618,7 @@ mixin _$GiftMessageData {
   GiftStatus get status => throw _privateConstructorUsedError;
   String? get recipientId => throw _privateConstructorUsedError;
   String? get recipientName => throw _privateConstructorUsedError;
+  DateTime? get expiresAt => throw _privateConstructorUsedError;
 
   /// Serializes this GiftMessageData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -644,6 +645,7 @@ abstract class $GiftMessageDataCopyWith<$Res> {
     GiftStatus status,
     String? recipientId,
     String? recipientName,
+    DateTime? expiresAt,
   });
 }
 
@@ -669,6 +671,7 @@ class _$GiftMessageDataCopyWithImpl<$Res, $Val extends GiftMessageData>
     Object? status = null,
     Object? recipientId = freezed,
     Object? recipientName = freezed,
+    Object? expiresAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -700,6 +703,10 @@ class _$GiftMessageDataCopyWithImpl<$Res, $Val extends GiftMessageData>
                 ? _value.recipientName
                 : recipientName // ignore: cast_nullable_to_non_nullable
                       as String?,
+            expiresAt: freezed == expiresAt
+                ? _value.expiresAt
+                : expiresAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -723,6 +730,7 @@ abstract class _$$GiftMessageDataImplCopyWith<$Res>
     GiftStatus status,
     String? recipientId,
     String? recipientName,
+    DateTime? expiresAt,
   });
 }
 
@@ -747,6 +755,7 @@ class __$$GiftMessageDataImplCopyWithImpl<$Res>
     Object? status = null,
     Object? recipientId = freezed,
     Object? recipientName = freezed,
+    Object? expiresAt = freezed,
   }) {
     return _then(
       _$GiftMessageDataImpl(
@@ -778,6 +787,10 @@ class __$$GiftMessageDataImplCopyWithImpl<$Res>
             ? _value.recipientName
             : recipientName // ignore: cast_nullable_to_non_nullable
                   as String?,
+        expiresAt: freezed == expiresAt
+            ? _value.expiresAt
+            : expiresAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -794,6 +807,7 @@ class _$GiftMessageDataImpl implements _GiftMessageData {
     required this.status,
     this.recipientId,
     this.recipientName,
+    this.expiresAt,
   });
 
   factory _$GiftMessageDataImpl.fromJson(Map<String, dynamic> json) =>
@@ -813,10 +827,12 @@ class _$GiftMessageDataImpl implements _GiftMessageData {
   final String? recipientId;
   @override
   final String? recipientName;
+  @override
+  final DateTime? expiresAt;
 
   @override
   String toString() {
-    return 'GiftMessageData(giftId: $giftId, amount: $amount, message: $message, style: $style, status: $status, recipientId: $recipientId, recipientName: $recipientName)';
+    return 'GiftMessageData(giftId: $giftId, amount: $amount, message: $message, style: $style, status: $status, recipientId: $recipientId, recipientName: $recipientName, expiresAt: $expiresAt)';
   }
 
   @override
@@ -832,7 +848,9 @@ class _$GiftMessageDataImpl implements _GiftMessageData {
             (identical(other.recipientId, recipientId) ||
                 other.recipientId == recipientId) &&
             (identical(other.recipientName, recipientName) ||
-                other.recipientName == recipientName));
+                other.recipientName == recipientName) &&
+            (identical(other.expiresAt, expiresAt) ||
+                other.expiresAt == expiresAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -846,6 +864,7 @@ class _$GiftMessageDataImpl implements _GiftMessageData {
     status,
     recipientId,
     recipientName,
+    expiresAt,
   );
 
   /// Create a copy of GiftMessageData
@@ -874,6 +893,7 @@ abstract class _GiftMessageData implements GiftMessageData {
     required final GiftStatus status,
     final String? recipientId,
     final String? recipientName,
+    final DateTime? expiresAt,
   }) = _$GiftMessageDataImpl;
 
   factory _GiftMessageData.fromJson(Map<String, dynamic> json) =
@@ -893,6 +913,8 @@ abstract class _GiftMessageData implements GiftMessageData {
   String? get recipientId;
   @override
   String? get recipientName;
+  @override
+  DateTime? get expiresAt;
 
   /// Create a copy of GiftMessageData
   /// with the given fields replaced by the non-null parameter values.
@@ -1250,6 +1272,407 @@ abstract class _TokenSprayMessageData implements TokenSprayMessageData {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TokenSprayMessageDataImplCopyWith<_$TokenSprayMessageDataImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+GroupGiftMessageData _$GroupGiftMessageDataFromJson(Map<String, dynamic> json) {
+  return _GroupGiftMessageData.fromJson(json);
+}
+
+/// @nodoc
+mixin _$GroupGiftMessageData {
+  String get poolId => throw _privateConstructorUsedError;
+  int get amount => throw _privateConstructorUsedError;
+  String get message => throw _privateConstructorUsedError;
+  GiftStyle get style => throw _privateConstructorUsedError;
+  String get organizerId => throw _privateConstructorUsedError;
+  String get organizerName => throw _privateConstructorUsedError;
+  int get contributorCount => throw _privateConstructorUsedError;
+  List<String> get visibleContributorNames =>
+      throw _privateConstructorUsedError;
+  int get anonymousCount => throw _privateConstructorUsedError;
+  PoolStatus get status => throw _privateConstructorUsedError;
+  DateTime? get expiresAt => throw _privateConstructorUsedError;
+
+  /// Serializes this GroupGiftMessageData to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of GroupGiftMessageData
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $GroupGiftMessageDataCopyWith<GroupGiftMessageData> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $GroupGiftMessageDataCopyWith<$Res> {
+  factory $GroupGiftMessageDataCopyWith(
+    GroupGiftMessageData value,
+    $Res Function(GroupGiftMessageData) then,
+  ) = _$GroupGiftMessageDataCopyWithImpl<$Res, GroupGiftMessageData>;
+  @useResult
+  $Res call({
+    String poolId,
+    int amount,
+    String message,
+    GiftStyle style,
+    String organizerId,
+    String organizerName,
+    int contributorCount,
+    List<String> visibleContributorNames,
+    int anonymousCount,
+    PoolStatus status,
+    DateTime? expiresAt,
+  });
+}
+
+/// @nodoc
+class _$GroupGiftMessageDataCopyWithImpl<
+  $Res,
+  $Val extends GroupGiftMessageData
+>
+    implements $GroupGiftMessageDataCopyWith<$Res> {
+  _$GroupGiftMessageDataCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of GroupGiftMessageData
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? poolId = null,
+    Object? amount = null,
+    Object? message = null,
+    Object? style = null,
+    Object? organizerId = null,
+    Object? organizerName = null,
+    Object? contributorCount = null,
+    Object? visibleContributorNames = null,
+    Object? anonymousCount = null,
+    Object? status = null,
+    Object? expiresAt = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            poolId: null == poolId
+                ? _value.poolId
+                : poolId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            amount: null == amount
+                ? _value.amount
+                : amount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            message: null == message
+                ? _value.message
+                : message // ignore: cast_nullable_to_non_nullable
+                      as String,
+            style: null == style
+                ? _value.style
+                : style // ignore: cast_nullable_to_non_nullable
+                      as GiftStyle,
+            organizerId: null == organizerId
+                ? _value.organizerId
+                : organizerId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            organizerName: null == organizerName
+                ? _value.organizerName
+                : organizerName // ignore: cast_nullable_to_non_nullable
+                      as String,
+            contributorCount: null == contributorCount
+                ? _value.contributorCount
+                : contributorCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            visibleContributorNames: null == visibleContributorNames
+                ? _value.visibleContributorNames
+                : visibleContributorNames // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            anonymousCount: null == anonymousCount
+                ? _value.anonymousCount
+                : anonymousCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            status: null == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as PoolStatus,
+            expiresAt: freezed == expiresAt
+                ? _value.expiresAt
+                : expiresAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$GroupGiftMessageDataImplCopyWith<$Res>
+    implements $GroupGiftMessageDataCopyWith<$Res> {
+  factory _$$GroupGiftMessageDataImplCopyWith(
+    _$GroupGiftMessageDataImpl value,
+    $Res Function(_$GroupGiftMessageDataImpl) then,
+  ) = __$$GroupGiftMessageDataImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    String poolId,
+    int amount,
+    String message,
+    GiftStyle style,
+    String organizerId,
+    String organizerName,
+    int contributorCount,
+    List<String> visibleContributorNames,
+    int anonymousCount,
+    PoolStatus status,
+    DateTime? expiresAt,
+  });
+}
+
+/// @nodoc
+class __$$GroupGiftMessageDataImplCopyWithImpl<$Res>
+    extends _$GroupGiftMessageDataCopyWithImpl<$Res, _$GroupGiftMessageDataImpl>
+    implements _$$GroupGiftMessageDataImplCopyWith<$Res> {
+  __$$GroupGiftMessageDataImplCopyWithImpl(
+    _$GroupGiftMessageDataImpl _value,
+    $Res Function(_$GroupGiftMessageDataImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of GroupGiftMessageData
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? poolId = null,
+    Object? amount = null,
+    Object? message = null,
+    Object? style = null,
+    Object? organizerId = null,
+    Object? organizerName = null,
+    Object? contributorCount = null,
+    Object? visibleContributorNames = null,
+    Object? anonymousCount = null,
+    Object? status = null,
+    Object? expiresAt = freezed,
+  }) {
+    return _then(
+      _$GroupGiftMessageDataImpl(
+        poolId: null == poolId
+            ? _value.poolId
+            : poolId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        amount: null == amount
+            ? _value.amount
+            : amount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        message: null == message
+            ? _value.message
+            : message // ignore: cast_nullable_to_non_nullable
+                  as String,
+        style: null == style
+            ? _value.style
+            : style // ignore: cast_nullable_to_non_nullable
+                  as GiftStyle,
+        organizerId: null == organizerId
+            ? _value.organizerId
+            : organizerId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        organizerName: null == organizerName
+            ? _value.organizerName
+            : organizerName // ignore: cast_nullable_to_non_nullable
+                  as String,
+        contributorCount: null == contributorCount
+            ? _value.contributorCount
+            : contributorCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        visibleContributorNames: null == visibleContributorNames
+            ? _value._visibleContributorNames
+            : visibleContributorNames // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        anonymousCount: null == anonymousCount
+            ? _value.anonymousCount
+            : anonymousCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        status: null == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as PoolStatus,
+        expiresAt: freezed == expiresAt
+            ? _value.expiresAt
+            : expiresAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$GroupGiftMessageDataImpl implements _GroupGiftMessageData {
+  const _$GroupGiftMessageDataImpl({
+    required this.poolId,
+    required this.amount,
+    required this.message,
+    required this.style,
+    required this.organizerId,
+    required this.organizerName,
+    required this.contributorCount,
+    final List<String> visibleContributorNames = const [],
+    this.anonymousCount = 0,
+    required this.status,
+    this.expiresAt,
+  }) : _visibleContributorNames = visibleContributorNames;
+
+  factory _$GroupGiftMessageDataImpl.fromJson(Map<String, dynamic> json) =>
+      _$$GroupGiftMessageDataImplFromJson(json);
+
+  @override
+  final String poolId;
+  @override
+  final int amount;
+  @override
+  final String message;
+  @override
+  final GiftStyle style;
+  @override
+  final String organizerId;
+  @override
+  final String organizerName;
+  @override
+  final int contributorCount;
+  final List<String> _visibleContributorNames;
+  @override
+  @JsonKey()
+  List<String> get visibleContributorNames {
+    if (_visibleContributorNames is EqualUnmodifiableListView)
+      return _visibleContributorNames;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_visibleContributorNames);
+  }
+
+  @override
+  @JsonKey()
+  final int anonymousCount;
+  @override
+  final PoolStatus status;
+  @override
+  final DateTime? expiresAt;
+
+  @override
+  String toString() {
+    return 'GroupGiftMessageData(poolId: $poolId, amount: $amount, message: $message, style: $style, organizerId: $organizerId, organizerName: $organizerName, contributorCount: $contributorCount, visibleContributorNames: $visibleContributorNames, anonymousCount: $anonymousCount, status: $status, expiresAt: $expiresAt)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$GroupGiftMessageDataImpl &&
+            (identical(other.poolId, poolId) || other.poolId == poolId) &&
+            (identical(other.amount, amount) || other.amount == amount) &&
+            (identical(other.message, message) || other.message == message) &&
+            (identical(other.style, style) || other.style == style) &&
+            (identical(other.organizerId, organizerId) ||
+                other.organizerId == organizerId) &&
+            (identical(other.organizerName, organizerName) ||
+                other.organizerName == organizerName) &&
+            (identical(other.contributorCount, contributorCount) ||
+                other.contributorCount == contributorCount) &&
+            const DeepCollectionEquality().equals(
+              other._visibleContributorNames,
+              _visibleContributorNames,
+            ) &&
+            (identical(other.anonymousCount, anonymousCount) ||
+                other.anonymousCount == anonymousCount) &&
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.expiresAt, expiresAt) ||
+                other.expiresAt == expiresAt));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    poolId,
+    amount,
+    message,
+    style,
+    organizerId,
+    organizerName,
+    contributorCount,
+    const DeepCollectionEquality().hash(_visibleContributorNames),
+    anonymousCount,
+    status,
+    expiresAt,
+  );
+
+  /// Create a copy of GroupGiftMessageData
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$GroupGiftMessageDataImplCopyWith<_$GroupGiftMessageDataImpl>
+  get copyWith =>
+      __$$GroupGiftMessageDataImplCopyWithImpl<_$GroupGiftMessageDataImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$GroupGiftMessageDataImplToJson(this);
+  }
+}
+
+abstract class _GroupGiftMessageData implements GroupGiftMessageData {
+  const factory _GroupGiftMessageData({
+    required final String poolId,
+    required final int amount,
+    required final String message,
+    required final GiftStyle style,
+    required final String organizerId,
+    required final String organizerName,
+    required final int contributorCount,
+    final List<String> visibleContributorNames,
+    final int anonymousCount,
+    required final PoolStatus status,
+    final DateTime? expiresAt,
+  }) = _$GroupGiftMessageDataImpl;
+
+  factory _GroupGiftMessageData.fromJson(Map<String, dynamic> json) =
+      _$GroupGiftMessageDataImpl.fromJson;
+
+  @override
+  String get poolId;
+  @override
+  int get amount;
+  @override
+  String get message;
+  @override
+  GiftStyle get style;
+  @override
+  String get organizerId;
+  @override
+  String get organizerName;
+  @override
+  int get contributorCount;
+  @override
+  List<String> get visibleContributorNames;
+  @override
+  int get anonymousCount;
+  @override
+  PoolStatus get status;
+  @override
+  DateTime? get expiresAt;
+
+  /// Create a copy of GroupGiftMessageData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$GroupGiftMessageDataImplCopyWith<_$GroupGiftMessageDataImpl>
   get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -2002,6 +2425,7 @@ mixin _$Message {
   ForwardedFrom? get forwardedFrom =>
       throw _privateConstructorUsedError; // Gift & spray embedded data
   GiftMessageData? get gift => throw _privateConstructorUsedError;
+  GroupGiftMessageData? get groupGift => throw _privateConstructorUsedError;
   TokenSprayMessageData? get tokenSpray =>
       throw _privateConstructorUsedError; // Community-specific
   String? get communityId => throw _privateConstructorUsedError;
@@ -2050,6 +2474,7 @@ abstract class $MessageCopyWith<$Res> {
     Map<String, DateTime> readBy,
     ForwardedFrom? forwardedFrom,
     GiftMessageData? gift,
+    GroupGiftMessageData? groupGift,
     TokenSprayMessageData? tokenSpray,
     String? communityId,
     String? systemEventType,
@@ -2069,6 +2494,7 @@ abstract class $MessageCopyWith<$Res> {
   $MessageReplyCopyWith<$Res>? get replyTo;
   $ForwardedFromCopyWith<$Res>? get forwardedFrom;
   $GiftMessageDataCopyWith<$Res>? get gift;
+  $GroupGiftMessageDataCopyWith<$Res>? get groupGift;
   $TokenSprayMessageDataCopyWith<$Res>? get tokenSpray;
   $E2eeMetadataCopyWith<$Res>? get e2ee;
   $X3dhHeaderCopyWith<$Res>? get x3dhHeader;
@@ -2105,6 +2531,7 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
     Object? readBy = null,
     Object? forwardedFrom = freezed,
     Object? gift = freezed,
+    Object? groupGift = freezed,
     Object? tokenSpray = freezed,
     Object? communityId = freezed,
     Object? systemEventType = freezed,
@@ -2185,6 +2612,10 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
                 ? _value.gift
                 : gift // ignore: cast_nullable_to_non_nullable
                       as GiftMessageData?,
+            groupGift: freezed == groupGift
+                ? _value.groupGift
+                : groupGift // ignore: cast_nullable_to_non_nullable
+                      as GroupGiftMessageData?,
             tokenSpray: freezed == tokenSpray
                 ? _value.tokenSpray
                 : tokenSpray // ignore: cast_nullable_to_non_nullable
@@ -2302,6 +2733,20 @@ class _$MessageCopyWithImpl<$Res, $Val extends Message>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
+  $GroupGiftMessageDataCopyWith<$Res>? get groupGift {
+    if (_value.groupGift == null) {
+      return null;
+    }
+
+    return $GroupGiftMessageDataCopyWith<$Res>(_value.groupGift!, (value) {
+      return _then(_value.copyWith(groupGift: value) as $Val);
+    });
+  }
+
+  /// Create a copy of Message
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
   $TokenSprayMessageDataCopyWith<$Res>? get tokenSpray {
     if (_value.tokenSpray == null) {
       return null;
@@ -2366,6 +2811,7 @@ abstract class _$$MessageImplCopyWith<$Res> implements $MessageCopyWith<$Res> {
     Map<String, DateTime> readBy,
     ForwardedFrom? forwardedFrom,
     GiftMessageData? gift,
+    GroupGiftMessageData? groupGift,
     TokenSprayMessageData? tokenSpray,
     String? communityId,
     String? systemEventType,
@@ -2389,6 +2835,8 @@ abstract class _$$MessageImplCopyWith<$Res> implements $MessageCopyWith<$Res> {
   $ForwardedFromCopyWith<$Res>? get forwardedFrom;
   @override
   $GiftMessageDataCopyWith<$Res>? get gift;
+  @override
+  $GroupGiftMessageDataCopyWith<$Res>? get groupGift;
   @override
   $TokenSprayMessageDataCopyWith<$Res>? get tokenSpray;
   @override
@@ -2427,6 +2875,7 @@ class __$$MessageImplCopyWithImpl<$Res>
     Object? readBy = null,
     Object? forwardedFrom = freezed,
     Object? gift = freezed,
+    Object? groupGift = freezed,
     Object? tokenSpray = freezed,
     Object? communityId = freezed,
     Object? systemEventType = freezed,
@@ -2507,6 +2956,10 @@ class __$$MessageImplCopyWithImpl<$Res>
             ? _value.gift
             : gift // ignore: cast_nullable_to_non_nullable
                   as GiftMessageData?,
+        groupGift: freezed == groupGift
+            ? _value.groupGift
+            : groupGift // ignore: cast_nullable_to_non_nullable
+                  as GroupGiftMessageData?,
         tokenSpray: freezed == tokenSpray
             ? _value.tokenSpray
             : tokenSpray // ignore: cast_nullable_to_non_nullable
@@ -2584,6 +3037,7 @@ class _$MessageImpl extends _Message {
     final Map<String, DateTime> readBy = const {},
     this.forwardedFrom,
     this.gift,
+    this.groupGift,
     this.tokenSpray,
     this.communityId,
     this.systemEventType,
@@ -2662,6 +3116,8 @@ class _$MessageImpl extends _Message {
   @override
   final GiftMessageData? gift;
   @override
+  final GroupGiftMessageData? groupGift;
+  @override
   final TokenSprayMessageData? tokenSpray;
   // Community-specific
   @override
@@ -2711,7 +3167,7 @@ class _$MessageImpl extends _Message {
 
   @override
   String toString() {
-    return 'Message(id: $id, senderId: $senderId, senderName: $senderName, senderAvatarUrl: $senderAvatarUrl, type: $type, status: $status, textContent: $textContent, tokenAmount: $tokenAmount, recipientId: $recipientId, ledgerJournalId: $ledgerJournalId, media: $media, reactions: $reactions, replyTo: $replyTo, readBy: $readBy, forwardedFrom: $forwardedFrom, gift: $gift, tokenSpray: $tokenSpray, communityId: $communityId, systemEventType: $systemEventType, systemEventData: $systemEventData, ciphertext: $ciphertext, e2ee: $e2ee, x3dhHeader: $x3dhHeader, createdAt: $createdAt, expiresAt: $expiresAt, actionedAt: $actionedAt, deletedAt: $deletedAt, deletedFor: $deletedFor, deletedForEveryone: $deletedForEveryone)';
+    return 'Message(id: $id, senderId: $senderId, senderName: $senderName, senderAvatarUrl: $senderAvatarUrl, type: $type, status: $status, textContent: $textContent, tokenAmount: $tokenAmount, recipientId: $recipientId, ledgerJournalId: $ledgerJournalId, media: $media, reactions: $reactions, replyTo: $replyTo, readBy: $readBy, forwardedFrom: $forwardedFrom, gift: $gift, groupGift: $groupGift, tokenSpray: $tokenSpray, communityId: $communityId, systemEventType: $systemEventType, systemEventData: $systemEventData, ciphertext: $ciphertext, e2ee: $e2ee, x3dhHeader: $x3dhHeader, createdAt: $createdAt, expiresAt: $expiresAt, actionedAt: $actionedAt, deletedAt: $deletedAt, deletedFor: $deletedFor, deletedForEveryone: $deletedForEveryone)';
   }
 
   @override
@@ -2746,6 +3202,8 @@ class _$MessageImpl extends _Message {
             (identical(other.forwardedFrom, forwardedFrom) ||
                 other.forwardedFrom == forwardedFrom) &&
             (identical(other.gift, gift) || other.gift == gift) &&
+            (identical(other.groupGift, groupGift) ||
+                other.groupGift == groupGift) &&
             (identical(other.tokenSpray, tokenSpray) ||
                 other.tokenSpray == tokenSpray) &&
             (identical(other.communityId, communityId) ||
@@ -2797,6 +3255,7 @@ class _$MessageImpl extends _Message {
     const DeepCollectionEquality().hash(_readBy),
     forwardedFrom,
     gift,
+    groupGift,
     tokenSpray,
     communityId,
     systemEventType,
@@ -2844,6 +3303,7 @@ abstract class _Message extends Message {
     final Map<String, DateTime> readBy,
     final ForwardedFrom? forwardedFrom,
     final GiftMessageData? gift,
+    final GroupGiftMessageData? groupGift,
     final TokenSprayMessageData? tokenSpray,
     final String? communityId,
     final String? systemEventType,
@@ -2894,6 +3354,8 @@ abstract class _Message extends Message {
   ForwardedFrom? get forwardedFrom; // Gift & spray embedded data
   @override
   GiftMessageData? get gift;
+  @override
+  GroupGiftMessageData? get groupGift;
   @override
   TokenSprayMessageData? get tokenSpray; // Community-specific
   @override

@@ -14,6 +14,7 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
 
 const db = admin.firestore();
+const rtdb = admin.database();
 
 function requireAuth(request: { auth?: { uid: string } }): string {
   if (!request.auth) {
@@ -161,6 +162,16 @@ export const initiateCall = onCall(
         ),
       });
     });
+
+    // Pre-create RTDB signaling node so clients can immediately write SDP/ICE
+    try {
+      await rtdb.ref(`callSignaling/${callRef.id}`).set({
+        createdAt: admin.database.ServerValue.TIMESTAMP,
+      });
+    } catch (e) {
+      console.error("RTDB signaling node creation failed:", e);
+      // Non-fatal — client writes will create the node on first use
+    }
 
     // ── Send push notifications (outside transaction — fire and forget) ──
 
@@ -333,6 +344,13 @@ export const endCall = onCall(
       return { alreadyEnded: false, callData: call, durationSeconds, endReason, status };
     });
 
+    // Clean up RTDB signaling data (best effort)
+    try {
+      await rtdb.ref(`callSignaling/${callId}`).remove();
+    } catch (e) {
+      console.error("RTDB signaling cleanup failed:", e);
+    }
+
     // Only write system message if this was the first endCall
     if (!result.alreadyEnded) {
       const call = result.callData;
@@ -473,23 +491,14 @@ export const onCallUpdated = onDocumentUpdated(
     const before = event.data?.before.data();
     if (!after || !before) return;
 
-    // Terminal status reached: clean up ICE subcollections
+    // Terminal status reached: clean up RTDB signaling data
+    // (ICE candidates + SDP now live on RTDB, not Firestore subcollections)
     if (TERMINAL_STATUSES.includes(after.status) && !TERMINAL_STATUSES.includes(before.status)) {
-      const callRef = event.data!.after.ref;
-      const batch = db.batch();
-
-      const callerCands = await callRef.collection("callerCandidates").get();
-      for (const doc of callerCands.docs) {
-        batch.delete(doc.ref);
-      }
-
-      const calleeCands = await callRef.collection("calleeCandidates").get();
-      for (const doc of calleeCands.docs) {
-        batch.delete(doc.ref);
-      }
-
-      if (callerCands.size > 0 || calleeCands.size > 0) {
-        await batch.commit();
+      const callId = event.params!.callId;
+      try {
+        await rtdb.ref(`callSignaling/${callId}`).remove();
+      } catch (e) {
+        console.error(`RTDB cleanup for ${callId} failed:`, e);
       }
     }
   },
@@ -528,6 +537,9 @@ export const cleanupStaleCalls = onSchedule(
         durationSeconds: null,
         expireAt: admin.firestore.Timestamp.fromDate(new Date(now + 3600_000)),
       });
+
+      // Clean up RTDB signaling data
+      try { await rtdb.ref(`callSignaling/${doc.id}`).remove(); } catch { /* best effort */ }
 
       // Write missed call system message
       const msgRef = db
@@ -601,6 +613,9 @@ export const cleanupStaleCalls = onSchedule(
         durationSeconds,
         expireAt: admin.firestore.Timestamp.fromDate(new Date(now + 3600_000)),
       });
+
+      // Clean up RTDB signaling data
+      try { await rtdb.ref(`callSignaling/${doc.id}`).remove(); } catch { /* best effort */ }
 
       // Write system message for stale active call
       const callLabel = data.callType === "video" ? "Video call" : "Voice call";

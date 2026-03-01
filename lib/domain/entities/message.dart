@@ -3,6 +3,7 @@ import '../enums/message_type.dart';
 import '../enums/message_status.dart';
 import '../enums/gift_style.dart';
 import '../enums/gift_status.dart';
+import '../enums/pool_status.dart';
 import '../enums/spray_status.dart';
 
 part 'message.freezed.dart';
@@ -57,6 +58,7 @@ class GiftMessageData with _$GiftMessageData {
     required GiftStatus status,
     String? recipientId,
     String? recipientName,
+    DateTime? expiresAt,
   }) = _GiftMessageData;
 
   factory GiftMessageData.fromJson(Map<String, dynamic> json) =>
@@ -80,6 +82,27 @@ class TokenSprayMessageData with _$TokenSprayMessageData {
 
   factory TokenSprayMessageData.fromJson(Map<String, dynamic> json) =>
       _$TokenSprayMessageDataFromJson(json);
+}
+
+/// Embedded group gift data within a message (Group Sasaza delivery)
+@freezed
+class GroupGiftMessageData with _$GroupGiftMessageData {
+  const factory GroupGiftMessageData({
+    required String poolId,
+    required int amount,
+    required String message,
+    required GiftStyle style,
+    required String organizerId,
+    required String organizerName,
+    required int contributorCount,
+    @Default([]) List<String> visibleContributorNames,
+    @Default(0) int anonymousCount,
+    required PoolStatus status,
+    DateTime? expiresAt,
+  }) = _GroupGiftMessageData;
+
+  factory GroupGiftMessageData.fromJson(Map<String, dynamic> json) =>
+      _$GroupGiftMessageDataFromJson(json);
 }
 
 /// Metadata for forwarded messages
@@ -167,6 +190,7 @@ class Message with _$Message {
 
     // Gift & spray embedded data
     GiftMessageData? gift,
+    GroupGiftMessageData? groupGift,
     TokenSprayMessageData? tokenSpray,
 
     // Community-specific
@@ -202,6 +226,7 @@ class Message with _$Message {
 
   bool get isSystem => type == MessageType.system;
   bool get isGift => type == MessageType.gift;
+  bool get isGroupGift => type == MessageType.groupGift;
   bool get isSpray => type == MessageType.tokenSpray;
   bool get isEncrypted => ciphertext != null;
 

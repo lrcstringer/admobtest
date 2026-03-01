@@ -37,6 +37,15 @@ class ConversationModel with _$ConversationModel {
     // Per-user acceptance status (message request system)
     @Default({}) Map<String, bool> accepted,
 
+    // Token pool back-reference (for collection-type conversations)
+    String? tokenPoolId,
+
+    // Pool title (denormalized for collection-type conversations)
+    String? poolTitle,
+
+    // Pool mode: 'sasaza' or 'save' (denormalized for collection-type conversations)
+    String? poolMode,
+
     // Disappearing messages duration in milliseconds (null = off)
     int? disappearingMessagesDurationMs,
 
@@ -80,6 +89,9 @@ class ConversationModel with _$ConversationModel {
           _parseStringMap(json['lastMessageEncryptedPreviews']),
       chatClearedAt: _parseDateTimeMap(json['chatClearedAt']),
       accepted: _parseBoolMap(json['accepted']),
+      tokenPoolId: json['tokenPoolId'] as String?,
+      poolTitle: json['poolTitle'] as String?,
+      poolMode: json['poolMode'] as String?,
       disappearingMessagesDurationMs: json['disappearingMessagesDurationMs'] as int?,
       createdAt: _parseDateTimeRequired(createdAt),
       updatedAt: _parseDateTime(updatedAt),
@@ -118,6 +130,9 @@ class ConversationModel with _$ConversationModel {
       lastMessageEncryptedPreviews: lastMessageEncryptedPreviews,
       chatClearedAt: chatClearedAt,
       accepted: accepted,
+      tokenPoolId: tokenPoolId,
+      poolTitle: poolTitle,
+      poolMode: poolMode,
       disappearingMessagesDuration: disappearingMessagesDurationMs != null
           ? Duration(milliseconds: disappearingMessagesDurationMs!)
           : null,
@@ -150,6 +165,9 @@ class ConversationModel with _$ConversationModel {
       lastMessageEncryptedPreviews: entity.lastMessageEncryptedPreviews,
       chatClearedAt: entity.chatClearedAt,
       accepted: entity.accepted,
+      tokenPoolId: entity.tokenPoolId,
+      poolTitle: entity.poolTitle,
+      poolMode: entity.poolMode,
       disappearingMessagesDurationMs:
           entity.disappearingMessagesDuration?.inMilliseconds,
       createdAt: entity.createdAt,
@@ -169,6 +187,8 @@ class ConversationModel with _$ConversationModel {
         return ConversationType.brand;
       case 'system':
         return ConversationType.system;
+      case 'collection':
+        return ConversationType.collection;
       default:
         return ConversationType.p2p;
     }

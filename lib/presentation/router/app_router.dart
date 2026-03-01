@@ -31,6 +31,10 @@ import '../screens/chat/chat_send_failure_screen.dart';
 import '../screens/chat/chat_send_success_screen.dart';
 import '../screens/chat/chat_send_wallet_selection_screen.dart';
 
+// Pool screens (Collection Room)
+import '../screens/pool/create_pool_screen.dart';
+import '../screens/pool/collection_room_screen.dart';
+
 // New messaging screens (unified chat + community)
 import '../screens/messaging/messaging_screen.dart';
 import '../screens/messaging/contact_picker_screen.dart';
@@ -884,6 +888,31 @@ class AppRouter {
                             const ChatBonusNetworkInviteScreen(),
                       ),
                     ],
+                  ),
+                  // 8.7) Create Collection Room (Pool)
+                  GoRoute(
+                    path: 'create-pool',
+                    name: 'createPool',
+                    builder: (context, state) {
+                      final extra =
+                          state.extra as Map<String, dynamic>?;
+                      return CreatePoolScreen(
+                        recipientId:
+                            extra?['recipientId'] as String?,
+                        recipientName:
+                            extra?['recipientName'] as String?,
+                      );
+                    },
+                  ),
+                  // 8.8) Collection Room Detail
+                  GoRoute(
+                    path: 'pool/:poolId',
+                    name: 'collectionRoom',
+                    builder: (context, state) {
+                      final poolId =
+                          state.pathParameters['poolId'] ?? '';
+                      return CollectionRoomScreen(poolId: poolId);
+                    },
                   ),
                 ],
               ),

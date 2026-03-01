@@ -26,4 +26,7 @@ class GiftEvent with _$GiftEvent {
   const factory GiftEvent.loadGiftStats() = _LoadGiftStats;
 
   const factory GiftEvent.clearError() = _ClearError;
+
+  /// Reset active gift and error state (call when entering composer screen)
+  const factory GiftEvent.reset() = _Reset;
 }

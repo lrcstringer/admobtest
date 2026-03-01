@@ -12,9 +12,11 @@ import '../../blocs/conversation_actions/conversation_actions_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
+import '../../../domain/enums/conversation_type.dart';
 import '../../widgets/messaging/chat_background.dart';
 import '../../widgets/messaging/community_list_tile.dart';
 import '../../widgets/messaging/conversation_list_tile.dart';
+import '../../widgets/pool/collection_room_list_tile.dart';
 import 'contacts_tab.dart';
 
 /// Unified inbox screen showing all P2P conversations and communities
@@ -375,10 +377,19 @@ class _MessagingScreenState extends State<MessagingScreen>
               .contains(_searchQuery)) {
         continue;
       }
-      entries.add(_InboxEntry(
-        sortTime: conv.lastMessageAt ?? conv.createdAt,
-        isPinned: conv.isPinnedFor(currentUserId),
-        widget: ConversationListTile(
+      // Use special tile for collection room conversations
+      final Widget tile;
+      if (conv.type == ConversationType.collection &&
+          conv.tokenPoolId != null) {
+        tile = CollectionRoomListTile(
+          conversation: conv,
+          currentUserId: currentUserId,
+          onTap: () {
+            context.push('/chat/pool/${conv.tokenPoolId}');
+          },
+        );
+      } else {
+        tile = ConversationListTile(
           conversation: conv,
           currentUserId: currentUserId,
           onTap: () {
@@ -388,7 +399,13 @@ class _MessagingScreenState extends State<MessagingScreen>
             context.push('/chat/conversation/${conv.id}');
           },
           onLongPress: () => _showConversationOptions(context, conv),
-        ),
+        );
+      }
+
+      entries.add(_InboxEntry(
+        sortTime: conv.lastMessageAt ?? conv.createdAt,
+        isPinned: conv.isPinnedFor(currentUserId),
+        widget: tile,
       ));
     }
 

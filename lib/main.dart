@@ -2,6 +2,7 @@
 // import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
@@ -106,6 +107,10 @@ Future<void> main() async {
     persistenceEnabled: true,
     cacheSizeBytes: 100 * 1024 * 1024, // 100 MB
   );
+
+  // Disable RTDB disk persistence — signaling data is ephemeral.
+  // SDK still queues writes in-memory over the persistent WebSocket.
+  FirebaseDatabase.instance.setPersistenceEnabled(false);
 
   // Initialize Google Mobile Ads SDK (don't block app launch)
   MobileAds.instance.initialize();

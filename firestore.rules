@@ -673,6 +673,20 @@ service cloud.firestore {
     }
 
     // =========================================================================
+    // TOKEN POOLS (Group Sasaza & Group Save)
+    // All writes via Cloud Functions — participants and recipient can read
+    // =========================================================================
+
+    match /tokenPools/{poolId} {
+      allow read: if isAuthenticated() && (
+        resource.data.organizerId == request.auth.uid ||
+        request.auth.uid in resource.data.inviteeIds ||
+        resource.data.recipientId == request.auth.uid
+      );
+      allow write: if false;
+    }
+
+    // =========================================================================
     // REPORTS (Abuse reports)
     // Users can read their own reports, writes via Cloud Functions
     // =========================================================================

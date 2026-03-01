@@ -58,6 +58,9 @@ _$ConversationImpl _$$ConversationImplFromJson(Map<String, dynamic> json) =>
             (k, e) => MapEntry(k, e as bool),
           ) ??
           const {},
+      tokenPoolId: json['tokenPoolId'] as String?,
+      poolTitle: json['poolTitle'] as String?,
+      poolMode: json['poolMode'] as String?,
       disappearingMessagesDuration: json['disappearingMessagesDuration'] == null
           ? null
           : Duration(
@@ -91,6 +94,9 @@ Map<String, dynamic> _$$ConversationImplToJson(_$ConversationImpl instance) =>
         (k, e) => MapEntry(k, e.toIso8601String()),
       ),
       'accepted': instance.accepted,
+      'tokenPoolId': instance.tokenPoolId,
+      'poolTitle': instance.poolTitle,
+      'poolMode': instance.poolMode,
       'disappearingMessagesDuration':
           instance.disappearingMessagesDuration?.inMicroseconds,
       'createdAt': instance.createdAt.toIso8601String(),
@@ -101,4 +107,5 @@ const _$ConversationTypeEnumMap = {
   ConversationType.p2p: 'p2p',
   ConversationType.brand: 'brand',
   ConversationType.system: 'system',
+  ConversationType.collection: 'collection',
 };

@@ -308,6 +308,21 @@ const mockFirestore = {
     }
     throw new Error(`Invalid document path: ${path}`);
   }),
+  getAll: jest.fn().mockImplementation(async (...refs: Array<{ path: string; id: string }>) => {
+    return refs.map((ref) => {
+      const parts = (ref.path || "").split("/");
+      const collectionName = parts.length >= 2 ? parts.slice(0, -1).join("/") : parts[0];
+      const docId = ref.id || parts[parts.length - 1];
+      const data = mockCollections.get(collectionName)?.get(docId);
+      const docRef = createMockDocRef(collectionName, docId);
+      return {
+        exists: data !== undefined,
+        id: docId,
+        ref: docRef,
+        data: () => data,
+      };
+    });
+  }),
   batch: jest.fn().mockReturnValue(mockBatch),
   runTransaction: jest.fn().mockImplementation(async (callback) => {
     const transaction = {
@@ -374,6 +389,12 @@ const mockFieldValue = {
   delete: jest.fn().mockReturnValue({ _delete: true }),
 };
 
+// Mock messaging instance
+const mockMessagingSend = jest.fn().mockResolvedValue("mock-message-id");
+const mockMessaging = {
+  send: mockMessagingSend,
+};
+
 // Mock Firebase Admin SDK
 export const mockFirebaseAdmin = {
   initializeApp: jest.fn(),
@@ -382,6 +403,7 @@ export const mockFirebaseAdmin = {
     applicationDefault: jest.fn(),
   },
   firestore: jest.fn().mockReturnValue(mockFirestore),
+  messaging: jest.fn().mockReturnValue(mockMessaging),
   auth: jest.fn().mockReturnValue({
     getUser: jest.fn(),
     createUser: jest.fn(),
@@ -408,4 +430,4 @@ export const mockFirebaseAdmin = {
 (mockFirebaseAdmin.firestore as unknown as Record<string, unknown>).FieldValue = mockFieldValue;
 
 // Export utilities
-export { mockFirestore, MockTimestamp, mockFieldValue };
+export { mockFirestore, mockMessaging, MockTimestamp, mockFieldValue, mockBatch };

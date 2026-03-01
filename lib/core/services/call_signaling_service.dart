@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:injectable/injectable.dart';
@@ -10,24 +11,30 @@ import '../../domain/entities/call_session.dart';
 import '../../domain/enums/call_status.dart';
 import '../../domain/enums/call_type.dart';
 
-/// Stateless Firestore signaling service for call SDP and ICE candidates.
+/// Hybrid signaling service: RTDB for SDP + ICE (fast), Firestore for
+/// call lifecycle + video upgrade (managed by Cloud Functions).
 ///
-/// Safe as a @lazySingleton — no internal state, all operations are idempotent.
+/// Safe as a @lazySingleton — all operations are keyed by callId.
 @lazySingleton
 class CallSignalingService {
   final FirebaseFirestore _firestore;
+  final FirebaseDatabase _rtdb;
 
-  CallSignalingService(this._firestore);
+  CallSignalingService(this._firestore, this._rtdb);
 
   DocumentReference _callDoc(String callId) =>
       _firestore.collection('calls').doc(callId);
 
-  // ── SDP ──
+  DatabaseReference _signalingRef(String callId) =>
+      _rtdb.ref('callSignaling/$callId');
+
+  // ── SDP (via RTDB — ~10-50ms vs Firestore's 100-300ms) ──
 
   Future<void> sendOffer(String callId, RTCSessionDescription offer) async {
     try {
-      await _callDoc(callId).update({
-        'offer': {'sdp': offer.sdp, 'type': offer.type},
+      await _signalingRef(callId).child('offer').set({
+        'sdp': offer.sdp,
+        'type': offer.type,
       });
     } catch (e) {
       debugPrint('CallSignaling: sendOffer failed: $e');
@@ -35,10 +42,12 @@ class CallSignalingService {
     }
   }
 
-  Future<void> sendAnswer(String callId, RTCSessionDescription answer) async {
+  Future<void> sendAnswer(
+      String callId, RTCSessionDescription answer) async {
     try {
-      await _callDoc(callId).update({
-        'answer': {'sdp': answer.sdp, 'type': answer.type},
+      await _signalingRef(callId).child('answer').set({
+        'sdp': answer.sdp,
+        'type': answer.type,
       });
     } catch (e) {
       debugPrint('CallSignaling: sendAnswer failed: $e');
@@ -46,55 +55,88 @@ class CallSignalingService {
     }
   }
 
-  // ── ICE Candidates ──
+  /// One-shot fetch of the caller's SDP offer from RTDB.
+  Future<RTCSessionDescription?> getOffer(String callId) async {
+    final snap = await _signalingRef(callId).child('offer').get();
+    if (!snap.exists || snap.value == null) return null;
+    final data = snap.value as Map<dynamic, dynamic>;
+    return RTCSessionDescription(
+      data['sdp'] as String,
+      data['type'] as String,
+    );
+  }
 
-  /// Send a local ICE candidate.
-  /// [isCaller] determines which subcollection to write to — replaces
-  /// the broken _getCallerId() approach from the original plan.
-  Future<void> sendIceCandidate(
+  /// Watch for SDP offer changes (callee uses this for renegotiation/ICE restart).
+  Stream<RTCSessionDescription> watchOffer(String callId) {
+    return _signalingRef(callId)
+        .child('offer')
+        .onValue
+        .where((event) => event.snapshot.exists && event.snapshot.value != null)
+        .map((event) {
+      final data = event.snapshot.value as Map<dynamic, dynamic>;
+      return RTCSessionDescription(
+        data['sdp'] as String,
+        data['type'] as String,
+      );
+    });
+  }
+
+  /// Watch for SDP answer arrival (caller uses this).
+  Stream<RTCSessionDescription> watchAnswer(String callId) {
+    return _signalingRef(callId)
+        .child('answer')
+        .onValue
+        .where((event) => event.snapshot.exists && event.snapshot.value != null)
+        .map((event) {
+      final data = event.snapshot.value as Map<dynamic, dynamic>;
+      return RTCSessionDescription(
+        data['sdp'] as String,
+        data['type'] as String,
+      );
+    });
+  }
+
+  // ── ICE Candidates (via RTDB — no batching needed, fast enough) ──
+
+  /// Send a local ICE candidate via RTDB push. Fire-and-forget.
+  void sendIceCandidate(
     String callId,
     RTCIceCandidate candidate, {
     required bool isCaller,
-  }) async {
-    final subcollection = isCaller ? 'callerCandidates' : 'calleeCandidates';
-    try {
-      await _callDoc(callId).collection(subcollection).add({
-        'candidate': candidate.candidate,
-        'sdpMid': candidate.sdpMid,
-        'sdpMLineIndex': candidate.sdpMLineIndex,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-    } catch (e) {
+  }) {
+    final subcol = isCaller ? 'callerCandidates' : 'calleeCandidates';
+    _signalingRef(callId).child(subcol).push().set({
+      'candidate': candidate.candidate,
+      'sdpMid': candidate.sdpMid,
+      'sdpMLineIndex': candidate.sdpMLineIndex,
+    }).catchError((e) {
       debugPrint('CallSignaling: sendIceCandidate failed: $e');
-      // Don't rethrow — losing one candidate is recoverable
-    }
+    });
   }
 
-  /// Watch the remote peer's ICE candidates.
+  /// Watch the remote peer's ICE candidates via RTDB onChildAdded.
   Stream<RTCIceCandidate> watchRemoteIceCandidates(
     String callId, {
     required bool isCaller,
   }) {
-    // Watch the OTHER peer's subcollection
-    final subcollection = isCaller ? 'calleeCandidates' : 'callerCandidates';
-    return _callDoc(callId)
-        .collection(subcollection)
-        .snapshots()
-        .expand((snap) => snap.docChanges
-            .where((change) => change.type == DocumentChangeType.added)
-            .map((change) {
-              final data = change.doc.data()!;
-              return RTCIceCandidate(
-                data['candidate'] as String,
-                data['sdpMid'] as String,
-                data['sdpMLineIndex'] as int,
-              );
-            }));
+    // Watch the OTHER peer's candidates
+    final subcol = isCaller ? 'calleeCandidates' : 'callerCandidates';
+    return _signalingRef(callId)
+        .child(subcol)
+        .onChildAdded
+        .map((event) {
+      final data = event.snapshot.value as Map<dynamic, dynamic>;
+      return RTCIceCandidate(
+        data['candidate'] as String,
+        data['sdpMid'] as String,
+        data['sdpMLineIndex'] as int,
+      );
+    });
   }
 
-  // ── Call Document Fetching / Watching ──
+  // ── Call Document (stays on Firestore — managed by Cloud Functions) ──
 
-  /// Fetch the current call document once (for initial offer processing).
+  /// Fetch the current call document once.
   Future<CallSession?> getCall(String callId) async {
     final snap = await _callDoc(callId).get();
     final data = snap.data() as Map<String, dynamic>?;
@@ -102,7 +144,7 @@ class CallSignalingService {
     return CallSessionModel.fromJson(data).toEntity();
   }
 
-  /// Watch the call document for real-time changes (status, SDP, upgrade).
+  /// Watch the call document for status changes and video upgrade.
   Stream<CallSession> watchCall(String callId) {
     return _callDoc(callId).snapshots().map((snap) {
       final data = snap.data() as Map<String, dynamic>?;
@@ -121,7 +163,7 @@ class CallSignalingService {
     });
   }
 
-  // ── Heartbeat ──
+  // ── Heartbeat (Firestore — every 5s, not latency-critical) ──
 
   Future<void> sendHeartbeat(String callId, {required bool isCaller}) async {
     final field = isCaller ? 'callerHeartbeat' : 'calleeHeartbeat';
@@ -132,7 +174,7 @@ class CallSignalingService {
     }
   }
 
-  // ── ICE Restart Count ──
+  // ── ICE Restart Count (Firestore) ──
 
   Future<void> updateIceRestartCount(String callId, int count) async {
     try {
@@ -142,7 +184,7 @@ class CallSignalingService {
     }
   }
 
-  // ── Video Upgrade ──
+  // ── Video Upgrade (Firestore — rare, not latency-critical) ──
 
   Future<void> requestVideoUpgrade(String callId, String requesterId) async {
     await _callDoc(callId).update({
@@ -155,5 +197,17 @@ class CallSignalingService {
     await _callDoc(callId).update({
       'videoUpgradeRequest': accepted ? 'accepted' : 'declined',
     });
+  }
+
+  // ── RTDB Cleanup ──
+
+  /// Remove RTDB signaling data after call ends. Best effort.
+  Future<void> cleanupSignaling(String callId) async {
+    try {
+      await _signalingRef(callId).remove();
+      debugPrint('CallSignaling: RTDB cleanup for $callId');
+    } catch (e) {
+      debugPrint('CallSignaling: RTDB cleanup failed: $e');
+    }
   }
 }

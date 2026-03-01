@@ -36,6 +36,7 @@ mixin _$GiftEvent {
     required TResult Function(Gift gift) giftUpdated,
     required TResult Function() loadGiftStats,
     required TResult Function() clearError,
+    required TResult Function() reset,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
@@ -56,6 +57,7 @@ mixin _$GiftEvent {
     TResult? Function(Gift gift)? giftUpdated,
     TResult? Function()? loadGiftStats,
     TResult? Function()? clearError,
+    TResult? Function()? reset,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
@@ -76,6 +78,7 @@ mixin _$GiftEvent {
     TResult Function(Gift gift)? giftUpdated,
     TResult Function()? loadGiftStats,
     TResult Function()? clearError,
+    TResult Function()? reset,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -89,6 +92,7 @@ mixin _$GiftEvent {
     required TResult Function(_GiftUpdated value) giftUpdated,
     required TResult Function(_LoadGiftStats value) loadGiftStats,
     required TResult Function(_ClearError value) clearError,
+    required TResult Function(_Reset value) reset,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
@@ -101,6 +105,7 @@ mixin _$GiftEvent {
     TResult? Function(_GiftUpdated value)? giftUpdated,
     TResult? Function(_LoadGiftStats value)? loadGiftStats,
     TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_Reset value)? reset,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
@@ -113,6 +118,7 @@ mixin _$GiftEvent {
     TResult Function(_GiftUpdated value)? giftUpdated,
     TResult Function(_LoadGiftStats value)? loadGiftStats,
     TResult Function(_ClearError value)? clearError,
+    TResult Function(_Reset value)? reset,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
 }
@@ -291,6 +297,7 @@ class _$SendGiftImpl implements _SendGift {
     required TResult Function(Gift gift) giftUpdated,
     required TResult Function() loadGiftStats,
     required TResult Function() clearError,
+    required TResult Function() reset,
   }) {
     return sendGift(
       recipientId,
@@ -322,6 +329,7 @@ class _$SendGiftImpl implements _SendGift {
     TResult? Function(Gift gift)? giftUpdated,
     TResult? Function()? loadGiftStats,
     TResult? Function()? clearError,
+    TResult? Function()? reset,
   }) {
     return sendGift?.call(
       recipientId,
@@ -353,6 +361,7 @@ class _$SendGiftImpl implements _SendGift {
     TResult Function(Gift gift)? giftUpdated,
     TResult Function()? loadGiftStats,
     TResult Function()? clearError,
+    TResult Function()? reset,
     required TResult orElse(),
   }) {
     if (sendGift != null) {
@@ -380,6 +389,7 @@ class _$SendGiftImpl implements _SendGift {
     required TResult Function(_GiftUpdated value) giftUpdated,
     required TResult Function(_LoadGiftStats value) loadGiftStats,
     required TResult Function(_ClearError value) clearError,
+    required TResult Function(_Reset value) reset,
   }) {
     return sendGift(this);
   }
@@ -396,6 +406,7 @@ class _$SendGiftImpl implements _SendGift {
     TResult? Function(_GiftUpdated value)? giftUpdated,
     TResult? Function(_LoadGiftStats value)? loadGiftStats,
     TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_Reset value)? reset,
   }) {
     return sendGift?.call(this);
   }
@@ -412,6 +423,7 @@ class _$SendGiftImpl implements _SendGift {
     TResult Function(_GiftUpdated value)? giftUpdated,
     TResult Function(_LoadGiftStats value)? loadGiftStats,
     TResult Function(_ClearError value)? clearError,
+    TResult Function(_Reset value)? reset,
     required TResult orElse(),
   }) {
     if (sendGift != null) {
@@ -532,6 +544,7 @@ class _$OpenGiftImpl implements _OpenGift {
     required TResult Function(Gift gift) giftUpdated,
     required TResult Function() loadGiftStats,
     required TResult Function() clearError,
+    required TResult Function() reset,
   }) {
     return openGift(giftId);
   }
@@ -556,6 +569,7 @@ class _$OpenGiftImpl implements _OpenGift {
     TResult? Function(Gift gift)? giftUpdated,
     TResult? Function()? loadGiftStats,
     TResult? Function()? clearError,
+    TResult? Function()? reset,
   }) {
     return openGift?.call(giftId);
   }
@@ -580,6 +594,7 @@ class _$OpenGiftImpl implements _OpenGift {
     TResult Function(Gift gift)? giftUpdated,
     TResult Function()? loadGiftStats,
     TResult Function()? clearError,
+    TResult Function()? reset,
     required TResult orElse(),
   }) {
     if (openGift != null) {
@@ -600,6 +615,7 @@ class _$OpenGiftImpl implements _OpenGift {
     required TResult Function(_GiftUpdated value) giftUpdated,
     required TResult Function(_LoadGiftStats value) loadGiftStats,
     required TResult Function(_ClearError value) clearError,
+    required TResult Function(_Reset value) reset,
   }) {
     return openGift(this);
   }
@@ -616,6 +632,7 @@ class _$OpenGiftImpl implements _OpenGift {
     TResult? Function(_GiftUpdated value)? giftUpdated,
     TResult? Function(_LoadGiftStats value)? loadGiftStats,
     TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_Reset value)? reset,
   }) {
     return openGift?.call(this);
   }
@@ -632,6 +649,7 @@ class _$OpenGiftImpl implements _OpenGift {
     TResult Function(_GiftUpdated value)? giftUpdated,
     TResult Function(_LoadGiftStats value)? loadGiftStats,
     TResult Function(_ClearError value)? clearError,
+    TResult Function(_Reset value)? reset,
     required TResult orElse(),
   }) {
     if (openGift != null) {
@@ -740,6 +758,7 @@ class _$ClaimGiftImpl implements _ClaimGift {
     required TResult Function(Gift gift) giftUpdated,
     required TResult Function() loadGiftStats,
     required TResult Function() clearError,
+    required TResult Function() reset,
   }) {
     return claimGift(giftId);
   }
@@ -764,6 +783,7 @@ class _$ClaimGiftImpl implements _ClaimGift {
     TResult? Function(Gift gift)? giftUpdated,
     TResult? Function()? loadGiftStats,
     TResult? Function()? clearError,
+    TResult? Function()? reset,
   }) {
     return claimGift?.call(giftId);
   }
@@ -788,6 +808,7 @@ class _$ClaimGiftImpl implements _ClaimGift {
     TResult Function(Gift gift)? giftUpdated,
     TResult Function()? loadGiftStats,
     TResult Function()? clearError,
+    TResult Function()? reset,
     required TResult orElse(),
   }) {
     if (claimGift != null) {
@@ -808,6 +829,7 @@ class _$ClaimGiftImpl implements _ClaimGift {
     required TResult Function(_GiftUpdated value) giftUpdated,
     required TResult Function(_LoadGiftStats value) loadGiftStats,
     required TResult Function(_ClearError value) clearError,
+    required TResult Function(_Reset value) reset,
   }) {
     return claimGift(this);
   }
@@ -824,6 +846,7 @@ class _$ClaimGiftImpl implements _ClaimGift {
     TResult? Function(_GiftUpdated value)? giftUpdated,
     TResult? Function(_LoadGiftStats value)? loadGiftStats,
     TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_Reset value)? reset,
   }) {
     return claimGift?.call(this);
   }
@@ -840,6 +863,7 @@ class _$ClaimGiftImpl implements _ClaimGift {
     TResult Function(_GiftUpdated value)? giftUpdated,
     TResult Function(_LoadGiftStats value)? loadGiftStats,
     TResult Function(_ClearError value)? clearError,
+    TResult Function(_Reset value)? reset,
     required TResult orElse(),
   }) {
     if (claimGift != null) {
@@ -921,6 +945,7 @@ class _$LoadSentGiftsImpl implements _LoadSentGifts {
     required TResult Function(Gift gift) giftUpdated,
     required TResult Function() loadGiftStats,
     required TResult Function() clearError,
+    required TResult Function() reset,
   }) {
     return loadSentGifts();
   }
@@ -945,6 +970,7 @@ class _$LoadSentGiftsImpl implements _LoadSentGifts {
     TResult? Function(Gift gift)? giftUpdated,
     TResult? Function()? loadGiftStats,
     TResult? Function()? clearError,
+    TResult? Function()? reset,
   }) {
     return loadSentGifts?.call();
   }
@@ -969,6 +995,7 @@ class _$LoadSentGiftsImpl implements _LoadSentGifts {
     TResult Function(Gift gift)? giftUpdated,
     TResult Function()? loadGiftStats,
     TResult Function()? clearError,
+    TResult Function()? reset,
     required TResult orElse(),
   }) {
     if (loadSentGifts != null) {
@@ -989,6 +1016,7 @@ class _$LoadSentGiftsImpl implements _LoadSentGifts {
     required TResult Function(_GiftUpdated value) giftUpdated,
     required TResult Function(_LoadGiftStats value) loadGiftStats,
     required TResult Function(_ClearError value) clearError,
+    required TResult Function(_Reset value) reset,
   }) {
     return loadSentGifts(this);
   }
@@ -1005,6 +1033,7 @@ class _$LoadSentGiftsImpl implements _LoadSentGifts {
     TResult? Function(_GiftUpdated value)? giftUpdated,
     TResult? Function(_LoadGiftStats value)? loadGiftStats,
     TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_Reset value)? reset,
   }) {
     return loadSentGifts?.call(this);
   }
@@ -1021,6 +1050,7 @@ class _$LoadSentGiftsImpl implements _LoadSentGifts {
     TResult Function(_GiftUpdated value)? giftUpdated,
     TResult Function(_LoadGiftStats value)? loadGiftStats,
     TResult Function(_ClearError value)? clearError,
+    TResult Function(_Reset value)? reset,
     required TResult orElse(),
   }) {
     if (loadSentGifts != null) {
@@ -1094,6 +1124,7 @@ class _$LoadReceivedGiftsImpl implements _LoadReceivedGifts {
     required TResult Function(Gift gift) giftUpdated,
     required TResult Function() loadGiftStats,
     required TResult Function() clearError,
+    required TResult Function() reset,
   }) {
     return loadReceivedGifts();
   }
@@ -1118,6 +1149,7 @@ class _$LoadReceivedGiftsImpl implements _LoadReceivedGifts {
     TResult? Function(Gift gift)? giftUpdated,
     TResult? Function()? loadGiftStats,
     TResult? Function()? clearError,
+    TResult? Function()? reset,
   }) {
     return loadReceivedGifts?.call();
   }
@@ -1142,6 +1174,7 @@ class _$LoadReceivedGiftsImpl implements _LoadReceivedGifts {
     TResult Function(Gift gift)? giftUpdated,
     TResult Function()? loadGiftStats,
     TResult Function()? clearError,
+    TResult Function()? reset,
     required TResult orElse(),
   }) {
     if (loadReceivedGifts != null) {
@@ -1162,6 +1195,7 @@ class _$LoadReceivedGiftsImpl implements _LoadReceivedGifts {
     required TResult Function(_GiftUpdated value) giftUpdated,
     required TResult Function(_LoadGiftStats value) loadGiftStats,
     required TResult Function(_ClearError value) clearError,
+    required TResult Function(_Reset value) reset,
   }) {
     return loadReceivedGifts(this);
   }
@@ -1178,6 +1212,7 @@ class _$LoadReceivedGiftsImpl implements _LoadReceivedGifts {
     TResult? Function(_GiftUpdated value)? giftUpdated,
     TResult? Function(_LoadGiftStats value)? loadGiftStats,
     TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_Reset value)? reset,
   }) {
     return loadReceivedGifts?.call(this);
   }
@@ -1194,6 +1229,7 @@ class _$LoadReceivedGiftsImpl implements _LoadReceivedGifts {
     TResult Function(_GiftUpdated value)? giftUpdated,
     TResult Function(_LoadGiftStats value)? loadGiftStats,
     TResult Function(_ClearError value)? clearError,
+    TResult Function(_Reset value)? reset,
     required TResult orElse(),
   }) {
     if (loadReceivedGifts != null) {
@@ -1294,6 +1330,7 @@ class _$WatchGiftImpl implements _WatchGift {
     required TResult Function(Gift gift) giftUpdated,
     required TResult Function() loadGiftStats,
     required TResult Function() clearError,
+    required TResult Function() reset,
   }) {
     return watchGift(giftId);
   }
@@ -1318,6 +1355,7 @@ class _$WatchGiftImpl implements _WatchGift {
     TResult? Function(Gift gift)? giftUpdated,
     TResult? Function()? loadGiftStats,
     TResult? Function()? clearError,
+    TResult? Function()? reset,
   }) {
     return watchGift?.call(giftId);
   }
@@ -1342,6 +1380,7 @@ class _$WatchGiftImpl implements _WatchGift {
     TResult Function(Gift gift)? giftUpdated,
     TResult Function()? loadGiftStats,
     TResult Function()? clearError,
+    TResult Function()? reset,
     required TResult orElse(),
   }) {
     if (watchGift != null) {
@@ -1362,6 +1401,7 @@ class _$WatchGiftImpl implements _WatchGift {
     required TResult Function(_GiftUpdated value) giftUpdated,
     required TResult Function(_LoadGiftStats value) loadGiftStats,
     required TResult Function(_ClearError value) clearError,
+    required TResult Function(_Reset value) reset,
   }) {
     return watchGift(this);
   }
@@ -1378,6 +1418,7 @@ class _$WatchGiftImpl implements _WatchGift {
     TResult? Function(_GiftUpdated value)? giftUpdated,
     TResult? Function(_LoadGiftStats value)? loadGiftStats,
     TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_Reset value)? reset,
   }) {
     return watchGift?.call(this);
   }
@@ -1394,6 +1435,7 @@ class _$WatchGiftImpl implements _WatchGift {
     TResult Function(_GiftUpdated value)? giftUpdated,
     TResult Function(_LoadGiftStats value)? loadGiftStats,
     TResult Function(_ClearError value)? clearError,
+    TResult Function(_Reset value)? reset,
     required TResult orElse(),
   }) {
     if (watchGift != null) {
@@ -1514,6 +1556,7 @@ class _$GiftUpdatedImpl implements _GiftUpdated {
     required TResult Function(Gift gift) giftUpdated,
     required TResult Function() loadGiftStats,
     required TResult Function() clearError,
+    required TResult Function() reset,
   }) {
     return giftUpdated(gift);
   }
@@ -1538,6 +1581,7 @@ class _$GiftUpdatedImpl implements _GiftUpdated {
     TResult? Function(Gift gift)? giftUpdated,
     TResult? Function()? loadGiftStats,
     TResult? Function()? clearError,
+    TResult? Function()? reset,
   }) {
     return giftUpdated?.call(gift);
   }
@@ -1562,6 +1606,7 @@ class _$GiftUpdatedImpl implements _GiftUpdated {
     TResult Function(Gift gift)? giftUpdated,
     TResult Function()? loadGiftStats,
     TResult Function()? clearError,
+    TResult Function()? reset,
     required TResult orElse(),
   }) {
     if (giftUpdated != null) {
@@ -1582,6 +1627,7 @@ class _$GiftUpdatedImpl implements _GiftUpdated {
     required TResult Function(_GiftUpdated value) giftUpdated,
     required TResult Function(_LoadGiftStats value) loadGiftStats,
     required TResult Function(_ClearError value) clearError,
+    required TResult Function(_Reset value) reset,
   }) {
     return giftUpdated(this);
   }
@@ -1598,6 +1644,7 @@ class _$GiftUpdatedImpl implements _GiftUpdated {
     TResult? Function(_GiftUpdated value)? giftUpdated,
     TResult? Function(_LoadGiftStats value)? loadGiftStats,
     TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_Reset value)? reset,
   }) {
     return giftUpdated?.call(this);
   }
@@ -1614,6 +1661,7 @@ class _$GiftUpdatedImpl implements _GiftUpdated {
     TResult Function(_GiftUpdated value)? giftUpdated,
     TResult Function(_LoadGiftStats value)? loadGiftStats,
     TResult Function(_ClearError value)? clearError,
+    TResult Function(_Reset value)? reset,
     required TResult orElse(),
   }) {
     if (giftUpdated != null) {
@@ -1695,6 +1743,7 @@ class _$LoadGiftStatsImpl implements _LoadGiftStats {
     required TResult Function(Gift gift) giftUpdated,
     required TResult Function() loadGiftStats,
     required TResult Function() clearError,
+    required TResult Function() reset,
   }) {
     return loadGiftStats();
   }
@@ -1719,6 +1768,7 @@ class _$LoadGiftStatsImpl implements _LoadGiftStats {
     TResult? Function(Gift gift)? giftUpdated,
     TResult? Function()? loadGiftStats,
     TResult? Function()? clearError,
+    TResult? Function()? reset,
   }) {
     return loadGiftStats?.call();
   }
@@ -1743,6 +1793,7 @@ class _$LoadGiftStatsImpl implements _LoadGiftStats {
     TResult Function(Gift gift)? giftUpdated,
     TResult Function()? loadGiftStats,
     TResult Function()? clearError,
+    TResult Function()? reset,
     required TResult orElse(),
   }) {
     if (loadGiftStats != null) {
@@ -1763,6 +1814,7 @@ class _$LoadGiftStatsImpl implements _LoadGiftStats {
     required TResult Function(_GiftUpdated value) giftUpdated,
     required TResult Function(_LoadGiftStats value) loadGiftStats,
     required TResult Function(_ClearError value) clearError,
+    required TResult Function(_Reset value) reset,
   }) {
     return loadGiftStats(this);
   }
@@ -1779,6 +1831,7 @@ class _$LoadGiftStatsImpl implements _LoadGiftStats {
     TResult? Function(_GiftUpdated value)? giftUpdated,
     TResult? Function(_LoadGiftStats value)? loadGiftStats,
     TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_Reset value)? reset,
   }) {
     return loadGiftStats?.call(this);
   }
@@ -1795,6 +1848,7 @@ class _$LoadGiftStatsImpl implements _LoadGiftStats {
     TResult Function(_GiftUpdated value)? giftUpdated,
     TResult Function(_LoadGiftStats value)? loadGiftStats,
     TResult Function(_ClearError value)? clearError,
+    TResult Function(_Reset value)? reset,
     required TResult orElse(),
   }) {
     if (loadGiftStats != null) {
@@ -1868,6 +1922,7 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(Gift gift) giftUpdated,
     required TResult Function() loadGiftStats,
     required TResult Function() clearError,
+    required TResult Function() reset,
   }) {
     return clearError();
   }
@@ -1892,6 +1947,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(Gift gift)? giftUpdated,
     TResult? Function()? loadGiftStats,
     TResult? Function()? clearError,
+    TResult? Function()? reset,
   }) {
     return clearError?.call();
   }
@@ -1916,6 +1972,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(Gift gift)? giftUpdated,
     TResult Function()? loadGiftStats,
     TResult Function()? clearError,
+    TResult Function()? reset,
     required TResult orElse(),
   }) {
     if (clearError != null) {
@@ -1936,6 +1993,7 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(_GiftUpdated value) giftUpdated,
     required TResult Function(_LoadGiftStats value) loadGiftStats,
     required TResult Function(_ClearError value) clearError,
+    required TResult Function(_Reset value) reset,
   }) {
     return clearError(this);
   }
@@ -1952,6 +2010,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(_GiftUpdated value)? giftUpdated,
     TResult? Function(_LoadGiftStats value)? loadGiftStats,
     TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_Reset value)? reset,
   }) {
     return clearError?.call(this);
   }
@@ -1968,6 +2027,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(_GiftUpdated value)? giftUpdated,
     TResult Function(_LoadGiftStats value)? loadGiftStats,
     TResult Function(_ClearError value)? clearError,
+    TResult Function(_Reset value)? reset,
     required TResult orElse(),
   }) {
     if (clearError != null) {
@@ -1979,6 +2039,185 @@ class _$ClearErrorImpl implements _ClearError {
 
 abstract class _ClearError implements GiftEvent {
   const factory _ClearError() = _$ClearErrorImpl;
+}
+
+/// @nodoc
+abstract class _$$ResetImplCopyWith<$Res> {
+  factory _$$ResetImplCopyWith(
+    _$ResetImpl value,
+    $Res Function(_$ResetImpl) then,
+  ) = __$$ResetImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$ResetImplCopyWithImpl<$Res>
+    extends _$GiftEventCopyWithImpl<$Res, _$ResetImpl>
+    implements _$$ResetImplCopyWith<$Res> {
+  __$$ResetImplCopyWithImpl(
+    _$ResetImpl _value,
+    $Res Function(_$ResetImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of GiftEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$ResetImpl implements _Reset {
+  const _$ResetImpl();
+
+  @override
+  String toString() {
+    return 'GiftEvent.reset()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$ResetImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(
+      String recipientId,
+      int amount,
+      String message,
+      GiftStyle style,
+      String? conversationId,
+      String? communityId,
+    )
+    sendGift,
+    required TResult Function(String giftId) openGift,
+    required TResult Function(String giftId) claimGift,
+    required TResult Function() loadSentGifts,
+    required TResult Function() loadReceivedGifts,
+    required TResult Function(String giftId) watchGift,
+    required TResult Function(Gift gift) giftUpdated,
+    required TResult Function() loadGiftStats,
+    required TResult Function() clearError,
+    required TResult Function() reset,
+  }) {
+    return reset();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(
+      String recipientId,
+      int amount,
+      String message,
+      GiftStyle style,
+      String? conversationId,
+      String? communityId,
+    )?
+    sendGift,
+    TResult? Function(String giftId)? openGift,
+    TResult? Function(String giftId)? claimGift,
+    TResult? Function()? loadSentGifts,
+    TResult? Function()? loadReceivedGifts,
+    TResult? Function(String giftId)? watchGift,
+    TResult? Function(Gift gift)? giftUpdated,
+    TResult? Function()? loadGiftStats,
+    TResult? Function()? clearError,
+    TResult? Function()? reset,
+  }) {
+    return reset?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(
+      String recipientId,
+      int amount,
+      String message,
+      GiftStyle style,
+      String? conversationId,
+      String? communityId,
+    )?
+    sendGift,
+    TResult Function(String giftId)? openGift,
+    TResult Function(String giftId)? claimGift,
+    TResult Function()? loadSentGifts,
+    TResult Function()? loadReceivedGifts,
+    TResult Function(String giftId)? watchGift,
+    TResult Function(Gift gift)? giftUpdated,
+    TResult Function()? loadGiftStats,
+    TResult Function()? clearError,
+    TResult Function()? reset,
+    required TResult orElse(),
+  }) {
+    if (reset != null) {
+      return reset();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_SendGift value) sendGift,
+    required TResult Function(_OpenGift value) openGift,
+    required TResult Function(_ClaimGift value) claimGift,
+    required TResult Function(_LoadSentGifts value) loadSentGifts,
+    required TResult Function(_LoadReceivedGifts value) loadReceivedGifts,
+    required TResult Function(_WatchGift value) watchGift,
+    required TResult Function(_GiftUpdated value) giftUpdated,
+    required TResult Function(_LoadGiftStats value) loadGiftStats,
+    required TResult Function(_ClearError value) clearError,
+    required TResult Function(_Reset value) reset,
+  }) {
+    return reset(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_SendGift value)? sendGift,
+    TResult? Function(_OpenGift value)? openGift,
+    TResult? Function(_ClaimGift value)? claimGift,
+    TResult? Function(_LoadSentGifts value)? loadSentGifts,
+    TResult? Function(_LoadReceivedGifts value)? loadReceivedGifts,
+    TResult? Function(_WatchGift value)? watchGift,
+    TResult? Function(_GiftUpdated value)? giftUpdated,
+    TResult? Function(_LoadGiftStats value)? loadGiftStats,
+    TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_Reset value)? reset,
+  }) {
+    return reset?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_SendGift value)? sendGift,
+    TResult Function(_OpenGift value)? openGift,
+    TResult Function(_ClaimGift value)? claimGift,
+    TResult Function(_LoadSentGifts value)? loadSentGifts,
+    TResult Function(_LoadReceivedGifts value)? loadReceivedGifts,
+    TResult Function(_WatchGift value)? watchGift,
+    TResult Function(_GiftUpdated value)? giftUpdated,
+    TResult Function(_LoadGiftStats value)? loadGiftStats,
+    TResult Function(_ClearError value)? clearError,
+    TResult Function(_Reset value)? reset,
+    required TResult orElse(),
+  }) {
+    if (reset != null) {
+      return reset(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _Reset implements GiftEvent {
+  const factory _Reset() = _$ResetImpl;
 }
 
 /// @nodoc

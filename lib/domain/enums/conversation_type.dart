@@ -8,4 +8,7 @@ enum ConversationType {
 
   /// System-generated conversation
   system,
+
+  /// Collection room for token pools (Group Sasaza / Group Save)
+  collection,
 }

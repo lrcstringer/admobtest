@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,10 +12,12 @@ import '../../../data/datasources/remote/media_upload_datasource.dart';
 import '../../../domain/entities/message.dart';
 import '../../../domain/enums/message_status.dart';
 import '../../../domain/enums/message_type.dart';
-import '../../blocs/gift/gift_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../gift/gift_bubble.dart';
+import '../gift/gift_opening_dialog.dart';
+import '../pool/group_gift_bubble.dart';
+import '../pool/group_gift_opening_dialog.dart';
 import '../spray/spray_bubble.dart';
 import 'video_message_player.dart';
 import 'voice_player_widget.dart';
@@ -74,8 +75,9 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     if (message.deletedForEveryone) return _buildDeletedMessage(context);
     if (message.isSystem) return _buildSystemMessage(context);
-    if (message.isGift) return _buildGiftBubble(context);
-    if (message.isSpray) return _buildSprayBubble(context);
+    if (message.isGift && message.gift != null) return _buildGiftBubble(context);
+    if (message.isGroupGift && message.groupGift != null) return _buildGroupGiftBubble(context);
+    if (message.isSpray && message.tokenSpray != null) return _buildSprayBubble(context);
     if (message.isTokenTransfer) return _buildTokenCard(context);
 
     final bubbleColor =
@@ -574,12 +576,57 @@ class MessageBubble extends StatelessWidget {
                 recipientName: gift.recipientName,
                 isMe: isMe,
                 currentUserId: currentUserId,
-                onOpen: () => context
-                    .read<GiftBloc>()
-                    .add(GiftEvent.openGift(gift.giftId)),
-                onClaim: () => context
-                    .read<GiftBloc>()
-                    .add(GiftEvent.claimGift(gift.giftId)),
+                onOpen: () => showGiftOpeningDialog(
+                  context,
+                  gift: gift,
+                  senderName: message.senderName,
+                ),
+                onClaim: () => showGiftOpeningDialog(
+                  context,
+                  gift: gift,
+                  senderName: message.senderName,
+                ),
+              ),
+              if (isMe) ...[
+                const SizedBox(width: 4),
+                _buildSquareAvatar(),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGroupGiftBubble(BuildContext context) {
+    final groupGift = message.groupGift!;
+    final isRecipient = !isMe; // In recipient's P2P chat, received = recipient
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: GestureDetector(
+        onLongPress: onLongPress,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!isMe) ...[
+                _buildSquareAvatar(),
+                const SizedBox(width: 4),
+              ],
+              GroupGiftBubble(
+                data: groupGift,
+                isMe: isMe,
+                isRecipient: isRecipient,
+                onOpen: isRecipient
+                    ? () => showDialog(
+                          context: context,
+                          useSafeArea: false,
+                          builder: (_) =>
+                              GroupGiftOpeningDialog(giftData: groupGift),
+                        )
+                    : null,
               ),
               if (isMe) ...[
                 const SizedBox(width: 4),

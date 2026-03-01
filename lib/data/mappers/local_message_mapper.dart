@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/message.dart';
 import '../../domain/enums/gift_status.dart';
@@ -150,7 +151,8 @@ class LocalMessageMapper {
             .name;
       }
       return GiftMessageData.fromJson(map);
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('LocalMessageMapper._parseGift failed: $e\n$st');
       return null;
     }
   }
@@ -166,7 +168,8 @@ class LocalMessageMapper {
             .name;
       }
       return TokenSprayMessageData.fromJson(map);
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('LocalMessageMapper._parseTokenSpray failed: $e\n$st');
       return null;
     }
   }

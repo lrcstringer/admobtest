@@ -27,6 +27,7 @@ class GiftBloc extends Bloc<GiftEvent, GiftState> {
     on<_GiftUpdated>(_onGiftUpdated);
     on<_LoadGiftStats>(_onLoadGiftStats);
     on<_ClearError>(_onClearError);
+    on<_Reset>(_onReset);
   }
 
   // =========================================================================
@@ -37,7 +38,9 @@ class GiftBloc extends Bloc<GiftEvent, GiftState> {
     _SendGift event,
     Emitter<GiftState> emit,
   ) async {
-    emit(state.copyWith(isSending: true, errorMessage: null));
+    // Guard against duplicate sends
+    if (state.isSending) return;
+    emit(state.copyWith(isSending: true, errorMessage: null, activeGift: null));
 
     final result = await _giftRepository.sendGift(
       recipientId: event.recipientId,
@@ -68,7 +71,8 @@ class GiftBloc extends Bloc<GiftEvent, GiftState> {
     _OpenGift event,
     Emitter<GiftState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, errorMessage: null));
+    if (state.isLoading) return;
+    emit(state.copyWith(isLoading: true, errorMessage: null, activeGift: null));
 
     final result = await _giftRepository.openGift(event.giftId);
 
@@ -88,7 +92,8 @@ class GiftBloc extends Bloc<GiftEvent, GiftState> {
     _ClaimGift event,
     Emitter<GiftState> emit,
   ) async {
-    emit(state.copyWith(isClaiming: true, errorMessage: null));
+    if (state.isClaiming) return;
+    emit(state.copyWith(isClaiming: true, errorMessage: null, activeGift: null));
 
     final result = await _giftRepository.claimGift(event.giftId);
 
@@ -197,6 +202,13 @@ class GiftBloc extends Bloc<GiftEvent, GiftState> {
     Emitter<GiftState> emit,
   ) {
     emit(state.copyWith(errorMessage: null));
+  }
+
+  void _onReset(
+    _Reset event,
+    Emitter<GiftState> emit,
+  ) {
+    emit(state.copyWith(activeGift: null, errorMessage: null));
   }
 
   @override

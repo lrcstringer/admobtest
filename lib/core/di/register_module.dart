@@ -3,6 +3,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -35,6 +36,9 @@ abstract class RegisterModule {
   @lazySingleton
   FirebaseFunctions get firebaseFunctions =>
       FirebaseFunctions.instanceFor(region: 'africa-south1');
+
+  @lazySingleton
+  FirebaseDatabase get firebaseDatabase => FirebaseDatabase.instance;
 
   @lazySingleton
   InternetConnection get internetConnection => InternetConnection();

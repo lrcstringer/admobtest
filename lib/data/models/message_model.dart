@@ -6,6 +6,7 @@ import '../../domain/enums/message_type.dart';
 import '../../domain/enums/message_status.dart';
 import '../../domain/enums/gift_style.dart';
 import '../../domain/enums/gift_status.dart';
+import '../../domain/enums/pool_status.dart';
 import '../../domain/enums/spray_status.dart';
 
 part 'message_model.freezed.dart';
@@ -41,9 +42,10 @@ class MessageModel with _$MessageModel {
     @Default({}) Map<String, DateTime> readBy,
     Map<String, dynamic>? forwardedFrom,
 
-    // Gift & spray embedded data
+    // Gift, spray & group gift embedded data
     Map<String, dynamic>? gift,
     Map<String, dynamic>? tokenSpray,
+    Map<String, dynamic>? groupGift,
 
     // Community-specific
     String? communityId,
@@ -103,6 +105,9 @@ class MessageModel with _$MessageModel {
       tokenSpray: json['tokenSpray'] is Map
           ? Map<String, dynamic>.from(json['tokenSpray'] as Map)
           : null,
+      groupGift: json['groupGift'] is Map
+          ? Map<String, dynamic>.from(json['groupGift'] as Map)
+          : null,
       communityId: json['communityId'] as String?,
       systemEventType: json['systemEventType'] as String?,
       systemEventData: json['systemEventData'] is Map
@@ -148,6 +153,7 @@ class MessageModel with _$MessageModel {
       forwardedFrom: _parseForwardedFrom(forwardedFrom),
       gift: _parseGiftData(gift),
       tokenSpray: _parseSprayData(tokenSpray),
+      groupGift: _parseGroupGiftData(groupGift),
       communityId: communityId,
       systemEventType: systemEventType,
       systemEventData: systemEventData,
@@ -220,6 +226,8 @@ class MessageModel with _$MessageModel {
         return MessageType.tokenSpray;
       case 'system':
         return MessageType.system;
+      case 'groupGift':
+        return MessageType.groupGift;
       default:
         return MessageType.text;
     }
@@ -284,6 +292,9 @@ class MessageModel with _$MessageModel {
       status: _parseGiftStatus(raw['status'] as String?),
       recipientId: raw['recipientId'] as String?,
       recipientName: raw['recipientName'] as String?,
+      expiresAt: raw['expiresAt'] != null
+          ? DateTime.tryParse(raw['expiresAt'] as String)
+          : null,
     );
   }
 
@@ -300,6 +311,42 @@ class MessageModel with _$MessageModel {
       targetAmount: raw['targetAmount'] as int?,
       expiresAt: _parseDateTimeRequired(raw['expiresAt']),
     );
+  }
+
+  static GroupGiftMessageData? _parseGroupGiftData(Map<String, dynamic>? raw) {
+    if (raw == null) return null;
+    return GroupGiftMessageData(
+      poolId: raw['poolId'] as String? ?? '',
+      amount: raw['amount'] as int? ?? 0,
+      message: raw['message'] as String? ?? '',
+      style: _parseGiftStyle(raw['style'] as String?),
+      organizerId: raw['organizerId'] as String? ?? '',
+      organizerName: raw['organizerName'] as String? ?? 'Unknown',
+      contributorCount: raw['contributorCount'] as int? ?? 0,
+      visibleContributorNames: raw['visibleContributorNames'] is List
+          ? List<String>.from(raw['visibleContributorNames'] as List)
+          : [],
+      anonymousCount: raw['anonymousCount'] as int? ?? 0,
+      status: _parsePoolStatus(raw['status'] as String?),
+      expiresAt: _parseDateTime(raw['expiresAt']),
+    );
+  }
+
+  static PoolStatus _parsePoolStatus(String? status) {
+    switch (status) {
+      case 'collecting':
+        return PoolStatus.collecting;
+      case 'sent':
+        return PoolStatus.sent;
+      case 'completed':
+        return PoolStatus.completed;
+      case 'cancelled':
+        return PoolStatus.cancelled;
+      case 'expired':
+        return PoolStatus.expired;
+      default:
+        return PoolStatus.collecting;
+    }
   }
 
   static E2eeMetadata? _parseE2eeMetadata(Map<String, dynamic>? raw) {
