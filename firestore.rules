@@ -725,17 +725,35 @@ service cloud.firestore {
       // Created by Cloud Function (initiateCall) only
       allow create: if false;
 
-      // Participants can update signaling fields
-      // Status transitions and call creation are server-only
-      allow update: if isAuthenticated() && isCallParticipant();
+      // Participants can update ONLY their own signaling fields.
+      // Status transitions, identity fields, and timestamps are server-only.
+      allow update: if isAuthenticated() && isCallParticipant()
+        && (
+          // Caller: can write offer SDP, their heartbeat, ICE restart count,
+          // and video upgrade request fields
+          (resource.data.callerId == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['offer', 'callerHeartbeat', 'iceRestartCount',
+                           'videoUpgradeRequest', 'videoUpgradeRequesterId']))
+          ||
+          // Callee: can write answer SDP, their heartbeat,
+          // and video upgrade response
+          (resource.data.calleeId == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['answer', 'calleeHeartbeat',
+                           'videoUpgradeRequest']))
+        );
 
       // TTL handles cleanup — no client deletes
       allow delete: if false;
 
       // Caller ICE candidates subcollection
       match /callerCandidates/{candidateId} {
+        // Both participants can read (callee needs caller's candidates).
+        // Must use get() — resource.data is the candidate doc, not the call doc.
         allow read: if isAuthenticated()
-          && isCallParticipant();
+          && (get(/databases/$(database)/documents/calls/$(callId)).data.callerId == request.auth.uid
+              || get(/databases/$(database)/documents/calls/$(callId)).data.calleeId == request.auth.uid);
         // Only caller can write their ICE candidates
         allow create: if isAuthenticated()
           && get(/databases/$(database)/documents/calls/$(callId)).data.callerId == request.auth.uid;
@@ -744,8 +762,11 @@ service cloud.firestore {
 
       // Callee ICE candidates subcollection
       match /calleeCandidates/{candidateId} {
+        // Both participants can read (caller needs callee's candidates).
+        // Must use get() — resource.data is the candidate doc, not the call doc.
         allow read: if isAuthenticated()
-          && isCallParticipant();
+          && (get(/databases/$(database)/documents/calls/$(callId)).data.callerId == request.auth.uid
+              || get(/databases/$(database)/documents/calls/$(callId)).data.calleeId == request.auth.uid);
         // Only callee can write their ICE candidates
         allow create: if isAuthenticated()
           && get(/databases/$(database)/documents/calls/$(callId)).data.calleeId == request.auth.uid;

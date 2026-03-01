@@ -14,9 +14,6 @@ import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
   processP2PTransfer,
-  getDefaultSubAccount,
-  validateSubAccountAllows,
-  validateSubAccountBalance,
   validateMainWalletBalance,
 } from "./ledger";
 
@@ -74,25 +71,10 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
     throw new HttpsError("permission-denied", "Not a participant in this conversation");
   }
 
-  // Validate sender balance (sub-account or main wallet)
-  const senderSubAccount = await getDefaultSubAccount(userId);
-  let senderSubAccountId: string | undefined;
-
-  if (senderSubAccount) {
-    const p2pAllowed = await validateSubAccountAllows(senderSubAccount.accountTypeId, "p2p_send");
-    if (!p2pAllowed.allowed) {
-      throw new HttpsError("failed-precondition", p2pAllowed.reason || "Account cannot send P2P transfers");
-    }
-    const balanceCheck = await validateSubAccountBalance(userId, senderSubAccount.id, amount);
-    if (!balanceCheck.allowed) {
-      throw new HttpsError("failed-precondition", balanceCheck.reason || "Insufficient balance");
-    }
-    senderSubAccountId = senderSubAccount.id;
-  } else {
-    const mainCheck = await validateMainWalletBalance(userId, amount);
-    if (!mainCheck.sufficient) {
-      throw new HttpsError("failed-precondition", `Insufficient balance: has ${mainCheck.available}, needs ${amount}`);
-    }
+  // Validate sender balance (main ledger account IS the default wallet)
+  const mainCheck = await validateMainWalletBalance(userId, amount);
+  if (!mainCheck.sufficient) {
+    throw new HttpsError("failed-precondition", `Insufficient balance: has ${mainCheck.available}, needs ${amount}`);
   }
 
   // Process transfer through Trust Ledger
@@ -102,7 +84,7 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
     recipientId,
     amount,
     transferId,
-    senderSubAccountId,
+    undefined, // main wallet — no sub-account needed
     undefined,
     `P2P transfer: ${amount} tokens`,
     { conversationId, source: "conversation" }
@@ -325,25 +307,10 @@ export const acceptConversationTokenRequest = onCall({ labels: { area: "social" 
   const requesterId = msgData.senderId;
   const amount = msgData.tokenAmount;
 
-  // Validate payer balance
-  const payerSubAccount = await getDefaultSubAccount(userId);
-  let payerSubAccountId: string | undefined;
-
-  if (payerSubAccount) {
-    const p2pAllowed = await validateSubAccountAllows(payerSubAccount.accountTypeId, "p2p_send");
-    if (!p2pAllowed.allowed) {
-      throw new HttpsError("failed-precondition", p2pAllowed.reason || "Account cannot send P2P transfers");
-    }
-    const balanceCheck = await validateSubAccountBalance(userId, payerSubAccount.id, amount);
-    if (!balanceCheck.allowed) {
-      throw new HttpsError("failed-precondition", balanceCheck.reason || "Insufficient balance");
-    }
-    payerSubAccountId = payerSubAccount.id;
-  } else {
-    const mainCheck = await validateMainWalletBalance(userId, amount);
-    if (!mainCheck.sufficient) {
-      throw new HttpsError("failed-precondition", `Insufficient balance: has ${mainCheck.available}, needs ${amount}`);
-    }
+  // Validate payer balance (main ledger account IS the default wallet)
+  const mainCheck = await validateMainWalletBalance(userId, amount);
+  if (!mainCheck.sufficient) {
+    throw new HttpsError("failed-precondition", `Insufficient balance: has ${mainCheck.available}, needs ${amount}`);
   }
 
   // Process transfer through Trust Ledger
@@ -353,7 +320,7 @@ export const acceptConversationTokenRequest = onCall({ labels: { area: "social" 
     requesterId,
     amount,
     transferId,
-    payerSubAccountId,
+    undefined, // main wallet — no sub-account needed
     undefined,
     "Paid token request",
     { conversationId, messageId, source: "conversationRequest" }

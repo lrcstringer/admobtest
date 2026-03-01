@@ -14,9 +14,6 @@ import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
   processP2PTransfer,
-  getDefaultSubAccount,
-  validateSubAccountAllows,
-  validateSubAccountBalance,
   validateMainWalletBalance,
 } from "./ledger";
 
@@ -54,58 +51,25 @@ export const sendTokens = onCall({ labels: { area: "social" } }, async (request)
     );
   }
 
-  // Check sender's sub-account or main wallet
-  const senderSubAccount = await getDefaultSubAccount(senderId);
-  let senderSubAccountId: string | undefined;
-
-  if (senderSubAccount) {
-    // Has a sub-account — validate account type allows P2P sends
-    const p2pAllowed = await validateSubAccountAllows(
-      senderSubAccount.accountTypeId,
-      "p2p_send"
+  // Validate sender balance (main ledger account IS the default wallet)
+  const mainCheck = await validateMainWalletBalance(senderId, amount);
+  if (!mainCheck.sufficient) {
+    throw new HttpsError(
+      "failed-precondition",
+      `Insufficient balance: has ${mainCheck.available}, needs ${amount}`
     );
-    if (!p2pAllowed.allowed) {
-      throw new HttpsError(
-        "failed-precondition",
-        p2pAllowed.reason || "This account cannot send P2P transfers"
-      );
-    }
-
-    // Validate sub-account balance
-    const balanceCheck = await validateSubAccountBalance(
-      senderId,
-      senderSubAccount.id,
-      amount
-    );
-    if (!balanceCheck.allowed) {
-      throw new HttpsError(
-        "failed-precondition",
-        balanceCheck.reason || "Insufficient balance"
-      );
-    }
-    senderSubAccountId = senderSubAccount.id;
-  } else {
-    // No sub-account — validate main wallet balance
-    const mainCheck = await validateMainWalletBalance(senderId, amount);
-    if (!mainCheck.sufficient) {
-      throw new HttpsError(
-        "failed-precondition",
-        `Insufficient balance: has ${mainCheck.available}, needs ${amount}`
-      );
-    }
   }
 
   // Generate a unique transfer ID for idempotency
   const transferId = db.collection("p2pTransfers").doc().id;
 
   // Process transfer through the Trust Ledger system
-  // Recipient tokens go to main wallet (no sub-account)
   const ledgerResult = await processP2PTransfer(
     senderId,
     recipientId,
     amount,
     transferId,
-    senderSubAccountId, // Sender's sub-account or undefined for main wallet
+    undefined, // main wallet — no sub-account needed
     undefined, // Recipient main wallet
     message,
     {
@@ -319,58 +283,25 @@ export const acceptChatTokenRequest = onCall(
     const amount = messageData.tokenAmount;
     const threadId = messageData.threadId;
 
-    // Check payer's sub-account or main wallet
-    const payerSubAccount = await getDefaultSubAccount(payerId);
-    let payerSubAccountId: string | undefined;
-
-    if (payerSubAccount) {
-      // Has a sub-account — validate account type allows P2P sends
-      const p2pAllowed = await validateSubAccountAllows(
-        payerSubAccount.accountTypeId,
-        "p2p_send"
+    // Validate payer balance (main ledger account IS the default wallet)
+    const mainCheck = await validateMainWalletBalance(payerId, amount);
+    if (!mainCheck.sufficient) {
+      throw new HttpsError(
+        "failed-precondition",
+        `Insufficient balance: has ${mainCheck.available}, needs ${amount}`
       );
-      if (!p2pAllowed.allowed) {
-        throw new HttpsError(
-          "failed-precondition",
-          p2pAllowed.reason || "This account cannot send P2P transfers"
-        );
-      }
-
-      // Validate sub-account balance
-      const balanceCheck = await validateSubAccountBalance(
-        payerId,
-        payerSubAccount.id,
-        amount
-      );
-      if (!balanceCheck.allowed) {
-        throw new HttpsError(
-          "failed-precondition",
-          balanceCheck.reason || "Insufficient balance"
-        );
-      }
-      payerSubAccountId = payerSubAccount.id;
-    } else {
-      // No sub-account — validate main wallet balance
-      const mainCheck = await validateMainWalletBalance(payerId, amount);
-      if (!mainCheck.sufficient) {
-        throw new HttpsError(
-          "failed-precondition",
-          `Insufficient balance: has ${mainCheck.available}, needs ${amount}`
-        );
-      }
     }
 
     // Generate a unique transfer ID using the messageId for idempotency
     const transferId = `request_${messageId}`;
 
     // Process transfer through the Trust Ledger system
-    // Requester tokens go to main wallet (no sub-account)
     const ledgerResult = await processP2PTransfer(
       payerId,
       requesterId,
       amount,
       transferId,
-      payerSubAccountId, // Payer's sub-account or undefined for main wallet
+      undefined, // main wallet — no sub-account needed
       undefined, // Requester main wallet
       "Paid token request",
       {
@@ -633,58 +564,25 @@ export const payRequest = onCall({ labels: { area: "social" } }, async (request)
     );
   }
 
-  // Check payer's sub-account or main wallet
-  const payerSubAccount = await getDefaultSubAccount(payerId);
-  let payerSubAccountId: string | undefined;
-
-  if (payerSubAccount) {
-    // Has a sub-account — validate account type allows P2P sends
-    const p2pAllowed = await validateSubAccountAllows(
-      payerSubAccount.accountTypeId,
-      "p2p_send"
+  // Validate payer balance (main ledger account IS the default wallet)
+  const mainCheck = await validateMainWalletBalance(payerId, paymentRequest.amount);
+  if (!mainCheck.sufficient) {
+    throw new HttpsError(
+      "failed-precondition",
+      `Insufficient balance: has ${mainCheck.available}, needs ${paymentRequest.amount}`
     );
-    if (!p2pAllowed.allowed) {
-      throw new HttpsError(
-        "failed-precondition",
-        p2pAllowed.reason || "This account cannot send P2P transfers"
-      );
-    }
-
-    // Validate sub-account balance
-    const balanceCheck = await validateSubAccountBalance(
-      payerId,
-      payerSubAccount.id,
-      paymentRequest.amount
-    );
-    if (!balanceCheck.allowed) {
-      throw new HttpsError(
-        "failed-precondition",
-        balanceCheck.reason || "Insufficient balance"
-      );
-    }
-    payerSubAccountId = payerSubAccount.id;
-  } else {
-    // No sub-account — validate main wallet balance
-    const mainCheck = await validateMainWalletBalance(payerId, paymentRequest.amount);
-    if (!mainCheck.sufficient) {
-      throw new HttpsError(
-        "failed-precondition",
-        `Insufficient balance: has ${mainCheck.available}, needs ${paymentRequest.amount}`
-      );
-    }
   }
 
   // Generate a unique transfer ID using the requestId for idempotency
   const transferId = `legacy_request_${requestId}`;
 
   // Process transfer through the Trust Ledger system
-  // Requester tokens go to main wallet (no sub-account)
   const ledgerResult = await processP2PTransfer(
     payerId,
     paymentRequest.requesterId,
     paymentRequest.amount,
     transferId,
-    payerSubAccountId, // Payer's sub-account or undefined for main wallet
+    undefined, // main wallet — no sub-account needed
     undefined, // Requester main wallet
     "Paid payment request",
     {

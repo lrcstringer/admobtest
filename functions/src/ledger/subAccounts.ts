@@ -67,14 +67,17 @@ export async function getUserSubAccounts(
 }
 
 /**
- * Get the default (unrestricted) sub-account for a user
+ * Get the default (unrestricted) sub-account for a user.
+ * Returns null if no default sub-account exists — callers that only need
+ * the main ledger account balance should use validateMainWalletBalance instead.
  */
 export async function getDefaultSubAccount(
   userId: string
 ): Promise<SubAccount | null> {
+  const accountDocId = AccountId.user(userId);
   const snapshot = await db
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
-    .doc(AccountId.user(userId))
+    .doc(accountDocId)
     .collection(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS)
     .where("isDefault", "==", true)
     .where("isActive", "==", true)

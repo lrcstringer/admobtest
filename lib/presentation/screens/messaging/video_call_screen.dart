@@ -27,6 +27,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   bool _renderersReady = false;
   bool _controlsVisible = true;
   Timer? _hideControlsTimer;
+  StreamSubscription? _localStreamSub;
+  StreamSubscription? _remoteStreamSub;
 
   // PiP drag position
   Offset _pipOffset = const Offset(16, 60);
@@ -42,7 +44,33 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   Future<void> _initRenderers() async {
     await _localRenderer.initialize();
     await _remoteRenderer.initialize();
-    if (mounted) setState(() => _renderersReady = true);
+    if (!mounted) return;
+    setState(() => _renderersReady = true);
+
+    // Try connecting immediately (works for caller, may be null for callee)
+    _connectToStreams();
+  }
+
+  /// Connect renderers to WebRTC media streams.
+  ///
+  /// Called from [_initRenderers] (initState path) and from the BlocConsumer
+  /// listener when the accept flow completes and webRtcService becomes
+  /// available. This handles the callee timing issue: the screen is pushed
+  /// before _onAcceptCall creates the WebRtcService, so initState sees null.
+  void _connectToStreams() {
+    if (_localStreamSub != null) return; // Already connected
+    final webRtc = context.read<CallBloc>().webRtcService;
+    if (webRtc == null) return;
+
+    if (webRtc.localStream != null) {
+      _localRenderer.srcObject = webRtc.localStream;
+    }
+    _localStreamSub = webRtc.onLocalStream.listen((stream) {
+      if (mounted) setState(() => _localRenderer.srcObject = stream);
+    });
+    _remoteStreamSub = webRtc.onRemoteStream.listen((stream) {
+      if (mounted) setState(() => _remoteRenderer.srcObject = stream);
+    });
   }
 
   void _startControlsHideTimer() {
@@ -61,6 +89,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   void dispose() {
     WakelockPlus.disable();
     _hideControlsTimer?.cancel();
+    _localStreamSub?.cancel();
+    _remoteStreamSub?.cancel();
+    _localRenderer.srcObject = null;
+    _remoteRenderer.srcObject = null;
     _localRenderer.dispose();
     _remoteRenderer.dispose();
     super.dispose();
@@ -70,6 +102,12 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<CallBloc, CallState>(
       listener: (context, state) {
+        // Connect renderers once WebRTC is ready (callee path — initState
+        // runs before _onAcceptCall creates webRtcService)
+        if (_renderersReady && _localStreamSub == null) {
+          _connectToStreams();
+        }
+
         if (state.status == CallStatus.idle ||
             state.status == CallStatus.failed) {
           if (context.canPop()) context.pop();

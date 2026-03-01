@@ -11,9 +11,6 @@ import {
   processPurchaseTransaction,
   reverseJournal,
   creditSubAccount,
-  getDefaultSubAccount,
-  validateSubAccountBalance,
-  validatePurchaseAllowed,
   validateMainWalletBalance,
 } from "./ledger";
 
@@ -59,47 +56,13 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
   const zarAmount = product.priceZar || 0;
   const purchaseCategory = provider.category || "airtime";
 
-  // Check user's sub-account or main wallet
-  const subAccount = await getDefaultSubAccount(userId);
-  let subAccountId: string | undefined;
-  let accountTypeId: string | null = null;
-
-  if (subAccount) {
-    // Has a sub-account — validate account type allows this purchase category
-    const purchaseAllowed = await validatePurchaseAllowed(
-      subAccount.accountTypeId,
-      purchaseCategory
+  // Validate user balance (main ledger account IS the default wallet)
+  const mainCheck = await validateMainWalletBalance(userId, tokenAmount);
+  if (!mainCheck.sufficient) {
+    throw new HttpsError(
+      "failed-precondition",
+      `Insufficient balance: has ${mainCheck.available}, needs ${tokenAmount}`
     );
-    if (!purchaseAllowed.allowed) {
-      throw new HttpsError(
-        "failed-precondition",
-        purchaseAllowed.reason || `This account cannot purchase ${purchaseCategory}`
-      );
-    }
-
-    // Validate sub-account balance
-    const balanceCheck = await validateSubAccountBalance(
-      userId,
-      subAccount.id,
-      tokenAmount
-    );
-    if (!balanceCheck.allowed) {
-      throw new HttpsError(
-        "failed-precondition",
-        balanceCheck.reason || "Insufficient balance"
-      );
-    }
-    subAccountId = subAccount.id;
-    accountTypeId = subAccount.accountTypeId || null;
-  } else {
-    // No sub-account — validate main wallet balance
-    const mainCheck = await validateMainWalletBalance(userId, tokenAmount);
-    if (!mainCheck.sufficient) {
-      throw new HttpsError(
-        "failed-precondition",
-        `Insufficient balance: has ${mainCheck.available}, needs ${tokenAmount}`
-      );
-    }
   }
 
   // Create purchase document first
@@ -119,22 +82,21 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
       tokenAmount,
       zarAmount,
       recipientNumber,
-      subAccountId: subAccountId || null,
+      subAccountId: null,
       status: "processing",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       processedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     // Process purchase through the Trust Ledger system
-    // This transfers tokens from user's sub-account to supplier's account
     const ledgerResult = await processPurchaseTransaction(
       userId,
       product.providerId,
       provider.name,
       tokenAmount,
       purchaseRef.id,
-      subAccountId, // User's sub-account to debit (undefined = main wallet)
-      accountTypeId, // For audit
+      undefined, // main wallet — no sub-account needed
+      null, // no account type
       {
         productId,
         productName: product.name,

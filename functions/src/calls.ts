@@ -32,37 +32,50 @@ export const getTurnCredentials = onCall(
   async (request) => {
     requireAuth(request);
 
+    // STUN servers always included — free and sufficient for most networks
+    const stunServers = [
+      { urls: "stun:stun.l.google.com:19302" },
+      { urls: "stun:stun1.l.google.com:19302" },
+    ];
+
     const keyId = process.env.CLOUDFLARE_TURN_KEY_ID;
     const apiToken = process.env.CLOUDFLARE_TURN_API_TOKEN;
+
+    // Gracefully fall back to STUN-only when TURN is not configured
     if (!keyId || !apiToken) {
-      throw new HttpsError("internal", "TURN not configured");
+      return { iceServers: stunServers, ttl: 0 };
     }
 
-    const response = await fetch(
-      `https://rtc.live.cloudflare.com/v1/turn/keys/${keyId}/credentials/generate`,
-      {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiToken}`,
-          "Content-Type": "application/json",
+    try {
+      const response = await fetch(
+        `https://rtc.live.cloudflare.com/v1/turn/keys/${keyId}/credentials/generate`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ttl: 7200 }), // 2-hour TTL
         },
-        body: JSON.stringify({ ttl: 7200 }), // 2-hour TTL
-      },
-    );
+      );
 
-    if (!response.ok) {
-      throw new HttpsError("internal", "Failed to generate TURN credentials");
+      if (!response.ok) {
+        // TURN failed — fall back to STUN-only rather than crashing the call
+        return { iceServers: stunServers, ttl: 0 };
+      }
+
+      const turnCreds = await response.json() as { iceServers: unknown[] };
+      return {
+        iceServers: [
+          ...stunServers,
+          ...turnCreds.iceServers,
+        ],
+        ttl: 7200,
+      };
+    } catch {
+      // Network error fetching TURN creds — fall back to STUN-only
+      return { iceServers: stunServers, ttl: 0 };
     }
-
-    const turnCreds = await response.json() as { iceServers: unknown[] };
-    return {
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-        ...turnCreds.iceServers,
-      ],
-      ttl: 7200,
-    };
   },
 );
 

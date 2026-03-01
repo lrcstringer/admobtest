@@ -24,20 +24,15 @@ const _documentExtensions = [
   'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'zip',
 ];
 
-/// Media selection widget for attaching images, documents, or starting voice
-/// recording in message input.
+/// Media selection widget for attaching images and documents.
 ///
-/// Shows as a bottom sheet with camera, gallery, document, and voice options.
+/// Shows as a bottom sheet with camera, gallery, and document options.
 class MediaPickerWidget extends StatelessWidget {
   final ValueChanged<MediaPickerResult> onMediaSelected;
-  final VoidCallback? onVoiceRequested;
-  final VoidCallback? onVideoRequested;
 
   const MediaPickerWidget({
     super.key,
     required this.onMediaSelected,
-    this.onVoiceRequested,
-    this.onVideoRequested,
   });
 
   Future<void> _pickFromCamera(BuildContext context) async {
@@ -116,8 +111,10 @@ class MediaPickerWidget extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            Wrap(
+              alignment: WrapAlignment.spaceEvenly,
+              spacing: 16,
+              runSpacing: 16,
               children: [
                 _MediaOption(
                   icon: Icons.camera_alt,
@@ -137,26 +134,6 @@ class MediaPickerWidget extends StatelessWidget {
                   color: AppColors.accent,
                   onTap: () => _pickDocument(context),
                 ),
-                if (onVideoRequested != null)
-                  _MediaOption(
-                    icon: Icons.videocam,
-                    label: 'Video',
-                    color: AppColors.purple,
-                    onTap: () {
-                      Navigator.pop(context);
-                      onVideoRequested!();
-                    },
-                  ),
-                if (onVoiceRequested != null)
-                  _MediaOption(
-                    icon: Icons.mic,
-                    label: 'Voice',
-                    color: AppColors.primary,
-                    onTap: () {
-                      Navigator.pop(context);
-                      onVoiceRequested!();
-                    },
-                  ),
               ],
             ),
             const SizedBox(height: 16),
@@ -168,13 +145,15 @@ class MediaPickerWidget extends StatelessWidget {
 }
 
 class _MediaOption extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? imageAsset;
   final String label;
   final Color color;
   final VoidCallback onTap;
 
   const _MediaOption({
-    required this.icon,
+    this.icon,
+    this.imageAsset,
     required this.label,
     required this.color,
     required this.onTap,
@@ -194,7 +173,16 @@ class _MediaOption extends StatelessWidget {
               color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: color, size: 28),
+            child: imageAsset != null
+                ? ClipOval(
+                    child: Image.asset(
+                      imageAsset!,
+                      width: 56,
+                      height: 56,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Icon(icon, color: color, size: 28),
           ),
           const SizedBox(height: 8),
           Text(
@@ -207,21 +195,159 @@ class _MediaOption extends StatelessWidget {
   }
 }
 
-/// Shows the media picker as a bottom sheet.
-///
-/// Returns a [MediaPickerResult] or null if dismissed.
+/// Shows the media picker (Camera, Gallery, Document) as a bottom sheet.
 void showMediaPicker(
   BuildContext context, {
   required ValueChanged<MediaPickerResult> onMediaSelected,
-  VoidCallback? onVoiceRequested,
-  VoidCallback? onVideoRequested,
 }) {
   showModalBottomSheet(
     context: context,
     builder: (ctx) => MediaPickerWidget(
       onMediaSelected: onMediaSelected,
-      onVoiceRequested: onVoiceRequested,
-      onVideoRequested: onVideoRequested,
+    ),
+  );
+}
+
+/// Action picker widget for notes, calls, gifts, and tokens.
+///
+/// Shows as a bottom sheet from the + button in the message input bar.
+/// Layout: top row = notes (async), bottom row = calls (live) + actions.
+class ActionPickerWidget extends StatelessWidget {
+  final VoidCallback? onVoiceNoteRequested;
+  final VoidCallback? onVideoNoteRequested;
+  final VoidCallback? onVoiceCallRequested;
+  final VoidCallback? onVideoCallRequested;
+  final VoidCallback? onGiftRequested;
+  final VoidCallback? onTokenAction;
+
+  const ActionPickerWidget({
+    super.key,
+    this.onVoiceNoteRequested,
+    this.onVideoNoteRequested,
+    this.onVoiceCallRequested,
+    this.onVideoCallRequested,
+    this.onGiftRequested,
+    this.onTokenAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textHint,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'More',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              alignment: WrapAlignment.spaceEvenly,
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                // Row 1: Voice Note, Video Note, Send Instant Tokens, Sasaza
+                if (onVoiceNoteRequested != null)
+                  _MediaOption(
+                    icon: Icons.mic,
+                    label: 'Voice Note',
+                    color: AppColors.primary,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onVoiceNoteRequested!();
+                    },
+                  ),
+                if (onVideoNoteRequested != null)
+                  _MediaOption(
+                    icon: Icons.videocam,
+                    label: 'Video Note',
+                    color: AppColors.purple,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onVideoNoteRequested!();
+                    },
+                  ),
+                if (onTokenAction != null)
+                  _MediaOption(
+                    icon: Icons.attach_money,
+                    label: 'Send Instant\nTokens',
+                    color: AppColors.accent,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onTokenAction!();
+                    },
+                  ),
+                if (onGiftRequested != null)
+                  _MediaOption(
+                    imageAsset: 'assets/images/sasaza.png',
+                    label: 'Sasaza',
+                    color: AppColors.gold,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onGiftRequested!();
+                    },
+                  ),
+                // Row 2: Voice Call, Video Call
+                if (onVoiceCallRequested != null)
+                  _MediaOption(
+                    icon: Icons.phone,
+                    label: 'Voice Call',
+                    color: AppColors.success,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onVoiceCallRequested!();
+                    },
+                  ),
+                if (onVideoCallRequested != null)
+                  _MediaOption(
+                    icon: Icons.video_call,
+                    label: 'Video Call',
+                    color: AppColors.secondary,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onVideoCallRequested!();
+                    },
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Shows the action picker as a bottom sheet.
+void showActionPicker(
+  BuildContext context, {
+  VoidCallback? onVoiceNoteRequested,
+  VoidCallback? onVideoNoteRequested,
+  VoidCallback? onVoiceCallRequested,
+  VoidCallback? onVideoCallRequested,
+  VoidCallback? onGiftRequested,
+  VoidCallback? onTokenAction,
+}) {
+  showModalBottomSheet(
+    context: context,
+    builder: (ctx) => ActionPickerWidget(
+      onVoiceNoteRequested: onVoiceNoteRequested,
+      onVideoNoteRequested: onVideoNoteRequested,
+      onVoiceCallRequested: onVoiceCallRequested,
+      onVideoCallRequested: onVideoCallRequested,
+      onGiftRequested: onGiftRequested,
+      onTokenAction: onTokenAction,
     ),
   );
 }

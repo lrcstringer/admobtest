@@ -201,7 +201,7 @@ class _ChatTab extends StatelessWidget {
               controller: messageController,
               isSending: state.isSending,
               onSend: () => _send(context),
-              onTokenAction: () => _showCommunityActions(context),
+              onAttachment: () => _showCommunityActions(context),
             ),
           ],
         );

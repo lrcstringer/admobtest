@@ -1,3 +1,4 @@
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -178,7 +179,11 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
             'phoneNumber': _getE164PhoneNumber() ?? '',
           });
         } else if (state.status == AuthStatus.error) {
-          setState(() => _errorText = state.errorMessage);
+          if (_isNetworkError(state.errorMessage)) {
+            _showNoInternetDialog(context);
+          } else {
+            setState(() => _errorText = state.errorMessage);
+          }
         } else if (state.hasTrustedDevice && state.pushLoginChallengeId != null) {
           // Navigate to push login waiting screen
           context.go('/auth/push-login', extra: {
@@ -448,6 +453,41 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
           ),
         );
       },
+    );
+  }
+
+  bool _isNetworkError(String? message) {
+    if (message == null) return false;
+    final lower = message.toLowerCase();
+    return lower.contains('network error') ||
+        lower.contains('no internet') ||
+        lower.contains('socket') ||
+        lower.contains('connection refused') ||
+        lower.contains('host lookup');
+  }
+
+  void _showNoInternetDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('No Internet Connection'),
+        content: const Text(
+          'You need to be connected to the Internet to continue.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              AppSettings.openAppSettings(type: AppSettingsType.wifi);
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
     );
   }
 }

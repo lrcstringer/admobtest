@@ -30,6 +30,12 @@ class CallBloc extends Bloc<CallEvent, CallState> {
 
   WebRtcService? _webRtcService;
   PerfectNegotiationHandler? _negotiationHandler;
+
+  /// Expose WebRtcService so screens can subscribe to media streams
+  /// (onLocalStream / onRemoteStream) and set renderer.srcObject.
+  /// MediaStream can't be stored in Freezed state — this is the standard
+  /// flutter_webrtc approach.
+  WebRtcService? get webRtcService => _webRtcService;
   CallQualityMonitor? _qualityMonitor;
 
   StreamSubscription<CallSession>? _callDocSub;
@@ -45,8 +51,11 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   /// Prevent duplicate SDP processing — Firestore snapshots include the full
   /// document on every change, so the offer/answer fields appear on every
   /// update even when they haven't changed.
-  bool _offerProcessed = false;
-  bool _answerProcessed = false;
+  /// We store the last processed SDP string (not a boolean) so that ICE
+  /// restart and video upgrade renegotiations — which produce NEW SDPs —
+  /// are still processed correctly.
+  String? _lastProcessedOfferSdp;
+  String? _lastProcessedAnswerSdp;
 
   CallBloc(
     this._callRepository,
@@ -76,8 +85,17 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     _InitiateCall event,
     Emitter<CallState> emit,
   ) async {
+    // Guard: don't initiate if already in an active/ringing/connecting call
+    if (state.status != CallStatus.idle &&
+        state.status != CallStatus.failed) {
+      debugPrint('CallBloc: ignoring initiateCall — '
+          'already in call (status=${state.status})');
+      return;
+    }
+
     try {
-      emit(state.copyWith(
+      // Start from a clean state to avoid stale callId from prior attempts
+      emit(const CallState().copyWith(
         status: CallStatus.ringing,
         conversationId: event.conversationId,
         remoteUserId: event.recipientId,
@@ -124,21 +142,33 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         },
       );
 
+      // Explicitly create and send the initial SDP offer.
+      // onRenegotiationNeeded from addTrack() fired during initialize()
+      // when pc.onRenegotiationNeeded was still null — that event was dropped.
+      await _negotiationHandler!.negotiate();
+
       // Listen for call document changes (answer, status changes)
       _callDocSub = _signalingService.watchCall(callId).listen(
         (session) => add(CallEvent.callDocUpdated(session)),
+        onError: (e) => debugPrint('CallBloc: watchCall error: $e'),
       );
 
       // Listen for remote ICE candidates
       _iceCandidateSub = _signalingService
           .watchRemoteIceCandidates(callId, isCaller: true)
-          .listen((candidate) {
-        _negotiationHandler?.handleCandidate(candidate);
-      });
+          .listen(
+        (candidate) {
+          _negotiationHandler?.handleCandidate(candidate);
+        },
+        onError: (e) =>
+            debugPrint('CallBloc: watchRemoteIceCandidates error: $e'),
+      );
 
       // Listen for ICE connection state
       _iceStateSub = _webRtcService!.onIceConnectionState.listen(
         (iceState) => add(CallEvent.iceConnectionStateChanged(iceState)),
+        onError: (e) =>
+            debugPrint('CallBloc: onIceConnectionState error: $e'),
       );
 
       // Ring timeout: 30 seconds
@@ -147,8 +177,29 @@ class CallBloc extends Bloc<CallEvent, CallState> {
           add(const CallEvent.endCall());
         }
       });
-    } catch (e) {
-      emit(state.copyWith(
+    } catch (e, stack) {
+      debugPrint('CallBloc: [initiate] FAILED: $e');
+      debugPrint('CallBloc: [initiate] stack: $stack');
+
+      // Capture callId before cleanup resets internal state
+      final failedCallId = state.callId;
+
+      // Clean up any partially-initialised resources (WebRTC, subscriptions,
+      // camera/mic) so they don't leak after the screen pops.
+      await _cleanup();
+
+      // If the call was created on the server, end it so the callee isn't
+      // left with a phantom ringing call.
+      if (failedCallId != null) {
+        try {
+          await _callRepository.endCall(failedCallId, reason: 'error');
+        } catch (_) {}
+      }
+
+      // Emit a FRESH failed state — don't use state.copyWith() which would
+      // preserve a stale callId causing the next attempt's stream listener
+      // to immediately navigate to a dead call.
+      emit(const CallState().copyWith(
         status: CallStatus.failed,
         errorMessage: e.toString(),
       ));
@@ -161,6 +212,13 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     _IncomingCall event,
     Emitter<CallState> emit,
   ) async {
+    // Reject second incoming call if one is already active/ringing
+    if (state.status != CallStatus.idle) {
+      debugPrint('CallBloc: ignoring incoming call — already in call '
+          '(status=${state.status})');
+      return;
+    }
+
     emit(state.copyWith(
       status: CallStatus.ringing,
       callId: event.callId,
@@ -176,6 +234,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     // Listen for call document changes
     _callDocSub = _signalingService.watchCall(event.callId).listen(
       (session) => add(CallEvent.callDocUpdated(session)),
+      onError: (e) => debugPrint('CallBloc: watchCall error: $e'),
     );
   }
 
@@ -191,15 +250,14 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     try {
       emit(state.copyWith(status: CallStatus.connecting));
 
-      // Validate answer via Cloud Function
+      debugPrint('CallBloc: [accept] step 1 — answerCall CF');
       await _callRepository.answerCall(callId);
 
-      // Get TURN credentials
+      debugPrint('CallBloc: [accept] step 2 — getTurnCredentials');
       final iceConfig = await _callRepository.getTurnCredentials();
 
-      // Create WebRTC service
+      debugPrint('CallBloc: [accept] step 3 — WebRTC initialize');
       _webRtcService = _webRtcServiceFactory.create();
-
       await _webRtcService!.initialize(
         isVideo: state.callType == CallType.video,
         iceServers: iceConfig,
@@ -209,37 +267,39 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         },
       );
 
-      // ── Process the caller's offer BEFORE setting up PerfectNegotiationHandler ──
-      //
-      // Why: initialize() adds tracks which queues onRenegotiationNeeded events.
-      // If we set up PerfectNegotiationHandler immediately, those events fire and
-      // the callee creates its own spurious offer — overwriting the caller's offer
-      // on Firestore. By processing the offer manually first, the PC reaches
-      // stable state before PerfectNegotiationHandler is installed. The queued
-      // onRenegotiationNeeded events fire during the awaits below while
-      // pc.onRenegotiationNeeded is still null, so they are harmlessly dropped.
+      debugPrint('CallBloc: [accept] step 4 — fetch offer');
       final currentSession = await _signalingService.getCall(callId);
+      debugPrint('CallBloc: [accept] offer present: '
+          '${currentSession?.offer != null}');
+
       if (currentSession?.offer != null) {
         final offerSdp = currentSession!.offer!['sdp'];
         final offerType = currentSession.offer!['type'];
         if (offerSdp != null && offerType != null) {
+          debugPrint('CallBloc: [accept] step 5 — setRemoteDescription');
           final pc = _webRtcService!.peerConnection!;
           await pc.setRemoteDescription(
             RTCSessionDescription(offerSdp, offerType),
           );
+          debugPrint('CallBloc: [accept] step 6 — createAnswer');
           final answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
           final localDesc = await pc.getLocalDescription();
           if (localDesc != null) {
+            debugPrint('CallBloc: [accept] step 7 — sendAnswer');
             await _signalingService.sendAnswer(callId, localDesc);
           }
-          _offerProcessed = true;
+          _lastProcessedOfferSdp = offerSdp;
+          debugPrint('CallBloc: [accept] SDP exchange complete');
         }
+      } else {
+        debugPrint('CallBloc: [accept] no offer yet — '
+            'will process via callDocUpdated when it arrives');
       }
 
-      // Set up Perfect Negotiation for future renegotiation (e.g. video upgrade).
-      // At this point the PC is stable (offer/answer exchanged above), so
-      // onRenegotiationNeeded won't fire spuriously.
+      // Set up Perfect Negotiation for future renegotiation (video upgrade,
+      // ICE restart). If the offer wasn't available yet, callDocUpdated will
+      // route it through this handler when it arrives.
       _negotiationHandler = PerfectNegotiationHandler(
         pc: _webRtcService!.peerConnection!,
         polite: true,
@@ -255,15 +315,38 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       // Listen for remote ICE candidates
       _iceCandidateSub = _signalingService
           .watchRemoteIceCandidates(callId, isCaller: false)
-          .listen((candidate) {
-        _negotiationHandler?.handleCandidate(candidate);
-      });
+          .listen(
+        (candidate) {
+          _negotiationHandler?.handleCandidate(candidate);
+        },
+        onError: (e) =>
+            debugPrint('CallBloc: watchRemoteIceCandidates error: $e'),
+      );
 
       // Listen for ICE connection state
       _iceStateSub = _webRtcService!.onIceConnectionState.listen(
         (iceState) => add(CallEvent.iceConnectionStateChanged(iceState)),
+        onError: (e) =>
+            debugPrint('CallBloc: onIceConnectionState error: $e'),
       );
-    } catch (e) {
+
+      debugPrint('CallBloc: [accept] setup complete — waiting for ICE');
+    } catch (e, stack) {
+      debugPrint('CallBloc: [accept] FAILED: $e');
+      debugPrint('CallBloc: [accept] stack: $stack');
+
+      // Clean up any partially-initialised resources (WebRTC, subscriptions,
+      // camera/mic) so they don't leak after the screen pops.
+      await _cleanup();
+
+      // Notify the server so the caller is informed immediately instead of
+      // waiting up to 60s for the stale-heartbeat scheduler.
+      try {
+        await _callRepository.endCall(callId, reason: 'error');
+      } catch (_) {
+        // Best effort — scheduler will clean up eventually
+      }
+
       emit(state.copyWith(
         status: CallStatus.failed,
         errorMessage: e.toString(),
@@ -408,16 +491,18 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     }
 
     // Handle SDP offer (callee receives this).
-    // Guard with _offerProcessed to avoid reprocessing on every doc update
-    // (Firestore snapshots include the full doc, not a diff).
+    // Compare against last processed SDP to avoid reprocessing on every doc
+    // update (Firestore snapshots include the full doc, not a diff), while
+    // still allowing NEW offers from ICE restart or video upgrade.
     if (session.offer != null &&
         !state.isCaller &&
-        _negotiationHandler != null &&
-        !_offerProcessed) {
+        _negotiationHandler != null) {
       final offerSdp = session.offer!['sdp'];
       final offerType = session.offer!['type'];
-      if (offerSdp != null && offerType != null) {
-        _offerProcessed = true;
+      if (offerSdp != null &&
+          offerType != null &&
+          offerSdp != _lastProcessedOfferSdp) {
+        _lastProcessedOfferSdp = offerSdp;
         await _negotiationHandler!.handleDescription(
           RTCSessionDescription(offerSdp, offerType),
         );
@@ -425,15 +510,16 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     }
 
     // Handle SDP answer (caller receives this).
-    // Guard with _answerProcessed to avoid reprocessing on every doc update.
+    // Same SDP-content dedup as above.
     if (session.answer != null &&
         state.isCaller &&
-        _negotiationHandler != null &&
-        !_answerProcessed) {
+        _negotiationHandler != null) {
       final answerSdp = session.answer!['sdp'];
       final answerType = session.answer!['type'];
-      if (answerSdp != null && answerType != null) {
-        _answerProcessed = true;
+      if (answerSdp != null &&
+          answerType != null &&
+          answerSdp != _lastProcessedAnswerSdp) {
+        _lastProcessedAnswerSdp = answerSdp;
         await _negotiationHandler!.handleDescription(
           RTCSessionDescription(answerSdp, answerType),
         );
@@ -594,8 +680,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     _webRtcService = null;
 
     _iceRestartAttempts = 0;
-    _offerProcessed = false;
-    _answerProcessed = false;
+    _lastProcessedOfferSdp = null;
+    _lastProcessedAnswerSdp = null;
   }
 
   @override

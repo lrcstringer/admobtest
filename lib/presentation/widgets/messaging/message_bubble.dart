@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,8 +13,11 @@ import '../../../data/datasources/remote/media_upload_datasource.dart';
 import '../../../domain/entities/message.dart';
 import '../../../domain/enums/message_status.dart';
 import '../../../domain/enums/message_type.dart';
+import '../../blocs/gift/gift_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../gift/gift_bubble.dart';
+import '../spray/spray_bubble.dart';
 import 'video_message_player.dart';
 import 'voice_player_widget.dart';
 
@@ -70,6 +74,8 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     if (message.deletedForEveryone) return _buildDeletedMessage(context);
     if (message.isSystem) return _buildSystemMessage(context);
+    if (message.isGift) return _buildGiftBubble(context);
+    if (message.isSpray) return _buildSprayBubble(context);
     if (message.isTokenTransfer) return _buildTokenCard(context);
 
     final bubbleColor =
@@ -538,6 +544,89 @@ class MessageBubble extends StatelessWidget {
                   ),
                 ))
             .toList(),
+      ),
+    );
+  }
+
+  Widget _buildGiftBubble(BuildContext context) {
+    final gift = message.gift!;
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: GestureDetector(
+        onLongPress: onLongPress,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!isMe) ...[
+                _buildSquareAvatar(),
+                const SizedBox(width: 4),
+              ],
+              GiftBubble(
+                giftId: gift.giftId,
+                amount: gift.amount,
+                message: gift.message,
+                style: gift.style,
+                status: gift.status,
+                recipientId: gift.recipientId,
+                recipientName: gift.recipientName,
+                isMe: isMe,
+                currentUserId: currentUserId,
+                onOpen: () => context
+                    .read<GiftBloc>()
+                    .add(GiftEvent.openGift(gift.giftId)),
+                onClaim: () => context
+                    .read<GiftBloc>()
+                    .add(GiftEvent.claimGift(gift.giftId)),
+              ),
+              if (isMe) ...[
+                const SizedBox(width: 4),
+                _buildSquareAvatar(),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSprayBubble(BuildContext context) {
+    final spray = message.tokenSpray!;
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: GestureDetector(
+        onLongPress: onLongPress,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!isMe) ...[
+                _buildSquareAvatar(),
+                const SizedBox(width: 4),
+              ],
+              SprayBubble(
+                sprayId: spray.sprayId,
+                recipientName: spray.recipientName,
+                occasion: spray.occasion,
+                currentTotal: spray.currentTotal,
+                contributorCount: spray.contributorCount,
+                targetAmount: spray.targetAmount,
+                status: spray.status,
+                expiresAt: spray.expiresAt,
+                currentUserId: currentUserId,
+                recipientId: spray.recipientId,
+              ),
+              if (isMe) ...[
+                const SizedBox(width: 4),
+                _buildSquareAvatar(),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

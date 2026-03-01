@@ -61,7 +61,7 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IMaliAppBar(title: 'Send Gift to ${widget.recipientName}'),
+      appBar: IMaliAppBar(title: 'Sasaza ${widget.recipientName}'),
       body: WaveBackground(
         child: BlocConsumer<GiftBloc, GiftState>(
         listener: (context, state) {
@@ -169,7 +169,7 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.card_giftcard),
-                    label: Text(state.isSending ? 'Sending...' : 'Send Gift'),
+                    label: Text(state.isSending ? 'Sending...' : 'Sasaza!'),
                   ),
                 ),
               ],

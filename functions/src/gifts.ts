@@ -17,7 +17,6 @@ import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
   processP2PTransfer,
-  getDefaultSubAccount,
   validateMainWalletBalance,
 } from "./ledger";
 
@@ -92,11 +91,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
     getUserProfile(recipientId),
   ]);
 
-  // Validate sender balance
-  const senderSubAccount = await getDefaultSubAccount(userId);
-  if (!senderSubAccount) {
-    throw new HttpsError("failed-precondition", "Sender has no wallet");
-  }
+  // Validate sender balance (main ledger account IS the default wallet)
   await validateMainWalletBalance(userId, amount);
 
   // Generate IDs
@@ -109,13 +104,14 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
   const msgRef = db.collection(collection).doc(parentId!).collection("messages").doc();
 
   // Process debit via ledger (P2P to system — tokens held until claim)
+  // No senderSubAccountId — processP2PTransfer validates against main wallet balance
   const idempotencyKey = `gift:send:${giftId}`;
   const transferResult = await processP2PTransfer(
     userId,
     recipientId,
     amount,
     `Gift to ${recipient.displayName || recipientId}`,
-    senderSubAccount.id,
+    undefined, // main wallet — no sub-account needed
     undefined, // recipientSubAccountId — uses default
     idempotencyKey,
   );

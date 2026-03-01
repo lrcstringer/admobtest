@@ -17,7 +17,6 @@ import * as admin from "firebase-admin";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
   processP2PTransfer,
-  getDefaultSubAccount,
   validateMainWalletBalance,
 } from "./ledger";
 
@@ -276,11 +275,7 @@ export const contributeToSpray = onCall({ labels: { area: "gifts" } }, async (re
   // Verify community membership
   await requireCommunityMember(spray.communityId, userId);
 
-  // Validate contributor balance
-  const contributorSubAccount = await getDefaultSubAccount(userId);
-  if (!contributorSubAccount) {
-    throw new HttpsError("failed-precondition", "You have no wallet");
-  }
+  // Validate contributor balance (main ledger account IS the default wallet)
   await validateMainWalletBalance(userId, amount);
 
   // Get contributor info
@@ -293,7 +288,7 @@ export const contributeToSpray = onCall({ labels: { area: "gifts" } }, async (re
     spray.recipientId,
     amount,
     `Token spray contribution for ${spray.recipientName}`,
-    contributorSubAccount.id,
+    undefined, // main wallet — no sub-account needed
     undefined,
     idempotencyKey,
   );

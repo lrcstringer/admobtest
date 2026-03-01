@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,6 +30,8 @@ class _VoiceCallScreenState extends State<VoiceCallScreen> {
   RTCVideoRenderer? _localRenderer;
   RTCVideoRenderer? _remoteRenderer;
   bool _renderersReady = false;
+  StreamSubscription? _localStreamSub;
+  StreamSubscription? _remoteStreamSub;
 
   @override
   void initState() {
@@ -41,12 +45,38 @@ class _VoiceCallScreenState extends State<VoiceCallScreen> {
     _remoteRenderer = RTCVideoRenderer();
     await _localRenderer!.initialize();
     await _remoteRenderer!.initialize();
-    if (mounted) setState(() => _renderersReady = true);
+    if (!mounted) return;
+    setState(() => _renderersReady = true);
+
+    // Try connecting immediately (may be null if accept flow is still running)
+    _connectToStreams();
+  }
+
+  /// Connect renderers to WebRTC media streams.
+  /// Called from [_initRenderers] and from listener when webRtcService is ready.
+  void _connectToStreams() {
+    if (_localStreamSub != null) return; // Already connected
+    final webRtc = context.read<CallBloc>().webRtcService;
+    if (webRtc == null) return;
+
+    if (webRtc.localStream != null) {
+      _localRenderer!.srcObject = webRtc.localStream;
+    }
+    _localStreamSub = webRtc.onLocalStream.listen((stream) {
+      if (mounted) setState(() => _localRenderer?.srcObject = stream);
+    });
+    _remoteStreamSub = webRtc.onRemoteStream.listen((stream) {
+      if (mounted) setState(() => _remoteRenderer?.srcObject = stream);
+    });
   }
 
   @override
   void dispose() {
     WakelockPlus.disable();
+    _localStreamSub?.cancel();
+    _remoteStreamSub?.cancel();
+    _localRenderer?.srcObject = null;
+    _remoteRenderer?.srcObject = null;
     _localRenderer?.dispose();
     _remoteRenderer?.dispose();
     super.dispose();

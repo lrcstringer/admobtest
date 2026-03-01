@@ -104,6 +104,14 @@ class PerfectNegotiationHandler {
     }
   }
 
+  /// Explicitly trigger renegotiation (create and send an offer).
+  ///
+  /// Must be called on the CALLER side after construction, because
+  /// `onRenegotiationNeeded` from `addTrack()` fires during
+  /// `WebRtcService.initialize()` when `pc.onRenegotiationNeeded` is still
+  /// null — so the event is silently dropped. This method compensates.
+  Future<void> negotiate() => _onNegotiationNeeded();
+
   /// Dispose — remove the onRenegotiationNeeded handler.
   void dispose() {
     pc.onRenegotiationNeeded = null;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +10,7 @@ import '../../../core/error/failures.dart';
 import '../../../core/services/audio_playback_service.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../../domain/entities/message.dart';
+import '../../../domain/enums/call_status.dart';
 import '../../../domain/enums/call_type.dart';
 import '../../../domain/enums/conversation_type.dart';
 import '../../../domain/enums/report_reason.dart';
@@ -18,6 +21,7 @@ import '../../blocs/call/call_bloc.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
 import '../../blocs/conversation_actions/conversation_actions_bloc.dart';
+import '../../blocs/gift/gift_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/messaging/chat_background.dart';
@@ -85,21 +89,54 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   Widget build(BuildContext context) {
     final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
 
-    return BlocListener<ConversationActionsBloc, ConversationActionsState>(
-      listenWhen: (prev, curr) =>
-          curr.errorMessage != null &&
-          prev.errorMessage != curr.errorMessage,
-      listener: (context, actionsState) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(actionsState.errorMessage!),
-            backgroundColor: AppColors.error,
-          ),
-        );
-        context.read<ConversationActionsBloc>().add(
-              const ConversationActionsEvent.clearError(),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<ConversationActionsBloc, ConversationActionsState>(
+          listenWhen: (prev, curr) =>
+              curr.errorMessage != null &&
+              prev.errorMessage != curr.errorMessage,
+          listener: (context, actionsState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(actionsState.errorMessage!),
+                backgroundColor: AppColors.error,
+              ),
             );
-      },
+            context.read<ConversationActionsBloc>().add(
+                  const ConversationActionsEvent.clearError(),
+                );
+          },
+        ),
+        BlocListener<GiftBloc, GiftState>(
+          listenWhen: (prev, curr) =>
+              prev.isLoading != curr.isLoading ||
+              prev.isClaiming != curr.isClaiming ||
+              (curr.errorMessage != null &&
+                  prev.errorMessage != curr.errorMessage),
+          listener: (context, giftState) {
+            if (giftState.errorMessage != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(giftState.errorMessage!),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+              context.read<GiftBloc>().add(const GiftEvent.clearError());
+            } else if (!giftState.isLoading &&
+                !giftState.isClaiming &&
+                giftState.activeGift != null) {
+              final status = giftState.activeGift!.status.displayName;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Gift $status!'),
+                  backgroundColor: AppColors.success,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            }
+          },
+        ),
+      ],
       child: BlocBuilder<ConversationBloc, ConversationState>(
       builder: (context, state) {
         final conv = state.selectedConversation;
@@ -142,21 +179,6 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                   )
                 : const Text('Chat'),
             actions: [
-              // Call buttons (P2P only)
-              if (conv != null && conv.type == ConversationType.p2p) ...[
-                IconButton(
-                  icon: const Icon(Icons.call_outlined),
-                  tooltip: 'Voice call',
-                  onPressed: () => _initiateCall(
-                      context, conv, currentUserId, CallType.voice),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.videocam_outlined),
-                  tooltip: 'Video call',
-                  onPressed: () => _initiateCall(
-                      context, conv, currentUserId, CallType.video),
-                ),
-              ],
               IconButton(
                 icon: const Icon(Icons.search),
                 onPressed: () {
@@ -219,15 +241,15 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                       controller: _messageController,
                       isSending: state.isSending,
                       onSend: () => _sendMessage(context),
-                      onAttachment: conv != null &&
+                      onMediaAttachment: conv != null &&
                               conv.isMessageRequestFor(currentUserId)
                           ? null
                           : () => _showMediaPicker(
                               context, state, currentUserId),
-                      onTokenAction: conv != null &&
+                      onAttachment: conv != null &&
                               conv.isMessageRequestFor(currentUserId)
                           ? null
-                          : () => _showTokenActions(
+                          : () => _showActionPicker(
                               context, state, currentUserId),
                       onTypingChanged: (isTyping) {
                         context.read<ConversationBloc>().add(
@@ -481,10 +503,46 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           ),
         ));
       },
-      onVoiceRequested: () =>
+    );
+  }
+
+  void _showActionPicker(
+    BuildContext context,
+    ConversationState state,
+    String currentUserId,
+  ) {
+    final recipientId = state.getRecipientId(currentUserId);
+    if (recipientId == null || recipientId.isEmpty) return;
+
+    final conv = state.selectedConversation;
+    final isP2P = conv != null &&
+        conv.type == ConversationType.p2p;
+
+    showActionPicker(
+      context,
+      onVoiceNoteRequested: () =>
           _openVoiceRecorder(context, state, currentUserId),
-      onVideoRequested: () =>
+      onVideoNoteRequested: () =>
           _openVideoRecorder(context, state, currentUserId),
+      onVoiceCallRequested: isP2P
+          ? () => _initiateCall(context, conv, currentUserId, CallType.voice)
+          : null,
+      onVideoCallRequested: isP2P
+          ? () => _initiateCall(context, conv, currentUserId, CallType.video)
+          : null,
+      onGiftRequested: () {
+        final recipientName =
+            state.selectedConversation?.displayNameFor(currentUserId) ?? '';
+        context.push(
+          '/chat/conversation/${widget.conversationId}/send-gift',
+          extra: {
+            'recipientId': recipientId,
+            'recipientName': recipientName,
+          },
+        );
+      },
+      onTokenAction: () =>
+          _showTokenActions(context, state, currentUserId),
     );
   }
 
@@ -739,23 +797,48 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     String currentUserId,
     CallType callType,
   ) {
-    final recipientId = conv.otherParticipantId(currentUserId);
-    final recipientInfo = conv.getOtherParticipant(currentUserId);
+    try {
+      final recipientId = conv.otherParticipantId(currentUserId);
+      final recipientInfo = conv.getOtherParticipant(currentUserId);
 
-    // Dispatch call initiation event
-    context.read<CallBloc>().add(CallEvent.initiateCall(
-          conversationId: widget.conversationId,
-          recipientId: recipientId,
-          recipientName: recipientInfo.displayName,
-          recipientAvatarUrl: recipientInfo.avatarUrl,
-          callType: callType,
-        ));
+      final callBloc = context.read<CallBloc>();
+      final router = GoRouter.of(context);
+      final conversationId = widget.conversationId;
 
-    // Navigate to call screen
-    context.push(
-      '/chat/conversation/${widget.conversationId}/call/outgoing',
-      extra: {'isVideo': callType == CallType.video},
-    );
+      debugPrint('_initiateCall: recipientId=$recipientId, '
+          'callType=$callType, conversationId=$conversationId');
+
+      // Listen once for the callId to be set on state, then navigate with it
+      late final StreamSubscription<CallState> sub;
+      sub = callBloc.stream.listen((state) {
+        if (state.callId != null) {
+          sub.cancel();
+          if (mounted) {
+            router.push(
+              '/chat/conversation/$conversationId/call/${state.callId}',
+              extra: {'isVideo': callType == CallType.video},
+            );
+          }
+        } else if (state.status == CallStatus.failed) {
+          sub.cancel();
+          debugPrint('_initiateCall: FAILED — '
+              '${state.errorMessage ?? 'unknown error'}');
+        } else if (state.status == CallStatus.idle) {
+          sub.cancel();
+        }
+      });
+
+      // Dispatch call initiation event
+      callBloc.add(CallEvent.initiateCall(
+            conversationId: widget.conversationId,
+            recipientId: recipientId,
+            recipientName: recipientInfo.displayName,
+            recipientAvatarUrl: recipientInfo.avatarUrl,
+            callType: callType,
+          ));
+    } catch (e) {
+      debugPrint('_initiateCall: ERROR: $e');
+    }
   }
 
   void _showChatOptions(BuildContext context, Conversation? conv) {
@@ -1156,23 +1239,6 @@ class _TokenActionsSheetState extends State<_TokenActionsSheet> {
                 ),
               ],
             ),
-            AppSpacing.verticalSm,
-            Center(
-              child: TextButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  context.push(
-                    '/chat/conversation/${widget.conversationId}/send-gift',
-                    extra: {
-                      'recipientId': widget.recipientId,
-                      'recipientName': widget.recipientName,
-                    },
-                  );
-                },
-                icon: const Icon(Icons.card_giftcard),
-                label: const Text('Send a Gift instead'),
-              ),
-            ),
             AppSpacing.verticalLg,
             TextField(
               controller: _amountController,
@@ -1206,7 +1272,7 @@ class _TokenActionsSheetState extends State<_TokenActionsSheet> {
                       _isSending ? AppColors.success : AppColors.accent,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: Text(_isSending ? 'Send Tokens' : 'Request Tokens'),
+                child: Text(_isSending ? 'Send Instant Tokens' : 'Request Instant Tokens'),
               ),
             ),
             AppSpacing.verticalMd,

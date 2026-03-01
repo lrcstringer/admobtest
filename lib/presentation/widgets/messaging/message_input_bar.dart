@@ -13,7 +13,7 @@ class MessageInputBar extends StatefulWidget {
   final bool isSending;
   final VoidCallback onSend;
   final VoidCallback? onAttachment;
-  final VoidCallback? onTokenAction;
+  final VoidCallback? onMediaAttachment;
 
   /// Called when typing state changes (for typing indicators).
   final ValueChanged<bool>? onTypingChanged;
@@ -24,7 +24,7 @@ class MessageInputBar extends StatefulWidget {
     required this.isSending,
     required this.onSend,
     this.onAttachment,
-    this.onTokenAction,
+    this.onMediaAttachment,
     this.onTypingChanged,
   });
 
@@ -143,11 +143,11 @@ class _MessageInputBarState extends State<MessageInputBar> {
                 color: AppColors.textSecondary,
                 onPressed: _toggleEmojiPicker,
               ),
-              if (widget.onTokenAction != null)
+              if (widget.onMediaAttachment != null)
                 IconButton(
-                  icon: const Icon(Icons.attach_money),
-                  color: AppColors.primary,
-                  onPressed: widget.onTokenAction,
+                  icon: const Icon(Icons.attach_file),
+                  color: AppColors.textSecondary,
+                  onPressed: widget.onMediaAttachment,
                 ),
               Expanded(
                 child: TextField(

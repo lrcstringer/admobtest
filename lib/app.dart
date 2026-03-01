@@ -24,6 +24,7 @@ import 'presentation/blocs/conversation_actions/conversation_actions_bloc.dart';
 import 'presentation/blocs/user_search/user_search_bloc.dart';
 import 'presentation/blocs/earn/earn_bloc.dart';
 import 'presentation/blocs/earn_inbox/earn_inbox_bloc.dart';
+import 'presentation/blocs/gift/gift_bloc.dart';
 import 'presentation/blocs/pot/pot_bloc.dart';
 import 'presentation/blocs/purchase/purchase_bloc.dart';
 import 'presentation/blocs/referral/referral_bloc.dart';
@@ -59,6 +60,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   late final RewardBloc _rewardBloc;
   late final EarnInboxBloc _earnInboxBloc;
   late final CallBloc _callBloc;
+  late final GiftBloc _giftBloc;
   late final AppRouter _appRouter;
   late final SessionLockService _sessionLockService;
   late final SimChangeDetector _simChangeDetector;
@@ -88,6 +90,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _rewardBloc = getIt<RewardBloc>();
     _earnInboxBloc = getIt<EarnInboxBloc>();
     _callBloc = getIt<CallBloc>();
+    _giftBloc = getIt<GiftBloc>();
     _sessionLockService = GetIt.instance<SessionLockService>();
     _simChangeDetector = GetIt.instance<SimChangeDetector>();
     _challengeHandler = GetIt.instance<FcmChallengeHandler>();
@@ -271,6 +274,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
         BlocProvider<RewardBloc>.value(value: _rewardBloc),
         BlocProvider<EarnInboxBloc>.value(value: _earnInboxBloc),
         BlocProvider<CallBloc>.value(value: _callBloc),
+        BlocProvider<GiftBloc>.value(value: _giftBloc),
       ],
       child: MaterialApp.router(
         title: 'iMali',
