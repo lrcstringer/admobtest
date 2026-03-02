@@ -225,6 +225,21 @@ class CommunityRepositoryImpl implements CommunityRepository {
 
     try {
       await _remoteDataSource.acceptInvitation(communityId);
+
+      // Seed the community into local DB so it appears immediately in the list
+      try {
+        final communityModel =
+            await _remoteDataSource.getCommunity(communityId);
+        if (communityModel != null) {
+          await _appDatabase.upsertLocalCommunity(
+            LocalCommunityMapper.toCompanion(communityModel.toEntity()),
+          );
+        }
+      } catch (e) {
+        debugPrint(
+            'WARNING: Failed to seed community after accept: $e');
+      }
+
       // Update local member status to active
       final userId = _currentUserId;
       if (userId != null) {
