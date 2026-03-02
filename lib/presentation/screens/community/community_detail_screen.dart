@@ -16,8 +16,12 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/common/wave_background.dart';
 import '../../widgets/messaging/date_separator.dart';
 import '../../widgets/messaging/message_bubble.dart';
+import '../../widgets/messaging/media_compose_screen.dart';
+import '../../widgets/messaging/media_picker_widget.dart';
 import '../../widgets/messaging/message_input_bar.dart';
 import '../../widgets/messaging/reaction_picker.dart';
+import '../../widgets/messaging/video_message_recorder.dart';
+import '../../widgets/messaging/voice_recorder_widget.dart';
 
 /// Community detail screen with 3 tabs: Chat, Members, Finances.
 ///
@@ -201,7 +205,8 @@ class _ChatTab extends StatelessWidget {
               controller: messageController,
               isSending: state.isSending,
               onSend: () => _send(context),
-              onAttachment: () => _showCommunityActions(context),
+              onMediaAttachment: () => _showMediaPicker(context),
+              onAttachment: () => _showActionPicker(context),
             ),
           ],
         );
@@ -295,104 +300,99 @@ class _ChatTab extends StatelessWidget {
     }
   }
 
-  void _showCommunityActions(BuildContext context) {
-    showModalBottomSheet(
+  void _showMediaPicker(BuildContext context) {
+    showMediaPicker(
+      context,
+      onMediaSelected: (result) {
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            fullscreenDialog: true,
+            builder: (_) => MediaComposeScreen(
+              mediaFile: result.file,
+              mediaType: result.mediaType,
+              onSend: (caption) {
+                context.read<CommunityMessagingBloc>().add(
+                      CommunityMessagingEvent.sendMediaMessage(
+                        mediaFile: result.file,
+                        mediaType: result.mediaType,
+                        caption: caption,
+                      ),
+                    );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showActionPicker(BuildContext context) {
+    showActionPicker(
+      context,
+      onVoiceNoteRequested: () => _openVoiceRecorder(context),
+      onVideoNoteRequested: () => _openVideoRecorder(context),
+      onGroupGiftRequested: () {
+        context.push(
+          '/chat/create-pool',
+          extra: {'communityId': communityId},
+        );
+      },
+    );
+  }
+
+  void _openVoiceRecorder(BuildContext context) {
+    showGeneralDialog(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.textHint,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.card_giftcard),
-              title: const Text('Send Gift'),
-              subtitle: const Text('Send a wrapped gift to a member'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _showGiftMemberPicker(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.celebration),
-              title: const Text('Start Token Spray'),
-              subtitle: const Text('Celebrate a member together'),
-              onTap: () {
-                Navigator.pop(ctx);
-                context.push('/chat/community/$communityId/create-spray');
-              },
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
+      barrierDismissible: false,
+      barrierColor: Colors.black,
+      pageBuilder: (ctx, _, __) => VoiceRecorderWidget(
+        onRecordingComplete: (result) {
+          Navigator.of(ctx).pop();
+          context.read<CommunityMessagingBloc>().add(
+                CommunityMessagingEvent.sendMediaMessage(
+                  mediaFile: result.file,
+                  mediaType: 'audio/m4a',
+                  durationSeconds: result.durationSeconds,
+                ),
+              );
+        },
+        onCancel: () => Navigator.of(ctx).pop(),
       ),
     );
   }
 
-  void _showGiftMemberPicker(BuildContext context) {
-    showModalBottomSheet(
+  void _openVideoRecorder(BuildContext context) {
+    showGeneralDialog(
       context: context,
-      isScrollControlled: true,
-      builder: (ctx) => BlocBuilder<CommunityBloc, CommunityState>(
-        builder: (blocContext, communityState) {
-          final members = communityState.selectedCommunityMembers
-              .where((m) => m.isActive && m.userId != currentUserId)
-              .toList();
-
-          return SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.textHint,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    'Send Gift To',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+      barrierDismissible: false,
+      barrierColor: Colors.black,
+      pageBuilder: (ctx, _, __) => VideoMessageRecorder(
+        onRecordingComplete: (result) {
+          Navigator.of(ctx).pop();
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              fullscreenDialog: true,
+              builder: (_) => MediaComposeScreen(
+                mediaFile: result.videoFile,
+                mediaType: 'video/mp4',
+                thumbnailFile: result.thumbnailFile,
+                durationSeconds: result.durationSeconds,
+                onSend: (caption) {
+                  context.read<CommunityMessagingBloc>().add(
+                        CommunityMessagingEvent.sendMediaMessage(
+                          mediaFile: result.videoFile,
+                          mediaType: 'video/mp4',
+                          durationSeconds: result.durationSeconds,
+                          thumbnailFile: result.thumbnailFile,
+                          caption: caption,
                         ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                if (members.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text('No other members available'),
-                  )
-                else
-                  ...members.map((member) => ListTile(
-                        title: Text(member.displayName),
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          context.push(
-                            '/chat/community/$communityId/send-gift',
-                            extra: {
-                              'recipientId': member.userId,
-                              'recipientName': member.displayName,
-                            },
-                          );
-                        },
-                      )),
-                const SizedBox(height: 8),
-              ],
+                      );
+                },
+              ),
             ),
           );
         },
+        onCancel: () => Navigator.of(ctx).pop(),
       ),
     );
   }

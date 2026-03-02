@@ -674,6 +674,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i483.AppDatabase>(),
         gh<_i340.OfflineActionQueue>(),
         gh<_i111.OutgoingMessageQueue>(),
+        gh<_i654.MediaUploadDatasource>(),
       ),
     );
     gh.factory<_i856.CommunityBloc>(

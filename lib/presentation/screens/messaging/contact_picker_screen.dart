@@ -12,8 +12,23 @@ import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
 /// Screen for searching and selecting a user to start a new P2P conversation.
+///
+/// When [returnContact] is true, tapping a user pops with
+/// `{'id': userId, 'name': displayName}` instead of navigating to a
+/// conversation. When [multiSelect] is true, users are accumulated into a
+/// list and a "Done" button pops with `List<Map<String, String>>`.
 class ContactPickerScreen extends StatefulWidget {
-  const ContactPickerScreen({super.key});
+  /// If true, pop with contact data instead of creating a conversation.
+  final bool returnContact;
+
+  /// If true (implies [returnContact]), allow selecting multiple contacts.
+  final bool multiSelect;
+
+  const ContactPickerScreen({
+    super.key,
+    this.returnContact = false,
+    this.multiSelect = false,
+  });
 
   @override
   State<ContactPickerScreen> createState() => _ContactPickerScreenState();
@@ -23,6 +38,9 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
   final _searchController = TextEditingController();
   Timer? _debounce;
   bool _awaitingConversation = false;
+
+  /// Selected contacts for multi-select mode.
+  final List<Map<String, String>> _selected = [];
 
   @override
   void dispose() {
@@ -44,7 +62,27 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
     });
   }
 
-  void _onUserSelected(String userId) {
+  void _onUserSelected(String userId, String displayName) {
+    // Single-select return mode: pop immediately with contact data
+    if (widget.returnContact && !widget.multiSelect) {
+      context.pop<Map<String, String>>({'id': userId, 'name': displayName});
+      return;
+    }
+
+    // Multi-select mode: toggle selection
+    if (widget.multiSelect) {
+      setState(() {
+        final idx = _selected.indexWhere((c) => c['id'] == userId);
+        if (idx >= 0) {
+          _selected.removeAt(idx);
+        } else {
+          _selected.add({'id': userId, 'name': displayName});
+        }
+      });
+      return;
+    }
+
+    // Default: create/navigate to conversation
     _awaitingConversation = true;
     context
         .read<ConversationBloc>()
@@ -53,8 +91,33 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final title = widget.multiSelect
+        ? 'Select Contacts${_selected.isNotEmpty ? ' (${_selected.length})' : ''}'
+        : widget.returnContact
+            ? 'Select Contact'
+            : 'New Chat';
+
     return Scaffold(
-      appBar: const IMaliAppBar(title: 'New Chat'),
+      appBar: IMaliAppBar(
+        title: title,
+        extraActions: [
+          if (widget.multiSelect)
+            TextButton(
+              onPressed: _selected.isEmpty
+                  ? null
+                  : () => context.pop<List<Map<String, String>>>(_selected),
+              child: Text(
+                'Done',
+                style: TextStyle(
+                  color: _selected.isEmpty
+                      ? AppColors.textHint
+                      : AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
+      ),
       body: WaveBackground(
         child: Column(
         children: [
@@ -176,7 +239,13 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                                   ?.copyWith(color: AppColors.textSecondary),
                             )
                           : null,
-                      onTap: () => _onUserSelected(user.userId),
+                      trailing: widget.multiSelect &&
+                              _selected.any((c) => c['id'] == user.userId)
+                          ? const Icon(Icons.check_circle,
+                              color: AppColors.primary)
+                          : null,
+                      onTap: () =>
+                          _onUserSelected(user.userId, user.displayName),
                     );
                   },
                 );

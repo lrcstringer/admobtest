@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -117,9 +118,11 @@ class CommunityMessagingBloc
 
     final result = await _communityRepository.sendMediaMessage(
       communityId: state.communityId,
-      mediaUrl: event.mediaUrl,
+      mediaFile: event.mediaFile,
       mediaType: event.mediaType,
       caption: event.caption,
+      durationSeconds: event.durationSeconds,
+      thumbnailFile: event.thumbnailFile,
     );
 
     result.fold(

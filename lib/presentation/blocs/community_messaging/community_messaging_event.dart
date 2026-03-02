@@ -21,11 +21,13 @@ class CommunityMessagingEvent with _$CommunityMessagingEvent {
     String? replyToMessageId,
   }) = _SendTextMessage;
 
-  /// Send a media message (image or voice)
+  /// Send a media message (image, voice, video, or document)
   const factory CommunityMessagingEvent.sendMediaMessage({
-    required String mediaUrl,
+    required File mediaFile,
     required String mediaType,
     String? caption,
+    int? durationSeconds,
+    File? thumbnailFile,
   }) = _SendMediaMessage;
 
   /// Add a reaction to a message

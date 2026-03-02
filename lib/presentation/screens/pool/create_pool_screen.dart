@@ -13,11 +13,13 @@ import '../../widgets/gift/gift_style_picker.dart';
 class CreatePoolScreen extends StatefulWidget {
   final String? recipientId;
   final String? recipientName;
+  final String? communityId;
 
   const CreatePoolScreen({
     super.key,
     this.recipientId,
     this.recipientName,
+    this.communityId,
   });
 
   @override
@@ -76,6 +78,7 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
           style: _style,
           recipientId: _mode == PoolMode.sasaza ? _recipientId : null,
           inviteeIds: _invitees.map((i) => i['id']!).toList(),
+          communityId: widget.communityId,
         ));
   }
 

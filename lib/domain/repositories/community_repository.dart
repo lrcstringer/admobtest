@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import '../../core/error/failures.dart';
 import '../entities/community.dart';
@@ -171,12 +173,17 @@ abstract class CommunityRepository {
     String? replyToMessageId,
   });
 
-  /// Send a media message to a community (image or voice)
+  /// Send a media message to a community (image, voice, video, or document).
+  ///
+  /// The repository handles encrypted upload via [MediaUploadDatasource]
+  /// before enqueueing the message for SenderKey encryption.
   Future<Either<Failure, Message>> sendMediaMessage({
     required String communityId,
-    required String mediaUrl,
+    required File mediaFile,
     required String mediaType,
     String? caption,
+    int? durationSeconds,
+    File? thumbnailFile,
   });
 
   // =========================================================================

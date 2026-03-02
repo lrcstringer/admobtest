@@ -94,10 +94,8 @@ class GiftStylePicker extends StatelessWidget {
                           end: Alignment.bottomRight,
                           colors: isSelected
                               ? colors.gradient
-                                  .map((c) => c.withValues(alpha: 0.3))
-                                  .toList()
                               : colors.gradient
-                                  .map((c) => c.withValues(alpha: 0.1))
+                                  .map((c) => c.withValues(alpha: 0.55))
                                   .toList(),
                         ),
                       ),
@@ -110,7 +108,7 @@ class GiftStylePicker extends StatelessWidget {
                       child: CustomPaint(
                         painter: giftStylePainter(
                           style,
-                          opacity: isSelected ? 0.7 : 0.35,
+                          opacity: isSelected ? 0.85 : 0.5,
                         ),
                       ),
                     ),
@@ -123,7 +121,7 @@ class GiftStylePicker extends StatelessWidget {
                       child: Icon(
                         accentIcons[0],
                         color: colors.accent1
-                            .withValues(alpha: isSelected ? 0.6 : 0.25),
+                            .withValues(alpha: isSelected ? 0.85 : 0.5),
                         size: 12,
                       ),
                     ),
@@ -134,7 +132,7 @@ class GiftStylePicker extends StatelessWidget {
                         child: Icon(
                           accentIcons[1],
                           color: colors.accent2
-                              .withValues(alpha: isSelected ? 0.5 : 0.2),
+                              .withValues(alpha: isSelected ? 0.75 : 0.45),
                           size: 10,
                         ),
                       ),

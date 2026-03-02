@@ -26,6 +26,7 @@ mixin _$TokenPoolEvent {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -51,6 +52,7 @@ mixin _$TokenPoolEvent {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -75,6 +77,7 @@ mixin _$TokenPoolEvent {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
@@ -175,6 +178,7 @@ abstract class _$$CreatePoolImplCopyWith<$Res> {
     GiftStyle style,
     String? recipientId,
     List<String> inviteeIds,
+    String? communityId,
   });
 }
 
@@ -198,6 +202,7 @@ class __$$CreatePoolImplCopyWithImpl<$Res>
     Object? style = null,
     Object? recipientId = freezed,
     Object? inviteeIds = null,
+    Object? communityId = freezed,
   }) {
     return _then(
       _$CreatePoolImpl(
@@ -225,6 +230,10 @@ class __$$CreatePoolImplCopyWithImpl<$Res>
             ? _value._inviteeIds
             : inviteeIds // ignore: cast_nullable_to_non_nullable
                   as List<String>,
+        communityId: freezed == communityId
+            ? _value.communityId
+            : communityId // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -240,6 +249,7 @@ class _$CreatePoolImpl implements _CreatePool {
     required this.style,
     this.recipientId,
     required final List<String> inviteeIds,
+    this.communityId,
   }) : _inviteeIds = inviteeIds;
 
   @override
@@ -261,8 +271,11 @@ class _$CreatePoolImpl implements _CreatePool {
   }
 
   @override
+  final String? communityId;
+
+  @override
   String toString() {
-    return 'TokenPoolEvent.createPool(mode: $mode, title: $title, message: $message, style: $style, recipientId: $recipientId, inviteeIds: $inviteeIds)';
+    return 'TokenPoolEvent.createPool(mode: $mode, title: $title, message: $message, style: $style, recipientId: $recipientId, inviteeIds: $inviteeIds, communityId: $communityId)';
   }
 
   @override
@@ -279,7 +292,9 @@ class _$CreatePoolImpl implements _CreatePool {
             const DeepCollectionEquality().equals(
               other._inviteeIds,
               _inviteeIds,
-            ));
+            ) &&
+            (identical(other.communityId, communityId) ||
+                other.communityId == communityId));
   }
 
   @override
@@ -291,6 +306,7 @@ class _$CreatePoolImpl implements _CreatePool {
     style,
     recipientId,
     const DeepCollectionEquality().hash(_inviteeIds),
+    communityId,
   );
 
   /// Create a copy of TokenPoolEvent
@@ -311,6 +327,7 @@ class _$CreatePoolImpl implements _CreatePool {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -327,7 +344,15 @@ class _$CreatePoolImpl implements _CreatePool {
     required TResult Function() clearError,
     required TResult Function() reset,
   }) {
-    return createPool(mode, title, message, style, recipientId, inviteeIds);
+    return createPool(
+      mode,
+      title,
+      message,
+      style,
+      recipientId,
+      inviteeIds,
+      communityId,
+    );
   }
 
   @override
@@ -340,6 +365,7 @@ class _$CreatePoolImpl implements _CreatePool {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -362,6 +388,7 @@ class _$CreatePoolImpl implements _CreatePool {
       style,
       recipientId,
       inviteeIds,
+      communityId,
     );
   }
 
@@ -375,6 +402,7 @@ class _$CreatePoolImpl implements _CreatePool {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
@@ -392,7 +420,15 @@ class _$CreatePoolImpl implements _CreatePool {
     required TResult orElse(),
   }) {
     if (createPool != null) {
-      return createPool(mode, title, message, style, recipientId, inviteeIds);
+      return createPool(
+        mode,
+        title,
+        message,
+        style,
+        recipientId,
+        inviteeIds,
+        communityId,
+      );
     }
     return orElse();
   }
@@ -467,6 +503,7 @@ abstract class _CreatePool implements TokenPoolEvent {
     required final GiftStyle style,
     final String? recipientId,
     required final List<String> inviteeIds,
+    final String? communityId,
   }) = _$CreatePoolImpl;
 
   PoolMode get mode;
@@ -475,6 +512,7 @@ abstract class _CreatePool implements TokenPoolEvent {
   GiftStyle get style;
   String? get recipientId;
   List<String> get inviteeIds;
+  String? get communityId;
 
   /// Create a copy of TokenPoolEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -583,6 +621,7 @@ class _$ContributeImpl implements _Contribute {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -612,6 +651,7 @@ class _$ContributeImpl implements _Contribute {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -640,6 +680,7 @@ class _$ContributeImpl implements _Contribute {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
@@ -819,6 +860,7 @@ class _$SendGroupGiftImpl implements _SendGroupGift {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -848,6 +890,7 @@ class _$SendGroupGiftImpl implements _SendGroupGift {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -876,6 +919,7 @@ class _$SendGroupGiftImpl implements _SendGroupGift {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
@@ -1071,6 +1115,7 @@ class _$DistributePoolImpl implements _DistributePool {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -1100,6 +1145,7 @@ class _$DistributePoolImpl implements _DistributePool {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -1128,6 +1174,7 @@ class _$DistributePoolImpl implements _DistributePool {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
@@ -1305,6 +1352,7 @@ class _$CancelPoolImpl implements _CancelPool {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -1334,6 +1382,7 @@ class _$CancelPoolImpl implements _CancelPool {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -1362,6 +1411,7 @@ class _$CancelPoolImpl implements _CancelPool {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
@@ -1535,6 +1585,7 @@ class _$OpenGroupGiftImpl implements _OpenGroupGift {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -1564,6 +1615,7 @@ class _$OpenGroupGiftImpl implements _OpenGroupGift {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -1592,6 +1644,7 @@ class _$OpenGroupGiftImpl implements _OpenGroupGift {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
@@ -1768,6 +1821,7 @@ class _$ClaimGroupGiftImpl implements _ClaimGroupGift {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -1797,6 +1851,7 @@ class _$ClaimGroupGiftImpl implements _ClaimGroupGift {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -1825,6 +1880,7 @@ class _$ClaimGroupGiftImpl implements _ClaimGroupGift {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
@@ -1998,6 +2054,7 @@ class _$WatchPoolImpl implements _WatchPool {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -2027,6 +2084,7 @@ class _$WatchPoolImpl implements _WatchPool {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -2055,6 +2113,7 @@ class _$WatchPoolImpl implements _WatchPool {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
@@ -2240,6 +2299,7 @@ class _$PoolUpdatedImpl implements _PoolUpdated {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -2269,6 +2329,7 @@ class _$PoolUpdatedImpl implements _PoolUpdated {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -2297,6 +2358,7 @@ class _$PoolUpdatedImpl implements _PoolUpdated {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
@@ -2443,6 +2505,7 @@ class _$LoadMyPoolsImpl implements _LoadMyPools {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -2472,6 +2535,7 @@ class _$LoadMyPoolsImpl implements _LoadMyPools {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -2500,6 +2564,7 @@ class _$LoadMyPoolsImpl implements _LoadMyPools {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
@@ -2638,6 +2703,7 @@ class _$ClearErrorImpl implements _ClearError {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -2667,6 +2733,7 @@ class _$ClearErrorImpl implements _ClearError {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -2695,6 +2762,7 @@ class _$ClearErrorImpl implements _ClearError {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
@@ -2833,6 +2901,7 @@ class _$ResetImpl implements _Reset {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )
     createPool,
     required TResult Function(String poolId, int amount, bool anonymous)
@@ -2862,6 +2931,7 @@ class _$ResetImpl implements _Reset {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
@@ -2890,6 +2960,7 @@ class _$ResetImpl implements _Reset {
       GiftStyle style,
       String? recipientId,
       List<String> inviteeIds,
+      String? communityId,
     )?
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,

@@ -10,6 +10,7 @@ class TokenPoolEvent with _$TokenPoolEvent {
     required GiftStyle style,
     String? recipientId,
     required List<String> inviteeIds,
+    String? communityId,
   }) = _CreatePool;
 
   const factory TokenPoolEvent.contribute({

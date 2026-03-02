@@ -274,23 +274,28 @@ class OutgoingMessageQueue {
   /// Enqueue a community media message. Upload must be done before calling.
   Future<Message> enqueueCommunityMediaMessage({
     required String communityId,
-    required String mediaUrl,
+    required String payloadJson,
     required String mediaType,
     String? caption,
   }) async {
     final id = 'pending_${_uuid.v4()}';
     final now = DateTime.now();
 
+    // Derive MessageType from MIME type string
+    final msgType = mediaType.startsWith('audio')
+        ? MessageType.voice
+        : mediaType.startsWith('video')
+            ? MessageType.video
+            : (mediaType == 'document' || mediaType.startsWith('application'))
+                ? MessageType.document
+                : MessageType.image;
+
     await _appDatabase.insertPendingMessage(LocalPendingMessagesCompanion(
       id: Value(id),
       conversationId: Value(communityId),
       type: const Value('community_media'),
       plaintext: Value(caption),
-      payloadJson: Value(jsonEncode({
-        'mediaUrl': mediaUrl,
-        'mediaType': mediaType,
-        'caption': caption,
-      })),
+      payloadJson: Value(payloadJson),
       status: const Value('pending'),
       createdAt: Value(now),
     ));
@@ -299,7 +304,7 @@ class OutgoingMessageQueue {
       id: id,
       senderId: _conversationRemoteDS.currentUserId ?? '',
       senderName: '',
-      type: MessageType.image,
+      type: msgType,
       status: MessageStatus.sending,
       textContent: caption,
       communityId: communityId,
@@ -309,7 +314,14 @@ class OutgoingMessageQueue {
       LocalMessageMapper.toCompanion(optimistic, communityId),
     );
 
-    await _updateCommunityPreview(communityId, caption ?? '📷 Photo', now);
+    // Type-appropriate preview text
+    final previewText = switch (msgType) {
+      MessageType.voice => '🎤 Voice note',
+      MessageType.video => '🎬 Video',
+      MessageType.document => '📎 Document',
+      _ => caption ?? '📷 Photo',
+    };
+    await _updateCommunityPreview(communityId, previewText, now);
 
     if (await _networkInfo.isConnected) {
       _processNextPending();
@@ -760,16 +772,39 @@ class OutgoingMessageQueue {
     final communityId = msg.conversationId;
 
     try {
-      final meta = msg.payloadJson != null
-          ? jsonDecode(msg.payloadJson!) as Map<String, dynamic>
-          : <String, dynamic>{};
-      final mediaUrl = meta['mediaUrl'] as String?;
-      final mediaType = meta['mediaType'] as String? ?? 'image';
-      final caption = meta['caption'] as String?;
-
-      if (mediaUrl == null) {
-        await _markFailed(msg.id, 'Missing media URL');
+      if (msg.payloadJson == null || msg.payloadJson!.isEmpty) {
+        await _markFailed(msg.id, 'Missing media payload');
         return;
+      }
+
+      final meta =
+          jsonDecode(msg.payloadJson!) as Map<String, dynamic>;
+
+      // Backward compat: old-format payloads have 'mediaUrl' at top level.
+      // New-format payloads have 'media' with full upload result.
+      final String payload;
+      final String mediaTypeStr;
+
+      if (meta.containsKey('mediaUrl')) {
+        // OLD FORMAT — build simple payload for legacy messages
+        final mediaUrl = meta['mediaUrl'] as String?;
+        final mediaType = meta['mediaType'] as String? ?? 'image';
+        final caption = meta['caption'] as String?;
+        if (mediaUrl == null) {
+          await _markFailed(msg.id, 'Missing media URL');
+          return;
+        }
+        payload = jsonEncode({
+          if (caption != null) 'text': caption,
+          'media': {'url': mediaUrl, 'mediaType': mediaType},
+        });
+        mediaTypeStr = mediaType;
+      } else {
+        // NEW FORMAT — payloadJson is the full structured payload from
+        // CommunityRepositoryImpl (contains media upload result with keys)
+        payload = msg.payloadJson!;
+        final media = meta['media'] as Map<String, dynamic>?;
+        mediaTypeStr = media?['mimeType'] as String? ?? 'image';
       }
 
       // Ensure sender key is distributed (same as text messages)
@@ -780,15 +815,6 @@ class OutgoingMessageQueue {
             msg.id, 'Waiting for connection to distribute encryption key');
         return;
       }
-
-      // Build structured JSON payload and encrypt via Sender Key
-      final payload = jsonEncode({
-        if (caption != null) 'text': caption,
-        'media': {
-          'url': mediaUrl,
-          'mediaType': mediaType,
-        },
-      });
 
       await _appDatabase.updatePendingMessageStatus(msg.id, 'encrypting');
       final encrypted = await _senderKeyService.encryptCommunity(
@@ -814,7 +840,7 @@ class OutgoingMessageQueue {
         conversationId: communityId,
         plaintext: payload,
         type: MessageType.values.firstWhere(
-          (t) => t.name == mediaType,
+          (t) => t.name == mediaTypeStr,
           orElse: () => MessageType.image,
         ),
         communityId: communityId,

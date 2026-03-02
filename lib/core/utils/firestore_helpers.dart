@@ -89,6 +89,17 @@ Map<String, dynamic> sanitizeFirestoreData(Map data) {
       return MapEntry(key, value.toDate().toIso8601String());
     }
     if (value is Map) {
+      // Check for serialized Timestamp from Cloud Functions
+      if (value.containsKey('_seconds') && value.containsKey('_nanoseconds')) {
+        final seconds = value['_seconds'] as int;
+        final nanoseconds = value['_nanoseconds'] as int;
+        return MapEntry(
+          key,
+          DateTime.fromMillisecondsSinceEpoch(
+            seconds * 1000 + nanoseconds ~/ 1000000,
+          ).toIso8601String(),
+        );
+      }
       return MapEntry(key, sanitizeFirestoreData(value));
     }
     if (value is List) {

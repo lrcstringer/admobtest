@@ -9,6 +9,7 @@ import 'package:imalichat/core/services/offline_action_queue.dart';
 import 'package:imalichat/core/services/outgoing_message_queue.dart';
 import 'package:imalichat/data/datasources/local/app_database.dart';
 import 'package:imalichat/data/datasources/remote/community_remote_datasource.dart';
+import 'package:imalichat/data/datasources/remote/media_upload_datasource.dart';
 import 'package:imalichat/data/models/community_model.dart';
 import 'package:imalichat/data/repositories/community_repository_impl.dart';
 import 'package:imalichat/domain/entities/message.dart';
@@ -31,6 +32,8 @@ class MockAppDatabase extends Mock implements AppDatabase {}
 class MockOfflineActionQueue extends Mock implements OfflineActionQueue {}
 
 class MockOutgoingMessageQueue extends Mock implements OutgoingMessageQueue {}
+
+class MockMediaUploadDatasource extends Mock implements MediaUploadDatasource {}
 
 // ==================== FALLBACK VALUES ====================
 
@@ -153,6 +156,7 @@ void main() {
   late MockAppDatabase mockAppDatabase;
   late MockOfflineActionQueue mockOfflineQueue;
   late MockOutgoingMessageQueue mockOutgoingQueue;
+  late MockMediaUploadDatasource mockMediaUploadDatasource;
   late CommunityRepositoryImpl repository;
 
   setUpAll(() {
@@ -167,6 +171,7 @@ void main() {
     mockAppDatabase = MockAppDatabase();
     mockOfflineQueue = MockOfflineActionQueue();
     mockOutgoingQueue = MockOutgoingMessageQueue();
+    mockMediaUploadDatasource = MockMediaUploadDatasource();
 
     repository = CommunityRepositoryImpl(
       mockDataSource,
@@ -174,6 +179,7 @@ void main() {
       mockAppDatabase,
       mockOfflineQueue,
       mockOutgoingQueue,
+      mockMediaUploadDatasource,
     );
 
     when(() => mockDataSource.currentUserId).thenReturn(_userId);

@@ -302,7 +302,7 @@ class ActionPickerWidget extends StatelessWidget {
                   ),
                 if (onGroupGiftRequested != null)
                   _MediaOption(
-                    icon: Icons.card_giftcard,
+                    imageAsset: 'assets/images/sasaza.png',
                     label: 'Group\nSasaza',
                     color: AppColors.secondary,
                     onTap: () {

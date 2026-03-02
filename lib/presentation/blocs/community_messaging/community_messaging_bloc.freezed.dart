@@ -25,9 +25,11 @@ mixin _$CommunityMessagingEvent {
     required TResult Function(String text, String? replyToMessageId)
     sendTextMessage,
     required TResult Function(
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
       String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(String messageId, String emoji) addReaction,
@@ -42,7 +44,13 @@ mixin _$CommunityMessagingEvent {
     TResult? Function(int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult? Function(String mediaUrl, String mediaType, String? caption)?
+    TResult? Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult? Function(String messageId, String emoji)? addReaction,
     TResult? Function(String messageId, String emoji)? removeReaction,
@@ -56,7 +64,13 @@ mixin _$CommunityMessagingEvent {
     TResult Function(int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult Function(String mediaUrl, String mediaType, String? caption)?
+    TResult Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult Function(String messageId, String emoji)? addReaction,
     TResult Function(String messageId, String emoji)? removeReaction,
@@ -208,9 +222,11 @@ class _$LoadMessagesImpl implements _LoadMessages {
     required TResult Function(String text, String? replyToMessageId)
     sendTextMessage,
     required TResult Function(
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
       String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(String messageId, String emoji) addReaction,
@@ -229,7 +245,13 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult? Function(int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult? Function(String mediaUrl, String mediaType, String? caption)?
+    TResult? Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult? Function(String messageId, String emoji)? addReaction,
     TResult? Function(String messageId, String emoji)? removeReaction,
@@ -247,7 +269,13 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult Function(int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult Function(String mediaUrl, String mediaType, String? caption)?
+    TResult Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult Function(String messageId, String emoji)? addReaction,
     TResult Function(String messageId, String emoji)? removeReaction,
@@ -406,9 +434,11 @@ class _$WatchMessagesImpl implements _WatchMessages {
     required TResult Function(String text, String? replyToMessageId)
     sendTextMessage,
     required TResult Function(
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
       String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(String messageId, String emoji) addReaction,
@@ -427,7 +457,13 @@ class _$WatchMessagesImpl implements _WatchMessages {
     TResult? Function(int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult? Function(String mediaUrl, String mediaType, String? caption)?
+    TResult? Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult? Function(String messageId, String emoji)? addReaction,
     TResult? Function(String messageId, String emoji)? removeReaction,
@@ -445,7 +481,13 @@ class _$WatchMessagesImpl implements _WatchMessages {
     TResult Function(int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult Function(String mediaUrl, String mediaType, String? caption)?
+    TResult Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult Function(String messageId, String emoji)? addReaction,
     TResult Function(String messageId, String emoji)? removeReaction,
@@ -614,9 +656,11 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     required TResult Function(String text, String? replyToMessageId)
     sendTextMessage,
     required TResult Function(
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
       String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(String messageId, String emoji) addReaction,
@@ -635,7 +679,13 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult? Function(int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult? Function(String mediaUrl, String mediaType, String? caption)?
+    TResult? Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult? Function(String messageId, String emoji)? addReaction,
     TResult? Function(String messageId, String emoji)? removeReaction,
@@ -653,7 +703,13 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult Function(int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult Function(String mediaUrl, String mediaType, String? caption)?
+    TResult Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult Function(String messageId, String emoji)? addReaction,
     TResult Function(String messageId, String emoji)? removeReaction,
@@ -824,9 +880,11 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     required TResult Function(String text, String? replyToMessageId)
     sendTextMessage,
     required TResult Function(
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
       String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(String messageId, String emoji) addReaction,
@@ -845,7 +903,13 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult? Function(int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult? Function(String mediaUrl, String mediaType, String? caption)?
+    TResult? Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult? Function(String messageId, String emoji)? addReaction,
     TResult? Function(String messageId, String emoji)? removeReaction,
@@ -863,7 +927,13 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult Function(int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult Function(String mediaUrl, String mediaType, String? caption)?
+    TResult Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult Function(String messageId, String emoji)? addReaction,
     TResult Function(String messageId, String emoji)? removeReaction,
@@ -957,7 +1027,13 @@ abstract class _$$SendMediaMessageImplCopyWith<$Res> {
     $Res Function(_$SendMediaMessageImpl) then,
   ) = __$$SendMediaMessageImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({String mediaUrl, String mediaType, String? caption});
+  $Res call({
+    File mediaFile,
+    String mediaType,
+    String? caption,
+    int? durationSeconds,
+    File? thumbnailFile,
+  });
 }
 
 /// @nodoc
@@ -974,16 +1050,18 @@ class __$$SendMediaMessageImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? mediaUrl = null,
+    Object? mediaFile = null,
     Object? mediaType = null,
     Object? caption = freezed,
+    Object? durationSeconds = freezed,
+    Object? thumbnailFile = freezed,
   }) {
     return _then(
       _$SendMediaMessageImpl(
-        mediaUrl: null == mediaUrl
-            ? _value.mediaUrl
-            : mediaUrl // ignore: cast_nullable_to_non_nullable
-                  as String,
+        mediaFile: null == mediaFile
+            ? _value.mediaFile
+            : mediaFile // ignore: cast_nullable_to_non_nullable
+                  as File,
         mediaType: null == mediaType
             ? _value.mediaType
             : mediaType // ignore: cast_nullable_to_non_nullable
@@ -992,6 +1070,14 @@ class __$$SendMediaMessageImplCopyWithImpl<$Res>
             ? _value.caption
             : caption // ignore: cast_nullable_to_non_nullable
                   as String?,
+        durationSeconds: freezed == durationSeconds
+            ? _value.durationSeconds
+            : durationSeconds // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        thumbnailFile: freezed == thumbnailFile
+            ? _value.thumbnailFile
+            : thumbnailFile // ignore: cast_nullable_to_non_nullable
+                  as File?,
       ),
     );
   }
@@ -1001,21 +1087,27 @@ class __$$SendMediaMessageImplCopyWithImpl<$Res>
 
 class _$SendMediaMessageImpl implements _SendMediaMessage {
   const _$SendMediaMessageImpl({
-    required this.mediaUrl,
+    required this.mediaFile,
     required this.mediaType,
     this.caption,
+    this.durationSeconds,
+    this.thumbnailFile,
   });
 
   @override
-  final String mediaUrl;
+  final File mediaFile;
   @override
   final String mediaType;
   @override
   final String? caption;
+  @override
+  final int? durationSeconds;
+  @override
+  final File? thumbnailFile;
 
   @override
   String toString() {
-    return 'CommunityMessagingEvent.sendMediaMessage(mediaUrl: $mediaUrl, mediaType: $mediaType, caption: $caption)';
+    return 'CommunityMessagingEvent.sendMediaMessage(mediaFile: $mediaFile, mediaType: $mediaType, caption: $caption, durationSeconds: $durationSeconds, thumbnailFile: $thumbnailFile)';
   }
 
   @override
@@ -1023,15 +1115,26 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$SendMediaMessageImpl &&
-            (identical(other.mediaUrl, mediaUrl) ||
-                other.mediaUrl == mediaUrl) &&
+            (identical(other.mediaFile, mediaFile) ||
+                other.mediaFile == mediaFile) &&
             (identical(other.mediaType, mediaType) ||
                 other.mediaType == mediaType) &&
-            (identical(other.caption, caption) || other.caption == caption));
+            (identical(other.caption, caption) || other.caption == caption) &&
+            (identical(other.durationSeconds, durationSeconds) ||
+                other.durationSeconds == durationSeconds) &&
+            (identical(other.thumbnailFile, thumbnailFile) ||
+                other.thumbnailFile == thumbnailFile));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, mediaUrl, mediaType, caption);
+  int get hashCode => Object.hash(
+    runtimeType,
+    mediaFile,
+    mediaType,
+    caption,
+    durationSeconds,
+    thumbnailFile,
+  );
 
   /// Create a copy of CommunityMessagingEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -1053,9 +1156,11 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     required TResult Function(String text, String? replyToMessageId)
     sendTextMessage,
     required TResult Function(
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
       String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(String messageId, String emoji) addReaction,
@@ -1064,7 +1169,13 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     required TResult Function() loadMore,
     required TResult Function() clearError,
   }) {
-    return sendMediaMessage(mediaUrl, mediaType, caption);
+    return sendMediaMessage(
+      mediaFile,
+      mediaType,
+      caption,
+      durationSeconds,
+      thumbnailFile,
+    );
   }
 
   @override
@@ -1074,7 +1185,13 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult? Function(int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult? Function(String mediaUrl, String mediaType, String? caption)?
+    TResult? Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult? Function(String messageId, String emoji)? addReaction,
     TResult? Function(String messageId, String emoji)? removeReaction,
@@ -1082,7 +1199,13 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult? Function()? loadMore,
     TResult? Function()? clearError,
   }) {
-    return sendMediaMessage?.call(mediaUrl, mediaType, caption);
+    return sendMediaMessage?.call(
+      mediaFile,
+      mediaType,
+      caption,
+      durationSeconds,
+      thumbnailFile,
+    );
   }
 
   @override
@@ -1092,7 +1215,13 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult Function(int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult Function(String mediaUrl, String mediaType, String? caption)?
+    TResult Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult Function(String messageId, String emoji)? addReaction,
     TResult Function(String messageId, String emoji)? removeReaction,
@@ -1102,7 +1231,13 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     required TResult orElse(),
   }) {
     if (sendMediaMessage != null) {
-      return sendMediaMessage(mediaUrl, mediaType, caption);
+      return sendMediaMessage(
+        mediaFile,
+        mediaType,
+        caption,
+        durationSeconds,
+        thumbnailFile,
+      );
     }
     return orElse();
   }
@@ -1165,14 +1300,18 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
 
 abstract class _SendMediaMessage implements CommunityMessagingEvent {
   const factory _SendMediaMessage({
-    required final String mediaUrl,
+    required final File mediaFile,
     required final String mediaType,
     final String? caption,
+    final int? durationSeconds,
+    final File? thumbnailFile,
   }) = _$SendMediaMessageImpl;
 
-  String get mediaUrl;
+  File get mediaFile;
   String get mediaType;
   String? get caption;
+  int? get durationSeconds;
+  File? get thumbnailFile;
 
   /// Create a copy of CommunityMessagingEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -1265,9 +1404,11 @@ class _$AddReactionImpl implements _AddReaction {
     required TResult Function(String text, String? replyToMessageId)
     sendTextMessage,
     required TResult Function(
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
       String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(String messageId, String emoji) addReaction,
@@ -1286,7 +1427,13 @@ class _$AddReactionImpl implements _AddReaction {
     TResult? Function(int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult? Function(String mediaUrl, String mediaType, String? caption)?
+    TResult? Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult? Function(String messageId, String emoji)? addReaction,
     TResult? Function(String messageId, String emoji)? removeReaction,
@@ -1304,7 +1451,13 @@ class _$AddReactionImpl implements _AddReaction {
     TResult Function(int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult Function(String mediaUrl, String mediaType, String? caption)?
+    TResult Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult Function(String messageId, String emoji)? addReaction,
     TResult Function(String messageId, String emoji)? removeReaction,
@@ -1478,9 +1631,11 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     required TResult Function(String text, String? replyToMessageId)
     sendTextMessage,
     required TResult Function(
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
       String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(String messageId, String emoji) addReaction,
@@ -1499,7 +1654,13 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult? Function(int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult? Function(String mediaUrl, String mediaType, String? caption)?
+    TResult? Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult? Function(String messageId, String emoji)? addReaction,
     TResult? Function(String messageId, String emoji)? removeReaction,
@@ -1517,7 +1678,13 @@ class _$RemoveReactionImpl implements _RemoveReaction {
     TResult Function(int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult Function(String mediaUrl, String mediaType, String? caption)?
+    TResult Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult Function(String messageId, String emoji)? addReaction,
     TResult Function(String messageId, String emoji)? removeReaction,
@@ -1653,9 +1820,11 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     required TResult Function(String text, String? replyToMessageId)
     sendTextMessage,
     required TResult Function(
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
       String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(String messageId, String emoji) addReaction,
@@ -1674,7 +1843,13 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult? Function(int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult? Function(String mediaUrl, String mediaType, String? caption)?
+    TResult? Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult? Function(String messageId, String emoji)? addReaction,
     TResult? Function(String messageId, String emoji)? removeReaction,
@@ -1692,7 +1867,13 @@ class _$MarkAsReadImpl implements _MarkAsRead {
     TResult Function(int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult Function(String mediaUrl, String mediaType, String? caption)?
+    TResult Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult Function(String messageId, String emoji)? addReaction,
     TResult Function(String messageId, String emoji)? removeReaction,
@@ -1816,9 +1997,11 @@ class _$LoadMoreImpl implements _LoadMore {
     required TResult Function(String text, String? replyToMessageId)
     sendTextMessage,
     required TResult Function(
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
       String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(String messageId, String emoji) addReaction,
@@ -1837,7 +2020,13 @@ class _$LoadMoreImpl implements _LoadMore {
     TResult? Function(int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult? Function(String mediaUrl, String mediaType, String? caption)?
+    TResult? Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult? Function(String messageId, String emoji)? addReaction,
     TResult? Function(String messageId, String emoji)? removeReaction,
@@ -1855,7 +2044,13 @@ class _$LoadMoreImpl implements _LoadMore {
     TResult Function(int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult Function(String mediaUrl, String mediaType, String? caption)?
+    TResult Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult Function(String messageId, String emoji)? addReaction,
     TResult Function(String messageId, String emoji)? removeReaction,
@@ -1979,9 +2174,11 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(String text, String? replyToMessageId)
     sendTextMessage,
     required TResult Function(
-      String mediaUrl,
+      File mediaFile,
       String mediaType,
       String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
     )
     sendMediaMessage,
     required TResult Function(String messageId, String emoji) addReaction,
@@ -2000,7 +2197,13 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(int? limit)? watchMessages,
     TResult? Function(List<Message> messages)? messagesUpdated,
     TResult? Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult? Function(String mediaUrl, String mediaType, String? caption)?
+    TResult? Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult? Function(String messageId, String emoji)? addReaction,
     TResult? Function(String messageId, String emoji)? removeReaction,
@@ -2018,7 +2221,13 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(int? limit)? watchMessages,
     TResult Function(List<Message> messages)? messagesUpdated,
     TResult Function(String text, String? replyToMessageId)? sendTextMessage,
-    TResult Function(String mediaUrl, String mediaType, String? caption)?
+    TResult Function(
+      File mediaFile,
+      String mediaType,
+      String? caption,
+      int? durationSeconds,
+      File? thumbnailFile,
+    )?
     sendMediaMessage,
     TResult Function(String messageId, String emoji)? addReaction,
     TResult Function(String messageId, String emoji)? removeReaction,

@@ -1,13 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../core/error/exceptions.dart';
 import '../../core/error/failures.dart';
 import '../../core/network/network_info.dart';
 import '../../core/services/offline_action_queue.dart';
 import '../../core/services/outgoing_message_queue.dart';
+import '../datasources/remote/media_upload_datasource.dart';
 import '../../domain/entities/community.dart';
 import '../../domain/entities/community_member.dart';
 import '../../domain/entities/community_transaction.dart';
@@ -28,6 +31,9 @@ class CommunityRepositoryImpl implements CommunityRepository {
   final AppDatabase _appDatabase;
   final OfflineActionQueue _offlineActionQueue;
   final OutgoingMessageQueue _outgoingMessageQueue;
+  final MediaUploadDatasource _mediaUploadDatasource;
+
+  static const _uuid = Uuid();
 
   CommunityRepositoryImpl(
     this._remoteDataSource,
@@ -35,6 +41,7 @@ class CommunityRepositoryImpl implements CommunityRepository {
     this._appDatabase,
     this._offlineActionQueue,
     this._outgoingMessageQueue,
+    this._mediaUploadDatasource,
   );
 
   String? get _currentUserId => _remoteDataSource.currentUserId;
@@ -401,20 +408,75 @@ class CommunityRepositoryImpl implements CommunityRepository {
   @override
   Future<Either<Failure, Message>> sendMediaMessage({
     required String communityId,
-    required String mediaUrl,
+    required File mediaFile,
     required String mediaType,
     String? caption,
+    int? durationSeconds,
+    File? thumbnailFile,
   }) async {
     try {
+      final isAudio = mediaType.startsWith('audio');
+      final isDocument =
+          mediaType == 'document' || mediaType.startsWith('application');
+      final isVideo = mediaType.startsWith('video');
+      final tempMessageId = _uuid.v4();
+
+      final MediaUploadResult uploadResult;
+
+      if (isAudio) {
+        uploadResult = await _mediaUploadDatasource.uploadEncryptedVoice(
+          voiceFile: mediaFile,
+          parentCollection: 'communities',
+          parentId: communityId,
+          messageId: tempMessageId,
+          durationSeconds: durationSeconds ?? 0,
+        );
+      } else if (isDocument) {
+        uploadResult = await _mediaUploadDatasource.uploadEncryptedDocument(
+          documentFile: mediaFile,
+          parentCollection: 'communities',
+          parentId: communityId,
+          messageId: tempMessageId,
+        );
+      } else if (isVideo) {
+        if (thumbnailFile == null) {
+          return const Left(
+            Failure.serverError(message: 'Video upload requires a thumbnail'),
+          );
+        }
+        uploadResult = await _mediaUploadDatasource.uploadEncryptedVideo(
+          videoFile: mediaFile,
+          thumbnailFile: thumbnailFile,
+          parentCollection: 'communities',
+          parentId: communityId,
+          messageId: tempMessageId,
+          durationSeconds: durationSeconds ?? 0,
+        );
+      } else {
+        // Default: image
+        uploadResult = await _mediaUploadDatasource.uploadEncryptedImage(
+          imageFile: mediaFile,
+          parentCollection: 'communities',
+          parentId: communityId,
+          messageId: tempMessageId,
+        );
+      }
+
+      // Build structured JSON payload with encrypted media metadata
+      final payloadJson = jsonEncode({
+        if (caption != null) 'text': caption,
+        'media': uploadResult.toMediaMap(),
+      });
+
       final message = await _outgoingMessageQueue.enqueueCommunityMediaMessage(
         communityId: communityId,
-        mediaUrl: mediaUrl,
+        payloadJson: payloadJson,
         mediaType: mediaType,
         caption: caption,
       );
       return Right(message);
     } catch (e) {
-      return Left(Failure.serverError(message: e.toString()));
+      return Left(Failure.serverError(message: 'Media upload failed: $e'));
     }
   }
 

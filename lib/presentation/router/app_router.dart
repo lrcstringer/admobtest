@@ -64,7 +64,6 @@ import '../screens/gift/gift_history_screen.dart';
 import '../screens/gift/gift_opening_screen.dart';
 
 // Spray screens
-import '../screens/spray/create_spray_screen.dart';
 import '../screens/spray/spray_detail_screen.dart';
 
 // QR screens
@@ -608,6 +607,21 @@ class AppRouter {
                     builder: (context, state) =>
                         const ContactPickerScreen(),
                   ),
+                  // 8.0a) Pick single contact (returns Map<String, String>)
+                  GoRoute(
+                    path: 'pick-contact',
+                    name: 'pickContact',
+                    builder: (context, state) =>
+                        const ContactPickerScreen(returnContact: true),
+                  ),
+                  // 8.0b) Pick multiple contacts (returns List<Map<String, String>>)
+                  GoRoute(
+                    path: 'pick-contacts',
+                    name: 'pickContacts',
+                    builder: (context, state) =>
+                        const ContactPickerScreen(
+                            returnContact: true, multiSelect: true),
+                  ),
                   // 8.0.1) Message Requests
                   GoRoute(
                     path: 'requests',
@@ -791,36 +805,7 @@ class AppRouter {
                               communityId: communityId);
                         },
                       ),
-                      // 8.2.7) Send Gift in Community
-                      GoRoute(
-                        path: 'send-gift',
-                        name: 'communitySendGift',
-                        builder: (context, state) {
-                          final extra =
-                              state.extra as Map<String, dynamic>? ?? {};
-                          return GiftComposerScreen(
-                            communityId:
-                                state.pathParameters['communityId'],
-                            recipientId:
-                                extra['recipientId'] as String? ?? '',
-                            recipientName:
-                                extra['recipientName'] as String? ??
-                                    'User',
-                          );
-                        },
-                      ),
-                      // 8.2.8) Create Token Spray
-                      GoRoute(
-                        path: 'create-spray',
-                        name: 'createSpray',
-                        builder: (context, state) {
-                          final communityId =
-                              state.pathParameters['communityId'] ?? '';
-                          return CreateSprayScreen(
-                              communityId: communityId);
-                        },
-                      ),
-                      // 8.2.9) Spray Detail (live-updating progress + contribute)
+                      // 8.2.7) Spray Detail (live-updating progress + contribute)
                       GoRoute(
                         path: 'spray/:sprayId',
                         name: 'sprayDetail',
@@ -902,6 +887,8 @@ class AppRouter {
                             extra?['recipientId'] as String?,
                         recipientName:
                             extra?['recipientName'] as String?,
+                        communityId:
+                            extra?['communityId'] as String?,
                       );
                     },
                   ),
