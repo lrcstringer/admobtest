@@ -49,22 +49,17 @@ class _ContactsTabState extends State<ContactsTab> {
         }
       },
       builder: (context, contactState) {
-        return BlocBuilder<CommunityBloc, CommunityState>(
-          builder: (context, commState) {
-            return Column(
-              children: [
-                // Search bar
-                _buildSearchBar(context),
-                // Content
-                Expanded(
-                  child: _isSearching
-                      ? _buildSearchResults(context, contactState)
-                      : _buildContactsList(
-                          context, contactState, commState),
-                ),
-              ],
-            );
-          },
+        return Column(
+          children: [
+            // Search bar
+            _buildSearchBar(context),
+            // Content
+            Expanded(
+              child: _isSearching
+                  ? _buildSearchResults(context, contactState)
+                  : _buildContactsList(context, contactState),
+            ),
+          ],
         );
       },
     );
@@ -381,7 +376,6 @@ class _ContactsTabState extends State<ContactsTab> {
   Widget _buildContactsList(
     BuildContext context,
     ContactState contactState,
-    CommunityState commState,
   ) {
     if (contactState.status == ContactLoadingStatus.loading &&
         contactState.contacts.isEmpty) {
@@ -398,75 +392,15 @@ class _ContactsTabState extends State<ContactsTab> {
         if (contactState.pendingRequestCount > 0)
           _buildNewFriendsRow(context, contactState.pendingRequestCount),
 
-        // Import Contacts row
-        _buildImportContactsRow(context),
-
         // My Contacts section
         if (contactState.contacts.isNotEmpty) ...[
           _buildSectionHeader(context, 'My Contacts'),
           ..._buildAlphabeticalContacts(context, contactState.contacts),
         ],
 
-        // Communities section
-        if (commState.activeCommunities.isNotEmpty) ...[
-          _buildSectionHeader(context, 'Communities'),
-          ...commState.activeCommunities.map(
-            (comm) => ListTile(
-              leading: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.secondary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Icon(Icons.group, color: AppColors.secondary),
-              ),
-              title: Text(
-                comm.name,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              subtitle: Text(
-                '${comm.memberCount} members',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 13,
-                ),
-              ),
-              onTap: () => context.push('/chat/community/${comm.id}'),
-            ),
-          ),
-        ],
-
         // Brand Accounts section
-        _buildSectionHeader(context, 'Brand Accounts'),
-        if (contactState.followedBrands.isEmpty)
-          ListTile(
-            leading: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.secondary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Icon(Icons.storefront_outlined,
-                  color: AppColors.secondary),
-            ),
-            title: const Text(
-              'Discover Brands',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            subtitle: Text(
-              'Follow brands to get updates',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 13,
-              ),
-            ),
-            trailing: const Icon(Icons.chevron_right,
-                color: AppColors.textSecondary),
-            onTap: () => context.push('/chat/brand-accounts'),
-          )
-        else ...[
+        if (contactState.followedBrands.isNotEmpty) ...[
+          _buildSectionHeader(context, 'Brand Accounts'),
           ...contactState.followedBrands.map(
             (brand) => ListTile(
               leading: Container(
@@ -495,30 +429,10 @@ class _ContactsTabState extends State<ContactsTab> {
               },
             ),
           ),
-          ListTile(
-            leading: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Icon(Icons.add, color: AppColors.primary),
-            ),
-            title: const Text(
-              'See All Brands',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
-              ),
-            ),
-            onTap: () => context.push('/chat/brand-accounts'),
-          ),
         ],
 
         // Empty state
         if (contactState.contacts.isEmpty &&
-            commState.activeCommunities.isEmpty &&
             contactState.pendingRequestCount == 0)
           _buildEmptyState(context),
 
@@ -671,34 +585,6 @@ class _ContactsTabState extends State<ContactsTab> {
         ),
       ),
       onTap: () => context.push('/chat/contact-requests'),
-    );
-  }
-
-  Widget _buildImportContactsRow(BuildContext context) {
-    return ListTile(
-      leading: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: AppColors.secondary.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: const Icon(Icons.contact_phone_outlined,
-            color: AppColors.secondary),
-      ),
-      title: const Text(
-        'Import Contacts',
-        style: TextStyle(fontWeight: FontWeight.w600),
-      ),
-      subtitle: Text(
-        'Find friends from your phone',
-        style: TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 13,
-        ),
-      ),
-      trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-      onTap: () => context.push('/chat/import-contacts'),
     );
   }
 

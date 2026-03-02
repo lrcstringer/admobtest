@@ -28,36 +28,40 @@ class CallSignalingService {
   DatabaseReference _signalingRef(String callId) =>
       _rtdb.ref('callSignaling/$callId');
 
-  // ── SDP (via RTDB — ~10-50ms vs Firestore's 100-300ms) ──
+  // ── SDP Descriptions (via RTDB — ~10-50ms vs Firestore's 100-300ms) ──
+  //
+  // Role-based nodes: each side writes to its own node, watches the other's.
+  // This supports Perfect Negotiation where EITHER side can send an offer
+  // (e.g. callee-initiated ICE restart or video upgrade renegotiation).
+  //   callerDescription — written by caller, watched by callee
+  //   calleeDescription — written by callee, watched by caller
 
-  Future<void> sendOffer(String callId, RTCSessionDescription offer) async {
+  /// Send an SDP description (offer or answer) to our own RTDB node.
+  Future<void> sendDescription(
+    String callId,
+    RTCSessionDescription desc, {
+    required bool isCaller,
+  }) async {
+    final node = isCaller ? 'callerDescription' : 'calleeDescription';
     try {
-      await _signalingRef(callId).child('offer').set({
-        'sdp': offer.sdp,
-        'type': offer.type,
+      await _signalingRef(callId).child(node).set({
+        'sdp': desc.sdp,
+        'type': desc.type,
       });
     } catch (e) {
-      debugPrint('CallSignaling: sendOffer failed: $e');
+      debugPrint('CallSignaling: sendDescription ($node) failed: $e');
       rethrow;
     }
   }
 
-  Future<void> sendAnswer(
-      String callId, RTCSessionDescription answer) async {
-    try {
-      await _signalingRef(callId).child('answer').set({
-        'sdp': answer.sdp,
-        'type': answer.type,
-      });
-    } catch (e) {
-      debugPrint('CallSignaling: sendAnswer failed: $e');
-      rethrow;
-    }
-  }
-
-  /// One-shot fetch of the caller's SDP offer from RTDB.
-  Future<RTCSessionDescription?> getOffer(String callId) async {
-    final snap = await _signalingRef(callId).child('offer').get();
+  /// One-shot fetch of the remote peer's latest SDP description from RTDB.
+  Future<RTCSessionDescription?> getRemoteDescription(
+    String callId, {
+    required bool isCaller,
+  }) async {
+    // Read the OTHER side's description
+    final node = isCaller ? 'calleeDescription' : 'callerDescription';
+    final snap = await _signalingRef(callId).child(node).get();
     if (!snap.exists || snap.value == null) return null;
     final data = snap.value as Map<dynamic, dynamic>;
     return RTCSessionDescription(
@@ -66,25 +70,17 @@ class CallSignalingService {
     );
   }
 
-  /// Watch for SDP offer changes (callee uses this for renegotiation/ICE restart).
-  Stream<RTCSessionDescription> watchOffer(String callId) {
+  /// Watch the remote peer's SDP description node for changes.
+  /// Fires for the initial value (if present) and on every update.
+  /// Supports both offers AND answers from the remote side (Perfect Negotiation).
+  Stream<RTCSessionDescription> watchRemoteDescription(
+    String callId, {
+    required bool isCaller,
+  }) {
+    // Watch the OTHER side's description
+    final node = isCaller ? 'calleeDescription' : 'callerDescription';
     return _signalingRef(callId)
-        .child('offer')
-        .onValue
-        .where((event) => event.snapshot.exists && event.snapshot.value != null)
-        .map((event) {
-      final data = event.snapshot.value as Map<dynamic, dynamic>;
-      return RTCSessionDescription(
-        data['sdp'] as String,
-        data['type'] as String,
-      );
-    });
-  }
-
-  /// Watch for SDP answer arrival (caller uses this).
-  Stream<RTCSessionDescription> watchAnswer(String callId) {
-    return _signalingRef(callId)
-        .child('answer')
+        .child(node)
         .onValue
         .where((event) => event.snapshot.exists && event.snapshot.value != null)
         .map((event) {

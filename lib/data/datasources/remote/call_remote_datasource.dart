@@ -9,10 +9,11 @@ class CallRemoteDatasource {
 
   CallRemoteDatasource(this._functions);
 
-  // TURN credential cache — credentials have 2hr TTL, we cache for 1hr
+  // TURN credential cache — credentials have 2hr TTL, we cache for 30min
+  // so credentials always have at least 90min remaining (enough for any call)
   Map<String, dynamic>? _cachedTurnCredentials;
   DateTime? _turnCredentialsCachedAt;
-  static const _turnCacheDuration = Duration(hours: 1);
+  static const _turnCacheDuration = Duration(minutes: 30);
 
   /// Create a call via Cloud Function. Returns the callId.
   Future<String> initiateCall({

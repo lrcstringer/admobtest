@@ -122,6 +122,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _challengeSubscription?.cancel();
     _authStateSubscription?.cancel();
     _appLinksSubscription?.cancel();
+    _callBloc.close();
     super.dispose();
   }
 

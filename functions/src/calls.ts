@@ -163,10 +163,15 @@ export const initiateCall = onCall(
       });
     });
 
-    // Pre-create RTDB signaling node so clients can immediately write SDP/ICE
+    // Pre-create RTDB signaling node with participant UIDs for security rules.
+    // The rules require auth.uid to be in participants/ for read/write access.
     try {
       await rtdb.ref(`callSignaling/${callRef.id}`).set({
         createdAt: admin.database.ServerValue.TIMESTAMP,
+        participants: {
+          [userId]: true,
+          [recipientId]: true,
+        },
       });
     } catch (e) {
       console.error("RTDB signaling node creation failed:", e);
@@ -529,14 +534,28 @@ export const cleanupStaleCalls = onSchedule(
       .get();
 
     for (const doc of staleRinging.docs) {
-      const data = doc.data();
-      await doc.ref.update({
-        status: "missed",
-        endedAt: admin.firestore.FieldValue.serverTimestamp(),
-        endReason: "missed",
-        durationSeconds: null,
-        expireAt: admin.firestore.Timestamp.fromDate(new Date(now + 3600_000)),
+      // Use transaction to avoid racing with endCall: re-read the doc and
+      // skip if it already transitioned to a terminal status. This prevents
+      // duplicate system messages when both endCall and cleanup fire.
+      const wrote = await db.runTransaction(async (tx) => {
+        const freshDoc = await tx.get(doc.ref);
+        const freshData = freshDoc.data();
+        if (!freshData || TERMINAL_STATUSES.includes(freshData.status)) {
+          return false; // endCall already handled it
+        }
+        tx.update(doc.ref, {
+          status: "missed",
+          endedAt: admin.firestore.FieldValue.serverTimestamp(),
+          endReason: "missed",
+          durationSeconds: null,
+          expireAt: admin.firestore.Timestamp.fromDate(new Date(now + 3600_000)),
+        });
+        return true;
       });
+
+      if (!wrote) continue; // Skip message + cleanup — endCall handled it
+
+      const data = doc.data();
 
       // Clean up RTDB signaling data
       try { await rtdb.ref(`callSignaling/${doc.id}`).remove(); } catch { /* best effort */ }
@@ -597,29 +616,42 @@ export const cleanupStaleCalls = onSchedule(
       .get();
 
     for (const doc of staleActive.docs) {
-      const data = doc.data();
-      // Only end if BOTH heartbeats are stale
-      if (data.calleeHeartbeat && data.calleeHeartbeat.toDate().getTime() > now - 30_000) {
-        continue; // Callee is still alive
-      }
-      let durationSeconds: number | null = null;
-      if (data.answeredAt) {
-        durationSeconds = Math.round((now - data.answeredAt.toDate().getTime()) / 1000);
-      }
-      await doc.ref.update({
-        status: "ended",
-        endedAt: admin.firestore.FieldValue.serverTimestamp(),
-        endReason: "peer_offline",
-        durationSeconds,
-        expireAt: admin.firestore.Timestamp.fromDate(new Date(now + 3600_000)),
+      // Use transaction to avoid racing with endCall
+      const result = await db.runTransaction(async (tx) => {
+        const freshDoc = await tx.get(doc.ref);
+        const freshData = freshDoc.data();
+        if (!freshData || TERMINAL_STATUSES.includes(freshData.status)) {
+          return null; // endCall already handled it
+        }
+        // Only end if BOTH heartbeats are stale
+        if (freshData.calleeHeartbeat &&
+            freshData.calleeHeartbeat.toDate().getTime() > now - 30_000) {
+          return null; // Callee is still alive
+        }
+        let durationSeconds: number | null = null;
+        if (freshData.answeredAt) {
+          durationSeconds = Math.round((now - freshData.answeredAt.toDate().getTime()) / 1000);
+        }
+        tx.update(doc.ref, {
+          status: "ended",
+          endedAt: admin.firestore.FieldValue.serverTimestamp(),
+          endReason: "peer_offline",
+          durationSeconds,
+          expireAt: admin.firestore.Timestamp.fromDate(new Date(now + 3600_000)),
+        });
+        return { durationSeconds, data: freshData };
       });
+
+      if (!result) continue; // Skip message + cleanup — endCall handled it or callee alive
+
+      const data = result.data;
 
       // Clean up RTDB signaling data
       try { await rtdb.ref(`callSignaling/${doc.id}`).remove(); } catch { /* best effort */ }
 
       // Write system message for stale active call
       const callLabel = data.callType === "video" ? "Video call" : "Voice call";
-      const durationText = durationSeconds ? formatDuration(durationSeconds) : null;
+      const durationText = result.durationSeconds ? formatDuration(result.durationSeconds) : null;
       const msgRef = db
         .collection("conversations")
         .doc(data.conversationId)
@@ -651,7 +683,7 @@ export const cleanupStaleCalls = onSchedule(
           callType: data.callType,
           callerId: data.callerId,
           calleeId: data.calleeId,
-          durationSeconds,
+          durationSeconds: result.durationSeconds,
           endReason: "peer_offline",
         },
         createdAt: admin.firestore.FieldValue.serverTimestamp(),

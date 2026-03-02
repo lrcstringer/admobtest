@@ -399,16 +399,14 @@ void main() {
         expect(
             reconstructedE2ee['messageNumber'], equals(e2ee['messageNumber']));
         expect(reconstructedE2ee['dhPublicKey'], equals(e2ee['dhPublicKey']));
-        if (x3dhHeader != null) {
-          final reconstructedX3dh =
-              encryptedMap['x3dhHeader'] as Map<String, dynamic>;
-          expect(reconstructedX3dh['identityKey'],
-              equals(x3dhHeader['identityKey']));
-          expect(reconstructedX3dh['ephemeralKey'],
-              equals(x3dhHeader['ephemeralKey']));
-          expect(reconstructedX3dh['oneTimePreKeyId'],
-              equals(x3dhHeader['oneTimePreKeyId']));
-        }
+        final reconstructedX3dh =
+            encryptedMap['x3dhHeader'] as Map<String, dynamic>;
+        expect(reconstructedX3dh['identityKey'],
+            equals(x3dhHeader['identityKey']));
+        expect(reconstructedX3dh['ephemeralKey'],
+            equals(x3dhHeader['ephemeralKey']));
+        expect(reconstructedX3dh['oneTimePreKeyId'],
+            equals(x3dhHeader['oneTimePreKeyId']));
 
         // =====================================================================
         // STEP 7: Bob decrypts using the EXACT reconstructed map

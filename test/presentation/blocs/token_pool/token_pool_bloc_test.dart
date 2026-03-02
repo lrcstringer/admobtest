@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:imalichat/core/error/failures.dart';
-import 'package:imalichat/domain/entities/token_pool.dart';
 import 'package:imalichat/domain/enums/pool_mode.dart';
 import 'package:imalichat/domain/enums/gift_style.dart';
 import 'package:imalichat/domain/repositories/token_pool_repository.dart';

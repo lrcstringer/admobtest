@@ -2,8 +2,8 @@
   "rules": {
     "callSignaling": {
       "$callId": {
-        ".read": "auth != null",
-        ".write": "auth != null"
+        ".read": "auth != null && (data.child('participants').child(auth.uid).exists() || !data.exists())",
+        ".write": "auth != null && (data.child('participants').child(auth.uid).exists() || !data.exists())"
       }
     },
     ".read": false,

@@ -13,7 +13,6 @@ import '../../../domain/entities/message.dart';
 import '../../../domain/enums/call_status.dart';
 import '../../../domain/enums/call_type.dart';
 import '../../../domain/enums/conversation_type.dart';
-import '../../../domain/enums/report_reason.dart';
 import '../../../domain/enums/report_type.dart';
 import '../../../domain/repositories/moderation_repository.dart';
 import '../../blocs/call/call_bloc.dart';
@@ -44,10 +43,7 @@ import '../../widgets/moderation/report_sheet.dart';
 class ConversationDetailScreen extends StatefulWidget {
   final String conversationId;
 
-  const ConversationDetailScreen({
-    super.key,
-    required this.conversationId,
-  });
+  const ConversationDetailScreen({super.key, required this.conversationId});
 
   @override
   State<ConversationDetailScreen> createState() =>
@@ -62,23 +58,23 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   @override
   void initState() {
     super.initState();
-    context
-        .read<ConversationBloc>()
-        .add(ConversationEvent.selectConversation(widget.conversationId));
-    context
-        .read<ConversationActionsBloc>()
-        .add(ConversationActionsEvent.markAsRead(widget.conversationId));
+    context.read<ConversationBloc>().add(
+      ConversationEvent.selectConversation(widget.conversationId),
+    );
+    context.read<ConversationActionsBloc>().add(
+      ConversationActionsEvent.markAsRead(widget.conversationId),
+    );
   }
 
   @override
   void dispose() {
     // Clear typing state when leaving
     context.read<ConversationBloc>().add(
-          ConversationEvent.setTyping(
-            conversationId: widget.conversationId,
-            isTyping: false,
-          ),
-        );
+      ConversationEvent.setTyping(
+        conversationId: widget.conversationId,
+        isTyping: false,
+      ),
+    );
     _messageController.dispose();
     _scrollController.dispose();
     getIt<AudioPlaybackService>().stop();
@@ -91,8 +87,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 
     return BlocListener<ConversationActionsBloc, ConversationActionsState>(
       listenWhen: (prev, curr) =>
-          curr.errorMessage != null &&
-          prev.errorMessage != curr.errorMessage,
+          curr.errorMessage != null && prev.errorMessage != curr.errorMessage,
       listener: (context, actionsState) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -101,139 +96,142 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           ),
         );
         context.read<ConversationActionsBloc>().add(
-              const ConversationActionsEvent.clearError(),
-            );
+          const ConversationActionsEvent.clearError(),
+        );
       },
       child: BlocBuilder<ConversationBloc, ConversationState>(
-      builder: (context, state) {
-        final conv = state.selectedConversation;
+        builder: (context, state) {
+          final conv = state.selectedConversation;
 
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: AppColors.chatAppBar,
-            surfaceTintColor: Colors.transparent,
-            elevation: 0,
-            title: conv != null
-                ? Row(
-                    children: [
-                      _buildAppBarAvatar(context, conv, currentUserId),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                conv.displayNameFor(currentUserId),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                                overflow: TextOverflow.ellipsis,
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: AppColors.chatAppBar,
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              title: conv != null
+                  ? Row(
+                      children: [
+                        _buildAppBarAvatar(context, conv, currentUserId),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  conv.displayNameFor(currentUserId),
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                            if (conv.hasDisappearingMessages) ...[
-                              const SizedBox(width: 6),
-                              const Icon(
-                                Icons.timer_outlined,
-                                size: 16,
-                                color: AppColors.accent,
-                              ),
+                              if (conv.hasDisappearingMessages) ...[
+                                const SizedBox(width: 6),
+                                const Icon(
+                                  Icons.timer_outlined,
+                                  size: 16,
+                                  color: AppColors.accent,
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
+                      ],
+                    )
+                  : const Text('Chat'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    setState(() => _isSearchOpen = !_isSearchOpen);
+                    if (!_isSearchOpen) {
+                      context.read<ConversationBloc>().add(
+                        const ConversationEvent.clearMessageSearch(),
+                      );
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.more_vert),
+                  onPressed: () => _showChatOptions(context, conv),
+                ),
+              ],
+            ),
+            body: Stack(
+              children: [
+                const Positioned.fill(child: ChatBackground()),
+                Column(
+                  children: [
+                    // Search bar
+                    if (_isSearchOpen)
+                      MessageSearchBar(
+                        resultCount: state.messageSearchResults.length,
+                        onSearch: (query) {
+                          context.read<ConversationBloc>().add(
+                            ConversationEvent.searchMessages(
+                              conversationId: widget.conversationId,
+                              query: query,
+                            ),
+                          );
+                        },
+                        onClose: () {
+                          setState(() => _isSearchOpen = false);
+                          context.read<ConversationBloc>().add(
+                            const ConversationEvent.clearMessageSearch(),
+                          );
+                        },
                       ),
-                    ],
-                  )
-                : const Text('Chat'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: () {
-                  setState(() => _isSearchOpen = !_isSearchOpen);
-                  if (!_isSearchOpen) {
-                    context.read<ConversationBloc>().add(
-                          const ConversationEvent.clearMessageSearch(),
-                        );
-                  }
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () => _showChatOptions(context, conv),
-              ),
-            ],
-          ),
-          body: Stack(
-            children: [
-              const Positioned.fill(
-                child: ChatBackground(),
-              ),
-              Column(
-                children: [
-                  // Search bar
-                  if (_isSearchOpen)
-                    MessageSearchBar(
-                      resultCount: state.messageSearchResults.length,
-                      onSearch: (query) {
-                        context.read<ConversationBloc>().add(
-                              ConversationEvent.searchMessages(
-                                conversationId: widget.conversationId,
-                                query: query,
-                              ),
-                            );
-                      },
-                      onClose: () {
-                        setState(() => _isSearchOpen = false);
-                        context.read<ConversationBloc>().add(
-                              const ConversationEvent.clearMessageSearch(),
-                            );
-                      },
+                    // Message request banner
+                    if (conv != null && conv.isMessageRequestFor(currentUserId))
+                      _buildMessageRequestBanner(context, conv, currentUserId),
+                    Expanded(
+                      child: _buildMessageList(context, state, currentUserId),
                     ),
-                  // Message request banner
-                  if (conv != null &&
-                      conv.isMessageRequestFor(currentUserId))
-                    _buildMessageRequestBanner(context, conv, currentUserId),
-                  Expanded(
-                    child: _buildMessageList(context, state, currentUserId),
-                  ),
-                  // Typing indicator
-                  if (state.typingUsers.isNotEmpty)
-                    TypingIndicator(
-                      typingNames: state.typingUsers.keys
-                          .map((uid) =>
-                              conv?.participants[uid]?.displayName ?? 'Someone')
-                          .toList(),
-                    ),
-                  MessageInputBar(
+                    // Typing indicator
+                    if (state.typingUsers.isNotEmpty)
+                      TypingIndicator(
+                        typingNames: state.typingUsers.keys
+                            .map(
+                              (uid) =>
+                                  conv?.participants[uid]?.displayName ??
+                                  'Someone',
+                            )
+                            .toList(),
+                      ),
+                    MessageInputBar(
                       controller: _messageController,
                       isSending: state.isSending,
                       onSend: () => _sendMessage(context),
-                      onMediaAttachment: conv != null &&
+                      onMediaAttachment:
+                          conv != null &&
                               conv.isMessageRequestFor(currentUserId)
                           ? null
-                          : () => _showMediaPicker(
-                              context, state, currentUserId),
-                      onAttachment: conv != null &&
+                          : () =>
+                                _showMediaPicker(context, state, currentUserId),
+                      onAttachment:
+                          conv != null &&
                               conv.isMessageRequestFor(currentUserId)
                           ? null
                           : () => _showActionPicker(
-                              context, state, currentUserId),
+                              context,
+                              state,
+                              currentUserId,
+                            ),
                       onTypingChanged: (isTyping) {
                         context.read<ConversationBloc>().add(
-                              ConversationEvent.setTyping(
-                                conversationId: widget.conversationId,
-                                isTyping: isTyping,
-                              ),
-                            );
+                          ConversationEvent.setTyping(
+                            conversationId: widget.conversationId,
+                            isTyping: isTyping,
+                          ),
+                        );
                       },
                     ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -256,9 +254,9 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       child: Text(
         conv.displayInitialsFor(currentUserId),
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
-            ),
+          color: AppColors.primary,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
 
@@ -294,20 +292,24 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.chat_bubble_outline, size: 64, color: AppColors.textHint),
+            Icon(
+              Icons.chat_bubble_outline,
+              size: 64,
+              color: AppColors.textHint,
+            ),
             AppSpacing.verticalMd,
             Text(
               'No messages yet',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
             ),
             AppSpacing.verticalSm,
             Text(
               'Send a message or tokens to start the conversation',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textHint,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textHint),
               textAlign: TextAlign.center,
             ),
           ],
@@ -330,7 +332,8 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         }
 
         final isMe = message.isSentBy(currentUserId);
-        final showDate = index == messages.length - 1 ||
+        final showDate =
+            index == messages.length - 1 ||
             !DateSeparator.isSameDay(
               messages[index].createdAt,
               messages[index + 1].createdAt,
@@ -343,22 +346,25 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               message: message,
               isMe: isMe,
               currentUserId: currentUserId,
-              avatarUrl: state.selectedConversation?.participants[message.senderId]?.avatarUrl,
+              avatarUrl: state
+                  .selectedConversation
+                  ?.participants[message.senderId]
+                  ?.avatarUrl,
               highlightQuery: state.messageSearchQuery,
               onLongPress: () => _onMessageLongPress(context, message, state),
               onTokenRequestAction: message.isTokenTransfer
-                  ? (accepted) => _handleTokenRequestAction(
-                        context, message, accepted)
+                  ? (accepted) =>
+                        _handleTokenRequestAction(context, message, accepted)
                   : null,
               onImageTap: message.hasMedia && message.media != null
                   ? () => context.push(
-                        '/chat/conversation/${widget.conversationId}/image-viewer',
-                        extra: {
-                          'messageId': message.id,
-                          'imageUrl': message.media!.url,
-                          'mediaKeyBase64': message.media!.mediaKey,
-                        },
-                      )
+                      '/chat/conversation/${widget.conversationId}/image-viewer',
+                      extra: {
+                        'messageId': message.id,
+                        'imageUrl': message.media!.url,
+                        'mediaKeyBase64': message.media!.mediaKey,
+                      },
+                    )
                   : null,
             ),
           ],
@@ -377,27 +383,23 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.chatSurface,
-        border: Border(
-          bottom: BorderSide(
-            color: AppColors.chatSurface,
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: AppColors.chatSurface)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '$senderName wants to message you',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           AppSpacing.verticalXs,
           Text(
             'Replying will accept this message request',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
           ),
           AppSpacing.verticalSm,
           Row(
@@ -406,10 +408,8 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                 child: OutlinedButton(
                   onPressed: () {
                     context.read<ConversationBloc>().add(
-                          ConversationEvent.acceptConversation(
-                            conv.id,
-                          ),
-                        );
+                      ConversationEvent.acceptConversation(conv.id),
+                    );
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
@@ -451,24 +451,26 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     showMediaPicker(
       context,
       onMediaSelected: (result) {
-        Navigator.of(context).push(MaterialPageRoute<void>(
-          fullscreenDialog: true,
-          builder: (_) => MediaComposeScreen(
-            mediaFile: result.file,
-            mediaType: result.mediaType,
-            onSend: (caption) {
-              context.read<ConversationBloc>().add(
-                    ConversationEvent.sendMediaMessage(
-                      conversationId: widget.conversationId,
-                      mediaFile: result.file,
-                      mediaType: result.mediaType,
-                      recipientId: recipientId,
-                      caption: caption,
-                    ),
-                  );
-            },
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            fullscreenDialog: true,
+            builder: (_) => MediaComposeScreen(
+              mediaFile: result.file,
+              mediaType: result.mediaType,
+              onSend: (caption) {
+                context.read<ConversationBloc>().add(
+                  ConversationEvent.sendMediaMessage(
+                    conversationId: widget.conversationId,
+                    mediaFile: result.file,
+                    mediaType: result.mediaType,
+                    recipientId: recipientId,
+                    caption: caption,
+                  ),
+                );
+              },
+            ),
           ),
-        ));
+        );
       },
     );
   }
@@ -482,8 +484,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     if (recipientId == null || recipientId.isEmpty) return;
 
     final conv = state.selectedConversation;
-    final isP2P = conv != null &&
-        conv.type == ConversationType.p2p;
+    final isP2P = conv != null && conv.type == ConversationType.p2p;
 
     showActionPicker(
       context,
@@ -502,17 +503,14 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
             state.selectedConversation?.displayNameFor(currentUserId) ?? '';
         context.push(
           '/chat/conversation/${widget.conversationId}/send-gift',
-          extra: {
-            'recipientId': recipientId,
-            'recipientName': recipientName,
-          },
+          extra: {'recipientId': recipientId, 'recipientName': recipientName},
         );
       },
       onGroupGiftRequested: isP2P
           ? () {
               final recipientName =
                   state.selectedConversation?.displayNameFor(currentUserId) ??
-                      '';
+                  '';
               context.push(
                 '/chat/create-pool',
                 extra: {
@@ -522,8 +520,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               );
             }
           : null,
-      onTokenAction: () =>
-          _showTokenActions(context, state, currentUserId),
+      onTokenAction: () => _showTokenActions(context, state, currentUserId),
     );
   }
 
@@ -543,14 +540,14 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         onRecordingComplete: (result) {
           Navigator.of(ctx).pop();
           context.read<ConversationBloc>().add(
-                ConversationEvent.sendMediaMessage(
-                  conversationId: widget.conversationId,
-                  mediaFile: result.file,
-                  mediaType: 'audio/m4a',
-                  recipientId: recipientId,
-                  durationSeconds: result.durationSeconds,
-                ),
-              );
+            ConversationEvent.sendMediaMessage(
+              conversationId: widget.conversationId,
+              mediaFile: result.file,
+              mediaType: 'audio/m4a',
+              recipientId: recipientId,
+              durationSeconds: result.durationSeconds,
+            ),
+          );
         },
         onCancel: () => Navigator.of(ctx).pop(),
       ),
@@ -572,28 +569,30 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       pageBuilder: (ctx, _, __) => VideoMessageRecorder(
         onRecordingComplete: (result) {
           Navigator.of(ctx).pop();
-          Navigator.of(context).push(MaterialPageRoute<void>(
-            fullscreenDialog: true,
-            builder: (_) => MediaComposeScreen(
-              mediaFile: result.videoFile,
-              mediaType: 'video/mp4',
-              thumbnailFile: result.thumbnailFile,
-              durationSeconds: result.durationSeconds,
-              onSend: (caption) {
-                context.read<ConversationBloc>().add(
-                      ConversationEvent.sendMediaMessage(
-                        conversationId: widget.conversationId,
-                        mediaFile: result.videoFile,
-                        mediaType: 'video/mp4',
-                        recipientId: recipientId,
-                        durationSeconds: result.durationSeconds,
-                        thumbnailFile: result.thumbnailFile,
-                        caption: caption,
-                      ),
-                    );
-              },
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              fullscreenDialog: true,
+              builder: (_) => MediaComposeScreen(
+                mediaFile: result.videoFile,
+                mediaType: 'video/mp4',
+                thumbnailFile: result.thumbnailFile,
+                durationSeconds: result.durationSeconds,
+                onSend: (caption) {
+                  context.read<ConversationBloc>().add(
+                    ConversationEvent.sendMediaMessage(
+                      conversationId: widget.conversationId,
+                      mediaFile: result.videoFile,
+                      mediaType: 'video/mp4',
+                      recipientId: recipientId,
+                      durationSeconds: result.durationSeconds,
+                      thumbnailFile: result.thumbnailFile,
+                      caption: caption,
+                    ),
+                  );
+                },
+              ),
             ),
-          ));
+          );
         },
         onCancel: () => Navigator.of(ctx).pop(),
       ),
@@ -662,8 +661,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               },
             ),
             ListTile(
-              leading:
-                  const Icon(Icons.delete_outline, color: AppColors.error),
+              leading: const Icon(Icons.delete_outline, color: AppColors.error),
               title: const Text('Delete for Everyone'),
               onTap: () {
                 Navigator.pop(ctx);
@@ -691,15 +689,15 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 
     if (targetConvId != null && mounted) {
       context.read<ConversationBloc>().add(
-            ConversationEvent.forwardMessage(
-              sourceConversationId: widget.conversationId,
-              sourceMessageId: message.id,
-              targetConversationId: targetConvId,
-            ),
-          );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Message forwarded')),
+        ConversationEvent.forwardMessage(
+          sourceConversationId: widget.conversationId,
+          sourceMessageId: message.id,
+          targetConversationId: targetConvId,
+        ),
       );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Message forwarded')));
     }
   }
 
@@ -735,18 +733,18 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   ) {
     if (accepted) {
       context.read<ConversationBloc>().add(
-            ConversationEvent.acceptTokenRequest(
-              messageId: message.id,
-              conversationId: widget.conversationId,
-            ),
-          );
+        ConversationEvent.acceptTokenRequest(
+          messageId: message.id,
+          conversationId: widget.conversationId,
+        ),
+      );
     } else {
       context.read<ConversationBloc>().add(
-            ConversationEvent.declineTokenRequest(
-              messageId: message.id,
-              conversationId: widget.conversationId,
-            ),
-          );
+        ConversationEvent.declineTokenRequest(
+          messageId: message.id,
+          conversationId: widget.conversationId,
+        ),
+      );
     }
   }
 
@@ -786,8 +784,10 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       final router = GoRouter.of(context);
       final conversationId = widget.conversationId;
 
-      debugPrint('_initiateCall: recipientId=$recipientId, '
-          'callType=$callType, conversationId=$conversationId');
+      debugPrint(
+        '_initiateCall: recipientId=$recipientId, '
+        'callType=$callType, conversationId=$conversationId',
+      );
 
       // Listen once for the callId to be set on state, then navigate with it
       late final StreamSubscription<CallState> sub;
@@ -802,21 +802,25 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           }
         } else if (state.status == CallStatus.failed) {
           sub.cancel();
-          debugPrint('_initiateCall: FAILED — '
-              '${state.errorMessage ?? 'unknown error'}');
+          debugPrint(
+            '_initiateCall: FAILED — '
+            '${state.errorMessage ?? 'unknown error'}',
+          );
         } else if (state.status == CallStatus.idle) {
           sub.cancel();
         }
       });
 
       // Dispatch call initiation event
-      callBloc.add(CallEvent.initiateCall(
-            conversationId: widget.conversationId,
-            recipientId: recipientId,
-            recipientName: recipientInfo.displayName,
-            recipientAvatarUrl: recipientInfo.avatarUrl,
-            callType: callType,
-          ));
+      callBloc.add(
+        CallEvent.initiateCall(
+          conversationId: widget.conversationId,
+          recipientId: recipientId,
+          recipientName: recipientInfo.displayName,
+          recipientAvatarUrl: recipientInfo.avatarUrl,
+          callType: callType,
+        ),
+      );
     } catch (e) {
       debugPrint('_initiateCall: ERROR: $e');
     }
@@ -853,11 +857,11 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               onTap: () {
                 Navigator.pop(ctx);
                 context.read<ConversationActionsBloc>().add(
-                      ConversationActionsEvent.toggleMute(
-                        conversationId: conv.id,
-                        muted: !conv.isMutedFor(currentUserId),
-                      ),
-                    );
+                  ConversationActionsEvent.toggleMute(
+                    conversationId: conv.id,
+                    muted: !conv.isMutedFor(currentUserId),
+                  ),
+                );
               },
             ),
             ListTile(
@@ -865,25 +869,24 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                 conv.hasDisappearingMessages
                     ? Icons.timer
                     : Icons.timer_outlined,
-                color:
-                    conv.hasDisappearingMessages ? AppColors.accent : null,
+                color: conv.hasDisappearingMessages ? AppColors.accent : null,
               ),
               title: Text(
                 conv.hasDisappearingMessages
                     ? 'Disappearing messages (${conv.disappearingMessagesLabel})'
                     : 'Disappearing messages',
               ),
-              subtitle: conv.hasDisappearingMessages
-                  ? null
-                  : const Text('Off'),
+              subtitle: conv.hasDisappearingMessages ? null : const Text('Off'),
               onTap: () {
                 Navigator.pop(ctx);
                 _showDisappearingMessagesDialog(context, conv);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_sweep_outlined,
-                  color: AppColors.error),
+              leading: const Icon(
+                Icons.delete_sweep_outlined,
+                color: AppColors.error,
+              ),
               title: const Text('Clear Chat'),
               onTap: () {
                 Navigator.pop(ctx);
@@ -951,9 +954,9 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 'Disappearing Messages',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
             ),
             Padding(
@@ -961,19 +964,31 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               child: Text(
                 'New messages will disappear after the selected time. '
                 'This does not affect existing messages.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
             ),
             const SizedBox(height: 8),
             _buildDurationOption(ctx, 'Off', null, currentDuration),
             _buildDurationOption(
-                ctx, '24 hours', const Duration(hours: 24), currentDuration),
+              ctx,
+              '24 hours',
+              const Duration(hours: 24),
+              currentDuration,
+            ),
             _buildDurationOption(
-                ctx, '7 days', const Duration(days: 7), currentDuration),
+              ctx,
+              '7 days',
+              const Duration(days: 7),
+              currentDuration,
+            ),
             _buildDurationOption(
-                ctx, '90 days', const Duration(days: 90), currentDuration),
+              ctx,
+              '90 days',
+              const Duration(days: 90),
+              currentDuration,
+            ),
             const SizedBox(height: 8),
           ],
         ),
@@ -997,11 +1012,11 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         Navigator.pop(ctx);
         if (!isSelected) {
           context.read<ConversationBloc>().add(
-                ConversationEvent.setDisappearingMessages(
-                  conversationId: widget.conversationId,
-                  duration: duration,
-                ),
-              );
+            ConversationEvent.setDisappearingMessages(
+              conversationId: widget.conversationId,
+              duration: duration,
+            ),
+          );
         }
       },
     );
@@ -1035,8 +1050,8 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     if (confirmed != true || !mounted) return;
 
     context.read<ConversationBloc>().add(
-          ConversationEvent.clearChat(conversationId),
-        );
+      ConversationEvent.clearChat(conversationId),
+    );
   }
 
   Future<void> _confirmDeleteMessage(
@@ -1067,11 +1082,11 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     if (confirmed != true || !mounted) return;
 
     context.read<ConversationActionsBloc>().add(
-          ConversationActionsEvent.deleteMessageForEveryone(
-            conversationId: widget.conversationId,
-            messageId: messageId,
-          ),
-        );
+      ConversationActionsEvent.deleteMessageForEveryone(
+        conversationId: widget.conversationId,
+        messageId: messageId,
+      ),
+    );
   }
 
   Future<void> _confirmBlockUser(
@@ -1113,27 +1128,22 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         ),
       ),
       (_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User blocked')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('User blocked')));
         context.go('/chat');
       },
     );
   }
 
-  void _reportUser(
-    BuildContext context,
-    String userId,
-    String displayName,
-  ) {
+  void _reportUser(BuildContext context, String userId, String displayName) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (_) => ReportSheet(
         targetName: displayName,
         onSubmit: (reason, additionalInfo) async {
-          final result =
-              await getIt<ModerationRepository>().submitReport(
+          final result = await getIt<ModerationRepository>().submitReport(
             type: ReportType.user,
             targetId: userId,
             reason: reason,
@@ -1144,13 +1154,14 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
             (failure) => ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                    'Failed to submit report: ${failure.displayMessage}'),
+                  'Failed to submit report: ${failure.displayMessage}',
+                ),
                 backgroundColor: AppColors.error,
               ),
             ),
-            (_) => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Report submitted')),
-            ),
+            (_) => ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Report submitted'))),
           );
         },
       ),
@@ -1212,11 +1223,17 @@ class _TokenActionsSheetState extends State<_TokenActionsSheet> {
             ),
             Row(
               children: [
-                Expanded(child: _buildToggle(context, 'Send', Icons.send, true)),
+                Expanded(
+                  child: _buildToggle(context, 'Send', Icons.send, true),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildToggle(
-                      context, 'Request', Icons.call_received, false),
+                    context,
+                    'Request',
+                    Icons.call_received,
+                    false,
+                  ),
                 ),
               ],
             ),
@@ -1249,11 +1266,14 @@ class _TokenActionsSheetState extends State<_TokenActionsSheet> {
               child: ElevatedButton(
                 onPressed: _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _isSending ? AppColors.success : AppColors.accent,
+                  backgroundColor: _isSending
+                      ? AppColors.success
+                      : AppColors.accent,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: Text(_isSending ? 'Send Instant Tokens' : 'Request Instant Tokens'),
+                child: Text(
+                  _isSending ? 'Send Instant Tokens' : 'Request Instant Tokens',
+                ),
               ),
             ),
             AppSpacing.verticalMd,
@@ -1287,19 +1307,17 @@ class _TokenActionsSheetState extends State<_TokenActionsSheet> {
         ),
         child: Column(
           children: [
-            Icon(icon,
-                color:
-                    isSelected ? AppColors.primary : AppColors.textSecondary),
+            Icon(
+              icon,
+              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+            ),
             const SizedBox(height: 8),
             Text(
               label,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: isSelected
-                        ? AppColors.primary
-                        : AppColors.textSecondary,
-                    fontWeight:
-                        isSelected ? FontWeight.bold : FontWeight.normal,
-                  ),
+                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
           ],
         ),
@@ -1320,22 +1338,22 @@ class _TokenActionsSheetState extends State<_TokenActionsSheet> {
 
     if (_isSending) {
       context.read<ConversationBloc>().add(
-            ConversationEvent.sendTokens(
-              conversationId: widget.conversationId,
-              recipientId: widget.recipientId,
-              amount: amount,
-              message: note.isEmpty ? null : note,
-            ),
-          );
+        ConversationEvent.sendTokens(
+          conversationId: widget.conversationId,
+          recipientId: widget.recipientId,
+          amount: amount,
+          message: note.isEmpty ? null : note,
+        ),
+      );
     } else {
       context.read<ConversationBloc>().add(
-            ConversationEvent.requestTokens(
-              conversationId: widget.conversationId,
-              recipientId: widget.recipientId,
-              amount: amount,
-              message: note.isEmpty ? null : note,
-            ),
-          );
+        ConversationEvent.requestTokens(
+          conversationId: widget.conversationId,
+          recipientId: widget.recipientId,
+          amount: amount,
+          message: note.isEmpty ? null : note,
+        ),
+      );
     }
 
     Navigator.pop(context);

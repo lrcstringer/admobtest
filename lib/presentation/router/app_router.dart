@@ -56,6 +56,7 @@ import '../screens/community/pending_approvals_screen.dart';
 
 // Domain entities (for route extras)
 import '../../domain/entities/gift.dart';
+import '../../domain/enums/community_type.dart';
 
 // Gift screens
 import '../screens/gift/gift_composer_screen.dart';
@@ -840,8 +841,8 @@ class AppRouter {
                   GoRoute(
                     path: 'create-community',
                     name: 'createCommunity',
-                    builder: (context, state) =>
-                        const CreateCommunityScreen(),
+                    builder: (context, state) => CreateCommunityScreen(
+                        initialType: state.extra as CommunityType?),
                   ),
                   // 8.4) Chat Send Wallet Selection (legacy token send flow)
                   GoRoute(

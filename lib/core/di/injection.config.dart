@@ -445,10 +445,7 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.lazySingleton<_i658.CallRepository>(
-      () => _i294.CallRepositoryImpl(
-        gh<_i340.CallRemoteDatasource>(),
-        gh<_i974.FirebaseFirestore>(),
-      ),
+      () => _i294.CallRepositoryImpl(gh<_i340.CallRemoteDatasource>()),
     );
     gh.lazySingleton<_i942.SessionLockService>(
       () => _i942.SessionLockService(

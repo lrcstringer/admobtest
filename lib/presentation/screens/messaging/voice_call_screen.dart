@@ -54,10 +54,15 @@ class _VoiceCallScreenState extends State<VoiceCallScreen> {
 
   /// Connect renderers to WebRTC media streams.
   /// Called from [_initRenderers] and from listener when webRtcService is ready.
+  /// Safe to call multiple times — cancels previous subscriptions first.
   void _connectToStreams() {
-    if (_localStreamSub != null) return; // Already connected
     final webRtc = context.read<CallBloc>().webRtcService;
     if (webRtc == null) return;
+    if (webRtc.isDisposed) return;
+
+    // Cancel previous subscriptions to prevent stacking
+    _localStreamSub?.cancel();
+    _remoteStreamSub?.cancel();
 
     if (webRtc.localStream != null) {
       _localRenderer!.srcObject = webRtc.localStream;

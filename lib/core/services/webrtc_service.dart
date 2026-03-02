@@ -125,6 +125,7 @@ class WebRtcService {
 
     // Acquire local media
     try {
+      debugPrint('WebRtcService: getUserMedia isVideo=$isVideo');
       _localStream = await navigator.mediaDevices.getUserMedia({
         'audio': {
           'echoCancellation': true,
@@ -133,17 +134,17 @@ class WebRtcService {
         },
         'video': isVideo
             ? {
-                'mandatory': {
-                  'minWidth': 480,
-                  'minHeight': 640,
-                  'minFrameRate': 24,
-                },
+                'width': {'ideal': 480},
+                'height': {'ideal': 640},
+                'frameRate': {'ideal': 24},
                 'facingMode': 'user',
-                'optional': <Map<String, dynamic>>[],
               }
             : false,
       });
+      debugPrint('WebRtcService: getUserMedia success — '
+          'tracks: ${_localStream!.getTracks().length}');
     } catch (e) {
+      debugPrint('WebRtcService: getUserMedia FAILED: $e');
       await dispose();
       rethrow; // Permission denied or hardware failure
     }
@@ -197,30 +198,42 @@ class WebRtcService {
     await Helper.setSpeakerphoneOn(_isSpeakerOn);
   }
 
+  /// Explicitly set speakerphone on or off (non-toggle).
+  /// Used to force earpiece for voice calls on iOS where the audio session
+  /// config includes defaultToSpeaker for Bluetooth compatibility.
+  Future<void> setSpeakerphone(bool enabled) async {
+    _isSpeakerOn = enabled;
+    await Helper.setSpeakerphoneOn(enabled);
+  }
+
   /// Upgrade voice call to video by replacing the reserved transceiver's track.
   Future<void> upgradeToVideo() async {
     final mediaStream = await navigator.mediaDevices.getUserMedia({
       'video': {
-        'mandatory': {
-          'minWidth': 480,
-          'minHeight': 640,
-          'minFrameRate': 24,
-        },
+        'width': {'ideal': 480},
+        'height': {'ideal': 640},
+        'frameRate': {'ideal': 24},
         'facingMode': 'user',
       },
     });
     final videoTrack = mediaStream.getVideoTracks().first;
 
-    if (_videoTransceiver != null) {
-      await _videoTransceiver!.sender.replaceTrack(videoTrack);
-      await _videoTransceiver!
-          .setDirection(TransceiverDirection.SendRecv);
-    }
+    try {
+      if (_videoTransceiver != null) {
+        await _videoTransceiver!.sender.replaceTrack(videoTrack);
+        await _videoTransceiver!
+            .setDirection(TransceiverDirection.SendRecv);
+      }
 
-    // Add video track to local stream for preview
-    _localStream?.addTrack(videoTrack);
-    _localStreamController.add(_localStream);
-    _isVideoEnabled = true;
+      // Add video track to local stream for preview
+      _localStream?.addTrack(videoTrack);
+      _localStreamController.add(_localStream);
+      _isVideoEnabled = true;
+    } catch (e) {
+      // Clean up the acquired track so the camera light turns off
+      await videoTrack.stop();
+      rethrow;
+    }
   }
 
   // ── Cleanup ──

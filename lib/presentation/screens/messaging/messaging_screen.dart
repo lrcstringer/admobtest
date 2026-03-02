@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/community.dart';
 import '../../../domain/entities/conversation.dart';
+import '../../../domain/enums/community_type.dart';
+import '../../../domain/enums/conversation_type.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../blocs/contact/contact_bloc.dart';
@@ -12,17 +14,14 @@ import '../../blocs/conversation_actions/conversation_actions_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../../domain/enums/conversation_type.dart';
 import '../../widgets/messaging/chat_background.dart';
 import '../../widgets/messaging/community_list_tile.dart';
 import '../../widgets/messaging/conversation_list_tile.dart';
 import '../../widgets/pool/collection_room_list_tile.dart';
 import 'contacts_tab.dart';
 
-/// Unified inbox screen showing all P2P conversations and communities
-/// sorted by last message timestamp.
-///
-/// Replaces the old [ChatScreen] for the Chat tab (Tab 2).
+/// Messaging screen with three tabs: Chats, Communities, Contacts.
+/// Each tab has a context-aware FAB with relevant actions.
 class MessagingScreen extends StatefulWidget {
   const MessagingScreen({super.key});
 
@@ -48,10 +47,18 @@ class _MessagingScreenState extends State<MessagingScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) return;
-      setState(() => _currentTab = _tabController.index);
+      setState(() {
+        _currentTab = _tabController.index;
+        // Clear search when switching tabs
+        if (_isSearching) {
+          _isSearching = false;
+          _searchQuery = '';
+          _searchController.clear();
+        }
+      });
     });
 
     context
@@ -100,110 +107,149 @@ class _MessagingScreenState extends State<MessagingScreen>
       child: Scaffold(
       backgroundColor: AppColors.chatBackground,
       appBar: _isSearching
-          ? AppBar(
-              backgroundColor: AppColors.chatAppBar,
-              surfaceTintColor: Colors.transparent,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  setState(() {
-                    _isSearching = false;
-                    _searchQuery = '';
-                    _searchController.clear();
-                  });
-                },
-              ),
-              title: TextField(
-                controller: _searchController,
-                autofocus: true,
-                decoration: const InputDecoration(
-                  hintText: 'Search conversations...',
-                  border: InputBorder.none,
-                ),
-                onChanged: (query) {
-                  setState(() => _searchQuery = query.toLowerCase());
-                },
-              ),
-              actions: [
-                if (_searchController.text.isNotEmpty)
-                  IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      setState(() {
-                        _searchQuery = '';
-                        _searchController.clear();
-                      });
-                    },
-                  ),
-              ],
-            )
-          : IMaliAppBar(
-              title: 'Chat',
-              backgroundColor: AppColors.chatAppBar,
-              extraActions: [
-                IconButton(
-                  icon:
-                      const Icon(Icons.search, color: AppColors.textPrimary),
-                  onPressed: () => _showSearch(context),
-                ),
-              ],
-              bottom: TabBar(
-                controller: _tabController,
-                indicatorColor: AppColors.primary,
-                labelColor: AppColors.primary,
-                unselectedLabelColor: AppColors.textSecondary,
-                tabs: [
-                  const Tab(text: 'Chats'),
-                  BlocBuilder<ContactBloc, ContactState>(
-                    builder: (context, contactState) {
-                      final count = contactState.pendingRequestCount;
-                      return Tab(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text('Contacts'),
-                            if (count > 0) ...[
-                              const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.error,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  '$count',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+          ? _buildSearchAppBar()
+          : _buildMainAppBar(),
       body: TabBarView(
         controller: _tabController,
         children: [
-          // Tab 0: Chats
           _buildChatsTab(context, currentUserId),
-          // Tab 1: Contacts
+          _buildCommunitiesTab(context, currentUserId),
           const ContactsTab(),
         ],
       ),
-      floatingActionButton: _currentTab == 0 ? _buildFAB(context) : null,
+      floatingActionButton: _buildContextFAB(context),
     ),
     );
   }
+
+  // =========================================================================
+  // APP BAR
+  // =========================================================================
+
+  PreferredSizeWidget _buildSearchAppBar() {
+    final hintText = _currentTab == 1
+        ? 'Search communities...'
+        : 'Search conversations...';
+
+    return AppBar(
+      backgroundColor: AppColors.chatAppBar,
+      surfaceTintColor: Colors.transparent,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          setState(() {
+            _isSearching = false;
+            _searchQuery = '';
+            _searchController.clear();
+          });
+        },
+      ),
+      title: TextField(
+        controller: _searchController,
+        autofocus: true,
+        decoration: InputDecoration(
+          hintText: hintText,
+          border: InputBorder.none,
+        ),
+        onChanged: (query) {
+          setState(() => _searchQuery = query.toLowerCase());
+        },
+      ),
+      actions: [
+        if (_searchController.text.isNotEmpty)
+          IconButton(
+            icon: const Icon(Icons.clear),
+            onPressed: () {
+              setState(() {
+                _searchQuery = '';
+                _searchController.clear();
+              });
+            },
+          ),
+      ],
+    );
+  }
+
+  IMaliAppBar _buildMainAppBar() {
+    return IMaliAppBar(
+      title: 'Chat',
+      backgroundColor: AppColors.chatAppBar,
+      extraActions: [
+        // Hide search on Contacts tab (has its own search)
+        if (_currentTab != 2)
+          IconButton(
+            icon: const Icon(Icons.search, color: AppColors.textPrimary),
+            onPressed: () => setState(() => _isSearching = true),
+          ),
+      ],
+      bottom: TabBar(
+        controller: _tabController,
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
+        indicatorColor: AppColors.primary,
+        labelColor: AppColors.primary,
+        unselectedLabelColor: AppColors.textSecondary,
+        tabs: [
+          // Chats tab with unread badge
+          BlocBuilder<ConversationBloc, ConversationState>(
+            builder: (context, convState) {
+              return _buildBadgedTab('Chats', convState.totalUnreadCount);
+            },
+          ),
+          // Communities tab with unread badge
+          BlocBuilder<CommunityBloc, CommunityState>(
+            builder: (context, commState) {
+              return _buildBadgedTab(
+                  'Communities', commState.totalUnreadCount);
+            },
+          ),
+          // Contacts tab with pending request badge
+          BlocBuilder<ContactBloc, ContactState>(
+            builder: (context, contactState) {
+              return _buildBadgedTab(
+                  'Contacts', contactState.pendingRequestCount);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBadgedTab(String label, int count) {
+    return Tab(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label),
+          if (count > 0) ...[
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 6,
+                vertical: 2,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.error,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                count > 99 ? '99+' : '$count',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // =========================================================================
+  // CHATS TAB (Tab 0) — P2P Conversations only
+  // =========================================================================
 
   Widget _buildChatsTab(BuildContext context, String currentUserId) {
     return BlocConsumer<ConversationBloc, ConversationState>(
@@ -221,106 +267,21 @@ class _MessagingScreenState extends State<MessagingScreen>
         }
       },
       builder: (context, convState) {
-        return BlocBuilder<CommunityBloc, CommunityState>(
-          builder: (context, commState) {
-            return Stack(
-              children: [
-                const Positioned.fill(
-                  child: ChatBackground(),
-                ),
-                Column(
-                  children: [
-                    // Quick Actions Bar
-                    _buildQuickActions(context),
-                    // Unified inbox list
-                    Expanded(
-                      child: _buildInboxList(
-                        context,
-                        convState,
-                        commState,
-                        currentUserId,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
+        return Stack(
+          children: [
+            const Positioned.fill(child: ChatBackground()),
+            _buildConversationList(context, convState, currentUserId),
+          ],
         );
       },
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
-    return Container(
-      padding: AppSpacing.cardPadding,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildQuickAction(
-            context,
-            icon: Icons.send,
-            label: 'Send',
-            color: AppColors.primary,
-            onTap: () => context.push('/wallet/send'),
-          ),
-          _buildQuickAction(
-            context,
-            icon: Icons.group_add,
-            label: 'Community',
-            color: AppColors.secondary,
-            onTap: () => context.push('/chat/create-community'),
-          ),
-          _buildQuickAction(
-            context,
-            icon: Icons.qr_code,
-            label: 'QR Code',
-            color: AppColors.tertiary,
-            onTap: () => _showQRCode(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickAction(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: AppSpacing.borderRadiusMd,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 24),
-            ),
-            AppSpacing.verticalXs,
-            Text(label, style: Theme.of(context).textTheme.labelMedium),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInboxList(
+  Widget _buildConversationList(
     BuildContext context,
     ConversationState convState,
-    CommunityState commState,
     String currentUserId,
   ) {
-    // Show spinner until conversations have loaded at least once
     final convNotReady = convState.conversations.isEmpty &&
         (convState.status == ConversationStatus.initial ||
             convState.status == ConversationStatus.loading);
@@ -329,11 +290,10 @@ class _MessagingScreenState extends State<MessagingScreen>
       return const Center(child: CircularProgressIndicator());
     }
 
-    // Build unified list items sorted by lastMessageAt
-    final items = _buildUnifiedItems(convState, commState, currentUserId);
+    final items = _buildConversationItems(convState, currentUserId);
 
     if (items.isEmpty) {
-      return _buildEmptyState(context);
+      return _buildChatsEmptyState(context);
     }
 
     return RefreshIndicator(
@@ -341,9 +301,6 @@ class _MessagingScreenState extends State<MessagingScreen>
         context
             .read<ConversationBloc>()
             .add(const ConversationEvent.watchConversations());
-        context
-            .read<CommunityBloc>()
-            .add(const CommunityEvent.loadUserCommunities());
       },
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -352,24 +309,22 @@ class _MessagingScreenState extends State<MessagingScreen>
           height: 0.5,
           thickness: 0.5,
           color: AppColors.chatSurface.withValues(alpha: 0.3),
-          indent: 76, // aligns with text start (avatar + padding)
+          indent: 76,
         ),
         itemBuilder: (context, index) => items[index],
       ),
     );
   }
 
-  List<Widget> _buildUnifiedItems(
+  List<Widget> _buildConversationItems(
     ConversationState convState,
-    CommunityState commState,
     String currentUserId,
   ) {
-    // Create sortable entries
     final entries = <_InboxEntry>[];
 
     for (final conv in convState.sortedConversations(currentUserId)) {
       if (conv.isArchivedFor(currentUserId)) continue;
-      if (conv.isMessageRequestFor(currentUserId)) continue; // skip requests
+      if (conv.isMessageRequestFor(currentUserId)) continue;
       if (_searchQuery.isNotEmpty &&
           !conv
               .displayNameFor(currentUserId)
@@ -377,7 +332,7 @@ class _MessagingScreenState extends State<MessagingScreen>
               .contains(_searchQuery)) {
         continue;
       }
-      // Use special tile for collection room conversations
+
       final Widget tile;
       if (conv.type == ConversationType.collection &&
           conv.tokenPoolId != null) {
@@ -409,24 +364,6 @@ class _MessagingScreenState extends State<MessagingScreen>
       ));
     }
 
-    for (final comm in commState.activeCommunities) {
-      if (_searchQuery.isNotEmpty &&
-          !comm.name.toLowerCase().contains(_searchQuery)) {
-        continue;
-      }
-      entries.add(_InboxEntry(
-        sortTime: comm.lastMessageAt ?? comm.createdAt,
-        isPinned: false,
-        widget: CommunityListTile(
-          community: comm,
-          currentUserId: currentUserId,
-          onTap: () => context.push('/chat/community/${comm.id}'),
-          onLongPress: () => _showCommunityOptions(context, comm),
-        ),
-      ));
-    }
-
-    // Sort: pinned first, then by timestamp descending
     entries.sort((a, b) {
       if (a.isPinned != b.isPinned) return a.isPinned ? -1 : 1;
       return b.sortTime.compareTo(a.sortTime);
@@ -434,7 +371,6 @@ class _MessagingScreenState extends State<MessagingScreen>
 
     final widgets = <Widget>[];
 
-    // Message Requests row (when not searching)
     if (_searchQuery.isEmpty && convState.messageRequestCount > 0) {
       widgets.add(_buildMessageRequestsRow(context, convState.messageRequestCount));
     }
@@ -484,7 +420,7 @@ class _MessagingScreenState extends State<MessagingScreen>
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildChatsEmptyState(BuildContext context) {
     return Center(
       child: Padding(
         padding: AppSpacing.pagePadding,
@@ -501,7 +437,7 @@ class _MessagingScreenState extends State<MessagingScreen>
             ),
             AppSpacing.verticalSm,
             Text(
-              'Start a chat or create a community to get started',
+              'Start a chat to get started',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -509,7 +445,7 @@ class _MessagingScreenState extends State<MessagingScreen>
             ),
             AppSpacing.verticalXl,
             ElevatedButton.icon(
-              onPressed: () => _showNewChatSheet(context),
+              onPressed: () => _showChatsSheet(context),
               icon: const Icon(Icons.person_add),
               label: const Text('Start a Chat'),
             ),
@@ -519,35 +455,158 @@ class _MessagingScreenState extends State<MessagingScreen>
     );
   }
 
-  Widget _buildFAB(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => _showNewChatSheet(context),
-      child: const Icon(Icons.edit),
+  // =========================================================================
+  // COMMUNITIES TAB (Tab 1)
+  // =========================================================================
+
+  Widget _buildCommunitiesTab(BuildContext context, String currentUserId) {
+    return BlocBuilder<CommunityBloc, CommunityState>(
+      builder: (context, commState) {
+        return Stack(
+          children: [
+            const Positioned.fill(child: ChatBackground()),
+            _buildCommunitiesList(context, commState, currentUserId),
+          ],
+        );
+      },
     );
   }
 
-  void _showNewChatSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => _NewChatOrCommunitySheet(
-        onNewChat: () {
-          Navigator.pop(context);
-          context.push('/chat/new');
-        },
-        onNewCommunity: () {
-          Navigator.pop(context);
-          context.push('/chat/create-community');
+  Widget _buildCommunitiesList(
+    BuildContext context,
+    CommunityState commState,
+    String currentUserId,
+  ) {
+    if (commState.status == CommunityLoadingStatus.loading &&
+        commState.communities.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final communities = commState.activeCommunities
+        .where((comm) =>
+            _searchQuery.isEmpty ||
+            comm.name.toLowerCase().contains(_searchQuery))
+        .toList()
+      ..sort((a, b) {
+        final aTime = a.lastMessageAt ?? a.createdAt;
+        final bTime = b.lastMessageAt ?? b.createdAt;
+        return bTime.compareTo(aTime);
+      });
+
+    if (communities.isEmpty && _searchQuery.isEmpty) {
+      return _buildCommunitiesEmptyState(context);
+    }
+
+    if (communities.isEmpty) {
+      return Center(
+        child: Text(
+          'No results for "$_searchQuery"',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context
+            .read<CommunityBloc>()
+            .add(const CommunityEvent.loadUserCommunities());
+      },
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: communities.length,
+        separatorBuilder: (context, index) => Divider(
+          height: 0.5,
+          thickness: 0.5,
+          color: AppColors.chatSurface.withValues(alpha: 0.3),
+          indent: 76,
+        ),
+        itemBuilder: (context, index) {
+          final comm = communities[index];
+          return CommunityListTile(
+            community: comm,
+            currentUserId: currentUserId,
+            onTap: () => context.push('/chat/community/${comm.id}'),
+            onLongPress: () => _showCommunityOptions(context, comm),
+          );
         },
       ),
     );
   }
 
-  void _showSearch(BuildContext context) {
-    setState(() => _isSearching = true);
+  Widget _buildCommunitiesEmptyState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: AppSpacing.pagePadding,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.group_outlined, size: 80, color: AppColors.textHint),
+            AppSpacing.verticalLg,
+            Text(
+              'No communities yet',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            AppSpacing.verticalSm,
+            Text(
+              'Create or join a community to get started',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            AppSpacing.verticalXl,
+            ElevatedButton.icon(
+              onPressed: () => _showCommunitiesSheet(context),
+              icon: const Icon(Icons.group_add),
+              label: const Text('Create Community'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  void _showQRCode(BuildContext context) {
+  // =========================================================================
+  // CONTEXT-AWARE FAB
+  // =========================================================================
+
+  Widget _buildContextFAB(BuildContext context) {
+    final IconData icon;
+    switch (_currentTab) {
+      case 0:
+        icon = Icons.edit;
+      case 1:
+        icon = Icons.group_add;
+      case 2:
+        icon = Icons.person_add;
+      default:
+        icon = Icons.add;
+    }
+    return FloatingActionButton(
+      onPressed: () => _showFABSheet(context),
+      child: Icon(icon),
+    );
+  }
+
+  void _showFABSheet(BuildContext context) {
+    switch (_currentTab) {
+      case 0:
+        _showChatsSheet(context);
+      case 1:
+        _showCommunitiesSheet(context);
+      case 2:
+        _showContactsSheet(context);
+    }
+  }
+
+  // =========================================================================
+  // FAB BOTTOM SHEETS
+  // =========================================================================
+
+  void _showChatsSheet(BuildContext context) {
     final currentUser = context.read<AuthBloc>().state.user;
     showModalBottomSheet(
       context: context,
@@ -555,19 +614,32 @@ class _MessagingScreenState extends State<MessagingScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.textHint,
-                borderRadius: BorderRadius.circular(2),
+            _dragHandle(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'New Conversation',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.qr_code),
-              title: const Text('My QR Code'),
-              subtitle: const Text('Let others scan to chat with you'),
+            AppSpacing.verticalMd,
+            _sheetOption(
+              icon: Icons.person,
+              color: AppColors.primary,
+              title: 'New Chat',
+              subtitle: 'Send a message to a contact',
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/chat/new');
+              },
+            ),
+            _sheetOption(
+              icon: Icons.qr_code,
+              color: AppColors.tertiary,
+              title: 'My QR Code',
+              subtitle: 'Let others scan to chat with you',
               onTap: () {
                 Navigator.pop(ctx);
                 context.push('/home/qr-code', extra: {
@@ -577,21 +649,127 @@ class _MessagingScreenState extends State<MessagingScreen>
                 });
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.qr_code_scanner),
-              title: const Text('Scan QR Code'),
-              subtitle: const Text('Scan someone\'s code to start chatting'),
+            _sheetOption(
+              icon: Icons.qr_code_scanner,
+              color: AppColors.tertiary,
+              title: 'Scan QR Code',
+              subtitle: "Scan someone's code to start chatting",
               onTap: () {
                 Navigator.pop(ctx);
                 context.push('/scan');
               },
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalLg,
           ],
         ),
       ),
     );
   }
+
+  void _showCommunitiesSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _dragHandle(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'New Community',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+            AppSpacing.verticalMd,
+            _sheetOption(
+              icon: Icons.group_add,
+              color: AppColors.secondary,
+              title: 'Create Community',
+              subtitle: 'Start a group for friends or family',
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/chat/create-community');
+              },
+            ),
+            _sheetOption(
+              icon: Icons.savings,
+              color: AppColors.secondary,
+              title: 'Create Stokvel',
+              subtitle: 'Start a savings group with contributions',
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/chat/create-community',
+                    extra: CommunityType.stokvel);
+              },
+            ),
+            AppSpacing.verticalLg,
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showContactsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _dragHandle(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Add Contacts',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+            AppSpacing.verticalMd,
+            _sheetOption(
+              icon: Icons.person_add,
+              color: AppColors.primary,
+              title: 'Add Contact',
+              subtitle: 'Search for someone on iMaliChat',
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/chat/new');
+              },
+            ),
+            _sheetOption(
+              icon: Icons.contact_phone_outlined,
+              color: AppColors.secondary,
+              title: 'Import Contacts',
+              subtitle: 'Find friends from your phone',
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/chat/import-contacts');
+              },
+            ),
+            _sheetOption(
+              icon: Icons.storefront_outlined,
+              color: AppColors.secondary,
+              title: 'Discover Brands',
+              subtitle: 'Follow brands to get updates',
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/chat/brand-accounts');
+              },
+            ),
+            AppSpacing.verticalLg,
+          ],
+        ),
+      ),
+    );
+  }
+
+  // =========================================================================
+  // CONVERSATION & COMMUNITY OPTIONS
+  // =========================================================================
 
   void _showConversationOptions(BuildContext context, Conversation conv) {
     final currentUserId =
@@ -716,6 +894,32 @@ class _MessagingScreenState extends State<MessagingScreen>
     );
   }
 
+  // =========================================================================
+  // SHARED HELPERS
+  // =========================================================================
+
+  Widget _sheetOption({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: color),
+      ),
+      title: Text(title),
+      subtitle: Text(subtitle),
+      onTap: onTap,
+    );
+  }
+
   Widget _dragHandle() {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 12),
@@ -729,7 +933,7 @@ class _MessagingScreenState extends State<MessagingScreen>
   }
 }
 
-/// Helper for sorting unified inbox items.
+/// Helper for sorting inbox items by pinned + timestamp.
 class _InboxEntry {
   final DateTime sortTime;
   final bool isPinned;
@@ -740,78 +944,4 @@ class _InboxEntry {
     required this.isPinned,
     required this.widget,
   });
-}
-
-/// Bottom sheet for creating a new chat or community.
-class _NewChatOrCommunitySheet extends StatelessWidget {
-  final VoidCallback onNewChat;
-  final VoidCallback onNewCommunity;
-
-  const _NewChatOrCommunitySheet({
-    required this.onNewChat,
-    required this.onNewCommunity,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.textHint,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'New Conversation',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-            ),
-            AppSpacing.verticalMd,
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.person, color: AppColors.primary),
-              ),
-              title: const Text('New Chat'),
-              subtitle: const Text('Send a message to a contact'),
-              onTap: onNewChat,
-            ),
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.group_add, color: AppColors.secondary),
-              ),
-              title: const Text('Create Community'),
-              subtitle: const Text('Start a group or stokvel'),
-              onTap: onNewCommunity,
-            ),
-            AppSpacing.verticalLg,
-          ],
-        ),
-      ),
-    );
-  }
 }

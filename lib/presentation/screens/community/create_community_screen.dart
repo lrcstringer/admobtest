@@ -15,7 +15,10 @@ import '../../widgets/common/wave_background.dart';
 ///
 /// Adapts its form fields based on the selected community type.
 class CreateCommunityScreen extends StatefulWidget {
-  const CreateCommunityScreen({super.key});
+  const CreateCommunityScreen({super.key, this.initialType});
+
+  /// If provided, pre-selects the community type (e.g. stokvel shortcut).
+  final CommunityType? initialType;
 
   @override
   State<CreateCommunityScreen> createState() => _CreateCommunityScreenState();
@@ -26,13 +29,19 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  CommunityType _selectedType = CommunityType.regular;
+  late CommunityType _selectedType;
   String _contributionCycle = 'monthly';
   int _contributionAmount = 1000; // 10 ZAR default
   int _approvalThreshold = 5000; // 50 ZAR default
   bool _allowMemberWithdrawals = false;
   int _penaltyPercentage = 5;
   bool _enableFinancials = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedType = widget.initialType ?? CommunityType.regular;
+  }
 
   @override
   void dispose() {

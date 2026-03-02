@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -50,14 +51,16 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   int _iceRestartAttempts = 0;
   static const _maxIceRestarts = 3;
 
-  /// Prevent duplicate SDP processing — Firestore snapshots include the full
-  /// document on every change, so the offer/answer fields appear on every
-  /// update even when they haven't changed.
-  /// We store the last processed SDP string (not a boolean) so that ICE
-  /// restart and video upgrade renegotiations — which produce NEW SDPs —
-  /// are still processed correctly.
-  String? _lastProcessedOfferSdp;
-  String? _lastProcessedAnswerSdp;
+  /// Prevent duplicate SDP processing — RTDB onValue fires on every write,
+  /// including the initial snapshot. We store the last processed SDP string
+  /// (not a boolean) so that ICE restart and video upgrade renegotiations —
+  /// which produce NEW SDPs — are still processed correctly.
+  String? _lastProcessedRemoteSdp;
+
+  /// Consecutive heartbeat failures. When this reaches [_maxHeartbeatFailures],
+  /// we warn the user via a reconnecting status.
+  int _heartbeatFailures = 0;
+  static const _maxHeartbeatFailures = 3;
 
   /// Wait for the app to reach resumed (foreground) lifecycle state.
   /// On cold start from a CallKit accept, the app may still be paused
@@ -164,16 +167,20 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         },
       );
 
+      // Voice calls: ensure earpiece (not speaker) on iOS.
+      // The iOS audio session has defaultToSpeaker for Bluetooth compat,
+      // but voice calls should route to earpiece by default.
+      if (event.callType == CallType.voice) {
+        await _webRtcService!.setSpeakerphone(false);
+      }
+
       // Set up Perfect Negotiation (caller = impolite)
       _negotiationHandler = PerfectNegotiationHandler(
         pc: _webRtcService!.peerConnection!,
         polite: false,
         sendDescription: (desc) async {
-          if (desc.type == 'offer') {
-            await _signalingService.sendOffer(callId, desc);
-          } else {
-            await _signalingService.sendAnswer(callId, desc);
-          }
+          await _signalingService.sendDescription(callId, desc,
+              isCaller: true);
         },
       );
 
@@ -182,15 +189,20 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       // when pc.onRenegotiationNeeded was still null — that event was dropped.
       await _negotiationHandler!.negotiate();
 
-      // Watch for SDP answer via RTDB (fast path — ~10-50ms)
-      _sdpSub = _signalingService.watchAnswer(callId).listen(
-        (answer) {
-          if (answer.sdp != _lastProcessedAnswerSdp) {
-            _lastProcessedAnswerSdp = answer.sdp;
-            _negotiationHandler?.handleDescription(answer);
+      // Watch for remote SDP descriptions via RTDB (fast path — ~10-50ms).
+      // Role-based: caller watches calleeDescription node for both
+      // answers (normal flow) and offers (callee-initiated renegotiation).
+      _sdpSub = _signalingService
+          .watchRemoteDescription(callId, isCaller: true)
+          .listen(
+        (desc) {
+          if (desc.sdp != _lastProcessedRemoteSdp) {
+            _lastProcessedRemoteSdp = desc.sdp;
+            _negotiationHandler?.handleDescription(desc);
           }
         },
-        onError: (e) => debugPrint('CallBloc: watchAnswer error: $e'),
+        onError: (e) =>
+            debugPrint('CallBloc: watchRemoteDescription error: $e'),
       );
 
       // Listen for call document changes (status changes, video upgrade)
@@ -262,6 +274,18 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     if (state.status != CallStatus.idle) {
       debugPrint('CallBloc: ignoring incoming call — already in call '
           '(status=${state.status})');
+      // Dismiss the CallKit UI that the FCM handler already showed
+      try {
+        await FlutterCallkitIncoming.endCall(event.callId);
+      } catch (e) {
+        debugPrint('CallBloc: endCallKit (busy) error: $e');
+      }
+      // Notify server so caller sees "busy" instead of waiting for timeout
+      try {
+        await _callRepository.endCall(event.callId, reason: 'busy');
+      } catch (e) {
+        debugPrint('CallBloc: endCall (busy) error: $e');
+      }
       return;
     }
 
@@ -319,9 +343,16 @@ class CallBloc extends Bloc<CallEvent, CallState> {
               callId, candidate, isCaller: false);
         },
       );
-      final offerFuture = _signalingService.getOffer(callId);
+      final offerFuture = _signalingService.getRemoteDescription(
+          callId, isCaller: false);
 
       await initFuture;
+
+      // Voice calls: ensure earpiece (not speaker) on iOS.
+      if (state.callType == CallType.voice) {
+        await _webRtcService!.setSpeakerphone(false);
+      }
+
       final offer = await offerFuture;
 
       // Ensure answerCall completed (surfaces server errors)
@@ -329,49 +360,64 @@ class CallBloc extends Bloc<CallEvent, CallState> {
 
       debugPrint('CallBloc: [accept] offer present: ${offer != null}');
 
-      if (offer != null) {
-        debugPrint('CallBloc: [accept] step 5 — setRemoteDescription');
-        final pc = _webRtcService!.peerConnection!;
-        await pc.setRemoteDescription(offer);
-        debugPrint('CallBloc: [accept] step 6 — createAnswer');
-        final answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        final localDesc = await pc.getLocalDescription();
-        if (localDesc != null) {
-          debugPrint('CallBloc: [accept] step 7 — sendAnswer');
-          await _signalingService.sendAnswer(callId, localDesc);
-        }
-        _lastProcessedOfferSdp = offer.sdp;
-        debugPrint('CallBloc: [accept] SDP exchange complete');
-      } else {
+      // If offer not yet available via one-shot, wait up to 10s for it via
+      // the RTDB watch stream. Without this, a slow caller would leave the
+      // callee stuck in 'connecting' until the ring timer fires.
+      RTCSessionDescription? resolvedOffer = offer;
+      if (resolvedOffer == null) {
         debugPrint('CallBloc: [accept] no offer yet — '
-            'will process via RTDB watchOffer when it arrives');
+            'waiting up to 10s via RTDB watch');
+        try {
+          resolvedOffer = await _signalingService
+              .watchRemoteDescription(callId, isCaller: false)
+              .first
+              .timeout(const Duration(seconds: 10));
+        } on TimeoutException {
+          throw Exception('Caller offer not received within 10 seconds');
+        }
       }
 
+      debugPrint('CallBloc: [accept] step 5 — setRemoteDescription');
+      final pc = _webRtcService!.peerConnection!;
+      await pc.setRemoteDescription(resolvedOffer);
+      debugPrint('CallBloc: [accept] step 6 — createAnswer');
+      final answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      final localDesc = await pc.getLocalDescription();
+      if (localDesc != null) {
+        debugPrint('CallBloc: [accept] step 7 — sendAnswer');
+        await _signalingService.sendDescription(callId, localDesc,
+            isCaller: false);
+      }
+      _lastProcessedRemoteSdp = resolvedOffer.sdp;
+      debugPrint('CallBloc: [accept] SDP exchange complete');
+
       // Set up Perfect Negotiation for future renegotiation (video upgrade,
-      // ICE restart). If the offer wasn't available yet, watchOffer will
-      // route it through this handler when it arrives.
+      // ICE restart). If the offer wasn't available yet, the watch stream
+      // will route it through this handler when it arrives.
       _negotiationHandler = PerfectNegotiationHandler(
         pc: _webRtcService!.peerConnection!,
         polite: true,
         sendDescription: (desc) async {
-          if (desc.type == 'offer') {
-            await _signalingService.sendOffer(callId, desc);
-          } else {
-            await _signalingService.sendAnswer(callId, desc);
-          }
+          await _signalingService.sendDescription(callId, desc,
+              isCaller: false);
         },
       );
 
-      // Watch for SDP offer changes via RTDB (renegotiation, ICE restart)
-      _sdpSub = _signalingService.watchOffer(callId).listen(
-        (incomingOffer) {
-          if (incomingOffer.sdp != _lastProcessedOfferSdp) {
-            _lastProcessedOfferSdp = incomingOffer.sdp;
-            _negotiationHandler?.handleDescription(incomingOffer);
+      // Watch for remote SDP description changes via RTDB.
+      // Role-based: callee watches callerDescription node for both
+      // offers (normal + renegotiation) and answers (if callee offered).
+      _sdpSub = _signalingService
+          .watchRemoteDescription(callId, isCaller: false)
+          .listen(
+        (desc) {
+          if (desc.sdp != _lastProcessedRemoteSdp) {
+            _lastProcessedRemoteSdp = desc.sdp;
+            _negotiationHandler?.handleDescription(desc);
           }
         },
-        onError: (e) => debugPrint('CallBloc: watchOffer error: $e'),
+        onError: (e) =>
+            debugPrint('CallBloc: watchRemoteDescription error: $e'),
       );
 
       // Listen for remote ICE candidates
@@ -409,7 +455,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         // Best effort — scheduler will clean up eventually
       }
 
-      emit(state.copyWith(
+      emit(const CallState().copyWith(
         status: CallStatus.failed,
         errorMessage: e.toString(),
       ));
@@ -547,6 +593,16 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     // Handle remote hangup
     if (terminalCallStatuses.contains(session.status) &&
         !terminalCallStatuses.contains(state.status)) {
+      // Dismiss CallKit native UI if we're the callee still ringing
+      if (!state.isCaller &&
+          state.status == CallStatus.ringing &&
+          state.callId != null) {
+        try {
+          await FlutterCallkitIncoming.endCall(state.callId!);
+        } catch (e) {
+          debugPrint('CallBloc: endCallKit error: $e');
+        }
+      }
       await _cleanup();
       emit(const CallState());
       return;
@@ -594,11 +650,19 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     _IceConnectionStateChanged event,
     Emitter<CallState> emit,
   ) async {
+    // Guard: ignore stale events arriving after cleanup (BLoC queues events,
+    // so an ICE event dispatched before _cleanup can be processed after it).
+    if (state.callId == null) return;
+
     switch (event.state) {
       case RTCIceConnectionState.RTCIceConnectionStateConnected:
       case RTCIceConnectionState.RTCIceConnectionStateCompleted:
         // Reset ICE restart counter on successful connection
         _iceRestartAttempts = 0;
+
+        // Cancel ring timer — call is connected
+        _ringTimer?.cancel();
+        _ringTimer = null;
 
         if (state.status != CallStatus.active) {
           emit(state.copyWith(status: CallStatus.active));
@@ -610,12 +674,24 @@ class CallBloc extends Bloc<CallEvent, CallState> {
           add(const CallEvent.callTimerTick());
         });
 
-        // Start heartbeat (every 5 seconds)
+        // Start heartbeat (every 5 seconds) with failure tracking
         _heartbeatTimer?.cancel();
-        _heartbeatTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+        _heartbeatFailures = 0;
+        _heartbeatTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
           if (state.callId != null) {
-            _signalingService.sendHeartbeat(
-                state.callId!, isCaller: state.isCaller);
+            try {
+              await _signalingService.sendHeartbeat(
+                  state.callId!, isCaller: state.isCaller);
+              _heartbeatFailures = 0;
+            } catch (_) {
+              _heartbeatFailures++;
+              if (_heartbeatFailures >= _maxHeartbeatFailures &&
+                  state.status == CallStatus.active) {
+                add(const CallEvent.iceConnectionStateChanged(
+                    RTCIceConnectionState
+                        .RTCIceConnectionStateDisconnected));
+              }
+            }
           }
         });
 
@@ -717,8 +793,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     _webRtcService = null;
 
     _iceRestartAttempts = 0;
-    _lastProcessedOfferSdp = null;
-    _lastProcessedAnswerSdp = null;
+    _heartbeatFailures = 0;
+    _lastProcessedRemoteSdp = null;
   }
 
   @override

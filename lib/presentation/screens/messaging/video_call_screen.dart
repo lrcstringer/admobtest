@@ -57,10 +57,15 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   /// listener when the accept flow completes and webRtcService becomes
   /// available. This handles the callee timing issue: the screen is pushed
   /// before _onAcceptCall creates the WebRtcService, so initState sees null.
+  /// Safe to call multiple times — cancels previous subscriptions first.
   void _connectToStreams() {
-    if (_localStreamSub != null) return; // Already connected
     final webRtc = context.read<CallBloc>().webRtcService;
     if (webRtc == null) return;
+    if (webRtc.isDisposed) return;
+
+    // Cancel previous subscriptions to prevent stacking
+    _localStreamSub?.cancel();
+    _remoteStreamSub?.cancel();
 
     if (webRtc.localStream != null) {
       _localRenderer.srcObject = webRtc.localStream;
@@ -103,8 +108,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     return BlocConsumer<CallBloc, CallState>(
       listener: (context, state) {
         // Connect renderers once WebRTC is ready (callee path — initState
-        // runs before _onAcceptCall creates webRtcService)
-        if (_renderersReady && _localStreamSub == null) {
+        // runs before _onAcceptCall creates webRtcService).
+        // _connectToStreams is safe to call multiple times (cancels previous).
+        if (_renderersReady) {
           _connectToStreams();
         }
 

@@ -75,9 +75,16 @@ void main() {
     when(() => mockSignaling.watchRemoteIceCandidates(any(),
             isCaller: any(named: 'isCaller')))
         .thenAnswer((_) => const Stream.empty());
-    when(() => mockSignaling.sendOffer(any(), any()))
+    when(() => mockSignaling.sendDescription(any(), any(),
+            isCaller: any(named: 'isCaller')))
         .thenAnswer((_) async {});
-    when(() => mockSignaling.sendAnswer(any(), any()))
+    when(() => mockSignaling.getRemoteDescription(any(),
+            isCaller: any(named: 'isCaller')))
+        .thenAnswer((_) async => null);
+    when(() => mockSignaling.watchRemoteDescription(any(),
+            isCaller: any(named: 'isCaller')))
+        .thenAnswer((_) => const Stream.empty());
+    when(() => mockSignaling.cleanupSignaling(any()))
         .thenAnswer((_) async {});
     when(() => mockSignaling.sendIceCandidate(any(), any(),
             isCaller: any(named: 'isCaller')))
