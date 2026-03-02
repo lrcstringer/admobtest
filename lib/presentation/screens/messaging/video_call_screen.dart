@@ -6,6 +6,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../../core/services/webrtc_service.dart';
 import '../../../domain/enums/call_status.dart';
 import '../../../domain/enums/connection_quality.dart';
 import '../../blocs/call/call_bloc.dart';
@@ -29,6 +30,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   Timer? _hideControlsTimer;
   StreamSubscription? _localStreamSub;
   StreamSubscription? _remoteStreamSub;
+  WebRtcService? _lastConnectedService;
 
   // PiP drag position
   Offset _pipOffset = const Offset(16, 60);
@@ -62,6 +64,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     final webRtc = context.read<CallBloc>().webRtcService;
     if (webRtc == null) return;
     if (webRtc.isDisposed) return;
+    // Already connected to this service instance — skip
+    if (webRtc == _lastConnectedService) return;
+    _lastConnectedService = webRtc;
 
     // Cancel previous subscriptions to prevent stacking
     _localStreamSub?.cancel();

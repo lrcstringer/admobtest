@@ -155,8 +155,8 @@ class _WalletScreenState extends State<WalletScreen> {
                     _buildPortfolioCard(context, state, isLoading),
                     AppSpacing.verticalMd,
 
-                    // Send / Request action row
-                    _buildTokenActionRow(context),
+                    // Send/Request + Streak row
+                    _buildActionAndStreakRow(context, state),
                     AppSpacing.verticalXl,
 
                     // My Wallets section
@@ -305,27 +305,78 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  Widget _buildTokenActionRow(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: () => showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          builder: (_) => const TokenActionsSheet(),
-        ),
-        icon: const Icon(Icons.swap_vert, size: 18),
-        label: const Text('Send / Request Tokens'),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary),
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
+  Widget _buildActionAndStreakRow(BuildContext context, WalletState state) {
+    final streak = state.currentStreak;
+
+    return Row(
+      children: [
+        // Send / Request button — solid with portfolio gradient
+        Expanded(
+          child: GestureDetector(
+            onTap: () => showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              builder: (_) => const TokenActionsSheet(),
+            ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: AppColors.logoGradient,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.swap_vert,
+                      size: 18, color: Colors.white),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Send / Request',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
+        const SizedBox(width: 10),
+        // Streak badge — matches Home screen exactly
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.goldGradient,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.local_fire_department,
+                  size: 18, color: AppColors.textOnSecondary),
+              const SizedBox(width: 6),
+              Text(
+                'STREAK: $streak DAYS',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: AppColors.textOnSecondary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

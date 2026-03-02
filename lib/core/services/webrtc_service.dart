@@ -21,6 +21,10 @@ class WebRtcService {
   bool _isSpeakerOn = false;
   bool _isDisposed = false;
 
+  /// Callback to notify that renegotiation is needed after video upgrade.
+  /// Set by CallBloc after PerfectNegotiationHandler is created.
+  VoidCallback? onNeedRenegotiation;
+
   // Stream controllers — fresh per instance, safe to close once
   final _remoteStreamController = StreamController<MediaStream?>.broadcast();
   final _localStreamController = StreamController<MediaStream?>.broadcast();
@@ -64,27 +68,32 @@ class WebRtcService {
       _isDisposed = false; // Reset so this instance is usable
     }
 
-    // Platform audio configuration
-    if (!kIsWeb && Platform.isAndroid) {
-      await Helper.setAndroidAudioConfiguration(
-        AndroidAudioConfiguration(
-          androidAudioMode: AndroidAudioMode.inCommunication,
-          androidAudioFocusMode: AndroidAudioFocusMode.gain,
-          androidAudioStreamType: AndroidAudioStreamType.voiceCall,
-        ),
-      );
-    } else if (!kIsWeb && Platform.isIOS) {
-      await Helper.setAppleAudioConfiguration(
-        AppleAudioConfiguration(
-          appleAudioCategory: AppleAudioCategory.playAndRecord,
-          appleAudioCategoryOptions: {
-            AppleAudioCategoryOption.allowBluetooth,
-            AppleAudioCategoryOption.allowBluetoothA2DP,
-            AppleAudioCategoryOption.defaultToSpeaker,
-          },
-          appleAudioMode: AppleAudioMode.voiceChat,
-        ),
-      );
+    // Platform audio configuration (with timeout to prevent Bluetooth hangs)
+    try {
+      if (!kIsWeb && Platform.isAndroid) {
+        await Helper.setAndroidAudioConfiguration(
+          AndroidAudioConfiguration(
+            androidAudioMode: AndroidAudioMode.inCommunication,
+            androidAudioFocusMode: AndroidAudioFocusMode.gain,
+            androidAudioStreamType: AndroidAudioStreamType.voiceCall,
+          ),
+        ).timeout(const Duration(seconds: 3));
+      } else if (!kIsWeb && Platform.isIOS) {
+        await Helper.setAppleAudioConfiguration(
+          AppleAudioConfiguration(
+            appleAudioCategory: AppleAudioCategory.playAndRecord,
+            appleAudioCategoryOptions: {
+              AppleAudioCategoryOption.allowBluetooth,
+              AppleAudioCategoryOption.allowBluetoothA2DP,
+              AppleAudioCategoryOption.defaultToSpeaker,
+            },
+            appleAudioMode: AppleAudioMode.voiceChat,
+          ),
+        ).timeout(const Duration(seconds: 3));
+      }
+    } catch (e) {
+      // Audio config failure is non-fatal — call proceeds with default routing
+      debugPrint('WebRtcService: audio config timeout/error (non-fatal): $e');
     }
 
     // Create peer connection
@@ -229,6 +238,10 @@ class WebRtcService {
       _localStream?.addTrack(videoTrack);
       _localStreamController.add(_localStream);
       _isVideoEnabled = true;
+
+      // Explicitly notify that renegotiation is needed
+      // (setDirection doesn't always fire onRenegotiationNeeded on all platforms)
+      onNeedRenegotiation?.call();
     } catch (e) {
       // Clean up the acquired track so the camera light turns off
       await videoTrack.stop();

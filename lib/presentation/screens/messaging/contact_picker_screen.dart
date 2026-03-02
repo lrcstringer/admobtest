@@ -100,23 +100,6 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
     return Scaffold(
       appBar: IMaliAppBar(
         title: title,
-        extraActions: [
-          if (widget.multiSelect)
-            TextButton(
-              onPressed: _selected.isEmpty
-                  ? null
-                  : () => context.pop<List<Map<String, String>>>(_selected),
-              child: Text(
-                'Done',
-                style: TextStyle(
-                  color: _selected.isEmpty
-                      ? AppColors.textHint
-                      : AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-        ],
       ),
       body: WaveBackground(
         child: Column(
@@ -156,6 +139,27 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
               },
             ),
           ),
+          if (widget.multiSelect && _selected.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () =>
+                      context.pop<List<Map<String, String>>>(_selected),
+                  icon: const Icon(Icons.check, size: 20),
+                  label: Text('Done (${_selected.length} selected)'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           Expanded(
             child: BlocListener<ConversationBloc, ConversationState>(
               listenWhen: (prev, curr) =>

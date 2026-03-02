@@ -8,6 +8,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../core/services/call_analytics_service.dart';
 import '../../../core/services/call_quality_monitor.dart';
 import '../../../core/services/call_signaling_service.dart';
 import '../../../core/services/perfect_negotiation_handler.dart';
@@ -29,6 +30,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   final CallRepository _callRepository;
   final WebRtcServiceFactory _webRtcServiceFactory;
   final CallSignalingService _signalingService;
+  final CallAnalyticsService _analyticsService;
 
   WebRtcService? _webRtcService;
   PerfectNegotiationHandler? _negotiationHandler;
@@ -49,7 +51,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   Timer? _heartbeatTimer;
   Timer? _ringTimer;
   int _iceRestartAttempts = 0;
-  static const _maxIceRestarts = 3;
+  static const _maxIceRestarts = 5;
+  DateTime? _callSetupStartedAt;
 
   /// Prevent duplicate SDP processing — RTDB onValue fires on every write,
   /// including the initial snapshot. We store the last processed SDP string
@@ -60,7 +63,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   /// Consecutive heartbeat failures. When this reaches [_maxHeartbeatFailures],
   /// we warn the user via a reconnecting status.
   int _heartbeatFailures = 0;
-  static const _maxHeartbeatFailures = 3;
+  static const _maxHeartbeatFailures = 2;
 
   /// Wait for the app to reach resumed (foreground) lifecycle state.
   /// On cold start from a CallKit accept, the app may still be paused
@@ -94,6 +97,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     this._callRepository,
     this._webRtcServiceFactory,
     this._signalingService,
+    this._analyticsService,
   ) : super(const CallState()) {
     on<_InitiateCall>(_onInitiateCall);
     on<_IncomingCall>(_onIncomingCall);
@@ -112,6 +116,23 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     on<_QualityChanged>(_onQualityChanged);
   }
 
+  // ── TURN Retry Helper ──
+
+  Future<Map<String, dynamic>> _fetchTurnWithRetry() async {
+    try {
+      final creds = await _callRepository.getTurnCredentials();
+      if (creds['hasTurn'] == true) return creds;
+      // STUN-only — retry once in case of transient failure
+      debugPrint('CallBloc: TURN not available, retrying...');
+      await Future.delayed(const Duration(milliseconds: 500));
+      return await _callRepository.getTurnCredentials();
+    } catch (e) {
+      debugPrint('CallBloc: TURN fetch failed, retrying: $e');
+      await Future.delayed(const Duration(milliseconds: 500));
+      return await _callRepository.getTurnCredentials();
+    }
+  }
+
   // ── Outgoing Call ──
 
   Future<void> _onInitiateCall(
@@ -127,6 +148,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     }
 
     try {
+      _callSetupStartedAt = DateTime.now();
+
       // Start from a clean state to avoid stale callId from prior attempts
       emit(const CallState().copyWith(
         status: CallStatus.ringing,
@@ -145,12 +168,21 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         recipientId: event.recipientId,
         callType: event.callType,
       );
-      final turnFuture = _callRepository.getTurnCredentials();
+      final turnFuture = _fetchTurnWithRetry();
 
       final callId = await callIdFuture;
       emit(state.copyWith(callId: callId));
 
       final iceConfig = await turnFuture;
+      debugPrint('CallBloc: TURN available: ${iceConfig['hasTurn']}, '
+          'servers: ${(iceConfig['iceServers'] as List?)?.length ?? 0}');
+
+      _analyticsService.logCallStarted(
+        callId: callId,
+        callType: event.callType.name,
+        isCaller: true,
+        hasTurn: iceConfig['hasTurn'] == true,
+      );
 
       // Ensure the app is in foreground before acquiring mic/camera
       await _waitForForeground();
@@ -183,6 +215,11 @@ class CallBloc extends Bloc<CallEvent, CallState> {
               isCaller: true);
         },
       );
+
+      // Wire up video upgrade renegotiation callback
+      _webRtcService!.onNeedRenegotiation = () {
+        _negotiationHandler?.negotiate();
+      };
 
       // Explicitly create and send the initial SDP offer.
       // onRenegotiationNeeded from addTrack() fired during initialize()
@@ -241,6 +278,11 @@ class CallBloc extends Bloc<CallEvent, CallState> {
 
       // Capture callId before cleanup resets internal state
       final failedCallId = state.callId;
+
+      _analyticsService.logCallFailed(
+        callId: failedCallId ?? 'unknown',
+        error: e.toString(),
+      );
 
       // Clean up any partially-initialised resources (WebRTC, subscriptions,
       // camera/mic) so they don't leak after the screen pops.
@@ -306,6 +348,13 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       (session) => add(CallEvent.callDocUpdated(session)),
       onError: (e) => debugPrint('CallBloc: watchCall error: $e'),
     );
+
+    // Pre-fetch TURN credentials so accept is faster (fire-and-forget)
+    _callRepository.getTurnCredentials().then((_) {
+      debugPrint('CallBloc: pre-fetched TURN credentials for incoming call');
+    }).catchError((Object e) {
+      debugPrint('CallBloc: pre-fetch TURN failed (non-fatal): $e');
+    });
   }
 
   // ── Accept Incoming Call ──
@@ -318,18 +367,28 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     final callId = state.callId!;
 
     try {
+      _callSetupStartedAt = DateTime.now();
       emit(state.copyWith(status: CallStatus.connecting));
 
       // Phase 1: start all independent operations concurrently
       debugPrint('CallBloc: [accept] phase 1 — parallel: '
           'answerCall + getTurnCredentials + waitForForeground');
       final answerFuture = _callRepository.answerCall(callId);
-      final turnFuture = _callRepository.getTurnCredentials();
+      final turnFuture = _fetchTurnWithRetry();
       final foregroundFuture = _waitForForeground();
 
       // Need TURN config + foreground before WebRTC init
       final iceConfig = await turnFuture;
+      debugPrint('CallBloc: TURN available: ${iceConfig['hasTurn']}, '
+          'servers: ${(iceConfig['iceServers'] as List?)?.length ?? 0}');
       await foregroundFuture;
+
+      _analyticsService.logCallStarted(
+        callId: callId,
+        callType: state.callType.name,
+        isCaller: false,
+        hasTurn: iceConfig['hasTurn'] == true,
+      );
 
       // Phase 2: WebRTC init and offer fetch in parallel (RTDB — fast)
       debugPrint('CallBloc: [accept] phase 2 — parallel: '
@@ -404,6 +463,11 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         },
       );
 
+      // Wire up video upgrade renegotiation callback
+      _webRtcService!.onNeedRenegotiation = () {
+        _negotiationHandler?.negotiate();
+      };
+
       // Watch for remote SDP description changes via RTDB.
       // Role-based: callee watches callerDescription node for both
       // offers (normal + renegotiation) and answers (if callee offered).
@@ -442,6 +506,11 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     } catch (e, stack) {
       debugPrint('CallBloc: [accept] FAILED: $e');
       debugPrint('CallBloc: [accept] stack: $stack');
+
+      _analyticsService.logCallFailed(
+        callId: callId,
+        error: e.toString(),
+      );
 
       // Clean up any partially-initialised resources (WebRTC, subscriptions,
       // camera/mic) so they don't leak after the screen pops.
@@ -495,6 +564,14 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     } else {
       reason = 'normal';
     }
+
+    _analyticsService.logCallEnded(
+      callId: state.callId!,
+      endReason: reason,
+      durationSeconds: state.callDuration.inSeconds,
+      iceRestarts: _iceRestartAttempts,
+      finalQuality: state.connectionQuality.name,
+    );
 
     try {
       await _callRepository.endCall(state.callId!, reason: reason);
@@ -573,6 +650,11 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         ));
       } catch (e) {
         debugPrint('CallBloc: upgradeToVideo error: $e');
+        // Clear upgrade flags so UI doesn't stay stuck
+        emit(state.copyWith(
+          videoUpgradeRequested: false,
+          videoUpgradeRequesterId: null,
+        ));
       }
     } else {
       emit(state.copyWith(
@@ -588,6 +670,9 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     _CallDocUpdated event,
     Emitter<CallState> emit,
   ) async {
+    // Guard: ignore stale events arriving after cleanup
+    if (state.callId == null) return;
+
     final session = event.session;
 
     // Handle remote hangup
@@ -640,6 +725,10 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         ));
       } catch (e) {
         debugPrint('CallBloc: upgrade accepted but failed: $e');
+        emit(state.copyWith(
+          videoUpgradeRequested: false,
+          videoUpgradeRequesterId: null,
+        ));
       }
     }
   }
@@ -666,6 +755,17 @@ class CallBloc extends Bloc<CallEvent, CallState> {
 
         if (state.status != CallStatus.active) {
           emit(state.copyWith(status: CallStatus.active));
+
+          // Log setup duration
+          if (_callSetupStartedAt != null) {
+            final setupMs = DateTime.now()
+                .difference(_callSetupStartedAt!)
+                .inMilliseconds;
+            _analyticsService.logCallConnected(
+              callId: state.callId ?? 'unknown',
+              setupDurationMs: setupMs,
+            );
+          }
         }
 
         // Start call timer
@@ -674,10 +774,10 @@ class CallBloc extends Bloc<CallEvent, CallState> {
           add(const CallEvent.callTimerTick());
         });
 
-        // Start heartbeat (every 5 seconds) with failure tracking
+        // Start heartbeat (every 3 seconds) with failure tracking
         _heartbeatTimer?.cancel();
         _heartbeatFailures = 0;
-        _heartbeatTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+        _heartbeatTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
           if (state.callId != null) {
             try {
               await _signalingService.sendHeartbeat(
@@ -706,15 +806,30 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         }
 
       case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
-        // Temporary disconnection — try ICE restart
+        // Temporary disconnection — try ICE restart with exponential backoff
         if (_iceRestartAttempts < _maxIceRestarts) {
           emit(state.copyWith(status: CallStatus.reconnecting));
           _iceRestartAttempts++;
-          _webRtcService?.peerConnection?.restartIce();
-          if (state.callId != null) {
-            _signalingService.updateIceRestartCount(
-                state.callId!, _iceRestartAttempts);
-          }
+          // Exponential backoff: 0ms, 500ms, 1s, 2s, 4s
+          final delay = _iceRestartAttempts <= 1
+              ? Duration.zero
+              : Duration(
+                  milliseconds: 500 * (1 << (_iceRestartAttempts - 2)));
+          debugPrint('CallBloc: ICE restart #$_iceRestartAttempts '
+              'after ${delay.inMilliseconds}ms');
+          _analyticsService.logIceRestart(
+            callId: state.callId ?? 'unknown',
+            attempt: _iceRestartAttempts,
+          );
+          Future.delayed(delay, () {
+            if (!isClosed && state.status == CallStatus.reconnecting) {
+              _webRtcService?.peerConnection?.restartIce();
+              if (state.callId != null) {
+                _signalingService.updateIceRestartCount(
+                    state.callId!, _iceRestartAttempts);
+              }
+            }
+          });
         }
 
       case RTCIceConnectionState.RTCIceConnectionStateFailed:
@@ -789,12 +904,14 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     _qualityMonitor?.dispose();
     _qualityMonitor = null;
 
+    _webRtcService?.onNeedRenegotiation = null;
     await _webRtcService?.dispose();
     _webRtcService = null;
 
     _iceRestartAttempts = 0;
     _heartbeatFailures = 0;
     _lastProcessedRemoteSdp = null;
+    _callSetupStartedAt = null;
   }
 
   @override

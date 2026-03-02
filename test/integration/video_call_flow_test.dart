@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:imalichat/core/services/call_analytics_service.dart';
 import 'package:imalichat/core/services/call_signaling_service.dart';
 import 'package:imalichat/core/services/webrtc_service.dart';
 import 'package:imalichat/domain/enums/call_status.dart';
@@ -19,6 +20,8 @@ class MockWebRtcService extends Mock implements WebRtcService {}
 
 class MockCallSignalingService extends Mock implements CallSignalingService {}
 
+class MockCallAnalyticsService extends Mock implements CallAnalyticsService {}
+
 class MockRTCPeerConnection extends Mock implements RTCPeerConnection {}
 
 void main() {
@@ -26,6 +29,7 @@ void main() {
   late MockWebRtcServiceFactory mockFactory;
   late MockWebRtcService mockWebRtc;
   late MockCallSignalingService mockSignaling;
+  late MockCallAnalyticsService mockAnalytics;
   late MockRTCPeerConnection mockPc;
   late StreamController<RTCIceConnectionState> iceStateController;
 
@@ -40,6 +44,7 @@ void main() {
     mockFactory = MockWebRtcServiceFactory();
     mockWebRtc = MockWebRtcService();
     mockSignaling = MockCallSignalingService();
+    mockAnalytics = MockCallAnalyticsService();
     mockPc = MockRTCPeerConnection();
     iceStateController = StreamController<RTCIceConnectionState>.broadcast();
 
@@ -115,7 +120,7 @@ void main() {
     iceStateController.close();
   });
 
-  CallBloc buildBloc() => CallBloc(mockRepo, mockFactory, mockSignaling);
+  CallBloc buildBloc() => CallBloc(mockRepo, mockFactory, mockSignaling, mockAnalytics);
 
   group('Video Call Flow Integration', () {
     blocTest<CallBloc, CallState>(

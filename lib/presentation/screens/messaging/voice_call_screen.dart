@@ -30,6 +30,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen> {
   RTCVideoRenderer? _localRenderer;
   RTCVideoRenderer? _remoteRenderer;
   bool _renderersReady = false;
+  bool _videoUpgradeDialogShown = false;
   StreamSubscription? _localStreamSub;
   StreamSubscription? _remoteStreamSub;
 
@@ -99,9 +100,13 @@ class _VoiceCallScreenState extends State<VoiceCallScreen> {
           }
         }
 
-        // Handle video upgrade dialog
-        if (state.videoUpgradeRequested) {
+        // Handle video upgrade dialog (guard against repeated shows)
+        if (state.videoUpgradeRequested && !_videoUpgradeDialogShown) {
+          _videoUpgradeDialogShown = true;
           _showVideoUpgradeDialog(context);
+        }
+        if (!state.videoUpgradeRequested) {
+          _videoUpgradeDialogShown = false;
         }
 
         // Init renderers when upgraded to video

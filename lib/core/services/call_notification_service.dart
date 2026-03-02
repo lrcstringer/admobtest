@@ -19,17 +19,41 @@ import '../../presentation/blocs/call/call_bloc.dart';
 /// - Route accepted calls to the CallBloc + navigation
 /// - Register/update VoIP push tokens in Firestore
 /// - Show incoming call UI on Android (foreground FCM data messages)
+///
+/// Starts listening for CallKit events immediately on construction. Events
+/// that arrive before [configure] is called are queued and replayed once
+/// the router and bloc are available. This handles the cold-start accept
+/// race where the user taps Accept in CallKit before the app has fully
+/// initialised.
 @lazySingleton
 class CallNotificationService {
   GoRouter? _router;
   CallBloc? _callBloc;
   StreamSubscription<callkit.CallEvent?>? _callKitSub;
 
+  /// Events received before [configure] was called.
+  final List<callkit.CallEvent> _pendingEvents = [];
+
+  CallNotificationService() {
+    // Start listening immediately so cold-start accepts are not lost
+    _listenCallKitEvents();
+  }
+
   /// Set the router and bloc for navigation and event dispatch.
+  /// Replays any CallKit events that arrived before this was called.
   void configure({required GoRouter router, required CallBloc callBloc}) {
     _router = router;
     _callBloc = callBloc;
-    _listenCallKitEvents();
+
+    // Replay queued events from cold-start
+    if (_pendingEvents.isNotEmpty) {
+      debugPrint('CallNotification: replaying ${_pendingEvents.length} '
+          'queued CallKit event(s)');
+      for (final event in _pendingEvents) {
+        _handleCallKitEvent(event);
+      }
+      _pendingEvents.clear();
+    }
   }
 
   /// Show incoming call UI using FlutterCallkitIncoming (Android foreground).
@@ -93,58 +117,71 @@ class CallNotificationService {
       if (event == null) return;
       debugPrint('CallNotification: CallKit event: ${event.event}');
 
-      final extra = event.body['extra'] as Map<dynamic, dynamic>? ?? {};
-      final callId = extra['callId'] as String? ?? '';
-      final conversationId = extra['conversationId'] as String? ?? '';
-      final callerId = extra['callerId'] as String? ?? '';
-      final callerName = extra['callerName'] as String? ?? 'Unknown';
-      final callerAvatarUrl = extra['callerAvatarUrl'] as String?;
-      final callTypeStr = extra['callType'] as String? ?? 'voice';
-      final callType =
-          callTypeStr == 'video' ? CallType.video : CallType.voice;
-
-      switch (event.event) {
-        case callkit.Event.actionCallAccept:
-          _callBloc?.add(CallEvent.incomingCall(
-            callId: callId,
-            callerName: callerName,
-            callerAvatarUrl: callerAvatarUrl,
-            callType: callType,
-            conversationId: conversationId,
-            callerId: callerId,
-          ));
-          // BLoC processes events sequentially — acceptCall won't start
-          // until incomingCall handler completes. No delay needed.
-          _callBloc?.add(const CallEvent.acceptCall());
-          _router?.push(
-            '/chat/conversation/$conversationId/call/$callId',
-            extra: {'isVideo': callType == CallType.video},
-          );
-
-        case callkit.Event.actionCallDecline:
-          // User declined — notify the bloc to send declined reason
-          _callBloc?.add(CallEvent.incomingCall(
-            callId: callId,
-            callerName: callerName,
-            callerAvatarUrl: callerAvatarUrl,
-            callType: callType,
-            conversationId: conversationId,
-            callerId: callerId,
-          ));
-          _callBloc?.add(const CallEvent.rejectCall());
-
-        case callkit.Event.actionCallTimeout:
-          // Ring timeout — let the scheduled CF handle marking as missed
-          debugPrint('CallNotification: call timed out: $callId');
-
-        case callkit.Event.actionCallEnded:
-          // CallKit ended the call (e.g., via system UI)
-          _callBloc?.add(const CallEvent.endCall());
-
-        default:
-          break;
+      // If not yet configured (cold-start), queue for replay
+      if (_callBloc == null) {
+        debugPrint('CallNotification: bloc not ready — queuing event');
+        _pendingEvents.add(event);
+        return;
       }
+
+      _handleCallKitEvent(event);
     });
+  }
+
+  /// Process a single CallKit event. Called both for live events and replayed
+  /// queued events.
+  void _handleCallKitEvent(callkit.CallEvent event) {
+    final extra = event.body['extra'] as Map<dynamic, dynamic>? ?? {};
+    final callId = extra['callId'] as String? ?? '';
+    final conversationId = extra['conversationId'] as String? ?? '';
+    final callerId = extra['callerId'] as String? ?? '';
+    final callerName = extra['callerName'] as String? ?? 'Unknown';
+    final callerAvatarUrl = extra['callerAvatarUrl'] as String?;
+    final callTypeStr = extra['callType'] as String? ?? 'voice';
+    final callType =
+        callTypeStr == 'video' ? CallType.video : CallType.voice;
+
+    switch (event.event) {
+      case callkit.Event.actionCallAccept:
+        _callBloc?.add(CallEvent.incomingCall(
+          callId: callId,
+          callerName: callerName,
+          callerAvatarUrl: callerAvatarUrl,
+          callType: callType,
+          conversationId: conversationId,
+          callerId: callerId,
+        ));
+        // BLoC processes events sequentially — acceptCall won't start
+        // until incomingCall handler completes. No delay needed.
+        _callBloc?.add(const CallEvent.acceptCall());
+        _router?.push(
+          '/chat/conversation/$conversationId/call/$callId',
+          extra: {'isVideo': callType == CallType.video},
+        );
+
+      case callkit.Event.actionCallDecline:
+        // User declined — notify the bloc to send declined reason
+        _callBloc?.add(CallEvent.incomingCall(
+          callId: callId,
+          callerName: callerName,
+          callerAvatarUrl: callerAvatarUrl,
+          callType: callType,
+          conversationId: conversationId,
+          callerId: callerId,
+        ));
+        _callBloc?.add(const CallEvent.rejectCall());
+
+      case callkit.Event.actionCallTimeout:
+        // Ring timeout — let the scheduled CF handle marking as missed
+        debugPrint('CallNotification: call timed out: $callId');
+
+      case callkit.Event.actionCallEnded:
+        // CallKit ended the call (e.g., via system UI)
+        _callBloc?.add(const CallEvent.endCall());
+
+      default:
+        break;
+    }
   }
 
   /// Save or update the VoIP push token in Firestore for incoming call push.
@@ -169,5 +206,6 @@ class CallNotificationService {
   void dispose() {
     _callKitSub?.cancel();
     _callKitSub = null;
+    _pendingEvents.clear();
   }
 }

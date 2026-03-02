@@ -25,6 +25,7 @@ function requireAuth(request: { auth?: { uid: string } }): string {
 
 const TERMINAL_STATUSES = ["ended", "missed", "declined", "cancelled", "failed", "busy"];
 const RING_TIMEOUT_MS = 30_000; // 30 seconds
+const STALE_HEARTBEAT_MS = 15_000; // 15 seconds — detect dead calls faster
 
 // ─── getTurnCredentials ──────────────────────────────────────────────────
 
@@ -605,13 +606,13 @@ export const cleanupStaleCalls = onSchedule(
       });
     }
 
-    // Stale active calls (both heartbeats > 30s old) → ended
-    const thirtySecTimestamp = admin.firestore.Timestamp.fromDate(
-      new Date(now - 30_000),
+    // Stale active calls (both heartbeats stale) → ended
+    const staleHeartbeatTimestamp = admin.firestore.Timestamp.fromDate(
+      new Date(now - STALE_HEARTBEAT_MS),
     );
     const staleActive = await db.collection("calls")
       .where("status", "==", "active")
-      .where("callerHeartbeat", "<", thirtySecTimestamp)
+      .where("callerHeartbeat", "<", staleHeartbeatTimestamp)
       .limit(50)
       .get();
 
@@ -625,7 +626,7 @@ export const cleanupStaleCalls = onSchedule(
         }
         // Only end if BOTH heartbeats are stale
         if (freshData.calleeHeartbeat &&
-            freshData.calleeHeartbeat.toDate().getTime() > now - 30_000) {
+            freshData.calleeHeartbeat.toDate().getTime() > now - STALE_HEARTBEAT_MS) {
           return null; // Callee is still alive
         }
         let durationSeconds: number | null = null;

@@ -138,6 +138,7 @@ import '../security/sim_change_detector.dart' as _i925;
 import '../security/step_up_auth_service.dart' as _i720;
 import '../services/audio_playback_service.dart' as _i38;
 import '../services/biometric_login_service.dart' as _i290;
+import '../services/call_analytics_service.dart' as _i108;
 import '../services/call_notification_service.dart' as _i673;
 import '../services/call_signaling_service.dart' as _i846;
 import '../services/chat_analytics_service.dart' as _i550;
@@ -363,6 +364,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i550.ChatAnalyticsService>(
       () => _i550.ChatAnalyticsService(gh<_i398.FirebaseAnalytics>()),
     );
+    gh.lazySingleton<_i108.CallAnalyticsService>(
+      () => _i108.CallAnalyticsService(gh<_i398.FirebaseAnalytics>()),
+    );
     gh.lazySingleton<_i925.SimChangeDetector>(
       () => _i925.SimChangeDetector(
         gh<_i892.KeystoreService>(),
@@ -509,18 +513,19 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.PlayIntegrityService>(),
       ),
     );
-    gh.factory<_i807.CallBloc>(
-      () => _i807.CallBloc(
-        gh<_i658.CallRepository>(),
-        gh<_i980.WebRtcServiceFactory>(),
-        gh<_i846.CallSignalingService>(),
-      ),
-    );
     gh.factory<_i58.PotBloc>(
       () => _i58.PotBloc(gh<_i1010.GamificationRepository>()),
     );
     gh.lazySingleton<_i742.PurchaseRepository>(
       () => _i1044.PurchaseRepositoryImpl(gh<_i267.PurchaseRemoteDataSource>()),
+    );
+    gh.factory<_i807.CallBloc>(
+      () => _i807.CallBloc(
+        gh<_i658.CallRepository>(),
+        gh<_i980.WebRtcServiceFactory>(),
+        gh<_i846.CallSignalingService>(),
+        gh<_i108.CallAnalyticsService>(),
+      ),
     );
     gh.lazySingleton<_i42.GroupRemoteDataSource>(
       () => _i42.GroupRemoteDataSourceImpl(

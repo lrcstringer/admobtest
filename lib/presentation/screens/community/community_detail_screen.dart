@@ -120,7 +120,11 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                       messageController: _messageController,
                       currentUserId: currentUserId,
                     ),
-                    _MembersTab(members: commState.selectedCommunityMembers),
+                    _MembersTab(
+                      members: commState.selectedCommunityMembers,
+                      isLoading: commState.operationStatus ==
+                          CommunityOperationStatus.processing,
+                    ),
                     if (showFinances)
                       _FinancesTab(
                         community: community,
@@ -404,13 +408,32 @@ class _ChatTab extends StatelessWidget {
 
 class _MembersTab extends StatelessWidget {
   final List<CommunityMember> members;
+  final bool isLoading;
 
-  const _MembersTab({required this.members});
+  const _MembersTab({required this.members, this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
-    if (members.isEmpty) {
+    if (members.isEmpty && isLoading) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (members.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.group_outlined, size: 64, color: AppColors.textHint),
+            AppSpacing.verticalMd,
+            Text(
+              'No members yet',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+            ),
+          ],
+        ),
+      );
     }
 
     return ListView.builder(

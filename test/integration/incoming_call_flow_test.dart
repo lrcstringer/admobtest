@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:imalichat/core/services/call_analytics_service.dart';
 import 'package:imalichat/core/services/call_signaling_service.dart';
 import 'package:imalichat/core/services/webrtc_service.dart';
 import 'package:imalichat/domain/entities/call_session.dart';
@@ -20,6 +21,8 @@ class MockWebRtcService extends Mock implements WebRtcService {}
 
 class MockCallSignalingService extends Mock implements CallSignalingService {}
 
+class MockCallAnalyticsService extends Mock implements CallAnalyticsService {}
+
 class MockRTCPeerConnection extends Mock implements RTCPeerConnection {}
 
 void main() {
@@ -27,6 +30,7 @@ void main() {
   late MockWebRtcServiceFactory mockFactory;
   late MockWebRtcService mockWebRtc;
   late MockCallSignalingService mockSignaling;
+  late MockCallAnalyticsService mockAnalytics;
   late MockRTCPeerConnection mockPc;
   late StreamController<CallSession> callDocController;
   late StreamController<RTCIceCandidate> iceCandidateController;
@@ -42,6 +46,7 @@ void main() {
     mockFactory = MockWebRtcServiceFactory();
     mockWebRtc = MockWebRtcService();
     mockSignaling = MockCallSignalingService();
+    mockAnalytics = MockCallAnalyticsService();
     mockPc = MockRTCPeerConnection();
     callDocController = StreamController<CallSession>.broadcast();
     iceCandidateController = StreamController<RTCIceCandidate>.broadcast();
@@ -111,7 +116,7 @@ void main() {
     iceCandidateController.close();
   });
 
-  CallBloc buildBloc() => CallBloc(mockRepo, mockFactory, mockSignaling);
+  CallBloc buildBloc() => CallBloc(mockRepo, mockFactory, mockSignaling, mockAnalytics);
 
   group('Incoming Call Flow Integration', () {
     blocTest<CallBloc, CallState>(

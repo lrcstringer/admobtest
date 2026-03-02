@@ -44,7 +44,8 @@ class CallRemoteDatasource {
     });
   }
 
-  /// Get TURN credentials from Cloud Function (cached for 1 hour).
+  /// Get TURN credentials from Cloud Function (cached for 30min).
+  /// Returns map with `iceServers` list and `hasTurn` boolean.
   Future<Map<String, dynamic>> getTurnCredentials() async {
     if (_cachedTurnCredentials != null &&
         _turnCredentialsCachedAt != null &&
@@ -57,8 +58,12 @@ class CallRemoteDatasource {
     final result = await _functions
         .httpsCallable('getTurnCredentials')
         .call<Map<String, dynamic>>({});
-    _cachedTurnCredentials = result.data;
+
+    final data = Map<String, dynamic>.from(result.data);
+    // Detect TURN presence: ttl > 0 means TURN creds were generated
+    data['hasTurn'] = (data['ttl'] as int? ?? 0) > 0;
+    _cachedTurnCredentials = data;
     _turnCredentialsCachedAt = DateTime.now();
-    return result.data;
+    return data;
   }
 }
