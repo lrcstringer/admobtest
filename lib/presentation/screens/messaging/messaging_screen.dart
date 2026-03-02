@@ -186,28 +186,47 @@ class _MessagingScreenState extends State<MessagingScreen>
         controller: _tabController,
         isScrollable: true,
         tabAlignment: TabAlignment.start,
-        indicatorColor: AppColors.primary,
-        labelColor: AppColors.primary,
+        // Pill-shaped filled indicator
+        indicator: BoxDecoration(
+          gradient: const LinearGradient(colors: AppColors.logoGradient),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicatorPadding:
+            const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        labelColor: Colors.white,
         unselectedLabelColor: AppColors.textSecondary,
+        labelStyle: const TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 14,
+          letterSpacing: 0.3,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+        ),
+        dividerColor: Colors.transparent,
+        splashBorderRadius: BorderRadius.circular(20),
         tabs: [
           // Chats tab with unread badge
           BlocBuilder<ConversationBloc, ConversationState>(
             builder: (context, convState) {
-              return _buildBadgedTab('Chats', convState.totalUnreadCount);
+              return _buildBadgedTab(
+                  Icons.chat_bubble_rounded, 'Chats', convState.totalUnreadCount);
             },
           ),
           // Communities tab with unread badge
           BlocBuilder<CommunityBloc, CommunityState>(
             builder: (context, commState) {
               return _buildBadgedTab(
-                  'Communities', commState.totalUnreadCount);
+                  Icons.groups_rounded, 'Communities', commState.totalUnreadCount);
             },
           ),
           // Contacts tab with pending request badge
           BlocBuilder<ContactBloc, ContactState>(
             builder: (context, contactState) {
               return _buildBadgedTab(
-                  'Contacts', contactState.pendingRequestCount);
+                  Icons.person_rounded, 'Contacts', contactState.pendingRequestCount);
             },
           ),
         ],
@@ -215,11 +234,13 @@ class _MessagingScreenState extends State<MessagingScreen>
     );
   }
 
-  Widget _buildBadgedTab(String label, int count) {
+  Widget _buildBadgedTab(IconData icon, String label, int count) {
     return Tab(
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Icon(icon, size: 18),
+          const SizedBox(width: 6),
           Text(label),
           if (count > 0) ...[
             const SizedBox(width: 6),

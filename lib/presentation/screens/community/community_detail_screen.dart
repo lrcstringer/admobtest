@@ -69,72 +69,79 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
         builder: (context, commState) {
           final community = commState.selectedCommunity;
           final showFinances = community?.hasFinancials ?? false;
+          final isAdmin = community?.isAdmin(currentUserId) ?? false;
 
           return DefaultTabController(
             length: showFinances ? 3 : 2,
-            child: Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                surfaceTintColor: Colors.transparent,
-                elevation: 0,
-                title: Text(community?.name ?? 'Community'),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.settings),
-                    onPressed: () =>
-                        context.push('/chat/community/${widget.communityId}/settings'),
-                  ),
-                  PopupMenuButton<String>(
-                    onSelected: (action) =>
-                        _handleMenuAction(context, action, community),
-                    itemBuilder: (context) => [
-                      if (community?.isAdmin(currentUserId) ?? false)
-                        const PopupMenuItem(
-                          value: 'invite',
-                          child: Text('Invite Member'),
+            child: Builder(
+              builder: (context) {
+                return AnimatedBuilder(
+                  animation: DefaultTabController.of(context),
+                  builder: (context, _) {
+                    final currentTab =
+                        DefaultTabController.of(context).index;
+
+                    return Scaffold(
+                      appBar: AppBar(
+                        backgroundColor: Colors.transparent,
+                        surfaceTintColor: Colors.transparent,
+                        elevation: 0,
+                        title: Text(community?.name ?? 'Community'),
+                        actions: [
+                          IconButton(
+                            icon: const Icon(Icons.settings),
+                            onPressed: () => context.push(
+                                '/chat/community/${widget.communityId}/settings'),
+                          ),
+                        ],
+                        bottom: TabBar(
+                          tabs: [
+                            const Tab(text: 'Chat'),
+                            const Tab(text: 'Members'),
+                            if (showFinances) const Tab(text: 'Finances'),
+                          ],
                         ),
-                      const PopupMenuItem(
-                        value: 'members',
-                        child: Text('All Members'),
                       ),
-                      const PopupMenuItem(
-                        value: 'leave',
-                        child: Text('Leave Community'),
+                      body: WaveBackground(
+                        child: TabBarView(
+                          children: [
+                            _ChatTab(
+                              communityId: widget.communityId,
+                              messageController: _messageController,
+                              currentUserId: currentUserId,
+                            ),
+                            _MembersTab(
+                              members: commState.selectedCommunityMembers,
+                              isLoading: commState.operationStatus ==
+                                  CommunityOperationStatus.processing,
+                              communityId: widget.communityId,
+                              isAdmin: isAdmin,
+                            ),
+                            if (showFinances)
+                              _FinancesTab(
+                                community: community,
+                                transactions:
+                                    commState.selectedCommunityTransactions,
+                                communityId: widget.communityId,
+                                currentUserId: currentUserId,
+                              ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ],
-                bottom: TabBar(
-                  tabs: [
-                    const Tab(text: 'Chat'),
-                    const Tab(text: 'Members'),
-                    if (showFinances) const Tab(text: 'Finances'),
-                  ],
-                ),
-              ),
-              body: WaveBackground(
-                child: TabBarView(
-                  children: [
-                    _ChatTab(
-                      communityId: widget.communityId,
-                      messageController: _messageController,
-                      currentUserId: currentUserId,
-                    ),
-                    _MembersTab(
-                      members: commState.selectedCommunityMembers,
-                      isLoading: commState.operationStatus ==
-                          CommunityOperationStatus.processing,
-                    ),
-                    if (showFinances)
-                      _FinancesTab(
-                        community: community,
-                        transactions: commState.selectedCommunityTransactions,
-                        communityId: widget.communityId,
-                        currentUserId: currentUserId,
-                      ),
-                  ],
-                ),
-              ),
+                      floatingActionButton: currentTab == 1 && isAdmin
+                          ? FloatingActionButton.extended(
+                              onPressed: () => context.push(
+                                  '/chat/community/${widget.communityId}/invite'),
+                              icon: const Icon(Icons.person_add),
+                              label: const Text('Invite'),
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                            )
+                          : null,
+                    );
+                  },
+                );
+              },
             ),
           );
         },
@@ -142,45 +149,6 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     );
   }
 
-  void _handleMenuAction(
-      BuildContext context, String action, Community? community) {
-    switch (action) {
-      case 'invite':
-        context.push('/chat/community/${widget.communityId}/invite');
-      case 'members':
-        context.push('/chat/community/${widget.communityId}/members');
-      case 'leave':
-        if (community != null) _confirmLeave(context, community);
-    }
-  }
-
-  void _confirmLeave(BuildContext context, Community community) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Leave Community?'),
-        content: Text('Are you sure you want to leave "${community.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              context.read<CommunityBloc>().add(
-                    CommunityEvent.leaveCommunity(
-                        communityId: widget.communityId),
-                  );
-              context.go('/chat');
-            },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Leave'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 // =============================================================================
@@ -409,8 +377,15 @@ class _ChatTab extends StatelessWidget {
 class _MembersTab extends StatelessWidget {
   final List<CommunityMember> members;
   final bool isLoading;
+  final String communityId;
+  final bool isAdmin;
 
-  const _MembersTab({required this.members, this.isLoading = false});
+  const _MembersTab({
+    required this.members,
+    this.isLoading = false,
+    required this.communityId,
+    this.isAdmin = false,
+  });
 
   @override
   Widget build(BuildContext context) {

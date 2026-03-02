@@ -143,7 +143,8 @@ class OutgoingMessageQueue {
     final id = 'pending_${_uuid.v4()}';
     final now = DateTime.now();
     final isAudio = mediaType.startsWith('audio');
-    final isDocument = mediaType == 'document';
+    final isDocument =
+        mediaType == 'document' || mediaType.startsWith('application');
     final isVideo = mediaType.startsWith('video');
 
     await _appDatabase.insertPendingMessage(LocalPendingMessagesCompanion(

@@ -57,8 +57,12 @@ class AudioPlaybackService {
     // Fix #17: Prevent double-tap race — reject if already loading
     if (_isLoading) return;
 
-    // If same message and paused, just resume
+    // If same message and paused/completed, just resume
     if (_currentMessageId == messageId && !_player.playing) {
+      // If playback completed, seek to start before replaying
+      if (_player.processingState == ProcessingState.completed) {
+        await _player.seek(Duration.zero);
+      }
       _player.play();
       return;
     }

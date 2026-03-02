@@ -193,6 +193,9 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         );
       },
     );
+    // Seed the local DB from Firestore so the stream fires immediately.
+    // CommunitySyncService may not have synced this community's members yet.
+    _communityRepository.refreshMembers(event.communityId);
   }
 
   void _onMembersUpdated(

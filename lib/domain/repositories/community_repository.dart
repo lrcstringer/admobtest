@@ -136,12 +136,16 @@ abstract class CommunityRepository {
   /// Leave a community (self-removal)
   Future<Either<Failure, void>> leaveCommunity(String communityId);
 
-  /// Get members of a community
+  /// Get members of a community (from local cache)
   Future<Either<Failure, List<CommunityMember>>> getMembers(
     String communityId,
   );
 
-  /// Watch members of a community (real-time)
+  /// Fetch members from Firestore and seed the local cache.
+  /// Call this to ensure the local DB is populated before streaming.
+  Future<Either<Failure, void>> refreshMembers(String communityId);
+
+  /// Watch members of a community (real-time, from local cache)
   Stream<Either<Failure, List<CommunityMember>>> watchMembers(
     String communityId,
   );

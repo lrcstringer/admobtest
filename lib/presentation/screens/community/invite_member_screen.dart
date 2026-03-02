@@ -9,7 +9,7 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
-/// Screen to invite a user to a community by their user ID.
+/// Screen to invite a user to a community by searching for them.
 class InviteMemberScreen extends StatefulWidget {
   final String communityId;
 
@@ -21,14 +21,10 @@ class InviteMemberScreen extends StatefulWidget {
 
 class _InviteMemberScreenState extends State<InviteMemberScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _userIdController = TextEditingController();
   MemberRole _selectedRole = MemberRole.member;
 
-  @override
-  void dispose() {
-    _userIdController.dispose();
-    super.dispose();
-  }
+  /// Selected contact from the picker.
+  Map<String, String>? _selectedContact;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +45,9 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
               backgroundColor: AppColors.error,
             ),
           );
-          context.read<CommunityBloc>().add(const CommunityEvent.clearError());
+          context
+              .read<CommunityBloc>()
+              .add(const CommunityEvent.clearError());
         }
       },
       builder: (context, state) {
@@ -60,127 +58,180 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
           appBar: const IMaliAppBar(title: 'Invite Member'),
           body: WaveBackground(
             child: SingleChildScrollView(
-            padding: AppSpacing.pagePadding,
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Info card
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.08),
-                      borderRadius: AppSpacing.borderRadiusMd,
+              padding: AppSpacing.pagePadding,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Contact picker
+                    Text(
+                      'Who to invite',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.info_outline,
-                            color: AppColors.primary, size: 20),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Enter the user ID of the person you want to invite.',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppColors.primary,
-                                    ),
+                    AppSpacing.verticalSm,
+                    InkWell(
+                      onTap: _pickContact,
+                      borderRadius: AppSpacing.borderRadiusMd,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: AppColors.chatSurface,
+                          borderRadius: AppSpacing.borderRadiusMd,
+                          border: Border.all(
+                            color: _selectedContact != null
+                                ? AppColors.primary
+                                : AppColors.border,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  AppSpacing.verticalLg,
-
-                  // User ID
-                  TextFormField(
-                    controller: _userIdController,
-                    decoration: InputDecoration(
-                      labelText: 'User ID',
-                      hintText: 'Enter user ID',
-                      prefixIcon: const Icon(Icons.person_outline),
-                      border: OutlineInputBorder(
-                        borderRadius: AppSpacing.borderRadiusMd,
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter a user ID';
-                      }
-                      return null;
-                    },
-                  ),
-                  AppSpacing.verticalLg,
-
-                  // Role selector
-                  Text(
-                    'Role',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  AppSpacing.verticalSm,
-                  RadioGroup<MemberRole>(
-                    groupValue: _selectedRole,
-                    onChanged: (v) {
-                      if (v != null) setState(() => _selectedRole = v);
-                    },
-                    child: Column(
-                      children: MemberRole.values
-                          .where((r) => r != MemberRole.owner)
-                          .map((role) => RadioListTile<MemberRole>(
-                                title: Text(_roleLabel(role)),
-                                subtitle: Text(_roleDescription(role)),
-                                value: role,
-                                toggleable: false,
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  AppSpacing.verticalLg,
-
-                  // Submit
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: isLoading ? null : _invite,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.textOnPrimary,
+                        child: Row(
+                          children: [
+                            if (_selectedContact != null) ...[
+                              CircleAvatar(
+                                radius: 18,
+                                backgroundColor:
+                                    AppColors.primary.withValues(alpha: 0.2),
+                                child: Text(
+                                  _initials(_selectedContact!['name'] ?? ''),
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
                               ),
-                            )
-                          : const Text('Send Invitation'),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  _selectedContact!['name'] ?? '',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                              ),
+                              Icon(Icons.swap_horiz,
+                                  color: AppColors.textHint, size: 20),
+                            ] else ...[
+                              Icon(Icons.person_search,
+                                  color: AppColors.textHint, size: 22),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Search for a contact',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.copyWith(
+                                        color: AppColors.textHint,
+                                      ),
+                                ),
+                              ),
+                              Icon(Icons.chevron_right,
+                                  color: AppColors.textHint, size: 20),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                    AppSpacing.verticalLg,
+
+                    // Role selector
+                    Text(
+                      'Role',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    AppSpacing.verticalSm,
+                    RadioGroup<MemberRole>(
+                      groupValue: _selectedRole,
+                      onChanged: (v) {
+                        if (v != null) setState(() => _selectedRole = v);
+                      },
+                      child: Column(
+                        children: MemberRole.values
+                            .where((r) => r != MemberRole.owner)
+                            .map((role) => RadioListTile<MemberRole>(
+                                  title: Text(_roleLabel(role)),
+                                  subtitle: Text(_roleDescription(role)),
+                                  value: role,
+                                  toggleable: false,
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                    AppSpacing.verticalLg,
+
+                    // Submit
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed:
+                            isLoading || _selectedContact == null
+                                ? null
+                                : _invite,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.textOnPrimary,
+                                ),
+                              )
+                            : const Text('Send Invitation'),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
           ),
         );
       },
     );
   }
 
+  Future<void> _pickContact() async {
+    final result = await context.push<Map<String, String>>(
+      '/chat/pick-contacts',
+      extra: {'returnContact': true},
+    );
+    if (result != null && mounted) {
+      setState(() => _selectedContact = result);
+    }
+  }
+
   void _invite() {
-    if (!_formKey.currentState!.validate()) return;
+    if (_selectedContact == null) return;
 
     context.read<CommunityBloc>().add(
           CommunityEvent.inviteMember(
             communityId: widget.communityId,
-            userId: _userIdController.text.trim(),
+            userId: _selectedContact!['id']!,
             role: _selectedRole,
           ),
         );
+  }
+
+  String _initials(String name) {
+    if (name.isEmpty) return '??';
+    final words = name.split(' ');
+    if (words.length >= 2) {
+      return '${words[0][0]}${words[1][0]}'.toUpperCase();
+    }
+    return name.substring(0, name.length.clamp(0, 2)).toUpperCase();
   }
 
   String _roleLabel(MemberRole role) {

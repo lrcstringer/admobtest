@@ -300,6 +300,22 @@ class CommunityRepositoryImpl implements CommunityRepository {
   }
 
   @override
+  Future<Either<Failure, void>> refreshMembers(String communityId) async {
+    try {
+      final models = await _remoteDataSource.getMembers(communityId);
+      for (final model in models) {
+        final entity = model.toEntity();
+        await _appDatabase.upsertLocalCommunityMember(
+          LocalCommunityMemberMapper.toCompanion(entity),
+        );
+      }
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
   Stream<Either<Failure, List<CommunityMember>>> watchMembers(
     String communityId,
   ) {

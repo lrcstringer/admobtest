@@ -100,6 +100,8 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
     _reviewController?.dispose();
     // Clean up temp files if not sent
     _rawVideoFile?.delete().ignore();
+    _compressedFile?.delete().ignore();
+    _thumbnailFile?.delete().ignore();
     super.dispose();
   }
 
@@ -252,12 +254,21 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
             'Try a shorter recording.');
       }
 
-      // Generate thumbnail from first frame
-      final thumbCmd = '-i "$outputPath" '
-          '-ss 00:00:00.5 -vframes 1 '
-          '-vf "scale=480:480" '
-          '-y "$thumbPath"';
-      await FFmpegKit.execute(thumbCmd);
+      // Generate thumbnail — try at 0.5s, fall back to first frame (0.0s)
+      for (final seekTime in ['00:00:00.5', '00:00:00.0']) {
+        final thumbCmd = '-i "$outputPath" '
+            '-ss $seekTime -vframes 1 '
+            '-vf "scale=480:480" '
+            '-y "$thumbPath"';
+        final thumbSession = await FFmpegKit.execute(thumbCmd);
+        final thumbRc = await thumbSession.getReturnCode();
+        if (ReturnCode.isSuccess(thumbRc) && File(thumbPath).existsSync()) {
+          break;
+        }
+      }
+      if (!File(thumbPath).existsSync()) {
+        throw Exception('Could not generate video thumbnail');
+      }
 
       _compressedFile = compressed;
       _thumbnailFile = File(thumbPath);
@@ -340,6 +351,21 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
     _rawVideoFile = null;
   }
 
+  Future<void> _cancel() async {
+    _timer?.cancel();
+    // Stop recording if in progress (prevents platform errors on dispose)
+    try {
+      final controller = _cameraController;
+      if (controller != null && controller.value.isRecordingVideo) {
+        await controller.stopVideoRecording();
+      }
+    } catch (_) {}
+
+    _reviewController?.pause();
+
+    widget.onCancel();
+  }
+
   // ===========================================================================
   // UI HELPERS
   // ===========================================================================
@@ -399,7 +425,7 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            onPressed: widget.onCancel,
+            onPressed: _cancel,
             icon: const Icon(Icons.close, color: Colors.white, size: 28),
           ),
           Text(

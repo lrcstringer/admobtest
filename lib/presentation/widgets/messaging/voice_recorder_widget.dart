@@ -55,6 +55,7 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
 
   // Review
   AudioPlayer? _reviewPlayer;
+  StreamSubscription? _reviewStateSub;
   bool _isReviewPlaying = false;
 
   // Animations
@@ -85,6 +86,7 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
     _progressController.dispose();
     _pulseController.dispose();
     _recorder.dispose();
+    _reviewStateSub?.cancel();
     _reviewPlayer?.dispose();
     super.dispose();
   }
@@ -111,6 +113,8 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
   // ===========================================================================
 
   Future<void> _startRecording() async {
+    if (_phase != _RecorderPhase.ready) return;
+    setState(() => _phase = _RecorderPhase.recording);
     try {
       final tempDir = await getTemporaryDirectory();
       _filePath =
@@ -134,10 +138,12 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
         }
       });
 
-      setState(() => _phase = _RecorderPhase.recording);
     } catch (e) {
       if (mounted) {
-        setState(() => _errorMessage = 'Could not start recording: $e');
+        setState(() {
+          _errorMessage = 'Could not start recording: $e';
+          _phase = _RecorderPhase.ready;
+        });
       }
     }
   }
@@ -191,7 +197,8 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
       await _reviewPlayer!.setFilePath(path);
       await _reviewPlayer!.setLoopMode(LoopMode.off);
 
-      _reviewPlayer!.playerStateStream.listen((state) {
+      _reviewStateSub?.cancel();
+      _reviewStateSub = _reviewPlayer!.playerStateStream.listen((state) {
         if (!mounted) return;
         setState(() => _isReviewPlaying = state.playing);
       });
@@ -212,6 +219,8 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
   // ===========================================================================
 
   void _retake() {
+    _reviewStateSub?.cancel();
+    _reviewStateSub = null;
     _reviewPlayer?.dispose();
     _reviewPlayer = null;
     _isReviewPlaying = false;
@@ -232,6 +241,8 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
     final file = File(_filePath!);
     if (!file.existsSync()) return;
 
+    _reviewStateSub?.cancel();
+    _reviewStateSub = null;
     _reviewPlayer?.stop();
     _reviewPlayer?.dispose();
     _reviewPlayer = null;
@@ -251,6 +262,8 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
       await _recorder.stop();
     } catch (_) {}
 
+    _reviewStateSub?.cancel();
+    _reviewStateSub = null;
     _reviewPlayer?.dispose();
     _reviewPlayer = null;
 

@@ -335,7 +335,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       size: 18, color: Colors.white),
                   const SizedBox(width: 6),
                   Text(
-                    'Send / Request',
+                    'Send/Receive Tokens',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
