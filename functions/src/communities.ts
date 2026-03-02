@@ -403,17 +403,33 @@ export const inviteCommunityMember = onCall({ labels: { area: "social" } }, asyn
   try {
     const inviterProfile = await getUserProfile(inviterId);
     const inviterName = inviterProfile.displayName || "Someone";
-    const tokenDoc = await db.collection("users").doc(userId).get();
-    const fcmToken = tokenDoc.data()?.fcmToken;
-    if (fcmToken) {
-      await admin.messaging().send({
-        token: fcmToken,
+
+    // FCM tokens are stored in users/{userId}/devices/{deviceId}, not on the user doc
+    const trustedDevices = await db
+      .collection("users")
+      .doc(userId)
+      .collection("devices")
+      .where("trusted", "==", true)
+      .where("revoked", "==", false)
+      .get();
+
+    const fcmTokens: string[] = [];
+    trustedDevices.forEach((doc) => {
+      const devData = doc.data();
+      if (devData.fcmToken) {
+        fcmTokens.push(devData.fcmToken);
+      }
+    });
+
+    if (fcmTokens.length > 0) {
+      await admin.messaging().sendEachForMulticast({
+        tokens: fcmTokens,
         notification: {
           title: "Community Invitation",
           body: `${inviterName} invited you to join "${community.name}"`,
         },
         data: {
-          type: "community_invitation",
+          type: "community_invite",
           communityId,
           inviterId,
         },
