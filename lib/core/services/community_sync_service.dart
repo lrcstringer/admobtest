@@ -313,12 +313,13 @@ class CommunitySyncService {
           if (plaintext != null) {
             decryptedMsg = _applyDecryptedPayload(msg, plaintext);
             // Store in vault for recovery after reinstall
-            if (_mediaRecoveryService.isReady) {
-              _mediaRecoveryService.storePayload(msg.id, plaintext).catchError((_) {});
-            }
+            _mediaRecoveryService.storePayload(msg.id, plaintext).catchError((e) {
+              debugPrint('CommunitySync: vault store failed for ${msg.id}: $e');
+            });
           } else {
             // Sender's own: try vault recovery before falling back to placeholder
             if (msg.senderId == currentUserId) {
+              await _mediaRecoveryService.initialize();
               if (_mediaRecoveryService.isReady) {
                 final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
                 if (recovered != null) {

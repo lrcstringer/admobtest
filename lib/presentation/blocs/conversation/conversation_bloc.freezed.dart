@@ -62,6 +62,13 @@ mixin _$ConversationEvent {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -126,6 +133,13 @@ mixin _$ConversationEvent {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -188,6 +202,13 @@ mixin _$ConversationEvent {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -224,6 +245,7 @@ mixin _$ConversationEvent {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -251,6 +273,7 @@ mixin _$ConversationEvent {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -277,6 +300,7 @@ mixin _$ConversationEvent {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -402,6 +426,13 @@ class _$WatchConversationsImpl implements _WatchConversations {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -470,6 +501,13 @@ class _$WatchConversationsImpl implements _WatchConversations {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -536,6 +574,13 @@ class _$WatchConversationsImpl implements _WatchConversations {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -579,6 +624,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -610,6 +656,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -640,6 +687,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -795,6 +843,13 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -863,6 +918,13 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -929,6 +991,13 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -972,6 +1041,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -1003,6 +1073,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -1033,6 +1104,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -1184,6 +1256,13 @@ class _$SelectConversationImpl implements _SelectConversation {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -1252,6 +1331,13 @@ class _$SelectConversationImpl implements _SelectConversation {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -1318,6 +1404,13 @@ class _$SelectConversationImpl implements _SelectConversation {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -1361,6 +1454,7 @@ class _$SelectConversationImpl implements _SelectConversation {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -1392,6 +1486,7 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -1422,6 +1517,7 @@ class _$SelectConversationImpl implements _SelectConversation {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -1573,6 +1669,13 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -1641,6 +1744,13 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -1707,6 +1817,13 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -1750,6 +1867,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -1781,6 +1899,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -1811,6 +1930,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -1982,6 +2102,13 @@ class _$LoadMessagesImpl implements _LoadMessages {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -2050,6 +2177,13 @@ class _$LoadMessagesImpl implements _LoadMessages {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -2116,6 +2250,13 @@ class _$LoadMessagesImpl implements _LoadMessages {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -2159,6 +2300,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -2190,6 +2332,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -2220,6 +2363,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -2383,6 +2527,13 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -2451,6 +2602,13 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -2517,6 +2675,13 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -2560,6 +2725,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -2591,6 +2757,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -2621,6 +2788,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -2797,6 +2965,13 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -2865,6 +3040,13 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -2931,6 +3113,13 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -2974,6 +3163,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -3005,6 +3195,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -3035,6 +3226,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -3284,6 +3476,13 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -3361,6 +3560,13 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -3436,6 +3642,13 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -3488,6 +3701,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -3519,6 +3733,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -3549,6 +3764,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -3751,6 +3967,13 @@ class _$SendTokensImpl implements _SendTokens {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -3819,6 +4042,13 @@ class _$SendTokensImpl implements _SendTokens {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -3885,6 +4115,13 @@ class _$SendTokensImpl implements _SendTokens {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -3928,6 +4165,7 @@ class _$SendTokensImpl implements _SendTokens {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -3959,6 +4197,7 @@ class _$SendTokensImpl implements _SendTokens {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -3989,6 +4228,7 @@ class _$SendTokensImpl implements _SendTokens {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -4183,6 +4423,13 @@ class _$RequestTokensImpl implements _RequestTokens {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -4251,6 +4498,13 @@ class _$RequestTokensImpl implements _RequestTokens {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -4317,6 +4571,13 @@ class _$RequestTokensImpl implements _RequestTokens {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -4360,6 +4621,7 @@ class _$RequestTokensImpl implements _RequestTokens {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -4391,6 +4653,7 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -4421,6 +4684,7 @@ class _$RequestTokensImpl implements _RequestTokens {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -4460,6 +4724,459 @@ abstract class _RequestTokens implements ConversationEvent {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RequestTokensImplCopyWith<_$RequestTokensImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$SendTokensToUserImplCopyWith<$Res> {
+  factory _$$SendTokensToUserImplCopyWith(
+    _$SendTokensToUserImpl value,
+    $Res Function(_$SendTokensToUserImpl) then,
+  ) = __$$SendTokensToUserImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String recipientId, int amount, bool isSend, String? message});
+}
+
+/// @nodoc
+class __$$SendTokensToUserImplCopyWithImpl<$Res>
+    extends _$ConversationEventCopyWithImpl<$Res, _$SendTokensToUserImpl>
+    implements _$$SendTokensToUserImplCopyWith<$Res> {
+  __$$SendTokensToUserImplCopyWithImpl(
+    _$SendTokensToUserImpl _value,
+    $Res Function(_$SendTokensToUserImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? recipientId = null,
+    Object? amount = null,
+    Object? isSend = null,
+    Object? message = freezed,
+  }) {
+    return _then(
+      _$SendTokensToUserImpl(
+        recipientId: null == recipientId
+            ? _value.recipientId
+            : recipientId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        amount: null == amount
+            ? _value.amount
+            : amount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        isSend: null == isSend
+            ? _value.isSend
+            : isSend // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        message: freezed == message
+            ? _value.message
+            : message // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$SendTokensToUserImpl implements _SendTokensToUser {
+  const _$SendTokensToUserImpl({
+    required this.recipientId,
+    required this.amount,
+    required this.isSend,
+    this.message,
+  });
+
+  @override
+  final String recipientId;
+  @override
+  final int amount;
+  @override
+  final bool isSend;
+  @override
+  final String? message;
+
+  @override
+  String toString() {
+    return 'ConversationEvent.sendTokensToUser(recipientId: $recipientId, amount: $amount, isSend: $isSend, message: $message)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SendTokensToUserImpl &&
+            (identical(other.recipientId, recipientId) ||
+                other.recipientId == recipientId) &&
+            (identical(other.amount, amount) || other.amount == amount) &&
+            (identical(other.isSend, isSend) || other.isSend == isSend) &&
+            (identical(other.message, message) || other.message == message));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, recipientId, amount, isSend, message);
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SendTokensToUserImplCopyWith<_$SendTokensToUserImpl> get copyWith =>
+      __$$SendTokensToUserImplCopyWithImpl<_$SendTokensToUserImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() watchConversations,
+    required TResult Function(List<Conversation> conversations)
+    conversationsUpdated,
+    required TResult Function(String id) selectConversation,
+    required TResult Function(String participantId) getOrCreateConversation,
+    required TResult Function(
+      String conversationId,
+      int? limit,
+      DateTime? before,
+    )
+    loadMessages,
+    required TResult Function(List<Message> messages) messagesUpdated,
+    required TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )
+    sendTextMessage,
+    required TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+      String? replyToMessageId,
+      File? thumbnailFile,
+    )
+    sendMediaMessage,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    sendTokens,
+    required TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )
+    requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
+    required TResult Function(String messageId, String conversationId)
+    acceptTokenRequest,
+    required TResult Function(String messageId, String conversationId)
+    declineTokenRequest,
+    required TResult Function(String conversationId) acceptConversation,
+    required TResult Function(int count) unreadCountUpdated,
+    required TResult Function(String conversationId) clearChat,
+    required TResult Function(String conversationId, String messageId)
+    retryMessage,
+    required TResult Function(String conversationId, bool isTyping) setTyping,
+    required TResult Function(Map<String, bool> typingUsers) typingStateUpdated,
+    required TResult Function(String conversationId, String query)
+    searchMessages,
+    required TResult Function() clearMessageSearch,
+    required TResult Function(String conversationId, Duration? duration)
+    setDisappearingMessages,
+    required TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )
+    forwardMessage,
+    required TResult Function() clearError,
+  }) {
+    return sendTokensToUser(recipientId, amount, isSend, message);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? watchConversations,
+    TResult? Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult? Function(String id)? selectConversation,
+    TResult? Function(String participantId)? getOrCreateConversation,
+    TResult? Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult? Function(List<Message> messages)? messagesUpdated,
+    TResult? Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult? Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+      String? replyToMessageId,
+      File? thumbnailFile,
+    )?
+    sendMediaMessage,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult? Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
+    TResult? Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult? Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult? Function(String conversationId)? acceptConversation,
+    TResult? Function(int count)? unreadCountUpdated,
+    TResult? Function(String conversationId)? clearChat,
+    TResult? Function(String conversationId, String messageId)? retryMessage,
+    TResult? Function(String conversationId, bool isTyping)? setTyping,
+    TResult? Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult? Function(String conversationId, String query)? searchMessages,
+    TResult? Function()? clearMessageSearch,
+    TResult? Function(String conversationId, Duration? duration)?
+    setDisappearingMessages,
+    TResult? Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
+    TResult? Function()? clearError,
+  }) {
+    return sendTokensToUser?.call(recipientId, amount, isSend, message);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? watchConversations,
+    TResult Function(List<Conversation> conversations)? conversationsUpdated,
+    TResult Function(String id)? selectConversation,
+    TResult Function(String participantId)? getOrCreateConversation,
+    TResult Function(String conversationId, int? limit, DateTime? before)?
+    loadMessages,
+    TResult Function(List<Message> messages)? messagesUpdated,
+    TResult Function(
+      String conversationId,
+      String text,
+      String? replyToMessageId,
+    )?
+    sendTextMessage,
+    TResult Function(
+      String conversationId,
+      File mediaFile,
+      String mediaType,
+      String recipientId,
+      String? caption,
+      int? durationSeconds,
+      String? replyToMessageId,
+      File? thumbnailFile,
+    )?
+    sendMediaMessage,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    sendTokens,
+    TResult Function(
+      String conversationId,
+      String recipientId,
+      int amount,
+      String? message,
+    )?
+    requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
+    TResult Function(String messageId, String conversationId)?
+    acceptTokenRequest,
+    TResult Function(String messageId, String conversationId)?
+    declineTokenRequest,
+    TResult Function(String conversationId)? acceptConversation,
+    TResult Function(int count)? unreadCountUpdated,
+    TResult Function(String conversationId)? clearChat,
+    TResult Function(String conversationId, String messageId)? retryMessage,
+    TResult Function(String conversationId, bool isTyping)? setTyping,
+    TResult Function(Map<String, bool> typingUsers)? typingStateUpdated,
+    TResult Function(String conversationId, String query)? searchMessages,
+    TResult Function()? clearMessageSearch,
+    TResult Function(String conversationId, Duration? duration)?
+    setDisappearingMessages,
+    TResult Function(
+      String sourceConversationId,
+      String sourceMessageId,
+      String targetConversationId,
+    )?
+    forwardMessage,
+    TResult Function()? clearError,
+    required TResult orElse(),
+  }) {
+    if (sendTokensToUser != null) {
+      return sendTokensToUser(recipientId, amount, isSend, message);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_WatchConversations value) watchConversations,
+    required TResult Function(_ConversationsUpdated value) conversationsUpdated,
+    required TResult Function(_SelectConversation value) selectConversation,
+    required TResult Function(_GetOrCreateConversation value)
+    getOrCreateConversation,
+    required TResult Function(_LoadMessages value) loadMessages,
+    required TResult Function(_MessagesUpdated value) messagesUpdated,
+    required TResult Function(_SendTextMessage value) sendTextMessage,
+    required TResult Function(_SendMediaMessage value) sendMediaMessage,
+    required TResult Function(_SendTokens value) sendTokens,
+    required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
+    required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
+    required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
+    required TResult Function(_AcceptConversation value) acceptConversation,
+    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
+    required TResult Function(_ClearChat value) clearChat,
+    required TResult Function(_RetryMessage value) retryMessage,
+    required TResult Function(_SetTyping value) setTyping,
+    required TResult Function(_TypingStateUpdated value) typingStateUpdated,
+    required TResult Function(_SearchMessages value) searchMessages,
+    required TResult Function(_ClearMessageSearch value) clearMessageSearch,
+    required TResult Function(_SetDisappearingMessages value)
+    setDisappearingMessages,
+    required TResult Function(_ForwardMessage value) forwardMessage,
+    required TResult Function(_ClearError value) clearError,
+  }) {
+    return sendTokensToUser(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_WatchConversations value)? watchConversations,
+    TResult? Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult? Function(_SelectConversation value)? selectConversation,
+    TResult? Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult? Function(_LoadMessages value)? loadMessages,
+    TResult? Function(_MessagesUpdated value)? messagesUpdated,
+    TResult? Function(_SendTextMessage value)? sendTextMessage,
+    TResult? Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult? Function(_SendTokens value)? sendTokens,
+    TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
+    TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult? Function(_AcceptConversation value)? acceptConversation,
+    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult? Function(_ClearChat value)? clearChat,
+    TResult? Function(_RetryMessage value)? retryMessage,
+    TResult? Function(_SetTyping value)? setTyping,
+    TResult? Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult? Function(_SearchMessages value)? searchMessages,
+    TResult? Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult? Function(_SetDisappearingMessages value)? setDisappearingMessages,
+    TResult? Function(_ForwardMessage value)? forwardMessage,
+    TResult? Function(_ClearError value)? clearError,
+  }) {
+    return sendTokensToUser?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_WatchConversations value)? watchConversations,
+    TResult Function(_ConversationsUpdated value)? conversationsUpdated,
+    TResult Function(_SelectConversation value)? selectConversation,
+    TResult Function(_GetOrCreateConversation value)? getOrCreateConversation,
+    TResult Function(_LoadMessages value)? loadMessages,
+    TResult Function(_MessagesUpdated value)? messagesUpdated,
+    TResult Function(_SendTextMessage value)? sendTextMessage,
+    TResult Function(_SendMediaMessage value)? sendMediaMessage,
+    TResult Function(_SendTokens value)? sendTokens,
+    TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
+    TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
+    TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
+    TResult Function(_AcceptConversation value)? acceptConversation,
+    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
+    TResult Function(_ClearChat value)? clearChat,
+    TResult Function(_RetryMessage value)? retryMessage,
+    TResult Function(_SetTyping value)? setTyping,
+    TResult Function(_TypingStateUpdated value)? typingStateUpdated,
+    TResult Function(_SearchMessages value)? searchMessages,
+    TResult Function(_ClearMessageSearch value)? clearMessageSearch,
+    TResult Function(_SetDisappearingMessages value)? setDisappearingMessages,
+    TResult Function(_ForwardMessage value)? forwardMessage,
+    TResult Function(_ClearError value)? clearError,
+    required TResult orElse(),
+  }) {
+    if (sendTokensToUser != null) {
+      return sendTokensToUser(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _SendTokensToUser implements ConversationEvent {
+  const factory _SendTokensToUser({
+    required final String recipientId,
+    required final int amount,
+    required final bool isSend,
+    final String? message,
+  }) = _$SendTokensToUserImpl;
+
+  String get recipientId;
+  int get amount;
+  bool get isSend;
+  String? get message;
+
+  /// Create a copy of ConversationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SendTokensToUserImplCopyWith<_$SendTokensToUserImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -4591,6 +5308,13 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -4659,6 +5383,13 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -4725,6 +5456,13 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -4768,6 +5506,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -4799,6 +5538,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -4829,6 +5569,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -4995,6 +5736,13 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -5063,6 +5811,13 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -5129,6 +5884,13 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -5172,6 +5934,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -5203,6 +5966,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -5233,6 +5997,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -5388,6 +6153,13 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -5456,6 +6228,13 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -5522,6 +6301,13 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -5565,6 +6351,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -5596,6 +6383,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -5626,6 +6414,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -5777,6 +6566,13 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -5845,6 +6641,13 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -5911,6 +6714,13 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -5954,6 +6764,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -5985,6 +6796,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -6015,6 +6827,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -6163,6 +6976,13 @@ class _$ClearChatImpl implements _ClearChat {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -6231,6 +7051,13 @@ class _$ClearChatImpl implements _ClearChat {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -6297,6 +7124,13 @@ class _$ClearChatImpl implements _ClearChat {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -6340,6 +7174,7 @@ class _$ClearChatImpl implements _ClearChat {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -6371,6 +7206,7 @@ class _$ClearChatImpl implements _ClearChat {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -6401,6 +7237,7 @@ class _$ClearChatImpl implements _ClearChat {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -6560,6 +7397,13 @@ class _$RetryMessageImpl implements _RetryMessage {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -6628,6 +7472,13 @@ class _$RetryMessageImpl implements _RetryMessage {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -6694,6 +7545,13 @@ class _$RetryMessageImpl implements _RetryMessage {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -6737,6 +7595,7 @@ class _$RetryMessageImpl implements _RetryMessage {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -6768,6 +7627,7 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -6798,6 +7658,7 @@ class _$RetryMessageImpl implements _RetryMessage {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -6958,6 +7819,13 @@ class _$SetTypingImpl implements _SetTyping {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -7026,6 +7894,13 @@ class _$SetTypingImpl implements _SetTyping {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -7092,6 +7967,13 @@ class _$SetTypingImpl implements _SetTyping {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -7135,6 +8017,7 @@ class _$SetTypingImpl implements _SetTyping {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -7166,6 +8049,7 @@ class _$SetTypingImpl implements _SetTyping {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -7196,6 +8080,7 @@ class _$SetTypingImpl implements _SetTyping {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -7362,6 +8247,13 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -7430,6 +8322,13 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -7496,6 +8395,13 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -7539,6 +8445,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -7570,6 +8477,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -7600,6 +8508,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -7762,6 +8671,13 @@ class _$SearchMessagesImpl implements _SearchMessages {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -7830,6 +8746,13 @@ class _$SearchMessagesImpl implements _SearchMessages {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -7896,6 +8819,13 @@ class _$SearchMessagesImpl implements _SearchMessages {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -7939,6 +8869,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -7970,6 +8901,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -8000,6 +8932,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -8124,6 +9057,13 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -8192,6 +9132,13 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -8258,6 +9205,13 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -8301,6 +9255,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -8332,6 +9287,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -8362,6 +9318,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -8516,6 +9473,13 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -8584,6 +9548,13 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -8650,6 +9621,13 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -8693,6 +9671,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -8724,6 +9703,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -8754,6 +9734,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -8942,6 +9923,13 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -9014,6 +10002,13 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -9084,6 +10079,13 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -9131,6 +10133,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -9162,6 +10165,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -9192,6 +10196,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,
@@ -9318,6 +10323,13 @@ class _$ClearErrorImpl implements _ClearError {
       String? message,
     )
     requestTokens,
+    required TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )
+    sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
     acceptTokenRequest,
     required TResult Function(String messageId, String conversationId)
@@ -9386,6 +10398,13 @@ class _$ClearErrorImpl implements _ClearError {
       String? message,
     )?
     requestTokens,
+    TResult? Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult? Function(String messageId, String conversationId)?
@@ -9452,6 +10471,13 @@ class _$ClearErrorImpl implements _ClearError {
       String? message,
     )?
     requestTokens,
+    TResult Function(
+      String recipientId,
+      int amount,
+      bool isSend,
+      String? message,
+    )?
+    sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
     acceptTokenRequest,
     TResult Function(String messageId, String conversationId)?
@@ -9495,6 +10521,7 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(_SendMediaMessage value) sendMediaMessage,
     required TResult Function(_SendTokens value) sendTokens,
     required TResult Function(_RequestTokens value) requestTokens,
+    required TResult Function(_SendTokensToUser value) sendTokensToUser,
     required TResult Function(_AcceptTokenRequest value) acceptTokenRequest,
     required TResult Function(_DeclineTokenRequest value) declineTokenRequest,
     required TResult Function(_AcceptConversation value) acceptConversation,
@@ -9526,6 +10553,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(_SendMediaMessage value)? sendMediaMessage,
     TResult? Function(_SendTokens value)? sendTokens,
     TResult? Function(_RequestTokens value)? requestTokens,
+    TResult? Function(_SendTokensToUser value)? sendTokensToUser,
     TResult? Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult? Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult? Function(_AcceptConversation value)? acceptConversation,
@@ -9556,6 +10584,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(_SendMediaMessage value)? sendMediaMessage,
     TResult Function(_SendTokens value)? sendTokens,
     TResult Function(_RequestTokens value)? requestTokens,
+    TResult Function(_SendTokensToUser value)? sendTokensToUser,
     TResult Function(_AcceptTokenRequest value)? acceptTokenRequest,
     TResult Function(_DeclineTokenRequest value)? declineTokenRequest,
     TResult Function(_AcceptConversation value)? acceptConversation,

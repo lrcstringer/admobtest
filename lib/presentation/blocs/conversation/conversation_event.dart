@@ -82,6 +82,14 @@ class ConversationEvent with _$ConversationEvent {
     String? message,
   }) = _RequestTokens;
 
+  /// Send or request tokens to/from a user (standalone — no conversation yet)
+  const factory ConversationEvent.sendTokensToUser({
+    required String recipientId,
+    required int amount,
+    required bool isSend,
+    String? message,
+  }) = _SendTokensToUser;
+
   /// Accept an incoming token request
   const factory ConversationEvent.acceptTokenRequest({
     required String messageId,

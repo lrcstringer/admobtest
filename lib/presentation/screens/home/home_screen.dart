@@ -336,28 +336,26 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildStreakBadge(BuildContext context, int streak) {
     return Container(
       key: _streakKey,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: AppColors.goldGradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: const BoxDecoration(
-              color: AppColors.gold,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 8),
+          const Icon(Icons.local_fire_department,
+              size: 18, color: AppColors.textOnSecondary),
+          const SizedBox(width: 6),
           Text(
             'STREAK: $streak DAYS',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w600,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: AppColors.textOnSecondary,
+                  fontWeight: FontWeight.bold,
                   letterSpacing: 1.0,
                 ),
           ),

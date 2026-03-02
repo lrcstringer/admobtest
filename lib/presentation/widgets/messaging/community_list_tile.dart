@@ -118,7 +118,8 @@ class CommunityListTile extends StatelessWidget {
   Widget _buildAvatar(BuildContext context) {
     const double size = 48;
     const double radius = 6;
-    final color = community.isStokvel ? AppColors.secondary : AppColors.primary;
+    final color =
+        community.isStokvel ? AppColors.secondary : AppColors.primary;
 
     final initialsWidget = Container(
       width: size,

@@ -13,6 +13,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
+import '../../widgets/messaging/token_actions_sheet.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -152,6 +153,10 @@ class _WalletScreenState extends State<WalletScreen> {
                   children: [
                     // Portfolio balance card
                     _buildPortfolioCard(context, state, isLoading),
+                    AppSpacing.verticalMd,
+
+                    // Send / Request action row
+                    _buildTokenActionRow(context),
                     AppSpacing.verticalXl,
 
                     // My Wallets section
@@ -297,6 +302,30 @@ class _WalletScreenState extends State<WalletScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildTokenActionRow(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () => showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (_) => const TokenActionsSheet(),
+        ),
+        icon: const Icon(Icons.swap_vert, size: 18),
+        label: const Text('Send / Request Tokens'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          side: const BorderSide(color: AppColors.primary),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
+        ),
+      ),
     );
   }
 

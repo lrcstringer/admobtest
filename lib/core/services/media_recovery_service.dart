@@ -46,6 +46,10 @@ class MediaRecoveryService {
   /// and AuthBloc both fire-and-forget initialize() on first install).
   Completer<bool>? _initCompleter;
 
+  /// Payloads queued while initialization is still in progress.
+  /// Flushed automatically once [initialize] completes successfully.
+  final Map<String, String> _pendingPayloads = {};
+
   /// Whether the recovery service is initialized and ready.
   bool get isReady => _initialized && _cachedRecoveryKey != null;
 
@@ -99,11 +103,18 @@ class MediaRecoveryService {
 
     // Step 1: Ensure TEE wrapping key exists
     final hasKey = await _keystoreService.hasWrappingKey(wrappingAlias);
-    final keyExists = hasKey.fold((_) => false, (v) => v);
+    final keyExists = hasKey.fold((err) {
+      debugPrint('MediaRecoveryService: hasWrappingKey failed: $err');
+      return false;
+    }, (v) => v);
     if (!keyExists) {
       final genResult =
           await _keystoreService.generateWrappingKey(wrappingAlias);
-      final genOk = genResult.fold((_) => false, (v) => v);
+      final genOk = genResult.fold((err) {
+        debugPrint(
+            'MediaRecoveryService: generateWrappingKey failed: $err');
+        return false;
+      }, (v) => v);
       if (!genOk) {
         debugPrint('MediaRecoveryService: Failed to create TEE wrapping key');
         return false;
@@ -118,12 +129,19 @@ class MediaRecoveryService {
         _initialized = true;
         debugPrint(
             'MediaRecoveryService: Recovery key loaded from local cache');
+        _flushPendingPayloads();
         return true;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint(
+          'MediaRecoveryService: SecureStorage read failed: $e');
+    }
 
     // Step 3: Try fetching wrapped blob from Firestore (reinstall path)
     final deviceId = await _getDeviceId(uid);
+    debugPrint(
+        'MediaRecoveryService: deviceId=${deviceId ?? "null"} — '
+        '${deviceId != null ? "fetching blob" : "no device found"}');
     if (deviceId != null) {
       final deviceDoc =
           await _firestore.collection('devices').doc(deviceId).get();
@@ -139,7 +157,11 @@ class MediaRecoveryService {
             blob,
             iv,
           );
-          final recoveryKey = unwrapResult.fold((_) => null, (v) => v);
+          final recoveryKey = unwrapResult.fold((err) {
+            debugPrint(
+                'MediaRecoveryService: TEE unwrap failed: $err');
+            return null;
+          }, (v) => v);
           if (recoveryKey != null) {
             _cachedRecoveryKey = recoveryKey;
             await _secureStorage.write(
@@ -147,9 +169,17 @@ class MediaRecoveryService {
             _initialized = true;
             debugPrint(
                 'MediaRecoveryService: Recovery key unwrapped from Firestore blob');
+            _flushPendingPayloads();
             return true;
           }
+        } else {
+          debugPrint(
+              'MediaRecoveryService: Device doc missing blob/iv — '
+              'blob=${blob != null}, iv=${iv != null}');
         }
+      } else {
+        debugPrint(
+            'MediaRecoveryService: Device doc $deviceId does not exist');
       }
     }
 
@@ -160,10 +190,14 @@ class MediaRecoveryService {
     // Wrap with TEE
     final wrapResult =
         await _keystoreService.wrapData(wrappingAlias, recoveryKeyB64);
-    final wrappedData = wrapResult.fold((_) => null, (v) => v);
+    final wrappedData = wrapResult.fold((err) {
+      debugPrint('MediaRecoveryService: TEE wrap failed: $err');
+      return null;
+    }, (v) => v);
     if (wrappedData == null) {
       CryptoService.zeroize(rawKey);
-      debugPrint('MediaRecoveryService: Failed to wrap recovery key');
+      debugPrint('MediaRecoveryService: Failed to wrap recovery key — '
+          'vault will NOT work this session');
       return false;
     }
 
@@ -173,6 +207,10 @@ class MediaRecoveryService {
         'recoveryKeyBlob': wrappedData['ciphertext'],
         'recoveryKeyIv': wrappedData['iv'],
       });
+    } else {
+      debugPrint(
+          'MediaRecoveryService: WARNING — no deviceId, wrapped blob '
+          'NOT stored on Firestore (won\'t survive reinstall)');
     }
 
     // Cache locally
@@ -184,6 +222,7 @@ class MediaRecoveryService {
     CryptoService.zeroize(rawKey);
     debugPrint(
         'MediaRecoveryService: New recovery key generated and stored');
+    _flushPendingPayloads();
     return true;
   }
 
@@ -194,9 +233,15 @@ class MediaRecoveryService {
   /// Encrypt and store a decrypted message payload for future recovery.
   ///
   /// Called after successful decryption or after sending a message.
+  /// If the vault is not yet initialized, payloads are queued in memory and
+  /// flushed automatically once [initialize] completes.
   /// Non-blocking — failures are logged but do not affect message flow.
   Future<void> storePayload(String messageId, String plaintext) async {
-    if (_cachedRecoveryKey == null) return;
+    if (_cachedRecoveryKey == null) {
+      // Vault not ready yet — queue for later
+      _pendingPayloads[messageId] = plaintext;
+      return;
+    }
 
     final uid = _auth.currentUser?.uid;
     if (uid == null) return;
@@ -220,6 +265,18 @@ class MediaRecoveryService {
       debugPrint(
           'MediaRecoveryService: Failed to store payload for $messageId: $e');
     }
+  }
+
+  /// Flush any payloads that were queued while initialization was in progress.
+  void _flushPendingPayloads() {
+    if (_pendingPayloads.isEmpty) return;
+    final queued = Map<String, String>.from(_pendingPayloads);
+    _pendingPayloads.clear();
+    debugPrint(
+        'MediaRecoveryService: Flushing ${queued.length} pending payloads');
+    storePayloadsBatch(queued).catchError((e) {
+      debugPrint('MediaRecoveryService: Pending payload flush failed: $e');
+    });
   }
 
   /// Store payloads for multiple messages in a batched write.

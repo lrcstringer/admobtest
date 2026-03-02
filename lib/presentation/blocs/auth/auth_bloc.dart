@@ -666,6 +666,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         // future senders and can run in parallel.
         debugPrint('E2EE INIT: Local keys loaded — starting message sync now');
         _startMessageAndQueueServices();
+        // Initialize vault early so payloads are stored from the first message
+        getIt<MediaRecoveryService>().initialize().catchError((e) {
+          debugPrint('Media recovery init failed (early): $e');
+          return false;
+        });
 
         // Verify Firestore bundle matches local keys (catches failed uploads).
         // Retries indefinitely until confirmed or BLoC is disposed.

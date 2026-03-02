@@ -1053,12 +1053,12 @@ class OutgoingMessageQueue {
       await _appDatabase.cacheDecryptedPlaintext(realMessageId, plaintext);
     } catch (_) {}
 
-    // Store encrypted payload in vault for recovery after reinstall
-    if (_mediaRecoveryService.isReady) {
-      _mediaRecoveryService.storePayload(realMessageId, plaintext).catchError((e) {
-        debugPrint('OutgoingMessageQueue: payload vault store failed: $e');
-      });
-    }
+    // Store payload in vault for recovery after reinstall.
+    // If vault isn't ready yet, storePayload queues internally and flushes
+    // once initialization completes.
+    _mediaRecoveryService.storePayload(realMessageId, plaintext).catchError((e) {
+      debugPrint('OutgoingMessageQueue: payload vault store failed: $e');
+    });
 
     // Parse structured payload to extract text and media separately.
     // Media messages store JSON like {"text":"caption", "media":{...}}.

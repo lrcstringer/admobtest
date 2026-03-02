@@ -259,7 +259,7 @@ class ActionPickerWidget extends StatelessWidget {
               spacing: 16,
               runSpacing: 16,
               children: [
-                // Row 1: Voice Note, Video Note, Send Instant Tokens, Sasaza
+                // Row 1: Voice Note, Video Note, Send/Receive Tokens, Sasaza
                 if (onVoiceNoteRequested != null)
                   _MediaOption(
                     icon: Icons.mic,
@@ -283,7 +283,7 @@ class ActionPickerWidget extends StatelessWidget {
                 if (onTokenAction != null)
                   _MediaOption(
                     icon: Icons.attach_money,
-                    label: 'Send Instant\nTokens',
+                    label: 'Send/Receive\nTokens',
                     color: AppColors.accent,
                     onTap: () {
                       Navigator.pop(context);

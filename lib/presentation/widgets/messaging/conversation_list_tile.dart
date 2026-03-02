@@ -149,14 +149,14 @@ class ConversationListTile extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.2),
+        color: AppColors.chatBubbleSent,
         borderRadius: BorderRadius.circular(radius),
       ),
       alignment: Alignment.center,
       child: Text(
         _initials(other.displayName),
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: AppColors.primary,
+              color: Colors.black,
               fontWeight: FontWeight.bold,
             ),
       ),

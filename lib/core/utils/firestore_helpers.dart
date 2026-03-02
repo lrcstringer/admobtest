@@ -80,12 +80,15 @@ dynamic _deepConvertValue(dynamic value) {
 /// Converts all [Timestamp] values in a Firestore document map to ISO 8601
 /// strings so that freezed/json_serializable generated `fromJson` code
 /// (which expects `DateTime.parse(json['field'] as String)`) works correctly.
-Map<String, dynamic> sanitizeFirestoreData(Map<String, dynamic> data) {
-  return data.map((key, value) {
+///
+/// Also recursively converts any untyped [Map] (e.g. `_Map<Object?, Object?>`
+/// returned by Cloud Functions) into `Map<String, dynamic>`.
+Map<String, dynamic> sanitizeFirestoreData(Map data) {
+  return Map<String, dynamic>.from(data).map((key, value) {
     if (value is Timestamp) {
       return MapEntry(key, value.toDate().toIso8601String());
     }
-    if (value is Map<String, dynamic>) {
+    if (value is Map) {
       return MapEntry(key, sanitizeFirestoreData(value));
     }
     if (value is List) {
@@ -93,7 +96,7 @@ Map<String, dynamic> sanitizeFirestoreData(Map<String, dynamic> data) {
         key,
         value.map((e) {
           if (e is Timestamp) return e.toDate().toIso8601String();
-          if (e is Map<String, dynamic>) return sanitizeFirestoreData(e);
+          if (e is Map) return sanitizeFirestoreData(e);
           return e;
         }).toList(),
       );

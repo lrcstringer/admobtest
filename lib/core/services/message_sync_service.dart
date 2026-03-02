@@ -373,9 +373,9 @@ class MessageSyncService {
             _decryptionService.decryptFailures.remove(msg.id);
             sendersWithGoodSession.add(msg.senderId);
             // Store in vault for recovery after reinstall
-            if (_mediaRecoveryService.isReady) {
-              _mediaRecoveryService.storePayload(msg.id, plaintext).catchError((_) {});
-            }
+            _mediaRecoveryService.storePayload(msg.id, plaintext).catchError((e) {
+              debugPrint('MessageSync: vault store failed for ${msg.id}: $e');
+            });
           } else {
             // Defensive re-read: if any parallel path (e.g. a lock bypass or
             // future refactor) already committed isDecrypted:true for this
@@ -395,7 +395,11 @@ class MessageSyncService {
             // is still processing (race condition), _finalizeSent will
             // overwrite this with the real content.
             if (msg.senderId == currentUserId) {
-              // Try vault recovery before falling back to placeholder
+              // Try vault recovery before falling back to placeholder.
+              // Await initialize() in case it's still in-flight (race condition)
+              // — this coalesces with the existing init call and is a no-op if
+              // already ready.
+              await _mediaRecoveryService.initialize();
               if (_mediaRecoveryService.isReady) {
                 final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
                 if (recovered != null) {
@@ -434,7 +438,9 @@ class MessageSyncService {
             }
 
             // Try vault recovery for received messages (may have been
-            // decrypted in a previous install and stored in the vault)
+            // decrypted in a previous install and stored in the vault).
+            // Await initialize() in case it's still in-flight.
+            await _mediaRecoveryService.initialize();
             if (_mediaRecoveryService.isReady) {
               final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
               if (recovered != null) {
@@ -527,9 +533,9 @@ class MessageSyncService {
                 _decryptionService.applyDecryptedPayload(msg, plaintext);
             _decryptionService.decryptFailures.remove(msg.id);
             // Store in vault for recovery after reinstall
-            if (_mediaRecoveryService.isReady) {
-              _mediaRecoveryService.storePayload(msg.id, plaintext).catchError((_) {});
-            }
+            _mediaRecoveryService.storePayload(msg.id, plaintext).catchError((e) {
+              debugPrint('MessageSync: vault store failed for ${msg.id}: $e');
+            });
             await _appDatabase.upsertLocalMessage(
               LocalMessageMapper.toCompanion(
                 decryptedMsg,

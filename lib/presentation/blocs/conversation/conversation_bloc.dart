@@ -45,6 +45,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     // Token operations
     on<_SendTokens>(_onSendTokens);
     on<_RequestTokens>(_onRequestTokens);
+    on<_SendTokensToUser>(_onSendTokensToUser);
     on<_AcceptTokenRequest>(_onAcceptTokenRequest);
     on<_DeclineTokenRequest>(_onDeclineTokenRequest);
 
@@ -491,6 +492,61 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       )),
       (message) => emit(state.copyWith(isSending: false)),
     );
+  }
+
+  Future<void> _onSendTokensToUser(
+    _SendTokensToUser event,
+    Emitter<ConversationState> emit,
+  ) async {
+    emit(state.copyWith(isSending: true));
+
+    // 1. Get or create conversation with the recipient
+    final convResult = await _conversationRepository.getOrCreateConversation(
+      participantId: event.recipientId,
+    );
+
+    final conversation = convResult.fold(
+      (failure) {
+        emit(state.copyWith(
+          isSending: false,
+          errorMessage: failure.displayMessage,
+        ));
+        return null;
+      },
+      (conv) => conv,
+    );
+    if (conversation == null) return;
+
+    // 2. Send or request tokens in that conversation
+    if (event.isSend) {
+      final result = await _conversationRepository.sendTokens(
+        conversationId: conversation.id,
+        recipientId: event.recipientId,
+        amount: event.amount,
+        message: event.message,
+      );
+      result.fold(
+        (failure) => emit(state.copyWith(
+          isSending: false,
+          errorMessage: failure.displayMessage,
+        )),
+        (message) => emit(state.copyWith(isSending: false)),
+      );
+    } else {
+      final result = await _conversationRepository.requestTokens(
+        conversationId: conversation.id,
+        recipientId: event.recipientId,
+        amount: event.amount,
+        message: event.message,
+      );
+      result.fold(
+        (failure) => emit(state.copyWith(
+          isSending: false,
+          errorMessage: failure.displayMessage,
+        )),
+        (message) => emit(state.copyWith(isSending: false)),
+      );
+    }
   }
 
   Future<void> _onAcceptTokenRequest(
