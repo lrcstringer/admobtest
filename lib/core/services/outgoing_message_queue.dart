@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
@@ -39,7 +41,15 @@ class OutgoingMessageQueue {
   final MediaRecoveryService _mediaRecoveryService;
 
   StreamSubscription<bool>? _connectivitySub;
-  bool _isProcessing = false;
+  Completer<void>? _processingCompleter;
+  Timer? _reDrainTimer;
+
+  // 9.2 Guard against concurrent sender key distribution for same community
+  static final _distributionInProgress = <String>{};
+
+  // 9.8 Max retry count and max age for failed messages
+  static const _maxRetries = 10;
+  static const _maxAge = Duration(hours: 24);
 
   OutgoingMessageQueue(
     this._appDatabase,
@@ -72,6 +82,9 @@ class OutgoingMessageQueue {
   void stopListening() {
     _connectivitySub?.cancel();
     _connectivitySub = null;
+    // 9.6 Cancel any pending re-drain timer
+    _reDrainTimer?.cancel();
+    _reDrainTimer = null;
   }
 
   // =========================================================================
@@ -517,8 +530,11 @@ class OutgoingMessageQueue {
 
   /// Process all pending messages. Called on connectivity restored.
   Future<void> processPendingMessages() async {
-    if (_isProcessing) return;
-    _isProcessing = true;
+    // 9.5 Use Completer to prevent concurrent processing
+    if (_processingCompleter != null && !_processingCompleter!.isCompleted) {
+      return;
+    }
+    _processingCompleter = Completer<void>();
 
     try {
       final pending = await _appDatabase.getPendingMessages();
@@ -529,6 +545,18 @@ class OutgoingMessageQueue {
 
       DateTime? earliestRetry;
       for (final msg in pending) {
+        // 9.8 Skip messages that have exceeded max retries or max age
+        if (msg.retryCount >= _maxRetries ||
+            DateTime.now().difference(msg.createdAt) > _maxAge) {
+          await _markFailed(
+            msg.id,
+            msg.retryCount >= _maxRetries
+                ? 'Max retries exceeded'
+                : 'Message expired (over 24 hours old)',
+          );
+          continue;
+        }
+
         // Skip messages still in exponential backoff
         if (_isInBackoff(msg)) {
           final retryAt = msg.lastAttemptAt!.add(_backoffDuration(msg.retryCount));
@@ -546,15 +574,16 @@ class OutgoingMessageQueue {
         }
       }
 
-      // Schedule a delayed re-drain for the earliest backed-off message
+      // 9.6 Schedule a single cancellable timer for the earliest backed-off message
       if (earliestRetry != null) {
         final delay = earliestRetry.difference(DateTime.now());
         if (delay > Duration.zero) {
-          Future.delayed(delay, () => _processNextPending());
+          _reDrainTimer?.cancel();
+          _reDrainTimer = Timer(delay, () => _processNextPending());
         }
       }
     } finally {
-      _isProcessing = false;
+      _processingCompleter!.complete();
     }
   }
 
@@ -727,19 +756,31 @@ class OutgoingMessageQueue {
 
     try {
       // Ensure sender key is distributed
+      // 9.1 + 9.4: Network errors keep message as pending (will retry)
       try {
         await _ensureSenderKeyDistributed(communityId);
+      } on SocketException {
+        return; // Leave as pending — will retry on connectivity
+      } on TimeoutException {
+        return;
+      } on FirebaseFunctionsException catch (e) {
+        if (e.code == 'unavailable') return;
+        await _markFailed(msg.id, _userFriendlyError(e));
+        return;
       } catch (e) {
+        if (_isNetworkError(e)) return; // Leave as pending
         await _markFailed(
-            msg.id, 'Waiting for connection to distribute encryption key');
+            msg.id, 'Failed to distribute encryption key: ${_userFriendlyError(e)}');
         return;
       }
 
       await _appDatabase.updatePendingMessageStatus(msg.id, 'encrypting');
-      final encrypted = await _senderKeyService.encryptCommunity(
-        communityId,
-        plaintext,
-      );
+      // 9.7 Add encryption timeout
+      final encrypted = await _senderKeyService
+          .encryptCommunity(communityId, plaintext)
+          .timeout(const Duration(seconds: 15), onTimeout: () {
+        throw TimeoutException('Encryption timed out');
+      });
 
       await _appDatabase.updatePendingMessageStatus(msg.id, 'sending');
       final messageId =
@@ -762,7 +803,17 @@ class OutgoingMessageQueue {
         communityId: communityId,
         createdAt: msg.createdAt,
       );
+    } on SocketException {
+      // 9.1 Network error — leave as pending for retry
+      return;
+    } on TimeoutException {
+      // 9.7 Encryption or send timeout — reset to pending
+      await _appDatabase.updatePendingMessageStatus(msg.id, 'pending');
+    } on FirebaseFunctionsException catch (e) {
+      if (e.code == 'unavailable') return; // Network — leave as pending
+      await _markFailed(msg.id, _userFriendlyError(e));
     } catch (e) {
+      if (_isNetworkError(e)) return;
       await _markFailed(msg.id, _userFriendlyError(e));
     }
   }
@@ -809,19 +860,31 @@ class OutgoingMessageQueue {
       }
 
       // Ensure sender key is distributed (same as text messages)
+      // 9.1 + 9.4: Network errors keep message as pending (will retry)
       try {
         await _ensureSenderKeyDistributed(communityId);
+      } on SocketException {
+        return; // Leave as pending
+      } on TimeoutException {
+        return;
+      } on FirebaseFunctionsException catch (e) {
+        if (e.code == 'unavailable') return;
+        await _markFailed(msg.id, _userFriendlyError(e));
+        return;
       } catch (e) {
+        if (_isNetworkError(e)) return;
         await _markFailed(
-            msg.id, 'Waiting for connection to distribute encryption key');
+            msg.id, 'Failed to distribute encryption key: ${_userFriendlyError(e)}');
         return;
       }
 
       await _appDatabase.updatePendingMessageStatus(msg.id, 'encrypting');
-      final encrypted = await _senderKeyService.encryptCommunity(
-        communityId,
-        payload,
-      );
+      // 9.7 Add encryption timeout
+      final encrypted = await _senderKeyService
+          .encryptCommunity(communityId, payload)
+          .timeout(const Duration(seconds: 15), onTimeout: () {
+        throw TimeoutException('Encryption timed out');
+      });
 
       await _appDatabase.updatePendingMessageStatus(msg.id, 'sending');
       final messageId =
@@ -835,19 +898,27 @@ class OutgoingMessageQueue {
       // Cache for community sync service
       _messageSyncService.cacheSentPlaintext(messageId, payload);
 
+      // 9.11 Fix media type parsing — log unknown types instead of silent default
       await _finalizeSent(
         pendingId: msg.id,
         realMessageId: messageId,
         conversationId: communityId,
         plaintext: payload,
-        type: MessageType.values.firstWhere(
-          (t) => t.name == mediaTypeStr,
-          orElse: () => MessageType.image,
-        ),
+        type: _inferMessageType(mediaTypeStr),
         communityId: communityId,
         createdAt: msg.createdAt,
       );
+    } on SocketException {
+      // 9.1 Network error — leave as pending for retry
+      return;
+    } on TimeoutException {
+      // 9.7 Encryption or send timeout — reset to pending
+      await _appDatabase.updatePendingMessageStatus(msg.id, 'pending');
+    } on FirebaseFunctionsException catch (e) {
+      if (e.code == 'unavailable') return;
+      await _markFailed(msg.id, _userFriendlyError(e));
     } catch (e) {
+      if (_isNetworkError(e)) return;
       await _markFailed(msg.id, _userFriendlyError(e));
     }
   }
@@ -1044,8 +1115,28 @@ class OutgoingMessageQueue {
     return DateTime.now().isBefore(msg.lastAttemptAt!.add(backoff));
   }
 
+  /// 9.4 Check exception type rather than string matching for network errors.
+  bool _isNetworkError(Object e) {
+    if (e is SocketException || e is TimeoutException) return true;
+    if (e is FirebaseFunctionsException && e.code == 'unavailable') return true;
+    // Fallback string check for wrapped exceptions
+    final msg = e.toString().toLowerCase();
+    return msg.contains('socketexception') ||
+        msg.contains('timeout') ||
+        msg.contains('network_error');
+  }
+
   /// Convert raw exceptions to user-facing error messages.
   String _userFriendlyError(Object e) {
+    if (e is SocketException || e is TimeoutException) {
+      return 'Network error — will retry when connected';
+    }
+    if (e is FirebaseFunctionsException) {
+      if (e.code == 'unavailable') {
+        return 'Network error — will retry when connected';
+      }
+      return e.message ?? 'Server error — will retry automatically';
+    }
     final msg = e.toString().toLowerCase();
     if (msg.contains('network') ||
         msg.contains('socket') ||
@@ -1061,6 +1152,37 @@ class OutgoingMessageQueue {
       return 'Insufficient token balance';
     }
     return 'Send failed — will retry automatically';
+  }
+
+  /// 9.11 Infer MessageType from MIME type string with logged fallback.
+  MessageType _inferMessageType(String mediaTypeStr) {
+    if (mediaTypeStr.startsWith('image')) return MessageType.image;
+    if (mediaTypeStr.startsWith('video')) return MessageType.video;
+    if (mediaTypeStr.startsWith('audio')) return MessageType.voice;
+    if (mediaTypeStr == 'document' || mediaTypeStr.startsWith('application')) {
+      return MessageType.document;
+    }
+    // Try matching by enum name
+    final match = MessageType.values.where((t) => t.name == mediaTypeStr);
+    if (match.isNotEmpty) return match.first;
+    debugPrint(
+        'OutgoingMessageQueue: Unknown media type "$mediaTypeStr", '
+        'defaulting to file/document');
+    return MessageType.document;
+  }
+
+  /// 9.10 Message status state machine validation.
+  /// Valid transitions: pending→encrypting→sending→sent, any→failed, failed→pending (retry).
+  static const _validTransitions = <String, Set<String>>{
+    'pending': {'encrypting', 'failed'},
+    'encrypting': {'sending', 'failed', 'pending'},
+    'sending': {'sent', 'failed', 'pending'},
+    'failed': {'pending'}, // retry only
+  };
+
+  /// Returns true if the status transition is valid.
+  static bool isValidTransition(String from, String to) {
+    return _validTransitions[from]?.contains(to) ?? false;
   }
 
   /// Mark a pending message as sent, replacing the optimistic local message
@@ -1080,12 +1202,19 @@ class OutgoingMessageQueue {
       await _appDatabase.cacheDecryptedPlaintext(realMessageId, plaintext);
     } catch (_) {}
 
-    // Store payload in vault for recovery after reinstall.
-    // If vault isn't ready yet, storePayload queues internally and flushes
-    // once initialization completes.
-    _mediaRecoveryService.storePayload(realMessageId, plaintext).catchError((e) {
-      debugPrint('OutgoingMessageQueue: payload vault store failed: $e');
-    });
+    // 9.3 Store payload in vault for recovery after reinstall, with retry.
+    for (int attempt = 0; attempt < 3; attempt++) {
+      try {
+        await _mediaRecoveryService.storePayload(realMessageId, plaintext);
+        break;
+      } catch (e) {
+        if (attempt == 2) {
+          debugPrint('OutgoingMessageQueue: vault store failed after 3 attempts: $e');
+        } else {
+          await Future.delayed(Duration(seconds: attempt + 1));
+        }
+      }
+    }
 
     // Parse structured payload to extract text and media separately.
     // Media messages store JSON like {"text":"caption", "media":{...}}.
@@ -1206,26 +1335,35 @@ class OutgoingMessageQueue {
   }
 
   /// Ensure the sender key for a community has been distributed.
+  /// 9.2 Guarded against concurrent calls for the same community.
   Future<void> _ensureSenderKeyDistributed(String communityId) async {
     if (await _senderKeyService.isDistributed(communityId)) return;
 
-    final hasKey = await _senderKeyService.hasSenderKey(communityId);
-    if (!hasKey) {
-      await _senderKeyService.generateSenderKey(communityId);
-    }
+    // 9.2 Prevent concurrent distribution for the same community
+    if (_distributionInProgress.contains(communityId)) return;
+    _distributionInProgress.add(communityId);
 
-    final members = await _communityRemoteDS.getMembers(communityId);
-    final currentUserId = _communityRemoteDS.currentUserId;
-    final otherMemberIds = members
-        .map((m) => m.userId)
-        .where((id) => id != currentUserId)
-        .toList();
+    try {
+      final hasKey = await _senderKeyService.hasSenderKey(communityId);
+      if (!hasKey) {
+        await _senderKeyService.generateSenderKey(communityId);
+      }
 
-    if (otherMemberIds.isNotEmpty) {
-      await _senderKeyService.distributeSenderKeyToAll(
-        communityId,
-        otherMemberIds,
-      );
+      final members = await _communityRemoteDS.getMembers(communityId);
+      final currentUserId = _communityRemoteDS.currentUserId;
+      final otherMemberIds = members
+          .map((m) => m.userId)
+          .where((id) => id != currentUserId)
+          .toList();
+
+      if (otherMemberIds.isNotEmpty) {
+        await _senderKeyService.distributeSenderKeyToAll(
+          communityId,
+          otherMemberIds,
+        );
+      }
+    } finally {
+      _distributionInProgress.remove(communityId);
     }
   }
 
@@ -1252,41 +1390,19 @@ class OutgoingMessageQueue {
   }
 
   /// Update community preview with latest sent message text.
+  /// 9.9 Uses atomic partial update to avoid read-modify-write race with sync service.
   Future<void> _updateCommunityPreview(
     String communityId,
     String text,
     DateTime now,
   ) async {
     try {
-      final community = await _appDatabase.getLocalCommunity(communityId);
-      if (community != null) {
-        await _appDatabase.upsertLocalCommunity(LocalCommunitiesCompanion(
-          id: Value(community.id),
-          type: Value(community.type),
-          name: Value(community.name),
-          description: Value(community.description),
-          avatarUrl: Value(community.avatarUrl),
-          ownerId: Value(community.ownerId),
-          memberIdsJson: Value(community.memberIdsJson),
-          adminIdsJson: Value(community.adminIdsJson),
-          memberCount: Value(community.memberCount),
-          totalBalance: Value(community.totalBalance),
-          status: Value(community.status),
-          settingsJson: Value(community.settingsJson),
-          stokvelSettingsJson: Value(community.stokvelSettingsJson),
-          lastMessageText: Value(text),
-          lastMessageSenderId:
-              Value(_conversationRemoteDS.currentUserId ?? ''),
-          lastMessageSenderName: const Value(''),
-          lastMessageType: const Value('text'),
-          lastMessageAt: Value(now),
-          unreadCountsJson: Value(community.unreadCountsJson),
-          mutedJson: Value(community.mutedJson),
-          encryptedPreviewsJson: Value(community.encryptedPreviewsJson),
-          createdAt: Value(community.createdAt),
-          updatedAt: Value(now),
-        ));
-      }
+      await _appDatabase.updateLocalCommunityPreview(
+        communityId: communityId,
+        lastMessageText: text,
+        lastMessageSenderId: _conversationRemoteDS.currentUserId ?? '',
+        lastMessageAt: now,
+      );
     } catch (e) {
       debugPrint('OutgoingMessageQueue: Failed to update community preview: $e');
     }

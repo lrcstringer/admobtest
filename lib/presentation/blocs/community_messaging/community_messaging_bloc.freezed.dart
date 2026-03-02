@@ -183,15 +183,23 @@ class __$$LoadMessagesImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$LoadMessagesImpl implements _LoadMessages {
+class _$LoadMessagesImpl with DiagnosticableTreeMixin implements _LoadMessages {
   const _$LoadMessagesImpl({this.limit});
 
   @override
   final int? limit;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityMessagingEvent.loadMessages(limit: $limit)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityMessagingEvent.loadMessages'))
+      ..add(DiagnosticsProperty('limit', limit));
   }
 
   @override
@@ -395,15 +403,27 @@ class __$$WatchMessagesImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$WatchMessagesImpl implements _WatchMessages {
+class _$WatchMessagesImpl
+    with DiagnosticableTreeMixin
+    implements _WatchMessages {
   const _$WatchMessagesImpl({this.limit});
 
   @override
   final int? limit;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityMessagingEvent.watchMessages(limit: $limit)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(
+        DiagnosticsProperty('type', 'CommunityMessagingEvent.watchMessages'),
+      )
+      ..add(DiagnosticsProperty('limit', limit));
   }
 
   @override
@@ -607,7 +627,9 @@ class __$$MessagesUpdatedImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$MessagesUpdatedImpl implements _MessagesUpdated {
+class _$MessagesUpdatedImpl
+    with DiagnosticableTreeMixin
+    implements _MessagesUpdated {
   const _$MessagesUpdatedImpl(final List<Message> messages)
     : _messages = messages;
 
@@ -620,8 +642,18 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
   }
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityMessagingEvent.messagesUpdated(messages: $messages)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(
+        DiagnosticsProperty('type', 'CommunityMessagingEvent.messagesUpdated'),
+      )
+      ..add(DiagnosticsProperty('messages', messages));
   }
 
   @override
@@ -834,7 +866,9 @@ class __$$SendTextMessageImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$SendTextMessageImpl implements _SendTextMessage {
+class _$SendTextMessageImpl
+    with DiagnosticableTreeMixin
+    implements _SendTextMessage {
   const _$SendTextMessageImpl({required this.text, this.replyToMessageId});
 
   @override
@@ -843,8 +877,19 @@ class _$SendTextMessageImpl implements _SendTextMessage {
   final String? replyToMessageId;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityMessagingEvent.sendTextMessage(text: $text, replyToMessageId: $replyToMessageId)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(
+        DiagnosticsProperty('type', 'CommunityMessagingEvent.sendTextMessage'),
+      )
+      ..add(DiagnosticsProperty('text', text))
+      ..add(DiagnosticsProperty('replyToMessageId', replyToMessageId));
   }
 
   @override
@@ -1085,7 +1130,9 @@ class __$$SendMediaMessageImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$SendMediaMessageImpl implements _SendMediaMessage {
+class _$SendMediaMessageImpl
+    with DiagnosticableTreeMixin
+    implements _SendMediaMessage {
   const _$SendMediaMessageImpl({
     required this.mediaFile,
     required this.mediaType,
@@ -1106,8 +1153,22 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
   final File? thumbnailFile;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityMessagingEvent.sendMediaMessage(mediaFile: $mediaFile, mediaType: $mediaType, caption: $caption, durationSeconds: $durationSeconds, thumbnailFile: $thumbnailFile)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(
+        DiagnosticsProperty('type', 'CommunityMessagingEvent.sendMediaMessage'),
+      )
+      ..add(DiagnosticsProperty('mediaFile', mediaFile))
+      ..add(DiagnosticsProperty('mediaType', mediaType))
+      ..add(DiagnosticsProperty('caption', caption))
+      ..add(DiagnosticsProperty('durationSeconds', durationSeconds))
+      ..add(DiagnosticsProperty('thumbnailFile', thumbnailFile));
   }
 
   @override
@@ -1361,7 +1422,7 @@ class __$$AddReactionImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$AddReactionImpl implements _AddReaction {
+class _$AddReactionImpl with DiagnosticableTreeMixin implements _AddReaction {
   const _$AddReactionImpl({required this.messageId, required this.emoji});
 
   @override
@@ -1370,8 +1431,17 @@ class _$AddReactionImpl implements _AddReaction {
   final String emoji;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityMessagingEvent.addReaction(messageId: $messageId, emoji: $emoji)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityMessagingEvent.addReaction'))
+      ..add(DiagnosticsProperty('messageId', messageId))
+      ..add(DiagnosticsProperty('emoji', emoji));
   }
 
   @override
@@ -1585,7 +1655,9 @@ class __$$RemoveReactionImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RemoveReactionImpl implements _RemoveReaction {
+class _$RemoveReactionImpl
+    with DiagnosticableTreeMixin
+    implements _RemoveReaction {
   const _$RemoveReactionImpl({required this.messageId, required this.emoji});
 
   @override
@@ -1594,8 +1666,19 @@ class _$RemoveReactionImpl implements _RemoveReaction {
   final String emoji;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityMessagingEvent.removeReaction(messageId: $messageId, emoji: $emoji)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(
+        DiagnosticsProperty('type', 'CommunityMessagingEvent.removeReaction'),
+      )
+      ..add(DiagnosticsProperty('messageId', messageId))
+      ..add(DiagnosticsProperty('emoji', emoji));
   }
 
   @override
@@ -1794,12 +1877,19 @@ class __$$MarkAsReadImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$MarkAsReadImpl implements _MarkAsRead {
+class _$MarkAsReadImpl with DiagnosticableTreeMixin implements _MarkAsRead {
   const _$MarkAsReadImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityMessagingEvent.markAsRead()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityMessagingEvent.markAsRead'));
   }
 
   @override
@@ -1971,12 +2061,19 @@ class __$$LoadMoreImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$LoadMoreImpl implements _LoadMore {
+class _$LoadMoreImpl with DiagnosticableTreeMixin implements _LoadMore {
   const _$LoadMoreImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityMessagingEvent.loadMore()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityMessagingEvent.loadMore'));
   }
 
   @override
@@ -2148,12 +2245,19 @@ class __$$ClearErrorImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$ClearErrorImpl implements _ClearError {
+class _$ClearErrorImpl with DiagnosticableTreeMixin implements _ClearError {
   const _$ClearErrorImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityMessagingEvent.clearError()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityMessagingEvent.clearError'));
   }
 
   @override
@@ -2469,7 +2573,9 @@ class __$$CommunityMessagingStateImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$CommunityMessagingStateImpl implements _CommunityMessagingState {
+class _$CommunityMessagingStateImpl
+    with DiagnosticableTreeMixin
+    implements _CommunityMessagingState {
   const _$CommunityMessagingStateImpl({
     required this.communityId,
     final List<Message> messages = const [],
@@ -2503,8 +2609,21 @@ class _$CommunityMessagingStateImpl implements _CommunityMessagingState {
   final String? errorMessage;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityMessagingState(communityId: $communityId, messages: $messages, isLoading: $isLoading, isSending: $isSending, hasMore: $hasMore, errorMessage: $errorMessage)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityMessagingState'))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('messages', messages))
+      ..add(DiagnosticsProperty('isLoading', isLoading))
+      ..add(DiagnosticsProperty('isSending', isSending))
+      ..add(DiagnosticsProperty('hasMore', hasMore))
+      ..add(DiagnosticsProperty('errorMessage', errorMessage));
   }
 
   @override

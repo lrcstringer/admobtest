@@ -599,6 +599,14 @@
         { "fieldPath": "role", "order": "ASCENDING" }
       ]
     },
+    {
+      "collectionGroup": "members",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
 
     {
       "collectionGroup": "gifts",

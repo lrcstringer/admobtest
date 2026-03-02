@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/community.dart';
+import '../../domain/enums/community_status.dart';
 import '../../domain/enums/community_type.dart';
 import '../../core/utils/firestore_helpers.dart';
 import 'group_model.dart'; // Reuse StokvelSettingsModel
@@ -109,11 +111,14 @@ class CommunityModel with _$CommunityModel {
     // Flatten nested lastMessage into top-level fields
     final lastMessage = sanitized['lastMessage'];
     if (lastMessage is Map<String, dynamic>) {
-      sanitized['lastMessageText'] = lastMessage['text'];
-      sanitized['lastMessageSenderId'] = lastMessage['senderId'];
-      sanitized['lastMessageSenderName'] = lastMessage['senderName'];
-      sanitized['lastMessageType'] = lastMessage['type'];
-      sanitized['lastMessageAt'] = lastMessage['timestamp'];
+      sanitized['lastMessageText'] = lastMessage['text'] as String?;
+      sanitized['lastMessageSenderId'] = lastMessage['senderId'] as String?;
+      sanitized['lastMessageSenderName'] = lastMessage['senderName'] as String?;
+      sanitized['lastMessageType'] = lastMessage['type'] as String?;
+      final ts = lastMessage['timestamp'];
+      if (ts is Timestamp) {
+        sanitized['lastMessageAt'] = ts;
+      }
       sanitized.remove('lastMessage');
     }
 
@@ -159,7 +164,10 @@ class CommunityModel with _$CommunityModel {
         id: id,
         type: CommunityType.values.firstWhere(
           (e) => e.name == type,
-          orElse: () => CommunityType.regular,
+          orElse: () {
+            debugPrint('WARNING: Unknown community type "$type", defaulting to regular');
+            return CommunityType.regular;
+          },
         ),
         name: name,
         description: description,
@@ -169,7 +177,13 @@ class CommunityModel with _$CommunityModel {
         adminIds: adminIds,
         memberCount: memberCount,
         totalBalance: totalBalance,
-        status: status,
+        status: CommunityStatus.values.firstWhere(
+          (e) => e.name == status,
+          orElse: () {
+            debugPrint('WARNING: Unknown community status "$status", defaulting to active');
+            return CommunityStatus.active;
+          },
+        ),
         settings: settings.toEntity(),
         stokvelSettings: stokvelSettings?.toEntity(),
         lastMessageText: lastMessageText,
@@ -196,7 +210,7 @@ class CommunityModel with _$CommunityModel {
         adminIds: entity.adminIds,
         memberCount: entity.memberCount,
         totalBalance: entity.totalBalance,
-        status: entity.status,
+        status: entity.status.name,
         settings: CommunitySettingsModel.fromEntity(entity.settings),
         stokvelSettings: entity.stokvelSettings != null
             ? StokvelSettingsModel.fromEntity(entity.stokvelSettings!)

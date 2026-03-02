@@ -484,11 +484,11 @@ mixin _$CommunityApproval {
   String get requestedBy => throw _privateConstructorUsedError;
   String get requestedByName => throw _privateConstructorUsedError;
   int get amount => throw _privateConstructorUsedError;
-  String get type => throw _privateConstructorUsedError;
+  CommunityTransactionType get type => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   List<String> get approvers => throw _privateConstructorUsedError;
   int get requiredApprovals => throw _privateConstructorUsedError;
-  String get status => throw _privateConstructorUsedError;
+  ApprovalStatus get status => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get expiresAt => throw _privateConstructorUsedError;
 
@@ -516,11 +516,11 @@ abstract class $CommunityApprovalCopyWith<$Res> {
     String requestedBy,
     String requestedByName,
     int amount,
-    String type,
+    CommunityTransactionType type,
     String? description,
     List<String> approvers,
     int requiredApprovals,
-    String status,
+    ApprovalStatus status,
     DateTime createdAt,
     DateTime expiresAt,
   });
@@ -584,7 +584,7 @@ class _$CommunityApprovalCopyWithImpl<$Res, $Val extends CommunityApproval>
             type: null == type
                 ? _value.type
                 : type // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as CommunityTransactionType,
             description: freezed == description
                 ? _value.description
                 : description // ignore: cast_nullable_to_non_nullable
@@ -600,7 +600,7 @@ class _$CommunityApprovalCopyWithImpl<$Res, $Val extends CommunityApproval>
             status: null == status
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as ApprovalStatus,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -631,11 +631,11 @@ abstract class _$$CommunityApprovalImplCopyWith<$Res>
     String requestedBy,
     String requestedByName,
     int amount,
-    String type,
+    CommunityTransactionType type,
     String? description,
     List<String> approvers,
     int requiredApprovals,
-    String status,
+    ApprovalStatus status,
     DateTime createdAt,
     DateTime expiresAt,
   });
@@ -698,7 +698,7 @@ class __$$CommunityApprovalImplCopyWithImpl<$Res>
         type: null == type
             ? _value.type
             : type // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as CommunityTransactionType,
         description: freezed == description
             ? _value.description
             : description // ignore: cast_nullable_to_non_nullable
@@ -714,7 +714,7 @@ class __$$CommunityApprovalImplCopyWithImpl<$Res>
         status: null == status
             ? _value.status
             : status // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as ApprovalStatus,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -764,7 +764,7 @@ class _$CommunityApprovalImpl extends _CommunityApproval {
   @override
   final int amount;
   @override
-  final String type;
+  final CommunityTransactionType type;
   @override
   final String? description;
   final List<String> _approvers;
@@ -778,7 +778,7 @@ class _$CommunityApprovalImpl extends _CommunityApproval {
   @override
   final int requiredApprovals;
   @override
-  final String status;
+  final ApprovalStatus status;
   @override
   final DateTime createdAt;
   @override
@@ -864,11 +864,11 @@ abstract class _CommunityApproval extends CommunityApproval {
     required final String requestedBy,
     required final String requestedByName,
     required final int amount,
-    required final String type,
+    required final CommunityTransactionType type,
     final String? description,
     required final List<String> approvers,
     required final int requiredApprovals,
-    required final String status,
+    required final ApprovalStatus status,
     required final DateTime createdAt,
     required final DateTime expiresAt,
   }) = _$CommunityApprovalImpl;
@@ -890,7 +890,7 @@ abstract class _CommunityApproval extends CommunityApproval {
   @override
   int get amount;
   @override
-  String get type;
+  CommunityTransactionType get type;
   @override
   String? get description;
   @override
@@ -898,7 +898,7 @@ abstract class _CommunityApproval extends CommunityApproval {
   @override
   int get requiredApprovals;
   @override
-  String get status;
+  ApprovalStatus get status;
   @override
   DateTime get createdAt;
   @override

@@ -205,8 +205,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
 
   Future<void> _pickContact() async {
     final result = await context.push<Map<String, String>>(
-      '/chat/pick-contacts',
-      extra: {'returnContact': true},
+      '/chat/pick-contact',
     );
     if (result != null && mounted) {
       setState(() => _selectedContact = result);
@@ -214,12 +213,22 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
   }
 
   void _invite() {
-    if (_selectedContact == null) return;
+    // 8.6 Validate contact has required 'id' and 'name' keys
+    if (_selectedContact == null ||
+        !_selectedContact!.containsKey('id') ||
+        !_selectedContact!.containsKey('name')) {
+      return;
+    }
+
+    final userId = _selectedContact!['id'];
+    if (userId == null || userId.isEmpty) {
+      return;
+    }
 
     context.read<CommunityBloc>().add(
           CommunityEvent.inviteMember(
             communityId: widget.communityId,
-            userId: _selectedContact!['id']!,
+            userId: userId,
             role: _selectedRole,
           ),
         );

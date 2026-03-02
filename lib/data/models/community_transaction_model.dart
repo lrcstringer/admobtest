@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/community_transaction.dart';
 import '../../core/utils/firestore_helpers.dart';
@@ -101,6 +102,7 @@ CommunityTransactionType _parseTransactionType(String value) {
     case 'payout':
       return CommunityTransactionType.payout;
     default:
+      debugPrint('WARNING: Unknown transaction type "$value", defaulting to contribution');
       return CommunityTransactionType.contribution;
   }
 }
@@ -108,7 +110,20 @@ CommunityTransactionType _parseTransactionType(String value) {
 CommunityTransactionStatus _parseTransactionStatus(String value) {
   return CommunityTransactionStatus.values.firstWhere(
     (e) => e.name == value,
-    orElse: () => CommunityTransactionStatus.pending,
+    orElse: () {
+      debugPrint('WARNING: Unknown transaction status "$value", defaulting to pending');
+      return CommunityTransactionStatus.pending;
+    },
+  );
+}
+
+ApprovalStatus _parseApprovalStatus(String value) {
+  return ApprovalStatus.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () {
+      debugPrint('WARNING: Unknown approval status "$value", defaulting to pending');
+      return ApprovalStatus.pending;
+    },
   );
 }
 
@@ -177,11 +192,11 @@ class CommunityApprovalModel with _$CommunityApprovalModel {
         requestedBy: requestedBy,
         requestedByName: requestedByName,
         amount: amount,
-        type: type,
+        type: _parseTransactionType(type),
         description: description,
         approvers: approvers,
         requiredApprovals: requiredApprovals,
-        status: status,
+        status: _parseApprovalStatus(status),
         createdAt: createdAt,
         expiresAt: expiresAt,
       );
@@ -195,11 +210,11 @@ class CommunityApprovalModel with _$CommunityApprovalModel {
         requestedBy: entity.requestedBy,
         requestedByName: entity.requestedByName,
         amount: entity.amount,
-        type: entity.type,
+        type: _transactionTypeToString(entity.type),
         description: entity.description,
         approvers: entity.approvers,
         requiredApprovals: entity.requiredApprovals,
-        status: entity.status,
+        status: entity.status.name,
         createdAt: entity.createdAt,
         expiresAt: entity.expiresAt,
       );

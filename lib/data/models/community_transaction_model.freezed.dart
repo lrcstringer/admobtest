@@ -297,7 +297,8 @@ class __$$CommunityTransactionModelImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$CommunityTransactionModelImpl extends _CommunityTransactionModel {
+class _$CommunityTransactionModelImpl extends _CommunityTransactionModel
+    with DiagnosticableTreeMixin {
   const _$CommunityTransactionModelImpl({
     required this.id,
     required this.communityId,
@@ -350,8 +351,29 @@ class _$CommunityTransactionModelImpl extends _CommunityTransactionModel {
   final DateTime? completedAt;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityTransactionModel(id: $id, communityId: $communityId, journalId: $journalId, type: $type, amount: $amount, memberId: $memberId, memberName: $memberName, description: $description, status: $status, approvedBy: $approvedBy, rejectedBy: $rejectedBy, rejectionReason: $rejectionReason, createdAt: $createdAt, completedAt: $completedAt)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityTransactionModel'))
+      ..add(DiagnosticsProperty('id', id))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('journalId', journalId))
+      ..add(DiagnosticsProperty('type', type))
+      ..add(DiagnosticsProperty('amount', amount))
+      ..add(DiagnosticsProperty('memberId', memberId))
+      ..add(DiagnosticsProperty('memberName', memberName))
+      ..add(DiagnosticsProperty('description', description))
+      ..add(DiagnosticsProperty('status', status))
+      ..add(DiagnosticsProperty('approvedBy', approvedBy))
+      ..add(DiagnosticsProperty('rejectedBy', rejectedBy))
+      ..add(DiagnosticsProperty('rejectionReason', rejectionReason))
+      ..add(DiagnosticsProperty('createdAt', createdAt))
+      ..add(DiagnosticsProperty('completedAt', completedAt));
   }
 
   @override
@@ -749,7 +771,8 @@ class __$$CommunityApprovalModelImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$CommunityApprovalModelImpl extends _CommunityApprovalModel {
+class _$CommunityApprovalModelImpl extends _CommunityApprovalModel
+    with DiagnosticableTreeMixin {
   const _$CommunityApprovalModelImpl({
     required this.id,
     required this.communityId,
@@ -806,8 +829,28 @@ class _$CommunityApprovalModelImpl extends _CommunityApprovalModel {
   final DateTime expiresAt;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityApprovalModel(id: $id, communityId: $communityId, transactionId: $transactionId, requestedBy: $requestedBy, requestedByName: $requestedByName, amount: $amount, type: $type, description: $description, approvers: $approvers, requiredApprovals: $requiredApprovals, status: $status, createdAt: $createdAt, expiresAt: $expiresAt)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityApprovalModel'))
+      ..add(DiagnosticsProperty('id', id))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('transactionId', transactionId))
+      ..add(DiagnosticsProperty('requestedBy', requestedBy))
+      ..add(DiagnosticsProperty('requestedByName', requestedByName))
+      ..add(DiagnosticsProperty('amount', amount))
+      ..add(DiagnosticsProperty('type', type))
+      ..add(DiagnosticsProperty('description', description))
+      ..add(DiagnosticsProperty('approvers', approvers))
+      ..add(DiagnosticsProperty('requiredApprovals', requiredApprovals))
+      ..add(DiagnosticsProperty('status', status))
+      ..add(DiagnosticsProperty('createdAt', createdAt))
+      ..add(DiagnosticsProperty('expiresAt', expiresAt));
   }
 
   @override

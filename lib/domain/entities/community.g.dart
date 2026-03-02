@@ -52,7 +52,7 @@ _$CommunityImpl _$$CommunityImplFromJson(Map<String, dynamic> json) =>
           .toList(),
       memberCount: (json['memberCount'] as num).toInt(),
       totalBalance: (json['totalBalance'] as num).toInt(),
-      status: json['status'] as String,
+      status: $enumDecode(_$CommunityStatusEnumMap, json['status']),
       settings: CommunitySettings.fromJson(
         json['settings'] as Map<String, dynamic>,
       ),
@@ -93,7 +93,7 @@ Map<String, dynamic> _$$CommunityImplToJson(_$CommunityImpl instance) =>
       'adminIds': instance.adminIds,
       'memberCount': instance.memberCount,
       'totalBalance': instance.totalBalance,
-      'status': instance.status,
+      'status': _$CommunityStatusEnumMap[instance.status]!,
       'settings': instance.settings,
       'stokvelSettings': instance.stokvelSettings,
       'lastMessageText': instance.lastMessageText,
@@ -111,4 +111,10 @@ Map<String, dynamic> _$$CommunityImplToJson(_$CommunityImpl instance) =>
 const _$CommunityTypeEnumMap = {
   CommunityType.regular: 'regular',
   CommunityType.stokvel: 'stokvel',
+};
+
+const _$CommunityStatusEnumMap = {
+  CommunityStatus.active: 'active',
+  CommunityStatus.suspended: 'suspended',
+  CommunityStatus.closed: 'closed',
 };

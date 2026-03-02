@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/exceptions.dart';
@@ -75,11 +76,13 @@ abstract class CommunityRemoteDataSource {
     String communityId,
     int amount, {
     String? description,
+    String? idempotencyKey,
   });
   Future<CommunityTransactionModel> withdraw(
     String communityId,
     int amount, {
     String? description,
+    String? idempotencyKey,
   });
   Future<void> approveTransaction(String communityId, String transactionId);
   Future<void> rejectTransaction(String communityId, String transactionId,
@@ -413,9 +416,49 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
         .where('status', isEqualTo: 'invited')
         .get();
 
-    return snapshot.docs
+    final members = snapshot.docs
         .map((doc) => CommunityMemberModel.fromFirestore(doc))
         .toList();
+
+    // Enrich each invitation with the community name from the parent doc.
+    // The member doc may already have communityName (new invites), but
+    // older invitations won't — batch-fetch from parent community docs.
+    final needsFetch = <int, String>{};
+    for (int i = 0; i < members.length; i++) {
+      final m = members[i];
+      if (m.communityName == null || m.communityName!.isEmpty) {
+        needsFetch[i] = m.communityId;
+      }
+    }
+
+    // Batch read all community docs that need enrichment (single round-trip)
+    Map<String, String?> communityNames = {};
+    if (needsFetch.isNotEmpty) {
+      final uniqueIds = needsFetch.values.toSet();
+      try {
+        final futures = uniqueIds.map((id) =>
+            _communitiesCollection.doc(id).get());
+        final docs = await Future.wait(futures);
+        for (final doc in docs) {
+          communityNames[doc.id] = doc.data()?['name'] as String?;
+        }
+      } catch (e) {
+        debugPrint('WARNING: Failed to batch-fetch community names: $e');
+      }
+    }
+
+    final enriched = <CommunityMemberModel>[];
+    for (int i = 0; i < members.length; i++) {
+      final member = members[i];
+      if (needsFetch.containsKey(i)) {
+        final name = communityNames[member.communityId];
+        enriched.add(name != null ? member.copyWith(communityName: name) : member);
+      } else {
+        enriched.add(member);
+      }
+    }
+
+    return enriched;
   }
 
   // =========================================================================
@@ -472,6 +515,9 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
         }).toList());
   }
 
+  /// @deprecated Use [OutgoingMessageQueue] for E2EE message sending instead.
+  /// This method bypasses encryption and is only kept for backward compatibility.
+  @Deprecated('Use OutgoingMessageQueue for E2EE message sending instead')
   @override
   Future<MessageModel> sendTextMessage({
     required String communityId,
@@ -534,6 +580,9 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
     return data['messageId'] as String? ?? '';
   }
 
+  /// @deprecated Use [OutgoingMessageQueue] for E2EE message sending instead.
+  /// This method bypasses encryption and is only kept for backward compatibility.
+  @Deprecated('Use OutgoingMessageQueue for E2EE message sending instead')
   @override
   Future<MessageModel> sendMediaMessage({
     required String communityId,
@@ -565,9 +614,16 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       localId: messageId,
       senderId: userId,
       senderName: userName,
-      type: mediaType.startsWith('image') ? 'image' : 'voice',
+      type: _inferMessageType(mediaType),
       textContent: caption,
     );
+  }
+
+  String _inferMessageType(String mediaType) {
+    if (mediaType.startsWith('image')) return 'image';
+    if (mediaType.startsWith('video')) return 'video';
+    if (mediaType.startsWith('audio')) return 'voice';
+    return 'document';
   }
 
   @override
@@ -595,6 +651,7 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
     String communityId,
     int amount, {
     String? description,
+    String? idempotencyKey,
   }) async {
     _requireUserId();
 
@@ -605,13 +662,15 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       'communityId': communityId,
       'amount': amount,
       if (description != null) 'description': description,
+      if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
       'integrityToken': integrityToken,
     });
 
     final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
-      final error = data['error'] ?? 'Failed to contribute';
-      if (error.toString().contains('insufficient')) {
+      final error = data['error']?.toString() ?? 'Failed to contribute';
+      final code = data['code']?.toString() ?? '';
+      if (code == 'failed-precondition' || code == 'resource-exhausted') {
         throw InsufficientBalanceException();
       }
       throw ServerException(message: error);
@@ -631,6 +690,7 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
     String communityId,
     int amount, {
     String? description,
+    String? idempotencyKey,
   }) async {
     _requireUserId();
 
@@ -641,13 +701,15 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       'communityId': communityId,
       'amount': amount,
       if (description != null) 'description': description,
+      if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
       'integrityToken': integrityToken,
     });
 
     final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
-      final error = data['error'] ?? 'Failed to withdraw';
-      if (error.toString().contains('insufficient')) {
+      final error = data['error']?.toString() ?? 'Failed to withdraw';
+      final code = data['code']?.toString() ?? '';
+      if (code == 'failed-precondition' || code == 'resource-exhausted') {
         throw InsufficientBalanceException();
       }
       throw ServerException(message: error);

@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/community_member.dart';
 import '../../domain/enums/member_role.dart';
@@ -22,7 +23,8 @@ class LocalCommunityMemberMapper {
       invitedBy: Value(member.invitedBy),
       invitedAt: Value(member.invitedAt),
       lastReadAt: Value(member.lastReadAt),
-      createdAt: Value(DateTime.now()),
+      communityName: Value(member.communityName),
+      createdAt: Value(member.invitedAt),
     );
   }
 
@@ -41,20 +43,27 @@ class LocalCommunityMemberMapper {
       invitedBy: row.invitedBy,
       invitedAt: row.invitedAt ?? DateTime.now(),
       lastReadAt: row.lastReadAt,
+      communityName: row.communityName,
     );
   }
 
   static MemberRole _parseMemberRole(String value) {
     return MemberRole.values.firstWhere(
       (e) => e.name == value,
-      orElse: () => MemberRole.member,
+      orElse: () {
+        debugPrint('WARNING: Unknown member role "$value", defaulting to member');
+        return MemberRole.member;
+      },
     );
   }
 
   static MemberStatus _parseMemberStatus(String value) {
     return MemberStatus.values.firstWhere(
       (e) => e.name == value,
-      orElse: () => MemberStatus.active,
+      orElse: () {
+        debugPrint('WARNING: Unknown member status "$value", defaulting to invited');
+        return MemberStatus.invited;
+      },
     );
   }
 }

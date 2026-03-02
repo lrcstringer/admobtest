@@ -34,6 +34,9 @@ mixin _$CommunityMember {
   DateTime get invitedAt => throw _privateConstructorUsedError;
   DateTime? get lastReadAt => throw _privateConstructorUsedError;
 
+  /// Name of the community this member belongs to (denormalized for invitations).
+  String? get communityName => throw _privateConstructorUsedError;
+
   /// Serializes this CommunityMember to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
@@ -64,6 +67,7 @@ abstract class $CommunityMemberCopyWith<$Res> {
     String invitedBy,
     DateTime invitedAt,
     DateTime? lastReadAt,
+    String? communityName,
   });
 }
 
@@ -94,6 +98,7 @@ class _$CommunityMemberCopyWithImpl<$Res, $Val extends CommunityMember>
     Object? invitedBy = null,
     Object? invitedAt = null,
     Object? lastReadAt = freezed,
+    Object? communityName = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -145,6 +150,10 @@ class _$CommunityMemberCopyWithImpl<$Res, $Val extends CommunityMember>
                 ? _value.lastReadAt
                 : lastReadAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            communityName: freezed == communityName
+                ? _value.communityName
+                : communityName // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -173,6 +182,7 @@ abstract class _$$CommunityMemberImplCopyWith<$Res>
     String invitedBy,
     DateTime invitedAt,
     DateTime? lastReadAt,
+    String? communityName,
   });
 }
 
@@ -202,6 +212,7 @@ class __$$CommunityMemberImplCopyWithImpl<$Res>
     Object? invitedBy = null,
     Object? invitedAt = null,
     Object? lastReadAt = freezed,
+    Object? communityName = freezed,
   }) {
     return _then(
       _$CommunityMemberImpl(
@@ -253,6 +264,10 @@ class __$$CommunityMemberImplCopyWithImpl<$Res>
             ? _value.lastReadAt
             : lastReadAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        communityName: freezed == communityName
+            ? _value.communityName
+            : communityName // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -274,6 +289,7 @@ class _$CommunityMemberImpl extends _CommunityMember {
     required this.invitedBy,
     required this.invitedAt,
     this.lastReadAt,
+    this.communityName,
   }) : super._();
 
   factory _$CommunityMemberImpl.fromJson(Map<String, dynamic> json) =>
@@ -305,9 +321,13 @@ class _$CommunityMemberImpl extends _CommunityMember {
   @override
   final DateTime? lastReadAt;
 
+  /// Name of the community this member belongs to (denormalized for invitations).
+  @override
+  final String? communityName;
+
   @override
   String toString() {
-    return 'CommunityMember(id: $id, communityId: $communityId, userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, role: $role, status: $status, contributionBalance: $contributionBalance, joinedAt: $joinedAt, invitedBy: $invitedBy, invitedAt: $invitedAt, lastReadAt: $lastReadAt)';
+    return 'CommunityMember(id: $id, communityId: $communityId, userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, role: $role, status: $status, contributionBalance: $contributionBalance, joinedAt: $joinedAt, invitedBy: $invitedBy, invitedAt: $invitedAt, lastReadAt: $lastReadAt, communityName: $communityName)';
   }
 
   @override
@@ -334,7 +354,9 @@ class _$CommunityMemberImpl extends _CommunityMember {
             (identical(other.invitedAt, invitedAt) ||
                 other.invitedAt == invitedAt) &&
             (identical(other.lastReadAt, lastReadAt) ||
-                other.lastReadAt == lastReadAt));
+                other.lastReadAt == lastReadAt) &&
+            (identical(other.communityName, communityName) ||
+                other.communityName == communityName));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -353,6 +375,7 @@ class _$CommunityMemberImpl extends _CommunityMember {
     invitedBy,
     invitedAt,
     lastReadAt,
+    communityName,
   );
 
   /// Create a copy of CommunityMember
@@ -386,6 +409,7 @@ abstract class _CommunityMember extends CommunityMember {
     required final String invitedBy,
     required final DateTime invitedAt,
     final DateTime? lastReadAt,
+    final String? communityName,
   }) = _$CommunityMemberImpl;
   const _CommunityMember._() : super._();
 
@@ -416,6 +440,10 @@ abstract class _CommunityMember extends CommunityMember {
   DateTime get invitedAt;
   @override
   DateTime? get lastReadAt;
+
+  /// Name of the community this member belongs to (denormalized for invitations).
+  @override
+  String? get communityName;
 
   /// Create a copy of CommunityMember
   /// with the given fields replaced by the non-null parameter values.

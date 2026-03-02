@@ -244,28 +244,55 @@ class _CommunityTransactionScreenState
   }
 
   void _submit() {
-    if (!_formKey.currentState!.validate()) return;
+    // Fix force-unwrap on currentState
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    final amount = double.parse(_amountController.text);
+    final amount = double.tryParse(_amountController.text);
+    if (amount == null || amount <= 0) return;
     final tokens = (amount * 100).round();
     final description = _descriptionController.text.trim();
 
-    if (isContribution) {
-      context.read<CommunityBloc>().add(
-            CommunityEvent.contribute(
-              communityId: widget.communityId,
-              amount: tokens,
-              description: description.isNotEmpty ? description : null,
+    // 8.8 Confirmation dialog before financial operations
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(isContribution ? 'Confirm Contribution' : 'Confirm Withdrawal'),
+        content: Text(
+          '${isContribution ? "Contribute" : "Withdraw"} R${amount.toStringAsFixed(2)}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              if (isContribution) {
+                context.read<CommunityBloc>().add(
+                      CommunityEvent.contribute(
+                        communityId: widget.communityId,
+                        amount: tokens,
+                        description: description.isNotEmpty ? description : null,
+                      ),
+                    );
+              } else {
+                context.read<CommunityBloc>().add(
+                      CommunityEvent.withdraw(
+                        communityId: widget.communityId,
+                        amount: tokens,
+                        description: description.isNotEmpty ? description : null,
+                      ),
+                    );
+              }
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: isContribution ? AppColors.success : AppColors.primary,
             ),
-          );
-    } else {
-      context.read<CommunityBloc>().add(
-            CommunityEvent.withdraw(
-              communityId: widget.communityId,
-              amount: tokens,
-              description: description.isNotEmpty ? description : null,
-            ),
-          );
-    }
+            child: Text(isContribution ? 'Contribute' : 'Withdraw'),
+          ),
+        ],
+      ),
+    );
   }
 }

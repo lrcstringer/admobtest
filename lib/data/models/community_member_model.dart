@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/community_member.dart';
 import '../../domain/enums/member_role.dart';
@@ -27,6 +28,7 @@ class CommunityMemberModel with _$CommunityMemberModel {
     required String invitedBy,
     @TimestampConverter() required DateTime invitedAt,
     @NullableTimestampConverter() DateTime? lastReadAt,
+    String? communityName,
   }) = _CommunityMemberModel;
 
   const CommunityMemberModel._();
@@ -56,17 +58,24 @@ class CommunityMemberModel with _$CommunityMemberModel {
         avatarUrl: avatarUrl,
         role: MemberRole.values.firstWhere(
           (e) => e.name == role,
-          orElse: () => MemberRole.member,
+          orElse: () {
+            debugPrint('WARNING: Unknown member role "$role", defaulting to member');
+            return MemberRole.member;
+          },
         ),
         status: MemberStatus.values.firstWhere(
           (e) => e.name == status,
-          orElse: () => MemberStatus.invited,
+          orElse: () {
+            debugPrint('WARNING: Unknown member status "$status", defaulting to invited');
+            return MemberStatus.invited;
+          },
         ),
         contributionBalance: contributionBalance,
         joinedAt: joinedAt,
         invitedBy: invitedBy,
         invitedAt: invitedAt,
         lastReadAt: lastReadAt,
+        communityName: communityName,
       );
 
   /// Create from domain entity
@@ -84,5 +93,6 @@ class CommunityMemberModel with _$CommunityMemberModel {
         invitedBy: entity.invitedBy,
         invitedAt: entity.invitedAt,
         lastReadAt: entity.lastReadAt,
+        communityName: entity.communityName,
       );
 }

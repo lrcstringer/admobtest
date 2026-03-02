@@ -334,13 +334,17 @@ class _WalletScreenState extends State<WalletScreen> {
                   const Icon(Icons.swap_vert,
                       size: 18, color: Colors.white),
                   const SizedBox(width: 6),
-                  Text(
-                    'Send/Receive Tokens',
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
+                  Flexible(
+                    child: Text(
+                      'Send/Receive Tokens',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.3,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),

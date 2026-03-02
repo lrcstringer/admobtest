@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../concurrency/keyed_mutex.dart';
+import '../network/network_info.dart';
 import '../../data/datasources/local/app_database.dart';
 import '../../data/datasources/remote/community_remote_datasource.dart';
 import '../../data/mappers/local_community_mapper.dart';
@@ -25,6 +26,7 @@ class CommunitySyncService {
   final SignalProtocolService _signalProtocolService;
   final AppDatabase _appDatabase;
   final MediaRecoveryService _mediaRecoveryService;
+  final NetworkInfo _networkInfo; // 6.1
 
   CommunitySyncService(
     this._remoteDataSource,
@@ -32,10 +34,14 @@ class CommunitySyncService {
     this._signalProtocolService,
     this._appDatabase,
     this._mediaRecoveryService,
+    this._networkInfo,
   );
 
   /// Community list stream subscription.
   StreamSubscription? _communityListSub;
+
+  /// 6.1 Connectivity recovery subscription.
+  StreamSubscription? _connectivitySub;
 
   /// Per-community message stream subscriptions.
   final Map<String, StreamSubscription> _messageSubs = {};
@@ -61,7 +67,9 @@ class CommunitySyncService {
   /// The sender cannot decrypt their own sender-key messages because the key
   /// is stored under _ownKeyPrefix, not _peerKeyPrefix.
   final Map<String, String> _sentPlaintextCache = {};
-  static const _maxCacheSize = 500;
+  final Map<String, DateTime> _cacheTimestamps = {}; // 6.7
+  static const _maxCacheSize = 200; // 6.7 reduced from 500
+  static const _maxCacheAge = Duration(minutes: 10); // 6.7
 
   // =========================================================================
   // LIFECYCLE
@@ -74,39 +82,66 @@ class CommunitySyncService {
 
     debugPrint('CommunitySyncService: Starting sync');
 
+    // 6.1 Listen for connectivity changes to restart sync
+    _connectivitySub?.cancel();
+    _connectivitySub = _networkInfo.onConnectivityChanged.listen((_) async {
+      if (_isSyncing && await _networkInfo.isConnected) {
+        debugPrint('CommunitySyncService: Network restored, restarting sync');
+        _restartCommunityListSync();
+      }
+    });
+
+    _startCommunityListSync();
+  }
+
+  void _startCommunityListSync() {
+    _communityListSub?.cancel();
     _communityListSub = _remoteDataSource.watchUserCommunities().listen(
       (communityModels) {
         _listLock.protect('_', () async {
-          final communities =
-              communityModels.map((m) => m.toEntity()).toList();
-          final currentIds = communities.map((c) => c.id).toSet();
+          final currentIds = <String>{};
 
-          // Store/update community metadata locally.
-          // Preserve local lastMessageText when Firestore sends null (E2EE
-          // messages have lastMessageText=null on the server).
-          for (final community in communities) {
+          for (final model in communityModels) {
+            // 6.3 Soft-delete filter: skip closed communities
+            if (model.status == 'closed') {
+              try {
+                await _appDatabase.deleteLocalCommunity(model.id);
+                await _appDatabase
+                    .deleteLocalCommunityMembersForCommunity(model.id);
+              } catch (e) {
+                debugPrint('CommunitySyncService: Failed to clean up closed '
+                    'community ${model.id}: $e');
+              }
+              continue;
+            }
+
+            currentIds.add(model.id);
+
             try {
-              var toStore = community;
+              var community = model.toEntity();
+
+              // Preserve local lastMessageText when Firestore sends null (E2EE
+              // messages have lastMessageText=null on the server).
               if (community.lastMessageText == null &&
                   community.lastMessageAt != null) {
                 final existing =
                     await _appDatabase.getLocalCommunity(community.id);
                 if (existing != null) {
-                  final existingEntity = LocalCommunityMapper.toEntity(existing);
+                  final existingEntity =
+                      LocalCommunityMapper.toEntity(existing);
                   if (existingEntity.lastMessageText != null) {
-                    toStore = community.copyWith(
+                    community = community.copyWith(
                       lastMessageText: existingEntity.lastMessageText,
                     );
                   }
                 }
               }
               await _appDatabase.upsertLocalCommunity(
-                LocalCommunityMapper.toCompanion(toStore),
+                LocalCommunityMapper.toCompanion(community),
               );
             } catch (e) {
-              debugPrint(
-                  'CommunitySyncService: Failed to store community '
-                  '${community.id}: $e');
+              debugPrint('CommunitySyncService: Failed to store community '
+                  '${model.id}: $e');
             }
           }
 
@@ -118,11 +153,20 @@ class CommunitySyncService {
             }
           }
 
-          // Stop syncing removed communities
+          // Stop syncing removed communities and clean local DB
           final removedIds = _syncingCommunityIds.difference(currentIds);
           for (final id in removedIds) {
             _stopMessageSync(id);
             _stopMemberSync(id);
+            try {
+              await _appDatabase.deleteLocalCommunity(id);
+              await _appDatabase.deleteLocalCommunityMembersForCommunity(id);
+              debugPrint('CommunitySyncService: Cleaned local data for '
+                  'removed community $id');
+            } catch (e) {
+              debugPrint('CommunitySyncService: Failed to clean local data '
+                  'for $id: $e');
+            }
           }
         }).catchError((Object e) {
           debugPrint('CommunitySyncService: Community list error: $e');
@@ -134,12 +178,22 @@ class CommunitySyncService {
     );
   }
 
+  /// 6.1 Restart community list sync (e.g. after connectivity recovery).
+  void _restartCommunityListSync() {
+    _communityListSub?.cancel();
+    _startCommunityListSync();
+  }
+
   /// Stop all syncing (on sign-out or app background).
   void stopSync() {
     if (!_isSyncing) return;
     _isSyncing = false;
 
     debugPrint('CommunitySyncService: Stopping sync');
+
+    // 6.9 Cancel connectivity subscription
+    _connectivitySub?.cancel();
+    _connectivitySub = null;
 
     _communityListSub?.cancel();
     _communityListSub = null;
@@ -155,17 +209,30 @@ class CommunitySyncService {
     _memberSubs.clear();
 
     _syncingCommunityIds.clear();
+    // 6.9 Dispose keyed mutexes
     _processingLock.clear();
+    _listLock.clear();
     _sentPlaintextCache.clear();
+    _cacheTimestamps.clear();
   }
 
   /// Cache a sent message's plaintext so we can display it immediately.
+  /// 6.7 Time-based eviction + bounded cache size.
   void cacheSentPlaintext(String messageId, String plaintext) {
+    final now = DateTime.now();
+    // Evict entries older than _maxCacheAge
+    _sentPlaintextCache.removeWhere((key, _) =>
+        now.difference(_cacheTimestamps[key] ?? now) > _maxCacheAge);
+    _cacheTimestamps.removeWhere((key, _) =>
+        !_sentPlaintextCache.containsKey(key));
+
     if (_sentPlaintextCache.length >= _maxCacheSize) {
       // Evict oldest entry
       _sentPlaintextCache.remove(_sentPlaintextCache.keys.first);
+      _cacheTimestamps.remove(_cacheTimestamps.keys.first);
     }
     _sentPlaintextCache[messageId] = plaintext;
+    _cacheTimestamps[messageId] = now;
   }
 
   // =========================================================================
@@ -179,17 +246,30 @@ class CommunitySyncService {
         .watchMessages(communityId: communityId, limit: 50)
         .listen(
       (messageModels) {
+        // 6.6 Add timeout to prevent deadlock
         _processingLock.protect(
           communityId,
-          () => _processIncomingMessages(communityId, messageModels),
+          () => _processIncomingMessages(communityId, messageModels)
+              .timeout(const Duration(seconds: 30), onTimeout: () {
+            debugPrint(
+                'CommunitySyncService: Processing timeout for $communityId');
+          }),
         ).catchError((Object e) {
           debugPrint(
               'CommunitySyncService: processing error for $communityId: $e');
         });
       },
+      // 6.2 Subscription error cleanup with retry
       onError: (e) {
         debugPrint(
             'CommunitySyncService: Message sync error for $communityId: $e');
+        _messageSubs.remove(communityId);
+        _syncingCommunityIds.remove(communityId);
+        Future.delayed(const Duration(seconds: 10), () {
+          if (_isSyncing && !_syncingCommunityIds.contains(communityId)) {
+            _startMessageSync(communityId);
+          }
+        });
       },
     );
   }
@@ -207,8 +287,9 @@ class CommunitySyncService {
   void _startMemberSync(String communityId) {
     _memberSubs[communityId] =
         _remoteDataSource.watchMembers(communityId).listen(
-      (memberModels) async {
-        try {
+      (memberModels) {
+        // 6.4 Lock member sync with message processing to prevent races
+        _processingLock.protect(communityId, () async {
           final currentIds = <String>{};
           for (final model in memberModels) {
             final entity = model.toEntity();
@@ -234,14 +315,21 @@ class CommunitySyncService {
             }
           }
           _previousMemberIds[communityId] = currentIds;
-        } catch (e) {
+        }).catchError((Object e) {
           debugPrint(
               'CommunitySyncService: Member sync error for $communityId: $e');
-        }
+        });
       },
+      // 6.2 Subscription error cleanup with retry
       onError: (e) {
         debugPrint(
             'CommunitySyncService: Member stream error for $communityId: $e');
+        _memberSubs.remove(communityId);
+        Future.delayed(const Duration(seconds: 10), () {
+          if (_isSyncing) {
+            _startMemberSync(communityId);
+          }
+        });
       },
     );
   }
@@ -275,16 +363,20 @@ class CommunitySyncService {
 
         // Check if already stored and decrypted
         final existing = await _appDatabase.getLocalMessageById(msg.id);
-        if (existing != null && existing.isDecrypted) {
-          // Check if any mutable field changed
+
+        // 6.5 Update mutable fields for ALL messages (including own)
+        // BEFORE the decryption skip — reactions, deletedFor, etc. change
+        if (existing != null) {
           final deletedForChanged =
               existing.deletedForJson != jsonEncode(msg.deletedFor);
           final deletedForEveryoneChanged =
               existing.deletedForEveryone != msg.deletedForEveryone;
-          if (existing.status != msg.status.name ||
+          final needsUpdate = existing.status != msg.status.name ||
               existing.reactionsJson != _encodeReactions(msg.reactions) ||
               deletedForChanged ||
-              deletedForEveryoneChanged) {
+              deletedForEveryoneChanged;
+
+          if (needsUpdate) {
             final localEntity = LocalMessageMapper.toEntity(existing);
             final updated = localEntity.copyWith(
               status: msg.status,
@@ -297,7 +389,9 @@ class CommunitySyncService {
               LocalMessageMapper.toCompanion(updated, communityId),
             );
           }
-          continue;
+
+          // If already decrypted, skip decryption
+          if (existing.isDecrypted) continue;
         }
 
         // Decrypt if needed
@@ -313,17 +407,22 @@ class CommunitySyncService {
           if (plaintext != null) {
             decryptedMsg = _applyDecryptedPayload(msg, plaintext);
             // Store in vault for recovery after reinstall
-            _mediaRecoveryService.storePayload(msg.id, plaintext).catchError((e) {
-              debugPrint('CommunitySync: vault store failed for ${msg.id}: $e');
+            _mediaRecoveryService
+                .storePayload(msg.id, plaintext)
+                .catchError((e) {
+              debugPrint(
+                  'CommunitySync: vault store failed for ${msg.id}: $e');
             });
           } else {
             // Sender's own: try vault recovery before falling back to placeholder
             if (msg.senderId == currentUserId) {
               await _mediaRecoveryService.initialize();
               if (_mediaRecoveryService.isReady) {
-                final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
+                final recovered =
+                    await _mediaRecoveryService.recoverPayload(msg.id);
                 if (recovered != null) {
-                  debugPrint('CommunitySyncService: Vault recovery SUCCESS for '
+                  debugPrint(
+                      'CommunitySyncService: Vault recovery SUCCESS for '
                       '${msg.id}');
                   decryptedMsg = _applyDecryptedPayload(msg, recovered);
                   await _appDatabase.upsertLocalMessage(
@@ -333,12 +432,14 @@ class CommunitySyncService {
                       isDecrypted: true,
                     ),
                   );
-                  await _appDatabase.cacheDecryptedPlaintext(msg.id, recovered);
+                  await _appDatabase.cacheDecryptedPlaintext(
+                      msg.id, recovered);
                   await _updateCommunityPreview(communityId, decryptedMsg);
                   continue;
                 }
               }
-              debugPrint('CommunitySyncService: Sender own-message cache miss '
+              debugPrint(
+                  'CommunitySyncService: Sender own-message cache miss '
                   '${msg.id} — storing fallback');
               decryptedMsg = msg.copyWith(textContent: '[Sent by you]');
               await _appDatabase.upsertLocalMessage(
@@ -352,9 +453,11 @@ class CommunitySyncService {
             }
             // Try vault recovery (may have been decrypted before reinstall)
             if (_mediaRecoveryService.isReady) {
-              final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
+              final recovered =
+                  await _mediaRecoveryService.recoverPayload(msg.id);
               if (recovered != null) {
-                debugPrint('CommunitySyncService: Vault recovery SUCCESS for '
+                debugPrint(
+                    'CommunitySyncService: Vault recovery SUCCESS for '
                     'received msg ${msg.id}');
                 decryptedMsg = _applyDecryptedPayload(msg, recovered);
                 await _appDatabase.upsertLocalMessage(
@@ -364,14 +467,15 @@ class CommunitySyncService {
                     isDecrypted: true,
                   ),
                 );
-                await _appDatabase.cacheDecryptedPlaintext(msg.id, recovered);
+                await _appDatabase.cacheDecryptedPlaintext(
+                    msg.id, recovered);
                 await _updateCommunityPreview(communityId, decryptedMsg);
                 continue;
               }
             }
             isDecrypted = false;
-            decryptedMsg =
-                msg.copyWith(textContent: '[Cannot decrypt community message]');
+            decryptedMsg = msg.copyWith(
+                textContent: '[Cannot decrypt community message]');
           }
         }
 
@@ -454,8 +558,7 @@ class CommunitySyncService {
             'senderKeyChainId': msg.e2ee!.senderKeyChainId,
           if (msg.e2ee!.messageNumber != null)
             'messageNumber': msg.e2ee!.messageNumber,
-          if (msg.e2ee!.signature != null)
-            'signature': msg.e2ee!.signature,
+          if (msg.e2ee!.signature != null) 'signature': msg.e2ee!.signature,
         },
     };
 
@@ -495,50 +598,59 @@ class CommunitySyncService {
   // =========================================================================
 
   /// Fetch and process pending sender key distributions from other members.
+  /// 6.8 Retries up to 3 times on failure.
   Future<void> _processIncomingKeyDistributions(String communityId) async {
-    try {
-      final distributions =
-          await _remoteDataSource.fetchPendingKeyDistributions(communityId);
+    for (int attempt = 0; attempt < 3; attempt++) {
+      try {
+        final distributions =
+            await _remoteDataSource.fetchPendingKeyDistributions(communityId);
 
-      for (final dist in distributions) {
-        final fromUserId = dist['fromUserId'] as String;
-        final encryptedKeyData = dist['encryptedKeyData'] as String;
-        final e2ee = dist['e2ee'] as Map<String, dynamic>?;
-        final x3dhHeader = dist['x3dhHeader'] as Map<String, dynamic>?;
-        final distributionId = dist['distributionId'] as String;
+        for (final dist in distributions) {
+          final fromUserId = dist['fromUserId'] as String;
+          final encryptedKeyData = dist['encryptedKeyData'] as String;
+          final e2ee = dist['e2ee'] as Map<String, dynamic>?;
+          final x3dhHeader = dist['x3dhHeader'] as Map<String, dynamic>?;
+          final distributionId = dist['distributionId'] as String;
 
-        try {
-          // Decrypt the sender key via P2P Signal Protocol channel
-          final decrypted = await _signalProtocolService.decryptP2P(
-            fromUserId,
-            {
-              'ciphertext': encryptedKeyData,
-              if (e2ee != null) 'e2ee': e2ee,
-              if (x3dhHeader != null) 'x3dhHeader': x3dhHeader,
-            },
-          );
+          try {
+            // Decrypt the sender key via P2P Signal Protocol channel
+            final decrypted = await _signalProtocolService.decryptP2P(
+              fromUserId,
+              {
+                'ciphertext': encryptedKeyData,
+                if (e2ee != null) 'e2ee': e2ee,
+                if (x3dhHeader != null) 'x3dhHeader': x3dhHeader,
+              },
+            );
 
-          // Parse and store the sender key
-          final keyData = jsonDecode(decrypted) as Map<String, dynamic>;
-          await _senderKeyService.processReceivedSenderKey(
-            communityId,
-            fromUserId,
-            keyData,
-          );
+            // Parse and store the sender key
+            final keyData = jsonDecode(decrypted) as Map<String, dynamic>;
+            await _senderKeyService.processReceivedSenderKey(
+              communityId,
+              fromUserId,
+              keyData,
+            );
 
-          // Mark as consumed on server
-          await _remoteDataSource.markKeyDistributionConsumed(
-            communityId,
-            distributionId,
-          );
-        } catch (e) {
-          debugPrint('CommunitySyncService: Failed to process key distribution '
-              'from $fromUserId: $e');
+            // Mark as consumed on server
+            await _remoteDataSource.markKeyDistributionConsumed(
+              communityId,
+              distributionId,
+            );
+          } catch (e) {
+            debugPrint(
+                'CommunitySyncService: Failed to process key distribution '
+                'from $fromUserId: $e');
+          }
+        }
+        return; // Success — exit retry loop
+      } catch (e) {
+        if (attempt < 2) {
+          await Future.delayed(Duration(seconds: attempt * 2 + 1));
+        } else {
+          debugPrint('CommunitySyncService: Key distribution fetch failed '
+              'after 3 attempts for $communityId: $e');
         }
       }
-    } catch (e) {
-      debugPrint('CommunitySyncService: Failed to fetch key distributions '
-          'for $communityId: $e');
     }
   }
 

@@ -223,6 +223,7 @@ class LocalCommunityMembers extends Table {
   TextColumn get invitedBy => text().withDefault(const Constant(''))();
   DateTimeColumn get invitedAt => dateTime().nullable()();
   DateTimeColumn get lastReadAt => dateTime().nullable()();
+  TextColumn get communityName => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
 
   @override
@@ -346,7 +347,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {
@@ -381,6 +382,10 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(localPendingMessages);
           await m.createTable(localCommunities);
           await m.createTable(localCommunityMembers);
+        }
+        if (from < 8) {
+          await m.addColumn(
+              localCommunityMembers, localCommunityMembers.communityName);
         }
       },
     );
@@ -896,12 +901,14 @@ class AppDatabase extends _$AppDatabase {
 
   Future<List<LocalCommunity>> getLocalCommunities() {
     return (select(localCommunities)
+          ..where((c) => c.status.equals('closed').not())
           ..orderBy([(c) => OrderingTerm.desc(c.lastMessageAt)]))
         .get();
   }
 
   Stream<List<LocalCommunity>> watchLocalCommunities() {
     return (select(localCommunities)
+          ..where((c) => c.status.equals('closed').not())
           ..orderBy([(c) => OrderingTerm.desc(c.lastMessageAt)]))
         .watch();
   }
@@ -913,6 +920,26 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> upsertLocalCommunity(LocalCommunitiesCompanion community) {
     return into(localCommunities).insertOnConflictUpdate(community);
+  }
+
+  /// Atomic partial update of community preview fields only.
+  /// Avoids read-modify-write race with sync service.
+  Future<void> updateLocalCommunityPreview({
+    required String communityId,
+    required String lastMessageText,
+    required String lastMessageSenderId,
+    required DateTime lastMessageAt,
+    String? lastMessageType,
+  }) {
+    return (update(localCommunities)
+          ..where((c) => c.id.equals(communityId)))
+        .write(LocalCommunitiesCompanion(
+      lastMessageText: Value(lastMessageText),
+      lastMessageSenderId: Value(lastMessageSenderId),
+      lastMessageAt: Value(lastMessageAt),
+      lastMessageType: Value(lastMessageType),
+      updatedAt: Value(lastMessageAt),
+    ));
   }
 
   Future<void> deleteLocalCommunity(String id) {
@@ -941,9 +968,19 @@ class AppDatabase extends _$AppDatabase {
         .watch();
   }
 
+  Future<LocalCommunityMember?> getLocalCommunityMember(String id) {
+    return (select(localCommunityMembers)
+          ..where((m) => m.id.equals(id)))
+        .getSingleOrNull();
+  }
+
   Future<void> upsertLocalCommunityMember(
       LocalCommunityMembersCompanion member) {
     return into(localCommunityMembers).insertOnConflictUpdate(member);
+  }
+
+  Future<void> deleteLocalCommunityMember(String id) {
+    return (delete(localCommunityMembers)..where((m) => m.id.equals(id))).go();
   }
 
   Future<void> deleteLocalCommunityMembersForCommunity(String communityId) {

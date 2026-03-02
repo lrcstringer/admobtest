@@ -312,12 +312,21 @@ class __$$LoadUserCommunitiesImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$LoadUserCommunitiesImpl implements _LoadUserCommunities {
+class _$LoadUserCommunitiesImpl
+    with DiagnosticableTreeMixin
+    implements _LoadUserCommunities {
   const _$LoadUserCommunitiesImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.loadUserCommunities()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.loadUserCommunities'));
   }
 
   @override
@@ -636,12 +645,21 @@ class __$$WatchUserCommunitiesImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$WatchUserCommunitiesImpl implements _WatchUserCommunities {
+class _$WatchUserCommunitiesImpl
+    with DiagnosticableTreeMixin
+    implements _WatchUserCommunities {
   const _$WatchUserCommunitiesImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.watchUserCommunities()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.watchUserCommunities'));
   }
 
   @override
@@ -974,7 +992,9 @@ class __$$UserCommunitiesUpdatedImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$UserCommunitiesUpdatedImpl implements _UserCommunitiesUpdated {
+class _$UserCommunitiesUpdatedImpl
+    with DiagnosticableTreeMixin
+    implements _UserCommunitiesUpdated {
   const _$UserCommunitiesUpdatedImpl(final List<Community> communities)
     : _communities = communities;
 
@@ -987,8 +1007,18 @@ class _$UserCommunitiesUpdatedImpl implements _UserCommunitiesUpdated {
   }
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.userCommunitiesUpdated(communities: $communities)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(
+        DiagnosticsProperty('type', 'CommunityEvent.userCommunitiesUpdated'),
+      )
+      ..add(DiagnosticsProperty('communities', communities));
   }
 
   @override
@@ -1349,15 +1379,25 @@ class __$$LoadCommunityDetailsImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$LoadCommunityDetailsImpl implements _LoadCommunityDetails {
+class _$LoadCommunityDetailsImpl
+    with DiagnosticableTreeMixin
+    implements _LoadCommunityDetails {
   const _$LoadCommunityDetailsImpl({required this.communityId});
 
   @override
   final String communityId;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.loadCommunityDetails(communityId: $communityId)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.loadCommunityDetails'))
+      ..add(DiagnosticsProperty('communityId', communityId));
   }
 
   @override
@@ -1713,15 +1753,23 @@ class __$$WatchMembersImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$WatchMembersImpl implements _WatchMembers {
+class _$WatchMembersImpl with DiagnosticableTreeMixin implements _WatchMembers {
   const _$WatchMembersImpl({required this.communityId});
 
   @override
   final String communityId;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.watchMembers(communityId: $communityId)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.watchMembers'))
+      ..add(DiagnosticsProperty('communityId', communityId));
   }
 
   @override
@@ -2073,7 +2121,9 @@ class __$$MembersUpdatedImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$MembersUpdatedImpl implements _MembersUpdated {
+class _$MembersUpdatedImpl
+    with DiagnosticableTreeMixin
+    implements _MembersUpdated {
   const _$MembersUpdatedImpl(final List<CommunityMember> members)
     : _members = members;
 
@@ -2086,8 +2136,16 @@ class _$MembersUpdatedImpl implements _MembersUpdated {
   }
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.membersUpdated(members: $members)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.membersUpdated'))
+      ..add(DiagnosticsProperty('members', members));
   }
 
   @override
@@ -2446,7 +2504,9 @@ class __$$WatchTransactionsImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$WatchTransactionsImpl implements _WatchTransactions {
+class _$WatchTransactionsImpl
+    with DiagnosticableTreeMixin
+    implements _WatchTransactions {
   const _$WatchTransactionsImpl({required this.communityId, this.limit});
 
   @override
@@ -2455,8 +2515,17 @@ class _$WatchTransactionsImpl implements _WatchTransactions {
   final int? limit;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.watchTransactions(communityId: $communityId, limit: $limit)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.watchTransactions'))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('limit', limit));
   }
 
   @override
@@ -2815,7 +2884,9 @@ class __$$TransactionsUpdatedImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$TransactionsUpdatedImpl implements _TransactionsUpdated {
+class _$TransactionsUpdatedImpl
+    with DiagnosticableTreeMixin
+    implements _TransactionsUpdated {
   const _$TransactionsUpdatedImpl(final List<CommunityTransaction> transactions)
     : _transactions = transactions;
 
@@ -2828,8 +2899,16 @@ class _$TransactionsUpdatedImpl implements _TransactionsUpdated {
   }
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.transactionsUpdated(transactions: $transactions)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.transactionsUpdated'))
+      ..add(DiagnosticsProperty('transactions', transactions));
   }
 
   @override
@@ -3190,15 +3269,25 @@ class __$$WatchPendingApprovalsImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$WatchPendingApprovalsImpl implements _WatchPendingApprovals {
+class _$WatchPendingApprovalsImpl
+    with DiagnosticableTreeMixin
+    implements _WatchPendingApprovals {
   const _$WatchPendingApprovalsImpl({required this.communityId});
 
   @override
   final String communityId;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.watchPendingApprovals(communityId: $communityId)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.watchPendingApprovals'))
+      ..add(DiagnosticsProperty('communityId', communityId));
   }
 
   @override
@@ -3554,7 +3643,9 @@ class __$$PendingApprovalsUpdatedImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$PendingApprovalsUpdatedImpl implements _PendingApprovalsUpdated {
+class _$PendingApprovalsUpdatedImpl
+    with DiagnosticableTreeMixin
+    implements _PendingApprovalsUpdated {
   const _$PendingApprovalsUpdatedImpl(final List<CommunityApproval> approvals)
     : _approvals = approvals;
 
@@ -3567,8 +3658,18 @@ class _$PendingApprovalsUpdatedImpl implements _PendingApprovalsUpdated {
   }
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.pendingApprovalsUpdated(approvals: $approvals)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(
+        DiagnosticsProperty('type', 'CommunityEvent.pendingApprovalsUpdated'),
+      )
+      ..add(DiagnosticsProperty('approvals', approvals));
   }
 
   @override
@@ -3927,15 +4028,25 @@ class __$$CreateCommunityImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$CreateCommunityImpl implements _CreateCommunity {
+class _$CreateCommunityImpl
+    with DiagnosticableTreeMixin
+    implements _CreateCommunity {
   const _$CreateCommunityImpl({required this.params});
 
   @override
   final CreateCommunityParams params;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.createCommunity(params: $params)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.createCommunity'))
+      ..add(DiagnosticsProperty('params', params));
   }
 
   @override
@@ -4294,7 +4405,9 @@ class __$$UpdateCommunityImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$UpdateCommunityImpl implements _UpdateCommunity {
+class _$UpdateCommunityImpl
+    with DiagnosticableTreeMixin
+    implements _UpdateCommunity {
   const _$UpdateCommunityImpl({
     required this.communityId,
     required this.params,
@@ -4306,8 +4419,17 @@ class _$UpdateCommunityImpl implements _UpdateCommunity {
   final UpdateCommunityParams params;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.updateCommunity(communityId: $communityId, params: $params)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.updateCommunity'))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('params', params));
   }
 
   @override
@@ -4666,15 +4788,25 @@ class __$$DeleteCommunityImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$DeleteCommunityImpl implements _DeleteCommunity {
+class _$DeleteCommunityImpl
+    with DiagnosticableTreeMixin
+    implements _DeleteCommunity {
   const _$DeleteCommunityImpl({required this.communityId});
 
   @override
   final String communityId;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.deleteCommunity(communityId: $communityId)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.deleteCommunity'))
+      ..add(DiagnosticsProperty('communityId', communityId));
   }
 
   @override
@@ -5041,7 +5173,7 @@ class __$$InviteMemberImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$InviteMemberImpl implements _InviteMember {
+class _$InviteMemberImpl with DiagnosticableTreeMixin implements _InviteMember {
   const _$InviteMemberImpl({
     required this.communityId,
     required this.userId,
@@ -5056,8 +5188,18 @@ class _$InviteMemberImpl implements _InviteMember {
   final MemberRole role;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.inviteMember(communityId: $communityId, userId: $userId, role: $role)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.inviteMember'))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('userId', userId))
+      ..add(DiagnosticsProperty('role', role));
   }
 
   @override
@@ -5416,15 +5558,25 @@ class __$$AcceptInvitationImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$AcceptInvitationImpl implements _AcceptInvitation {
+class _$AcceptInvitationImpl
+    with DiagnosticableTreeMixin
+    implements _AcceptInvitation {
   const _$AcceptInvitationImpl({required this.communityId});
 
   @override
   final String communityId;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.acceptInvitation(communityId: $communityId)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.acceptInvitation'))
+      ..add(DiagnosticsProperty('communityId', communityId));
   }
 
   @override
@@ -5779,15 +5931,25 @@ class __$$DeclineInvitationImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$DeclineInvitationImpl implements _DeclineInvitation {
+class _$DeclineInvitationImpl
+    with DiagnosticableTreeMixin
+    implements _DeclineInvitation {
   const _$DeclineInvitationImpl({required this.communityId});
 
   @override
   final String communityId;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.declineInvitation(communityId: $communityId)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.declineInvitation'))
+      ..add(DiagnosticsProperty('communityId', communityId));
   }
 
   @override
@@ -6146,7 +6308,7 @@ class __$$RemoveMemberImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RemoveMemberImpl implements _RemoveMember {
+class _$RemoveMemberImpl with DiagnosticableTreeMixin implements _RemoveMember {
   const _$RemoveMemberImpl({required this.communityId, required this.memberId});
 
   @override
@@ -6155,8 +6317,17 @@ class _$RemoveMemberImpl implements _RemoveMember {
   final String memberId;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.removeMember(communityId: $communityId, memberId: $memberId)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.removeMember'))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('memberId', memberId));
   }
 
   @override
@@ -6525,7 +6696,9 @@ class __$$UpdateMemberRoleImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$UpdateMemberRoleImpl implements _UpdateMemberRole {
+class _$UpdateMemberRoleImpl
+    with DiagnosticableTreeMixin
+    implements _UpdateMemberRole {
   const _$UpdateMemberRoleImpl({
     required this.communityId,
     required this.memberId,
@@ -6540,8 +6713,18 @@ class _$UpdateMemberRoleImpl implements _UpdateMemberRole {
   final MemberRole role;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.updateMemberRole(communityId: $communityId, memberId: $memberId, role: $role)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.updateMemberRole'))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('memberId', memberId))
+      ..add(DiagnosticsProperty('role', role));
   }
 
   @override
@@ -6904,15 +7087,25 @@ class __$$LeaveCommunityImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$LeaveCommunityImpl implements _LeaveCommunity {
+class _$LeaveCommunityImpl
+    with DiagnosticableTreeMixin
+    implements _LeaveCommunity {
   const _$LeaveCommunityImpl({required this.communityId});
 
   @override
   final String communityId;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.leaveCommunity(communityId: $communityId)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.leaveCommunity'))
+      ..add(DiagnosticsProperty('communityId', communityId));
   }
 
   @override
@@ -7253,12 +7446,22 @@ class __$$LoadPendingInvitationsImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$LoadPendingInvitationsImpl implements _LoadPendingInvitations {
+class _$LoadPendingInvitationsImpl
+    with DiagnosticableTreeMixin
+    implements _LoadPendingInvitations {
   const _$LoadPendingInvitationsImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.loadPendingInvitations()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(
+      DiagnosticsProperty('type', 'CommunityEvent.loadPendingInvitations'),
+    );
   }
 
   @override
@@ -7603,7 +7806,7 @@ class __$$ContributeImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$ContributeImpl implements _Contribute {
+class _$ContributeImpl with DiagnosticableTreeMixin implements _Contribute {
   const _$ContributeImpl({
     required this.communityId,
     required this.amount,
@@ -7618,8 +7821,18 @@ class _$ContributeImpl implements _Contribute {
   final String? description;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.contribute(communityId: $communityId, amount: $amount, description: $description)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.contribute'))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('amount', amount))
+      ..add(DiagnosticsProperty('description', description));
   }
 
   @override
@@ -7992,7 +8205,7 @@ class __$$WithdrawImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$WithdrawImpl implements _Withdraw {
+class _$WithdrawImpl with DiagnosticableTreeMixin implements _Withdraw {
   const _$WithdrawImpl({
     required this.communityId,
     required this.amount,
@@ -8007,8 +8220,18 @@ class _$WithdrawImpl implements _Withdraw {
   final String? description;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.withdraw(communityId: $communityId, amount: $amount, description: $description)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.withdraw'))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('amount', amount))
+      ..add(DiagnosticsProperty('description', description));
   }
 
   @override
@@ -8373,7 +8596,9 @@ class __$$ApproveTransactionImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$ApproveTransactionImpl implements _ApproveTransaction {
+class _$ApproveTransactionImpl
+    with DiagnosticableTreeMixin
+    implements _ApproveTransaction {
   const _$ApproveTransactionImpl({
     required this.communityId,
     required this.transactionId,
@@ -8385,8 +8610,17 @@ class _$ApproveTransactionImpl implements _ApproveTransaction {
   final String transactionId;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.approveTransaction(communityId: $communityId, transactionId: $transactionId)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.approveTransaction'))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('transactionId', transactionId));
   }
 
   @override
@@ -8758,7 +8992,9 @@ class __$$RejectTransactionImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RejectTransactionImpl implements _RejectTransaction {
+class _$RejectTransactionImpl
+    with DiagnosticableTreeMixin
+    implements _RejectTransaction {
   const _$RejectTransactionImpl({
     required this.communityId,
     required this.transactionId,
@@ -8773,8 +9009,18 @@ class _$RejectTransactionImpl implements _RejectTransaction {
   final String? reason;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.rejectTransaction(communityId: $communityId, transactionId: $transactionId, reason: $reason)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.rejectTransaction'))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('transactionId', transactionId))
+      ..add(DiagnosticsProperty('reason', reason));
   }
 
   @override
@@ -9142,7 +9388,9 @@ class __$$TriggerPayoutImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$TriggerPayoutImpl implements _TriggerPayout {
+class _$TriggerPayoutImpl
+    with DiagnosticableTreeMixin
+    implements _TriggerPayout {
   const _$TriggerPayoutImpl({required this.communityId, this.recipientId});
 
   @override
@@ -9151,8 +9399,17 @@ class _$TriggerPayoutImpl implements _TriggerPayout {
   final String? recipientId;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.triggerPayout(communityId: $communityId, recipientId: $recipientId)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.triggerPayout'))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('recipientId', recipientId));
   }
 
   @override
@@ -9513,7 +9770,9 @@ class __$$LoadAnalyticsImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$LoadAnalyticsImpl implements _LoadAnalytics {
+class _$LoadAnalyticsImpl
+    with DiagnosticableTreeMixin
+    implements _LoadAnalytics {
   const _$LoadAnalyticsImpl({required this.communityId, this.months});
 
   @override
@@ -9522,8 +9781,17 @@ class _$LoadAnalyticsImpl implements _LoadAnalytics {
   final int? months;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.loadAnalytics(communityId: $communityId, months: $months)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.loadAnalytics'))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('months', months));
   }
 
   @override
@@ -9879,15 +10147,25 @@ class __$$UnreadCountUpdatedImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
+class _$UnreadCountUpdatedImpl
+    with DiagnosticableTreeMixin
+    implements _UnreadCountUpdated {
   const _$UnreadCountUpdatedImpl(this.count);
 
   @override
   final int count;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.unreadCountUpdated(count: $count)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityEvent.unreadCountUpdated'))
+      ..add(DiagnosticsProperty('count', count));
   }
 
   @override
@@ -10226,12 +10504,22 @@ class __$$ClearSelectedCommunityImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$ClearSelectedCommunityImpl implements _ClearSelectedCommunity {
+class _$ClearSelectedCommunityImpl
+    with DiagnosticableTreeMixin
+    implements _ClearSelectedCommunity {
   const _$ClearSelectedCommunityImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.clearSelectedCommunity()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(
+      DiagnosticsProperty('type', 'CommunityEvent.clearSelectedCommunity'),
+    );
   }
 
   @override
@@ -10550,12 +10838,18 @@ class __$$ClearErrorImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$ClearErrorImpl implements _ClearError {
+class _$ClearErrorImpl with DiagnosticableTreeMixin implements _ClearError {
   const _$ClearErrorImpl();
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityEvent.clearError()';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties..add(DiagnosticsProperty('type', 'CommunityEvent.clearError'));
   }
 
   @override
@@ -11154,7 +11448,8 @@ class __$$CommunityStateImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$CommunityStateImpl extends _CommunityState {
+class _$CommunityStateImpl extends _CommunityState
+    with DiagnosticableTreeMixin {
   const _$CommunityStateImpl({
     this.status = CommunityLoadingStatus.initial,
     this.operationStatus = CommunityOperationStatus.idle,
@@ -11263,8 +11558,45 @@ class _$CommunityStateImpl extends _CommunityState {
   final String? successMessage;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityState(status: $status, operationStatus: $operationStatus, communities: $communities, pendingInvitations: $pendingInvitations, selectedCommunity: $selectedCommunity, selectedCommunityMembers: $selectedCommunityMembers, selectedCommunityTransactions: $selectedCommunityTransactions, selectedCommunityApprovals: $selectedCommunityApprovals, isLoadingMore: $isLoadingMore, hasMoreTransactions: $hasMoreTransactions, stokvelAnalytics: $stokvelAnalytics, isLoadingAnalytics: $isLoadingAnalytics, totalUnreadCount: $totalUnreadCount, errorMessage: $errorMessage, successMessage: $successMessage)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityState'))
+      ..add(DiagnosticsProperty('status', status))
+      ..add(DiagnosticsProperty('operationStatus', operationStatus))
+      ..add(DiagnosticsProperty('communities', communities))
+      ..add(DiagnosticsProperty('pendingInvitations', pendingInvitations))
+      ..add(DiagnosticsProperty('selectedCommunity', selectedCommunity))
+      ..add(
+        DiagnosticsProperty(
+          'selectedCommunityMembers',
+          selectedCommunityMembers,
+        ),
+      )
+      ..add(
+        DiagnosticsProperty(
+          'selectedCommunityTransactions',
+          selectedCommunityTransactions,
+        ),
+      )
+      ..add(
+        DiagnosticsProperty(
+          'selectedCommunityApprovals',
+          selectedCommunityApprovals,
+        ),
+      )
+      ..add(DiagnosticsProperty('isLoadingMore', isLoadingMore))
+      ..add(DiagnosticsProperty('hasMoreTransactions', hasMoreTransactions))
+      ..add(DiagnosticsProperty('stokvelAnalytics', stokvelAnalytics))
+      ..add(DiagnosticsProperty('isLoadingAnalytics', isLoadingAnalytics))
+      ..add(DiagnosticsProperty('totalUnreadCount', totalUnreadCount))
+      ..add(DiagnosticsProperty('errorMessage', errorMessage))
+      ..add(DiagnosticsProperty('successMessage', successMessage));
   }
 
   @override

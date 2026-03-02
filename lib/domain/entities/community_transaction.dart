@@ -1,9 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import '../enums/approval_status.dart';
 import '../enums/transaction_type.dart';
 import '../enums/transaction_status.dart';
 import '../value_objects/token_amount.dart';
 
 // Re-export enums for backward compatibility
+export '../enums/approval_status.dart';
 export '../enums/transaction_type.dart';
 export '../enums/transaction_status.dart';
 
@@ -48,9 +50,7 @@ class CommunityTransaction with _$CommunityTransaction {
   bool get isCompleted => status == CommunityTransactionStatus.completed;
   bool get isRejected => status == CommunityTransactionStatus.rejected;
 
-  bool get needsApproval =>
-      status == CommunityTransactionStatus.pending ||
-      status == CommunityTransactionStatus.approved;
+  bool get needsApproval => status == CommunityTransactionStatus.pending;
 
   bool get isInflow =>
       type == CommunityTransactionType.contribution ||
@@ -122,11 +122,11 @@ class CommunityApproval with _$CommunityApproval {
     required String requestedBy,
     required String requestedByName,
     required int amount,
-    required String type,
+    required CommunityTransactionType type,
     String? description,
     required List<String> approvers,
     required int requiredApprovals,
-    required String status,
+    required ApprovalStatus status,
     required DateTime createdAt,
     required DateTime expiresAt,
   }) = _CommunityApproval;
@@ -136,11 +136,12 @@ class CommunityApproval with _$CommunityApproval {
   factory CommunityApproval.fromJson(Map<String, dynamic> json) =>
       _$CommunityApprovalFromJson(json);
 
-  bool get isPending => status == 'pending';
-  bool get isApproved => status == 'approved';
-  bool get isRejected => status == 'rejected';
+  bool get isPending => status == ApprovalStatus.pending && !hasTimePassed;
+  bool get isApproved => status == ApprovalStatus.approved;
+  bool get isRejected => status == ApprovalStatus.rejected;
   bool get isExpired =>
-      status == 'expired' || DateTime.now().isAfter(expiresAt);
+      status == ApprovalStatus.expired || hasTimePassed;
+  bool get hasTimePassed => DateTime.now().isAfter(expiresAt);
 
   int get approvalCount => approvers.length;
   bool hasApproved(String userId) => approvers.contains(userId);

@@ -803,6 +803,8 @@ export interface StokvelSettings extends GroupSettings {
   currentPayoutRecipient: string | null; // For rotating payouts
   nextPayoutDate: Timestamp | null;
   payoutOrder: string[]; // For rotating, ordered list of member IDs
+  lastPenaltyDate?: string | null; // YYYY-MM key for idempotent penalty processing
+  lastPayoutDate?: string | null; // YYYY-MM key for idempotent payout processing
 }
 
 /**
@@ -859,6 +861,7 @@ export interface GroupTransaction {
   createdBy: string;
   createdAt: Timestamp;
   completedAt: Timestamp | null;
+  idempotencyKey?: string | null; // Client-generated UUID for deduplication
 }
 
 /**

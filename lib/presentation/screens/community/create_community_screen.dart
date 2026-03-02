@@ -260,7 +260,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
         ),
         AppSpacing.verticalMd,
 
-        // Contribution Amount
+        // 8.4 Contribution Amount with validator
         TextFormField(
           initialValue: (_contributionAmount / 100).toStringAsFixed(2),
           decoration: InputDecoration(
@@ -272,6 +272,12 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
             ),
           ),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          validator: (v) {
+            if (v == null || v.trim().isEmpty) return null; // Optional
+            final amount = double.tryParse(v);
+            if (amount == null || amount < 0) return 'Must be 0 or greater';
+            return null;
+          },
           onChanged: (v) {
             final amount = double.tryParse(v);
             if (amount != null) {
@@ -281,7 +287,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
         ),
         AppSpacing.verticalMd,
 
-        // Approval Threshold
+        // 8.4 Approval Threshold with validator
         TextFormField(
           initialValue: (_approvalThreshold / 100).toStringAsFixed(2),
           decoration: InputDecoration(
@@ -294,6 +300,12 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
             ),
           ),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          validator: (v) {
+            if (v == null || v.trim().isEmpty) return null;
+            final amount = double.tryParse(v);
+            if (amount == null || amount < 0) return 'Must be 0 or greater';
+            return null;
+          },
           onChanged: (v) {
             final amount = double.tryParse(v);
             if (amount != null) {
@@ -313,6 +325,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
         ),
 
         // Penalty (stokvel only)
+        // 8.4 Penalty percentage with validator (stokvel only)
         if (_selectedType == CommunityType.stokvel) ...[
           AppSpacing.verticalMd,
           TextFormField(
@@ -326,6 +339,14 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
               ),
             ),
             keyboardType: TextInputType.number,
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return null;
+              final pct = int.tryParse(v);
+              if (pct == null || pct < 0 || pct > 100) {
+                return 'Must be between 0 and 100';
+              }
+              return null;
+            },
             onChanged: (v) {
               final pct = int.tryParse(v);
               if (pct != null) _penaltyPercentage = pct;
@@ -337,7 +358,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
   }
 
   void _createCommunity() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
     final isStokvel = _selectedType == CommunityType.stokvel;
 

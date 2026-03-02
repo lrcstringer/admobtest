@@ -36,6 +36,7 @@ mixin _$CommunityMemberModel {
   DateTime get invitedAt => throw _privateConstructorUsedError;
   @NullableTimestampConverter()
   DateTime? get lastReadAt => throw _privateConstructorUsedError;
+  String? get communityName => throw _privateConstructorUsedError;
 
   /// Serializes this CommunityMemberModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -67,6 +68,7 @@ abstract class $CommunityMemberModelCopyWith<$Res> {
     String invitedBy,
     @TimestampConverter() DateTime invitedAt,
     @NullableTimestampConverter() DateTime? lastReadAt,
+    String? communityName,
   });
 }
 
@@ -100,6 +102,7 @@ class _$CommunityMemberModelCopyWithImpl<
     Object? invitedBy = null,
     Object? invitedAt = null,
     Object? lastReadAt = freezed,
+    Object? communityName = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -151,6 +154,10 @@ class _$CommunityMemberModelCopyWithImpl<
                 ? _value.lastReadAt
                 : lastReadAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            communityName: freezed == communityName
+                ? _value.communityName
+                : communityName // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -179,6 +186,7 @@ abstract class _$$CommunityMemberModelImplCopyWith<$Res>
     String invitedBy,
     @TimestampConverter() DateTime invitedAt,
     @NullableTimestampConverter() DateTime? lastReadAt,
+    String? communityName,
   });
 }
 
@@ -208,6 +216,7 @@ class __$$CommunityMemberModelImplCopyWithImpl<$Res>
     Object? invitedBy = null,
     Object? invitedAt = null,
     Object? lastReadAt = freezed,
+    Object? communityName = freezed,
   }) {
     return _then(
       _$CommunityMemberModelImpl(
@@ -259,6 +268,10 @@ class __$$CommunityMemberModelImplCopyWithImpl<$Res>
             ? _value.lastReadAt
             : lastReadAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        communityName: freezed == communityName
+            ? _value.communityName
+            : communityName // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -266,7 +279,8 @@ class __$$CommunityMemberModelImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$CommunityMemberModelImpl extends _CommunityMemberModel {
+class _$CommunityMemberModelImpl extends _CommunityMemberModel
+    with DiagnosticableTreeMixin {
   const _$CommunityMemberModelImpl({
     required this.id,
     required this.communityId,
@@ -280,6 +294,7 @@ class _$CommunityMemberModelImpl extends _CommunityMemberModel {
     required this.invitedBy,
     @TimestampConverter() required this.invitedAt,
     @NullableTimestampConverter() this.lastReadAt,
+    this.communityName,
   }) : super._();
 
   factory _$CommunityMemberModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -313,10 +328,32 @@ class _$CommunityMemberModelImpl extends _CommunityMemberModel {
   @override
   @NullableTimestampConverter()
   final DateTime? lastReadAt;
+  @override
+  final String? communityName;
 
   @override
-  String toString() {
-    return 'CommunityMemberModel(id: $id, communityId: $communityId, userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, role: $role, status: $status, contributionBalance: $contributionBalance, joinedAt: $joinedAt, invitedBy: $invitedBy, invitedAt: $invitedAt, lastReadAt: $lastReadAt)';
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'CommunityMemberModel(id: $id, communityId: $communityId, userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, role: $role, status: $status, contributionBalance: $contributionBalance, joinedAt: $joinedAt, invitedBy: $invitedBy, invitedAt: $invitedAt, lastReadAt: $lastReadAt, communityName: $communityName)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityMemberModel'))
+      ..add(DiagnosticsProperty('id', id))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('userId', userId))
+      ..add(DiagnosticsProperty('displayName', displayName))
+      ..add(DiagnosticsProperty('avatarUrl', avatarUrl))
+      ..add(DiagnosticsProperty('role', role))
+      ..add(DiagnosticsProperty('status', status))
+      ..add(DiagnosticsProperty('contributionBalance', contributionBalance))
+      ..add(DiagnosticsProperty('joinedAt', joinedAt))
+      ..add(DiagnosticsProperty('invitedBy', invitedBy))
+      ..add(DiagnosticsProperty('invitedAt', invitedAt))
+      ..add(DiagnosticsProperty('lastReadAt', lastReadAt))
+      ..add(DiagnosticsProperty('communityName', communityName));
   }
 
   @override
@@ -343,7 +380,9 @@ class _$CommunityMemberModelImpl extends _CommunityMemberModel {
             (identical(other.invitedAt, invitedAt) ||
                 other.invitedAt == invitedAt) &&
             (identical(other.lastReadAt, lastReadAt) ||
-                other.lastReadAt == lastReadAt));
+                other.lastReadAt == lastReadAt) &&
+            (identical(other.communityName, communityName) ||
+                other.communityName == communityName));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -362,6 +401,7 @@ class _$CommunityMemberModelImpl extends _CommunityMemberModel {
     invitedBy,
     invitedAt,
     lastReadAt,
+    communityName,
   );
 
   /// Create a copy of CommunityMemberModel
@@ -396,6 +436,7 @@ abstract class _CommunityMemberModel extends CommunityMemberModel {
     required final String invitedBy,
     @TimestampConverter() required final DateTime invitedAt,
     @NullableTimestampConverter() final DateTime? lastReadAt,
+    final String? communityName,
   }) = _$CommunityMemberModelImpl;
   const _CommunityMemberModel._() : super._();
 
@@ -429,6 +470,8 @@ abstract class _CommunityMemberModel extends CommunityMemberModel {
   @override
   @NullableTimestampConverter()
   DateTime? get lastReadAt;
+  @override
+  String? get communityName;
 
   /// Create a copy of CommunityMemberModel
   /// with the given fields replaced by the non-null parameter values.

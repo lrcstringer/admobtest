@@ -190,6 +190,9 @@ abstract class CommunityRepository {
     File? thumbnailFile,
   });
 
+  /// Mark a community as read for the current user
+  Future<Either<Failure, void>> markAsRead({required String communityId});
+
   // =========================================================================
   // FINANCIAL
   // =========================================================================

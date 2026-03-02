@@ -240,7 +240,8 @@ class __$$CommunitySettingsModelImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$CommunitySettingsModelImpl extends _CommunitySettingsModel {
+class _$CommunitySettingsModelImpl extends _CommunitySettingsModel
+    with DiagnosticableTreeMixin {
   const _$CommunitySettingsModelImpl({
     this.maxMembers = 100,
     this.allowMemberInvites = true,
@@ -289,8 +290,27 @@ class _$CommunitySettingsModelImpl extends _CommunitySettingsModel {
   final int penaltyPercentage;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunitySettingsModel(maxMembers: $maxMembers, allowMemberInvites: $allowMemberInvites, onlyAdminsPost: $onlyAdminsPost, membersCanShareMedia: $membersCanShareMedia, enableFinancials: $enableFinancials, requireApprovalAbove: $requireApprovalAbove, allowMemberWithdrawals: $allowMemberWithdrawals, contributionCycle: $contributionCycle, contributionAmount: $contributionAmount, penaltyPercentage: $penaltyPercentage)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunitySettingsModel'))
+      ..add(DiagnosticsProperty('maxMembers', maxMembers))
+      ..add(DiagnosticsProperty('allowMemberInvites', allowMemberInvites))
+      ..add(DiagnosticsProperty('onlyAdminsPost', onlyAdminsPost))
+      ..add(DiagnosticsProperty('membersCanShareMedia', membersCanShareMedia))
+      ..add(DiagnosticsProperty('enableFinancials', enableFinancials))
+      ..add(DiagnosticsProperty('requireApprovalAbove', requireApprovalAbove))
+      ..add(
+        DiagnosticsProperty('allowMemberWithdrawals', allowMemberWithdrawals),
+      )
+      ..add(DiagnosticsProperty('contributionCycle', contributionCycle))
+      ..add(DiagnosticsProperty('contributionAmount', contributionAmount))
+      ..add(DiagnosticsProperty('penaltyPercentage', penaltyPercentage));
   }
 
   @override
@@ -829,7 +849,8 @@ class __$$CommunityModelImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$CommunityModelImpl extends _CommunityModel {
+class _$CommunityModelImpl extends _CommunityModel
+    with DiagnosticableTreeMixin {
   const _$CommunityModelImpl({
     required this.id,
     required this.type,
@@ -956,8 +977,43 @@ class _$CommunityModelImpl extends _CommunityModel {
   final DateTime? updatedAt;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'CommunityModel(id: $id, type: $type, name: $name, description: $description, avatarUrl: $avatarUrl, ownerId: $ownerId, memberIds: $memberIds, adminIds: $adminIds, memberCount: $memberCount, totalBalance: $totalBalance, status: $status, settings: $settings, stokvelSettings: $stokvelSettings, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, createdAt: $createdAt, updatedAt: $updatedAt)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'CommunityModel'))
+      ..add(DiagnosticsProperty('id', id))
+      ..add(DiagnosticsProperty('type', type))
+      ..add(DiagnosticsProperty('name', name))
+      ..add(DiagnosticsProperty('description', description))
+      ..add(DiagnosticsProperty('avatarUrl', avatarUrl))
+      ..add(DiagnosticsProperty('ownerId', ownerId))
+      ..add(DiagnosticsProperty('memberIds', memberIds))
+      ..add(DiagnosticsProperty('adminIds', adminIds))
+      ..add(DiagnosticsProperty('memberCount', memberCount))
+      ..add(DiagnosticsProperty('totalBalance', totalBalance))
+      ..add(DiagnosticsProperty('status', status))
+      ..add(DiagnosticsProperty('settings', settings))
+      ..add(DiagnosticsProperty('stokvelSettings', stokvelSettings))
+      ..add(DiagnosticsProperty('lastMessageText', lastMessageText))
+      ..add(DiagnosticsProperty('lastMessageSenderId', lastMessageSenderId))
+      ..add(DiagnosticsProperty('lastMessageSenderName', lastMessageSenderName))
+      ..add(DiagnosticsProperty('lastMessageType', lastMessageType))
+      ..add(DiagnosticsProperty('lastMessageAt', lastMessageAt))
+      ..add(DiagnosticsProperty('unreadCounts', unreadCounts))
+      ..add(DiagnosticsProperty('muted', muted))
+      ..add(
+        DiagnosticsProperty(
+          'lastMessageEncryptedPreviews',
+          lastMessageEncryptedPreviews,
+        ),
+      )
+      ..add(DiagnosticsProperty('createdAt', createdAt))
+      ..add(DiagnosticsProperty('updatedAt', updatedAt));
   }
 
   @override

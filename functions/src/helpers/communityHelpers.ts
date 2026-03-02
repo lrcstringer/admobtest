@@ -112,6 +112,7 @@ export interface CommunityMember {
   invitedBy: string;
   invitedAt: admin.firestore.Timestamp;
   lastReadAt: admin.firestore.Timestamp | null;
+  communityName?: string;
 }
 
 export interface Community {

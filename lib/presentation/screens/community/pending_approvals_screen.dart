@@ -104,6 +104,11 @@ class _ApprovalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 8.10 Check processing state to disable buttons during operations
+    final isProcessing = context.select<CommunityBloc, bool>(
+      (bloc) => bloc.state.operationStatus == CommunityOperationStatus.processing,
+    );
+
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Padding(
@@ -126,7 +131,7 @@ class _ApprovalCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        approval.type.toUpperCase(),
+                        approval.type.name.toUpperCase(),
                         style:
                             Theme.of(context).textTheme.titleSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
@@ -175,13 +180,14 @@ class _ApprovalCard extends StatelessWidget {
             _buildProgress(context),
 
             // ── Actions ──
+            // 8.10 Disable buttons during processing
             if (approval.isPending) ...[
               AppSpacing.verticalMd,
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () => _showRejectDialog(context),
+                      onPressed: isProcessing ? null : () => _showRejectDialog(context),
                       icon: const Icon(Icons.close, size: 18),
                       label: const Text('Reject'),
                       style: OutlinedButton.styleFrom(
@@ -192,14 +198,8 @@ class _ApprovalCard extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        context.read<CommunityBloc>().add(
-                              CommunityEvent.approveTransaction(
-                                communityId: communityId,
-                                transactionId: approval.transactionId,
-                              ),
-                            );
-                      },
+                      // 8.7 Confirmation dialog before approve
+                      onPressed: isProcessing ? null : () => _showApproveDialog(context),
                       icon: const Icon(Icons.check, size: 18),
                       label: const Text('Approve'),
                       style: ElevatedButton.styleFrom(
@@ -262,6 +262,38 @@ class _ApprovalCard extends StatelessWidget {
     );
   }
 
+  // 8.7 Confirmation dialog before approve
+  void _showApproveDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Approve Transaction'),
+        content: Text(
+          'Approve ${approval.type.name} of R${(approval.amount / 100).toStringAsFixed(2)}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.read<CommunityBloc>().add(
+                    CommunityEvent.approveTransaction(
+                      communityId: communityId,
+                      transactionId: approval.transactionId,
+                    ),
+                  );
+            },
+            style: TextButton.styleFrom(foregroundColor: AppColors.success),
+            child: const Text('Approve'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showRejectDialog(BuildContext context) {
     final reasonController = TextEditingController();
 
@@ -307,7 +339,8 @@ class _ApprovalCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    // 8.14 Dispose reasonController when dialog closes
+    ).then((_) => reasonController.dispose());
   }
 
   String _formatDate(DateTime date) =>

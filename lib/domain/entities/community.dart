@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import '../enums/community_status.dart';
 import '../enums/community_type.dart';
 import '../value_objects/token_amount.dart';
 import 'group.dart'; // Reuse StokvelSettings as-is
@@ -26,6 +27,28 @@ class CommunitySettings with _$CommunitySettings {
       _$CommunitySettingsFromJson(json);
 
   const CommunitySettings._();
+
+  bool get isValid {
+    if (contributionAmount < 0) {
+      return false;
+    }
+    if (penaltyPercentage < 0 || penaltyPercentage > 100) {
+      return false;
+    }
+    if (maxMembers < 1) {
+      return false;
+    }
+    if (requireApprovalAbove < 0) {
+      return false;
+    }
+    if (contributionCycle != 'none' &&
+        contributionCycle != 'weekly' &&
+        contributionCycle != 'monthly' &&
+        contributionCycle != 'yearly') {
+      return false;
+    }
+    return true;
+  }
 
   /// Default settings for a community type
   factory CommunitySettings.defaultFor(CommunityType type) {
@@ -67,7 +90,7 @@ class Community with _$Community {
     required List<String> adminIds,
     required int memberCount,
     required int totalBalance,
-    required String status,
+    required CommunityStatus status,
 
     // Settings
     required CommunitySettings settings,
@@ -98,10 +121,13 @@ class Community with _$Community {
       _$CommunityFromJson(json);
 
   bool get isStokvel => type == CommunityType.stokvel;
-  bool get isActive => status == 'active';
-  bool get isSuspended => status == 'suspended';
-  bool get isClosed => status == 'closed';
+  bool get isActive => status == CommunityStatus.active;
+  bool get isSuspended => status == CommunityStatus.suspended;
+  bool get isClosed => status == CommunityStatus.closed;
   bool get hasFinancials => settings.enableFinancials;
+
+  bool get hasValidAdmins => adminIds.every((id) => memberIds.contains(id));
+  bool get ownerIsMember => memberIds.contains(ownerId);
 
   bool isMember(String userId) => memberIds.contains(userId);
   bool isAdmin(String userId) => adminIds.contains(userId);

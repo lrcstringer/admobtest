@@ -21,6 +21,7 @@ _$CommunityMemberModelImpl _$$CommunityMemberModelImplFromJson(
   invitedBy: json['invitedBy'] as String,
   invitedAt: const TimestampConverter().fromJson(json['invitedAt']),
   lastReadAt: const NullableTimestampConverter().fromJson(json['lastReadAt']),
+  communityName: json['communityName'] as String?,
 );
 
 Map<String, dynamic> _$$CommunityMemberModelImplToJson(
@@ -38,4 +39,5 @@ Map<String, dynamic> _$$CommunityMemberModelImplToJson(
   'invitedBy': instance.invitedBy,
   'invitedAt': const TimestampConverter().toJson(instance.invitedAt),
   'lastReadAt': const NullableTimestampConverter().toJson(instance.lastReadAt),
+  'communityName': instance.communityName,
 };

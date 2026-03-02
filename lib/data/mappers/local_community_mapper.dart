@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/community.dart';
 import '../../domain/entities/group.dart'; // StokvelSettings
+import '../../domain/enums/community_status.dart';
 import '../../domain/enums/community_type.dart';
 import '../datasources/local/app_database.dart';
 
@@ -22,7 +24,7 @@ class LocalCommunityMapper {
       adminIdsJson: Value(jsonEncode(community.adminIds)),
       memberCount: Value(community.memberCount),
       totalBalance: Value(community.totalBalance),
-      status: Value(community.status),
+      status: Value(community.status.name),
       settingsJson: Value(jsonEncode(community.settings.toJson())),
       stokvelSettingsJson: Value(
         community.stokvelSettings != null
@@ -56,7 +58,7 @@ class LocalCommunityMapper {
       adminIds: _parseStringList(row.adminIdsJson),
       memberCount: row.memberCount,
       totalBalance: row.totalBalance,
-      status: row.status,
+      status: _parseCommunityStatus(row.status),
       settings: _parseSettings(row.settingsJson),
       stokvelSettings: _parseStokvelSettings(row.stokvelSettingsJson),
       lastMessageText: row.lastMessageText,
@@ -76,14 +78,28 @@ class LocalCommunityMapper {
   static CommunityType _parseCommunityType(String value) {
     return CommunityType.values.firstWhere(
       (e) => e.name == value,
-      orElse: () => CommunityType.regular,
+      orElse: () {
+        debugPrint('WARNING: Unknown community type "$value", defaulting to regular');
+        return CommunityType.regular;
+      },
+    );
+  }
+
+  static CommunityStatus _parseCommunityStatus(String value) {
+    return CommunityStatus.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () {
+        debugPrint('WARNING: Unknown community status "$value", defaulting to active');
+        return CommunityStatus.active;
+      },
     );
   }
 
   static List<String> _parseStringList(String json) {
     try {
       return List<String>.from(jsonDecode(json) as List);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('WARNING: Failed to parse string list JSON: $e');
       return [];
     }
   }
@@ -93,7 +109,8 @@ class LocalCommunityMapper {
       return CommunitySettings.fromJson(
         jsonDecode(json) as Map<String, dynamic>,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('WARNING: Failed to parse community settings JSON: $e');
       return const CommunitySettings();
     }
   }
@@ -104,7 +121,8 @@ class LocalCommunityMapper {
       return StokvelSettings.fromJson(
         jsonDecode(json) as Map<String, dynamic>,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('WARNING: Failed to parse stokvel settings JSON: $e');
       return null;
     }
   }
@@ -112,8 +130,9 @@ class LocalCommunityMapper {
   static Map<String, int> _parseIntMap(String json) {
     try {
       final decoded = jsonDecode(json) as Map<String, dynamic>;
-      return decoded.map((k, v) => MapEntry(k, (v as num).toInt()));
-    } catch (_) {
+      return decoded.map((k, v) => MapEntry(k, (v as num?)?.toInt() ?? 0));
+    } catch (e) {
+      debugPrint('WARNING: Failed to parse int map JSON: $e');
       return {};
     }
   }
@@ -121,8 +140,9 @@ class LocalCommunityMapper {
   static Map<String, bool> _parseBoolMap(String json) {
     try {
       final decoded = jsonDecode(json) as Map<String, dynamic>;
-      return decoded.map((k, v) => MapEntry(k, v as bool));
-    } catch (_) {
+      return decoded.map((k, v) => MapEntry(k, (v is bool) ? v : false));
+    } catch (e) {
+      debugPrint('WARNING: Failed to parse bool map JSON: $e');
       return {};
     }
   }
@@ -131,7 +151,8 @@ class LocalCommunityMapper {
     try {
       final decoded = jsonDecode(json) as Map<String, dynamic>;
       return decoded.map((k, v) => MapEntry(k, v as String));
-    } catch (_) {
+    } catch (e) {
+      debugPrint('WARNING: Failed to parse string map JSON: $e');
       return {};
     }
   }

@@ -810,5 +810,17 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow create, update, delete: if false;
     }
+
+    // =========================================================================
+    // COLLECTION GROUP: members
+    // Allows collectionGroup('members') queries for pending invitations.
+    // A user can read any member doc where they are the member (userId match).
+    // This enables getPendingInvitations() across communities and groups.
+    // =========================================================================
+
+    match /{path=**}/members/{memberId} {
+      allow read: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+    }
   }
 }

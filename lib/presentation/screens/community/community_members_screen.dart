@@ -62,9 +62,27 @@ class CommunityMembersScreen extends StatelessWidget {
             ],
           ),
           body: WaveBackground(
-            child: members.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
+            // 8.2 Show empty state instead of infinite spinner when not loading
+            child: members.isEmpty &&
+                    state.operationStatus == CommunityOperationStatus.processing
+                ? const Center(child: CircularProgressIndicator())
+                : members.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.group_outlined,
+                                size: 64, color: AppColors.textHint),
+                            AppSpacing.verticalMd,
+                            Text('No members found',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(color: AppColors.textSecondary)),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
                   padding: AppSpacing.pagePadding,
                   itemCount: members.length,
                   itemBuilder: (context, index) {
@@ -105,58 +123,85 @@ class _MemberCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isMe = member.userId == currentUserId;
     final canManage = isCurrentUserAdmin && !member.isOwner && !isMe;
+    final isInvited = member.isInvited;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: _roleColor(member.role).withValues(alpha: 0.2),
-          backgroundImage: member.avatarUrl != null
-              ? NetworkImage(member.avatarUrl!)
-              : null,
-          child: member.avatarUrl == null
-              ? Text(
-                  member.displayName.isNotEmpty
-                      ? member.displayName[0].toUpperCase()
-                      : '?',
-                  style: TextStyle(color: _roleColor(member.role)),
-                )
-              : null,
-        ),
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                isMe ? '${member.displayName} (You)' : member.displayName,
-              ),
-            ),
-          ],
-        ),
-        subtitle: Text(member.roleDisplayName),
-        trailing: canManage
-            ? PopupMenuButton<String>(
-                onSelected: (action) =>
-                    _handleAction(context, action, member),
-                itemBuilder: (_) => [
-                  const PopupMenuItem(
-                    value: 'role',
-                    child: Text('Change Role'),
-                  ),
-                  const PopupMenuItem(
-                    value: 'remove',
-                    child: Text('Remove Member'),
-                  ),
-                ],
-              )
-            : member.contributionBalance > 0
-                ? Text(
-                    'R${(member.contributionBalance / 100).toStringAsFixed(2)}',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppColors.success,
-                          fontWeight: FontWeight.w500,
-                        ),
+    return Opacity(
+      opacity: isInvited ? 0.6 : 1.0,
+      child: Card(
+        margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundColor: _roleColor(member.role).withValues(alpha: 0.2),
+            backgroundImage:
+                member.avatarUrl != null && !isInvited
+                    ? NetworkImage(member.avatarUrl!)
+                    : null,
+            child: member.avatarUrl == null || isInvited
+                ? Icon(
+                    isInvited ? Icons.mail_outline : Icons.person,
+                    color: isInvited
+                        ? AppColors.warning
+                        : _roleColor(member.role),
+                    size: 20,
                   )
                 : null,
+          ),
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  isMe ? '${member.displayName} (You)' : member.displayName,
+                ),
+              ),
+              if (isInvited)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.warning.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    'Pending',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: AppColors.warning,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 10,
+                        ),
+                  ),
+                ),
+            ],
+          ),
+          subtitle: Text(
+            isInvited
+                ? '${member.roleDisplayName} · Invitation sent'
+                : member.roleDisplayName,
+          ),
+          trailing: canManage
+              ? PopupMenuButton<String>(
+                  onSelected: (action) =>
+                      _handleAction(context, action, member),
+                  itemBuilder: (_) => [
+                    const PopupMenuItem(
+                      value: 'role',
+                      child: Text('Change Role'),
+                    ),
+                    const PopupMenuItem(
+                      value: 'remove',
+                      child: Text('Remove Member'),
+                    ),
+                  ],
+                )
+              : member.contributionBalance > 0
+                  ? Text(
+                      'R${(member.contributionBalance / 100).toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: AppColors.success,
+                            fontWeight: FontWeight.w500,
+                          ),
+                    )
+                  : null,
+        ),
       ),
     );
   }

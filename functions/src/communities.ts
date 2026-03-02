@@ -53,6 +53,44 @@ import {
 
 const db = admin.firestore();
 
+// 7.7 Validate stokvel settings structure
+function validateStokvelSettings(settings: Partial<StokvelSettings>): void {
+  if (settings.payoutType !== undefined) {
+    const validPayoutTypes = ["rotating", "lottery", "fixed_date", "goal_reached"];
+    if (!validPayoutTypes.includes(settings.payoutType)) {
+      throw new HttpsError("invalid-argument", `Invalid payout type: ${settings.payoutType}`);
+    }
+  }
+  if (settings.contributionAmount !== undefined && settings.contributionAmount < 0) {
+    throw new HttpsError("invalid-argument", "Contribution amount must not be negative");
+  }
+}
+
+// 7.7 Validate community settings structure
+function validateCommunitySettings(settings: Record<string, unknown>): void {
+  if (settings.contributionAmount !== undefined && (settings.contributionAmount as number) < 0) {
+    throw new HttpsError("invalid-argument", "Contribution amount must not be negative");
+  }
+  if (settings.penaltyPercentage !== undefined) {
+    const pct = settings.penaltyPercentage as number;
+    if (pct < 0 || pct > 100) {
+      throw new HttpsError("invalid-argument", "Penalty percentage must be between 0 and 100");
+    }
+  }
+  if (settings.maxMembers !== undefined && (settings.maxMembers as number) < 1) {
+    throw new HttpsError("invalid-argument", "Max members must be at least 1");
+  }
+  if (settings.requireApprovalAbove !== undefined && (settings.requireApprovalAbove as number) < 0) {
+    throw new HttpsError("invalid-argument", "Approval threshold must not be negative");
+  }
+  if (settings.contributionCycle !== undefined) {
+    const validCycles = ["none", "weekly", "monthly", "yearly"];
+    if (!validCycles.includes(settings.contributionCycle as string)) {
+      throw new HttpsError("invalid-argument", `Invalid contribution cycle: ${settings.contributionCycle}`);
+    }
+  }
+}
+
 // ============================================================================
 // COMMUNITY MANAGEMENT
 // ============================================================================
@@ -82,6 +120,10 @@ export const createCommunity = onCall({ labels: { area: "social" } }, async (req
   if (!validTypes.includes(type)) {
     throw new HttpsError("invalid-argument", "Invalid community type");
   }
+
+  // 7.7 Validate settings before merging
+  if (settings) validateCommunitySettings(settings);
+  if (type === "stokvel" && stokvelSettings) validateStokvelSettings(stokvelSettings);
 
   // Get user info for owner member record
   const userData = await getUserProfile(userId);
@@ -151,12 +193,13 @@ export const createCommunity = onCall({ labels: { area: "social" } }, async (req
     );
   });
 
-  // Create ledger account (uses same group:id format — ledger doesn't care about collection name)
+  // 7.9 Create ledger account — must not fail silently
   try {
     await getOrCreateGroupAccount(communityRef.id);
     logger.info(`Created ledger account for community ${communityRef.id}`);
   } catch (error) {
-    logger.error(`Failed to create ledger account for community ${communityRef.id}:`, error);
+    logger.error("Failed to create ledger account:", error);
+    throw new HttpsError("internal", "Failed to initialize community finances");
   }
 
   return {
@@ -196,6 +239,10 @@ export const updateCommunity = onCall({ labels: { area: "social" } }, async (req
   if (description !== undefined && description.length > CommunityConfig.MAX_DESCRIPTION_LENGTH) {
     throw new HttpsError("invalid-argument", CommunityErrorCodes.DESCRIPTION_TOO_LONG);
   }
+
+  // 7.7 Validate settings before merging
+  if (settings) validateCommunitySettings(settings);
+  if (stokvelSettings && community.type === "stokvel") validateStokvelSettings(stokvelSettings);
 
   const updateData: Record<string, unknown> = {
     updatedAt: admin.firestore.Timestamp.now(),
@@ -305,19 +352,18 @@ export const inviteCommunityMember = onCall({ labels: { area: "social" } }, asyn
     throw new HttpsError("already-exists", CommunityErrorCodes.MEMBER_ALREADY_EXISTS);
   }
 
-  // Check max members
-  if (community.memberCount >= community.settings.maxMembers) {
-    throw new HttpsError("resource-exhausted", CommunityErrorCodes.MAX_MEMBERS_REACHED);
-  }
-
   // Get invitee user info
   const inviteeData = await getUserProfile(userId);
   const now = admin.firestore.Timestamp.now();
 
-  // Validate role - can't invite as owner
+  // 7.11 Validate role
+  const validInviteRoles: GroupRole[] = ["admin", "treasurer", "member", "viewer"];
+  if (role && !validInviteRoles.includes(role)) {
+    throw new HttpsError("invalid-argument", `Invalid role: ${role}`);
+  }
   const memberRole: GroupRole = role === "owner" ? "admin" : (role || "member");
 
-  // Create invited member record
+  // Create invited member record (communityName denormalized for invitation UI)
   const memberData: CommunityMember = {
     id: userId,
     communityId,
@@ -331,14 +377,52 @@ export const inviteCommunityMember = onCall({ labels: { area: "social" } }, asyn
     invitedBy: inviterId,
     invitedAt: now,
     lastReadAt: null,
+    communityName: community.name,
   };
 
-  await db
-    .collection(CommunityConfig.COLLECTION)
-    .doc(communityId)
+  const communityRef = db.collection(CommunityConfig.COLLECTION).doc(communityId);
+  const memberRef = communityRef
     .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
-    .doc(userId)
-    .set(memberData);
+    .doc(userId);
+
+  // 7.13 Atomically check max members + add in a transaction to prevent race
+  await db.runTransaction(async (transaction) => {
+    const commDoc = await transaction.get(communityRef);
+    const commData = commDoc.data() as Community;
+    if (commData.memberCount >= commData.settings.maxMembers) {
+      throw new HttpsError("resource-exhausted", CommunityErrorCodes.MAX_MEMBERS_REACHED);
+    }
+    transaction.set(memberRef, memberData);
+    transaction.update(communityRef, {
+      memberIds: admin.firestore.FieldValue.arrayUnion(userId),
+      updatedAt: now,
+    });
+  });
+
+  // Send FCM push notification to invitee
+  try {
+    const inviterProfile = await getUserProfile(inviterId);
+    const inviterName = inviterProfile.displayName || "Someone";
+    const tokenDoc = await db.collection("users").doc(userId).get();
+    const fcmToken = tokenDoc.data()?.fcmToken;
+    if (fcmToken) {
+      await admin.messaging().send({
+        token: fcmToken,
+        notification: {
+          title: "Community Invitation",
+          body: `${inviterName} invited you to join "${community.name}"`,
+        },
+        data: {
+          type: "community_invitation",
+          communityId,
+          inviterId,
+        },
+      });
+    }
+  } catch (notifError) {
+    // Don't fail the invite if notification fails
+    logger.warn("Failed to send invite notification", notifError);
+  }
 
   return { success: true, memberId: userId };
 });
@@ -359,32 +443,42 @@ export const acceptCommunityInvitation = onCall({ labels: { area: "social" } }, 
   const community = await getCommunityOrThrow(communityId);
   requireActiveCommunity(community);
 
+  // Pre-fetch member for basic validation (detailed check inside transaction)
   const member = await getCommunityMember(communityId, userId);
   if (!member) {
     throw new HttpsError("not-found", CommunityErrorCodes.INVITATION_NOT_FOUND);
-  }
-  if (member.status === "active") {
-    throw new HttpsError("already-exists", CommunityErrorCodes.INVITATION_ALREADY_ACCEPTED);
   }
   if (member.status === "blocked") {
     throw new HttpsError("permission-denied", CommunityErrorCodes.MEMBER_BLOCKED);
   }
 
-  // Check invitation hasn't expired
-  const invitedAt = member.invitedAt.toDate();
-  const expiresAt = new Date(invitedAt.getTime() + CommunityConfig.INVITATION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
-  if (new Date() > expiresAt) {
-    throw new HttpsError("failed-precondition", CommunityErrorCodes.INVITATION_EXPIRED);
-  }
-
   const now = admin.firestore.Timestamp.now();
 
-  // Update member and community in transaction
+  // 7.1 Idempotent accept: all checks + updates inside transaction
   await db.runTransaction(async (transaction) => {
     const communityRef = db.collection(CommunityConfig.COLLECTION).doc(communityId);
     const memberRef = communityRef
       .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
       .doc(userId);
+
+    const memberDoc = await transaction.get(memberRef);
+    const memberData = memberDoc.data() as CommunityMember | undefined;
+
+    if (!memberData) {
+      throw new HttpsError("not-found", CommunityErrorCodes.INVITATION_NOT_FOUND);
+    }
+
+    // Already accepted — idempotent return
+    if (memberData.status === "active") {
+      return;
+    }
+
+    // Expiry check INSIDE transaction (fixes TOCTOU)
+    const invitedAt = memberData.invitedAt.toDate();
+    const expiresAt = new Date(invitedAt.getTime() + CommunityConfig.INVITATION_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+    if (new Date() >= expiresAt) {
+      throw new HttpsError("failed-precondition", CommunityErrorCodes.INVITATION_EXPIRED);
+    }
 
     transaction.update(memberRef, {
       status: "active" as GroupMemberStatus,
@@ -392,14 +486,14 @@ export const acceptCommunityInvitation = onCall({ labels: { area: "social" } }, 
       lastReadAt: now,
     });
 
-    // Build update data — add to adminIds if role is admin
+    // Build update data — only increment memberCount if transitioning from invited
     const updatePayload: Record<string, unknown> = {
       memberIds: admin.firestore.FieldValue.arrayUnion(userId),
       memberCount: admin.firestore.FieldValue.increment(1),
       updatedAt: now,
     };
 
-    if (member.role === "admin" || member.role === "treasurer") {
+    if (memberData.role === "admin" || memberData.role === "treasurer") {
       updatePayload.adminIds = admin.firestore.FieldValue.arrayUnion(userId);
     }
 
@@ -435,12 +529,18 @@ export const removeCommunityMember = onCall({ labels: { area: "social" } }, asyn
 
   // Check permissions (must be admin or removing self)
   const actor = await getCommunityMember(communityId, actorId);
-  if (!actor || actor.status !== "active") {
+  const isSelfRemoval = actorId === memberId;
+
+  if (!actor) {
     throw new HttpsError("permission-denied", CommunityErrorCodes.NOT_A_MEMBER);
   }
 
-  const isSelfRemoval = actorId === memberId;
+  // Self-removal is allowed for both active AND invited members (decline invitation).
+  // Admin actions require active status.
   if (!isSelfRemoval) {
+    if (actor.status !== "active") {
+      throw new HttpsError("permission-denied", CommunityErrorCodes.NOT_A_MEMBER);
+    }
     requirePermission(actor, "canManageMembers");
   }
 
@@ -461,20 +561,22 @@ export const removeCommunityMember = onCall({ labels: { area: "social" } }, asyn
 
     transaction.delete(memberRef);
 
+    const updatePayload: Record<string, unknown> = {
+      memberIds: admin.firestore.FieldValue.arrayRemove(memberId),
+      adminIds: admin.firestore.FieldValue.arrayRemove(memberId),
+      updatedAt: now,
+    };
+
+    // Only decrement memberCount for active members (invited don't count)
     if (targetMember.status === "active") {
-      const updatePayload: Record<string, unknown> = {
-        memberIds: admin.firestore.FieldValue.arrayRemove(memberId),
-        adminIds: admin.firestore.FieldValue.arrayRemove(memberId),
-        memberCount: admin.firestore.FieldValue.increment(-1),
-        updatedAt: now,
-      };
-
-      // Clean up per-user maps
-      updatePayload[`unreadCounts.${memberId}`] = admin.firestore.FieldValue.delete();
-      updatePayload[`muted.${memberId}`] = admin.firestore.FieldValue.delete();
-
-      transaction.update(communityRef, updatePayload);
+      updatePayload.memberCount = admin.firestore.FieldValue.increment(-1);
     }
+
+    // Clean up per-user maps
+    updatePayload[`unreadCounts.${memberId}`] = admin.firestore.FieldValue.delete();
+    updatePayload[`muted.${memberId}`] = admin.firestore.FieldValue.delete();
+
+    transaction.update(communityRef, updatePayload);
   });
 
   // Post system message
@@ -531,29 +633,31 @@ export const updateCommunityMemberRole = onCall({ labels: { area: "social" } }, 
     throw new HttpsError("not-found", CommunityErrorCodes.MEMBER_NOT_FOUND);
   }
 
-  const wasAdmin = targetMember.role === "admin" || targetMember.role === "treasurer";
   const isNowAdmin = role === "admin" || role === "treasurer";
 
-  // Update role in member subcollection
-  await db
-    .collection(CommunityConfig.COLLECTION)
-    .doc(communityId)
-    .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
-    .doc(memberId)
-    .update({ role });
+  // 7.2 Atomic role + adminIds update in a single transaction
+  await db.runTransaction(async (transaction) => {
+    const memberRef = db
+      .collection(CommunityConfig.COLLECTION)
+      .doc(communityId)
+      .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
+      .doc(memberId);
+    const commRef = db.collection(CommunityConfig.COLLECTION).doc(communityId);
 
-  // Update adminIds on community doc if role change affects admin status
-  if (!wasAdmin && isNowAdmin) {
-    await db.collection(CommunityConfig.COLLECTION).doc(communityId).update({
-      adminIds: admin.firestore.FieldValue.arrayUnion(memberId),
-      updatedAt: admin.firestore.Timestamp.now(),
-    });
-  } else if (wasAdmin && !isNowAdmin) {
-    await db.collection(CommunityConfig.COLLECTION).doc(communityId).update({
-      adminIds: admin.firestore.FieldValue.arrayRemove(memberId),
-      updatedAt: admin.firestore.Timestamp.now(),
-    });
-  }
+    transaction.update(memberRef, { role });
+
+    if (isNowAdmin) {
+      transaction.update(commRef, {
+        adminIds: admin.firestore.FieldValue.arrayUnion(memberId),
+        updatedAt: admin.firestore.Timestamp.now(),
+      });
+    } else {
+      transaction.update(commRef, {
+        adminIds: admin.firestore.FieldValue.arrayRemove(memberId),
+        updatedAt: admin.firestore.Timestamp.now(),
+      });
+    }
+  });
 
   return { success: true };
 });
@@ -768,6 +872,10 @@ export const markCommunityRead = onCall({ labels: { area: "social" } }, async (r
     throw new HttpsError("invalid-argument", "Community ID is required");
   }
 
+  // 7.3 Require active community
+  const community = await getCommunityOrThrow(communityId);
+  requireActiveCommunity(community);
+
   await requireCommunityMember(communityId, userId);
 
   // Reset unread count and update lastReadAt on member doc
@@ -802,6 +910,10 @@ export const toggleCommunityMessageReaction = onCall({ labels: { area: "social" 
   if (!communityId || !messageId || !emoji) {
     throw new HttpsError("invalid-argument", "Community ID, message ID, and emoji are required");
   }
+
+  // 7.3 Require active community
+  const reactionCommunity = await getCommunityOrThrow(communityId);
+  requireActiveCommunity(reactionCommunity);
 
   await requireCommunityMember(communityId, userId);
 
@@ -847,6 +959,10 @@ export const toggleCommunityMute = onCall({ labels: { area: "social" } }, async 
     throw new HttpsError("invalid-argument", "Community ID and muted flag are required");
   }
 
+  // 7.3 Require active community
+  const muteCommunity = await getCommunityOrThrow(communityId);
+  requireActiveCommunity(muteCommunity);
+
   await requireCommunityMember(communityId, userId);
 
   await db.collection(CommunityConfig.COLLECTION).doc(communityId).update({
@@ -868,7 +984,7 @@ export const contributeToCommunity = onCall({ labels: { area: "social" } }, asyn
   requireAppCheck(request, "contributeToCommunity");
   await requirePlayIntegrity(request.data, request, "contributeToCommunity", "HIGH");
 
-  const { communityId, amount, description } = request.data;
+  const { communityId, amount, description, idempotencyKey } = request.data;
 
   if (!communityId || !amount) {
     throw new HttpsError("invalid-argument", "Community ID and amount are required");
@@ -876,6 +992,26 @@ export const contributeToCommunity = onCall({ labels: { area: "social" } }, asyn
 
   if (amount <= 0) {
     throw new HttpsError("invalid-argument", "Amount must be positive");
+  }
+
+  // 7.8 Max contribution amount validation
+  if (amount > 10_000_000) {
+    throw new HttpsError("invalid-argument", "Amount exceeds maximum allowed (100,000 ZAR)");
+  }
+
+  // 7.6 Idempotency key deduplication
+  if (idempotencyKey) {
+    const existing = await db
+      .collection(CommunityConfig.COLLECTION)
+      .doc(communityId)
+      .collection(CommunityConfig.SUBCOLLECTION_TRANSACTIONS)
+      .where("idempotencyKey", "==", idempotencyKey)
+      .limit(1)
+      .get();
+    if (!existing.empty) {
+      const existingTx = existing.docs[0].data() as GroupTransaction;
+      return { success: true, transactionId: existing.docs[0].id, journalId: existingTx.journalId, deduplicated: true };
+    }
   }
 
   const community = await getCommunityOrThrow(communityId);
@@ -897,7 +1033,7 @@ export const contributeToCommunity = onCall({ labels: { area: "social" } }, asyn
     .collection(CommunityConfig.SUBCOLLECTION_TRANSACTIONS)
     .doc();
 
-  const transactionData: GroupTransaction = {
+  const transactionData = {
     id: transactionRef.id,
     groupId: communityId,
     journalId: null,
@@ -911,7 +1047,8 @@ export const contributeToCommunity = onCall({ labels: { area: "social" } }, asyn
     createdBy: userId,
     createdAt: now,
     completedAt: null,
-  };
+    ...(idempotencyKey ? { idempotencyKey } : {}),
+  } as GroupTransaction;
 
   await transactionRef.set(transactionData);
 
@@ -932,28 +1069,28 @@ export const contributeToCommunity = onCall({ labels: { area: "social" } }, asyn
       throw new HttpsError("internal", result.error || "Failed to process contribution");
     }
 
-    // Update transaction as completed
-    await transactionRef.update({
+    // 7.12 Atomic post-ledger writes — batch to prevent divergence
+    const contributeBatch = db.batch();
+    contributeBatch.update(transactionRef, {
       status: "completed" as GroupTransactionStatus,
       journalId: result.journalId,
       completedAt: admin.firestore.Timestamp.now(),
     });
-
-    // Update member contribution balance
-    await db
-      .collection(CommunityConfig.COLLECTION)
-      .doc(communityId)
-      .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
-      .doc(userId)
-      .update({
-        contributionBalance: admin.firestore.FieldValue.increment(amount),
-      });
-
-    // Update community total balance
-    await db.collection(CommunityConfig.COLLECTION).doc(communityId).update({
-      totalBalance: admin.firestore.FieldValue.increment(amount),
-      updatedAt: admin.firestore.Timestamp.now(),
-    });
+    contributeBatch.update(
+      db.collection(CommunityConfig.COLLECTION)
+        .doc(communityId)
+        .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
+        .doc(userId),
+      { contributionBalance: admin.firestore.FieldValue.increment(amount) }
+    );
+    contributeBatch.update(
+      db.collection(CommunityConfig.COLLECTION).doc(communityId),
+      {
+        totalBalance: admin.firestore.FieldValue.increment(amount),
+        updatedAt: admin.firestore.Timestamp.now(),
+      }
+    );
+    await contributeBatch.commit();
 
     // Post system message
     await postSystemMessage(
@@ -985,7 +1122,7 @@ export const withdrawFromCommunity = onCall({ labels: { area: "social" } }, asyn
   requireAppCheck(request, "withdrawFromCommunity");
   await requirePlayIntegrity(request.data, request, "withdrawFromCommunity", "HIGH");
 
-  const { communityId, amount, description } = request.data;
+  const { communityId, amount, description, idempotencyKey } = request.data;
 
   if (!communityId || !amount) {
     throw new HttpsError("invalid-argument", "Community ID and amount are required");
@@ -993,6 +1130,21 @@ export const withdrawFromCommunity = onCall({ labels: { area: "social" } }, asyn
 
   if (amount <= 0) {
     throw new HttpsError("invalid-argument", "Amount must be positive");
+  }
+
+  // 7.6 Idempotency key deduplication
+  if (idempotencyKey) {
+    const existing = await db
+      .collection(CommunityConfig.COLLECTION)
+      .doc(communityId)
+      .collection(CommunityConfig.SUBCOLLECTION_TRANSACTIONS)
+      .where("idempotencyKey", "==", idempotencyKey)
+      .limit(1)
+      .get();
+    if (!existing.empty) {
+      const existingTx = existing.docs[0].data() as GroupTransaction;
+      return { success: true, transactionId: existing.docs[0].id, journalId: existingTx.journalId, deduplicated: true };
+    }
   }
 
   const community = await getCommunityOrThrow(communityId);
@@ -1009,7 +1161,9 @@ export const withdrawFromCommunity = onCall({ labels: { area: "social" } }, asyn
   const member = await requireCommunityMember(communityId, userId);
   requirePermission(member, "canTransferFunds");
 
-  // Check community has sufficient balance
+  // Best-effort balance pre-check. The ledger layer (processGroupWithdrawal)
+  // is the authoritative source of truth and enforces balance atomically.
+  // This check prevents unnecessary approval workflows for clearly-insufficient balances.
   const communityBalance = await getGroupBalance(communityId);
   if (communityBalance < amount) {
     throw new HttpsError("failed-precondition", CommunityErrorCodes.AMOUNT_EXCEEDS_BALANCE);
@@ -1018,8 +1172,8 @@ export const withdrawFromCommunity = onCall({ labels: { area: "social" } }, asyn
   const now = admin.firestore.Timestamp.now();
   const perms = getMemberPermissions(member);
 
-  // Check if approval is needed
-  const needsApproval = amount > perms.maxTransferWithoutApproval &&
+  // 7.5 Check if approval is needed — either limit triggers approval (OR, not AND)
+  const needsApproval = amount > perms.maxTransferWithoutApproval ||
     amount > community.settings.requireApprovalAbove;
 
   // Create transaction record
@@ -1029,7 +1183,7 @@ export const withdrawFromCommunity = onCall({ labels: { area: "social" } }, asyn
     .collection(CommunityConfig.SUBCOLLECTION_TRANSACTIONS)
     .doc();
 
-  const transactionData: GroupTransaction = {
+  const transactionData = {
     id: transactionRef.id,
     groupId: communityId,
     journalId: null,
@@ -1043,7 +1197,8 @@ export const withdrawFromCommunity = onCall({ labels: { area: "social" } }, asyn
     createdBy: userId,
     createdAt: now,
     completedAt: null,
-  };
+    ...(idempotencyKey ? { idempotencyKey } : {}),
+  } as GroupTransaction;
 
   await transactionRef.set(transactionData);
 
@@ -1170,28 +1325,14 @@ export const approveCommunityTransaction = onCall({ labels: { area: "social" } }
   const member = await requireCommunityMember(communityId, approverId);
   requirePermission(member, "canApproveFunds", CommunityErrorCodes.NOT_AUTHORIZED_TO_APPROVE);
 
-  // Get transaction
-  const transactionDoc = await db
+  // 7.4 All approval checks + status updates inside a single transaction
+  const transactionRef = db
     .collection(CommunityConfig.COLLECTION)
     .doc(communityId)
     .collection(CommunityConfig.SUBCOLLECTION_TRANSACTIONS)
-    .doc(transactionId)
-    .get();
+    .doc(transactionId);
 
-  if (!transactionDoc.exists) {
-    throw new HttpsError("not-found", CommunityErrorCodes.TRANSACTION_NOT_FOUND);
-  }
-
-  const transaction = transactionDoc.data() as GroupTransaction;
-
-  if (transaction.status === "completed") {
-    throw new HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_ALREADY_APPROVED);
-  }
-  if (transaction.status === "rejected") {
-    throw new HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_ALREADY_REJECTED);
-  }
-
-  // Get pending approval
+  // Get pending approval (query cannot be inside transaction)
   const approvalsSnap = await db
     .collection(CommunityConfig.COLLECTION)
     .doc(communityId)
@@ -1206,32 +1347,64 @@ export const approveCommunityTransaction = onCall({ labels: { area: "social" } }
   }
 
   const approvalDoc = approvalsSnap.docs[0];
-  const approval = approvalDoc.data() as PendingApproval;
 
-  // Check if expired
-  if (approval.expiresAt.toDate() < new Date()) {
-    await approvalDoc.ref.update({ status: "expired" });
-    await transactionDoc.ref.update({ status: "rejected" as GroupTransactionStatus });
-    throw new HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_EXPIRED);
-  }
+  // 7.4 Run ALL checks inside transaction to prevent TOCTOU race conditions
+  // Both the transaction doc AND approval doc are re-read atomically
+  const transaction = await db.runTransaction(async (txn) => {
+    // Re-read BOTH docs inside transaction for atomicity
+    const [transactionSnap, approvalSnap] = await Promise.all([
+      txn.get(transactionRef),
+      txn.get(approvalDoc.ref),
+    ]);
 
-  // Check approver is authorized
-  if (!approval.requiredApprovers.includes(approverId)) {
-    throw new HttpsError("permission-denied", CommunityErrorCodes.NOT_AUTHORIZED_TO_APPROVE);
-  }
+    if (!transactionSnap.exists) {
+      throw new HttpsError("not-found", CommunityErrorCodes.TRANSACTION_NOT_FOUND);
+    }
+    const txnData = transactionSnap.data() as GroupTransaction;
 
-  // Add approval
-  await approvalDoc.ref.update({
-    approvers: admin.firestore.FieldValue.arrayUnion(approverId),
-    status: "approved",
+    // Transaction status checks INSIDE transaction (fixes TOCTOU)
+    if (txnData.status === "completed") {
+      throw new HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_ALREADY_APPROVED);
+    }
+    if (txnData.status === "rejected") {
+      throw new HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_ALREADY_REJECTED);
+    }
+
+    const approval = approvalSnap.data() as PendingApproval;
+
+    if (!approval || approval.status !== "pending") {
+      throw new HttpsError("failed-precondition", "Approval already processed");
+    }
+
+    // 7.4 Expiry check INSIDE transaction (fixes TOCTOU), use <= not <
+    if (approval.expiresAt.toDate() <= new Date()) {
+      txn.update(approvalDoc.ref, { status: "expired" });
+      txn.update(transactionRef, { status: "rejected" as GroupTransactionStatus });
+      throw new HttpsError("failed-precondition", CommunityErrorCodes.TRANSACTION_EXPIRED);
+    }
+
+    if (!approval.requiredApprovers.includes(approverId)) {
+      throw new HttpsError("permission-denied", CommunityErrorCodes.NOT_AUTHORIZED_TO_APPROVE);
+    }
+
+    if (approval.approvers?.includes(approverId)) {
+      throw new HttpsError("already-exists", "You have already approved this");
+    }
+
+    txn.update(approvalDoc.ref, {
+      approvers: admin.firestore.FieldValue.arrayUnion(approverId),
+      status: "approved",
+    });
+
+    txn.update(transactionRef, {
+      status: "approved" as GroupTransactionStatus,
+      approvedBy: approverId,
+    });
+
+    return txnData;
   });
 
-  await transactionDoc.ref.update({
-    status: "approved" as GroupTransactionStatus,
-    approvedBy: approverId,
-  });
-
-  // Process the transaction
+  // Process the transaction through the ledger (must be outside Firestore transaction)
   let result;
   if (transaction.type === "withdrawal") {
     result = await processGroupWithdrawal(
@@ -1249,13 +1422,13 @@ export const approveCommunityTransaction = onCall({ labels: { area: "social" } }
   }
 
   if (!result.success) {
-    await transactionDoc.ref.update({
+    await transactionRef.update({
       status: "rejected" as GroupTransactionStatus,
     });
     throw new HttpsError("internal", result.error || "Failed to process transaction");
   }
 
-  await transactionDoc.ref.update({
+  await transactionRef.update({
     status: "completed" as GroupTransactionStatus,
     journalId: result.journalId,
     completedAt: admin.firestore.Timestamp.now(),
@@ -1269,10 +1442,11 @@ export const approveCommunityTransaction = onCall({ labels: { area: "social" } }
     });
   }
 
-  // Post system message
+  // 7.4 Fix: use transaction.type instead of hardcoded "Withdrawal"
+  const typeLabel = transaction.type === "payout" ? "Payout" : "Withdrawal";
   await postSystemMessage(
     communityId,
-    `Withdrawal of R${(transaction.amount / 100).toFixed(2)} was approved`,
+    `${typeLabel} of R${(transaction.amount / 100).toFixed(2)} was approved`,
     "transaction_approved",
     { transactionId, approverId, amount: transaction.amount }
   );
@@ -1523,55 +1697,65 @@ export const sendCommunityContributionReminders = onSchedule(
     const dayOfMonth = now.getDate();
     const isFirstWeekOfMonth = dayOfMonth <= 7;
 
+    // 7.10 Error aggregation
+    let successCount = 0;
+    let errorCount = 0;
+
     for (const stokvelDoc of stokvelsSnap.docs) {
-      const stokvel = stokvelDoc.data() as Community;
-      const settings = stokvel.settings;
+      try {
+        const stokvel = stokvelDoc.data() as Community;
+        const settings = stokvel.settings;
 
-      // For monthly contributions, only remind in first week
-      if (settings.contributionCycle === "monthly" && !isFirstWeekOfMonth) {
-        continue;
+        // For monthly contributions, only remind in first week
+        if (settings.contributionCycle === "monthly" && !isFirstWeekOfMonth) {
+          continue;
+        }
+
+        // Skip non-cycle communities
+        if (settings.contributionCycle === "none") {
+          continue;
+        }
+
+        // Get active members
+        const membersSnap = await stokvelDoc.ref
+          .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
+          .where("status", "==", "active")
+          .limit(50)
+          .get();
+
+        // Create notifications
+        const batch = db.batch();
+        const notificationTime = admin.firestore.Timestamp.now();
+
+        for (const memberDoc of membersSnap.docs) {
+          const memberData = memberDoc.data() as CommunityMember;
+          const notificationRef = db.collection("notifications").doc();
+          batch.set(notificationRef, {
+            id: notificationRef.id,
+            userId: memberData.userId,
+            type: "stokvel_contribution_reminder",
+            title: `${stokvel.name} - Contribution Reminder`,
+            body: `Your ${settings.contributionCycle} contribution of R${(settings.contributionAmount / 100).toFixed(2)} is due.`,
+            data: {
+              communityId: stokvel.id,
+              communityName: stokvel.name,
+              amount: settings.contributionAmount,
+            },
+            read: false,
+            createdAt: notificationTime,
+          });
+        }
+
+        await batch.commit();
+        successCount++;
+        logger.info(`Sent reminders to ${membersSnap.docs.length} members of ${stokvel.name}`);
+      } catch (e) {
+        errorCount++;
+        logger.warn(`Failed to send reminders for ${stokvelDoc.id}:`, e);
       }
-
-      // Skip non-cycle communities
-      if (settings.contributionCycle === "none") {
-        continue;
-      }
-
-      // Get active members
-      const membersSnap = await stokvelDoc.ref
-        .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
-        .where("status", "==", "active")
-        .limit(50)
-        .get();
-
-      // Create notifications
-      const batch = db.batch();
-      const notificationTime = admin.firestore.Timestamp.now();
-
-      for (const memberDoc of membersSnap.docs) {
-        const memberData = memberDoc.data() as CommunityMember;
-        const notificationRef = db.collection("notifications").doc();
-        batch.set(notificationRef, {
-          id: notificationRef.id,
-          userId: memberData.userId,
-          type: "stokvel_contribution_reminder",
-          title: `${stokvel.name} - Contribution Reminder`,
-          body: `Your ${settings.contributionCycle} contribution of R${(settings.contributionAmount / 100).toFixed(2)} is due.`,
-          data: {
-            communityId: stokvel.id,
-            communityName: stokvel.name,
-            amount: settings.contributionAmount,
-          },
-          read: false,
-          createdAt: notificationTime,
-        });
-      }
-
-      await batch.commit();
-      logger.info(`Sent reminders to ${membersSnap.docs.length} members of ${stokvel.name}`);
     }
 
-    logger.info("Community contribution reminders completed");
+    logger.info(`Community contribution reminders completed: ${successCount} success, ${errorCount} failed`);
   }
 );
 
@@ -1592,11 +1776,18 @@ export const calculateCommunityPenalties = onSchedule(
 
     logger.info(`Found ${stokvelsSnap.docs.length} stokvel communities to process`);
 
+    let penaltySuccessCount = 0;
+    let penaltyErrorCount = 0;
+    let penaltySkipCount = 0;
+
     const now = admin.firestore.Timestamp.now();
     const lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     const lastMonthStart = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
     const lastMonthEnd = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0, 23, 59, 59);
+
+    // 7.14 Idempotency key for penalties: YYYY-MM of the last processed month
+    const penaltyMonthKey = `${lastMonth.getFullYear()}-${String(lastMonth.getMonth() + 1).padStart(2, "0")}`;
 
     for (const stokvelDoc of stokvelsSnap.docs) {
       const stokvel = stokvelDoc.data() as Community;
@@ -1604,6 +1795,13 @@ export const calculateCommunityPenalties = onSchedule(
 
       if (!settings.penaltyPercentage || settings.penaltyPercentage <= 0) continue;
       if (!settings.contributionAmount || settings.contributionAmount <= 0) continue;
+
+      // 7.14 Skip if already processed this month (idempotency)
+      if (stokvel.stokvel?.lastPenaltyDate === penaltyMonthKey) {
+        logger.info(`Skipping penalties for ${stokvel.name} — already processed ${penaltyMonthKey}`);
+        penaltySkipCount++;
+        continue;
+      }
 
       // Get active members
       const membersSnap = await stokvelDoc.ref
@@ -1707,26 +1905,35 @@ export const calculateCommunityPenalties = onSchedule(
               "penalty_applied",
               { userId: memberData.userId, amount: penaltyAmount, dateStr }
             );
+            penaltySuccessCount++;
           } else {
             logger.error(`Failed to apply penalty: ${result.error}`);
+            penaltyErrorCount++;
           }
         } catch (error) {
           logger.error(`Error applying penalty to ${memberData.userId}:`, error);
+          penaltyErrorCount++;
         }
       }
 
       // Commit all penalty Firestore writes for this stokvel in one batch
       if (penaltyBatchCount > 0) {
-        // Update community balance once for all penalties
+        // Update community balance once for all penalties + mark as processed (7.14)
         penaltyBatch.update(stokvelDoc.ref, {
           totalBalance: admin.firestore.FieldValue.increment(totalPenaltyAmount),
+          "stokvel.lastPenaltyDate": penaltyMonthKey,
           updatedAt: now,
         });
         await penaltyBatch.commit();
+      } else {
+        // No penalties but still mark month as processed to prevent re-run (7.14)
+        await stokvelDoc.ref.update({
+          "stokvel.lastPenaltyDate": penaltyMonthKey,
+        });
       }
     }
 
-    logger.info("Community penalty calculations completed");
+    logger.info(`Community penalty calculations completed: ${penaltySuccessCount} success, ${penaltyErrorCount} failed, ${penaltySkipCount} skipped (already processed)`);
   }
 );
 
@@ -1741,6 +1948,8 @@ export const processCommunityPayouts = onSchedule(
 
     const now = admin.firestore.Timestamp.now();
     const today = new Date();
+    // 7.14 + 7.16 Idempotency key for payouts: YYYY-MM of current month
+    const payoutMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
 
     const stokvelsSnap = await db
       .collection(CommunityConfig.COLLECTION)
@@ -1750,11 +1959,22 @@ export const processCommunityPayouts = onSchedule(
 
     logger.info(`Found ${stokvelsSnap.docs.length} stokvel communities to check for payouts`);
 
+    let payoutSuccessCount = 0;
+    let payoutErrorCount = 0;
+    let payoutSkipCount = 0;
+
     for (const stokvelDoc of stokvelsSnap.docs) {
       const stokvel = stokvelDoc.data() as Community;
       const stokvelSettings = stokvel.stokvel;
 
       if (!stokvelSettings) continue;
+
+      // 7.14 + 7.16 Skip if already processed this month (prevents double-pay)
+      if (stokvelSettings.lastPayoutDate === payoutMonthKey) {
+        logger.info(`Skipping payout for ${stokvel.name} — already processed ${payoutMonthKey}`);
+        payoutSkipCount++;
+        continue;
+      }
 
       // Check if payout is due
       const nextPayoutDate = stokvelSettings.nextPayoutDate?.toDate();
@@ -1782,10 +2002,15 @@ export const processCommunityPayouts = onSchedule(
 
       switch (stokvelSettings.payoutType) {
         case "rotating": {
-          const payoutOrder = stokvelSettings.payoutOrder || members.map((m) => m.userId);
+          // 7.17 Rebuild payoutOrder from current active members to handle departures
+          const activeIds = members.map((m) => m.userId);
+          const payoutOrder = (stokvelSettings.payoutOrder || activeIds)
+            .filter((id: string) => activeIds.includes(id));
+          if (payoutOrder.length === 0) break;
           const currentRecipient = stokvelSettings.currentPayoutRecipient;
           const currentIndex = currentRecipient ? payoutOrder.indexOf(currentRecipient) : -1;
-          const nextIndex = (currentIndex + 1) % payoutOrder.length;
+          // If not found (member left), start from 0 instead of wrapping from -1
+          const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % payoutOrder.length;
           recipientId = payoutOrder[nextIndex];
           payoutAmount = balance;
           break;
@@ -1797,6 +2022,7 @@ export const processCommunityPayouts = onSchedule(
           break;
         }
         case "fixed_date": {
+          // 7.18 Base amount per member; remainder goes to first member
           payoutAmount = Math.floor(balance / members.length);
           break;
         }
@@ -1806,10 +2032,11 @@ export const processCommunityPayouts = onSchedule(
       }
 
       if (stokvelSettings.payoutType === "fixed_date" && payoutAmount > 0) {
-        // Pay all members equally
-        const payouts = members.map((m) => ({
+        // 7.18 Pay all members equally, distribute remainder to first member
+        const remainder = balance - (payoutAmount * members.length);
+        const payouts = members.map((m, i) => ({
           memberId: m.userId,
-          amount: payoutAmount,
+          amount: i === 0 ? payoutAmount + remainder : payoutAmount,
         }));
 
         const transactionRef = stokvelDoc.ref.collection(CommunityConfig.SUBCOLLECTION_TRANSACTIONS).doc();
@@ -1839,6 +2066,7 @@ export const processCommunityPayouts = onSchedule(
 
             payoutBatch.update(stokvelDoc.ref, {
               totalBalance: admin.firestore.FieldValue.increment(-(payoutAmount * members.length)),
+              "stokvel.lastPayoutDate": payoutMonthKey,
               updatedAt: now,
             });
 
@@ -1865,9 +2093,13 @@ export const processCommunityPayouts = onSchedule(
               "payout_completed",
               { amount: payoutAmount, recipientCount: members.length }
             );
+            payoutSuccessCount++;
+          } else {
+            payoutErrorCount++;
           }
         } catch (error) {
           logger.error(`Error processing fixed_date payout for ${stokvel.name}:`, error);
+          payoutErrorCount++;
         }
       } else if (recipientId && payoutAmount > 0) {
         // Single recipient payout
@@ -1909,6 +2141,7 @@ export const processCommunityPayouts = onSchedule(
               totalBalance: admin.firestore.FieldValue.increment(-payoutAmount),
               "stokvel.currentPayoutRecipient": recipientId,
               "stokvel.nextPayoutDate": admin.firestore.Timestamp.fromDate(nextMonth),
+              "stokvel.lastPayoutDate": payoutMonthKey,
               updatedAt: now,
             });
 
@@ -1952,14 +2185,18 @@ export const processCommunityPayouts = onSchedule(
             );
 
             logger.info(`Processed payout of ${payoutAmount} to ${recipientId} for ${stokvel.name}`);
+            payoutSuccessCount++;
+          } else {
+            payoutErrorCount++;
           }
         } catch (error) {
           logger.error(`Error processing payout for ${stokvel.name}:`, error);
+          payoutErrorCount++;
         }
       }
     }
 
-    logger.info("Community payout processing completed");
+    logger.info(`Community payout processing completed: ${payoutSuccessCount} success, ${payoutErrorCount} failed, ${payoutSkipCount} skipped (already processed)`);
   }
 );
 
@@ -2009,10 +2246,17 @@ export const triggerCommunityPayout = onCall({ labels: { area: "social" } }, asy
     const members = membersSnap.docs.map((d) => d.data() as CommunityMember);
 
     if (stokvelSettings.payoutType === "rotating") {
-      const payoutOrder = stokvelSettings.payoutOrder || members.map((m) => m.userId);
+      // 7.17 Filter payoutOrder to only active members (handle departed members)
+      const activeIds = members.map((m) => m.userId);
+      const payoutOrder = (stokvelSettings.payoutOrder || activeIds)
+        .filter((id: string) => activeIds.includes(id));
+      if (payoutOrder.length === 0) {
+        throw new HttpsError("failed-precondition", "No active members in payout order");
+      }
       const currentRecipient = stokvelSettings.currentPayoutRecipient;
       const currentIndex = currentRecipient ? payoutOrder.indexOf(currentRecipient) : -1;
-      const nextIndex = (currentIndex + 1) % payoutOrder.length;
+      // If not found (member left), start from 0 instead of wrapping from -1
+      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % payoutOrder.length;
       finalRecipientId = payoutOrder[nextIndex];
     } else if (stokvelSettings.payoutType === "lottery") {
       const memberIds = members.map((m) => m.userId);

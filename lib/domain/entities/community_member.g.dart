@@ -25,6 +25,7 @@ _$CommunityMemberImpl _$$CommunityMemberImplFromJson(
   lastReadAt: json['lastReadAt'] == null
       ? null
       : DateTime.parse(json['lastReadAt'] as String),
+  communityName: json['communityName'] as String?,
 );
 
 Map<String, dynamic> _$$CommunityMemberImplToJson(
@@ -42,6 +43,7 @@ Map<String, dynamic> _$$CommunityMemberImplToJson(
   'invitedBy': instance.invitedBy,
   'invitedAt': instance.invitedAt.toIso8601String(),
   'lastReadAt': instance.lastReadAt?.toIso8601String(),
+  'communityName': instance.communityName,
 };
 
 const _$MemberRoleEnumMap = {

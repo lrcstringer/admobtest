@@ -24,6 +24,9 @@ extension MemberRoleX on MemberRole {
       this == MemberRole.admin ||
       this == MemberRole.treasurer;
   bool get canTransferFunds => this != MemberRole.viewer;
+  bool get canViewLedger => this != MemberRole.viewer;
+  bool get canEditSettings =>
+      this == MemberRole.owner || this == MemberRole.admin;
 
   String get displayName {
     switch (this) {

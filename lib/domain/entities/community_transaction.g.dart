@@ -71,13 +71,13 @@ _$CommunityApprovalImpl _$$CommunityApprovalImplFromJson(
   requestedBy: json['requestedBy'] as String,
   requestedByName: json['requestedByName'] as String,
   amount: (json['amount'] as num).toInt(),
-  type: json['type'] as String,
+  type: $enumDecode(_$CommunityTransactionTypeEnumMap, json['type']),
   description: json['description'] as String?,
   approvers: (json['approvers'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
   requiredApprovals: (json['requiredApprovals'] as num).toInt(),
-  status: json['status'] as String,
+  status: $enumDecode(_$ApprovalStatusEnumMap, json['status']),
   createdAt: DateTime.parse(json['createdAt'] as String),
   expiresAt: DateTime.parse(json['expiresAt'] as String),
 );
@@ -91,11 +91,18 @@ Map<String, dynamic> _$$CommunityApprovalImplToJson(
   'requestedBy': instance.requestedBy,
   'requestedByName': instance.requestedByName,
   'amount': instance.amount,
-  'type': instance.type,
+  'type': _$CommunityTransactionTypeEnumMap[instance.type]!,
   'description': instance.description,
   'approvers': instance.approvers,
   'requiredApprovals': instance.requiredApprovals,
-  'status': instance.status,
+  'status': _$ApprovalStatusEnumMap[instance.status]!,
   'createdAt': instance.createdAt.toIso8601String(),
   'expiresAt': instance.expiresAt.toIso8601String(),
+};
+
+const _$ApprovalStatusEnumMap = {
+  ApprovalStatus.pending: 'pending',
+  ApprovalStatus.approved: 'approved',
+  ApprovalStatus.rejected: 'rejected',
+  ApprovalStatus.expired: 'expired',
 };

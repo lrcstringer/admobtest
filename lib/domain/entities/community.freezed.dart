@@ -411,7 +411,7 @@ mixin _$Community {
   List<String> get adminIds => throw _privateConstructorUsedError;
   int get memberCount => throw _privateConstructorUsedError;
   int get totalBalance => throw _privateConstructorUsedError;
-  String get status => throw _privateConstructorUsedError; // Settings
+  CommunityStatus get status => throw _privateConstructorUsedError; // Settings
   CommunitySettings get settings => throw _privateConstructorUsedError;
   StokvelSettings? get stokvelSettings =>
       throw _privateConstructorUsedError; // Last message preview (for inbox list)
@@ -455,7 +455,7 @@ abstract class $CommunityCopyWith<$Res> {
     List<String> adminIds,
     int memberCount,
     int totalBalance,
-    String status,
+    CommunityStatus status,
     CommunitySettings settings,
     StokvelSettings? stokvelSettings,
     String? lastMessageText,
@@ -558,7 +558,7 @@ class _$CommunityCopyWithImpl<$Res, $Val extends Community>
             status: null == status
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as CommunityStatus,
             settings: null == settings
                 ? _value.settings
                 : settings // ignore: cast_nullable_to_non_nullable
@@ -657,7 +657,7 @@ abstract class _$$CommunityImplCopyWith<$Res>
     List<String> adminIds,
     int memberCount,
     int totalBalance,
-    String status,
+    CommunityStatus status,
     CommunitySettings settings,
     StokvelSettings? stokvelSettings,
     String? lastMessageText,
@@ -761,7 +761,7 @@ class __$$CommunityImplCopyWithImpl<$Res>
         status: null == status
             ? _value.status
             : status // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as CommunityStatus,
         settings: null == settings
             ? _value.settings
             : settings // ignore: cast_nullable_to_non_nullable
@@ -886,7 +886,7 @@ class _$CommunityImpl extends _Community {
   @override
   final int totalBalance;
   @override
-  final String status;
+  final CommunityStatus status;
   // Settings
   @override
   final CommunitySettings settings;
@@ -1051,7 +1051,7 @@ abstract class _Community extends Community {
     required final List<String> adminIds,
     required final int memberCount,
     required final int totalBalance,
-    required final String status,
+    required final CommunityStatus status,
     required final CommunitySettings settings,
     final StokvelSettings? stokvelSettings,
     final String? lastMessageText,
@@ -1091,7 +1091,7 @@ abstract class _Community extends Community {
   @override
   int get totalBalance;
   @override
-  String get status; // Settings
+  CommunityStatus get status; // Settings
   @override
   CommunitySettings get settings;
   @override

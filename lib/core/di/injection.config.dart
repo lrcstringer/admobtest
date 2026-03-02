@@ -557,15 +557,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.PlayIntegrityService>(),
       ),
     );
-    gh.lazySingleton<_i310.CommunitySyncService>(
-      () => _i310.CommunitySyncService(
-        gh<_i560.CommunityRemoteDataSource>(),
-        gh<_i407.SenderKeyService>(),
-        gh<_i161.SignalProtocolService>(),
-        gh<_i483.AppDatabase>(),
-        gh<_i124.MediaRecoveryService>(),
-      ),
-    );
     gh.lazySingleton<_i720.StepUpAuthService>(
       () => _i720.StepUpAuthService(
         gh<_i309.DeviceCapabilityService>(),
@@ -584,6 +575,16 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i633.ReferralRepository>(
       () => _i904.ReferralRepositoryImpl(gh<_i9.ReferralRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i310.CommunitySyncService>(
+      () => _i310.CommunitySyncService(
+        gh<_i560.CommunityRemoteDataSource>(),
+        gh<_i407.SenderKeyService>(),
+        gh<_i161.SignalProtocolService>(),
+        gh<_i483.AppDatabase>(),
+        gh<_i124.MediaRecoveryService>(),
+        gh<_i932.NetworkInfo>(),
+      ),
     );
     gh.lazySingleton<_i943.TokenSprayRepository>(
       () => _i895.TokenSprayRepositoryImpl(

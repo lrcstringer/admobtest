@@ -27,6 +27,8 @@ class CommunityMember with _$CommunityMember {
     required String invitedBy,
     required DateTime invitedAt,
     DateTime? lastReadAt,
+    /// Name of the community this member belongs to (denormalized for invitations).
+    String? communityName,
   }) = _CommunityMember;
 
   const CommunityMember._();
@@ -45,6 +47,8 @@ class CommunityMember with _$CommunityMember {
   bool get canManageMembers => role.canManageMembers;
   bool get canApproveFunds => role.canApproveFunds;
   bool get canTransferFunds => role.canTransferFunds;
+  bool get canViewLedger => role.canViewLedger;
+  bool get canEditSettings => role.canEditSettings;
 
   String get roleDisplayName => role.displayName;
 

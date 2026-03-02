@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
+import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 
@@ -17,6 +19,7 @@ import '../../domain/entities/community_transaction.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/entities/stokvel_analytics.dart';
 import '../../domain/enums/member_role.dart';
+import '../../domain/enums/member_status.dart';
 import '../../domain/repositories/community_repository.dart';
 import '../datasources/local/app_database.dart';
 import '../datasources/remote/community_remote_datasource.dart';
@@ -60,7 +63,16 @@ class CommunityRepositoryImpl implements CommunityRepository {
 
     try {
       final model = await _remoteDataSource.createCommunity(params);
-      return Right(model.toEntity());
+      final entity = model.toEntity();
+      // Seed local cache so UI shows the new community immediately
+      try {
+        await _appDatabase.upsertLocalCommunity(
+          LocalCommunityMapper.toCompanion(entity),
+        );
+      } catch (e) {
+        debugPrint('WARNING: Failed to seed local cache after create: $e');
+      }
+      return Right(entity);
     } on AuthException {
       return const Left(Failure.unauthenticated());
     } on ServerException catch (e) {
@@ -135,6 +147,17 @@ class CommunityRepositoryImpl implements CommunityRepository {
 
     try {
       await _remoteDataSource.updateCommunity(communityId, params);
+      // Re-fetch and seed local cache so UI reflects changes immediately
+      try {
+        final updated = await _remoteDataSource.getCommunity(communityId);
+        if (updated != null) {
+          await _appDatabase.upsertLocalCommunity(
+            LocalCommunityMapper.toCompanion(updated.toEntity()),
+          );
+        }
+      } catch (e) {
+        debugPrint('WARNING: Failed to seed local cache after update: $e');
+      }
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
@@ -153,6 +176,11 @@ class CommunityRepositoryImpl implements CommunityRepository {
 
     try {
       await _remoteDataSource.deleteCommunity(communityId);
+
+      // Clean up local DB so the deleted community doesn't reappear
+      await _appDatabase.deleteLocalCommunity(communityId);
+      await _appDatabase.deleteLocalCommunityMembersForCommunity(communityId);
+
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
@@ -197,6 +225,26 @@ class CommunityRepositoryImpl implements CommunityRepository {
 
     try {
       await _remoteDataSource.acceptInvitation(communityId);
+      // Update local member status to active
+      final userId = _currentUserId;
+      if (userId != null) {
+        try {
+          final memberId = '${communityId}_$userId';
+          final local = await _appDatabase.getLocalCommunityMember(memberId);
+          if (local != null) {
+            final entity = LocalCommunityMemberMapper.toEntity(local);
+            final updated = entity.copyWith(
+              status: MemberStatus.active,
+              joinedAt: DateTime.now(),
+            );
+            await _appDatabase.upsertLocalCommunityMember(
+              LocalCommunityMemberMapper.toCompanion(updated),
+            );
+          }
+        } catch (e) {
+          debugPrint('WARNING: Failed to update local member after accept: $e');
+        }
+      }
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
@@ -215,6 +263,15 @@ class CommunityRepositoryImpl implements CommunityRepository {
 
     try {
       await _remoteDataSource.declineInvitation(communityId);
+      // Remove local member record
+      final userId = _currentUserId;
+      if (userId != null) {
+        try {
+          await _appDatabase.deleteLocalCommunityMember('${communityId}_$userId');
+        } catch (e) {
+          debugPrint('WARNING: Failed to remove local member after decline: $e');
+        }
+      }
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
@@ -276,6 +333,13 @@ class CommunityRepositoryImpl implements CommunityRepository {
 
     try {
       await _remoteDataSource.leaveCommunity(communityId);
+      // Clean local DB so the left community doesn't reappear
+      try {
+        await _appDatabase.deleteLocalCommunity(communityId);
+        await _appDatabase.deleteLocalCommunityMembersForCommunity(communityId);
+      } catch (e) {
+        debugPrint('WARNING: Failed to clean local DB after leave: $e');
+      }
       return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
@@ -286,12 +350,14 @@ class CommunityRepositoryImpl implements CommunityRepository {
     }
   }
 
+  /// Returns members from the **local DB only**. The local cache is populated
+  /// by [CommunitySyncService] in the background, or can be force-populated
+  /// by calling [refreshMembers] first.
   @override
   Future<Either<Failure, List<CommunityMember>>> getMembers(
     String communityId,
   ) async {
     try {
-      // Offline-first: read from local DB
       final rows = await _appDatabase.getLocalCommunityMembers(communityId);
       return Right(rows.map(LocalCommunityMemberMapper.toEntity).toList());
     } catch (e) {
@@ -299,27 +365,47 @@ class CommunityRepositoryImpl implements CommunityRepository {
     }
   }
 
+  /// Fetches members from Firestore and seeds the local DB cache.
+  /// Call this to ensure the local DB is populated before using
+  /// [getMembers] or [watchMembers]. Requires network connectivity.
   @override
   Future<Either<Failure, void>> refreshMembers(String communityId) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(Failure.network());
+    }
+
     try {
       final models = await _remoteDataSource.getMembers(communityId);
-      for (final model in models) {
-        final entity = model.toEntity();
-        await _appDatabase.upsertLocalCommunityMember(
-          LocalCommunityMemberMapper.toCompanion(entity),
-        );
-      }
+      // Batch upsert all members
+      await _appDatabase.batch((b) {
+        for (final model in models) {
+          final entity = model.toEntity();
+          b.insert(
+            _appDatabase.localCommunityMembers,
+            LocalCommunityMemberMapper.toCompanion(entity),
+            onConflict: DoUpdate(
+              (_) => LocalCommunityMemberMapper.toCompanion(entity),
+            ),
+          );
+        }
+      });
       return const Right(null);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
   }
 
+  /// Streams members from the **local DB only** (reactive via Drift `.watch()`).
+  /// [CommunitySyncService] keeps the local cache up-to-date in the background.
+  /// Call [refreshMembers] first if the cache may be empty.
   @override
   Stream<Either<Failure, List<CommunityMember>>> watchMembers(
     String communityId,
   ) {
-    // Offline-first: stream from local DB (CommunitySyncService populates it)
     return _appDatabase.watchLocalCommunityMembers(communityId).map((rows) {
       try {
         return Right<Failure, List<CommunityMember>>(
@@ -364,19 +450,14 @@ class CommunityRepositoryImpl implements CommunityRepository {
   }) async {
     try {
       // Offline-first: read pre-decrypted messages from local DB
-      final rows = await _appDatabase.getLocalMessages(communityId);
+      // Pass before/limit to DB query for efficient filtering
+      final rows = await _appDatabase.getLocalMessages(
+        communityId,
+        limit: limit ?? 50,
+        before: before,
+      );
       final messages = rows.map(LocalMessageMapper.toEntity).toList();
-      // Apply before/limit filtering
-      var filtered = messages;
-      if (before != null) {
-        filtered = filtered
-            .where((m) => m.createdAt.isBefore(before))
-            .toList();
-      }
-      if (limit != null && filtered.length > limit) {
-        filtered = filtered.take(limit).toList();
-      }
-      return Right(filtered);
+      return Right(messages);
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -388,12 +469,11 @@ class CommunityRepositoryImpl implements CommunityRepository {
     int? limit,
   }) {
     // Offline-first: stream pre-decrypted messages from local DB
-    return _appDatabase.watchLocalMessages(communityId).map((rows) {
+    return _appDatabase
+        .watchLocalMessages(communityId, limit: limit ?? 50)
+        .map((rows) {
       try {
-        var messages = rows.map(LocalMessageMapper.toEntity).toList();
-        if (limit != null && messages.length > limit) {
-          messages = messages.take(limit).toList();
-        }
+        final messages = rows.map(LocalMessageMapper.toEntity).toList();
         return Right<Failure, List<Message>>(messages);
       } catch (e) {
         return Left<Failure, List<Message>>(
@@ -496,6 +576,20 @@ class CommunityRepositoryImpl implements CommunityRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, void>> markAsRead({required String communityId}) async {
+    try {
+      await _remoteDataSource.markAsRead(communityId);
+      return const Right(null);
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
   // =========================================================================
   // FINANCIAL
   // =========================================================================
@@ -511,10 +605,12 @@ class CommunityRepositoryImpl implements CommunityRepository {
     }
 
     try {
+      final idempotencyKey = _uuid.v4();
       final model = await _remoteDataSource.contribute(
         communityId,
         amount,
         description: description,
+        idempotencyKey: idempotencyKey,
       );
       return Right(model.toEntity());
     } on AuthException {
@@ -539,10 +635,12 @@ class CommunityRepositoryImpl implements CommunityRepository {
     }
 
     try {
+      final idempotencyKey = _uuid.v4();
       final model = await _remoteDataSource.withdraw(
         communityId,
         amount,
         description: description,
+        idempotencyKey: idempotencyKey,
       );
       return Right(model.toEntity());
     } on AuthException {
@@ -608,6 +706,10 @@ class CommunityRepositoryImpl implements CommunityRepository {
     String communityId, {
     int? limit,
   }) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(Failure.network());
+    }
+
     try {
       final models = await _remoteDataSource.getTransactions(
         communityId,
@@ -628,18 +730,15 @@ class CommunityRepositoryImpl implements CommunityRepository {
     String communityId,
   ) {
     return _remoteDataSource.watchTransactions(communityId).map((models) {
-      return Right<Failure, List<CommunityTransaction>>(
-        models.map((m) => m.toEntity()).toList(),
-      );
-    }).handleError((error) {
-      if (error is AuthException) {
-        return const Left<Failure, List<CommunityTransaction>>(
-          Failure.unauthenticated(),
+      try {
+        return Right<Failure, List<CommunityTransaction>>(
+          models.map((m) => m.toEntity()).toList(),
+        );
+      } catch (e) {
+        return Left<Failure, List<CommunityTransaction>>(
+          Failure.serverError(message: e.toString()),
         );
       }
-      return Left<Failure, List<CommunityTransaction>>(
-        Failure.serverError(message: error.toString()),
-      );
     });
   }
 
@@ -647,6 +746,10 @@ class CommunityRepositoryImpl implements CommunityRepository {
   Future<Either<Failure, List<CommunityApproval>>> getPendingApprovals(
     String communityId,
   ) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(Failure.network());
+    }
+
     try {
       final models = await _remoteDataSource.getPendingApprovals(communityId);
       return Right(models.map((m) => m.toEntity()).toList());
@@ -666,23 +769,24 @@ class CommunityRepositoryImpl implements CommunityRepository {
     return _remoteDataSource
         .watchPendingApprovals(communityId)
         .map((models) {
-      return Right<Failure, List<CommunityApproval>>(
-        models.map((m) => m.toEntity()).toList(),
-      );
-    }).handleError((error) {
-      if (error is AuthException) {
-        return const Left<Failure, List<CommunityApproval>>(
-          Failure.unauthenticated(),
+      try {
+        return Right<Failure, List<CommunityApproval>>(
+          models.map((m) => m.toEntity()).toList(),
+        );
+      } catch (e) {
+        return Left<Failure, List<CommunityApproval>>(
+          Failure.serverError(message: e.toString()),
         );
       }
-      return Left<Failure, List<CommunityApproval>>(
-        Failure.serverError(message: error.toString()),
-      );
     });
   }
 
   @override
   Future<Either<Failure, int>> getBalance(String communityId) async {
+    if (!await _networkInfo.isConnected) {
+      return const Left(Failure.network());
+    }
+
     try {
       final balance = await _remoteDataSource.getBalance(communityId);
       return Right(balance);
@@ -805,7 +909,9 @@ class CommunityRepositoryImpl implements CommunityRepository {
               final unread =
                   jsonDecode(row.unreadCountsJson) as Map<String, dynamic>;
               total += (unread[userId] as num?)?.toInt() ?? 0;
-            } catch (_) {}
+            } catch (e) {
+              debugPrint('WARNING: Corrupt unreadCounts JSON for ${row.id}: $e');
+            }
           }
         }
         return Right<Failure, int>(total);

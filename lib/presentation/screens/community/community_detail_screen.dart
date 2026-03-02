@@ -65,7 +65,19 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
 
     return BlocProvider<CommunityMessagingBloc>.value(
       value: _messagingBloc,
-      child: BlocBuilder<CommunityBloc, CommunityState>(
+      // 8.11 Listen for error/success feedback from CommunityBloc
+      child: BlocConsumer<CommunityBloc, CommunityState>(
+        listener: (context, commState) {
+          if (commState.operationStatus == CommunityOperationStatus.failure &&
+              commState.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(commState.errorMessage!),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        },
         builder: (context, commState) {
           final community = commState.selectedCommunity;
           final showFinances = community?.hasFinancials ?? false;
@@ -273,25 +285,27 @@ class _ChatTab extends StatelessWidget {
   }
 
   void _showMediaPicker(BuildContext context) {
+    final bloc = context.read<CommunityMessagingBloc>();
     showMediaPicker(
       context,
       onMediaSelected: (result) {
-        Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            fullscreenDialog: true,
-            builder: (_) => MediaComposeScreen(
-              mediaFile: result.file,
-              mediaType: result.mediaType,
-              onSend: (caption) {
-                context.read<CommunityMessagingBloc>().add(
-                      CommunityMessagingEvent.sendMediaMessage(
-                        mediaFile: result.file,
-                        mediaType: result.mediaType,
-                        caption: caption,
-                      ),
-                    );
-              },
-            ),
+        // 8.1 Use showGeneralDialog instead of Navigator.push for fullscreen overlay
+        showGeneralDialog(
+          context: context,
+          barrierDismissible: false,
+          barrierColor: Colors.black,
+          pageBuilder: (ctx, _, __) => MediaComposeScreen(
+            mediaFile: result.file,
+            mediaType: result.mediaType,
+            onSend: (caption) {
+              bloc.add(
+                CommunityMessagingEvent.sendMediaMessage(
+                  mediaFile: result.file,
+                  mediaType: result.mediaType,
+                  caption: caption,
+                ),
+              );
+            },
           ),
         );
       },
@@ -334,6 +348,7 @@ class _ChatTab extends StatelessWidget {
   }
 
   void _openVideoRecorder(BuildContext context) {
+    final bloc = context.read<CommunityMessagingBloc>();
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -341,26 +356,27 @@ class _ChatTab extends StatelessWidget {
       pageBuilder: (ctx, _, __) => VideoMessageRecorder(
         onRecordingComplete: (result) {
           Navigator.of(ctx).pop();
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              fullscreenDialog: true,
-              builder: (_) => MediaComposeScreen(
-                mediaFile: result.videoFile,
-                mediaType: 'video/mp4',
-                thumbnailFile: result.thumbnailFile,
-                durationSeconds: result.durationSeconds,
-                onSend: (caption) {
-                  context.read<CommunityMessagingBloc>().add(
-                        CommunityMessagingEvent.sendMediaMessage(
-                          mediaFile: result.videoFile,
-                          mediaType: 'video/mp4',
-                          durationSeconds: result.durationSeconds,
-                          thumbnailFile: result.thumbnailFile,
-                          caption: caption,
-                        ),
-                      );
-                },
-              ),
+          // 8.1 Use showGeneralDialog instead of Navigator.push for fullscreen overlay
+          showGeneralDialog(
+            context: context,
+            barrierDismissible: false,
+            barrierColor: Colors.black,
+            pageBuilder: (ctx2, _, __) => MediaComposeScreen(
+              mediaFile: result.videoFile,
+              mediaType: 'video/mp4',
+              thumbnailFile: result.thumbnailFile,
+              durationSeconds: result.durationSeconds,
+              onSend: (caption) {
+                bloc.add(
+                  CommunityMessagingEvent.sendMediaMessage(
+                    mediaFile: result.videoFile,
+                    mediaType: 'video/mp4',
+                    durationSeconds: result.durationSeconds,
+                    thumbnailFile: result.thumbnailFile,
+                    caption: caption,
+                  ),
+                );
+              },
             ),
           );
         },
@@ -416,34 +432,67 @@ class _MembersTab extends StatelessWidget {
       itemCount: members.length,
       itemBuilder: (context, index) {
         final member = members[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: _roleColor(member.role).withValues(alpha: 0.2),
-              backgroundImage: member.avatarUrl != null
-                  ? NetworkImage(member.avatarUrl!)
-                  : null,
-              child: member.avatarUrl == null
+        final isInvited = member.isInvited;
+        return Opacity(
+          opacity: isInvited ? 0.6 : 1.0,
+          child: Card(
+            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor:
+                    _roleColor(member.role).withValues(alpha: 0.2),
+                backgroundImage:
+                    member.avatarUrl != null && !isInvited
+                        ? NetworkImage(member.avatarUrl!)
+                        : null,
+                child: member.avatarUrl == null || isInvited
+                    ? Icon(
+                        isInvited ? Icons.mail_outline : Icons.person,
+                        color: isInvited
+                            ? AppColors.warning
+                            : _roleColor(member.role),
+                        size: 20,
+                      )
+                    : null,
+              ),
+              title: Row(
+                children: [
+                  Expanded(child: Text(member.displayName)),
+                  if (isInvited)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.warning.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        'Pending',
+                        style:
+                            Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: AppColors.warning,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 10,
+                                ),
+                      ),
+                    ),
+                ],
+              ),
+              subtitle: Text(
+                isInvited
+                    ? '${member.roleDisplayName} · Invitation sent'
+                    : member.roleDisplayName,
+              ),
+              trailing: member.contributionBalance > 0
                   ? Text(
-                      member.displayName.isNotEmpty
-                          ? member.displayName[0].toUpperCase()
-                          : '?',
-                      style: TextStyle(color: _roleColor(member.role)),
+                      'R${(member.contributionBalance / 100).toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: _roleColor(member.role),
+                            fontWeight: FontWeight.w500,
+                          ),
                     )
                   : null,
             ),
-            title: Text(member.displayName),
-            subtitle: Text(member.roleDisplayName),
-            trailing: member.contributionBalance > 0
-                ? Text(
-                    'R${(member.contributionBalance / 100).toStringAsFixed(2)}',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: _roleColor(member.role),
-                          fontWeight: FontWeight.w500,
-                        ),
-                  )
-                : null,
           ),
         );
       },
@@ -551,7 +600,8 @@ class _FinancesTab extends StatelessWidget {
           if (community?.isStokvel ?? false) ...[
             AppSpacing.verticalXs,
             Text(
-              '${community!.memberCount} members',
+              // 8.16 Null-safe access to memberCount
+              '${community?.memberCount ?? 0} members',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppColors.textOnPrimary.withValues(alpha: 0.7),
                   ),
@@ -563,6 +613,8 @@ class _FinancesTab extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context) {
+    // 8.16 Null-safe access — community is already guarded by caller
+    if (community == null) return const SizedBox.shrink();
     final isAdmin = community!.isAdmin(currentUserId);
 
     return Row(

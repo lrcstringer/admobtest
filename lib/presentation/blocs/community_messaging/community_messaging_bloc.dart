@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -73,11 +74,15 @@ class CommunityMessagingBloc
         .watchMessages(communityId: state.communityId, limit: event.limit)
         .listen(
       (result) {
-        result.fold(
-          (failure) {},
-          (messages) =>
-              add(CommunityMessagingEvent.messagesUpdated(messages)),
-        );
+        // 5.2 Stream error logging + isClosed guard
+        if (!isClosed) {
+          result.fold(
+            (failure) => debugPrint(
+                'CommunityMessagingBloc: stream error: ${failure.displayMessage}'),
+            (messages) =>
+                add(CommunityMessagingEvent.messagesUpdated(messages)),
+          );
+        }
       },
     );
   }
@@ -106,6 +111,7 @@ class CommunityMessagingBloc
         isSending: false,
         errorMessage: failure.displayMessage,
       )),
+      // 5.5 Message goes through OutgoingMessageQueue → stream will bring canonical version
       (message) => emit(state.copyWith(isSending: false)),
     );
   }
@@ -130,6 +136,7 @@ class CommunityMessagingBloc
         isSending: false,
         errorMessage: failure.displayMessage,
       )),
+      // 5.5 Message goes through OutgoingMessageQueue → stream will bring canonical version
       (message) => emit(state.copyWith(isSending: false)),
     );
   }
@@ -143,6 +150,7 @@ class CommunityMessagingBloc
       messageId: event.messageId,
       emoji: event.emoji,
     );
+    // 5.4 Only emit on failure — success is handled by watch stream
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
       (_) {},
@@ -158,18 +166,20 @@ class CommunityMessagingBloc
       messageId: event.messageId,
       emoji: event.emoji,
     );
+    // 5.4 Only emit on failure — success is handled by watch stream
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
       (_) {},
     );
   }
 
+  // 5.1 Implement markAsRead
   Future<void> _onMarkAsRead(
     _MarkAsRead event,
     Emitter<CommunityMessagingState> emit,
   ) async {
-    // Mark all messages as read — fire and forget
-    // The community unread count is managed by the parent CommunityBloc stream
+    // Fire and forget — unread count is managed by CommunityBloc stream
+    _communityRepository.markAsRead(communityId: state.communityId);
   }
 
   Future<void> _onLoadMore(
@@ -193,11 +203,17 @@ class CommunityMessagingBloc
         isLoading: false,
         errorMessage: failure.displayMessage,
       )),
-      (olderMessages) => emit(state.copyWith(
-        isLoading: false,
-        messages: [...state.messages, ...olderMessages],
-        hasMore: olderMessages.length >= 50,
-      )),
+      (olderMessages) {
+        // 5.3 Deduplicate by message ID before appending
+        final existingIds = state.messages.map((m) => m.id).toSet();
+        final deduped =
+            olderMessages.where((m) => !existingIds.contains(m.id)).toList();
+        emit(state.copyWith(
+          isLoading: false,
+          messages: [...state.messages, ...deduped],
+          hasMore: olderMessages.length >= 50,
+        ));
+      },
     );
   }
 
@@ -209,8 +225,8 @@ class CommunityMessagingBloc
   }
 
   @override
-  Future<void> close() {
-    _messagesSubscription?.cancel();
+  Future<void> close() async {
+    await _messagesSubscription?.cancel();
     return super.close();
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -74,6 +75,39 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
   }
 
   // ===========================================================================
+  // HELPERS — auto-reset operationStatus to idle after success/failure (4.1)
+  // ===========================================================================
+
+  void _emitSuccess(
+    Emitter<CommunityState> emit,
+    String message, {
+    CommunityState? base,
+  }) {
+    final s = base ?? state;
+    emit(s.copyWith(
+      operationStatus: CommunityOperationStatus.success,
+      successMessage: message,
+    ));
+    emit(state.copyWith(
+      operationStatus: CommunityOperationStatus.idle,
+      successMessage: null,
+      errorMessage: null,
+    ));
+  }
+
+  void _emitFailure(Emitter<CommunityState> emit, Failure failure) {
+    emit(state.copyWith(
+      operationStatus: CommunityOperationStatus.failure,
+      errorMessage: failure.displayMessage,
+    ));
+    emit(state.copyWith(
+      operationStatus: CommunityOperationStatus.idle,
+      errorMessage: null,
+      successMessage: null,
+    ));
+  }
+
+  // ===========================================================================
   // COMMUNITY LIST HANDLERS
   // ===========================================================================
 
@@ -95,37 +129,46 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
           status: CommunityLoadingStatus.loaded,
           communities: communities,
         ));
-        // Start watching for updates
-        add(const CommunityEvent.watchUserCommunities());
+        // Start watching for updates — guard against duplicate (4.3)
+        if (_communitiesSubscription == null) {
+          add(const CommunityEvent.watchUserCommunities());
+        }
       },
     );
   }
 
-  void _onWatchUserCommunities(
+  Future<void> _onWatchUserCommunities(
     _WatchUserCommunities event,
     Emitter<CommunityState> emit,
-  ) {
-    _communitiesSubscription?.cancel();
+  ) async {
+    // Await cancellation before re-listen (4.5)
+    await _communitiesSubscription?.cancel();
     _communitiesSubscription =
         _communityRepository.watchUserCommunities().listen(
       (result) {
-        result.fold(
-          (failure) {},
-          (communities) =>
-              add(CommunityEvent.userCommunitiesUpdated(communities)),
-        );
+        if (!isClosed) {
+          result.fold(
+            (failure) => debugPrint(
+                'CommunityBloc: community stream error: ${failure.displayMessage}'),
+            (communities) =>
+                add(CommunityEvent.userCommunitiesUpdated(communities)),
+          );
+        }
       },
     );
 
     // Also watch total unread count for tab badge
-    _unreadSubscription?.cancel();
+    await _unreadSubscription?.cancel();
     _unreadSubscription =
         _communityRepository.watchTotalCommunityUnreadCount().listen(
       (result) {
-        result.fold(
-          (failure) {},
-          (count) => add(CommunityEvent.unreadCountUpdated(count)),
-        );
+        if (!isClosed) {
+          result.fold(
+            (failure) => debugPrint(
+                'CommunityBloc: unread count stream error: ${failure.displayMessage}'),
+            (count) => add(CommunityEvent.unreadCountUpdated(count)),
+          );
+        }
       },
     );
   }
@@ -134,9 +177,14 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     _UserCommunitiesUpdated event,
     Emitter<CommunityState> emit,
   ) {
+    // Invalidate selectedCommunity if it no longer exists in the list (4.8)
+    final stillExists = state.selectedCommunity != null &&
+        event.communities.any((c) => c.id == state.selectedCommunity!.id);
+
     emit(state.copyWith(
       status: CommunityLoadingStatus.loaded,
       communities: event.communities,
+      selectedCommunity: stillExists ? state.selectedCommunity : null,
     ));
   }
 
@@ -161,10 +209,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         await _communityRepository.getCommunity(event.communityId);
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
+      (failure) => _emitFailure(emit, failure),
       (community) {
         emit(state.copyWith(
           operationStatus: CommunityOperationStatus.idle,
@@ -179,18 +224,21 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     );
   }
 
-  void _onWatchMembers(
+  Future<void> _onWatchMembers(
     _WatchMembers event,
     Emitter<CommunityState> emit,
-  ) {
-    _membersSubscription?.cancel();
+  ) async {
+    await _membersSubscription?.cancel();
     _membersSubscription =
         _communityRepository.watchMembers(event.communityId).listen(
       (result) {
-        result.fold(
-          (failure) {},
-          (members) => add(CommunityEvent.membersUpdated(members)),
-        );
+        if (!isClosed) {
+          result.fold(
+            (failure) => debugPrint(
+                'CommunityBloc: members stream error: ${failure.displayMessage}'),
+            (members) => add(CommunityEvent.membersUpdated(members)),
+          );
+        }
       },
     );
     // Seed the local DB from Firestore so the stream fires immediately.
@@ -205,19 +253,22 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     emit(state.copyWith(selectedCommunityMembers: event.members));
   }
 
-  void _onWatchTransactions(
+  Future<void> _onWatchTransactions(
     _WatchTransactions event,
     Emitter<CommunityState> emit,
-  ) {
-    _transactionsSubscription?.cancel();
+  ) async {
+    await _transactionsSubscription?.cancel();
     _transactionsSubscription =
         _communityRepository.watchTransactions(event.communityId).listen(
       (result) {
-        result.fold(
-          (failure) {},
-          (transactions) =>
-              add(CommunityEvent.transactionsUpdated(transactions)),
-        );
+        if (!isClosed) {
+          result.fold(
+            (failure) => debugPrint(
+                'CommunityBloc: transactions stream error: ${failure.displayMessage}'),
+            (transactions) =>
+                add(CommunityEvent.transactionsUpdated(transactions)),
+          );
+        }
       },
     );
   }
@@ -230,19 +281,22 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         state.copyWith(selectedCommunityTransactions: event.transactions));
   }
 
-  void _onWatchPendingApprovals(
+  Future<void> _onWatchPendingApprovals(
     _WatchPendingApprovals event,
     Emitter<CommunityState> emit,
-  ) {
-    _approvalsSubscription?.cancel();
+  ) async {
+    await _approvalsSubscription?.cancel();
     _approvalsSubscription =
         _communityRepository.watchPendingApprovals(event.communityId).listen(
       (result) {
-        result.fold(
-          (failure) {},
-          (approvals) =>
-              add(CommunityEvent.pendingApprovalsUpdated(approvals)),
-        );
+        if (!isClosed) {
+          result.fold(
+            (failure) => debugPrint(
+                'CommunityBloc: approvals stream error: ${failure.displayMessage}'),
+            (approvals) =>
+                add(CommunityEvent.pendingApprovalsUpdated(approvals)),
+          );
+        }
       },
     );
   }
@@ -267,15 +321,14 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     final result = await _communityRepository.createCommunity(event.params);
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
-      (community) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.success,
-        successMessage: '"${community.name}" created successfully',
-        communities: [...state.communities, community],
-      )),
+      (failure) => _emitFailure(emit, failure),
+      (community) => _emitSuccess(
+        emit,
+        '"${community.name}" created successfully',
+        base: state.copyWith(
+          communities: [...state.communities, community],
+        ),
+      ),
     );
   }
 
@@ -291,15 +344,9 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
+      (failure) => _emitFailure(emit, failure),
       (_) {
-        emit(state.copyWith(
-          operationStatus: CommunityOperationStatus.success,
-          successMessage: 'Community updated successfully',
-        ));
+        _emitSuccess(emit, 'Community updated successfully');
         // Refresh community details
         add(CommunityEvent.loadCommunityDetails(
             communityId: event.communityId));
@@ -317,21 +364,21 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         await _communityRepository.deleteCommunity(event.communityId);
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
-      (_) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.success,
-        successMessage: 'Community deleted successfully',
-        communities: state.communities
-            .where((c) => c.id != event.communityId)
-            .toList(),
-        selectedCommunity: null,
-        selectedCommunityMembers: [],
-        selectedCommunityTransactions: [],
-        selectedCommunityApprovals: [],
-      )),
+      (failure) => _emitFailure(emit, failure),
+      (_) => _emitSuccess(
+        emit,
+        'Community deleted successfully',
+        base: state.copyWith(
+          communities: state.communities
+              .where((c) => c.id != event.communityId)
+              .toList(),
+          selectedCommunity: null,
+          selectedCommunityMembers: [],
+          selectedCommunityTransactions: [],
+          selectedCommunityApprovals: [],
+          totalUnreadCount: 0, // 4.7 reset unread count
+        ),
+      ),
     );
   }
 
@@ -352,14 +399,8 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
-      (_) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.success,
-        successMessage: 'Invitation sent successfully',
-      )),
+      (failure) => _emitFailure(emit, failure),
+      (_) => _emitSuccess(emit, 'Invitation sent successfully'),
     );
   }
 
@@ -373,15 +414,9 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         await _communityRepository.acceptInvitation(event.communityId);
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
+      (failure) => _emitFailure(emit, failure),
       (_) {
-        emit(state.copyWith(
-          operationStatus: CommunityOperationStatus.success,
-          successMessage: 'You have joined the community',
-        ));
+        _emitSuccess(emit, 'You have joined the community');
         // Refresh lists
         add(const CommunityEvent.loadUserCommunities());
         add(const CommunityEvent.loadPendingInvitations());
@@ -399,17 +434,16 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         await _communityRepository.declineInvitation(event.communityId);
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
-      (_) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.success,
-        successMessage: 'Invitation declined',
-        pendingInvitations: state.pendingInvitations
-            .where((i) => i.communityId != event.communityId)
-            .toList(),
-      )),
+      (failure) => _emitFailure(emit, failure),
+      (_) => _emitSuccess(
+        emit,
+        'Invitation declined',
+        base: state.copyWith(
+          pendingInvitations: state.pendingInvitations
+              .where((i) => i.communityId != event.communityId)
+              .toList(),
+        ),
+      ),
     );
   }
 
@@ -425,14 +459,17 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
-      (_) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.success,
-        successMessage: 'Member removed successfully',
-      )),
+      (failure) => _emitFailure(emit, failure),
+      // 4.10 Optimistic: remove from members list immediately
+      (_) => _emitSuccess(
+        emit,
+        'Member removed successfully',
+        base: state.copyWith(
+          selectedCommunityMembers: state.selectedCommunityMembers
+              .where((m) => m.id != event.memberId)
+              .toList(),
+        ),
+      ),
     );
   }
 
@@ -449,14 +486,34 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
-      (_) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.success,
-        successMessage: 'Member role updated',
-      )),
+      (failure) => _emitFailure(emit, failure),
+      // 4.10 Optimistic: update role in members list immediately
+      (_) => _emitSuccess(
+        emit,
+        'Member role updated',
+        base: state.copyWith(
+          selectedCommunityMembers: state.selectedCommunityMembers.map((m) {
+            if (m.id == event.memberId) {
+              return CommunityMember(
+                id: m.id,
+                communityId: m.communityId,
+                userId: m.userId,
+                displayName: m.displayName,
+                avatarUrl: m.avatarUrl,
+                role: event.role,
+                status: m.status,
+                contributionBalance: m.contributionBalance,
+                joinedAt: m.joinedAt,
+                invitedBy: m.invitedBy,
+                invitedAt: m.invitedAt,
+                lastReadAt: m.lastReadAt,
+                communityName: m.communityName,
+              );
+            }
+            return m;
+          }).toList(),
+        ),
+      ),
     );
   }
 
@@ -470,21 +527,20 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         await _communityRepository.leaveCommunity(event.communityId);
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
-      (_) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.success,
-        successMessage: 'You have left the community',
-        communities: state.communities
-            .where((c) => c.id != event.communityId)
-            .toList(),
-        selectedCommunity: null,
-        selectedCommunityMembers: [],
-        selectedCommunityTransactions: [],
-        selectedCommunityApprovals: [],
-      )),
+      (failure) => _emitFailure(emit, failure),
+      (_) => _emitSuccess(
+        emit,
+        'You have left the community',
+        base: state.copyWith(
+          communities: state.communities
+              .where((c) => c.id != event.communityId)
+              .toList(),
+          selectedCommunity: null,
+          selectedCommunityMembers: [],
+          selectedCommunityTransactions: [],
+          selectedCommunityApprovals: [],
+        ),
+      ),
     );
   }
 
@@ -495,7 +551,11 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     final result = await _communityRepository.getPendingInvitations();
 
     result.fold(
-      (failure) {},
+      // 4.9 Emit error state instead of only logging
+      (failure) => emit(state.copyWith(
+        errorMessage:
+            'Failed to load invitations: ${failure.displayMessage}',
+      )),
       (invitations) => emit(state.copyWith(pendingInvitations: invitations)),
     );
   }
@@ -517,14 +577,11 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
-      (transaction) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.success,
-        successMessage: 'Contribution of ${event.amount} tokens successful',
-      )),
+      (failure) => _emitFailure(emit, failure),
+      (transaction) => _emitSuccess(
+        emit,
+        'Contribution of ${event.amount} tokens successful',
+      ),
     );
   }
 
@@ -541,18 +598,12 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
+      (failure) => _emitFailure(emit, failure),
       (transaction) {
         final message = transaction.isPending
             ? 'Withdrawal request submitted for approval'
             : 'Withdrawal of ${event.amount} tokens successful';
-        emit(state.copyWith(
-          operationStatus: CommunityOperationStatus.success,
-          successMessage: message,
-        ));
+        _emitSuccess(emit, message);
       },
     );
   }
@@ -569,14 +620,17 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
-      (_) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.success,
-        successMessage: 'Transaction approved',
-      )),
+      (failure) => _emitFailure(emit, failure),
+      // 4.10 Optimistic: remove from approvals list immediately
+      (_) => _emitSuccess(
+        emit,
+        'Transaction approved',
+        base: state.copyWith(
+          selectedCommunityApprovals: state.selectedCommunityApprovals
+              .where((a) => a.transactionId != event.transactionId)
+              .toList(),
+        ),
+      ),
     );
   }
 
@@ -593,14 +647,17 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
-      (_) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.success,
-        successMessage: 'Transaction rejected',
-      )),
+      (failure) => _emitFailure(emit, failure),
+      // 4.10 Optimistic: remove from approvals list immediately
+      (_) => _emitSuccess(
+        emit,
+        'Transaction rejected',
+        base: state.copyWith(
+          selectedCommunityApprovals: state.selectedCommunityApprovals
+              .where((a) => a.transactionId != event.transactionId)
+              .toList(),
+        ),
+      ),
     );
   }
 
@@ -620,16 +677,12 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        operationStatus: CommunityOperationStatus.failure,
-        errorMessage: failure.displayMessage,
-      )),
+      (failure) => _emitFailure(emit, failure),
       (payoutResult) {
-        emit(state.copyWith(
-          operationStatus: CommunityOperationStatus.success,
-          successMessage:
-              'Payout of ${payoutResult.amount} tokens completed successfully',
-        ));
+        _emitSuccess(
+          emit,
+          'Payout of ${payoutResult.amount} tokens completed successfully',
+        );
         // Refresh community details to show updated balance
         add(CommunityEvent.loadCommunityDetails(
             communityId: event.communityId));
@@ -664,13 +717,16 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
   // UTILITY HANDLERS
   // ===========================================================================
 
-  void _onClearSelectedCommunity(
+  Future<void> _onClearSelectedCommunity(
     _ClearSelectedCommunity event,
     Emitter<CommunityState> emit,
-  ) {
-    _membersSubscription?.cancel();
-    _transactionsSubscription?.cancel();
-    _approvalsSubscription?.cancel();
+  ) async {
+    await _membersSubscription?.cancel();
+    _membersSubscription = null;
+    await _transactionsSubscription?.cancel();
+    _transactionsSubscription = null;
+    await _approvalsSubscription?.cancel();
+    _approvalsSubscription = null;
 
     emit(state.copyWith(
       selectedCommunity: null,
@@ -691,13 +747,14 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     ));
   }
 
+  // 4.6 Await all subscriptions in close()
   @override
-  Future<void> close() {
-    _communitiesSubscription?.cancel();
-    _membersSubscription?.cancel();
-    _transactionsSubscription?.cancel();
-    _approvalsSubscription?.cancel();
-    _unreadSubscription?.cancel();
+  Future<void> close() async {
+    await _communitiesSubscription?.cancel();
+    await _membersSubscription?.cancel();
+    await _transactionsSubscription?.cancel();
+    await _approvalsSubscription?.cancel();
+    await _unreadSubscription?.cancel();
     return super.close();
   }
 }

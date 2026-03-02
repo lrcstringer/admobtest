@@ -351,7 +351,7 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
   }
 
   void _saveSettings(Community community) {
-    if (!_formKey.currentState!.validate()) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
     final params = UpdateCommunityParams(
       name: _nameController.text.trim(),

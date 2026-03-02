@@ -10461,6 +10461,17 @@ class $LocalCommunityMembersTable extends LocalCommunityMembers
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _communityNameMeta = const VerificationMeta(
+    'communityName',
+  );
+  @override
+  late final GeneratedColumn<String> communityName = GeneratedColumn<String>(
+    'community_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -10486,6 +10497,7 @@ class $LocalCommunityMembersTable extends LocalCommunityMembers
     invitedBy,
     invitedAt,
     lastReadAt,
+    communityName,
     createdAt,
   ];
   @override
@@ -10593,6 +10605,15 @@ class $LocalCommunityMembersTable extends LocalCommunityMembers
         ),
       );
     }
+    if (data.containsKey('community_name')) {
+      context.handle(
+        _communityNameMeta,
+        communityName.isAcceptableOrUnknown(
+          data['community_name']!,
+          _communityNameMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -10658,6 +10679,10 @@ class $LocalCommunityMembersTable extends LocalCommunityMembers
         DriftSqlType.dateTime,
         data['${effectivePrefix}last_read_at'],
       ),
+      communityName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}community_name'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -10685,6 +10710,7 @@ class LocalCommunityMember extends DataClass
   final String invitedBy;
   final DateTime? invitedAt;
   final DateTime? lastReadAt;
+  final String? communityName;
   final DateTime createdAt;
   const LocalCommunityMember({
     required this.id,
@@ -10699,6 +10725,7 @@ class LocalCommunityMember extends DataClass
     required this.invitedBy,
     this.invitedAt,
     this.lastReadAt,
+    this.communityName,
     required this.createdAt,
   });
   @override
@@ -10723,6 +10750,9 @@ class LocalCommunityMember extends DataClass
     }
     if (!nullToAbsent || lastReadAt != null) {
       map['last_read_at'] = Variable<DateTime>(lastReadAt);
+    }
+    if (!nullToAbsent || communityName != null) {
+      map['community_name'] = Variable<String>(communityName);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
@@ -10750,6 +10780,9 @@ class LocalCommunityMember extends DataClass
       lastReadAt: lastReadAt == null && nullToAbsent
           ? const Value.absent()
           : Value(lastReadAt),
+      communityName: communityName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(communityName),
       createdAt: Value(createdAt),
     );
   }
@@ -10774,6 +10807,7 @@ class LocalCommunityMember extends DataClass
       invitedBy: serializer.fromJson<String>(json['invitedBy']),
       invitedAt: serializer.fromJson<DateTime?>(json['invitedAt']),
       lastReadAt: serializer.fromJson<DateTime?>(json['lastReadAt']),
+      communityName: serializer.fromJson<String?>(json['communityName']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -10793,6 +10827,7 @@ class LocalCommunityMember extends DataClass
       'invitedBy': serializer.toJson<String>(invitedBy),
       'invitedAt': serializer.toJson<DateTime?>(invitedAt),
       'lastReadAt': serializer.toJson<DateTime?>(lastReadAt),
+      'communityName': serializer.toJson<String?>(communityName),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -10810,6 +10845,7 @@ class LocalCommunityMember extends DataClass
     String? invitedBy,
     Value<DateTime?> invitedAt = const Value.absent(),
     Value<DateTime?> lastReadAt = const Value.absent(),
+    Value<String?> communityName = const Value.absent(),
     DateTime? createdAt,
   }) => LocalCommunityMember(
     id: id ?? this.id,
@@ -10824,6 +10860,9 @@ class LocalCommunityMember extends DataClass
     invitedBy: invitedBy ?? this.invitedBy,
     invitedAt: invitedAt.present ? invitedAt.value : this.invitedAt,
     lastReadAt: lastReadAt.present ? lastReadAt.value : this.lastReadAt,
+    communityName: communityName.present
+        ? communityName.value
+        : this.communityName,
     createdAt: createdAt ?? this.createdAt,
   );
   LocalCommunityMember copyWithCompanion(LocalCommunityMembersCompanion data) {
@@ -10848,6 +10887,9 @@ class LocalCommunityMember extends DataClass
       lastReadAt: data.lastReadAt.present
           ? data.lastReadAt.value
           : this.lastReadAt,
+      communityName: data.communityName.present
+          ? data.communityName.value
+          : this.communityName,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -10867,6 +10909,7 @@ class LocalCommunityMember extends DataClass
           ..write('invitedBy: $invitedBy, ')
           ..write('invitedAt: $invitedAt, ')
           ..write('lastReadAt: $lastReadAt, ')
+          ..write('communityName: $communityName, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -10886,6 +10929,7 @@ class LocalCommunityMember extends DataClass
     invitedBy,
     invitedAt,
     lastReadAt,
+    communityName,
     createdAt,
   );
   @override
@@ -10904,6 +10948,7 @@ class LocalCommunityMember extends DataClass
           other.invitedBy == this.invitedBy &&
           other.invitedAt == this.invitedAt &&
           other.lastReadAt == this.lastReadAt &&
+          other.communityName == this.communityName &&
           other.createdAt == this.createdAt);
 }
 
@@ -10921,6 +10966,7 @@ class LocalCommunityMembersCompanion
   final Value<String> invitedBy;
   final Value<DateTime?> invitedAt;
   final Value<DateTime?> lastReadAt;
+  final Value<String?> communityName;
   final Value<DateTime> createdAt;
   final Value<int> rowid;
   const LocalCommunityMembersCompanion({
@@ -10936,6 +10982,7 @@ class LocalCommunityMembersCompanion
     this.invitedBy = const Value.absent(),
     this.invitedAt = const Value.absent(),
     this.lastReadAt = const Value.absent(),
+    this.communityName = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -10952,6 +10999,7 @@ class LocalCommunityMembersCompanion
     this.invitedBy = const Value.absent(),
     this.invitedAt = const Value.absent(),
     this.lastReadAt = const Value.absent(),
+    this.communityName = const Value.absent(),
     required DateTime createdAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -10974,6 +11022,7 @@ class LocalCommunityMembersCompanion
     Expression<String>? invitedBy,
     Expression<DateTime>? invitedAt,
     Expression<DateTime>? lastReadAt,
+    Expression<String>? communityName,
     Expression<DateTime>? createdAt,
     Expression<int>? rowid,
   }) {
@@ -10991,6 +11040,7 @@ class LocalCommunityMembersCompanion
       if (invitedBy != null) 'invited_by': invitedBy,
       if (invitedAt != null) 'invited_at': invitedAt,
       if (lastReadAt != null) 'last_read_at': lastReadAt,
+      if (communityName != null) 'community_name': communityName,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -11009,6 +11059,7 @@ class LocalCommunityMembersCompanion
     Value<String>? invitedBy,
     Value<DateTime?>? invitedAt,
     Value<DateTime?>? lastReadAt,
+    Value<String?>? communityName,
     Value<DateTime>? createdAt,
     Value<int>? rowid,
   }) {
@@ -11025,6 +11076,7 @@ class LocalCommunityMembersCompanion
       invitedBy: invitedBy ?? this.invitedBy,
       invitedAt: invitedAt ?? this.invitedAt,
       lastReadAt: lastReadAt ?? this.lastReadAt,
+      communityName: communityName ?? this.communityName,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
     );
@@ -11069,6 +11121,9 @@ class LocalCommunityMembersCompanion
     if (lastReadAt.present) {
       map['last_read_at'] = Variable<DateTime>(lastReadAt.value);
     }
+    if (communityName.present) {
+      map['community_name'] = Variable<String>(communityName.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -11093,6 +11148,7 @@ class LocalCommunityMembersCompanion
           ..write('invitedBy: $invitedBy, ')
           ..write('invitedAt: $invitedAt, ')
           ..write('lastReadAt: $lastReadAt, ')
+          ..write('communityName: $communityName, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -16069,6 +16125,7 @@ typedef $$LocalCommunityMembersTableCreateCompanionBuilder =
       Value<String> invitedBy,
       Value<DateTime?> invitedAt,
       Value<DateTime?> lastReadAt,
+      Value<String?> communityName,
       required DateTime createdAt,
       Value<int> rowid,
     });
@@ -16086,6 +16143,7 @@ typedef $$LocalCommunityMembersTableUpdateCompanionBuilder =
       Value<String> invitedBy,
       Value<DateTime?> invitedAt,
       Value<DateTime?> lastReadAt,
+      Value<String?> communityName,
       Value<DateTime> createdAt,
       Value<int> rowid,
     });
@@ -16156,6 +16214,11 @@ class $$LocalCommunityMembersTableFilterComposer
 
   ColumnFilters<DateTime> get lastReadAt => $composableBuilder(
     column: $table.lastReadAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get communityName => $composableBuilder(
+    column: $table.communityName,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16234,6 +16297,11 @@ class $$LocalCommunityMembersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get communityName => $composableBuilder(
+    column: $table.communityName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -16290,6 +16358,11 @@ class $$LocalCommunityMembersTableAnnotationComposer
 
   GeneratedColumn<DateTime> get lastReadAt => $composableBuilder(
     column: $table.lastReadAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get communityName => $composableBuilder(
+    column: $table.communityName,
     builder: (column) => column,
   );
 
@@ -16355,6 +16428,7 @@ class $$LocalCommunityMembersTableTableManager
                 Value<String> invitedBy = const Value.absent(),
                 Value<DateTime?> invitedAt = const Value.absent(),
                 Value<DateTime?> lastReadAt = const Value.absent(),
+                Value<String?> communityName = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalCommunityMembersCompanion(
@@ -16370,6 +16444,7 @@ class $$LocalCommunityMembersTableTableManager
                 invitedBy: invitedBy,
                 invitedAt: invitedAt,
                 lastReadAt: lastReadAt,
+                communityName: communityName,
                 createdAt: createdAt,
                 rowid: rowid,
               ),
@@ -16387,6 +16462,7 @@ class $$LocalCommunityMembersTableTableManager
                 Value<String> invitedBy = const Value.absent(),
                 Value<DateTime?> invitedAt = const Value.absent(),
                 Value<DateTime?> lastReadAt = const Value.absent(),
+                Value<String?> communityName = const Value.absent(),
                 required DateTime createdAt,
                 Value<int> rowid = const Value.absent(),
               }) => LocalCommunityMembersCompanion.insert(
@@ -16402,6 +16478,7 @@ class $$LocalCommunityMembersTableTableManager
                 invitedBy: invitedBy,
                 invitedAt: invitedAt,
                 lastReadAt: lastReadAt,
+                communityName: communityName,
                 createdAt: createdAt,
                 rowid: rowid,
               ),

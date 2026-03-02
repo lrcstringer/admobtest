@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/community.dart';
+import '../../../domain/entities/community_member.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../../domain/enums/community_type.dart';
 import '../../../domain/enums/conversation_type.dart';
@@ -70,6 +71,9 @@ class _MessagingScreenState extends State<MessagingScreen>
     context
         .read<CommunityBloc>()
         .add(const CommunityEvent.watchUserCommunities());
+    context
+        .read<CommunityBloc>()
+        .add(const CommunityEvent.loadPendingInvitations());
 
     // Start watching contacts and contact requests
     context
@@ -91,19 +95,49 @@ class _MessagingScreenState extends State<MessagingScreen>
     final currentUserId =
         context.read<AuthBloc>().state.user?.id ?? '';
 
-    return BlocListener<ConversationActionsBloc, ConversationActionsState>(
-      listenWhen: (prev, curr) => curr.errorMessage != null && prev.errorMessage != curr.errorMessage,
-      listener: (context, state) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(state.errorMessage!),
-            backgroundColor: AppColors.error,
-          ),
-        );
-        context.read<ConversationActionsBloc>().add(
-              const ConversationActionsEvent.clearError(),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<ConversationActionsBloc, ConversationActionsState>(
+          listenWhen: (prev, curr) => curr.errorMessage != null && prev.errorMessage != curr.errorMessage,
+          listener: (context, state) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                backgroundColor: AppColors.error,
+              ),
             );
-      },
+            context.read<ConversationActionsBloc>().add(
+                  const ConversationActionsEvent.clearError(),
+                );
+          },
+        ),
+        BlocListener<CommunityBloc, CommunityState>(
+          listenWhen: (prev, curr) =>
+              curr.operationStatus != prev.operationStatus &&
+              (curr.operationStatus == CommunityOperationStatus.success ||
+               curr.operationStatus == CommunityOperationStatus.failure),
+          listener: (context, state) {
+            if (state.operationStatus == CommunityOperationStatus.success &&
+                state.successMessage != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.successMessage!),
+                  backgroundColor: AppColors.success,
+                ),
+              );
+            } else if (state.operationStatus ==
+                    CommunityOperationStatus.failure &&
+                state.errorMessage != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage!),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          },
+        ),
+      ],
       child: Scaffold(
       backgroundColor: AppColors.chatBackground,
       appBar: _isSearching
@@ -514,11 +548,15 @@ class _MessagingScreenState extends State<MessagingScreen>
         return bTime.compareTo(aTime);
       });
 
-    if (communities.isEmpty && _searchQuery.isEmpty) {
+    final pendingInvites = commState.pendingInvitations;
+
+    if (communities.isEmpty &&
+        pendingInvites.isEmpty &&
+        _searchQuery.isEmpty) {
       return _buildCommunitiesEmptyState(context);
     }
 
-    if (communities.isEmpty) {
+    if (communities.isEmpty && pendingInvites.isEmpty) {
       return Center(
         child: Text(
           'No results for "$_searchQuery"',
@@ -532,25 +570,165 @@ class _MessagingScreenState extends State<MessagingScreen>
         context
             .read<CommunityBloc>()
             .add(const CommunityEvent.loadUserCommunities());
+        context
+            .read<CommunityBloc>()
+            .add(const CommunityEvent.loadPendingInvitations());
       },
-      child: ListView.separated(
+      child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: communities.length,
-        separatorBuilder: (context, index) => Divider(
-          height: 0.5,
-          thickness: 0.5,
-          color: AppColors.chatSurface.withValues(alpha: 0.3),
-          indent: 76,
+        children: [
+          // Pending invitations section
+          if (pendingInvites.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Text(
+                'Pending Invitations',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textSecondary,
+                    ),
+              ),
+            ),
+            for (final invite in pendingInvites)
+              _buildInvitationCard(context, invite),
+            if (communities.isNotEmpty)
+              Divider(
+                height: 1,
+                color: AppColors.chatSurface.withValues(alpha: 0.3),
+              ),
+          ],
+          // Communities list
+          for (var i = 0; i < communities.length; i++) ...[
+            CommunityListTile(
+              community: communities[i],
+              currentUserId: currentUserId,
+              onTap: () =>
+                  context.push('/chat/community/${communities[i].id}'),
+              onLongPress: () =>
+                  _showCommunityOptions(context, communities[i]),
+            ),
+            if (i < communities.length - 1)
+              Divider(
+                height: 0.5,
+                thickness: 0.5,
+                color: AppColors.chatSurface.withValues(alpha: 0.3),
+                indent: 76,
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInvitationCard(BuildContext context, CommunityMember invite) {
+    // 8.15 Safe substring — clamp to avoid crash if ID is shorter than 8 chars
+    final communityName = invite.communityName ??
+        invite.communityId.substring(
+            0, invite.communityId.length.clamp(0, 8));
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      color: AppColors.surfaceElevated,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top row: avatar + community info
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+                  child:
+                      const Icon(Icons.groups, color: AppColors.primary, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        communityName,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        'Invited as ${invite.roleDisplayName}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // 8.3 + 8.10 Bottom row: Decline + Accept with processing guard
+            BlocBuilder<CommunityBloc, CommunityState>(
+              builder: (context, commState) {
+                final isProcessing = commState.operationStatus ==
+                    CommunityOperationStatus.processing;
+                return Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: isProcessing
+                            ? null
+                            : () => context.read<CommunityBloc>().add(
+                                  CommunityEvent.declineInvitation(
+                                      communityId: invite.communityId),
+                                ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.error,
+                          side: const BorderSide(color: AppColors.error),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          minimumSize: const Size(0, 40),
+                        ),
+                        child: isProcessing
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2))
+                            : const Text('Decline'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: isProcessing
+                            ? null
+                            : () => context.read<CommunityBloc>().add(
+                                  CommunityEvent.acceptInvitation(
+                                      communityId: invite.communityId),
+                                ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          minimumSize: const Size(0, 40),
+                        ),
+                        child: isProcessing
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white))
+                            : const Text('Accept'),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
         ),
-        itemBuilder: (context, index) {
-          final comm = communities[index];
-          return CommunityListTile(
-            community: comm,
-            currentUserId: currentUserId,
-            onTap: () => context.push('/chat/community/${comm.id}'),
-            onLongPress: () => _showCommunityOptions(context, comm),
-          );
-        },
       ),
     );
   }
