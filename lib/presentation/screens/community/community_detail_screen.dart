@@ -198,61 +198,85 @@ class _ChatTab extends StatelessWidget {
     );
   }
 
+  Future<void> _onRefresh(BuildContext context) async {
+    context
+        .read<CommunityMessagingBloc>()
+        .add(const CommunityMessagingEvent.loadMessages());
+    // Give the stream a moment to deliver the fresh data
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
   Widget _buildMessages(BuildContext context, CommunityMessagingState state) {
     if (state.isLoading && state.messages.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
     if (state.messages.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.forum_outlined, size: 64, color: AppColors.textHint),
-            AppSpacing.verticalMd,
-            Text(
-              'No messages yet',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+      return RefreshIndicator(
+        onRefresh: () => _onRefresh(context),
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: constraints.maxHeight,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.forum_outlined,
+                        size: 64, color: AppColors.textHint),
+                    AppSpacing.verticalMd,
+                    Text(
+                      'No messages yet',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
+          ),
         ),
       );
     }
 
     final messages = state.messages.reversed.toList();
 
-    return ListView.builder(
-      reverse: true,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      itemCount: messages.length,
-      itemBuilder: (context, index) {
-        final message = messages[index];
-        if (!message.isVisibleTo(currentUserId)) {
-          return const SizedBox.shrink();
-        }
+    return RefreshIndicator(
+      onRefresh: () => _onRefresh(context),
+      child: ListView.builder(
+        reverse: true,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        itemCount: messages.length,
+        itemBuilder: (context, index) {
+          final message = messages[index];
+          if (!message.isVisibleTo(currentUserId)) {
+            return const SizedBox.shrink();
+          }
 
-        final isMe = message.isSentBy(currentUserId);
-        final showDate = index == messages.length - 1 ||
-            !DateSeparator.isSameDay(
-              messages[index].createdAt,
-              messages[index + 1].createdAt,
-            );
+          final isMe = message.isSentBy(currentUserId);
+          final showDate = index == messages.length - 1 ||
+              !DateSeparator.isSameDay(
+                messages[index].createdAt,
+                messages[index + 1].createdAt,
+              );
 
-        return Column(
-          children: [
-            if (showDate) DateSeparator(date: message.createdAt),
-            MessageBubble(
-              message: message,
-              isMe: isMe,
-              currentUserId: currentUserId,
-              showSenderName: true,
-              onLongPress: () => _onLongPress(context, message),
-            ),
-          ],
-        );
-      },
+          return Column(
+            children: [
+              if (showDate) DateSeparator(date: message.createdAt),
+              MessageBubble(
+                message: message,
+                isMe: isMe,
+                currentUserId: currentUserId,
+                showSenderName: true,
+                onLongPress: () => _onLongPress(context, message),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -403,6 +427,13 @@ class _MembersTab extends StatelessWidget {
     this.isAdmin = false,
   });
 
+  Future<void> _onRefresh(BuildContext context) async {
+    context.read<CommunityBloc>().add(
+          CommunityEvent.loadCommunityDetails(communityId: communityId),
+        );
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
   @override
   Widget build(BuildContext context) {
     if (members.isEmpty && isLoading) {
@@ -410,27 +441,42 @@ class _MembersTab extends StatelessWidget {
     }
 
     if (members.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.group_outlined, size: 64, color: AppColors.textHint),
-            AppSpacing.verticalMd,
-            Text(
-              'No members yet',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+      return RefreshIndicator(
+        onRefresh: () => _onRefresh(context),
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: constraints.maxHeight,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.group_outlined,
+                        size: 64, color: AppColors.textHint),
+                    AppSpacing.verticalMd,
+                    Text(
+                      'No members yet',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
+          ),
         ),
       );
     }
 
-    return ListView.builder(
-      padding: AppSpacing.pagePadding,
-      itemCount: members.length,
-      itemBuilder: (context, index) {
+    return RefreshIndicator(
+      onRefresh: () => _onRefresh(context),
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: AppSpacing.pagePadding,
+        itemCount: members.length,
+        itemBuilder: (context, index) {
         final member = members[index];
         final isInvited = member.isInvited;
         return Opacity(
@@ -496,6 +542,7 @@ class _MembersTab extends StatelessWidget {
           ),
         );
       },
+      ),
     );
   }
 
