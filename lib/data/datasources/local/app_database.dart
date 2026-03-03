@@ -929,6 +929,7 @@ class AppDatabase extends _$AppDatabase {
     required String lastMessageText,
     required String lastMessageSenderId,
     required DateTime lastMessageAt,
+    String? lastMessageSenderName,
     String? lastMessageType,
   }) {
     return (update(localCommunities)
@@ -936,6 +937,7 @@ class AppDatabase extends _$AppDatabase {
         .write(LocalCommunitiesCompanion(
       lastMessageText: Value(lastMessageText),
       lastMessageSenderId: Value(lastMessageSenderId),
+      lastMessageSenderName: Value(lastMessageSenderName),
       lastMessageAt: Value(lastMessageAt),
       lastMessageType: Value(lastMessageType),
       updatedAt: Value(lastMessageAt),

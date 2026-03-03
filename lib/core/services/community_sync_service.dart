@@ -687,39 +687,37 @@ class CommunitySyncService {
   // =========================================================================
 
   /// Update community's last message preview in local DB.
+  ///
+  /// Uses atomic partial update (only preview fields) to avoid overwriting
+  /// memberCount or other fields that are managed by community list sync
+  /// or member sync — prevents read-modify-write race conditions.
   Future<void> _updateCommunityPreview(
     String communityId,
     Message msg,
   ) async {
     try {
+      // Only update if this message is newer than what's stored
       final existing = await _appDatabase.getLocalCommunity(communityId);
       if (existing == null) return;
-
-      final existingEntity = LocalCommunityMapper.toEntity(existing);
-
-      // Only update if this message is newer
-      if (existingEntity.lastMessageAt != null &&
-          msg.createdAt.isBefore(existingEntity.lastMessageAt!)) {
+      if (existing.lastMessageAt != null &&
+          msg.createdAt.isBefore(existing.lastMessageAt!)) {
         return;
       }
 
-      String? preview;
+      String preview = '';
       if (msg.textContent != null) {
         preview = msg.textContent!.length > 100
             ? '${msg.textContent!.substring(0, 100)}...'
             : msg.textContent!;
       }
 
-      final updated = existingEntity.copyWith(
+      await _appDatabase.updateLocalCommunityPreview(
+        communityId: communityId,
         lastMessageText: preview,
         lastMessageSenderId: msg.senderId,
         lastMessageSenderName: msg.senderName,
-        lastMessageType: msg.type.name,
         lastMessageAt: msg.createdAt,
-      );
-
-      await _appDatabase.upsertLocalCommunity(
-        LocalCommunityMapper.toCompanion(updated),
+        lastMessageType: msg.type.name,
       );
     } catch (e) {
       debugPrint(
