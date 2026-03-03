@@ -160,10 +160,29 @@ class SenderKeyService {
   // ===========================================================================
 
   /// Check whether the sender key for [communityId] has been distributed
-  /// to all members this session (persisted across app restarts).
+  /// to all members recently (persisted across app restarts).
+  ///
+  /// HIGH-9: Distribution flag has a 24-hour TTL. After that, re-distribution
+  /// is forced to handle cases where the key may have been rekeyed on another
+  /// device, or new members have joined since the last distribution.
+  static const _distributionTtl = Duration(hours: 24);
+
   Future<bool> isDistributed(String communityId) async {
     final flag = await _secureStorage.read(key: '$_distPrefix$communityId');
-    return flag != null;
+    if (flag == null) return false;
+    try {
+      final timestamp = DateTime.parse(flag);
+      if (DateTime.now().difference(timestamp) > _distributionTtl) {
+        // TTL expired — force re-distribution
+        await _secureStorage.delete(key: '$_distPrefix$communityId');
+        return false;
+      }
+      return true;
+    } catch (_) {
+      // Corrupted flag value — treat as not distributed
+      await _secureStorage.delete(key: '$_distPrefix$communityId');
+      return false;
+    }
   }
 
   /// Mark the sender key for [communityId] as distributed.
@@ -289,17 +308,22 @@ class SenderKeyService {
     final state =
         _SenderKeyState.fromJson(jsonDecode(stateJson) as Map<String, dynamic>);
 
-    // Verify HMAC signature for sender authentication
+    // M4: Verify HMAC signature for sender authentication (mandatory).
+    // Unsigned messages are rejected to prevent spoofing.
     final ciphertextBytes = base64Decode(ciphertextBase64);
-    if (signatureBase64 != null) {
-      final expectedSig = _hmacSign(state.signingKey, ciphertextBytes);
-      final actualSig = base64Decode(signatureBase64);
-      if (!_constantTimeEquals(expectedSig, actualSig)) {
-        throw StateError(
-          'E2EE: HMAC signature verification failed for message from '
-          '$senderUserId in community $communityId',
-        );
-      }
+    if (signatureBase64 == null) {
+      throw StateError(
+        'E2EE: Missing HMAC signature for message from '
+        '$senderUserId in community $communityId — rejecting unsigned message',
+      );
+    }
+    final expectedSig = _hmacSign(state.signingKey, ciphertextBytes);
+    final actualSig = base64Decode(signatureBase64);
+    if (!_constantTimeEquals(expectedSig, actualSig)) {
+      throw StateError(
+        'E2EE: HMAC signature verification failed for message from '
+        '$senderUserId in community $communityId',
+      );
     }
 
     // Compute AAD

@@ -494,7 +494,7 @@ class __$$MessageModelImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$MessageModelImpl extends _MessageModel {
+class _$MessageModelImpl extends _MessageModel with DiagnosticableTreeMixin {
   const _$MessageModelImpl({
     required this.id,
     required this.senderId,
@@ -712,8 +712,45 @@ class _$MessageModelImpl extends _MessageModel {
   final bool deletedForEveryone;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'MessageModel(id: $id, senderId: $senderId, senderName: $senderName, senderAvatarUrl: $senderAvatarUrl, type: $type, status: $status, textContent: $textContent, tokenAmount: $tokenAmount, recipientId: $recipientId, ledgerJournalId: $ledgerJournalId, media: $media, reactions: $reactions, replyTo: $replyTo, readBy: $readBy, forwardedFrom: $forwardedFrom, gift: $gift, tokenSpray: $tokenSpray, groupGift: $groupGift, communityId: $communityId, systemEventType: $systemEventType, systemEventData: $systemEventData, ciphertext: $ciphertext, e2ee: $e2ee, x3dhHeader: $x3dhHeader, createdAt: $createdAt, expiresAt: $expiresAt, actionedAt: $actionedAt, deletedAt: $deletedAt, deletedFor: $deletedFor, deletedForEveryone: $deletedForEveryone)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'MessageModel'))
+      ..add(DiagnosticsProperty('id', id))
+      ..add(DiagnosticsProperty('senderId', senderId))
+      ..add(DiagnosticsProperty('senderName', senderName))
+      ..add(DiagnosticsProperty('senderAvatarUrl', senderAvatarUrl))
+      ..add(DiagnosticsProperty('type', type))
+      ..add(DiagnosticsProperty('status', status))
+      ..add(DiagnosticsProperty('textContent', textContent))
+      ..add(DiagnosticsProperty('tokenAmount', tokenAmount))
+      ..add(DiagnosticsProperty('recipientId', recipientId))
+      ..add(DiagnosticsProperty('ledgerJournalId', ledgerJournalId))
+      ..add(DiagnosticsProperty('media', media))
+      ..add(DiagnosticsProperty('reactions', reactions))
+      ..add(DiagnosticsProperty('replyTo', replyTo))
+      ..add(DiagnosticsProperty('readBy', readBy))
+      ..add(DiagnosticsProperty('forwardedFrom', forwardedFrom))
+      ..add(DiagnosticsProperty('gift', gift))
+      ..add(DiagnosticsProperty('tokenSpray', tokenSpray))
+      ..add(DiagnosticsProperty('groupGift', groupGift))
+      ..add(DiagnosticsProperty('communityId', communityId))
+      ..add(DiagnosticsProperty('systemEventType', systemEventType))
+      ..add(DiagnosticsProperty('systemEventData', systemEventData))
+      ..add(DiagnosticsProperty('ciphertext', ciphertext))
+      ..add(DiagnosticsProperty('e2ee', e2ee))
+      ..add(DiagnosticsProperty('x3dhHeader', x3dhHeader))
+      ..add(DiagnosticsProperty('createdAt', createdAt))
+      ..add(DiagnosticsProperty('expiresAt', expiresAt))
+      ..add(DiagnosticsProperty('actionedAt', actionedAt))
+      ..add(DiagnosticsProperty('deletedAt', deletedAt))
+      ..add(DiagnosticsProperty('deletedFor', deletedFor))
+      ..add(DiagnosticsProperty('deletedForEveryone', deletedForEveryone));
   }
 
   @override

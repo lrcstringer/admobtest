@@ -5669,6 +5669,17 @@ class $LocalFullMessagesTable extends LocalFullMessages
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _groupGiftJsonMeta = const VerificationMeta(
+    'groupGiftJson',
+  );
+  @override
+  late final GeneratedColumn<String> groupGiftJson = GeneratedColumn<String>(
+    'group_gift_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _tokenSprayJsonMeta = const VerificationMeta(
     'tokenSprayJson',
   );
@@ -5839,6 +5850,7 @@ class $LocalFullMessagesTable extends LocalFullMessages
     reactionsJson,
     replyToJson,
     giftJson,
+    groupGiftJson,
     tokenSprayJson,
     communityId,
     systemEventType,
@@ -5986,6 +5998,15 @@ class $LocalFullMessagesTable extends LocalFullMessages
       context.handle(
         _giftJsonMeta,
         giftJson.isAcceptableOrUnknown(data['gift_json']!, _giftJsonMeta),
+      );
+    }
+    if (data.containsKey('group_gift_json')) {
+      context.handle(
+        _groupGiftJsonMeta,
+        groupGiftJson.isAcceptableOrUnknown(
+          data['group_gift_json']!,
+          _groupGiftJsonMeta,
+        ),
       );
     }
     if (data.containsKey('token_spray_json')) {
@@ -6164,6 +6185,10 @@ class $LocalFullMessagesTable extends LocalFullMessages
         DriftSqlType.string,
         data['${effectivePrefix}gift_json'],
       ),
+      groupGiftJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_gift_json'],
+      ),
       tokenSprayJson: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}token_spray_json'],
@@ -6242,6 +6267,7 @@ class LocalFullMessage extends DataClass
   final String? reactionsJson;
   final String? replyToJson;
   final String? giftJson;
+  final String? groupGiftJson;
   final String? tokenSprayJson;
   final String? communityId;
   final String? systemEventType;
@@ -6271,6 +6297,7 @@ class LocalFullMessage extends DataClass
     this.reactionsJson,
     this.replyToJson,
     this.giftJson,
+    this.groupGiftJson,
     this.tokenSprayJson,
     this.communityId,
     this.systemEventType,
@@ -6320,6 +6347,9 @@ class LocalFullMessage extends DataClass
     }
     if (!nullToAbsent || giftJson != null) {
       map['gift_json'] = Variable<String>(giftJson);
+    }
+    if (!nullToAbsent || groupGiftJson != null) {
+      map['group_gift_json'] = Variable<String>(groupGiftJson);
     }
     if (!nullToAbsent || tokenSprayJson != null) {
       map['token_spray_json'] = Variable<String>(tokenSprayJson);
@@ -6388,6 +6418,9 @@ class LocalFullMessage extends DataClass
       giftJson: giftJson == null && nullToAbsent
           ? const Value.absent()
           : Value(giftJson),
+      groupGiftJson: groupGiftJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupGiftJson),
       tokenSprayJson: tokenSprayJson == null && nullToAbsent
           ? const Value.absent()
           : Value(tokenSprayJson),
@@ -6441,6 +6474,7 @@ class LocalFullMessage extends DataClass
       reactionsJson: serializer.fromJson<String?>(json['reactionsJson']),
       replyToJson: serializer.fromJson<String?>(json['replyToJson']),
       giftJson: serializer.fromJson<String?>(json['giftJson']),
+      groupGiftJson: serializer.fromJson<String?>(json['groupGiftJson']),
       tokenSprayJson: serializer.fromJson<String?>(json['tokenSprayJson']),
       communityId: serializer.fromJson<String?>(json['communityId']),
       systemEventType: serializer.fromJson<String?>(json['systemEventType']),
@@ -6479,6 +6513,7 @@ class LocalFullMessage extends DataClass
       'reactionsJson': serializer.toJson<String?>(reactionsJson),
       'replyToJson': serializer.toJson<String?>(replyToJson),
       'giftJson': serializer.toJson<String?>(giftJson),
+      'groupGiftJson': serializer.toJson<String?>(groupGiftJson),
       'tokenSprayJson': serializer.toJson<String?>(tokenSprayJson),
       'communityId': serializer.toJson<String?>(communityId),
       'systemEventType': serializer.toJson<String?>(systemEventType),
@@ -6511,6 +6546,7 @@ class LocalFullMessage extends DataClass
     Value<String?> reactionsJson = const Value.absent(),
     Value<String?> replyToJson = const Value.absent(),
     Value<String?> giftJson = const Value.absent(),
+    Value<String?> groupGiftJson = const Value.absent(),
     Value<String?> tokenSprayJson = const Value.absent(),
     Value<String?> communityId = const Value.absent(),
     Value<String?> systemEventType = const Value.absent(),
@@ -6546,6 +6582,9 @@ class LocalFullMessage extends DataClass
         : this.reactionsJson,
     replyToJson: replyToJson.present ? replyToJson.value : this.replyToJson,
     giftJson: giftJson.present ? giftJson.value : this.giftJson,
+    groupGiftJson: groupGiftJson.present
+        ? groupGiftJson.value
+        : this.groupGiftJson,
     tokenSprayJson: tokenSprayJson.present
         ? tokenSprayJson.value
         : this.tokenSprayJson,
@@ -6603,6 +6642,9 @@ class LocalFullMessage extends DataClass
           ? data.replyToJson.value
           : this.replyToJson,
       giftJson: data.giftJson.present ? data.giftJson.value : this.giftJson,
+      groupGiftJson: data.groupGiftJson.present
+          ? data.groupGiftJson.value
+          : this.groupGiftJson,
       tokenSprayJson: data.tokenSprayJson.present
           ? data.tokenSprayJson.value
           : this.tokenSprayJson,
@@ -6657,6 +6699,7 @@ class LocalFullMessage extends DataClass
           ..write('reactionsJson: $reactionsJson, ')
           ..write('replyToJson: $replyToJson, ')
           ..write('giftJson: $giftJson, ')
+          ..write('groupGiftJson: $groupGiftJson, ')
           ..write('tokenSprayJson: $tokenSprayJson, ')
           ..write('communityId: $communityId, ')
           ..write('systemEventType: $systemEventType, ')
@@ -6691,6 +6734,7 @@ class LocalFullMessage extends DataClass
     reactionsJson,
     replyToJson,
     giftJson,
+    groupGiftJson,
     tokenSprayJson,
     communityId,
     systemEventType,
@@ -6724,6 +6768,7 @@ class LocalFullMessage extends DataClass
           other.reactionsJson == this.reactionsJson &&
           other.replyToJson == this.replyToJson &&
           other.giftJson == this.giftJson &&
+          other.groupGiftJson == this.groupGiftJson &&
           other.tokenSprayJson == this.tokenSprayJson &&
           other.communityId == this.communityId &&
           other.systemEventType == this.systemEventType &&
@@ -6755,6 +6800,7 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
   final Value<String?> reactionsJson;
   final Value<String?> replyToJson;
   final Value<String?> giftJson;
+  final Value<String?> groupGiftJson;
   final Value<String?> tokenSprayJson;
   final Value<String?> communityId;
   final Value<String?> systemEventType;
@@ -6785,6 +6831,7 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
     this.reactionsJson = const Value.absent(),
     this.replyToJson = const Value.absent(),
     this.giftJson = const Value.absent(),
+    this.groupGiftJson = const Value.absent(),
     this.tokenSprayJson = const Value.absent(),
     this.communityId = const Value.absent(),
     this.systemEventType = const Value.absent(),
@@ -6816,6 +6863,7 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
     this.reactionsJson = const Value.absent(),
     this.replyToJson = const Value.absent(),
     this.giftJson = const Value.absent(),
+    this.groupGiftJson = const Value.absent(),
     this.tokenSprayJson = const Value.absent(),
     this.communityId = const Value.absent(),
     this.systemEventType = const Value.absent(),
@@ -6853,6 +6901,7 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
     Expression<String>? reactionsJson,
     Expression<String>? replyToJson,
     Expression<String>? giftJson,
+    Expression<String>? groupGiftJson,
     Expression<String>? tokenSprayJson,
     Expression<String>? communityId,
     Expression<String>? systemEventType,
@@ -6884,6 +6933,7 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
       if (reactionsJson != null) 'reactions_json': reactionsJson,
       if (replyToJson != null) 'reply_to_json': replyToJson,
       if (giftJson != null) 'gift_json': giftJson,
+      if (groupGiftJson != null) 'group_gift_json': groupGiftJson,
       if (tokenSprayJson != null) 'token_spray_json': tokenSprayJson,
       if (communityId != null) 'community_id': communityId,
       if (systemEventType != null) 'system_event_type': systemEventType,
@@ -6919,6 +6969,7 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
     Value<String?>? reactionsJson,
     Value<String?>? replyToJson,
     Value<String?>? giftJson,
+    Value<String?>? groupGiftJson,
     Value<String?>? tokenSprayJson,
     Value<String?>? communityId,
     Value<String?>? systemEventType,
@@ -6950,6 +7001,7 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
       reactionsJson: reactionsJson ?? this.reactionsJson,
       replyToJson: replyToJson ?? this.replyToJson,
       giftJson: giftJson ?? this.giftJson,
+      groupGiftJson: groupGiftJson ?? this.groupGiftJson,
       tokenSprayJson: tokenSprayJson ?? this.tokenSprayJson,
       communityId: communityId ?? this.communityId,
       systemEventType: systemEventType ?? this.systemEventType,
@@ -7014,6 +7066,9 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
     }
     if (giftJson.present) {
       map['gift_json'] = Variable<String>(giftJson.value);
+    }
+    if (groupGiftJson.present) {
+      map['group_gift_json'] = Variable<String>(groupGiftJson.value);
     }
     if (tokenSprayJson.present) {
       map['token_spray_json'] = Variable<String>(tokenSprayJson.value);
@@ -7080,6 +7135,7 @@ class LocalFullMessagesCompanion extends UpdateCompanion<LocalFullMessage> {
           ..write('reactionsJson: $reactionsJson, ')
           ..write('replyToJson: $replyToJson, ')
           ..write('giftJson: $giftJson, ')
+          ..write('groupGiftJson: $groupGiftJson, ')
           ..write('tokenSprayJson: $tokenSprayJson, ')
           ..write('communityId: $communityId, ')
           ..write('systemEventType: $systemEventType, ')
@@ -13986,6 +14042,7 @@ typedef $$LocalFullMessagesTableCreateCompanionBuilder =
       Value<String?> reactionsJson,
       Value<String?> replyToJson,
       Value<String?> giftJson,
+      Value<String?> groupGiftJson,
       Value<String?> tokenSprayJson,
       Value<String?> communityId,
       Value<String?> systemEventType,
@@ -14018,6 +14075,7 @@ typedef $$LocalFullMessagesTableUpdateCompanionBuilder =
       Value<String?> reactionsJson,
       Value<String?> replyToJson,
       Value<String?> giftJson,
+      Value<String?> groupGiftJson,
       Value<String?> tokenSprayJson,
       Value<String?> communityId,
       Value<String?> systemEventType,
@@ -14115,6 +14173,11 @@ class $$LocalFullMessagesTableFilterComposer
 
   ColumnFilters<String> get giftJson => $composableBuilder(
     column: $table.giftJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get groupGiftJson => $composableBuilder(
+    column: $table.groupGiftJson,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14268,6 +14331,11 @@ class $$LocalFullMessagesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get groupGiftJson => $composableBuilder(
+    column: $table.groupGiftJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get tokenSprayJson => $composableBuilder(
     column: $table.tokenSprayJson,
     builder: (column) => ColumnOrderings(column),
@@ -14406,6 +14474,11 @@ class $$LocalFullMessagesTableAnnotationComposer
   GeneratedColumn<String> get giftJson =>
       $composableBuilder(column: $table.giftJson, builder: (column) => column);
 
+  GeneratedColumn<String> get groupGiftJson => $composableBuilder(
+    column: $table.groupGiftJson,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get tokenSprayJson => $composableBuilder(
     column: $table.tokenSprayJson,
     builder: (column) => column,
@@ -14521,6 +14594,7 @@ class $$LocalFullMessagesTableTableManager
                 Value<String?> reactionsJson = const Value.absent(),
                 Value<String?> replyToJson = const Value.absent(),
                 Value<String?> giftJson = const Value.absent(),
+                Value<String?> groupGiftJson = const Value.absent(),
                 Value<String?> tokenSprayJson = const Value.absent(),
                 Value<String?> communityId = const Value.absent(),
                 Value<String?> systemEventType = const Value.absent(),
@@ -14551,6 +14625,7 @@ class $$LocalFullMessagesTableTableManager
                 reactionsJson: reactionsJson,
                 replyToJson: replyToJson,
                 giftJson: giftJson,
+                groupGiftJson: groupGiftJson,
                 tokenSprayJson: tokenSprayJson,
                 communityId: communityId,
                 systemEventType: systemEventType,
@@ -14583,6 +14658,7 @@ class $$LocalFullMessagesTableTableManager
                 Value<String?> reactionsJson = const Value.absent(),
                 Value<String?> replyToJson = const Value.absent(),
                 Value<String?> giftJson = const Value.absent(),
+                Value<String?> groupGiftJson = const Value.absent(),
                 Value<String?> tokenSprayJson = const Value.absent(),
                 Value<String?> communityId = const Value.absent(),
                 Value<String?> systemEventType = const Value.absent(),
@@ -14613,6 +14689,7 @@ class $$LocalFullMessagesTableTableManager
                 reactionsJson: reactionsJson,
                 replyToJson: replyToJson,
                 giftJson: giftJson,
+                groupGiftJson: groupGiftJson,
                 tokenSprayJson: tokenSprayJson,
                 communityId: communityId,
                 systemEventType: systemEventType,

@@ -8,6 +8,7 @@ import '../../domain/enums/gift_status.dart';
 import '../../domain/enums/gift_style.dart';
 import '../../domain/enums/message_status.dart';
 import '../../domain/enums/message_type.dart';
+import '../../domain/enums/pool_status.dart';
 import '../../domain/enums/spray_status.dart';
 import '../datasources/local/app_database.dart';
 
@@ -35,6 +36,7 @@ class LocalMessageMapper {
       reactionsJson: Value(msg.reactions.isNotEmpty ? jsonEncode(msg.reactions) : null),
       replyToJson: Value(msg.replyTo != null ? jsonEncode(msg.replyTo!.toJson()) : null),
       giftJson: Value(msg.gift != null ? jsonEncode(msg.gift!.toJson()) : null),
+      groupGiftJson: Value(msg.groupGift != null ? jsonEncode(msg.groupGift!.toJson()) : null),
       tokenSprayJson:
           Value(msg.tokenSpray != null ? jsonEncode(msg.tokenSpray!.toJson()) : null),
       communityId: Value(msg.communityId),
@@ -76,6 +78,7 @@ class LocalMessageMapper {
       reactions: _parseReactions(row.reactionsJson),
       replyTo: _parseReplyTo(row.replyToJson),
       gift: _parseGift(row.giftJson),
+      groupGift: _parseGroupGift(row.groupGiftJson),
       tokenSpray: _parseTokenSpray(row.tokenSprayJson),
       communityId: row.communityId,
       systemEventType: row.systemEventType,
@@ -153,6 +156,23 @@ class LocalMessageMapper {
       return GiftMessageData.fromJson(map);
     } catch (e, st) {
       debugPrint('LocalMessageMapper._parseGift failed: $e\n$st');
+      return null;
+    }
+  }
+
+  static GroupGiftMessageData? _parseGroupGift(String? json) {
+    if (json == null) return null;
+    try {
+      final map = jsonDecode(json) as Map<String, dynamic>;
+      if (map['status'] is String) {
+        map['status'] = PoolStatus.values
+            .firstWhere((e) => e.name == map['status'],
+                orElse: () => PoolStatus.active)
+            .name;
+      }
+      return GroupGiftMessageData.fromJson(map);
+    } catch (e, st) {
+      debugPrint('LocalMessageMapper._parseGroupGift failed: $e\n$st');
       return null;
     }
   }

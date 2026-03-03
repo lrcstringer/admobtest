@@ -377,17 +377,21 @@ export const saveBackupSecret = onCall(
       throw new HttpsError("invalid-argument", "secret required");
     }
 
-    // Only allow creating, not overwriting
-    const existing = await db.collection("users").doc(userId)
-      .collection("keys").doc("backupSecret").get();
-    if (existing.exists) {
-      throw new HttpsError("already-exists", "Backup secret already exists");
-    }
-
-    await db.collection("users").doc(userId).collection("keys").doc("backupSecret").set({
-      userId,
-      secret,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    // M20: Use transaction to prevent TOCTOU race — two concurrent calls
+    // could both pass the existence check and both call .set(), overwriting
+    // the first secret.
+    const secretRef = db.collection("users").doc(userId)
+      .collection("keys").doc("backupSecret");
+    await db.runTransaction(async (transaction) => {
+      const existing = await transaction.get(secretRef);
+      if (existing.exists) {
+        throw new HttpsError("already-exists", "Backup secret already exists");
+      }
+      transaction.set(secretRef, {
+        userId,
+        secret,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
     });
 
     return { success: true };

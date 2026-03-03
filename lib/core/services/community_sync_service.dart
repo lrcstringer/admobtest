@@ -70,10 +70,10 @@ class CommunitySyncService {
   /// Plaintext cache for sent messages (keyed by messageId).
   /// The sender cannot decrypt their own sender-key messages because the key
   /// is stored under _ownKeyPrefix, not _peerKeyPrefix.
-  final Map<String, String> _sentPlaintextCache = {};
-  final Map<String, DateTime> _cacheTimestamps = {}; // 6.7
-  static const _maxCacheSize = 200; // 6.7 reduced from 500
-  static const _maxCacheAge = Duration(minutes: 10); // 6.7
+  /// HIGH-4: Uses a single insertion-ordered map for deterministic eviction.
+  final _sentPlaintextCache = <String, ({String plaintext, DateTime timestamp})>{};
+  static const _maxCacheSize = 200;
+  static const _maxCacheAge = Duration(minutes: 10);
 
   // =========================================================================
   // LIFECYCLE
@@ -126,20 +126,38 @@ class CommunitySyncService {
             try {
               var community = model.toEntity();
 
-              // Preserve local lastMessageText when Firestore sends null (E2EE
-              // messages have lastMessageText=null on the server).
-              if (community.lastMessageText == null &&
-                  community.lastMessageAt != null) {
-                final existing =
-                    await _appDatabase.getLocalCommunity(community.id);
-                if (existing != null) {
-                  final existingEntity =
-                      LocalCommunityMapper.toEntity(existing);
-                  if (existingEntity.lastMessageText != null) {
-                    community = community.copyWith(
-                      lastMessageText: existingEntity.lastMessageText,
-                    );
-                  }
+              // M7: Preserve locally-decrypted preview fields when Firestore
+              // sends null/stale values (E2EE messages have lastMessageText=null
+              // on the server). Also preserve when local preview is newer.
+              final existing =
+                  await _appDatabase.getLocalCommunity(community.id);
+              if (existing != null) {
+                final existingEntity =
+                    LocalCommunityMapper.toEntity(existing);
+                final localHasPreview = existingEntity.lastMessageText != null;
+                final remoteHasNoPreview = community.lastMessageText == null;
+                final localIsNewer = existingEntity.lastMessageAt != null &&
+                    community.lastMessageAt != null &&
+                    existingEntity.lastMessageAt!
+                        .isAfter(community.lastMessageAt!);
+
+                if (localHasPreview && (remoteHasNoPreview || localIsNewer)) {
+                  community = community.copyWith(
+                    lastMessageText: existingEntity.lastMessageText,
+                    lastMessageSenderId:
+                        existingEntity.lastMessageSenderId ??
+                            community.lastMessageSenderId,
+                    lastMessageSenderName:
+                        existingEntity.lastMessageSenderName ??
+                            community.lastMessageSenderName,
+                    lastMessageAt:
+                        localIsNewer
+                            ? existingEntity.lastMessageAt
+                            : community.lastMessageAt,
+                    lastMessageType:
+                        existingEntity.lastMessageType ??
+                            community.lastMessageType,
+                  );
                 }
               }
               await _appDatabase.upsertLocalCommunity(
@@ -230,30 +248,27 @@ class CommunitySyncService {
 
     _syncingCommunityIds.clear();
     _syncRetryCount.clear();
+    // HIGH-6: Clear stale member IDs to prevent spurious rekeys on restart
+    _previousMemberIds.clear();
     // 6.9 Dispose keyed mutexes
     _processingLock.clear();
     _listLock.clear();
     _sentPlaintextCache.clear();
-    _cacheTimestamps.clear();
   }
 
   /// Cache a sent message's plaintext so we can display it immediately.
-  /// 6.7 Time-based eviction + bounded cache size.
+  /// HIGH-4: Single insertion-ordered map for deterministic FIFO eviction.
   void cacheSentPlaintext(String messageId, String plaintext) {
     final now = DateTime.now();
     // Evict entries older than _maxCacheAge
-    _sentPlaintextCache.removeWhere((key, _) =>
-        now.difference(_cacheTimestamps[key] ?? now) > _maxCacheAge);
-    _cacheTimestamps.removeWhere((key, _) =>
-        !_sentPlaintextCache.containsKey(key));
+    _sentPlaintextCache.removeWhere((_, v) =>
+        now.difference(v.timestamp) > _maxCacheAge);
 
     if (_sentPlaintextCache.length >= _maxCacheSize) {
-      // Evict oldest entry
+      // Evict oldest entry (insertion order — first key is oldest)
       _sentPlaintextCache.remove(_sentPlaintextCache.keys.first);
-      _cacheTimestamps.remove(_cacheTimestamps.keys.first);
     }
-    _sentPlaintextCache[messageId] = plaintext;
-    _cacheTimestamps[messageId] = now;
+    _sentPlaintextCache[messageId] = (plaintext: plaintext, timestamp: now);
   }
 
   // =========================================================================
@@ -261,6 +276,9 @@ class CommunitySyncService {
   // =========================================================================
 
   void _startMessageSync(String communityId) {
+    // CRIT-2: Cancel any existing subscription before creating a new one.
+    // Prevents duplicate subscriptions from retry timer + community list race.
+    _messageSubs[communityId]?.cancel();
     _syncingCommunityIds.add(communityId);
 
     _messageSubs[communityId] = _remoteDataSource
@@ -269,14 +287,11 @@ class CommunitySyncService {
       (messageModels) {
         // M8: Reset retry count on successful stream data
         _syncRetryCount.remove(communityId);
-        // 6.6 Add timeout to prevent deadlock
+        // CRIT-3: No timeout — interrupting mid-ratchet decryption corrupts
+        // chain state permanently. The KeyedMutex FIFO design prevents deadlock.
         _processingLock.protect(
           communityId,
-          () => _processIncomingMessages(communityId, messageModels)
-              .timeout(const Duration(seconds: 30), onTimeout: () {
-            debugPrint(
-                'CommunitySyncService: Processing timeout for $communityId');
-          }),
+          () => _processIncomingMessages(communityId, messageModels),
         ).catchError((Object e) {
           debugPrint(
               'CommunitySyncService: processing error for $communityId: $e');
@@ -318,52 +333,61 @@ class CommunitySyncService {
   // =========================================================================
 
   void _startMemberSync(String communityId) {
+    _memberSubs[communityId]?.cancel();
     _memberSubs[communityId] =
         _remoteDataSource.watchMembers(communityId).listen(
       (memberModels) {
-        // Member upserts run WITHOUT _processingLock — they write to a
-        // different table (localCommunityMembers) than message processing
-        // (localMessages) and must not be blocked by slow decryption.
-        // Using an async IIFE so the listener callback stays non-blocking.
-        () async {
-          try {
-            final currentIds = <String>{};
-            for (final model in memberModels) {
-              final entity = model.toEntity();
-              currentIds.add(entity.userId);
-              await _appDatabase.upsertLocalCommunityMember(
-                LocalCommunityMemberMapper.toCompanion(entity),
+        // M9: Reset member sync retry count on successful stream data
+        _syncRetryCount.remove('member_$communityId');
+        // HIGH-5: Serialize member sync callbacks with _processingLock to
+        // prevent concurrent rekeys from rapid Firestore emissions. The rekey
+        // operation mutates sender key state, so it must be serialized with
+        // message decryption to avoid chain corruption.
+        _processingLock.protect(
+          'member_$communityId',
+          () async {
+            try {
+              final currentIds = <String>{};
+              for (final model in memberModels) {
+                final entity = model.toEntity();
+                currentIds.add(entity.userId);
+                await _appDatabase.upsertLocalCommunityMember(
+                  LocalCommunityMemberMapper.toCompanion(entity),
+                );
+              }
+
+              // Update memberCount in local community to stay in sync
+              await _appDatabase.updateLocalCommunityMemberCount(
+                communityId: communityId,
+                memberCount: currentIds.length,
               );
-            }
 
-            // Update memberCount in local community to stay in sync
-            await _appDatabase.updateLocalCommunityMemberCount(
-              communityId: communityId,
-              memberCount: currentIds.length,
-            );
-
-            // Detect member departures → rekey sender key for forward secrecy
-            final previousIds = _previousMemberIds[communityId];
-            if (previousIds != null && previousIds.isNotEmpty) {
-              final removed = previousIds.difference(currentIds);
-              if (removed.isNotEmpty) {
-                debugPrint(
-                    'CommunitySyncService: ${removed.length} member(s) '
-                    'left $communityId — rekeying sender key');
-                try {
-                  await _senderKeyService.rekeyAllSenderKeys(communityId);
-                } catch (e) {
-                  debugPrint('CommunitySyncService: Rekey failed for '
-                      '$communityId: $e');
+              // Detect member departures → rekey sender key for forward secrecy
+              final previousIds = _previousMemberIds[communityId];
+              if (previousIds != null && previousIds.isNotEmpty) {
+                final removed = previousIds.difference(currentIds);
+                if (removed.isNotEmpty) {
+                  debugPrint(
+                      'CommunitySyncService: ${removed.length} member(s) '
+                      'left $communityId — rekeying sender key');
+                  try {
+                    await _senderKeyService.rekeyAllSenderKeys(communityId);
+                  } catch (e) {
+                    debugPrint('CommunitySyncService: Rekey failed for '
+                        '$communityId: $e');
+                  }
                 }
               }
+              _previousMemberIds[communityId] = currentIds;
+            } catch (e) {
+              debugPrint(
+                  'CommunitySyncService: Member sync error for $communityId: $e');
             }
-            _previousMemberIds[communityId] = currentIds;
-          } catch (e) {
-            debugPrint(
-                'CommunitySyncService: Member sync error for $communityId: $e');
-          }
-        }();
+          },
+        ).catchError((Object e) {
+          debugPrint(
+              'CommunitySyncService: Member lock error for $communityId: $e');
+        });
       },
       // 6.2 + M8: Subscription error cleanup with exponential backoff
       onError: (e) {
@@ -569,10 +593,15 @@ class CommunitySyncService {
 
   /// Apply decrypted plaintext to a message, parsing structured JSON payloads
   /// for media messages (e.g. `{"text":"caption","media":{...}}`).
+  ///
+  /// M13: Only parses JSON when the payload contains known structural keys
+  /// (`media`, `groupGift`). Plain text that happens to start with `{` (e.g.
+  /// user typing JSON) is NOT misinterpreted as a structured payload.
   Message _applyDecryptedPayload(Message msg, String plaintext) {
-    if (plaintext.startsWith('{')) {
+    if (plaintext.startsWith('{') && plaintext.endsWith('}')) {
       try {
         final payload = jsonDecode(plaintext) as Map<String, dynamic>;
+        // Only treat as structured payload if it has known media/gift keys
         if (payload.containsKey('media')) {
           final mediaJson = payload['media'] as Map<String, dynamic>;
           return msg.copyWith(
@@ -580,6 +609,14 @@ class CommunitySyncService {
             media: MessageMedia.fromJson(mediaJson),
           );
         }
+        if (payload.containsKey('groupGift')) {
+          // Group gift message — store full payload as text for now
+          return msg.copyWith(
+            textContent: payload['text'] as String? ?? plaintext,
+          );
+        }
+        // Has JSON structure but no known keys — treat as plain text
+        // (user may have typed valid JSON as a message)
       } catch (_) {
         // Not valid JSON — treat as plain text
       }
@@ -599,7 +636,7 @@ class CommunitySyncService {
   ) async {
     // Own sent messages: use plaintext cache
     if (msg.senderId == currentUserId) {
-      final cached = _sentPlaintextCache[msg.id];
+      final cached = _sentPlaintextCache[msg.id]?.plaintext;
       if (cached != null) return cached;
       // Check persistent cache
       final dbCached = await _appDatabase.getDecryptedPlaintext(msg.id);
@@ -634,8 +671,9 @@ class CommunitySyncService {
           '${msg.senderId} in $communityId, fetching distributions...');
       // C2: Wrap in try-catch so a network error during key fetch
       // doesn't kill the entire message batch
+      List<({String communityId, String distributionId})> installed;
       try {
-        await _processIncomingKeyDistributions(communityId);
+        installed = await _processIncomingKeyDistributions(communityId);
       } catch (e) {
         debugPrint('CommunitySyncService: Key distribution fetch failed '
             'for $communityId: $e — message ${msg.id} will remain '
@@ -645,14 +683,19 @@ class CommunitySyncService {
 
       // Retry decryption
       try {
-        return await _senderKeyService.decryptCommunity(
+        final result = await _senderKeyService.decryptCommunity(
           communityId,
           msg.senderId,
           encrypted,
         );
+        // CRIT-4: Only mark distributions consumed AFTER successful decrypt
+        if (installed.isNotEmpty) {
+          await _markDistributionsConsumed(installed);
+        }
+        return result;
       } catch (_) {
         debugPrint('CommunitySyncService: Still cannot decrypt msg '
-            '${msg.id} after key fetch');
+            '${msg.id} after key fetch — distributions NOT consumed');
         return null;
       }
     } catch (e) {
@@ -667,8 +710,13 @@ class CommunitySyncService {
   // =========================================================================
 
   /// Fetch and process pending sender key distributions from other members.
+  /// CRIT-4: Returns list of (communityId, distributionId) pairs that were
+  /// successfully installed. Caller must mark them consumed AFTER confirming
+  /// decryption works (to prevent consuming keys that can't be used).
   /// 6.8 Retries up to 3 times on failure.
-  Future<void> _processIncomingKeyDistributions(String communityId) async {
+  Future<List<({String communityId, String distributionId})>>
+      _processIncomingKeyDistributions(String communityId) async {
+    final installed = <({String communityId, String distributionId})>[];
     for (int attempt = 0; attempt < 3; attempt++) {
       try {
         final distributions =
@@ -700,18 +748,16 @@ class CommunitySyncService {
               keyData,
             );
 
-            // Mark as consumed on server
-            await _remoteDataSource.markKeyDistributionConsumed(
-              communityId,
-              distributionId,
-            );
+            // CRIT-4: Don't mark consumed here — defer until after
+            // successful decryption to prevent consuming keys we can't use.
+            installed.add((communityId: communityId, distributionId: distributionId));
           } catch (e) {
             debugPrint(
                 'CommunitySyncService: Failed to process key distribution '
                 'from $fromUserId: $e');
           }
         }
-        return; // Success — exit retry loop
+        return installed;
       } catch (e) {
         if (attempt < 2) {
           await Future.delayed(Duration(seconds: attempt * 2 + 1));
@@ -719,6 +765,25 @@ class CommunitySyncService {
           debugPrint('CommunitySyncService: Key distribution fetch failed '
               'after 3 attempts for $communityId: $e');
         }
+      }
+    }
+    return installed;
+  }
+
+  /// CRIT-4: Mark key distributions as consumed on the server after confirming
+  /// decryption worked.
+  Future<void> _markDistributionsConsumed(
+    List<({String communityId, String distributionId})> distributions,
+  ) async {
+    for (final d in distributions) {
+      try {
+        await _remoteDataSource.markKeyDistributionConsumed(
+          d.communityId,
+          d.distributionId,
+        );
+      } catch (e) {
+        debugPrint('CommunitySyncService: Failed to mark distribution '
+            '${d.distributionId} as consumed: $e');
       }
     }
   }

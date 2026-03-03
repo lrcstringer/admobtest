@@ -763,27 +763,47 @@ class OutgoingMessageQueue {
       try {
         await _ensureSenderKeyDistributed(communityId);
       } on SocketException {
-        return; // Leave as pending — will retry on connectivity
+        await _resetToPending(msg.id);
+        return;
       } on TimeoutException {
+        await _resetToPending(msg.id);
         return;
       } on FirebaseFunctionsException catch (e) {
-        if (e.code == 'unavailable') return;
+        if (e.code == 'unavailable') {
+          await _resetToPending(msg.id);
+          return;
+        }
         await _markFailed(msg.id, _userFriendlyError(e));
         return;
       } catch (e) {
-        if (_isNetworkError(e)) return; // Leave as pending
+        if (_isNetworkError(e)) {
+          await _resetToPending(msg.id);
+          return;
+        }
         await _markFailed(
             msg.id, 'Failed to distribute encryption key: ${_userFriendlyError(e)}');
         return;
       }
 
-      await _appDatabase.updatePendingMessageStatus(msg.id, 'encrypting');
-      // 9.7 Add encryption timeout
-      final encrypted = await _senderKeyService
-          .encryptCommunity(communityId, plaintext)
-          .timeout(const Duration(seconds: 15), onTimeout: () {
-        throw TimeoutException('Encryption timed out');
-      });
+      // CRIT-1: Check for cached encrypted output from a previous attempt.
+      // Re-encryption would ratchet the chain forward again, corrupting
+      // state for all recipients.
+      Map<String, dynamic> encrypted;
+      final cachedPayload = msg.payloadJson;
+      if (cachedPayload != null && cachedPayload.startsWith('{"_encrypted"')) {
+        try {
+          final cached = jsonDecode(cachedPayload) as Map<String, dynamic>;
+          encrypted = {
+            'ciphertext': cached['ciphertext'] as String,
+            'e2ee': cached['e2ee'] as Map<String, dynamic>,
+          };
+        } catch (_) {
+          // Corrupt cache — re-encrypt (unavoidable)
+          encrypted = await _encryptAndCache(msg.id, communityId, plaintext);
+        }
+      } else {
+        encrypted = await _encryptAndCache(msg.id, communityId, plaintext);
+      }
 
       await _appDatabase.updatePendingMessageStatus(msg.id, 'sending');
       // H1: Use pending ID as idempotency key to prevent duplicate messages
@@ -815,18 +835,21 @@ class OutgoingMessageQueue {
         createdAt: msg.createdAt,
       );
     } on SocketException {
-      // 9.1 Network error — leave as pending for retry
-      return;
+      await _resetToPending(msg.id);
     } on TimeoutException {
-      // M1: Timeout — reset to pending WITH retry count increment
-      await _appDatabase.updatePendingMessageStatus(msg.id, 'pending',
-          lastAttemptAt: DateTime.now());
+      await _resetToPending(msg.id);
       await _appDatabase.incrementPendingMessageRetry(msg.id);
     } on FirebaseFunctionsException catch (e) {
-      if (e.code == 'unavailable') return; // Network — leave as pending
+      if (e.code == 'unavailable') {
+        await _resetToPending(msg.id);
+        return;
+      }
       await _markFailed(msg.id, _userFriendlyError(e));
     } catch (e) {
-      if (_isNetworkError(e)) return;
+      if (_isNetworkError(e)) {
+        await _resetToPending(msg.id);
+        return;
+      }
       await _markFailed(msg.id, _userFriendlyError(e));
     }
   }
@@ -842,15 +865,26 @@ class OutgoingMessageQueue {
         return;
       }
 
-      final meta =
-          jsonDecode(msg.payloadJson!) as Map<String, dynamic>;
-
-      // Backward compat: old-format payloads have 'mediaUrl' at top level.
-      // New-format payloads have 'media' with full upload result.
+      // CRIT-1: Check for cached encrypted output from a previous attempt
       final String payload;
       final String mediaTypeStr;
+      Map<String, dynamic>? cachedEncrypted;
 
-      if (meta.containsKey('mediaUrl')) {
+      final currentPayload = msg.payloadJson!;
+      final meta = jsonDecode(currentPayload) as Map<String, dynamic>;
+
+      if (meta.containsKey('_encrypted')) {
+        // Previous attempt cached encrypted output — this is a retry.
+        // We need the original plaintext payload which was stored before
+        // encryption. Use the plaintext field for text-based payloads.
+        cachedEncrypted = {
+          'ciphertext': meta['ciphertext'] as String,
+          'e2ee': meta['e2ee'] as Map<String, dynamic>,
+        };
+        // Original payload is in the plaintext field (set during _encryptAndCache)
+        payload = msg.plaintext ?? currentPayload;
+        mediaTypeStr = meta['_mediaType'] as String? ?? 'image';
+      } else if (meta.containsKey('mediaUrl')) {
         // OLD FORMAT — build simple payload for legacy messages
         final mediaUrl = meta['mediaUrl'] as String?;
         final mediaType = meta['mediaType'] as String? ?? 'image';
@@ -867,37 +901,63 @@ class OutgoingMessageQueue {
       } else {
         // NEW FORMAT — payloadJson is the full structured payload from
         // CommunityRepositoryImpl (contains media upload result with keys)
-        payload = msg.payloadJson!;
+        payload = currentPayload;
         final media = meta['media'] as Map<String, dynamic>?;
         mediaTypeStr = media?['mimeType'] as String? ?? 'image';
       }
 
       // Ensure sender key is distributed (same as text messages)
-      // 9.1 + 9.4: Network errors keep message as pending (will retry)
       try {
         await _ensureSenderKeyDistributed(communityId);
       } on SocketException {
-        return; // Leave as pending
+        await _resetToPending(msg.id);
+        return;
       } on TimeoutException {
+        await _resetToPending(msg.id);
         return;
       } on FirebaseFunctionsException catch (e) {
-        if (e.code == 'unavailable') return;
+        if (e.code == 'unavailable') {
+          await _resetToPending(msg.id);
+          return;
+        }
         await _markFailed(msg.id, _userFriendlyError(e));
         return;
       } catch (e) {
-        if (_isNetworkError(e)) return;
+        if (_isNetworkError(e)) {
+          await _resetToPending(msg.id);
+          return;
+        }
         await _markFailed(
             msg.id, 'Failed to distribute encryption key: ${_userFriendlyError(e)}');
         return;
       }
 
-      await _appDatabase.updatePendingMessageStatus(msg.id, 'encrypting');
-      // 9.7 Add encryption timeout
-      final encrypted = await _senderKeyService
-          .encryptCommunity(communityId, payload)
-          .timeout(const Duration(seconds: 15), onTimeout: () {
-        throw TimeoutException('Encryption timed out');
-      });
+      // CRIT-1: Reuse cached encrypted output or encrypt fresh
+      Map<String, dynamic> encrypted;
+      if (cachedEncrypted != null) {
+        encrypted = cachedEncrypted;
+      } else {
+        await _appDatabase.updatePendingMessageStatus(msg.id, 'encrypting');
+        encrypted = await _senderKeyService
+            .encryptCommunity(communityId, payload)
+            .timeout(const Duration(seconds: 15), onTimeout: () {
+          throw TimeoutException('Encryption timed out');
+        });
+        // Cache encrypted output for retry safety
+        final cacheJson = jsonEncode({
+          '_encrypted': true,
+          '_mediaType': mediaTypeStr,
+          'ciphertext': encrypted['ciphertext'],
+          'e2ee': encrypted['e2ee'],
+        });
+        await ((_appDatabase.update(_appDatabase.localPendingMessages)
+              ..where((m) => m.id.equals(msg.id)))
+            .write(LocalPendingMessagesCompanion(
+          payloadJson: Value(cacheJson),
+          // Store original payload in plaintext for recovery
+          plaintext: Value(payload),
+        )));
+      }
 
       await _appDatabase.updatePendingMessageStatus(msg.id, 'sending');
       // H1: Idempotency key for duplicate prevention on network retry
@@ -916,7 +976,6 @@ class OutgoingMessageQueue {
         await _appDatabase.cacheDecryptedPlaintext(messageId, payload);
       } catch (_) {}
 
-      // 9.11 Fix media type parsing — log unknown types instead of silent default
       await _finalizeSent(
         pendingId: msg.id,
         realMessageId: messageId,
@@ -927,18 +986,21 @@ class OutgoingMessageQueue {
         createdAt: msg.createdAt,
       );
     } on SocketException {
-      // 9.1 Network error — leave as pending for retry
-      return;
+      await _resetToPending(msg.id);
     } on TimeoutException {
-      // M1: Timeout — reset to pending WITH retry count increment
-      await _appDatabase.updatePendingMessageStatus(msg.id, 'pending',
-          lastAttemptAt: DateTime.now());
+      await _resetToPending(msg.id);
       await _appDatabase.incrementPendingMessageRetry(msg.id);
     } on FirebaseFunctionsException catch (e) {
-      if (e.code == 'unavailable') return;
+      if (e.code == 'unavailable') {
+        await _resetToPending(msg.id);
+        return;
+      }
       await _markFailed(msg.id, _userFriendlyError(e));
     } catch (e) {
-      if (_isNetworkError(e)) return;
+      if (_isNetworkError(e)) {
+        await _resetToPending(msg.id);
+        return;
+      }
       await _markFailed(msg.id, _userFriendlyError(e));
     }
   }
@@ -1225,19 +1287,10 @@ class OutgoingMessageQueue {
       await _appDatabase.cacheDecryptedPlaintext(realMessageId, plaintext);
     } catch (_) {}
 
-    // 9.3 Store payload in vault for recovery after reinstall, with retry.
-    for (int attempt = 0; attempt < 3; attempt++) {
-      try {
-        await _mediaRecoveryService.storePayload(realMessageId, plaintext);
-        break;
-      } catch (e) {
-        if (attempt == 2) {
-          debugPrint('OutgoingMessageQueue: vault store failed after 3 attempts: $e');
-        } else {
-          await Future.delayed(Duration(seconds: attempt + 1));
-        }
-      }
-    }
+    // M3: Store payload in vault fire-and-forget to avoid blocking queue.
+    _mediaRecoveryService.storePayload(realMessageId, plaintext).catchError((e) {
+      debugPrint('OutgoingMessageQueue: vault store failed: $e');
+    });
 
     // Parse structured payload to extract text and media separately.
     // Media messages store JSON like {"text":"caption", "media":{...}}.
@@ -1288,6 +1341,7 @@ class OutgoingMessageQueue {
   }
 
   /// Mark a pending message as failed and update the optimistic UI.
+  /// M2: Does NOT increment retry count — that's only for transient failures.
   Future<void> _markFailed(String pendingId, String error) async {
     debugPrint('OutgoingMessageQueue: Message $pendingId failed: $error');
     await _appDatabase.updatePendingMessageStatus(
@@ -1296,9 +1350,43 @@ class OutgoingMessageQueue {
       error: error,
       lastAttemptAt: DateTime.now(),
     );
-    await _appDatabase.incrementPendingMessageRetry(pendingId);
     // Update the optimistic local message status to failed
     await _appDatabase.updateLocalMessageStatus(pendingId, 'failed');
+  }
+
+  /// HIGH-1: Reset message status to pending on network errors.
+  /// Ensures messages don't get stuck in 'encrypting' or 'sending' state.
+  Future<void> _resetToPending(String pendingId) async {
+    await _appDatabase.updatePendingMessageStatus(pendingId, 'pending',
+        lastAttemptAt: DateTime.now());
+  }
+
+  /// CRIT-1: Encrypt plaintext and cache the encrypted output in the pending
+  /// message's payloadJson. On retry, the cached ciphertext is reused to
+  /// prevent re-encryption which would ratchet the chain forward again.
+  Future<Map<String, dynamic>> _encryptAndCache(
+    String pendingId,
+    String communityId,
+    String plaintext,
+  ) async {
+    await _appDatabase.updatePendingMessageStatus(pendingId, 'encrypting');
+    final encrypted = await _senderKeyService
+        .encryptCommunity(communityId, plaintext)
+        .timeout(const Duration(seconds: 15), onTimeout: () {
+      throw TimeoutException('Encryption timed out');
+    });
+    // Persist encrypted output so retries don't re-encrypt
+    final cacheJson = jsonEncode({
+      '_encrypted': true,
+      'ciphertext': encrypted['ciphertext'],
+      'e2ee': encrypted['e2ee'],
+    });
+    await ((_appDatabase.update(_appDatabase.localPendingMessages)
+          ..where((m) => m.id.equals(pendingId)))
+        .write(LocalPendingMessagesCompanion(
+      payloadJson: Value(cacheJson),
+    )));
+    return encrypted;
   }
 
   /// E2EE encrypt with pre/post identity key freshness check.
@@ -1401,11 +1489,13 @@ class OutgoingMessageQueue {
           communityId,
           otherMemberIds,
         );
-        // C4: Log partial distribution failures
+        // HIGH-2: Don't mark as distributed if some members failed —
+        // next message send will retry distribution for all members.
         if (failures.isNotEmpty) {
           debugPrint('OutgoingMessageQueue: Key distribution failed for '
               '${failures.length}/${otherMemberIds.length} member(s) in '
-              '$communityId: $failures — they may not decrypt messages');
+              '$communityId: $failures — will retry next send');
+          return; // Don't mark distributed — will retry
         }
       }
 
@@ -1446,10 +1536,12 @@ class OutgoingMessageQueue {
     DateTime now,
   ) async {
     try {
+      // M11: Pass senderName so community list tile can show "You: message"
       await _appDatabase.updateLocalCommunityPreview(
         communityId: communityId,
         lastMessageText: text,
         lastMessageSenderId: _conversationRemoteDS.currentUserId ?? '',
+        lastMessageSenderName: 'You',
         lastMessageAt: now,
       );
     } catch (e) {

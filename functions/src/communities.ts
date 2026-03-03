@@ -1039,25 +1039,28 @@ export const toggleCommunityMessageReaction = onCall({ labels: { area: "social" 
     .collection(CommunityConfig.SUBCOLLECTION_MESSAGES)
     .doc(messageId);
 
-  const msgDoc = await msgRef.get();
-  if (!msgDoc.exists) {
-    throw new HttpsError("not-found", "Message not found");
-  }
+  // HIGH-11: Use transaction to ensure atomic check-then-toggle.
+  // Without this, concurrent calls from the same user can both see "not
+  // present" and both add, or both see "present" and both remove.
+  await db.runTransaction(async (transaction) => {
+    const msgDoc = await transaction.get(msgRef);
+    if (!msgDoc.exists) {
+      throw new HttpsError("not-found", "Message not found");
+    }
 
-  const reactions = msgDoc.data()?.reactions || {};
-  const emojiReactions: string[] = reactions[emoji] || [];
+    const reactions = msgDoc.data()?.reactions || {};
+    const emojiReactions: string[] = reactions[emoji] || [];
 
-  if (emojiReactions.includes(userId)) {
-    // Remove reaction
-    await msgRef.update({
-      [`reactions.${emoji}`]: admin.firestore.FieldValue.arrayRemove(userId),
-    });
-  } else {
-    // Add reaction
-    await msgRef.update({
-      [`reactions.${emoji}`]: admin.firestore.FieldValue.arrayUnion(userId),
-    });
-  }
+    if (emojiReactions.includes(userId)) {
+      transaction.update(msgRef, {
+        [`reactions.${emoji}`]: admin.firestore.FieldValue.arrayRemove(userId),
+      });
+    } else {
+      transaction.update(msgRef, {
+        [`reactions.${emoji}`]: admin.firestore.FieldValue.arrayUnion(userId),
+      });
+    }
+  });
 
   return { success: true };
 });
@@ -1635,12 +1638,15 @@ export const rejectCommunityTransaction = onCall({ labels: { area: "social" } },
     description: reason ? `${transaction.description} (Rejected: ${reason})` : transaction.description,
   });
 
-  // Post system message
+  // HIGH-12: Use actual transaction type instead of hardcoded "Withdrawal"
+  const txTypeLabel = transaction.type === "withdrawal" ? "Withdrawal" :
+    transaction.type === "contribution" ? "Contribution" :
+      (transaction.type || "Transaction");
   await postSystemMessage(
     communityId,
-    `Withdrawal request of R${(transaction.amount / 100).toFixed(2)} was rejected${reason ? `: ${reason}` : ""}`,
+    `${txTypeLabel} request of R${(transaction.amount / 100).toFixed(2)} was rejected${reason ? `: ${reason}` : ""}`,
     "transaction_rejected",
-    { transactionId, rejecterId, amount: transaction.amount, reason: reason || null }
+    { transactionId, rejecterId, amount: transaction.amount, type: transaction.type, reason: reason || null }
   );
 
   return { success: true };

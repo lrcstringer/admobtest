@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/message.dart';
@@ -456,10 +457,14 @@ class MessageModel with _$MessageModel {
     });
   }
 
+  // M12: Log warning instead of silently using DateTime.now() — helps
+  // detect corrupt Firestore documents during development.
   static DateTime _parseDateTimeRequired(dynamic raw) {
     if (raw is Timestamp) return raw.toDate();
     if (raw is String) return DateTime.parse(raw);
     if (raw is DateTime) return raw;
+    debugPrint('WARNING: _parseDateTimeRequired received null/unknown type '
+        '(${raw.runtimeType}), defaulting to DateTime.now()');
     return DateTime.now();
   }
 

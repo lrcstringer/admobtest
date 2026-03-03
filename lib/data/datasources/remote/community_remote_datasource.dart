@@ -580,7 +580,15 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
           message: data['error'] ?? 'Failed to send encrypted message');
     }
 
-    return data['messageId'] as String? ?? '';
+    // HIGH-7: Throw on empty/missing messageId — the caller uses this for
+    // tracking (vault storage, preview updates, status transitions). An empty
+    // ID would corrupt downstream state.
+    final messageId = data['messageId'] as String?;
+    if (messageId == null || messageId.isEmpty) {
+      throw ServerException(
+          message: 'Server returned success but no messageId');
+    }
+    return messageId;
   }
 
   /// @deprecated Use [OutgoingMessageQueue] for E2EE message sending instead.

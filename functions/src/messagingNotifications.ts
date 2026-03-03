@@ -15,29 +15,95 @@ const db = admin.firestore();
 // HELPERS
 // ============================================================================
 
-/** Get a user's FCM token from their profile document. */
+/**
+ * HIGH-10: Get a user's FCM tokens from their trusted devices subcollection.
+ * Tokens live at users/{userId}/devices/{deviceId}.fcmToken, NOT on the
+ * user profile document.
+ */
 async function getFcmToken(userId: string): Promise<string | null> {
-  const doc = await db.collection("users").doc(userId).get();
-  return doc.data()?.fcmToken || null;
+  const devices = await db
+    .collection("users")
+    .doc(userId)
+    .collection("devices")
+    .where("trusted", "==", true)
+    .where("revoked", "==", false)
+    .limit(1)
+    .get();
+  if (devices.empty) return null;
+  return devices.docs[0].data()?.fcmToken || null;
 }
 
-/** Get multiple users' FCM tokens. Returns only valid tokens. */
-async function getFcmTokens(userIds: string[]): Promise<string[]> {
+/**
+ * HIGH-10: Get multiple users' FCM tokens from trusted devices.
+ * Returns a map of token → { userId, deviceId } for stale token cleanup.
+ */
+interface TokenInfo {
+  token: string;
+  userId: string;
+  deviceId: string;
+}
+
+async function getFcmTokensWithInfo(userIds: string[]): Promise<TokenInfo[]> {
   if (userIds.length === 0) return [];
 
-  // Read in batches of 30 (Firestore getAll limit per call)
-  const tokens: string[] = [];
-  for (let i = 0; i < userIds.length; i += 30) {
-    const batch = userIds.slice(i, i + 30);
-    const refs = batch.map((uid) => db.collection("users").doc(uid));
-    const docs = await db.getAll(...refs);
+  const tokenInfos: TokenInfo[] = [];
+  for (const userId of userIds) {
+    try {
+      const devices = await db
+        .collection("users")
+        .doc(userId)
+        .collection("devices")
+        .where("trusted", "==", true)
+        .where("revoked", "==", false)
+        .get();
 
-    for (const doc of docs) {
-      const token = doc.data()?.fcmToken;
-      if (token) tokens.push(token);
+      for (const doc of devices.docs) {
+        const token = doc.data()?.fcmToken;
+        if (token) {
+          tokenInfos.push({ token, userId, deviceId: doc.id });
+        }
+      }
+    } catch (e) {
+      logger.warn(`Failed to get FCM tokens for user ${userId}:`, e);
     }
   }
-  return tokens;
+  return tokenInfos;
+}
+
+/**
+ * M19: Clean up stale/invalid FCM tokens after a failed send.
+ * Removes the fcmToken field from the device document so it won't be
+ * retried on future notifications.
+ */
+async function cleanupStaleTokens(
+  tokenInfos: TokenInfo[],
+  responses: admin.messaging.SendResponse[]
+): Promise<void> {
+  const staleErrors = new Set([
+    "messaging/invalid-registration-token",
+    "messaging/registration-token-not-registered",
+  ]);
+
+  for (let i = 0; i < responses.length; i++) {
+    const resp = responses[i];
+    if (!resp.success && resp.error && staleErrors.has(resp.error.code)) {
+      const info = tokenInfos[i];
+      if (!info) continue;
+      try {
+        await db
+          .collection("users")
+          .doc(info.userId)
+          .collection("devices")
+          .doc(info.deviceId)
+          .update({ fcmToken: admin.firestore.FieldValue.delete() });
+        logger.info(
+          `Cleaned up stale FCM token for user ${info.userId}, device ${info.deviceId}`
+        );
+      } catch (e) {
+        logger.warn(`Failed to clean stale token for ${info.userId}:`, e);
+      }
+    }
+  }
 }
 
 /** Build a human-readable preview string from a message document. */
@@ -214,21 +280,22 @@ export const onCommunityMessageCreated = onDocumentCreated(
 
     if (recipientIds.length === 0) return;
 
-    // Get FCM tokens for all recipients
-    const tokens = await getFcmTokens(recipientIds);
-    if (tokens.length === 0) return;
+    // HIGH-10: Get FCM tokens from trusted devices subcollection
+    const tokenInfos = await getFcmTokensWithInfo(recipientIds);
+    if (tokenInfos.length === 0) return;
 
     const senderName = message.senderName || "Someone";
     const communityName = community.name || "Community";
     const body = `${senderName}: ${getMessagePreview(message)}`;
 
     // Send in batches of 500 (FCM multicast limit)
-    for (let i = 0; i < tokens.length; i += 500) {
-      const batch = tokens.slice(i, i + 500);
+    for (let i = 0; i < tokenInfos.length; i += 500) {
+      const batchInfos = tokenInfos.slice(i, i + 500);
+      const batchTokens = batchInfos.map((t) => t.token);
 
       try {
-        await admin.messaging().sendEachForMulticast({
-          tokens: batch,
+        const response = await admin.messaging().sendEachForMulticast({
+          tokens: batchTokens,
           notification: {
             title: communityName,
             body,
@@ -257,6 +324,10 @@ export const onCommunityMessageCreated = onDocumentCreated(
             },
           },
         });
+        // M19: Clean up stale/invalid FCM tokens
+        if (response.failureCount > 0) {
+          await cleanupStaleTokens(batchInfos, response.responses);
+        }
       } catch (error) {
         logger.warn(`Failed to send community notification batch for ${communityId}:`, error);
       }

@@ -260,6 +260,7 @@ class LocalFullMessages extends Table {
   TextColumn get reactionsJson => text().nullable()(); // JSON Map<String, List<String>>
   TextColumn get replyToJson => text().nullable()(); // JSON MessageReply
   TextColumn get giftJson => text().nullable()(); // JSON GiftMessageData
+  TextColumn get groupGiftJson => text().nullable()(); // JSON GroupGiftMessageData
   TextColumn get tokenSprayJson => text().nullable()(); // JSON TokenSprayMessageData
   TextColumn get communityId => text().nullable()();
   TextColumn get systemEventType => text().nullable()();
@@ -347,7 +348,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {
@@ -386,6 +387,10 @@ class AppDatabase extends _$AppDatabase {
         if (from < 8) {
           await m.addColumn(
               localCommunityMembers, localCommunityMembers.communityName);
+        }
+        if (from < 9) {
+          await m.addColumn(
+              localFullMessages, localFullMessages.groupGiftJson);
         }
       },
     );
@@ -875,16 +880,14 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  // M5: Atomic increment — no read-modify-write race
   Future<void> incrementPendingMessageRetry(String id) async {
-    final msg = await (select(localPendingMessages)
-          ..where((m) => m.id.equals(id)))
-        .getSingleOrNull();
-    if (msg == null) return;
-    await (update(localPendingMessages)..where((m) => m.id.equals(id))).write(
-      LocalPendingMessagesCompanion(
-        retryCount: Value(msg.retryCount + 1),
-        lastAttemptAt: Value(DateTime.now()),
-      ),
+    await customStatement(
+      'UPDATE local_pending_messages '
+      'SET retry_count = retry_count + 1, '
+      'last_attempt_at = ? '
+      'WHERE id = ?',
+      [DateTime.now().millisecondsSinceEpoch ~/ 1000, id],
     );
   }
 
