@@ -176,20 +176,28 @@ class CommunityRepositoryImpl implements CommunityRepository {
 
     try {
       await _remoteDataSource.deleteCommunity(communityId);
-
-      // Clean up ALL local DB data so the deleted community doesn't reappear
-      await _appDatabase.deleteLocalCommunity(communityId);
-      await _appDatabase.deleteLocalCommunityMembersForCommunity(communityId);
-      await _appDatabase.deleteLocalMessagesForConversation(communityId);
-
-      return const Right(null);
     } on AuthException {
       return const Left(Failure.unauthenticated());
-    } on ServerException catch (e) {
-      return Left(Failure.serverError(message: e.message));
     } catch (e) {
-      return Left(Failure.serverError(message: e.toString()));
+      // If Firestore doc is already gone (orphaned local data), still
+      // clean up the local DB below instead of returning an error.
+      final isNotFound = e.toString().contains('not-found') ||
+          e.toString().contains('NOT_FOUND');
+      if (!isNotFound) {
+        return Left(Failure.serverError(
+          message: e is ServerException ? e.message : e.toString(),
+        ));
+      }
+      debugPrint('deleteCommunity: Firestore doc already gone, '
+          'cleaning up orphaned local data for $communityId');
     }
+
+    // Clean up ALL local DB data so the deleted community doesn't reappear
+    await _appDatabase.deleteLocalCommunity(communityId);
+    await _appDatabase.deleteLocalCommunityMembersForCommunity(communityId);
+    await _appDatabase.deleteLocalMessagesForConversation(communityId);
+
+    return const Right(null);
   }
 
   // =========================================================================
