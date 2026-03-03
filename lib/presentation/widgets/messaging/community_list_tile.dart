@@ -108,7 +108,7 @@ class CommunityListTile extends StatelessWidget {
     }
 
     return Text(
-      '${community.memberCount} members',
+      '${community.memberCount} ${community.memberCount == 1 ? 'member' : 'members'}',
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: AppColors.textSecondary,
           ),

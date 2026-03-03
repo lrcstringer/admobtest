@@ -299,6 +299,12 @@ class CommunitySyncService {
             );
           }
 
+          // Update memberCount in local community to stay in sync
+          await _appDatabase.updateLocalCommunityMemberCount(
+            communityId: communityId,
+            memberCount: currentIds.length,
+          );
+
           // Detect member departures → rekey sender key for forward secrecy
           final previousIds = _previousMemberIds[communityId];
           if (previousIds != null && previousIds.isNotEmpty) {

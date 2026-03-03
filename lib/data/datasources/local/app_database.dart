@@ -942,6 +942,18 @@ class AppDatabase extends _$AppDatabase {
     ));
   }
 
+  /// Atomic update of community memberCount from actual member list.
+  Future<void> updateLocalCommunityMemberCount({
+    required String communityId,
+    required int memberCount,
+  }) {
+    return (update(localCommunities)
+          ..where((c) => c.id.equals(communityId)))
+        .write(LocalCommunitiesCompanion(
+      memberCount: Value(memberCount),
+    ));
+  }
+
   Future<void> deleteLocalCommunity(String id) {
     return (delete(localCommunities)..where((c) => c.id.equals(id))).go();
   }
