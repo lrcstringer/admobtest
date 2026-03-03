@@ -62,6 +62,7 @@ abstract class CommunityRemoteDataSource {
     required Map<String, dynamic> e2ee,
     Map<String, String>? encryptedPreviews,
     String? replyToMessageId,
+    String? idempotencyKey,
   });
   Future<MessageModel> sendMediaMessage({
     required String communityId,
@@ -559,6 +560,7 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
     required Map<String, dynamic> e2ee,
     Map<String, String>? encryptedPreviews,
     String? replyToMessageId,
+    String? idempotencyKey,
   }) async {
     _requireUserId();
 
@@ -569,6 +571,7 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       'e2ee': e2ee,
       if (encryptedPreviews != null) 'encryptedPreviews': encryptedPreviews,
       if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
+      if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
     });
 
     final data = sanitizeFirestoreData(result.data as Map);

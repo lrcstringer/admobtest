@@ -13,6 +13,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
+import { requireCommunityMember } from "./helpers/communityHelpers";
 
 const db = admin.firestore();
 
@@ -436,6 +437,14 @@ export const distributeSenderKey = onCall(
         "invalid-argument",
         "communityId, recipientUserId, and encryptedKeyData are required."
       );
+    }
+
+    // H5: Validate sender is an active community member
+    await requireCommunityMember(communityId, userId);
+
+    // H5: Validate payload size (prevent abuse)
+    if (encryptedKeyData.length > 50000) {
+      throw new HttpsError("invalid-argument", "Encrypted key data exceeds maximum size");
     }
 
     await db

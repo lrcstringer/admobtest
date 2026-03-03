@@ -786,16 +786,24 @@ class OutgoingMessageQueue {
       });
 
       await _appDatabase.updatePendingMessageStatus(msg.id, 'sending');
+      // H1: Use pending ID as idempotency key to prevent duplicate messages
+      // on network retry (Cloud Function deduplicates by this key).
       final messageId =
           await _communityRemoteDS.sendEncryptedCommunityMessage(
         communityId: communityId,
         ciphertext: encrypted['ciphertext'] as String,
         e2ee: encrypted['e2ee'] as Map<String, dynamic>,
         replyToMessageId: msg.replyToMessageId,
+        idempotencyKey: msg.id,
       );
 
-      // Cache for community sync service (NOT MessageSyncService which is P2P)
+      // C1: Cache IMMEDIATELY after getting messageId (before vault retries
+      // in _finalizeSent) so CommunitySyncService can find it when the
+      // Firestore stream fires.
       _communitySyncService.cacheSentPlaintext(messageId, plaintext);
+      try {
+        await _appDatabase.cacheDecryptedPlaintext(messageId, plaintext);
+      } catch (_) {}
 
       await _finalizeSent(
         pendingId: msg.id,
@@ -810,8 +818,10 @@ class OutgoingMessageQueue {
       // 9.1 Network error — leave as pending for retry
       return;
     } on TimeoutException {
-      // 9.7 Encryption or send timeout — reset to pending
-      await _appDatabase.updatePendingMessageStatus(msg.id, 'pending');
+      // M1: Timeout — reset to pending WITH retry count increment
+      await _appDatabase.updatePendingMessageStatus(msg.id, 'pending',
+          lastAttemptAt: DateTime.now());
+      await _appDatabase.incrementPendingMessageRetry(msg.id);
     } on FirebaseFunctionsException catch (e) {
       if (e.code == 'unavailable') return; // Network — leave as pending
       await _markFailed(msg.id, _userFriendlyError(e));
@@ -890,16 +900,21 @@ class OutgoingMessageQueue {
       });
 
       await _appDatabase.updatePendingMessageStatus(msg.id, 'sending');
+      // H1: Idempotency key for duplicate prevention on network retry
       final messageId =
           await _communityRemoteDS.sendEncryptedCommunityMessage(
         communityId: communityId,
         ciphertext: encrypted['ciphertext'] as String,
         e2ee: encrypted['e2ee'] as Map<String, dynamic>,
         replyToMessageId: msg.replyToMessageId,
+        idempotencyKey: msg.id,
       );
 
-      // Cache for community sync service (NOT MessageSyncService which is P2P)
+      // C1: Cache IMMEDIATELY after getting messageId (before vault retries)
       _communitySyncService.cacheSentPlaintext(messageId, payload);
+      try {
+        await _appDatabase.cacheDecryptedPlaintext(messageId, payload);
+      } catch (_) {}
 
       // 9.11 Fix media type parsing — log unknown types instead of silent default
       await _finalizeSent(
@@ -915,8 +930,10 @@ class OutgoingMessageQueue {
       // 9.1 Network error — leave as pending for retry
       return;
     } on TimeoutException {
-      // 9.7 Encryption or send timeout — reset to pending
-      await _appDatabase.updatePendingMessageStatus(msg.id, 'pending');
+      // M1: Timeout — reset to pending WITH retry count increment
+      await _appDatabase.updatePendingMessageStatus(msg.id, 'pending',
+          lastAttemptAt: DateTime.now());
+      await _appDatabase.incrementPendingMessageRetry(msg.id);
     } on FirebaseFunctionsException catch (e) {
       if (e.code == 'unavailable') return;
       await _markFailed(msg.id, _userFriendlyError(e));
@@ -1200,7 +1217,10 @@ class OutgoingMessageQueue {
     DateTime? createdAt,
   }) async {
     // Cache plaintext by real message ID
-    _messageSyncService.cacheSentPlaintext(realMessageId, plaintext);
+    // C1: Skip P2P cache for community messages (already cached in CommunitySyncService)
+    if (communityId == null) {
+      _messageSyncService.cacheSentPlaintext(realMessageId, plaintext);
+    }
     try {
       await _appDatabase.cacheDecryptedPlaintext(realMessageId, plaintext);
     } catch (_) {}
@@ -1237,10 +1257,18 @@ class OutgoingMessageQueue {
       }
     }
 
+    // H2: Guard against null currentUserId
+    final currentUserId = _conversationRemoteDS.currentUserId;
+    if (currentUserId == null) {
+      debugPrint('OutgoingMessageQueue: currentUserId is null in _finalizeSent');
+      await _markFailed(pendingId, 'Not authenticated');
+      return;
+    }
+
     // Replace optimistic message with real one
     final sentMessage = Message(
       id: realMessageId,
-      senderId: _conversationRemoteDS.currentUserId ?? '',
+      senderId: currentUserId,
       senderName: '',
       type: type,
       status: MessageStatus.sent,
@@ -1250,10 +1278,12 @@ class OutgoingMessageQueue {
       createdAt: createdAt ?? DateTime.now(),
     );
 
-    await _appDatabase.deleteLocalMessage(pendingId);
+    // H3: Upsert real message BEFORE deleting old, so message is never
+    // missing from local DB if app crashes mid-operation.
     await _appDatabase.upsertLocalMessage(
       LocalMessageMapper.toCompanion(sentMessage, conversationId),
     );
+    await _appDatabase.deleteLocalMessage(pendingId);
     await _appDatabase.deletePendingMessage(pendingId);
   }
 
@@ -1353,7 +1383,11 @@ class OutgoingMessageQueue {
       }
 
       final members = await _communityRemoteDS.getMembers(communityId);
+      // H2: Guard against null currentUserId
       final currentUserId = _communityRemoteDS.currentUserId;
+      if (currentUserId == null) {
+        throw StateError('Cannot distribute sender key: not authenticated');
+      }
       // Only distribute to active members (invited members may not have
       // P2P sessions yet, which would cause distribution to fail and
       // abort the entire message send).
@@ -1363,10 +1397,16 @@ class OutgoingMessageQueue {
           .toList();
 
       if (otherMemberIds.isNotEmpty) {
-        await _senderKeyService.distributeSenderKeyToAll(
+        final failures = await _senderKeyService.distributeSenderKeyToAll(
           communityId,
           otherMemberIds,
         );
+        // C4: Log partial distribution failures
+        if (failures.isNotEmpty) {
+          debugPrint('OutgoingMessageQueue: Key distribution failed for '
+              '${failures.length}/${otherMemberIds.length} member(s) in '
+              '$communityId: $failures — they may not decrypt messages');
+        }
       }
 
       // Mark as distributed so subsequent messages skip distribution

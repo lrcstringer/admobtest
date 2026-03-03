@@ -838,13 +838,35 @@ export const sendCommunityMessage = onCall({ labels: { area: "social" } }, async
   const userId = requireAuth(request);
   requireAppCheck(request, "sendCommunityMessage");
 
-  const { communityId, text, mediaUrl, mediaType, replyToMessageId, ciphertext, e2ee, encryptedPreviews } = request.data;
+  const { communityId, text, mediaUrl, mediaType, replyToMessageId, ciphertext, e2ee, encryptedPreviews, idempotencyKey } = request.data;
 
   if (!communityId) {
     throw new HttpsError("invalid-argument", "Community ID is required");
   }
   if (!text && !mediaUrl && !ciphertext) {
     throw new HttpsError("invalid-argument", "Message text, media, or ciphertext is required");
+  }
+
+  // H6: Text length validation (prevent abuse / Firestore doc size limit)
+  if (text && text.length > 10000) {
+    throw new HttpsError("invalid-argument", "Message text exceeds maximum length of 10000 characters");
+  }
+  if (ciphertext && ciphertext.length > 100000) {
+    throw new HttpsError("invalid-argument", "Ciphertext exceeds maximum size");
+  }
+
+  // H1: Idempotency — deduplicate retried sends
+  if (idempotencyKey) {
+    const existing = await db
+      .collection(CommunityConfig.COLLECTION)
+      .doc(communityId)
+      .collection(CommunityConfig.SUBCOLLECTION_MESSAGES)
+      .where("idempotencyKey", "==", idempotencyKey)
+      .limit(1)
+      .get();
+    if (!existing.empty) {
+      return { success: true, messageId: existing.docs[0].id, deduplicated: true };
+    }
   }
 
   const community = await getCommunityOrThrow(communityId);
@@ -919,6 +941,8 @@ export const sendCommunityMessage = onCall({ labels: { area: "social" } }, async
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     deletedFor: [],
     deletedForEveryone: false,
+    // H1: Store idempotency key so dedup query can find it
+    ...(idempotencyKey ? { idempotencyKey } : {}),
   };
 
   // Build unread count increments for all OTHER members

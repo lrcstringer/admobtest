@@ -121,7 +121,10 @@ class SenderKeyService {
   /// is triggered. Per-member failures are logged but do not abort the
   /// remaining distributions — a single unreachable member must not
   /// prevent messages from being sent to all other members.
-  Future<void> distributeSenderKeyToAll(
+  ///
+  /// Returns the list of member IDs that failed distribution (empty on
+  /// full success). Throws only if ALL members fail.
+  Future<List<String>> distributeSenderKeyToAll(
     String communityId,
     List<String> memberIds,
   ) async {
@@ -142,6 +145,7 @@ class SenderKeyService {
           'SenderKeyService: Key distribution failed for all '
           '${failures.length} member(s) in $communityId');
     }
+    return failures;
   }
 
   /// Check whether a sender key exists locally for [communityId].
@@ -190,12 +194,20 @@ class SenderKeyService {
     String plaintext,
   ) async {
     // Load our sender key
-    final stateJson =
+    var stateJson =
         await _secureStorage.read(key: '$_ownKeyPrefix$communityId');
     if (stateJson == null) {
-      // Auto-generate if missing
+      // M12: Auto-generate once (no recursion — prevents infinite loop
+      // if secure storage is persistently broken)
       await generateSenderKey(communityId);
-      return encryptCommunity(communityId, plaintext);
+      stateJson =
+          await _secureStorage.read(key: '$_ownKeyPrefix$communityId');
+      if (stateJson == null) {
+        throw StateError(
+          'E2EE: Failed to generate/persist sender key for community '
+          '$communityId',
+        );
+      }
     }
     final state =
         _SenderKeyState.fromJson(jsonDecode(stateJson) as Map<String, dynamic>);
@@ -341,11 +353,24 @@ class SenderKeyService {
     // Zeroize message key after use
     CryptoService.zeroize(messageKey);
 
-    // Persist state AFTER successful decrypt
-    await _secureStorage.write(
-      key: '$_peerKeyPrefix${communityId}_$senderUserId',
-      value: jsonEncode(state.toJson()),
-    );
+    // C3: Persist state AFTER successful decrypt — retry on failure to
+    // prevent chain state loss (one storage failure would make ALL
+    // subsequent messages from this sender permanently undecryptable).
+    final stateKey = '$_peerKeyPrefix${communityId}_$senderUserId';
+    final stateValue = jsonEncode(state.toJson());
+    for (int attempt = 0; attempt < 3; attempt++) {
+      try {
+        await _secureStorage.write(key: stateKey, value: stateValue);
+        break;
+      } catch (e) {
+        if (attempt == 2) {
+          debugPrint('SenderKeyService: CRITICAL — failed to persist chain '
+              'state for $senderUserId in $communityId after 3 attempts: $e');
+          rethrow;
+        }
+        await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));
+      }
+    }
 
     return utf8.decode(plaintext);
   }

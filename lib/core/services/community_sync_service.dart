@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
@@ -60,6 +61,9 @@ class CommunitySyncService {
 
   /// Track community IDs we're currently syncing.
   final Set<String> _syncingCommunityIds = {};
+
+  /// M8: Track retry counts for exponential backoff on stream errors.
+  final Map<String, int> _syncRetryCount = {};
 
   bool _isSyncing = false;
 
@@ -225,6 +229,7 @@ class CommunitySyncService {
     _memberSubs.clear();
 
     _syncingCommunityIds.clear();
+    _syncRetryCount.clear();
     // 6.9 Dispose keyed mutexes
     _processingLock.clear();
     _listLock.clear();
@@ -262,6 +267,8 @@ class CommunitySyncService {
         .watchMessages(communityId: communityId, limit: 50)
         .listen(
       (messageModels) {
+        // M8: Reset retry count on successful stream data
+        _syncRetryCount.remove(communityId);
         // 6.6 Add timeout to prevent deadlock
         _processingLock.protect(
           communityId,
@@ -276,12 +283,22 @@ class CommunitySyncService {
         });
       },
       // 6.2 Subscription error cleanup with retry
+      // M8: Exponential backoff instead of fixed 10s delay
       onError: (e) {
         debugPrint(
             'CommunitySyncService: Message sync error for $communityId: $e');
         _messageSubs.remove(communityId);
         _syncingCommunityIds.remove(communityId);
-        Future.delayed(const Duration(seconds: 10), () {
+        final retryCount = (_syncRetryCount[communityId] ?? 0) + 1;
+        _syncRetryCount[communityId] = retryCount;
+        if (retryCount > 5) {
+          debugPrint('CommunitySyncService: Max retries reached for '
+              '$communityId message sync — will retry on next connectivity');
+          return;
+        }
+        // 10s, 20s, 40s, 60s, 60s
+        final delaySec = math.min(60, 10 * (1 << (retryCount - 1)));
+        Future.delayed(Duration(seconds: delaySec), () {
           if (_isSyncing && !_syncingCommunityIds.contains(communityId)) {
             _startMessageSync(communityId);
           }
@@ -348,12 +365,21 @@ class CommunitySyncService {
           }
         }();
       },
-      // 6.2 Subscription error cleanup with retry
+      // 6.2 + M8: Subscription error cleanup with exponential backoff
       onError: (e) {
         debugPrint(
             'CommunitySyncService: Member stream error for $communityId: $e');
         _memberSubs.remove(communityId);
-        Future.delayed(const Duration(seconds: 10), () {
+        final key = 'member_$communityId';
+        final retryCount = (_syncRetryCount[key] ?? 0) + 1;
+        _syncRetryCount[key] = retryCount;
+        if (retryCount > 5) {
+          debugPrint('CommunitySyncService: Max retries for member sync '
+              '$communityId — will retry on next connectivity');
+          return;
+        }
+        final delaySec = math.min(60, 10 * (1 << (retryCount - 1)));
+        Future.delayed(Duration(seconds: delaySec), () {
           if (_isSyncing) {
             _startMemberSync(communityId);
           }
@@ -523,14 +549,20 @@ class CommunitySyncService {
               msg.id,
               decryptedMsg.textContent!,
             );
-          } catch (_) {}
+          } catch (e) {
+            // H4: Log instead of silently swallowing
+            debugPrint('CommunitySyncService: Failed to cache plaintext '
+                'for ${msg.id}: $e');
+          }
         }
 
         // Update community preview
         await _updateCommunityPreview(communityId, decryptedMsg);
       } catch (e) {
+        // H4: Include message ID for debuggability
         debugPrint(
-            'CommunitySyncService: Failed to process msg in $communityId: $e');
+            'CommunitySyncService: Failed to process msg ${(model as dynamic).id ?? 'unknown'} '
+            'in $communityId: $e');
       }
     }
   }
@@ -600,7 +632,16 @@ class CommunitySyncService {
       // Sender key missing — try fetching pending key distributions
       debugPrint('CommunitySyncService: Sender key missing for '
           '${msg.senderId} in $communityId, fetching distributions...');
-      await _processIncomingKeyDistributions(communityId);
+      // C2: Wrap in try-catch so a network error during key fetch
+      // doesn't kill the entire message batch
+      try {
+        await _processIncomingKeyDistributions(communityId);
+      } catch (e) {
+        debugPrint('CommunitySyncService: Key distribution fetch failed '
+            'for $communityId: $e — message ${msg.id} will remain '
+            'undecryptable until next sync');
+        return null;
+      }
 
       // Retry decryption
       try {

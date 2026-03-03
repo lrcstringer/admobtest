@@ -236,6 +236,7 @@ export const onCommunityMessageCreated = onDocumentCreated(
           data: {
             type: "new_community_message",
             communityId,
+            messageId: event.params.msgId,
             senderId: message.senderId || "",
             messageType: message.type || "text",
           },

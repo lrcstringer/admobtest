@@ -753,7 +753,7 @@ void main() {
                 ),
               ]);
       when(() => mockSenderKey.distributeSenderKeyToAll(any(), any()))
-          .thenAnswer((_) async {});
+          .thenAnswer((_) async => <String>[]);
 
       when(() => mockSenderKey.encryptCommunity(any(), any()))
           .thenAnswer((_) async => {
@@ -826,7 +826,7 @@ void main() {
                 ),
               ]);
       when(() => mockSenderKey.distributeSenderKeyToAll(any(), any()))
-          .thenAnswer((_) async {});
+          .thenAnswer((_) async => <String>[]);
       when(() => mockSenderKey.encryptCommunity(any(), any()))
           .thenAnswer((_) async => {
                 'ciphertext': 'ct',
