@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:imalichat/core/network/network_info.dart';
+import 'package:imalichat/core/services/community_sync_service.dart';
 import 'package:imalichat/core/services/media_recovery_service.dart';
 import 'package:imalichat/core/services/message_sync_service.dart';
 import 'package:imalichat/core/services/outgoing_message_queue.dart';
@@ -38,6 +39,8 @@ class MockSenderKeyService extends Mock implements SenderKeyService {}
 class MockMessageSyncService extends Mock implements MessageSyncService {}
 
 class MockMediaRecoveryService extends Mock implements MediaRecoveryService {}
+
+class MockCommunitySyncService extends Mock implements CommunitySyncService {}
 
 // =============================================================================
 // HELPERS
@@ -83,6 +86,7 @@ void main() {
   late MockSenderKeyService mockSenderKey;
   late MockMessageSyncService mockMessageSync;
   late MockMediaRecoveryService mockMediaRecovery;
+  late MockCommunitySyncService mockCommunitySyncService;
   late OutgoingMessageQueue queue;
 
   setUpAll(() {
@@ -112,6 +116,7 @@ void main() {
     mockSenderKey = MockSenderKeyService();
     mockMessageSync = MockMessageSyncService();
     mockMediaRecovery = MockMediaRecoveryService();
+    mockCommunitySyncService = MockCommunitySyncService();
 
     queue = OutgoingMessageQueue(
       mockDb,
@@ -121,6 +126,7 @@ void main() {
       mockSignalProtocol,
       mockSenderKey,
       mockMessageSync,
+      mockCommunitySyncService,
       mockMediaRecovery,
     );
 

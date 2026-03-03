@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:crypto/crypto.dart' as hmac_lib;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 
@@ -117,13 +118,29 @@ class SenderKeyService {
   /// Distribute this user's sender key to all [memberIds] in a community.
   ///
   /// Typically called when the user joins a community or when a re-key
-  /// is triggered.
+  /// is triggered. Per-member failures are logged but do not abort the
+  /// remaining distributions — a single unreachable member must not
+  /// prevent messages from being sent to all other members.
   Future<void> distributeSenderKeyToAll(
     String communityId,
     List<String> memberIds,
   ) async {
+    final failures = <String>[];
     for (final memberId in memberIds) {
-      await distributeSenderKey(communityId, memberId);
+      try {
+        await distributeSenderKey(communityId, memberId);
+      } catch (e) {
+        debugPrint('SenderKeyService: Failed to distribute key to '
+            '$memberId in $communityId: $e');
+        failures.add(memberId);
+      }
+    }
+    if (failures.length == memberIds.length && memberIds.isNotEmpty) {
+      // ALL distributions failed — propagate the error so the caller
+      // can retry or surface the issue.
+      throw StateError(
+          'SenderKeyService: Key distribution failed for all '
+          '${failures.length} member(s) in $communityId');
     }
   }
 

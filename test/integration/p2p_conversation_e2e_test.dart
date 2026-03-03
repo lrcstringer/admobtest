@@ -247,6 +247,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imalichat/core/services/community_sync_service.dart';
 import 'package:imalichat/core/services/media_recovery_service.dart';
 import 'package:imalichat/core/services/message_decryption_service.dart';
 import 'package:imalichat/core/services/message_sync_service.dart';
@@ -284,6 +285,8 @@ class MockSenderKeyService extends Mock implements SenderKeyService {}
 class MockNetworkInfo extends Mock implements NetworkInfo {}
 
 class MockMediaRecoveryService extends Mock implements MediaRecoveryService {}
+
+class MockCommunitySyncService extends Mock implements CommunitySyncService {}
 
 class MockMessageSyncService extends Mock implements MessageSyncService {}
 
@@ -567,6 +570,7 @@ void main() {
       signalA,
       senderKeyA,
       syncServiceA,
+      MockCommunitySyncService(),
       MockMediaRecoveryService(),
     );
 

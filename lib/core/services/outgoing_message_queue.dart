@@ -16,6 +16,7 @@ import '../../data/mappers/local_message_mapper.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/enums/message_status.dart';
 import '../../domain/enums/message_type.dart';
+import 'community_sync_service.dart';
 import 'media_recovery_service.dart';
 import 'sender_key_service.dart';
 import 'signal_protocol_service.dart';
@@ -38,6 +39,7 @@ class OutgoingMessageQueue {
   final SignalProtocolService _signalProtocolService;
   final SenderKeyService _senderKeyService;
   final MessageSyncService _messageSyncService;
+  final CommunitySyncService _communitySyncService;
   final MediaRecoveryService _mediaRecoveryService;
 
   StreamSubscription<bool>? _connectivitySub;
@@ -59,6 +61,7 @@ class OutgoingMessageQueue {
     this._signalProtocolService,
     this._senderKeyService,
     this._messageSyncService,
+    this._communitySyncService,
     this._mediaRecoveryService,
   );
 
@@ -791,8 +794,8 @@ class OutgoingMessageQueue {
         replyToMessageId: msg.replyToMessageId,
       );
 
-      // Cache for community sync service
-      _messageSyncService.cacheSentPlaintext(messageId, plaintext);
+      // Cache for community sync service (NOT MessageSyncService which is P2P)
+      _communitySyncService.cacheSentPlaintext(messageId, plaintext);
 
       await _finalizeSent(
         pendingId: msg.id,
@@ -895,8 +898,8 @@ class OutgoingMessageQueue {
         replyToMessageId: msg.replyToMessageId,
       );
 
-      // Cache for community sync service
-      _messageSyncService.cacheSentPlaintext(messageId, payload);
+      // Cache for community sync service (NOT MessageSyncService which is P2P)
+      _communitySyncService.cacheSentPlaintext(messageId, payload);
 
       // 9.11 Fix media type parsing — log unknown types instead of silent default
       await _finalizeSent(
@@ -1351,9 +1354,12 @@ class OutgoingMessageQueue {
 
       final members = await _communityRemoteDS.getMembers(communityId);
       final currentUserId = _communityRemoteDS.currentUserId;
+      // Only distribute to active members (invited members may not have
+      // P2P sessions yet, which would cause distribution to fail and
+      // abort the entire message send).
       final otherMemberIds = members
+          .where((m) => m.status == 'active' && m.userId != currentUserId)
           .map((m) => m.userId)
-          .where((id) => id != currentUserId)
           .toList();
 
       if (otherMemberIds.isNotEmpty) {
@@ -1362,6 +1368,9 @@ class OutgoingMessageQueue {
           otherMemberIds,
         );
       }
+
+      // Mark as distributed so subsequent messages skip distribution
+      await _senderKeyService.markDistributed(communityId);
     } finally {
       _distributionInProgress.remove(communityId);
     }
