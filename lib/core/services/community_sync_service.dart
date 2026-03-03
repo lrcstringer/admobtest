@@ -108,6 +108,8 @@ class CommunitySyncService {
                 await _appDatabase.deleteLocalCommunity(model.id);
                 await _appDatabase
                     .deleteLocalCommunityMembersForCommunity(model.id);
+                await _appDatabase
+                    .deleteLocalMessagesForConversation(model.id);
               } catch (e) {
                 debugPrint('CommunitySyncService: Failed to clean up closed '
                     'community ${model.id}: $e');
@@ -174,6 +176,7 @@ class CommunitySyncService {
             try {
               await _appDatabase.deleteLocalCommunity(id);
               await _appDatabase.deleteLocalCommunityMembersForCommunity(id);
+              await _appDatabase.deleteLocalMessagesForConversation(id);
               debugPrint('CommunitySyncService: Cleaned local data for '
                   'removed community $id');
             } catch (e) {

@@ -177,9 +177,10 @@ class CommunityRepositoryImpl implements CommunityRepository {
     try {
       await _remoteDataSource.deleteCommunity(communityId);
 
-      // Clean up local DB so the deleted community doesn't reappear
+      // Clean up ALL local DB data so the deleted community doesn't reappear
       await _appDatabase.deleteLocalCommunity(communityId);
       await _appDatabase.deleteLocalCommunityMembersForCommunity(communityId);
+      await _appDatabase.deleteLocalMessagesForConversation(communityId);
 
       return const Right(null);
     } on AuthException {

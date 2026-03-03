@@ -298,8 +298,44 @@ export const deleteCommunity = onCall({ labels: { area: "social" } }, async (req
   // Mark as closed (soft-delete for audit trail)
   await db.collection(CommunityConfig.COLLECTION).doc(communityId).update({
     status: "closed",
+    isDeleted: true,
+    isActive: false,
     updatedAt: admin.firestore.Timestamp.now(),
   });
+
+  // Purge all subcollection data in batches (best-effort, non-blocking).
+  // Firestore doesn't cascade deletes to subcollections automatically.
+  const communityRef = db.collection(CommunityConfig.COLLECTION).doc(communityId);
+  const subcollections = [
+    CommunityConfig.SUBCOLLECTION_MEMBERS,
+    CommunityConfig.SUBCOLLECTION_MESSAGES,
+    CommunityConfig.SUBCOLLECTION_TRANSACTIONS,
+    CommunityConfig.SUBCOLLECTION_APPROVALS,
+  ];
+
+  for (const sub of subcollections) {
+    try {
+      let batch = db.batch();
+      let count = 0;
+      const snapshot = await communityRef.collection(sub).listDocuments();
+      for (const docRef of snapshot) {
+        batch.delete(docRef);
+        count++;
+        // Firestore batches limited to 500 writes
+        if (count % 450 === 0) {
+          await batch.commit();
+          batch = db.batch();
+        }
+      }
+      if (count % 450 !== 0) {
+        await batch.commit();
+      }
+      logger.info(`Deleted ${count} docs from ${sub} for community ${communityId}`);
+    } catch (subErr) {
+      // Log but don't fail — community is already marked closed
+      logger.warn(`Failed to purge ${sub} for community ${communityId}`, subErr);
+    }
+  }
 
   return { success: true };
 });
