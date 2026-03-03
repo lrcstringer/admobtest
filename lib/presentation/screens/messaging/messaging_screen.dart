@@ -40,6 +40,7 @@ class _MessagingScreenState extends State<MessagingScreen>
   final _searchController = TextEditingController();
   late final TabController _tabController;
   int _currentTab = 0;
+  String? _processingInviteAction;
   StreamSubscription<RemoteMessage>? _fcmSub;
 
   @override
@@ -690,62 +691,79 @@ class _MessagingScreenState extends State<MessagingScreen>
               ],
             ),
             const SizedBox(height: 12),
-            // 8.3 + 8.10 Bottom row: Decline + Accept with processing guard
-            BlocBuilder<CommunityBloc, CommunityState>(
-              builder: (context, commState) {
-                final isProcessing = commState.operationStatus ==
-                    CommunityOperationStatus.processing;
-                return Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: isProcessing
-                            ? null
-                            : () => context.read<CommunityBloc>().add(
-                                  CommunityEvent.declineInvitation(
-                                      communityId: invite.communityId),
-                                ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.error,
-                          side: const BorderSide(color: AppColors.error),
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          minimumSize: const Size(0, 40),
+            // 8.3 + 8.10 Bottom row: Decline + Accept with per-button spinner
+            StatefulBuilder(
+              builder: (context, setLocalState) {
+                // null = idle, 'accept' or 'decline' = which action is in progress
+                return BlocBuilder<CommunityBloc, CommunityState>(
+                  builder: (context, commState) {
+                    final isProcessing = commState.operationStatus ==
+                        CommunityOperationStatus.processing;
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: isProcessing
+                                ? null
+                                : () {
+                                    setLocalState(
+                                        () => _processingInviteAction = 'decline');
+                                    context.read<CommunityBloc>().add(
+                                          CommunityEvent.declineInvitation(
+                                              communityId: invite.communityId),
+                                        );
+                                  },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.error,
+                              side: const BorderSide(color: AppColors.error),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 10),
+                              minimumSize: const Size(0, 40),
+                            ),
+                            child: isProcessing &&
+                                    _processingInviteAction == 'decline'
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2))
+                                : const Text('Decline'),
+                          ),
                         ),
-                        child: isProcessing
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2))
-                            : const Text('Decline'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: isProcessing
-                            ? null
-                            : () => context.read<CommunityBloc>().add(
-                                  CommunityEvent.acceptInvitation(
-                                      communityId: invite.communityId),
-                                ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          minimumSize: const Size(0, 40),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: isProcessing
+                                ? null
+                                : () {
+                                    setLocalState(
+                                        () => _processingInviteAction = 'accept');
+                                    context.read<CommunityBloc>().add(
+                                          CommunityEvent.acceptInvitation(
+                                              communityId: invite.communityId),
+                                        );
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 10),
+                              minimumSize: const Size(0, 40),
+                            ),
+                            child: isProcessing &&
+                                    _processingInviteAction == 'accept'
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white))
+                                : const Text('Accept'),
+                          ),
                         ),
-                        child: isProcessing
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white))
-                            : const Text('Accept'),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 );
               },
             ),
