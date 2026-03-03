@@ -139,6 +139,19 @@ class CommunitySyncService {
               await _appDatabase.upsertLocalCommunity(
                 LocalCommunityMapper.toCompanion(community),
               );
+
+              // Reconcile memberCount from actual local member data.
+              // The Firestore community doc may have a stale cached
+              // memberCount, while the member sync has already written
+              // the correct members. Use local member count if available.
+              final localMembers = await _appDatabase
+                  .getLocalCommunityMembers(community.id);
+              if (localMembers.isNotEmpty) {
+                await _appDatabase.updateLocalCommunityMemberCount(
+                  communityId: community.id,
+                  memberCount: localMembers.length,
+                );
+              }
             } catch (e) {
               debugPrint('CommunitySyncService: Failed to store community '
                   '${model.id}: $e');
