@@ -288,43 +288,49 @@ class CommunitySyncService {
     _memberSubs[communityId] =
         _remoteDataSource.watchMembers(communityId).listen(
       (memberModels) {
-        // 6.4 Lock member sync with message processing to prevent races
-        _processingLock.protect(communityId, () async {
-          final currentIds = <String>{};
-          for (final model in memberModels) {
-            final entity = model.toEntity();
-            currentIds.add(entity.userId);
-            await _appDatabase.upsertLocalCommunityMember(
-              LocalCommunityMemberMapper.toCompanion(entity),
+        // Member upserts run WITHOUT _processingLock — they write to a
+        // different table (localCommunityMembers) than message processing
+        // (localMessages) and must not be blocked by slow decryption.
+        // Using an async IIFE so the listener callback stays non-blocking.
+        () async {
+          try {
+            final currentIds = <String>{};
+            for (final model in memberModels) {
+              final entity = model.toEntity();
+              currentIds.add(entity.userId);
+              await _appDatabase.upsertLocalCommunityMember(
+                LocalCommunityMemberMapper.toCompanion(entity),
+              );
+            }
+
+            // Update memberCount in local community to stay in sync
+            await _appDatabase.updateLocalCommunityMemberCount(
+              communityId: communityId,
+              memberCount: currentIds.length,
             );
-          }
 
-          // Update memberCount in local community to stay in sync
-          await _appDatabase.updateLocalCommunityMemberCount(
-            communityId: communityId,
-            memberCount: currentIds.length,
-          );
-
-          // Detect member departures → rekey sender key for forward secrecy
-          final previousIds = _previousMemberIds[communityId];
-          if (previousIds != null && previousIds.isNotEmpty) {
-            final removed = previousIds.difference(currentIds);
-            if (removed.isNotEmpty) {
-              debugPrint('CommunitySyncService: ${removed.length} member(s) '
-                  'left $communityId — rekeying sender key');
-              try {
-                await _senderKeyService.rekeyAllSenderKeys(communityId);
-              } catch (e) {
-                debugPrint('CommunitySyncService: Rekey failed for '
-                    '$communityId: $e');
+            // Detect member departures → rekey sender key for forward secrecy
+            final previousIds = _previousMemberIds[communityId];
+            if (previousIds != null && previousIds.isNotEmpty) {
+              final removed = previousIds.difference(currentIds);
+              if (removed.isNotEmpty) {
+                debugPrint(
+                    'CommunitySyncService: ${removed.length} member(s) '
+                    'left $communityId — rekeying sender key');
+                try {
+                  await _senderKeyService.rekeyAllSenderKeys(communityId);
+                } catch (e) {
+                  debugPrint('CommunitySyncService: Rekey failed for '
+                      '$communityId: $e');
+                }
               }
             }
+            _previousMemberIds[communityId] = currentIds;
+          } catch (e) {
+            debugPrint(
+                'CommunitySyncService: Member sync error for $communityId: $e');
           }
-          _previousMemberIds[communityId] = currentIds;
-        }).catchError((Object e) {
-          debugPrint(
-              'CommunitySyncService: Member sync error for $communityId: $e');
-        });
+        }();
       },
       // 6.2 Subscription error cleanup with retry
       onError: (e) {

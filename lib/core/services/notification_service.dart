@@ -232,6 +232,7 @@ class NotificationService {
       case 'token_spray_received':
       case 'token_spray_contribution':
       case 'community_invite':
+      case 'community_invite_accepted':
       case 'stokvel_contribution_due':
       case 'stokvel_payout':
         channelId = _communityChannelId;
@@ -303,6 +304,11 @@ class NotificationService {
         }
       case 'community_invite':
         router.go('/chat');
+      case 'community_invite_accepted':
+        final communityId = data['communityId'] as String?;
+        if (communityId != null) {
+          router.go('/chat/community/$communityId');
+        }
       case 'stokvel_contribution_due':
       case 'stokvel_payout':
         final communityId = data['communityId'] as String?;

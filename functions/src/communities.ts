@@ -519,6 +519,46 @@ export const acceptCommunityInvitation = onCall({ labels: { area: "social" } }, 
   // Post system message
   await postSystemMessage(communityId, `${member.displayName} joined the community`, "member_joined", { userId });
 
+  // Send push notification to the inviter so their Members screen updates
+  try {
+    const inviterId = member.invitedBy;
+    if (inviterId && inviterId !== userId) {
+      const trustedDevices = await db
+        .collection("users")
+        .doc(inviterId)
+        .collection("devices")
+        .where("trusted", "==", true)
+        .where("revoked", "==", false)
+        .get();
+
+      const fcmTokens: string[] = [];
+      trustedDevices.forEach((doc) => {
+        const devData = doc.data();
+        if (devData.fcmToken) {
+          fcmTokens.push(devData.fcmToken);
+        }
+      });
+
+      if (fcmTokens.length > 0) {
+        await admin.messaging().sendEachForMulticast({
+          tokens: fcmTokens,
+          notification: {
+            title: community.name,
+            body: `${member.displayName} accepted your invitation`,
+          },
+          data: {
+            type: "community_invite_accepted",
+            communityId,
+            userId,
+          },
+        });
+      }
+    }
+  } catch (notifError) {
+    // Don't fail the accept if notification fails
+    logger.warn("Failed to send acceptance notification", notifError);
+  }
+
   return { success: true };
 });
 
