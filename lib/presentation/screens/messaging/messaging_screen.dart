@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -37,9 +40,11 @@ class _MessagingScreenState extends State<MessagingScreen>
   final _searchController = TextEditingController();
   late final TabController _tabController;
   int _currentTab = 0;
+  StreamSubscription<RemoteMessage>? _fcmSub;
 
   @override
   void dispose() {
+    _fcmSub?.cancel();
     _searchController.dispose();
     _tabController.dispose();
     super.dispose();
@@ -60,6 +65,12 @@ class _MessagingScreenState extends State<MessagingScreen>
           _searchController.clear();
         }
       });
+      // Refresh pending invitations every time Communities tab is selected
+      if (_tabController.index == 1) {
+        context
+            .read<CommunityBloc>()
+            .add(const CommunityEvent.loadPendingInvitations());
+      }
     });
 
     context
@@ -88,6 +99,15 @@ class _MessagingScreenState extends State<MessagingScreen>
     context
         .read<ContactBloc>()
         .add(const ContactEvent.loadSuggestions());
+
+    // Reload pending invitations when a community_invite FCM arrives
+    _fcmSub = FirebaseMessaging.onMessage.listen((message) {
+      if (message.data['type'] == 'community_invite' && mounted) {
+        context
+            .read<CommunityBloc>()
+            .add(const CommunityEvent.loadPendingInvitations());
+      }
+    });
   }
 
   @override
@@ -249,11 +269,13 @@ class _MessagingScreenState extends State<MessagingScreen>
                   Icons.chat_bubble_rounded, 'Chats', convState.totalUnreadCount);
             },
           ),
-          // Communities tab with unread badge
+          // Communities tab with unread + pending invites badge
           BlocBuilder<CommunityBloc, CommunityState>(
             builder: (context, commState) {
+              final badgeCount = commState.totalUnreadCount +
+                  commState.pendingInvitations.length;
               return _buildBadgedTab(
-                  Icons.groups_rounded, 'Communities', commState.totalUnreadCount);
+                  Icons.groups_rounded, 'Communities', badgeCount);
             },
           ),
           // Contacts tab with pending request badge
