@@ -70,9 +70,16 @@ class CommunitySyncService {
 
   bool _isSyncing = false;
 
-  /// First-sync flag: reconcile local DB with Firestore on first snapshot
-  /// to clean up stale communities (e.g., deleted while app was closed).
+  /// First-sync flag: reconcile local DB with Firestore on first successful
+  /// snapshot to clean up stale communities (e.g., deleted while app was
+  /// closed). Only runs when the snapshot is non-empty (to avoid wiping
+  /// everything on a permission-denied / empty-query edge case).
   bool _isFirstSync = true;
+
+  /// Communities force-started by [ensureSyncing] before the community list
+  /// stream emitted. These are protected from first-sync reconciliation
+  /// because they were explicitly requested by the UI/BLoC.
+  final Set<String> _ensureSyncedIds = {};
 
   /// Plaintext cache for sent messages (keyed by messageId).
   /// The sender cannot decrypt their own sender-key messages because the key
@@ -247,50 +254,63 @@ class CommunitySyncService {
             }
           }
 
-          // Stop syncing removed communities and clean local DB
-          final removedIds = _syncingCommunityIds.difference(currentIds);
-          for (final id in removedIds) {
-            _stopMessageSync(id);
-            _stopMemberSync(id);
-            try {
-              await _appDatabase.deleteLocalCommunity(id);
-              await _appDatabase.deleteLocalCommunityMembersForCommunity(id);
-              await _appDatabase.deleteLocalMessagesForConversation(id);
-              await _senderKeyService.resetAllKeysForCommunity(id);
-              print('CommunitySyncService: Cleaned local data for '
-                  'removed community $id');
-            } catch (e) {
-              print('CommunitySyncService: Failed to clean local data '
-                  'for $id: $e');
-            }
-          }
-
-          // First-sync reconciliation: clean up stale communities in
-          // local DB that no longer exist in Firestore (e.g., deleted
-          // while the app was closed).
-          if (_isFirstSync) {
-            _isFirstSync = false;
-            try {
-              final localCommunities =
-                  await _appDatabase.getLocalCommunities();
-              final localIds =
-                  localCommunities.map((c) => c.id).toSet();
-              final staleIds = localIds.difference(currentIds);
-              for (final id in staleIds) {
-                _stopMessageSync(id);
-                _stopMemberSync(id);
+          // Stop syncing removed communities and clean local DB.
+          // Safety: only clean up if Firestore returned at least 1 community.
+          // An empty emission likely means a query/permission error, not that
+          // the user has zero communities — deleting everything would be
+          // destructive and wrong.
+          if (currentIds.isNotEmpty) {
+            final removedIds = _syncingCommunityIds.difference(currentIds);
+            for (final id in removedIds) {
+              _stopMessageSync(id);
+              _stopMemberSync(id);
+              try {
                 await _appDatabase.deleteLocalCommunity(id);
                 await _appDatabase
                     .deleteLocalCommunityMembersForCommunity(id);
                 await _appDatabase
                     .deleteLocalMessagesForConversation(id);
                 await _senderKeyService.resetAllKeysForCommunity(id);
-                print('CommunitySyncService: Reconciled stale '
-                    'community $id from local DB');
+                print('CommunitySyncService: Cleaned local data for '
+                    'removed community $id');
+              } catch (e) {
+                print('CommunitySyncService: Failed to clean local data '
+                    'for $id: $e');
               }
-            } catch (e) {
-              print('CommunitySyncService: First-sync reconciliation '
-                  'error: $e');
+            }
+
+            // First-sync reconciliation: clean up communities in local DB
+            // that no longer exist in Firestore (e.g., deleted while app
+            // was closed). Guarded by:
+            //  1. currentIds.isNotEmpty — don't wipe on empty/failed query
+            //  2. Skip _ensureSyncedIds — those were explicitly requested
+            //     by the UI before the list stream emitted
+            if (_isFirstSync) {
+              _isFirstSync = false;
+              try {
+                final localCommunities =
+                    await _appDatabase.getLocalCommunities();
+                final localIds =
+                    localCommunities.map((c) => c.id).toSet();
+                final staleIds = localIds
+                    .difference(currentIds)
+                    .difference(_ensureSyncedIds);
+                for (final id in staleIds) {
+                  _stopMessageSync(id);
+                  _stopMemberSync(id);
+                  await _appDatabase.deleteLocalCommunity(id);
+                  await _appDatabase
+                      .deleteLocalCommunityMembersForCommunity(id);
+                  await _appDatabase
+                      .deleteLocalMessagesForConversation(id);
+                  await _senderKeyService.resetAllKeysForCommunity(id);
+                  print('CommunitySyncService: Reconciled stale '
+                      'community $id from local DB');
+                }
+              } catch (e) {
+                print('CommunitySyncService: First-sync reconciliation '
+                    'error: $e');
+              }
             }
           }
         }).catchError((Object e) {
@@ -380,6 +400,7 @@ class CommunitySyncService {
     }
     print('CommunitySyncService.ensureSyncing: Force-starting message '
         'sync for $communityId (was not syncing!)');
+    _ensureSyncedIds.add(communityId);
     _startMessageSync(communityId);
     _startMemberSync(communityId);
   }
