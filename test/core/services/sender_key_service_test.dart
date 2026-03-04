@@ -1235,4 +1235,145 @@ void main() {
       expect(json.containsKey('chainKey'), isTrue);
     });
   });
+
+  // ===========================================================================
+  // HIGH-9: DISTRIBUTION TTL (24-HOUR EXPIRY)
+  // ===========================================================================
+  group('distribution TTL (HIGH-9)', () {
+    test('isDistributed returns false after 24 hours (TTL expired)', () async {
+      // Write a timestamp 25 hours in the past directly into storage
+      final expired = DateTime.now().subtract(const Duration(hours: 25));
+      storage.store['e2ee_sk_dist_$communityId'] = expired.toIso8601String();
+
+      expect(await service.isDistributed(communityId), isFalse);
+    });
+
+    test('isDistributed returns true within 24 hours', () async {
+      // Write a timestamp 23 hours in the past — still within TTL
+      final recent = DateTime.now().subtract(const Duration(hours: 23));
+      storage.store['e2ee_sk_dist_$communityId'] = recent.toIso8601String();
+
+      expect(await service.isDistributed(communityId), isTrue);
+    });
+
+    test('isDistributed returns false for corrupted timestamp values', () async {
+      storage.store['e2ee_sk_dist_$communityId'] = 'not-a-valid-timestamp';
+
+      expect(await service.isDistributed(communityId), isFalse);
+    });
+
+    test('isDistributed deletes the flag when TTL is expired', () async {
+      final expired = DateTime.now().subtract(const Duration(hours: 25));
+      storage.store['e2ee_sk_dist_$communityId'] = expired.toIso8601String();
+
+      // Call isDistributed — should return false and clean up the flag
+      await service.isDistributed(communityId);
+
+      expect(storage.store.containsKey('e2ee_sk_dist_$communityId'), isFalse);
+    });
+
+    test('isDistributed deletes the flag when value is corrupted', () async {
+      storage.store['e2ee_sk_dist_$communityId'] = 'garbage_data_###';
+
+      // Call isDistributed — should return false and clean up the flag
+      await service.isDistributed(communityId);
+
+      expect(storage.store.containsKey('e2ee_sk_dist_$communityId'), isFalse);
+    });
+  });
+
+  // ===========================================================================
+  // M4: MANDATORY HMAC SIGNATURE VERIFICATION
+  // ===========================================================================
+  group('mandatory HMAC signature verification (M4)', () {
+    late InMemorySecureStorage senderStorage;
+    late InMemorySecureStorage receiverStorage;
+    late SenderKeyService sender;
+    late SenderKeyService receiver;
+
+    const senderUserId = 'm4_sender';
+
+    setUp(() {
+      senderStorage = InMemorySecureStorage();
+      receiverStorage = InMemorySecureStorage();
+      sender = SenderKeyService(
+          crypto, mockSignal, senderStorage, mockFunctions);
+      receiver = SenderKeyService(
+          crypto, mockSignal, receiverStorage, mockFunctions);
+    });
+
+    Future<void> shareKey() async {
+      final keyJson =
+          senderStorage.store['e2ee_sk_own_$communityId']!;
+      final keyData =
+          jsonDecode(keyJson) as Map<String, dynamic>;
+      await receiver.processReceivedSenderKey(
+        communityId, senderUserId, keyData,
+      );
+    }
+
+    test('decryptCommunity throws StateError when signature is null', () async {
+      await sender.generateSenderKey(communityId);
+      await shareKey();
+
+      final encrypted =
+          await sender.encryptCommunity(communityId, 'test message');
+
+      // Remove the signature from e2ee metadata
+      final e2ee = encrypted['e2ee'] as Map<String, dynamic>;
+      e2ee.remove('signature');
+
+      expect(
+        () => receiver.decryptCommunity(
+            communityId, senderUserId, encrypted),
+        throwsA(isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          contains('Missing HMAC signature'),
+        )),
+      );
+    });
+
+    test('error message mentions "unsigned" when signature is missing',
+        () async {
+      await sender.generateSenderKey(communityId);
+      await shareKey();
+
+      final encrypted =
+          await sender.encryptCommunity(communityId, 'test message');
+
+      // Remove the signature so it reads as null
+      final e2ee = encrypted['e2ee'] as Map<String, dynamic>;
+      e2ee.remove('signature');
+
+      expect(
+        () => receiver.decryptCommunity(
+            communityId, senderUserId, encrypted),
+        throwsA(isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          allOf(
+            contains('Missing HMAC signature'),
+            contains('unsigned'),
+          ),
+        )),
+      );
+    });
+
+    test('valid signature allows decryption to proceed', () async {
+      await sender.generateSenderKey(communityId);
+      await shareKey();
+
+      const plaintext = 'Hello with valid signature!';
+      final encrypted =
+          await sender.encryptCommunity(communityId, plaintext);
+
+      // Signature is present and valid — decryption should succeed
+      final decrypted = await receiver.decryptCommunity(
+        communityId, senderUserId, encrypted,
+      );
+
+      expect(decrypted, equals(plaintext));
+    });
+  });
 }

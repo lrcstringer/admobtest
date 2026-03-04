@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -16,6 +17,7 @@ import 'package:imalichat/data/datasources/local/app_database.dart';
 import 'package:imalichat/data/datasources/remote/community_remote_datasource.dart';
 import 'package:imalichat/data/datasources/remote/conversation_remote_datasource.dart';
 import 'package:imalichat/data/models/community_member_model.dart';
+import 'package:imalichat/domain/enums/message_status.dart';
 import 'package:imalichat/domain/enums/message_type.dart';
 
 // =============================================================================
@@ -41,6 +43,23 @@ class MockMessageSyncService extends Mock implements MessageSyncService {}
 class MockMediaRecoveryService extends Mock implements MediaRecoveryService {}
 
 class MockCommunitySyncService extends Mock implements CommunitySyncService {}
+
+class MockUpdateStatement extends Mock
+    implements
+        UpdateStatement<$LocalPendingMessagesTable, LocalPendingMessage> {}
+
+class _FakeLocalPendingMessagesTable extends Fake
+    implements $LocalPendingMessagesTable {}
+
+// Concrete subclass so we can instantiate the @protected constructor.
+class _TestFirebaseFunctionsException extends FirebaseFunctionsException {
+  _TestFirebaseFunctionsException({
+    required super.code,
+    required super.message,
+    super.details,
+    super.stackTrace,
+  });
+}
 
 // =============================================================================
 // HELPERS
@@ -105,6 +124,7 @@ void main() {
       status: const Value('sending'),
       createdAt: Value(DateTime.now()),
     ));
+    registerFallbackValue(_FakeLocalPendingMessagesTable());
   });
 
   setUp(() {
@@ -162,12 +182,28 @@ void main() {
           lastMessageText: any(named: 'lastMessageText'),
           lastMessageSenderId: any(named: 'lastMessageSenderId'),
           lastMessageAt: any(named: 'lastMessageAt'),
+          lastMessageSenderName: any(named: 'lastMessageSenderName'),
+          lastMessageType: any(named: 'lastMessageType'),
         )).thenAnswer((_) async {});
     when(() => mockDb.getPendingMessages())
         .thenAnswer((_) async => []);
 
+    // Stub the Drift update() chain used by _encryptAndCache
+    final mockUpdateStmt = MockUpdateStatement();
+    when(() => mockDb.localPendingMessages).thenReturn(
+      _FakeLocalPendingMessagesTable(),
+    );
+    when(() => mockDb.update<$LocalPendingMessagesTable, LocalPendingMessage>(any())).thenReturn(
+      mockUpdateStmt,
+    );
+    when(() => mockUpdateStmt.write(any())).thenAnswer((_) async => 0);
+
     // Message sync — void
     when(() => mockMessageSync.cacheSentPlaintext(any(), any()))
+        .thenReturn(null);
+
+    // Community sync service
+    when(() => mockCommunitySyncService.cacheSentPlaintext(any(), any()))
         .thenReturn(null);
 
     // Media recovery
@@ -344,8 +380,6 @@ void main() {
             error: 'Max retries exceeded',
             lastAttemptAt: any(named: 'lastAttemptAt'),
           )).called(1);
-      verify(() => mockDb.incrementPendingMessageRetry(expiredRetryMsg.id))
-          .called(1);
       verify(() => mockDb.updateLocalMessageStatus(expiredRetryMsg.id, 'failed'))
           .called(1);
     });
@@ -398,6 +432,7 @@ void main() {
             e2ee: any(named: 'e2ee'),
             encryptedPreviews: any(named: 'encryptedPreviews'),
             replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: any(named: 'idempotencyKey'),
           )).thenAnswer((_) async => 'real_msg_id');
 
       await queue.processPendingMessages();
@@ -482,6 +517,7 @@ void main() {
             e2ee: any(named: 'e2ee'),
             encryptedPreviews: any(named: 'encryptedPreviews'),
             replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: any(named: 'idempotencyKey'),
           )).thenThrow(const SocketException('No network'));
 
       await queue.processPendingMessages();
@@ -554,8 +590,12 @@ void main() {
       await queue.processPendingMessages();
 
       // Should be reset to 'pending', NOT 'failed'
-      verify(() => mockDb.updatePendingMessageStatus(msg.id, 'pending'))
-          .called(1);
+      verify(() => mockDb.updatePendingMessageStatus(
+            msg.id,
+            'pending',
+            error: any(named: 'error'),
+            lastAttemptAt: any(named: 'lastAttemptAt'),
+          )).called(1);
 
       // Should NOT be marked as failed
       verifyNever(() => mockDb.updatePendingMessageStatus(
@@ -593,8 +633,11 @@ void main() {
 
       // Should be reset to 'pending'
       verify(() => mockDb.updatePendingMessageStatus(
-              msg.id, 'pending'))
-          .called(1);
+            msg.id,
+            'pending',
+            error: any(named: 'error'),
+            lastAttemptAt: any(named: 'lastAttemptAt'),
+          )).called(1);
     });
   });
 
@@ -602,8 +645,9 @@ void main() {
   // 8. Vault storage retry — retries up to 3 times
   // ===========================================================================
 
-  group('vault storage retry', () {
-    test('vault storePayload retries up to 3 times on failure', () async {
+  group('vault storage', () {
+    test('vault storePayload is called fire-and-forget during finalization',
+        () async {
       final msg = _makePendingMessage(
         type: 'community_text',
         plaintext: 'Hello vault',
@@ -626,26 +670,23 @@ void main() {
             e2ee: any(named: 'e2ee'),
             encryptedPreviews: any(named: 'encryptedPreviews'),
             replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: any(named: 'idempotencyKey'),
           )).thenAnswer((_) async => 'real_msg_id');
-
-      // Vault fails all 3 times
-      when(() => mockMediaRecovery.storePayload(any(), any()))
-          .thenThrow(Exception('Vault unavailable'));
 
       await queue.processPendingMessages();
 
-      // storePayload should have been called 3 times (retry loop in _finalizeSent)
+      // storePayload should be called once (fire-and-forget in _finalizeSent)
       verify(() => mockMediaRecovery.storePayload('real_msg_id', 'Hello vault'))
-          .called(3);
+          .called(1);
 
-      // Despite vault failure, the message should still finalize successfully
+      // Message should finalize successfully
       verify(() => mockDb.deletePendingMessage(msg.id)).called(1);
     });
 
-    test('vault storePayload succeeds on second attempt', () async {
+    test('vault failure does not block message finalization', () async {
       final msg = _makePendingMessage(
         type: 'community_text',
-        plaintext: 'Retry success',
+        plaintext: 'Vault fail ok',
       );
 
       when(() => mockDb.getPendingMessages())
@@ -664,25 +705,16 @@ void main() {
             e2ee: any(named: 'e2ee'),
             encryptedPreviews: any(named: 'encryptedPreviews'),
             replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: any(named: 'idempotencyKey'),
           )).thenAnswer((_) async => 'real_msg_2');
 
-      // Vault fails first time, succeeds second time
-      var callCount = 0;
+      // Vault fails — fire-and-forget catches error
       when(() => mockMediaRecovery.storePayload(any(), any()))
-          .thenAnswer((_) async {
-        callCount++;
-        if (callCount == 1) {
-          throw Exception('Temporary vault error');
-        }
-        // Second call succeeds
-      });
+          .thenAnswer((_) async => throw Exception('Vault unavailable'));
 
       await queue.processPendingMessages();
 
-      // storePayload called exactly 2 times (fail + succeed)
-      verify(() =>
-              mockMediaRecovery.storePayload('real_msg_2', 'Retry success'))
-          .called(2);
+      // Message should still finalize despite vault failure
       verify(() => mockDb.deletePendingMessage(msg.id)).called(1);
     });
   });
@@ -766,6 +798,7 @@ void main() {
             e2ee: any(named: 'e2ee'),
             encryptedPreviews: any(named: 'encryptedPreviews'),
             replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: any(named: 'idempotencyKey'),
           )).thenAnswer((_) async => 'real_msg');
 
       await queue.processPendingMessages();
@@ -838,6 +871,7 @@ void main() {
             e2ee: any(named: 'e2ee'),
             encryptedPreviews: any(named: 'encryptedPreviews'),
             replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: any(named: 'idempotencyKey'),
           )).thenAnswer((_) async => 'real_msg');
 
       await queue.processPendingMessages();
@@ -851,6 +885,437 @@ void main() {
             'comm_beta',
             ['user_peer'],
           )).called(1);
+    });
+  });
+
+  // ===========================================================================
+  // 10. CRIT-1: Encrypted output caching prevents chain ratchet corruption
+  // ===========================================================================
+
+  group('CRIT-1: encrypted output caching prevents chain ratchet corruption', () {
+    test(
+        'cached encrypted payload in payloadJson is reused instead of re-encrypting',
+        () async {
+      // Message already has a cached encrypted payload from a prior attempt
+      final cachedPayload =
+          '{"_encrypted":true,"ciphertext":"ct","e2ee":{"algo":"sk"}}';
+      final msg = _makePendingMessage(
+        id: 'pending_cached_crit1',
+        type: 'community_text',
+        plaintext: 'Hello community',
+        payloadJson: cachedPayload,
+      );
+
+      when(() => mockDb.getPendingMessages())
+          .thenAnswer((_) async => [msg]);
+
+      // Sender key already distributed
+      when(() => mockSenderKey.isDistributed(any()))
+          .thenAnswer((_) async => true);
+
+      // Send succeeds
+      when(() => mockCommunityDS.sendEncryptedCommunityMessage(
+            communityId: any(named: 'communityId'),
+            ciphertext: any(named: 'ciphertext'),
+            e2ee: any(named: 'e2ee'),
+            encryptedPreviews: any(named: 'encryptedPreviews'),
+            replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: any(named: 'idempotencyKey'),
+          )).thenAnswer((_) async => 'real_msg_crit1');
+
+      when(() => mockCommunitySyncService.cacheSentPlaintext(any(), any()))
+          .thenReturn(null);
+
+      await queue.processPendingMessages();
+
+      // encryptCommunity should NEVER be called — cached payload reused
+      verifyNever(() => mockSenderKey.encryptCommunity(any(), any()));
+
+      // Send should have been called with the cached ciphertext
+      verify(() => mockCommunityDS.sendEncryptedCommunityMessage(
+            communityId: 'community_abc',
+            ciphertext: 'ct',
+            e2ee: {'algo': 'sk'},
+            encryptedPreviews: any(named: 'encryptedPreviews'),
+            replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: 'pending_cached_crit1',
+          )).called(1);
+    });
+
+    test(
+        'null payloadJson triggers fresh encryption and caches result',
+        () async {
+      final msg = _makePendingMessage(
+        id: 'pending_fresh_crit1',
+        type: 'community_text',
+        plaintext: 'Fresh message',
+        payloadJson: null,
+      );
+
+      when(() => mockDb.getPendingMessages())
+          .thenAnswer((_) async => [msg]);
+
+      when(() => mockSenderKey.isDistributed(any()))
+          .thenAnswer((_) async => true);
+
+      when(() => mockSenderKey.encryptCommunity(any(), any()))
+          .thenAnswer((_) async => {
+                'ciphertext': 'fresh_ct',
+                'e2ee': <String, dynamic>{'algo': 'senderKey'},
+              });
+
+      when(() => mockCommunityDS.sendEncryptedCommunityMessage(
+            communityId: any(named: 'communityId'),
+            ciphertext: any(named: 'ciphertext'),
+            e2ee: any(named: 'e2ee'),
+            encryptedPreviews: any(named: 'encryptedPreviews'),
+            replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: any(named: 'idempotencyKey'),
+          )).thenAnswer((_) async => 'real_msg_fresh');
+
+      when(() => mockCommunitySyncService.cacheSentPlaintext(any(), any()))
+          .thenReturn(null);
+
+      await queue.processPendingMessages();
+
+      // encryptCommunity SHOULD be called since payloadJson is null
+      verify(() => mockSenderKey.encryptCommunity('community_abc', 'Fresh message'))
+          .called(1);
+
+      // Send should complete with the freshly encrypted data
+      verify(() => mockCommunityDS.sendEncryptedCommunityMessage(
+            communityId: 'community_abc',
+            ciphertext: 'fresh_ct',
+            e2ee: {'algo': 'senderKey'},
+            encryptedPreviews: any(named: 'encryptedPreviews'),
+            replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: 'pending_fresh_crit1',
+          )).called(1);
+    });
+
+    test(
+        'corrupt cached JSON falls back to fresh encryption',
+        () async {
+      // payloadJson starts with '{"_encrypted"' but is invalid JSON
+      final msg = _makePendingMessage(
+        id: 'pending_corrupt_crit1',
+        type: 'community_text',
+        plaintext: 'Recover from corruption',
+        payloadJson: '{"_encrypted":true,"ciphertext":INVALID',
+      );
+
+      when(() => mockDb.getPendingMessages())
+          .thenAnswer((_) async => [msg]);
+
+      when(() => mockSenderKey.isDistributed(any()))
+          .thenAnswer((_) async => true);
+
+      // Fresh encryption should happen as fallback
+      when(() => mockSenderKey.encryptCommunity(any(), any()))
+          .thenAnswer((_) async => {
+                'ciphertext': 'fallback_ct',
+                'e2ee': <String, dynamic>{'algo': 'senderKey'},
+              });
+
+      when(() => mockCommunityDS.sendEncryptedCommunityMessage(
+            communityId: any(named: 'communityId'),
+            ciphertext: any(named: 'ciphertext'),
+            e2ee: any(named: 'e2ee'),
+            encryptedPreviews: any(named: 'encryptedPreviews'),
+            replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: any(named: 'idempotencyKey'),
+          )).thenAnswer((_) async => 'real_msg_fallback');
+
+      when(() => mockCommunitySyncService.cacheSentPlaintext(any(), any()))
+          .thenReturn(null);
+
+      await queue.processPendingMessages();
+
+      // encryptCommunity IS called because cached JSON was corrupt
+      verify(() => mockSenderKey.encryptCommunity(
+            'community_abc',
+            'Recover from corruption',
+          )).called(1);
+
+      // Message still sent successfully with fallback encryption
+      verify(() => mockCommunityDS.sendEncryptedCommunityMessage(
+            communityId: 'community_abc',
+            ciphertext: 'fallback_ct',
+            e2ee: {'algo': 'senderKey'},
+            encryptedPreviews: any(named: 'encryptedPreviews'),
+            replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: 'pending_corrupt_crit1',
+          )).called(1);
+    });
+  });
+
+  // ===========================================================================
+  // 11. HIGH-1: _resetToPending behavior
+  // ===========================================================================
+
+  group('HIGH-1: _resetToPending behavior', () {
+    test(
+        'SocketException during send resets message to pending (not failed)',
+        () async {
+      final msg = _makePendingMessage(
+        id: 'pending_socket_h1',
+        type: 'community_text',
+        plaintext: 'Socket test',
+      );
+
+      when(() => mockDb.getPendingMessages())
+          .thenAnswer((_) async => [msg]);
+
+      when(() => mockSenderKey.isDistributed(any()))
+          .thenAnswer((_) async => true);
+      when(() => mockSenderKey.encryptCommunity(any(), any()))
+          .thenAnswer((_) async => {
+                'ciphertext': 'ct',
+                'e2ee': <String, dynamic>{'algo': 'sk'},
+              });
+
+      // Send throws SocketException
+      when(() => mockCommunityDS.sendEncryptedCommunityMessage(
+            communityId: any(named: 'communityId'),
+            ciphertext: any(named: 'ciphertext'),
+            e2ee: any(named: 'e2ee'),
+            encryptedPreviews: any(named: 'encryptedPreviews'),
+            replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: any(named: 'idempotencyKey'),
+          )).thenThrow(const SocketException('Connection refused'));
+
+      await queue.processPendingMessages();
+
+      // Should be reset to pending
+      verify(() => mockDb.updatePendingMessageStatus(
+            'pending_socket_h1',
+            'pending',
+            lastAttemptAt: any(named: 'lastAttemptAt'),
+          )).called(greaterThanOrEqualTo(1));
+
+      // Should NOT be marked failed
+      verifyNever(() => mockDb.updatePendingMessageStatus(
+            'pending_socket_h1',
+            'failed',
+            error: any(named: 'error'),
+            lastAttemptAt: any(named: 'lastAttemptAt'),
+          ));
+    });
+
+    test(
+        'FirebaseFunctionsException with code unavailable resets to pending',
+        () async {
+      final msg = _makePendingMessage(
+        id: 'pending_unavail_h1',
+        type: 'community_text',
+        plaintext: 'Unavailable test',
+      );
+
+      when(() => mockDb.getPendingMessages())
+          .thenAnswer((_) async => [msg]);
+
+      when(() => mockSenderKey.isDistributed(any()))
+          .thenAnswer((_) async => true);
+      when(() => mockSenderKey.encryptCommunity(any(), any()))
+          .thenAnswer((_) async => {
+                'ciphertext': 'ct',
+                'e2ee': <String, dynamic>{'algo': 'sk'},
+              });
+
+      // Send throws FirebaseFunctionsException with 'unavailable'
+      when(() => mockCommunityDS.sendEncryptedCommunityMessage(
+            communityId: any(named: 'communityId'),
+            ciphertext: any(named: 'ciphertext'),
+            e2ee: any(named: 'e2ee'),
+            encryptedPreviews: any(named: 'encryptedPreviews'),
+            replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: any(named: 'idempotencyKey'),
+          )).thenThrow(_TestFirebaseFunctionsException(
+        code: 'unavailable',
+        message: 'Service unavailable',
+      ));
+
+      await queue.processPendingMessages();
+
+      // Should be reset to pending (not failed)
+      verify(() => mockDb.updatePendingMessageStatus(
+            'pending_unavail_h1',
+            'pending',
+            lastAttemptAt: any(named: 'lastAttemptAt'),
+          )).called(greaterThanOrEqualTo(1));
+
+      // Should NOT be marked failed
+      verifyNever(() => mockDb.updatePendingMessageStatus(
+            'pending_unavail_h1',
+            'failed',
+            error: any(named: 'error'),
+            lastAttemptAt: any(named: 'lastAttemptAt'),
+          ));
+    });
+
+    test(
+        'non-network error marks message as failed',
+        () async {
+      final msg = _makePendingMessage(
+        id: 'pending_nonnet_h1',
+        type: 'community_text',
+        plaintext: 'Non-network test',
+      );
+
+      when(() => mockDb.getPendingMessages())
+          .thenAnswer((_) async => [msg]);
+
+      when(() => mockSenderKey.isDistributed(any()))
+          .thenAnswer((_) async => true);
+      when(() => mockSenderKey.encryptCommunity(any(), any()))
+          .thenAnswer((_) async => {
+                'ciphertext': 'ct',
+                'e2ee': <String, dynamic>{'algo': 'sk'},
+              });
+
+      // Send throws a generic non-network exception
+      when(() => mockCommunityDS.sendEncryptedCommunityMessage(
+            communityId: any(named: 'communityId'),
+            ciphertext: any(named: 'ciphertext'),
+            e2ee: any(named: 'e2ee'),
+            encryptedPreviews: any(named: 'encryptedPreviews'),
+            replyToMessageId: any(named: 'replyToMessageId'),
+            idempotencyKey: any(named: 'idempotencyKey'),
+          )).thenThrow(Exception('Permission denied'));
+
+      await queue.processPendingMessages();
+
+      // Should be marked as failed
+      verify(() => mockDb.updatePendingMessageStatus(
+            'pending_nonnet_h1',
+            'failed',
+            error: any(named: 'error'),
+            lastAttemptAt: any(named: 'lastAttemptAt'),
+          )).called(1);
+    });
+  });
+
+  // ===========================================================================
+  // 12. Enqueue community text message
+  // ===========================================================================
+
+  group('enqueueCommunityTextMessage', () {
+    test('returns optimistic message with correct type, status, communityId',
+        () async {
+      final result = await queue.enqueueCommunityTextMessage(
+        communityId: 'comm_enqueue_1',
+        text: 'Hello from enqueue test',
+      );
+
+      expect(result.type, MessageType.text);
+      expect(result.status, MessageStatus.sending);
+      expect(result.communityId, 'comm_enqueue_1');
+      expect(result.textContent, 'Hello from enqueue test');
+      expect(result.senderId, 'user_me');
+      expect(result.id, startsWith('pending_'));
+    });
+
+    test('persists pending message to DB', () async {
+      await queue.enqueueCommunityTextMessage(
+        communityId: 'comm_enqueue_2',
+        text: 'Persisted text',
+      );
+
+      // insertPendingMessage should be called once
+      final captured = verify(() => mockDb.insertPendingMessage(captureAny()))
+          .captured;
+      expect(captured, hasLength(1));
+      final companion = captured.first as LocalPendingMessagesCompanion;
+      expect(companion.conversationId.value, 'comm_enqueue_2');
+      expect(companion.type.value, 'community_text');
+      expect(companion.plaintext.value, 'Persisted text');
+      expect(companion.status.value, 'pending');
+    });
+
+    test('updates community preview', () async {
+      await queue.enqueueCommunityTextMessage(
+        communityId: 'comm_enqueue_3',
+        text: 'Preview text',
+      );
+
+      verify(() => mockDb.updateLocalCommunityPreview(
+            communityId: 'comm_enqueue_3',
+            lastMessageText: 'Preview text',
+            lastMessageSenderId: 'user_me',
+            lastMessageAt: any(named: 'lastMessageAt'),
+            lastMessageSenderName: any(named: 'lastMessageSenderName'),
+            lastMessageType: any(named: 'lastMessageType'),
+          )).called(1);
+    });
+  });
+
+  // ===========================================================================
+  // 13. Enqueue community media message — caption handling
+  // ===========================================================================
+
+  group('enqueueCommunityMediaMessage — caption handling', () {
+    test('caption is stored as plaintext and used in preview for image',
+        () async {
+      final result = await queue.enqueueCommunityMediaMessage(
+        communityId: 'comm_media_1',
+        payloadJson: '{"media":{"url":"https://x.com/photo.jpg"}}',
+        mediaType: 'image/jpeg',
+        caption: 'Check this out!',
+      );
+
+      expect(result.type, MessageType.image);
+      expect(result.textContent, 'Check this out!');
+      expect(result.communityId, 'comm_media_1');
+      expect(result.status, MessageStatus.sending);
+
+      // Caption should be used in the pending message plaintext
+      final captured = verify(() => mockDb.insertPendingMessage(captureAny()))
+          .captured;
+      expect(captured, hasLength(1));
+      final companion = captured.first as LocalPendingMessagesCompanion;
+      expect(companion.plaintext.value, 'Check this out!');
+    });
+
+    test('null caption defaults preview to emoji for image type', () async {
+      await queue.enqueueCommunityMediaMessage(
+        communityId: 'comm_media_2',
+        payloadJson: '{"media":{"url":"https://x.com/photo.jpg"}}',
+        mediaType: 'image/png',
+      );
+
+      // Preview text for image without caption should be the photo emoji fallback
+      verify(() => mockDb.updateLocalCommunityPreview(
+            communityId: 'comm_media_2',
+            lastMessageText: any(named: 'lastMessageText'),
+            lastMessageSenderId: 'user_me',
+            lastMessageAt: any(named: 'lastMessageAt'),
+            lastMessageSenderName: any(named: 'lastMessageSenderName'),
+            lastMessageType: any(named: 'lastMessageType'),
+          )).called(1);
+    });
+
+    test('voice type produces correct preview regardless of caption', () async {
+      final result = await queue.enqueueCommunityMediaMessage(
+        communityId: 'comm_media_3',
+        payloadJson: '{"media":{"url":"https://x.com/voice.ogg"}}',
+        mediaType: 'audio/ogg',
+        caption: 'This caption should not be in the preview',
+      );
+
+      expect(result.type, MessageType.voice);
+    });
+
+    test('video type produces MessageType.video with caption', () async {
+      final result = await queue.enqueueCommunityMediaMessage(
+        communityId: 'comm_media_4',
+        payloadJson: '{"media":{"url":"https://x.com/vid.mp4"}}',
+        mediaType: 'video/mp4',
+        caption: 'Watch this',
+      );
+
+      expect(result.type, MessageType.video);
+      expect(result.textContent, 'Watch this');
+      expect(result.communityId, 'comm_media_4');
     });
   });
 }

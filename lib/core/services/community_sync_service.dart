@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../concurrency/keyed_mutex.dart';
@@ -53,6 +52,10 @@ class CommunitySyncService {
   /// Previous member IDs per community (for detecting departures → rekey).
   final Map<String, Set<String>> _previousMemberIds = {};
 
+  /// Previous ACTIVE member IDs per community (for detecting new joins →
+  /// clear sender key distribution flag so next send re-distributes).
+  final Map<String, Set<String>> _previousActiveMemberIds = {};
+
   /// Per-community processing lock for sequential message processing.
   final _processingLock = KeyedMutex();
 
@@ -79,23 +82,58 @@ class CommunitySyncService {
   // LIFECYCLE
   // =========================================================================
 
-  /// Start syncing all communities for the current user.
+  /// Whether community list sync is active (may be before E2EE).
+  bool _communityListSyncing = false;
+
+  /// Community IDs known from list sync (populated before E2EE is ready).
+  final Set<String> _latestCommunityIds = {};
+
+  /// Start community list sync early (before E2EE keys are ready).
+  ///
+  /// Mirrors [MessageSyncService.startConversationListSync]: populates
+  /// community metadata in the local DB so the Communities tab shows data
+  /// immediately. Message-level sync (which needs E2EE) starts only when
+  /// [startSync] is called later.
+  void startCommunityListSync() {
+    if (_communityListSyncing) return;
+    _communityListSyncing = true;
+
+    print('CommunitySyncService: Starting community list sync (pre-E2EE)');
+    _startCommunityListSync();
+  }
+
+  /// Start full syncing (message decryption + storage).
+  ///
+  /// Requires E2EE keys to be ready. If [startCommunityListSync] was already
+  /// called, message-level sync is kicked off for all known communities.
+  /// Otherwise, starts the community list sync too.
   void startSync() {
     if (_isSyncing) return;
     _isSyncing = true;
 
-    debugPrint('CommunitySyncService: Starting sync');
+    print('CommunitySyncService: Starting full sync (E2EE ready)');
 
     // 6.1 Listen for connectivity changes to restart sync
     _connectivitySub?.cancel();
     _connectivitySub = _networkInfo.onConnectivityChanged.listen((_) async {
       if (_isSyncing && await _networkInfo.isConnected) {
-        debugPrint('CommunitySyncService: Network restored, restarting sync');
+        print('CommunitySyncService: Network restored, restarting sync');
         _restartCommunityListSync();
       }
     });
 
-    _startCommunityListSync();
+    // If community list sync was already started (pre-E2EE), kick off
+    // message-level sync for all known communities.
+    if (_communityListSyncing) {
+      for (final id in _latestCommunityIds) {
+        if (!_syncingCommunityIds.contains(id)) {
+          _startMessageSync(id);
+          _startMemberSync(id);
+        }
+      }
+    } else {
+      _startCommunityListSync();
+    }
   }
 
   void _startCommunityListSync() {
@@ -115,7 +153,7 @@ class CommunitySyncService {
                 await _appDatabase
                     .deleteLocalMessagesForConversation(model.id);
               } catch (e) {
-                debugPrint('CommunitySyncService: Failed to clean up closed '
+                print('CommunitySyncService: Failed to clean up closed '
                     'community ${model.id}: $e');
               }
               continue;
@@ -129,6 +167,8 @@ class CommunitySyncService {
               // M7: Preserve locally-decrypted preview fields when Firestore
               // sends null/stale values (E2EE messages have lastMessageText=null
               // on the server). Also preserve when local preview is newer.
+              // Also preserve local memberCount when local member data is
+              // more accurate than the Firestore doc's cached count.
               final existing =
                   await _appDatabase.getLocalCommunity(community.id);
               if (existing != null) {
@@ -159,34 +199,46 @@ class CommunitySyncService {
                             community.lastMessageType,
                   );
                 }
+
+                // Preserve local memberCount when member sync has already
+                // written the correct member data. The Firestore community
+                // doc's memberCount only counts active members and can be
+                // stale, while local member sync keeps an accurate count
+                // of ALL members (active + invited).
+                final localMembers = await _appDatabase
+                    .getLocalCommunityMembers(community.id);
+                if (localMembers.isNotEmpty &&
+                    localMembers.length > community.memberCount) {
+                  community = community.copyWith(
+                    memberCount: localMembers.length,
+                  );
+                }
               }
               await _appDatabase.upsertLocalCommunity(
                 LocalCommunityMapper.toCompanion(community),
               );
-
-              // Reconcile memberCount from actual local member data.
-              // The Firestore community doc may have a stale cached
-              // memberCount, while the member sync has already written
-              // the correct members. Use local member count if available.
-              final localMembers = await _appDatabase
-                  .getLocalCommunityMembers(community.id);
-              if (localMembers.isNotEmpty) {
-                await _appDatabase.updateLocalCommunityMemberCount(
-                  communityId: community.id,
-                  memberCount: localMembers.length,
-                );
-              }
             } catch (e) {
-              debugPrint('CommunitySyncService: Failed to store community '
+              print('CommunitySyncService: Failed to store community '
                   '${model.id}: $e');
             }
           }
 
-          // Start syncing new communities
-          for (final id in currentIds) {
-            if (!_syncingCommunityIds.contains(id)) {
-              _startMessageSync(id);
-              _startMemberSync(id);
+          // Track known community IDs for deferred message sync
+          _latestCommunityIds
+            ..clear()
+            ..addAll(currentIds);
+
+          print('CommunitySyncService: Community list stream emitted '
+              '${communityModels.length} communities '
+              '(${currentIds.length} active, isSyncing=$_isSyncing)');
+
+          // Start message-level sync only if full sync is active (E2EE ready)
+          if (_isSyncing) {
+            for (final id in currentIds) {
+              if (!_syncingCommunityIds.contains(id)) {
+                _startMessageSync(id);
+                _startMemberSync(id);
+              }
             }
           }
 
@@ -199,19 +251,19 @@ class CommunitySyncService {
               await _appDatabase.deleteLocalCommunity(id);
               await _appDatabase.deleteLocalCommunityMembersForCommunity(id);
               await _appDatabase.deleteLocalMessagesForConversation(id);
-              debugPrint('CommunitySyncService: Cleaned local data for '
+              print('CommunitySyncService: Cleaned local data for '
                   'removed community $id');
             } catch (e) {
-              debugPrint('CommunitySyncService: Failed to clean local data '
+              print('CommunitySyncService: Failed to clean local data '
                   'for $id: $e');
             }
           }
         }).catchError((Object e) {
-          debugPrint('CommunitySyncService: Community list error: $e');
+          print('CommunitySyncService: Community list error: $e');
         });
       },
       onError: (e) {
-        debugPrint('CommunitySyncService: Community list stream error: $e');
+        print('CommunitySyncService: Community list stream error: $e');
       },
     );
   }
@@ -224,10 +276,11 @@ class CommunitySyncService {
 
   /// Stop all syncing (on sign-out or app background).
   void stopSync() {
-    if (!_isSyncing) return;
+    if (!_isSyncing && !_communityListSyncing) return;
     _isSyncing = false;
+    _communityListSyncing = false;
 
-    debugPrint('CommunitySyncService: Stopping sync');
+    print('CommunitySyncService: Stopping sync');
 
     // 6.9 Cancel connectivity subscription
     _connectivitySub?.cancel();
@@ -247,9 +300,11 @@ class CommunitySyncService {
     _memberSubs.clear();
 
     _syncingCommunityIds.clear();
+    _latestCommunityIds.clear();
     _syncRetryCount.clear();
     // HIGH-6: Clear stale member IDs to prevent spurious rekeys on restart
     _previousMemberIds.clear();
+    _previousActiveMemberIds.clear();
     // 6.9 Dispose keyed mutexes
     _processingLock.clear();
     _listLock.clear();
@@ -271,6 +326,29 @@ class CommunitySyncService {
     _sentPlaintextCache[messageId] = (plaintext: plaintext, timestamp: now);
   }
 
+  /// Ensure message sync is running for a specific community.
+  ///
+  /// Called by BLoC/repository as a fallback when the local DB stream
+  /// returns empty. If the community isn't being synced yet (e.g. because
+  /// the community list stream never emitted or errored), this starts
+  /// message sync immediately.
+  void ensureSyncing(String communityId) {
+    if (!_isSyncing) {
+      print('CommunitySyncService.ensureSyncing: Full sync not started '
+          'yet for $communityId — skipping (E2EE not ready)');
+      return;
+    }
+    if (_syncingCommunityIds.contains(communityId)) {
+      print('CommunitySyncService.ensureSyncing: Already syncing '
+          '$communityId');
+      return;
+    }
+    print('CommunitySyncService.ensureSyncing: Force-starting message '
+        'sync for $communityId (was not syncing!)');
+    _startMessageSync(communityId);
+    _startMemberSync(communityId);
+  }
+
   // =========================================================================
   // PER-COMMUNITY MESSAGE SYNC
   // =========================================================================
@@ -281,10 +359,15 @@ class CommunitySyncService {
     _messageSubs[communityId]?.cancel();
     _syncingCommunityIds.add(communityId);
 
+    print('CommunitySyncService: Starting message listener for '
+        '$communityId (now syncing ${_syncingCommunityIds.length} communities)');
+
     _messageSubs[communityId] = _remoteDataSource
         .watchMessages(communityId: communityId, limit: 50)
         .listen(
       (messageModels) {
+        print('CommunitySyncService: Firestore emitted '
+            '${messageModels.length} messages for $communityId');
         // M8: Reset retry count on successful stream data
         _syncRetryCount.remove(communityId);
         // CRIT-3: No timeout — interrupting mid-ratchet decryption corrupts
@@ -293,21 +376,21 @@ class CommunitySyncService {
           communityId,
           () => _processIncomingMessages(communityId, messageModels),
         ).catchError((Object e) {
-          debugPrint(
+          print(
               'CommunitySyncService: processing error for $communityId: $e');
         });
       },
       // 6.2 Subscription error cleanup with retry
       // M8: Exponential backoff instead of fixed 10s delay
       onError: (e) {
-        debugPrint(
+        print(
             'CommunitySyncService: Message sync error for $communityId: $e');
         _messageSubs.remove(communityId);
         _syncingCommunityIds.remove(communityId);
         final retryCount = (_syncRetryCount[communityId] ?? 0) + 1;
         _syncRetryCount[communityId] = retryCount;
         if (retryCount > 5) {
-          debugPrint('CommunitySyncService: Max retries reached for '
+          print('CommunitySyncService: Max retries reached for '
               '$communityId message sync — will retry on next connectivity');
           return;
         }
@@ -362,43 +445,73 @@ class CommunitySyncService {
                 memberCount: currentIds.length,
               );
 
+              // Track active members to detect new joins → clear
+              // distribution flag so next send re-distributes the key.
+              final activeIds = <String>{};
+              for (final model in memberModels) {
+                if (model.status == 'active') {
+                  activeIds.add(model.userId);
+                }
+              }
+              final previousActiveIds =
+                  _previousActiveMemberIds[communityId];
+              if (previousActiveIds != null &&
+                  previousActiveIds.isNotEmpty) {
+                final newActive =
+                    activeIds.difference(previousActiveIds);
+                if (newActive.isNotEmpty) {
+                  print(
+                      'CommunitySyncService: ${newActive.length} new '
+                      'active member(s) in $communityId — clearing '
+                      'distribution flag');
+                  try {
+                    await _senderKeyService
+                        .clearDistributed(communityId);
+                  } catch (e) {
+                    print('CommunitySyncService: clearDistributed '
+                        'failed for $communityId: $e');
+                  }
+                }
+              }
+              _previousActiveMemberIds[communityId] = activeIds;
+
               // Detect member departures → rekey sender key for forward secrecy
               final previousIds = _previousMemberIds[communityId];
               if (previousIds != null && previousIds.isNotEmpty) {
                 final removed = previousIds.difference(currentIds);
                 if (removed.isNotEmpty) {
-                  debugPrint(
+                  print(
                       'CommunitySyncService: ${removed.length} member(s) '
                       'left $communityId — rekeying sender key');
                   try {
                     await _senderKeyService.rekeyAllSenderKeys(communityId);
                   } catch (e) {
-                    debugPrint('CommunitySyncService: Rekey failed for '
+                    print('CommunitySyncService: Rekey failed for '
                         '$communityId: $e');
                   }
                 }
               }
               _previousMemberIds[communityId] = currentIds;
             } catch (e) {
-              debugPrint(
+              print(
                   'CommunitySyncService: Member sync error for $communityId: $e');
             }
           },
         ).catchError((Object e) {
-          debugPrint(
+          print(
               'CommunitySyncService: Member lock error for $communityId: $e');
         });
       },
       // 6.2 + M8: Subscription error cleanup with exponential backoff
       onError: (e) {
-        debugPrint(
+        print(
             'CommunitySyncService: Member stream error for $communityId: $e');
         _memberSubs.remove(communityId);
         final key = 'member_$communityId';
         final retryCount = (_syncRetryCount[key] ?? 0) + 1;
         _syncRetryCount[key] = retryCount;
         if (retryCount > 5) {
-          debugPrint('CommunitySyncService: Max retries for member sync '
+          print('CommunitySyncService: Max retries for member sync '
               '$communityId — will retry on next connectivity');
           return;
         }
@@ -433,8 +546,15 @@ class CommunitySyncService {
     List<dynamic> messageModels,
   ) async {
     final currentUserId = _remoteDataSource.currentUserId;
-    if (currentUserId == null) return;
+    if (currentUserId == null) {
+      print('CommunitySyncService: currentUserId is NULL — '
+          'skipping ${messageModels.length} messages for $communityId');
+      return;
+    }
 
+    var storedCount = 0;
+    var skippedCount = 0;
+    var errorCount = 0;
     for (final model in messageModels) {
       try {
         final msg = model.toEntity() as Message;
@@ -469,7 +589,10 @@ class CommunitySyncService {
           }
 
           // If already decrypted, skip decryption
-          if (existing.isDecrypted) continue;
+          if (existing.isDecrypted) {
+            skippedCount++;
+            continue;
+          }
         }
 
         // Decrypt if needed
@@ -488,7 +611,7 @@ class CommunitySyncService {
             _mediaRecoveryService
                 .storePayload(msg.id, plaintext)
                 .catchError((e) {
-              debugPrint(
+              print(
                   'CommunitySync: vault store failed for ${msg.id}: $e');
             });
           } else {
@@ -499,7 +622,7 @@ class CommunitySyncService {
                 final recovered =
                     await _mediaRecoveryService.recoverPayload(msg.id);
                 if (recovered != null) {
-                  debugPrint(
+                  print(
                       'CommunitySyncService: Vault recovery SUCCESS for '
                       '${msg.id}');
                   decryptedMsg = _applyDecryptedPayload(msg, recovered);
@@ -516,7 +639,7 @@ class CommunitySyncService {
                   continue;
                 }
               }
-              debugPrint(
+              print(
                   'CommunitySyncService: Sender own-message cache miss '
                   '${msg.id} — storing fallback');
               decryptedMsg = msg.copyWith(textContent: '[Sent by you]');
@@ -534,7 +657,7 @@ class CommunitySyncService {
               final recovered =
                   await _mediaRecoveryService.recoverPayload(msg.id);
               if (recovered != null) {
-                debugPrint(
+                print(
                     'CommunitySyncService: Vault recovery SUCCESS for '
                     'received msg ${msg.id}');
                 decryptedMsg = _applyDecryptedPayload(msg, recovered);
@@ -558,6 +681,7 @@ class CommunitySyncService {
         }
 
         // Store in local DB with communityId set
+        storedCount++;
         await _appDatabase.upsertLocalMessage(
           LocalMessageMapper.toCompanion(
             decryptedMsg.copyWith(communityId: communityId),
@@ -575,7 +699,7 @@ class CommunitySyncService {
             );
           } catch (e) {
             // H4: Log instead of silently swallowing
-            debugPrint('CommunitySyncService: Failed to cache plaintext '
+            print('CommunitySyncService: Failed to cache plaintext '
                 'for ${msg.id}: $e');
           }
         }
@@ -583,12 +707,16 @@ class CommunitySyncService {
         // Update community preview
         await _updateCommunityPreview(communityId, decryptedMsg);
       } catch (e) {
+        errorCount++;
         // H4: Include message ID for debuggability
-        debugPrint(
+        print(
             'CommunitySyncService: Failed to process msg ${(model as dynamic).id ?? 'unknown'} '
             'in $communityId: $e');
       }
     }
+    print('CommunitySyncService: Processed ${messageModels.length} msgs '
+        'for $communityId — stored=$storedCount, skipped=$skippedCount, '
+        'errors=$errorCount');
   }
 
   /// Apply decrypted plaintext to a message, parsing structured JSON payloads
@@ -667,7 +795,7 @@ class CommunitySyncService {
       );
     } on StateError {
       // Sender key missing — try fetching pending key distributions
-      debugPrint('CommunitySyncService: Sender key missing for '
+      print('CommunitySyncService: Sender key missing for '
           '${msg.senderId} in $communityId, fetching distributions...');
       // C2: Wrap in try-catch so a network error during key fetch
       // doesn't kill the entire message batch
@@ -675,7 +803,7 @@ class CommunitySyncService {
       try {
         installed = await _processIncomingKeyDistributions(communityId);
       } catch (e) {
-        debugPrint('CommunitySyncService: Key distribution fetch failed '
+        print('CommunitySyncService: Key distribution fetch failed '
             'for $communityId: $e — message ${msg.id} will remain '
             'undecryptable until next sync');
         return null;
@@ -694,12 +822,12 @@ class CommunitySyncService {
         }
         return result;
       } catch (_) {
-        debugPrint('CommunitySyncService: Still cannot decrypt msg '
+        print('CommunitySyncService: Still cannot decrypt msg '
             '${msg.id} after key fetch — distributions NOT consumed');
         return null;
       }
     } catch (e) {
-      debugPrint('CommunitySyncService: Sender Key decrypt failed for '
+      print('CommunitySyncService: Sender Key decrypt failed for '
           'msg ${msg.id}: $e');
       return null;
     }
@@ -752,7 +880,7 @@ class CommunitySyncService {
             // successful decryption to prevent consuming keys we can't use.
             installed.add((communityId: communityId, distributionId: distributionId));
           } catch (e) {
-            debugPrint(
+            print(
                 'CommunitySyncService: Failed to process key distribution '
                 'from $fromUserId: $e');
           }
@@ -762,7 +890,7 @@ class CommunitySyncService {
         if (attempt < 2) {
           await Future.delayed(Duration(seconds: attempt * 2 + 1));
         } else {
-          debugPrint('CommunitySyncService: Key distribution fetch failed '
+          print('CommunitySyncService: Key distribution fetch failed '
               'after 3 attempts for $communityId: $e');
         }
       }
@@ -782,7 +910,7 @@ class CommunitySyncService {
           d.distributionId,
         );
       } catch (e) {
-        debugPrint('CommunitySyncService: Failed to mark distribution '
+        print('CommunitySyncService: Failed to mark distribution '
             '${d.distributionId} as consumed: $e');
       }
     }
@@ -826,7 +954,7 @@ class CommunitySyncService {
         lastMessageType: msg.type.name,
       );
     } catch (e) {
-      debugPrint(
+      print(
           'CommunitySyncService: Failed to update preview for $communityId: $e');
     }
   }

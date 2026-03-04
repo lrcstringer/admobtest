@@ -219,15 +219,27 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   Stream<List<CommunityModel>> watchUserCommunities() {
     final userId = _requireUserId();
 
+    // Simplified query: only array-contains + single orderBy.
+    // Avoids the != decomposition + dual orderBy that requires a complex
+    // composite index and silently fails if the index is missing or the
+    // status field is null. Closed communities are filtered client-side
+    // in CommunitySyncService._startCommunityListSync (line 114).
     return _communitiesCollection
         .where('memberIds', arrayContains: userId)
-        .where('status', isNotEqualTo: 'closed')
-        .orderBy('status')
         .orderBy('lastMessageAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => CommunityModel.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+      final communities = <CommunityModel>[];
+      for (final doc in snapshot.docs) {
+        try {
+          communities.add(CommunityModel.fromFirestore(doc));
+        } catch (e) {
+          debugPrint(
+              'CommunityRemoteDS: Skipping malformed community ${doc.id}: $e');
+        }
+      }
+      return communities;
+    });
   }
 
   @override
@@ -402,9 +414,18 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
         .collection('members')
         .orderBy('role')
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => CommunityMemberModel.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+      final members = <CommunityMemberModel>[];
+      for (final doc in snapshot.docs) {
+        try {
+          members.add(CommunityMemberModel.fromFirestore(doc));
+        } catch (e) {
+          debugPrint(
+              'CommunityRemoteDS: Skipping malformed member ${doc.id}: $e');
+        }
+      }
+      return members;
+    });
   }
 
   @override
@@ -510,10 +531,21 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       query = query.limit(limit);
     }
 
-    return query.snapshots().map((snapshot) => snapshot.docs.map((doc) {
+    return query.snapshots().map((snapshot) {
+      final messages = <MessageModel>[];
+      for (final doc in snapshot.docs) {
+        try {
           final data = sanitizeFirestoreData(doc.data());
-          return MessageModel.fromJson({...data, 'id': doc.id});
-        }).toList());
+          messages.add(MessageModel.fromJson({...data, 'id': doc.id}));
+        } catch (e) {
+          // Skip individual malformed messages instead of failing the
+          // entire batch — matches the P2P watchMessages pattern.
+          debugPrint(
+              'CommunityRemoteDS: Skipping malformed message ${doc.id}: $e');
+        }
+      }
+      return messages;
+    });
   }
 
   /// @deprecated Use [OutgoingMessageQueue] for E2EE message sending instead.

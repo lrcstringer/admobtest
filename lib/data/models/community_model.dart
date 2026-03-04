@@ -115,8 +115,11 @@ class CommunityModel with _$CommunityModel {
       sanitized['lastMessageSenderId'] = lastMessage['senderId'] as String?;
       sanitized['lastMessageSenderName'] = lastMessage['senderName'] as String?;
       sanitized['lastMessageType'] = lastMessage['type'] as String?;
+      // After sanitizeFirestoreData, Timestamps are ISO strings, not
+      // Timestamp objects. Accept both formats so the @NullableTimestamp-
+      // Converter can parse the value in fromJson.
       final ts = lastMessage['timestamp'];
-      if (ts is Timestamp) {
+      if (ts != null) {
         sanitized['lastMessageAt'] = ts;
       }
       sanitized.remove('lastMessage');

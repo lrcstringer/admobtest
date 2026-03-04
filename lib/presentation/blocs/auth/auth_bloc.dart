@@ -93,9 +93,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               user: user,
               isLoading: false,
             ));
-            // Start conversation list sync immediately so the Chat tab
-            // shows conversations before E2EE keys are ready.
+            // Start conversation/community list sync immediately so the
+            // Chat and Communities tabs show data before E2EE keys are ready.
             _messageSyncService.startConversationListSync();
+            _communitySyncService.startCommunityListSync();
             // Fire-and-forget E2EE key initialization
             _initializeE2EEKeys();
             // Fire-and-forget notification + VoIP token setup

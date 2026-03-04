@@ -167,7 +167,7 @@ class LocalMessageMapper {
       if (map['status'] is String) {
         map['status'] = PoolStatus.values
             .firstWhere((e) => e.name == map['status'],
-                orElse: () => PoolStatus.active)
+                orElse: () => PoolStatus.collecting)
             .name;
       }
       return GroupGiftMessageData.fromJson(map);

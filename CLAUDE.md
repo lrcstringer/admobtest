@@ -121,6 +121,16 @@ When modifying domain entities or data flow, these files often need coordinated 
 - `getOrCreateBrandSubAccount` already exists in `ledger/index.ts` — don't duplicate it
 - Budget pre-check at `startEngagement` prevents poor UX
 
+## Code Quality Criteria (MANDATORY)
+All code written or modified must satisfy ALL of the following:
+1. **Clean Architecture compliance** — respect layer boundaries (domain → data → presentation), no layer violations
+2. **Coding best practices** — SOLID principles, DRY, meaningful naming, small focused functions
+3. **Fully deterministic** — no undefined behavior, no reliance on execution order unless explicitly sequenced; where true determinism is impossible (e.g., network calls, concurrency), make behavior as deterministic as possible with clear fallback/retry semantics
+4. **No race conditions** — use proper synchronization (Completers, mutexes, sequential awaits); verify that concurrent access to shared state is safe; two-phase startup patterns where initialization order matters
+5. **Edge case coverage** — identify all edge cases (null values, empty collections, network failures, partial data, timeout, re-entrant calls) and either eliminate them or handle them explicitly
+
+Always check code against these five criteria before considering a task complete.
+
 ## Do NOT
 - Create new top-level TypeScript files for admin functions — extend `adminAccounts.ts` or `earnAdmin.ts`
 - Use `Navigator.push()` — use GoRouter everywhere

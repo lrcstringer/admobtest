@@ -10,6 +10,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/error/exceptions.dart';
 import '../../core/error/failures.dart';
 import '../../core/network/network_info.dart';
+import '../../core/services/community_sync_service.dart';
 import '../../core/services/offline_action_queue.dart';
 import '../../core/services/outgoing_message_queue.dart';
 import '../datasources/remote/media_upload_datasource.dart';
@@ -35,6 +36,7 @@ class CommunityRepositoryImpl implements CommunityRepository {
   final OfflineActionQueue _offlineActionQueue;
   final OutgoingMessageQueue _outgoingMessageQueue;
   final MediaUploadDatasource _mediaUploadDatasource;
+  final CommunitySyncService _communitySyncService;
 
   static const _uuid = Uuid();
 
@@ -45,6 +47,7 @@ class CommunityRepositoryImpl implements CommunityRepository {
     this._offlineActionQueue,
     this._outgoingMessageQueue,
     this._mediaUploadDatasource,
+    this._communitySyncService,
   );
 
   String? get _currentUserId => _remoteDataSource.currentUserId;
@@ -492,6 +495,11 @@ class CommunityRepositoryImpl implements CommunityRepository {
     required String communityId,
     int? limit,
   }) {
+    // Belt-and-suspenders: ensure CommunitySyncService is syncing messages
+    // for this community. If the community list stream failed silently,
+    // this is the safety net that starts per-community message sync.
+    _communitySyncService.ensureSyncing(communityId);
+
     // Offline-first: stream pre-decrypted messages from local DB
     return _appDatabase
         .watchLocalMessages(communityId, limit: limit ?? 50)

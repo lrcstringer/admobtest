@@ -665,6 +665,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i124.MediaRecoveryService>(),
       ),
     );
+    gh.factory<_i775.EarnBloc>(
+      () =>
+          _i775.EarnBloc(gh<_i805.EarnRepository>(), gh<_i284.AdMobService>()),
+    );
+    gh.factory<_i142.ChatBloc>(
+      () => _i142.ChatBloc(gh<_i1072.ChatRepository>()),
+    );
     gh.lazySingleton<_i936.CommunityRepository>(
       () => _i462.CommunityRepositoryImpl(
         gh<_i560.CommunityRemoteDataSource>(),
@@ -673,17 +680,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i340.OfflineActionQueue>(),
         gh<_i111.OutgoingMessageQueue>(),
         gh<_i654.MediaUploadDatasource>(),
+        gh<_i310.CommunitySyncService>(),
       ),
-    );
-    gh.factory<_i856.CommunityBloc>(
-      () => _i856.CommunityBloc(gh<_i936.CommunityRepository>()),
-    );
-    gh.factory<_i775.EarnBloc>(
-      () =>
-          _i775.EarnBloc(gh<_i805.EarnRepository>(), gh<_i284.AdMobService>()),
-    );
-    gh.factory<_i142.ChatBloc>(
-      () => _i142.ChatBloc(gh<_i1072.ChatRepository>()),
     );
     gh.factory<_i772.CashoutBloc>(
       () => _i772.CashoutBloc(gh<_i851.WalletRepository>()),
@@ -733,6 +731,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i936.CommunityRepository>(),
         communityId: communityId,
       ),
+    );
+    gh.factory<_i856.CommunityBloc>(
+      () => _i856.CommunityBloc(gh<_i936.CommunityRepository>()),
     );
     gh.factory<_i792.ContactBloc>(
       () => _i792.ContactBloc(
