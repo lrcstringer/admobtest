@@ -112,10 +112,16 @@ class DeviceBindingService {
                 deviceModel: device.deviceModel,
                 platform: device.platform,
               );
-              // Step 6: Initialize payload recovery (non-blocking)
-              _mediaRecoveryService.initialize().catchError((e) {
-                debugPrint('Media recovery init failed: $e');
-                return false;
+              // Step 6: Initialize payload recovery (non-blocking).
+              // CRITICAL: After init, ensure the TEE-wrapped blob is stored
+              // on the device doc. On first install, initialize() may have run
+              // before the device doc existed (race with E2EE key init), so
+              // the blob would be missing — ensureBlobStored fixes this.
+              _mediaRecoveryService.initialize().then((_) {
+                return _mediaRecoveryService
+                    .ensureBlobStored(device.deviceId);
+              }).catchError((e) {
+                debugPrint('Media recovery init/blob store failed: $e');
               });
               return Right(device);
             },

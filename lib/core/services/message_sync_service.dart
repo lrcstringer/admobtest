@@ -440,7 +440,10 @@ class MessageSyncService {
             // Try vault recovery for received messages (may have been
             // decrypted in a previous install and stored in the vault).
             // Await initialize() in case it's still in-flight.
-            await _mediaRecoveryService.initialize();
+            final vaultReady = await _mediaRecoveryService.initialize();
+            debugPrint('MessageSyncService: Vault recovery attempt for '
+                '${msg.id} — vaultReady=$vaultReady, '
+                'isReady=${_mediaRecoveryService.isReady}');
             if (_mediaRecoveryService.isReady) {
               final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
               if (recovered != null) {
@@ -459,6 +462,9 @@ class MessageSyncService {
                 await _updateConversationPreview(conversationId, decryptedMsg);
                 _decryptionService.decryptFailures.remove(msg.id);
                 continue;
+              } else {
+                debugPrint('MessageSyncService: Vault recovery MISS for '
+                    '${msg.id} — payload not in vault');
               }
             }
 

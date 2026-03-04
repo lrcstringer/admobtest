@@ -734,6 +734,21 @@ class AppDatabase extends _$AppDatabase {
         .go();
   }
 
+  /// Delete all messages with permanent decryption failure sentinels.
+  ///
+  /// Returns the number of deleted rows. After calling this, the message
+  /// sync service will re-fetch these messages from Firestore and retry
+  /// decryption (including vault recovery).
+  Future<int> purgeUndecryptableMessages() {
+    return (delete(localFullMessages)
+          ..where((m) =>
+              m.textContent.equals(
+                      '[Session expired — message cannot be recovered]') |
+                  m.textContent.equals('[Cannot decrypt]') |
+                  m.textContent.equals('[Sent by you]')))
+        .go();
+  }
+
   Future<LocalFullMessage?> getLatestLocalMessage(String conversationId) {
     return (select(localFullMessages)
           ..where((m) => m.conversationId.equals(conversationId))

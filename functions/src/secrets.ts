@@ -14,4 +14,5 @@ export const MYMOBILEAPI_CLIENT_ID = defineSecret("MYMOBILEAPI_CLIENT_ID");
 export const MYMOBILEAPI_API_KEY = defineSecret("MYMOBILEAPI_API_KEY");
 export const MYMOBILEAPI_SENDER_ID = defineSecret("MYMOBILEAPI_SENDER_ID");
 export const SMS_APP_HASH = defineSecret("SMS_APP_HASH");
+export const SMS_APP_HASH_PLAY = defineSecret("SMS_APP_HASH_PLAY");
 export const REWARD_CODE_ENCRYPTION_KEY = defineSecret("REWARD_CODE_ENCRYPTION_KEY");

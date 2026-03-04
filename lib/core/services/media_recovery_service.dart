@@ -42,6 +42,11 @@ class MediaRecoveryService {
   /// Whether initialization has completed this session.
   bool _initialized = false;
 
+  /// Whether the wrapped recovery key blob has been stored on the device doc.
+  /// False when initialize() completed without a deviceId (race condition on
+  /// first install — device binding hadn't finished yet).
+  bool _blobStoredOnFirestore = false;
+
   /// Guards against concurrent initialize() calls (e.g. DeviceBindingService
   /// and AuthBloc both fire-and-forget initialize() on first install).
   Completer<bool>? _initCompleter;
@@ -126,6 +131,7 @@ class MediaRecoveryService {
       final cached = await _secureStorage.read(key: _recoveryKeyCache);
       if (cached != null && cached.isNotEmpty) {
         _cachedRecoveryKey = cached;
+        _blobStoredOnFirestore = true; // was stored in a previous init
         _initialized = true;
         debugPrint(
             'MediaRecoveryService: Recovery key loaded from local cache');
@@ -164,6 +170,7 @@ class MediaRecoveryService {
           }, (v) => v);
           if (recoveryKey != null) {
             _cachedRecoveryKey = recoveryKey;
+            _blobStoredOnFirestore = true;
             await _secureStorage.write(
                 key: _recoveryKeyCache, value: recoveryKey);
             _initialized = true;
@@ -207,10 +214,13 @@ class MediaRecoveryService {
         'recoveryKeyBlob': wrappedData['ciphertext'],
         'recoveryKeyIv': wrappedData['iv'],
       });
+      _blobStoredOnFirestore = true;
     } else {
+      _blobStoredOnFirestore = false;
       debugPrint(
           'MediaRecoveryService: WARNING — no deviceId, wrapped blob '
-          'NOT stored on Firestore (won\'t survive reinstall)');
+          'NOT stored on Firestore (won\'t survive reinstall). '
+          'Call ensureBlobStored(deviceId) after device registration.');
     }
 
     // Cache locally
@@ -224,6 +234,63 @@ class MediaRecoveryService {
         'MediaRecoveryService: New recovery key generated and stored');
     _flushPendingPayloads();
     return true;
+  }
+
+  // ===========================================================================
+  // DEFERRED BLOB STORAGE
+  // ===========================================================================
+
+  /// Store the TEE-wrapped recovery key blob on the Firestore device doc.
+  ///
+  /// Called by [DeviceBindingService] after device registration completes.
+  /// Fixes the race condition where [initialize] ran before the device doc
+  /// existed (first install: E2EE init finishes before device binding).
+  ///
+  /// No-op if the blob was already stored during [initialize].
+  Future<void> ensureBlobStored(String deviceId) async {
+    if (_blobStoredOnFirestore) return;
+    if (_cachedRecoveryKey == null) return;
+
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+
+    try {
+      // Double-check: maybe blob was written by another path
+      final deviceDoc =
+          await _firestore.collection('devices').doc(deviceId).get();
+      if (deviceDoc.exists) {
+        final data = deviceDoc.data()!;
+        if (data['recoveryKeyBlob'] != null && data['recoveryKeyIv'] != null) {
+          _blobStoredOnFirestore = true;
+          debugPrint(
+              'MediaRecoveryService: ensureBlobStored — blob already exists');
+          return;
+        }
+      }
+
+      // Wrap the cached recovery key with TEE
+      final wrappingAlias = KeystoreService.wrappingKeyAlias(uid);
+      final wrapResult =
+          await _keystoreService.wrapData(wrappingAlias, _cachedRecoveryKey!);
+      final wrappedData = wrapResult.fold((err) {
+        debugPrint(
+            'MediaRecoveryService: ensureBlobStored TEE wrap failed: $err');
+        return null;
+      }, (v) => v);
+      if (wrappedData == null) return;
+
+      await _firestore.collection('devices').doc(deviceId).update({
+        'recoveryKeyBlob': wrappedData['ciphertext'],
+        'recoveryKeyIv': wrappedData['iv'],
+      });
+      _blobStoredOnFirestore = true;
+      debugPrint(
+          'MediaRecoveryService: ensureBlobStored — blob stored on device '
+          '$deviceId (deferred from init)');
+    } catch (e) {
+      debugPrint(
+          'MediaRecoveryService: ensureBlobStored failed for $deviceId: $e');
+    }
   }
 
   // ===========================================================================
@@ -412,6 +479,7 @@ class MediaRecoveryService {
   Future<void> clear() async {
     _cachedRecoveryKey = null;
     _initialized = false;
+    _blobStoredOnFirestore = false;
     try {
       await _secureStorage.delete(key: _recoveryKeyCache);
     } catch (_) {}

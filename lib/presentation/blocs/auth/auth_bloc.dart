@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../data/datasources/local/app_database.dart';
 import '../../../core/error/failures.dart';
 import '../../../core/security/device_binding_service.dart';
 import '../../../core/services/biometric_login_service.dart';
@@ -769,6 +770,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   /// Start all message/queue services. Idempotent — safe to call multiple times.
   void _startMessageAndQueueServices() {
+    // Purge sentinel messages from local DB so the sync service retries them
+    // from Firestore (including vault recovery). Fire-and-forget — the stream
+    // from Firestore emits asynchronously so the purge completes first.
+    getIt<AppDatabase>().purgeUndecryptableMessages().then((count) {
+      if (count > 0) {
+        debugPrint('E2EE INIT: Purged $count undecryptable messages — '
+            'will retry from Firestore');
+      }
+    }).catchError((e) {
+      debugPrint('E2EE INIT: Purge failed: $e');
+    });
     _messageSyncService.startSync();
     _communitySyncService.startSync();
     _offlineActionQueue.startListening();

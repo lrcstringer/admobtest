@@ -34,9 +34,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
   @override
   void initState() {
     super.initState();
+    debugPrint('OTP_DEBUG: initState — calling listenForCode()');
     listenForCode();
-    // TODO: Remove after retrieving the hash from debug console
-    SmsAutoFill().getAppSignature.then((sig) => debugPrint('SMS App Hash: $sig'));
+    SmsAutoFill().getAppSignature.then((sig) => debugPrint('OTP_DEBUG: App Hash: $sig'));
+    debugPrint('OTP_DEBUG: listenForCode() called');
   }
 
   @override
@@ -47,8 +48,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
 
   @override
   void codeUpdated() {
+    debugPrint('OTP_DEBUG: codeUpdated() fired — raw code: $code');
     if (code != null) {
       final digits = _extractOtp(code!);
+      debugPrint('OTP_DEBUG: extracted digits: $digits');
       if (digits != null && digits.length == 4) {
         setState(() {
           _otpDigits = digits;

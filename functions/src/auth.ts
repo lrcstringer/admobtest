@@ -8,7 +8,7 @@ import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
 import { checkRateLimit, requireAppCheck, validators } from "./security";
-import { MYMOBILEAPI_CLIENT_ID, MYMOBILEAPI_API_KEY, MYMOBILEAPI_SENDER_ID, SMS_APP_HASH } from "./secrets";
+import { MYMOBILEAPI_CLIENT_ID, MYMOBILEAPI_API_KEY, MYMOBILEAPI_SENDER_ID, SMS_APP_HASH, SMS_APP_HASH_PLAY } from "./secrets";
 
 const db = admin.firestore();
 
@@ -121,7 +121,7 @@ async function sendSmsViaMyMobileApi(
  * @param phoneNumber - South African phone number
  * @returns { success: boolean, message: string }
  */
-export const sendOtp = onCall({ labels: { area: "auth" }, secrets: [MYMOBILEAPI_CLIENT_ID, MYMOBILEAPI_API_KEY, MYMOBILEAPI_SENDER_ID, SMS_APP_HASH] }, async (request) => {
+export const sendOtp = onCall({ labels: { area: "auth" }, secrets: [MYMOBILEAPI_CLIENT_ID, MYMOBILEAPI_API_KEY, MYMOBILEAPI_SENDER_ID, SMS_APP_HASH, SMS_APP_HASH_PLAY] }, async (request) => {
   requireAppCheck(request, "sendOtp");
 
   const { phoneNumber } = request.data;
@@ -190,9 +190,14 @@ export const sendOtp = onCall({ labels: { area: "auth" }, secrets: [MYMOBILEAPI_
     status: "pending",
   });
 
-  // Send SMS
-  const appHash = SMS_APP_HASH.value() || "";
-  const message = `Your iMali verification code is: ${code}. Valid for ${OTP_CONFIG.expiryMinutes} minutes. Do not share this code.${appHash ? `\n${appHash}` : ""}`;
+  // Send SMS — format follows SMS Retriever API requirements:
+  // 1. Starts with <#>  2. Contains OTP  3. Ends with 11-char app hash
+  // Include both local dev and Play Store hashes (may be identical).
+  const localHash = SMS_APP_HASH.value() || "";
+  const playHash = SMS_APP_HASH_PLAY.value() || "";
+  const hashes = [...new Set([localHash, playHash].filter(Boolean))];
+  const hashSuffix = hashes.join("\n");
+  const message = `<#> Your iMali verification code is: ${code}. Valid for ${OTP_CONFIG.expiryMinutes} minutes. Do not share this code.${hashSuffix ? `\n${hashSuffix}` : ""}`;
   const smsResult = await sendSmsViaMyMobileApi(normalizedPhone, message);
 
   if (!smsResult.success) {

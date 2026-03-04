@@ -2,6 +2,7 @@ import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 import '../../../core/utils/phone_utils.dart';
 import '../../blocs/auth/auth_bloc.dart';
@@ -126,6 +127,10 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
     }
 
     setState(() => _errorText = null);
+
+    // Start SMS Retriever listener BEFORE sending the OTP so it's ready
+    // when the SMS arrives (fixes timing issue on Play Store builds).
+    SmsAutoFill().listenForCode();
 
     // Dispatch push login request to BLoC (handles fallback to OTP internally)
     context.read<AuthBloc>().add(
