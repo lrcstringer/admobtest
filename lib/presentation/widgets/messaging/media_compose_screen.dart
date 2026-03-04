@@ -42,8 +42,9 @@ class _MediaComposeScreenState extends State<MediaComposeScreen> {
 
   bool get _isVideo => widget.mediaType.startsWith('video/');
 
-  bool get _isDocument =>
-      !_isImage && !_isVideo && !widget.mediaType.startsWith('audio/');
+  bool get _isAudio => widget.mediaType.startsWith('audio/');
+
+  bool get _isDocument => !_isImage && !_isVideo && !_isAudio;
 
   String get _fileName => p.basename(widget.mediaFile.path);
 
@@ -143,6 +144,44 @@ class _MediaComposeScreenState extends State<MediaComposeScreen> {
                     color: AppColors.textSecondary, fontSize: 14),
               ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAudioPreview() {
+    return Expanded(
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child:
+                  const Icon(Icons.mic, color: AppColors.primary, size: 40),
+            ),
+            if (widget.durationSeconds != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                _formatDuration(widget.durationSeconds!),
+                style: const TextStyle(
+                    color: AppColors.textSecondary, fontSize: 16),
+              ),
+            ],
+            const SizedBox(height: 8),
+            const Text(
+              'Voice Note',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 14,
+              ),
+            ),
           ],
         ),
       ),
@@ -257,7 +296,9 @@ class _MediaComposeScreenState extends State<MediaComposeScreen> {
               ? 'Photo'
               : _isVideo
                   ? 'Video'
-                  : 'Document',
+                  : _isAudio
+                      ? 'Voice Note'
+                      : 'Document',
           style: const TextStyle(fontSize: 18),
         ),
       ),
@@ -266,6 +307,7 @@ class _MediaComposeScreenState extends State<MediaComposeScreen> {
           // Media preview
           if (_isImage) _buildImagePreview(),
           if (_isVideo) _buildVideoPreview(),
+          if (_isAudio) _buildAudioPreview(),
           if (_isDocument) _buildDocumentPreview(),
 
           // Caption input + send button

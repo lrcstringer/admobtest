@@ -530,13 +530,26 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       pageBuilder: (ctx, _, __) => VoiceRecorderWidget(
         onRecordingComplete: (result) {
           Navigator.of(ctx).pop();
-          context.read<ConversationBloc>().add(
-            ConversationEvent.sendMediaMessage(
-              conversationId: widget.conversationId,
-              mediaFile: result.file,
-              mediaType: 'audio/m4a',
-              recipientId: recipientId,
-              durationSeconds: result.durationSeconds,
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              fullscreenDialog: true,
+              builder: (_) => MediaComposeScreen(
+                mediaFile: result.file,
+                mediaType: 'audio/m4a',
+                durationSeconds: result.durationSeconds,
+                onSend: (caption) {
+                  context.read<ConversationBloc>().add(
+                    ConversationEvent.sendMediaMessage(
+                      conversationId: widget.conversationId,
+                      mediaFile: result.file,
+                      mediaType: 'audio/m4a',
+                      recipientId: recipientId,
+                      durationSeconds: result.durationSeconds,
+                      caption: caption,
+                    ),
+                  );
+                },
+              ),
             ),
           );
         },

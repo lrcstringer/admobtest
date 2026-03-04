@@ -386,13 +386,26 @@ class _ChatTab extends StatelessWidget {
       pageBuilder: (ctx, _, __) => VoiceRecorderWidget(
         onRecordingComplete: (result) {
           Navigator.of(ctx).pop();
-          context.read<CommunityMessagingBloc>().add(
-                CommunityMessagingEvent.sendMediaMessage(
-                  mediaFile: result.file,
-                  mediaType: 'audio/m4a',
-                  durationSeconds: result.durationSeconds,
-                ),
-              );
+          showGeneralDialog(
+            context: context,
+            barrierDismissible: false,
+            barrierColor: Colors.black,
+            pageBuilder: (ctx2, _, __) => MediaComposeScreen(
+              mediaFile: result.file,
+              mediaType: 'audio/m4a',
+              durationSeconds: result.durationSeconds,
+              onSend: (caption) {
+                context.read<CommunityMessagingBloc>().add(
+                      CommunityMessagingEvent.sendMediaMessage(
+                        mediaFile: result.file,
+                        mediaType: 'audio/m4a',
+                        durationSeconds: result.durationSeconds,
+                        caption: caption,
+                      ),
+                    );
+              },
+            ),
+          );
         },
         onCancel: () => Navigator.of(ctx).pop(),
       ),

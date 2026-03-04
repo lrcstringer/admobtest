@@ -153,23 +153,58 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
     return uid;
   }
 
+  /// Map Cloud Function errors to typed exceptions so the repository layer
+  /// can return the correct [Failure] variant.
+  Exception _mapFunctionsError(FirebaseFunctionsException e) {
+    debugPrint('CommunityRemoteDS: FirebaseFunctionsException: '
+        '${e.code} - ${e.message}');
+    switch (e.code) {
+      case 'unauthenticated':
+        return AuthException(
+            message: e.message ?? 'Please sign in to continue');
+      case 'permission-denied':
+        return AuthException(
+            message: e.message ?? 'You don\'t have permission');
+      default:
+        return ServerException(
+            message: e.message ?? 'Operation failed');
+    }
+  }
+
+  /// Centralized Cloud Function caller with [FirebaseFunctionsException]
+  /// handling. All callable invocations go through here so transport-level
+  /// errors (unauthenticated, permission-denied, etc.) are mapped to typed
+  /// exceptions the repository layer understands.
+  Future<Map<String, dynamic>> _callFunction(
+    String name,
+    Map<String, dynamic> params,
+  ) async {
+    try {
+      final callable = _functions.httpsCallable(name);
+      final result = await callable.call(params);
+      return sanitizeFirestoreData(result.data as Map);
+    } on FirebaseFunctionsException catch (e) {
+      throw _mapFunctionsError(e);
+    }
+  }
+
   // =========================================================================
   // COMMUNITY CRUD
   // =========================================================================
 
   @override
   Future<CommunityModel> createCommunity(CreateCommunityParams params) async {
-    _requireUserId();
-
+    // No _requireUserId() — the Cloud Function validates auth via
+    // requireAuth(request). The local check was failing transiently on
+    // Play Store builds when Firebase Auth hadn't refreshed the token yet,
+    // blocking the user with "Please sign in to continue" even though
+    // they were authenticated.
     final integrityToken = await _playIntegrity.getIntegrityToken();
-    final callable = _functions.httpsCallable('createCommunity');
-
-    final result = await callable.call({
+    final data = await _callFunction('createCommunity', {
       ...params.toJson(),
       'integrityToken': integrityToken,
     });
 
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to create community');
@@ -197,10 +232,7 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   Future<List<CommunityModel>> getUserCommunities() async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('getUserCommunities');
-    final result = await callable.call({});
-
-    final data = sanitizeFirestoreData(result.data as Map);
+    final data = await _callFunction('getUserCommunities', {});
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to get communities');
@@ -247,13 +279,10 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       String communityId, UpdateCommunityParams params) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('updateCommunity');
-    final result = await callable.call({
+    final data = await _callFunction('updateCommunity', {
       'communityId': communityId,
       ...params.toJson(),
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to update community');
@@ -265,14 +294,10 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
     _requireUserId();
 
     final integrityToken = await _playIntegrity.getIntegrityToken();
-    final callable = _functions.httpsCallable('deleteCommunity');
-
-    final result = await callable.call({
+    final data = await _callFunction('deleteCommunity', {
       'communityId': communityId,
       'integrityToken': integrityToken,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to delete community');
@@ -288,14 +313,11 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       String communityId, String userId, MemberRole role) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('inviteCommunityMember');
-    final result = await callable.call({
+    final data = await _callFunction('inviteCommunityMember', {
       'communityId': communityId,
       'userId': userId,
       'role': role.name,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to invite member');
@@ -306,12 +328,9 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   Future<void> acceptInvitation(String communityId) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('acceptCommunityInvitation');
-    final result = await callable.call({
+    final data = await _callFunction('acceptCommunityInvitation', {
       'communityId': communityId,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to accept invitation');
@@ -322,13 +341,10 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   Future<void> declineInvitation(String communityId) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('removeCommunityMember');
-    final result = await callable.call({
+    final data = await _callFunction('removeCommunityMember', {
       'communityId': communityId,
       'memberId': currentUserId,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to decline invitation');
@@ -339,13 +355,10 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   Future<void> removeMember(String communityId, String memberId) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('removeCommunityMember');
-    final result = await callable.call({
+    final data = await _callFunction('removeCommunityMember', {
       'communityId': communityId,
       'memberId': memberId,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to remove member');
@@ -360,14 +373,11 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   ) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('updateCommunityMemberRole');
-    final result = await callable.call({
+    final data = await _callFunction('updateCommunityMemberRole', {
       'communityId': communityId,
       'memberId': memberId,
       'role': role.name,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to update member role');
@@ -378,12 +388,9 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   Future<void> leaveCommunity(String communityId) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('leaveCommunity');
-    final result = await callable.call({
+    final data = await _callFunction('leaveCommunity', {
       'communityId': communityId,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to leave community');
@@ -559,14 +566,11 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   }) async {
     final userId = _requireUserId();
 
-    final callable = _functions.httpsCallable('sendCommunityMessage');
-    final result = await callable.call({
+    final data = await _callFunction('sendCommunityMessage', {
       'communityId': communityId,
       'text': text,
       if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to send message');
@@ -596,8 +600,7 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   }) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('sendCommunityMessage');
-    final result = await callable.call({
+    final data = await _callFunction('sendCommunityMessage', {
       'communityId': communityId,
       'ciphertext': ciphertext,
       'e2ee': e2ee,
@@ -605,8 +608,6 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
       if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to send encrypted message');
@@ -635,15 +636,12 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   }) async {
     final userId = _requireUserId();
 
-    final callable = _functions.httpsCallable('sendCommunityMessage');
-    final result = await callable.call({
+    final data = await _callFunction('sendCommunityMessage', {
       'communityId': communityId,
       'mediaUrl': mediaUrl,
       'mediaType': mediaType,
       if (caption != null) 'text': caption,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to send media message');
@@ -673,12 +671,9 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   Future<void> markAsRead(String communityId) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('markCommunityRead');
-    final result = await callable.call({
+    final data = await _callFunction('markCommunityRead', {
       'communityId': communityId,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to mark as read');
@@ -699,17 +694,13 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
     _requireUserId();
 
     final integrityToken = await _playIntegrity.getIntegrityToken();
-    final callable = _functions.httpsCallable('contributeToCommunity');
-
-    final result = await callable.call({
+    final data = await _callFunction('contributeToCommunity', {
       'communityId': communityId,
       'amount': amount,
       if (description != null) 'description': description,
       if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
       'integrityToken': integrityToken,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       final error = data['error']?.toString() ?? 'Failed to contribute';
       final code = data['code']?.toString() ?? '';
@@ -738,17 +729,13 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
     _requireUserId();
 
     final integrityToken = await _playIntegrity.getIntegrityToken();
-    final callable = _functions.httpsCallable('withdrawFromCommunity');
-
-    final result = await callable.call({
+    final data = await _callFunction('withdrawFromCommunity', {
       'communityId': communityId,
       'amount': amount,
       if (description != null) 'description': description,
       if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
       'integrityToken': integrityToken,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       final error = data['error']?.toString() ?? 'Failed to withdraw';
       final code = data['code']?.toString() ?? '';
@@ -772,13 +759,10 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       String communityId, String transactionId) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('approveCommunityTransaction');
-    final result = await callable.call({
+    final data = await _callFunction('approveCommunityTransaction', {
       'communityId': communityId,
       'transactionId': transactionId,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to approve transaction');
@@ -793,14 +777,11 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   }) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('rejectCommunityTransaction');
-    final result = await callable.call({
+    final data = await _callFunction('rejectCommunityTransaction', {
       'communityId': communityId,
       'transactionId': transactionId,
       if (reason != null) 'reason': reason,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to reject transaction');
@@ -849,12 +830,9 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       String communityId) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('getCommunityPendingApprovals');
-    final result = await callable.call({
+    final data = await _callFunction('getCommunityPendingApprovals', {
       'communityId': communityId,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to get pending approvals');
@@ -911,15 +889,11 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
     _requireUserId();
 
     final integrityToken = await _playIntegrity.getIntegrityToken();
-    final callable = _functions.httpsCallable('triggerCommunityPayout');
-
-    final result = await callable.call({
+    final data = await _callFunction('triggerCommunityPayout', {
       'communityId': communityId,
       if (recipientId != null) 'recipientId': recipientId,
       'integrityToken': integrityToken,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to trigger payout');
@@ -935,13 +909,10 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   }) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('getCommunityAnalytics');
-    final result = await callable.call({
+    final data = await _callFunction('getCommunityAnalytics', {
       'communityId': communityId,
       'months': months,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to get analytics');
@@ -962,14 +933,11 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   }) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('toggleCommunityMessageReaction');
-    final result = await callable.call({
+    final data = await _callFunction('toggleCommunityMessageReaction', {
       'communityId': communityId,
       'messageId': messageId,
       'emoji': emoji,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to add reaction');
@@ -984,14 +952,11 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   }) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('toggleCommunityMessageReaction');
-    final result = await callable.call({
+    final data = await _callFunction('toggleCommunityMessageReaction', {
       'communityId': communityId,
       'messageId': messageId,
       'emoji': emoji,
     });
-
-    final data = sanitizeFirestoreData(result.data as Map);
     if (data['success'] != true) {
       throw ServerException(
           message: data['error'] ?? 'Failed to remove reaction');
@@ -1028,8 +993,7 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       String communityId, String distributionId) async {
     _requireUserId();
 
-    final callable = _functions.httpsCallable('markKeyDistributionConsumed');
-    await callable.call<dynamic>({
+    await _callFunction('markKeyDistributionConsumed', {
       'communityId': communityId,
       'distributionId': distributionId,
     });

@@ -63,10 +63,10 @@ class CommunityRepositoryImpl implements CommunityRepository {
   Future<Either<Failure, Community>> createCommunity(
     CreateCommunityParams params,
   ) async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(Failure.network());
-    }
-
+    // No premature network check — let the Cloud Function call attempt to
+    // run. internet_connection_checker_plus actively probes endpoints and
+    // produces false negatives on slow mobile networks, blocking the user
+    // even when the network is fine.
     try {
       final model = await _remoteDataSource.createCommunity(params);
       final entity = model.toEntity();
@@ -84,7 +84,13 @@ class CommunityRepositoryImpl implements CommunityRepository {
     } on ServerException catch (e) {
       return Left(Failure.serverError(message: e.message));
     } catch (e) {
-      return Left(Failure.serverError(message: e.toString()));
+      // SocketException / TimeoutException from the HTTP call indicate
+      // actual network failure — surface a user-friendly message.
+      final msg = e.toString();
+      if (msg.contains('SocketException') || msg.contains('TimeoutException')) {
+        return const Left(Failure.network());
+      }
+      return Left(Failure.serverError(message: msg));
     }
   }
 
