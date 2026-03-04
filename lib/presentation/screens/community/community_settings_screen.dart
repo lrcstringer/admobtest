@@ -35,6 +35,7 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
   late int _requireApprovalAbove;
 
   bool _initialised = false;
+  bool _isDeleting = false;
 
   void _initFromCommunity(Community community) {
     if (_initialised) return;
@@ -68,8 +69,13 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
               backgroundColor: AppColors.success,
             ),
           );
-          context.pop();
+          if (_isDeleting) {
+            context.go('/chat');
+          } else {
+            context.pop();
+          }
         } else if (state.operationStatus == CommunityOperationStatus.failure) {
+          _isDeleting = false;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.errorMessage ?? 'Update failed'),
@@ -396,11 +402,11 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
+              _isDeleting = true;
               context.read<CommunityBloc>().add(
                     CommunityEvent.deleteCommunity(
                         communityId: widget.communityId),
                   );
-              context.go('/chat');
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Delete'),

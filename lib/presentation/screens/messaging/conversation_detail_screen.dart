@@ -499,28 +499,18 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       onVideoCallRequested: isP2P
           ? () => _initiateCall(context, conv, currentUserId, CallType.video)
           : null,
-      onGiftRequested: () {
+      onSasazaRequested: () {
         final recipientName =
             state.selectedConversation?.displayNameFor(currentUserId) ?? '';
         context.push(
-          '/chat/conversation/${widget.conversationId}/send-gift',
-          extra: {'recipientId': recipientId, 'recipientName': recipientName},
+          '/chat/sasaza',
+          extra: {
+            'recipientId': recipientId,
+            'recipientName': recipientName,
+            'conversationId': widget.conversationId,
+          },
         );
       },
-      onGroupGiftRequested: isP2P
-          ? () {
-              final recipientName =
-                  state.selectedConversation?.displayNameFor(currentUserId) ??
-                  '';
-              context.push(
-                '/chat/create-pool',
-                extra: {
-                  'recipientId': recipientId,
-                  'recipientName': recipientName,
-                },
-              );
-            }
-          : null,
       onTokenAction: () => _showTokenActions(context, state, currentUserId),
     );
   }

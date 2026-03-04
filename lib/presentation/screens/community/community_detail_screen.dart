@@ -38,6 +38,7 @@ class CommunityDetailScreen extends StatefulWidget {
 class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   late final CommunityMessagingBloc _messagingBloc;
   final _messageController = TextEditingController();
+  bool _communityWasSeen = false;
 
   @override
   void initState() {
@@ -68,6 +69,24 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
       // 8.11 Listen for error/success feedback from CommunityBloc
       child: BlocConsumer<CommunityBloc, CommunityState>(
         listener: (context, commState) {
+          // Detect community deletion — once we've seen the community
+          // in the list, navigate back if it disappears (owner deleted it,
+          // or we were removed).
+          final stillPresent = commState.communities
+              .any((c) => c.id == widget.communityId);
+          if (stillPresent) _communityWasSeen = true;
+          if (_communityWasSeen && !stillPresent) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('This community has been deleted'),
+                ),
+              );
+              context.go('/chat');
+            }
+            return;
+          }
+
           if (commState.operationStatus == CommunityOperationStatus.failure &&
               commState.errorMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -350,7 +369,7 @@ class _ChatTab extends StatelessWidget {
       context,
       onVoiceNoteRequested: () => _openVoiceRecorder(context),
       onVideoNoteRequested: () => _openVideoRecorder(context),
-      onGroupGiftRequested: () {
+      onSasazaRequested: () {
         context.push(
           '/chat/create-pool',
           extra: {'communityId': communityId},

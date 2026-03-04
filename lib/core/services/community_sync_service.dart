@@ -70,6 +70,10 @@ class CommunitySyncService {
 
   bool _isSyncing = false;
 
+  /// First-sync flag: reconcile local DB with Firestore on first snapshot
+  /// to clean up stale communities (e.g., deleted while app was closed).
+  bool _isFirstSync = true;
+
   /// Plaintext cache for sent messages (keyed by messageId).
   /// The sender cannot decrypt their own sender-key messages because the key
   /// is stored under _ownKeyPrefix, not _peerKeyPrefix.
@@ -152,6 +156,7 @@ class CommunitySyncService {
                     .deleteLocalCommunityMembersForCommunity(model.id);
                 await _appDatabase
                     .deleteLocalMessagesForConversation(model.id);
+                await _senderKeyService.resetAllKeysForCommunity(model.id);
               } catch (e) {
                 print('CommunitySyncService: Failed to clean up closed '
                     'community ${model.id}: $e');
@@ -251,11 +256,41 @@ class CommunitySyncService {
               await _appDatabase.deleteLocalCommunity(id);
               await _appDatabase.deleteLocalCommunityMembersForCommunity(id);
               await _appDatabase.deleteLocalMessagesForConversation(id);
+              await _senderKeyService.resetAllKeysForCommunity(id);
               print('CommunitySyncService: Cleaned local data for '
                   'removed community $id');
             } catch (e) {
               print('CommunitySyncService: Failed to clean local data '
                   'for $id: $e');
+            }
+          }
+
+          // First-sync reconciliation: clean up stale communities in
+          // local DB that no longer exist in Firestore (e.g., deleted
+          // while the app was closed).
+          if (_isFirstSync) {
+            _isFirstSync = false;
+            try {
+              final localCommunities =
+                  await _appDatabase.getLocalCommunities();
+              final localIds =
+                  localCommunities.map((c) => c.id).toSet();
+              final staleIds = localIds.difference(currentIds);
+              for (final id in staleIds) {
+                _stopMessageSync(id);
+                _stopMemberSync(id);
+                await _appDatabase.deleteLocalCommunity(id);
+                await _appDatabase
+                    .deleteLocalCommunityMembersForCommunity(id);
+                await _appDatabase
+                    .deleteLocalMessagesForConversation(id);
+                await _senderKeyService.resetAllKeysForCommunity(id);
+                print('CommunitySyncService: Reconciled stale '
+                    'community $id from local DB');
+              }
+            } catch (e) {
+              print('CommunitySyncService: First-sync reconciliation '
+                  'error: $e');
             }
           }
         }).catchError((Object e) {
@@ -787,25 +822,39 @@ class CommunitySyncService {
         },
     };
 
+    // DIAG-1: Log what we're trying to decrypt
+    print('CommunitySyncService DIAG: Decrypting msg ${msg.id} from '
+        '${msg.senderId} in $communityId — '
+        'hasCiphertext=${msg.ciphertext != null}, '
+        'hasE2ee=${msg.e2ee != null}, '
+        'e2eeMsgNum=${msg.e2ee?.messageNumber}, '
+        'e2eeChainId=${msg.e2ee?.senderKeyChainId}, '
+        'hasSig=${msg.e2ee?.signature != null}');
+
     try {
-      return await _senderKeyService.decryptCommunity(
+      final result = await _senderKeyService.decryptCommunity(
         communityId,
         msg.senderId,
         encrypted,
       );
-    } on StateError {
-      // Sender key missing — try fetching pending key distributions
-      print('CommunitySyncService: Sender key missing for '
-          '${msg.senderId} in $communityId, fetching distributions...');
+      print('CommunitySyncService DIAG: Direct decrypt SUCCESS for '
+          'msg ${msg.id}');
+      return result;
+    } on StateError catch (e) {
+      // DIAG-2: Log the specific StateError reason
+      print('CommunitySyncService DIAG: StateError for msg ${msg.id}: $e');
       // C2: Wrap in try-catch so a network error during key fetch
       // doesn't kill the entire message batch
       List<({String communityId, String distributionId})> installed;
       try {
         installed = await _processIncomingKeyDistributions(communityId);
+        // DIAG-3: Log what distributions we got
+        print('CommunitySyncService DIAG: Fetched ${installed.length} '
+            'distributions for $communityId');
       } catch (e) {
-        print('CommunitySyncService: Key distribution fetch failed '
-            'for $communityId: $e — message ${msg.id} will remain '
-            'undecryptable until next sync');
+        print('CommunitySyncService DIAG: Key distribution fetch FAILED '
+            'for $communityId: $e — msg ${msg.id} undecryptable until '
+            'next sync');
         return null;
       }
 
@@ -820,15 +869,18 @@ class CommunitySyncService {
         if (installed.isNotEmpty) {
           await _markDistributionsConsumed(installed);
         }
+        print('CommunitySyncService DIAG: Retry decrypt SUCCESS for '
+            'msg ${msg.id} after installing ${installed.length} keys');
         return result;
-      } catch (_) {
-        print('CommunitySyncService: Still cannot decrypt msg '
-            '${msg.id} after key fetch — distributions NOT consumed');
+      } catch (retryErr) {
+        print('CommunitySyncService DIAG: Retry decrypt FAILED for '
+            'msg ${msg.id}: $retryErr — distributions NOT consumed');
         return null;
       }
     } catch (e) {
-      print('CommunitySyncService: Sender Key decrypt failed for '
-          'msg ${msg.id}: $e');
+      // DIAG-4: Log non-StateError exceptions (unexpected path)
+      print('CommunitySyncService DIAG: NON-StateError decrypt failure '
+          'for msg ${msg.id}: ${e.runtimeType}: $e');
       return null;
     }
   }
@@ -850,12 +902,21 @@ class CommunitySyncService {
         final distributions =
             await _remoteDataSource.fetchPendingKeyDistributions(communityId);
 
+        // DIAG-5: Log distribution count
+        print('CommunitySyncService DIAG: Found ${distributions.length} '
+            'pending distributions for $communityId');
+
         for (final dist in distributions) {
           final fromUserId = dist['fromUserId'] as String;
           final encryptedKeyData = dist['encryptedKeyData'] as String;
           final e2ee = dist['e2ee'] as Map<String, dynamic>?;
           final x3dhHeader = dist['x3dhHeader'] as Map<String, dynamic>?;
           final distributionId = dist['distributionId'] as String;
+
+          // DIAG-6: Log each distribution's details
+          print('CommunitySyncService DIAG: Processing distribution '
+              '$distributionId from $fromUserId — '
+              'hasE2ee=${e2ee != null}, hasX3dh=${x3dhHeader != null}');
 
           try {
             // Decrypt the sender key via P2P Signal Protocol channel
@@ -868,6 +929,10 @@ class CommunitySyncService {
               },
             );
 
+            // DIAG-7: Log successful P2P decrypt
+            print('CommunitySyncService DIAG: P2P decrypt SUCCESS for '
+                'distribution from $fromUserId');
+
             // Parse and store the sender key
             final keyData = jsonDecode(decrypted) as Map<String, dynamic>;
             await _senderKeyService.processReceivedSenderKey(
@@ -876,13 +941,18 @@ class CommunitySyncService {
               keyData,
             );
 
+            print('CommunitySyncService DIAG: Stored sender key from '
+                '$fromUserId — chainId=${keyData['chainId']}, '
+                'msgNum=${keyData['messageNumber']}');
+
             // CRIT-4: Don't mark consumed here — defer until after
             // successful decryption to prevent consuming keys we can't use.
             installed.add((communityId: communityId, distributionId: distributionId));
           } catch (e) {
+            // DIAG-8: Log the specific failure with type
             print(
-                'CommunitySyncService: Failed to process key distribution '
-                'from $fromUserId: $e');
+                'CommunitySyncService DIAG: FAILED to process distribution '
+                'from $fromUserId: ${e.runtimeType}: $e');
           }
         }
         return installed;

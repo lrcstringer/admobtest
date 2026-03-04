@@ -376,7 +376,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
           selectedCommunityMembers: [],
           selectedCommunityTransactions: [],
           selectedCommunityApprovals: [],
-          totalUnreadCount: 0, // 4.7 reset unread count
+          // totalUnreadCount updates via watchTotalCommunityUnreadCount stream
         ),
       ),
     );

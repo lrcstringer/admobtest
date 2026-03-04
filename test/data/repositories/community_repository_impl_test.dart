@@ -9,6 +9,8 @@ import 'package:imalichat/core/services/offline_action_queue.dart';
 import 'package:imalichat/core/services/outgoing_message_queue.dart';
 import 'package:imalichat/data/datasources/local/app_database.dart';
 import 'package:imalichat/data/datasources/remote/community_remote_datasource.dart';
+import 'package:imalichat/core/services/community_sync_service.dart';
+import 'package:imalichat/core/services/sender_key_service.dart';
 import 'package:imalichat/data/datasources/remote/media_upload_datasource.dart';
 import 'package:imalichat/data/models/community_model.dart';
 import 'package:imalichat/data/repositories/community_repository_impl.dart';
@@ -34,6 +36,10 @@ class MockOfflineActionQueue extends Mock implements OfflineActionQueue {}
 class MockOutgoingMessageQueue extends Mock implements OutgoingMessageQueue {}
 
 class MockMediaUploadDatasource extends Mock implements MediaUploadDatasource {}
+
+class MockCommunitySyncService extends Mock implements CommunitySyncService {}
+
+class MockSenderKeyService extends Mock implements SenderKeyService {}
 
 // ==================== FALLBACK VALUES ====================
 
@@ -157,6 +163,8 @@ void main() {
   late MockOfflineActionQueue mockOfflineQueue;
   late MockOutgoingMessageQueue mockOutgoingQueue;
   late MockMediaUploadDatasource mockMediaUploadDatasource;
+  late MockCommunitySyncService mockCommunitySyncService;
+  late MockSenderKeyService mockSenderKeyService;
   late CommunityRepositoryImpl repository;
 
   setUpAll(() {
@@ -172,6 +180,8 @@ void main() {
     mockOfflineQueue = MockOfflineActionQueue();
     mockOutgoingQueue = MockOutgoingMessageQueue();
     mockMediaUploadDatasource = MockMediaUploadDatasource();
+    mockCommunitySyncService = MockCommunitySyncService();
+    mockSenderKeyService = MockSenderKeyService();
 
     repository = CommunityRepositoryImpl(
       mockDataSource,
@@ -180,6 +190,8 @@ void main() {
       mockOfflineQueue,
       mockOutgoingQueue,
       mockMediaUploadDatasource,
+      mockCommunitySyncService,
+      mockSenderKeyService,
     );
 
     when(() => mockDataSource.currentUserId).thenReturn(_userId);

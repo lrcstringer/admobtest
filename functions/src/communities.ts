@@ -295,15 +295,17 @@ export const deleteCommunity = onCall({ labels: { area: "social" } }, async (req
     );
   }
 
-  // Mark as closed (soft-delete for audit trail)
+  // Soft-delete and clear memberIds so the community immediately drops
+  // out of every member's watchUserCommunities() Firestore query.
   await db.collection(CommunityConfig.COLLECTION).doc(communityId).update({
     status: "closed",
     isDeleted: true,
     isActive: false,
+    memberIds: [],
     updatedAt: admin.firestore.Timestamp.now(),
   });
 
-  // Purge all subcollection data in batches (best-effort, non-blocking).
+  // Purge all subcollection data in batches.
   // Firestore doesn't cascade deletes to subcollections automatically.
   const communityRef = db.collection(CommunityConfig.COLLECTION).doc(communityId);
   const subcollections = [
@@ -313,6 +315,7 @@ export const deleteCommunity = onCall({ labels: { area: "social" } }, async (req
     CommunityConfig.SUBCOLLECTION_APPROVALS,
   ];
 
+  let allPurged = true;
   for (const sub of subcollections) {
     try {
       let batch = db.batch();
@@ -332,9 +335,25 @@ export const deleteCommunity = onCall({ labels: { area: "social" } }, async (req
       }
       logger.info(`Deleted ${count} docs from ${sub} for community ${communityId}`);
     } catch (subErr) {
-      // Log but don't fail — community is already marked closed
+      allPurged = false;
       logger.warn(`Failed to purge ${sub} for community ${communityId}`, subErr);
     }
+  }
+
+  // Hard-delete the community document only if all subcollections
+  // were fully purged. If any failed, keep the soft-deleted doc so a
+  // scheduled cleanup can retry later.
+  if (allPurged) {
+    try {
+      await communityRef.delete();
+      logger.info(`Hard-deleted community document ${communityId}`);
+    } catch (delErr) {
+      // Don't fail the operation — the community is already effectively
+      // deleted (memberIds cleared, subcollections purged).
+      logger.warn(`Failed to hard-delete community ${communityId}`, delErr);
+    }
+  } else {
+    logger.warn(`Kept soft-deleted community ${communityId} — subcollection purge incomplete`);
   }
 
   return { success: true };
@@ -552,8 +571,14 @@ export const acceptCommunityInvitation = onCall({ labels: { area: "social" } }, 
     transaction.update(communityRef, updatePayload);
   });
 
-  // Post system message
+  // Post system message (visible to all)
   await postSystemMessage(communityId, `${member.displayName} joined the community`, "member_joined", { userId });
+
+  // Post welcome message (visible only to the new member)
+  const welcomeText = community.description
+    ? `Welcome to the ${community.name} Community, ${member.displayName}!\n${community.description}`
+    : `Welcome to the ${community.name} Community, ${member.displayName}!`;
+  await postSystemMessage(communityId, welcomeText, "welcome", { userId }, userId);
 
   // Send push notification to the inviter so their Members screen updates
   try {
@@ -791,8 +816,25 @@ async function postSystemMessage(
   communityId: string,
   text: string,
   eventType: string,
-  eventData: Record<string, unknown> = {}
+  eventData: Record<string, unknown> = {},
+  visibleOnlyTo?: string
 ): Promise<void> {
+  let deletedFor: string[] = [];
+
+  if (visibleOnlyTo) {
+    // Populate deletedFor with all active members except the target user
+    const membersSnap = await db
+      .collection(CommunityConfig.COLLECTION)
+      .doc(communityId)
+      .collection(CommunityConfig.SUBCOLLECTION_MEMBERS)
+      .where("status", "==", "active")
+      .get();
+
+    deletedFor = membersSnap.docs
+      .map((doc) => doc.id)
+      .filter((id) => id !== visibleOnlyTo);
+  }
+
   const msgRef = db
     .collection(CommunityConfig.COLLECTION)
     .doc(communityId)
@@ -814,21 +856,23 @@ async function postSystemMessage(
     systemEventType: eventType,
     systemEventData: eventData,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    deletedFor: [],
+    deletedFor,
     deletedForEveryone: false,
   });
 
-  // Update lastMessage on community
-  await db.collection(CommunityConfig.COLLECTION).doc(communityId).update({
-    lastMessage: {
-      text: truncate(text, 100),
-      senderId: "system",
-      senderName: "System",
-      type: "system",
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    },
-    lastMessageAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
+  // Skip community preview update for private messages
+  if (!visibleOnlyTo) {
+    await db.collection(CommunityConfig.COLLECTION).doc(communityId).update({
+      lastMessage: {
+        text: truncate(text, 100),
+        senderId: "system",
+        senderName: "System",
+        type: "system",
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      lastMessageAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  }
 }
 
 /**

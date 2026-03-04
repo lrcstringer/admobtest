@@ -13,6 +13,7 @@ import '../../core/network/network_info.dart';
 import '../../core/services/community_sync_service.dart';
 import '../../core/services/offline_action_queue.dart';
 import '../../core/services/outgoing_message_queue.dart';
+import '../../core/services/sender_key_service.dart';
 import '../datasources/remote/media_upload_datasource.dart';
 import '../../domain/entities/community.dart';
 import '../../domain/entities/community_member.dart';
@@ -37,6 +38,7 @@ class CommunityRepositoryImpl implements CommunityRepository {
   final OutgoingMessageQueue _outgoingMessageQueue;
   final MediaUploadDatasource _mediaUploadDatasource;
   final CommunitySyncService _communitySyncService;
+  final SenderKeyService _senderKeyService;
 
   static const _uuid = Uuid();
 
@@ -48,6 +50,7 @@ class CommunityRepositoryImpl implements CommunityRepository {
     this._outgoingMessageQueue,
     this._mediaUploadDatasource,
     this._communitySyncService,
+    this._senderKeyService,
   );
 
   String? get _currentUserId => _remoteDataSource.currentUserId;
@@ -199,6 +202,13 @@ class CommunityRepositoryImpl implements CommunityRepository {
     await _appDatabase.deleteLocalCommunity(communityId);
     await _appDatabase.deleteLocalCommunityMembersForCommunity(communityId);
     await _appDatabase.deleteLocalMessagesForConversation(communityId);
+
+    // Clean up E2EE sender keys for this community
+    try {
+      await _senderKeyService.resetAllKeysForCommunity(communityId);
+    } catch (e) {
+      debugPrint('deleteCommunity: Failed to clean sender keys: $e');
+    }
 
     return const Right(null);
   }
@@ -366,6 +376,12 @@ class CommunityRepositoryImpl implements CommunityRepository {
         await _appDatabase.deleteLocalCommunityMembersForCommunity(communityId);
       } catch (e) {
         debugPrint('WARNING: Failed to clean local DB after leave: $e');
+      }
+      // Clean up E2EE sender keys for this community
+      try {
+        await _senderKeyService.resetAllKeysForCommunity(communityId);
+      } catch (e) {
+        debugPrint('leaveCommunity: Failed to clean sender keys: $e');
       }
       return const Right(null);
     } on AuthException {

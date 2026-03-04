@@ -8,7 +8,6 @@ import 'package:go_router/go_router.dart';
 import '../../../domain/entities/community.dart';
 import '../../../domain/entities/community_member.dart';
 import '../../../domain/entities/conversation.dart';
-import '../../../domain/enums/community_type.dart';
 import '../../../domain/enums/conversation_type.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/community/community_bloc.dart';
@@ -41,6 +40,8 @@ class _MessagingScreenState extends State<MessagingScreen>
   late final TabController _tabController;
   int _currentTab = 0;
   String? _processingInviteAction;
+  /// True when this screen initiated a community operation (accept/decline/leave).
+  bool _pendingLocalCommunityOp = false;
   StreamSubscription<RemoteMessage>? _fcmSub;
 
   @override
@@ -138,6 +139,11 @@ class _MessagingScreenState extends State<MessagingScreen>
               (curr.operationStatus == CommunityOperationStatus.success ||
                curr.operationStatus == CommunityOperationStatus.failure),
           listener: (context, state) {
+            // Only show snackbars for operations this screen initiated
+            // (accept/decline/leave). Other screens handle their own feedback.
+            if (!_pendingLocalCommunityOp) return;
+            _pendingLocalCommunityOp = false;
+
             if (state.operationStatus == CommunityOperationStatus.success &&
                 state.successMessage != null) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -706,6 +712,7 @@ class _MessagingScreenState extends State<MessagingScreen>
                             onPressed: isProcessing
                                 ? null
                                 : () {
+                                    _pendingLocalCommunityOp = true;
                                     setLocalState(
                                         () => _processingInviteAction = 'decline');
                                     context.read<CommunityBloc>().add(
@@ -736,6 +743,7 @@ class _MessagingScreenState extends State<MessagingScreen>
                             onPressed: isProcessing
                                 ? null
                                 : () {
+                                    _pendingLocalCommunityOp = true;
                                     setLocalState(
                                         () => _processingInviteAction = 'accept');
                                     context.read<CommunityBloc>().add(
@@ -798,7 +806,7 @@ class _MessagingScreenState extends State<MessagingScreen>
             ),
             AppSpacing.verticalXl,
             ElevatedButton.icon(
-              onPressed: () => _showCommunitiesSheet(context),
+              onPressed: () => context.push('/chat/create-community'),
               icon: const Icon(Icons.group_add),
               label: const Text('Create Community'),
             ),
@@ -835,7 +843,7 @@ class _MessagingScreenState extends State<MessagingScreen>
       case 0:
         _showChatsSheet(context);
       case 1:
-        _showCommunitiesSheet(context);
+        context.push('/chat/create-community');
       case 2:
         _showContactsSheet(context);
     }
@@ -905,51 +913,7 @@ class _MessagingScreenState extends State<MessagingScreen>
     );
   }
 
-  void _showCommunitiesSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _dragHandle(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'New Community',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-            ),
-            AppSpacing.verticalMd,
-            _sheetOption(
-              icon: Icons.group_add,
-              color: AppColors.secondary,
-              title: 'Create Community',
-              subtitle: 'Start a group for friends or family',
-              onTap: () {
-                Navigator.pop(ctx);
-                context.push('/chat/create-community');
-              },
-            ),
-            _sheetOption(
-              icon: Icons.savings,
-              color: AppColors.secondary,
-              title: 'Create Stokvel',
-              subtitle: 'Start a savings group with contributions',
-              onTap: () {
-                Navigator.pop(ctx);
-                context.push('/chat/create-community',
-                    extra: CommunityType.stokvel);
-              },
-            ),
-            AppSpacing.verticalLg,
-          ],
-        ),
-      ),
-    );
-  }
+
 
   void _showContactsSheet(BuildContext context) {
     showModalBottomSheet(
@@ -1121,6 +1085,7 @@ class _MessagingScreenState extends State<MessagingScreen>
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
+              _pendingLocalCommunityOp = true;
               context
                   .read<CommunityBloc>()
                   .add(CommunityEvent.leaveCommunity(communityId: comm.id));

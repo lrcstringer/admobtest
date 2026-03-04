@@ -217,8 +217,7 @@ class ActionPickerWidget extends StatelessWidget {
   final VoidCallback? onVideoNoteRequested;
   final VoidCallback? onVoiceCallRequested;
   final VoidCallback? onVideoCallRequested;
-  final VoidCallback? onGiftRequested;
-  final VoidCallback? onGroupGiftRequested;
+  final VoidCallback? onSasazaRequested;
   final VoidCallback? onTokenAction;
 
   const ActionPickerWidget({
@@ -227,8 +226,7 @@ class ActionPickerWidget extends StatelessWidget {
     this.onVideoNoteRequested,
     this.onVoiceCallRequested,
     this.onVideoCallRequested,
-    this.onGiftRequested,
-    this.onGroupGiftRequested,
+    this.onSasazaRequested,
     this.onTokenAction,
   });
 
@@ -290,24 +288,14 @@ class ActionPickerWidget extends StatelessWidget {
                       onTokenAction!();
                     },
                   ),
-                if (onGiftRequested != null)
+                if (onSasazaRequested != null)
                   _MediaOption(
                     imageAsset: 'assets/images/sasaza.png',
                     label: 'Sasaza',
                     color: AppColors.gold,
                     onTap: () {
                       Navigator.pop(context);
-                      onGiftRequested!();
-                    },
-                  ),
-                if (onGroupGiftRequested != null)
-                  _MediaOption(
-                    imageAsset: 'assets/images/sasaza.png',
-                    label: 'Group\nSasaza',
-                    color: AppColors.secondary,
-                    onTap: () {
-                      Navigator.pop(context);
-                      onGroupGiftRequested!();
+                      onSasazaRequested!();
                     },
                   ),
                 // Row 2: Voice Call, Video Call
@@ -348,8 +336,7 @@ void showActionPicker(
   VoidCallback? onVideoNoteRequested,
   VoidCallback? onVoiceCallRequested,
   VoidCallback? onVideoCallRequested,
-  VoidCallback? onGiftRequested,
-  VoidCallback? onGroupGiftRequested,
+  VoidCallback? onSasazaRequested,
   VoidCallback? onTokenAction,
 }) {
   showModalBottomSheet(
@@ -359,8 +346,7 @@ void showActionPicker(
       onVideoNoteRequested: onVideoNoteRequested,
       onVoiceCallRequested: onVoiceCallRequested,
       onVideoCallRequested: onVideoCallRequested,
-      onGiftRequested: onGiftRequested,
-      onGroupGiftRequested: onGroupGiftRequested,
+      onSasazaRequested: onSasazaRequested,
       onTokenAction: onTokenAction,
     ),
   );

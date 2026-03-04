@@ -62,6 +62,7 @@ import '../../domain/enums/community_type.dart';
 import '../screens/gift/gift_composer_screen.dart';
 import '../screens/gift/gift_history_screen.dart';
 import '../screens/gift/gift_opening_screen.dart';
+import '../screens/gift/sasaza_chooser_screen.dart';
 
 // Spray screens
 import '../screens/spray/spray_detail_screen.dart';
@@ -875,7 +876,24 @@ class AppRouter {
                       ),
                     ],
                   ),
-                  // 8.7) Create Collection Room (Pool)
+                  // 8.7) Sasaza Chooser (One-to-One vs Group)
+                  GoRoute(
+                    path: 'sasaza',
+                    name: 'sasazaChooser',
+                    builder: (context, state) {
+                      final extra =
+                          state.extra as Map<String, dynamic>?;
+                      return SasazaChooserScreen(
+                        recipientId:
+                            extra?['recipientId'] as String? ?? '',
+                        recipientName:
+                            extra?['recipientName'] as String? ?? '',
+                        conversationId:
+                            extra?['conversationId'] as String?,
+                      );
+                    },
+                  ),
+                  // 8.8) Create Collection Room (Pool)
                   GoRoute(
                     path: 'create-pool',
                     name: 'createPool',
