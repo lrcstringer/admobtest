@@ -263,6 +263,14 @@ class _ChatTab extends StatelessWidget {
                 messages[index + 1].createdAt,
               );
 
+          // Look up member avatar from CommunityBloc state (same
+          // pattern as P2P's conversation.participants[senderId].avatarUrl)
+          final memberAvatar = context
+              .read<CommunityBloc>()
+              .state
+              .getMemberByUserId(message.senderId)
+              ?.avatarUrl;
+
           return Column(
             children: [
               if (showDate) DateSeparator(date: message.createdAt),
@@ -270,6 +278,7 @@ class _ChatTab extends StatelessWidget {
                 message: message,
                 isMe: isMe,
                 currentUserId: currentUserId,
+                avatarUrl: memberAvatar,
                 showSenderName: true,
                 onLongPress: () => _onLongPress(context, message),
               ),
