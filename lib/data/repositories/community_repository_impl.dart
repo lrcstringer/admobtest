@@ -182,10 +182,6 @@ class CommunityRepositoryImpl implements CommunityRepository {
 
   @override
   Future<Either<Failure, void>> deleteCommunity(String communityId) async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(Failure.network());
-    }
-
     try {
       await _remoteDataSource.deleteCommunity(communityId);
     } on AuthException {
@@ -203,6 +199,10 @@ class CommunityRepositoryImpl implements CommunityRepository {
       debugPrint('deleteCommunity: Firestore doc already gone, '
           'cleaning up orphaned local data for $communityId');
     }
+
+    // Stop sync subscriptions FIRST — prevents stream errors from
+    // re-adding the community to _ensureSyncedIds or local DB.
+    _communitySyncService.stopSyncingCommunity(communityId);
 
     // Clean up ALL local DB data so the deleted community doesn't reappear
     await _appDatabase.deleteLocalCommunity(communityId);

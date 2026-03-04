@@ -360,6 +360,11 @@ class CommunitySyncService {
     // HIGH-6: Clear stale member IDs to prevent spurious rekeys on restart
     _previousMemberIds.clear();
     _previousActiveMemberIds.clear();
+    // Clear protected IDs so first-sync reconciliation on next sign-in
+    // can properly clean up deleted communities from local DB.
+    _ensureSyncedIds.clear();
+    // Reset first-sync flag so reconciliation runs on next sign-in.
+    _isFirstSync = true;
     // 6.9 Dispose keyed mutexes
     _processingLock.clear();
     _listLock.clear();
@@ -379,6 +384,23 @@ class CommunitySyncService {
       _sentPlaintextCache.remove(_sentPlaintextCache.keys.first);
     }
     _sentPlaintextCache[messageId] = (plaintext: plaintext, timestamp: now);
+  }
+
+  /// Stop syncing a specific community and remove it from all tracking sets.
+  ///
+  /// Called when a community is deleted — ensures the sync service won't
+  /// re-add it to the local DB or protect it from reconciliation.
+  void stopSyncingCommunity(String communityId) {
+    _stopMessageSync(communityId);
+    _stopMemberSync(communityId);
+    _ensureSyncedIds.remove(communityId);
+    _latestCommunityIds.remove(communityId);
+    _syncRetryCount.remove(communityId);
+    _syncRetryCount.remove('member_$communityId');
+    _previousMemberIds.remove(communityId);
+    _previousActiveMemberIds.remove(communityId);
+    print('CommunitySyncService: Stopped syncing deleted community '
+        '$communityId');
   }
 
   /// Ensure message sync is running for a specific community.

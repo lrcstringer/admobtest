@@ -427,6 +427,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _outgoingMessageQueue.stopListening();
     // Clear E2EE sessions so a new user on this device starts fresh
     await _signalProtocolService.resetAllSessions();
+    // Clear local DB so stale communities/messages don't persist across
+    // sign-out/in (they'll be re-synced from Firestore on next login).
+    await _authRepository.clearLocalCache();
 
     // NOTE: Do NOT clear device binding on sign-out.
     // The device binding (keypair + Firestore record) must persist
