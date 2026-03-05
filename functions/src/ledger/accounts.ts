@@ -344,6 +344,26 @@ export async function initializeSystemAccounts(): Promise<void> {
   logger.info("System accounts initialization complete");
 }
 
+// Module-level promise to ensure system accounts are initialized once per cold start.
+// This is a SAFETY NET — admins should call initializeTrustLedger explicitly before
+// launching the consumer app. This fallback prevents crashes if they forget.
+let _systemAccountsInitPromise: Promise<void> | null = null;
+
+export async function ensureSystemAccounts(): Promise<void> {
+  if (!_systemAccountsInitPromise) {
+    logger.warn(
+      "ensureSystemAccounts: auto-initializing system accounts (safety net). " +
+      "Admins should call initializeTrustLedger explicitly before launch."
+    );
+    _systemAccountsInitPromise = initializeSystemAccounts().catch((err) => {
+      // Reset so next call retries
+      _systemAccountsInitPromise = null;
+      throw err;
+    });
+  }
+  return _systemAccountsInitPromise;
+}
+
 /**
  * Create a supplier account for a service provider
  */

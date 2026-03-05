@@ -8,8 +8,7 @@
 
 import { SystemAccounts, AccountId, IdempotencyKey } from "./types";
 import { postJournal } from "./journals";
-import { ensureSystemAccounts } from "./index";
-import { getOrCreateUserAccount } from "./accounts";
+import { ensureSystemAccounts, getOrCreateUserAccount } from "./accounts";
 
 /**
  * Debit sender's wallet and credit gift escrow.

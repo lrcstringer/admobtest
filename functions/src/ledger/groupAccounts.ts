@@ -18,6 +18,7 @@ import {
 } from "./types";
 import { postJournal } from "./journals";
 import { validateMainWalletBalance } from "./subAccounts";
+import { ensureSystemAccounts, getOrCreateUserAccount } from "./accounts";
 
 const db = admin.firestore();
 
@@ -185,6 +186,9 @@ export async function processGroupContribution(
   amount: number,
   transactionId: string
 ): Promise<PostJournalResult> {
+  await ensureSystemAccounts();
+  await getOrCreateUserAccount(memberId);
+
   // Ensure group account exists
   const { accountId: groupAccountId, subAccountId: groupSubAccountId } =
     await getOrCreateGroupAccount(groupId);
@@ -261,6 +265,9 @@ export async function processGroupWithdrawal(
   amount: number,
   transactionId: string
 ): Promise<PostJournalResult> {
+  await ensureSystemAccounts();
+  await getOrCreateUserAccount(memberId);
+
   // Get group account
   const groupTreasury = await getGroupTreasurySubAccount(groupId);
   if (!groupTreasury) {
@@ -338,6 +345,11 @@ export async function processGroupPayout(
   payouts: Array<{ memberId: string; amount: number }>,
   transactionId: string
 ): Promise<PostJournalResult> {
+  await ensureSystemAccounts();
+  for (const payout of payouts) {
+    await getOrCreateUserAccount(payout.memberId);
+  }
+
   // Get group account
   const groupTreasury = await getGroupTreasurySubAccount(groupId);
   if (!groupTreasury) {
@@ -429,6 +441,9 @@ export async function processGroupPenalty(
   reason: string,
   date: string
 ): Promise<PostJournalResult> {
+  await ensureSystemAccounts();
+  await getOrCreateUserAccount(memberId);
+
   // Validate member has sufficient balance (main wallet)
   const mainCheck = await validateMainWalletBalance(memberId, amount);
   if (!mainCheck.sufficient) {

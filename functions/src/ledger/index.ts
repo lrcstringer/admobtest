@@ -69,6 +69,7 @@ export {
   getAccountsByType,
   createAccount,
   initializeSystemAccounts,
+  ensureSystemAccounts,
   createSupplierAccount,
   createClientAccount,
   getClientAccount,
@@ -140,7 +141,7 @@ import {
   PostJournalResult,
   JournalEntryInput,
 } from "./types";
-import { getOrCreateUserAccount, createSupplierAccount, initializeSystemAccounts } from "./accounts";
+import { getOrCreateUserAccount, createSupplierAccount, ensureSystemAccounts } from "./accounts";
 import { postJournal, createEarningEntries, createReferralEntries, createTransferEntries, logJournalPostedAudit } from "./journals";
 import {
   getSubAccount,
@@ -150,26 +151,6 @@ import {
 } from "./subAccounts";
 
 const db = admin.firestore();
-
-// Module-level promise to ensure system accounts are initialized once per cold start.
-// This is a SAFETY NET — admins should call initializeTrustLedger explicitly before
-// launching the consumer app. This fallback prevents crashes if they forget.
-let _systemAccountsInitPromise: Promise<void> | null = null;
-
-export async function ensureSystemAccounts(): Promise<void> {
-  if (!_systemAccountsInitPromise) {
-    logger.warn(
-      "ensureSystemAccounts: auto-initializing system accounts (safety net). " +
-      "Admins should call initializeTrustLedger explicitly before launch."
-    );
-    _systemAccountsInitPromise = initializeSystemAccounts().catch((err) => {
-      // Reset so next call retries
-      _systemAccountsInitPromise = null;
-      throw err;
-    });
-  }
-  return _systemAccountsInitPromise;
-}
 
 /**
  * Process user earning with automatic pot split
