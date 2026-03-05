@@ -8,6 +8,8 @@
 
 import { SystemAccounts, AccountId, IdempotencyKey } from "./types";
 import { postJournal } from "./journals";
+import { ensureSystemAccounts } from "./index";
+import { getOrCreateUserAccount } from "./accounts";
 
 /**
  * Debit sender's wallet and credit gift escrow.
@@ -19,6 +21,9 @@ export async function processGiftDebit(
   giftId: string,
   description: string
 ): Promise<string> {
+  await ensureSystemAccounts();
+  await getOrCreateUserAccount(senderId);
+
   const senderAccountId = AccountId.user(senderId);
   const escrowAccountId = SystemAccounts.GIFT_ESCROW;
   const idempotencyKey = IdempotencyKey.giftDebit(giftId);
@@ -53,6 +58,9 @@ export async function processGiftCredit(
   giftId: string,
   description: string
 ): Promise<string> {
+  await ensureSystemAccounts();
+  await getOrCreateUserAccount(recipientId);
+
   const recipientAccountId = AccountId.user(recipientId);
   const escrowAccountId = SystemAccounts.GIFT_ESCROW;
   const idempotencyKey = IdempotencyKey.giftCredit(giftId);
@@ -87,6 +95,9 @@ export async function processGiftRefund(
   giftId: string,
   description: string
 ): Promise<string> {
+  await ensureSystemAccounts();
+  await getOrCreateUserAccount(senderId);
+
   const senderAccountId = AccountId.user(senderId);
   const escrowAccountId = SystemAccounts.GIFT_ESCROW;
   const idempotencyKey = IdempotencyKey.giftRefund(giftId);
@@ -121,6 +132,9 @@ export async function processSprayContributionDebit(
   sprayId: string,
   description: string
 ): Promise<string> {
+  await ensureSystemAccounts();
+  await getOrCreateUserAccount(contributorId);
+
   const contributorAccountId = AccountId.user(contributorId);
   const escrowAccountId = SystemAccounts.SPRAY_ESCROW;
   const idempotencyKey = IdempotencyKey.sprayContribution(sprayId, contributorId);
@@ -155,6 +169,9 @@ export async function processSprayPayout(
   sprayId: string,
   description: string
 ): Promise<string> {
+  await ensureSystemAccounts();
+  await getOrCreateUserAccount(recipientId);
+
   const recipientAccountId = AccountId.user(recipientId);
   const escrowAccountId = SystemAccounts.SPRAY_ESCROW;
   const idempotencyKey = IdempotencyKey.sprayPayout(sprayId);

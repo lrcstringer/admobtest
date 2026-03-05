@@ -156,7 +156,7 @@ const db = admin.firestore();
 // launching the consumer app. This fallback prevents crashes if they forget.
 let _systemAccountsInitPromise: Promise<void> | null = null;
 
-async function ensureSystemAccounts(): Promise<void> {
+export async function ensureSystemAccounts(): Promise<void> {
   if (!_systemAccountsInitPromise) {
     logger.warn(
       "ensureSystemAccounts: auto-initializing system accounts (safety net). " +
