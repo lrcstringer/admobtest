@@ -9,16 +9,18 @@ import '../../widgets/common/wave_background.dart';
 /// Chooser screen that lets the user pick between One-to-One Sasaza
 /// (personal gift) and Group Together to Sasaza (group pool).
 ///
-/// Reached from the "+" action picker in a P2P conversation.
+/// Reached from the action strip on the Chats tab or the "+" action
+/// picker inside a conversation. When opened without a recipient
+/// (from the Chats tab), the One-to-One flow prompts for a contact first.
 class SasazaChooserScreen extends StatelessWidget {
-  final String recipientId;
-  final String recipientName;
+  final String? recipientId;
+  final String? recipientName;
   final String? conversationId;
 
   const SasazaChooserScreen({
     super.key,
-    required this.recipientId,
-    required this.recipientName,
+    this.recipientId,
+    this.recipientName,
     this.conversationId,
   });
 
@@ -36,14 +38,32 @@ class SasazaChooserScreen extends StatelessWidget {
                 title: 'One-to-One Sasaza',
                 subtitle: 'Send a personal gift to someone special',
                 gradientColors: AppColors.goldGradient,
-                onTap: () {
-                  context.push(
-                    '/chat/conversation/$conversationId/send-gift',
-                    extra: {
-                      'recipientId': recipientId,
-                      'recipientName': recipientName,
-                    },
-                  );
+                onTap: () async {
+                  if (recipientId != null &&
+                      recipientId!.isNotEmpty &&
+                      conversationId != null) {
+                    // Launched from inside a conversation — go directly
+                    context.push(
+                      '/chat/conversation/$conversationId/send-gift',
+                      extra: {
+                        'recipientId': recipientId,
+                        'recipientName': recipientName ?? '',
+                      },
+                    );
+                  } else {
+                    // Launched from Chats tab — pick a contact first
+                    final contact = await context
+                        .push<Map<String, String>>('/chat/pick-contact');
+                    if (contact != null && context.mounted) {
+                      context.push(
+                        '/chat/send-gift',
+                        extra: {
+                          'recipientId': contact['id'] ?? '',
+                          'recipientName': contact['name'] ?? '',
+                        },
+                      );
+                    }
+                  }
                 },
               ),
               AppSpacing.verticalLg,
@@ -58,6 +78,7 @@ class SasazaChooserScreen extends StatelessWidget {
                     extra: {
                       'recipientId': recipientId,
                       'recipientName': recipientName,
+                      'mode': 'sasaza',
                     },
                   );
                 },

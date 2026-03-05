@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -20,8 +21,9 @@ import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/messaging/chat_background.dart';
 import '../../widgets/messaging/community_list_tile.dart';
 import '../../widgets/messaging/conversation_list_tile.dart';
+import '../../widgets/messaging/quick_action_strip.dart';
+import '../../widgets/messaging/token_actions_sheet.dart';
 import '../../widgets/pool/collection_room_list_tile.dart';
-import 'contacts_tab.dart';
 
 /// Messaging screen with three tabs: Chats, Communities, Contacts.
 /// Each tab has a context-aware FAB with relevant actions.
@@ -39,6 +41,7 @@ class _MessagingScreenState extends State<MessagingScreen>
   final _searchController = TextEditingController();
   late final TabController _tabController;
   int _currentTab = 0;
+  bool _showActionStrip = true;
   String? _processingInviteAction;
   /// True when this screen initiated a community operation (accept/decline/leave).
   bool _pendingLocalCommunityOp = false;
@@ -55,7 +58,7 @@ class _MessagingScreenState extends State<MessagingScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) return;
       setState(() {
@@ -175,7 +178,6 @@ class _MessagingScreenState extends State<MessagingScreen>
         children: [
           _buildChatsTab(context, currentUserId),
           _buildCommunitiesTab(context, currentUserId),
-          const ContactsTab(),
         ],
       ),
       floatingActionButton: _buildContextFAB(context),
@@ -236,12 +238,10 @@ class _MessagingScreenState extends State<MessagingScreen>
       title: 'Chat',
       backgroundColor: AppColors.chatAppBar,
       extraActions: [
-        // Hide search on Contacts tab (has its own search)
-        if (_currentTab != 2)
-          IconButton(
-            icon: const Icon(Icons.search, color: AppColors.textPrimary),
-            onPressed: () => setState(() => _isSearching = true),
-          ),
+        IconButton(
+          icon: const Icon(Icons.search, color: AppColors.textPrimary),
+          onPressed: () => setState(() => _isSearching = true),
+        ),
       ],
       bottom: TabBar(
         controller: _tabController,
@@ -283,13 +283,6 @@ class _MessagingScreenState extends State<MessagingScreen>
                   commState.pendingInvitations.length;
               return _buildBadgedTab(
                   Icons.groups_rounded, 'Communities', badgeCount);
-            },
-          ),
-          // Contacts tab with pending request badge
-          BlocBuilder<ContactBloc, ContactState>(
-            builder: (context, contactState) {
-              return _buildBadgedTab(
-                  Icons.person_rounded, 'Contacts', contactState.pendingRequestCount);
             },
           ),
         ],
@@ -354,7 +347,39 @@ class _MessagingScreenState extends State<MessagingScreen>
         return Stack(
           children: [
             const Positioned.fill(child: ChatBackground()),
-            _buildConversationList(context, convState, currentUserId),
+            NotificationListener<UserScrollNotification>(
+              onNotification: (notification) {
+                if (notification.direction == ScrollDirection.reverse &&
+                    _showActionStrip) {
+                  setState(() => _showActionStrip = false);
+                } else if (notification.direction == ScrollDirection.forward &&
+                    !_showActionStrip) {
+                  setState(() => _showActionStrip = true);
+                }
+                return false;
+              },
+              child: Column(
+                children: [
+                  QuickActionStrip(
+                    visible: _showActionStrip,
+                    onSasaza: () => context.push('/chat/sasaza'),
+                    onGroupSave: () =>
+                        context.push('/chat/create-group-save'),
+                    onTokens: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => const TokenActionsSheet(),
+                      );
+                    },
+                  ),
+                  Expanded(
+                    child: _buildConversationList(
+                        context, convState, currentUserId),
+                  ),
+                ],
+              ),
+            ),
           ],
         );
       },
@@ -827,8 +852,6 @@ class _MessagingScreenState extends State<MessagingScreen>
         icon = Icons.edit;
       case 1:
         icon = Icons.group_add;
-      case 2:
-        icon = Icons.person_add;
       default:
         icon = Icons.add;
     }
@@ -844,8 +867,6 @@ class _MessagingScreenState extends State<MessagingScreen>
         _showChatsSheet(context);
       case 1:
         context.push('/chat/create-community');
-      case 2:
-        _showContactsSheet(context);
     }
   }
 
@@ -914,61 +935,6 @@ class _MessagingScreenState extends State<MessagingScreen>
   }
 
 
-
-  void _showContactsSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _dragHandle(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Add Contacts',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-            ),
-            AppSpacing.verticalMd,
-            _sheetOption(
-              icon: Icons.person_add,
-              color: AppColors.primary,
-              title: 'Add Contact',
-              subtitle: 'Search for someone on iMaliChat',
-              onTap: () {
-                Navigator.pop(ctx);
-                context.push('/chat/new');
-              },
-            ),
-            _sheetOption(
-              icon: Icons.contact_phone_outlined,
-              color: AppColors.secondary,
-              title: 'Import Contacts',
-              subtitle: 'Find friends from your phone',
-              onTap: () {
-                Navigator.pop(ctx);
-                context.push('/chat/import-contacts');
-              },
-            ),
-            _sheetOption(
-              icon: Icons.storefront_outlined,
-              color: AppColors.secondary,
-              title: 'Discover Brands',
-              subtitle: 'Follow brands to get updates',
-              onTap: () {
-                Navigator.pop(ctx);
-                context.push('/chat/brand-accounts');
-              },
-            ),
-            AppSpacing.verticalLg,
-          ],
-        ),
-      ),
-    );
-  }
 
   // =========================================================================
   // CONVERSATION & COMMUNITY OPTIONS

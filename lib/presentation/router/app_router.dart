@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../domain/enums/pool_mode.dart';
 import '../blocs/auth/auth_bloc.dart';
 
 // Auth screens
 import '../screens/auth/otp_verification_screen.dart';
 import '../screens/auth/phone_input_screen.dart';
-import '../screens/auth/challenge_approval_screen.dart';
-import '../screens/auth/push_login_screen.dart';
 import '../screens/auth/session_lock_screen.dart';
 import '../screens/auth/step_up_otp_screen.dart';
 import '../screens/auth/age_consent_screen.dart';
@@ -108,6 +107,7 @@ import '../screens/onboarding/profile_setup_screen.dart';
 // import '../screens/onboarding/terms_screen.dart';
 
 // Profile screens
+import '../screens/messaging/contacts_tab.dart';
 import '../screens/profile/edit_profile_screen.dart';
 import '../screens/profile/profile_screen.dart';
 
@@ -215,7 +215,6 @@ class AppRouter {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           return PhoneInputScreen(
-            skipPushLogin: extra?['skipPushLogin'] as bool? ?? false,
             initialPhoneNumber: extra?['phoneNumber'] as String?,
           );
         },
@@ -232,29 +231,6 @@ class AppRouter {
         },
       ),
 
-      // Push-based login flow
-      GoRoute(
-        path: '/auth/push-login',
-        name: 'pushLogin',
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          return PushLoginScreen(
-            challengeId: extra?['challengeId'] ?? '',
-            phoneNumber: extra?['phoneNumber'] ?? '',
-          );
-        },
-      ),
-      GoRoute(
-        path: '/auth/challenge-approval',
-        name: 'challengeApproval',
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          return ChallengeApprovalScreen(
-            challengeId: extra?['challengeId'] ?? '',
-            nonce: extra?['nonce'] ?? '',
-          );
-        },
-      ),
       GoRoute(
         path: '/auth/step-up-otp',
         name: 'stepUpOtp',
@@ -476,6 +452,14 @@ class AppRouter {
                         name: 'editProfile',
                         builder: (context, state) =>
                             const EditProfileScreen(),
+                      ),
+                      GoRoute(
+                        path: 'contacts',
+                        name: 'profileContacts',
+                        builder: (context, state) => Scaffold(
+                          appBar: AppBar(title: const Text('Contacts')),
+                          body: const ContactsTab(),
+                        ),
                       ),
                       GoRoute(
                         path: 'settings',
@@ -893,20 +877,55 @@ class AppRouter {
                       );
                     },
                   ),
-                  // 8.8) Create Collection Room (Pool)
+                  // 8.8) Create Collection Room (Pool) — sasaza mode
                   GoRoute(
                     path: 'create-pool',
                     name: 'createPool',
                     builder: (context, state) {
                       final extra =
                           state.extra as Map<String, dynamic>?;
+                      final modeStr =
+                          extra?['mode'] as String? ?? 'sasaza';
                       return CreatePoolScreen(
+                        initialMode: modeStr == 'save'
+                            ? PoolMode.save
+                            : PoolMode.sasaza,
                         recipientId:
                             extra?['recipientId'] as String?,
                         recipientName:
                             extra?['recipientName'] as String?,
                         communityId:
                             extra?['communityId'] as String?,
+                      );
+                    },
+                  ),
+                  // 8.8b) Create Group Save — save mode
+                  GoRoute(
+                    path: 'create-group-save',
+                    name: 'createGroupSave',
+                    builder: (context, state) {
+                      final extra =
+                          state.extra as Map<String, dynamic>?;
+                      return CreatePoolScreen(
+                        initialMode: PoolMode.save,
+                        communityId:
+                            extra?['communityId'] as String?,
+                      );
+                    },
+                  ),
+                  // 8.8c) Standalone Send Gift (no conversation context)
+                  GoRoute(
+                    path: 'send-gift',
+                    name: 'standaloneSendGift',
+                    builder: (context, state) {
+                      final extra =
+                          state.extra as Map<String, dynamic>? ?? {};
+                      return GiftComposerScreen(
+                        recipientId:
+                            extra['recipientId'] as String? ?? '',
+                        recipientName:
+                            extra['recipientName'] as String? ??
+                                'User',
                       );
                     },
                   ),

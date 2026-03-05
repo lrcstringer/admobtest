@@ -166,6 +166,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 _buildMenuItem(
                   context,
+                  icon: Icons.contacts_outlined,
+                  title: 'Contacts',
+                  subtitle: 'Manage contacts and requests',
+                  onTap: () => context.push('/home/profile/contacts'),
+                ),
+                _buildMenuItem(
+                  context,
                   icon: Icons.verified_user_outlined,
                   title: 'Verify Identity',
                   subtitle: 'KYC verification for cashouts',

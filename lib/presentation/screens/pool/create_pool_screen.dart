@@ -10,13 +10,17 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/gift/gift_style_picker.dart';
 
 /// Screen for creating a new Collection Room (Group Sasaza or Group Save).
+///
+/// Each entry point locks the mode — no mode selector is shown.
 class CreatePoolScreen extends StatefulWidget {
+  final PoolMode initialMode;
   final String? recipientId;
   final String? recipientName;
   final String? communityId;
 
   const CreatePoolScreen({
     super.key,
+    required this.initialMode,
     this.recipientId,
     this.recipientName,
     this.communityId,
@@ -27,7 +31,7 @@ class CreatePoolScreen extends StatefulWidget {
 }
 
 class _CreatePoolScreenState extends State<CreatePoolScreen> {
-  PoolMode _mode = PoolMode.sasaza;
+  late final PoolMode _mode;
   GiftStyle _style = GiftStyle.celebration;
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
@@ -40,6 +44,7 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
   @override
   void initState() {
     super.initState();
+    _mode = widget.initialMode;
     if (widget.recipientId != null) {
       _recipientId = widget.recipientId;
       _recipientController.text = widget.recipientName ?? '';
@@ -101,7 +106,9 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Create Collection'),
+          title: Text(
+            _mode == PoolMode.sasaza ? 'Create Sasaza' : 'Group Save',
+          ),
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () => context.pop(),
@@ -112,10 +119,6 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              // Mode selector
-              _buildModeSelector(theme),
-              AppSpacing.verticalLg,
-
               // Title
               TextFormField(
                 controller: _titleController,
@@ -215,34 +218,6 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
     );
   }
 
-  Widget _buildModeSelector(ThemeData theme) {
-    return Row(
-      children: [
-        Expanded(
-          child: _ModeCard(
-            icon: Icons.card_giftcard,
-            label: 'Group Sasaza',
-            description: 'Gift for someone',
-            isSelected: _mode == PoolMode.sasaza,
-            color: AppColors.primary,
-            onTap: () => setState(() => _mode = PoolMode.sasaza),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _ModeCard(
-            icon: Icons.savings_outlined,
-            label: 'Group Save',
-            description: 'Save together',
-            isSelected: _mode == PoolMode.save,
-            color: AppColors.secondary,
-            onTap: () => setState(() => _mode = PoolMode.save),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildInviteeSection(ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,63 +290,3 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
   }
 }
 
-class _ModeCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String description;
-  final bool isSelected;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _ModeCard({
-    required this.icon,
-    required this.label,
-    required this.description,
-    required this.isSelected,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? color : AppColors.textHint.withValues(alpha: 0.3),
-            width: isSelected ? 2.5 : 1,
-          ),
-          color: isSelected
-              ? color.withValues(alpha: 0.1)
-              : Colors.transparent,
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 32, color: isSelected ? color : AppColors.textHint),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: isSelected ? color : AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              description,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

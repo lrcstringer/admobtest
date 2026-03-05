@@ -208,11 +208,15 @@ void showMediaPicker(
   );
 }
 
-/// Action picker widget for notes, calls, gifts, and tokens.
+/// Action picker widget for media, notes, calls, gifts, and tokens.
 ///
 /// Shows as a bottom sheet from the + button in the message input bar.
-/// Layout: top row = notes (async), bottom row = calls (live) + actions.
+/// Combines media attachment options (camera, gallery, document) with
+/// notes, calls, and action shortcuts.
 class ActionPickerWidget extends StatelessWidget {
+  final VoidCallback? onCameraRequested;
+  final VoidCallback? onGalleryRequested;
+  final VoidCallback? onDocumentRequested;
   final VoidCallback? onVoiceNoteRequested;
   final VoidCallback? onVideoNoteRequested;
   final VoidCallback? onVoiceCallRequested;
@@ -222,6 +226,9 @@ class ActionPickerWidget extends StatelessWidget {
 
   const ActionPickerWidget({
     super.key,
+    this.onCameraRequested,
+    this.onGalleryRequested,
+    this.onDocumentRequested,
     this.onVoiceNoteRequested,
     this.onVideoNoteRequested,
     this.onVoiceCallRequested,
@@ -257,7 +264,38 @@ class ActionPickerWidget extends StatelessWidget {
               spacing: 16,
               runSpacing: 16,
               children: [
-                // Row 1: Voice Note, Video Note, Send/Receive Tokens, Sasaza
+                // Media attachments
+                if (onCameraRequested != null)
+                  _MediaOption(
+                    icon: Icons.camera_alt,
+                    label: 'Camera',
+                    color: AppColors.secondary,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onCameraRequested!();
+                    },
+                  ),
+                if (onGalleryRequested != null)
+                  _MediaOption(
+                    icon: Icons.photo_library,
+                    label: 'Gallery',
+                    color: AppColors.success,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onGalleryRequested!();
+                    },
+                  ),
+                if (onDocumentRequested != null)
+                  _MediaOption(
+                    icon: Icons.description,
+                    label: 'Document',
+                    color: AppColors.accent,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onDocumentRequested!();
+                    },
+                  ),
+                // Notes
                 if (onVoiceNoteRequested != null)
                   _MediaOption(
                     icon: Icons.mic,
@@ -278,9 +316,10 @@ class ActionPickerWidget extends StatelessWidget {
                       onVideoNoteRequested!();
                     },
                   ),
+                // Actions
                 if (onTokenAction != null)
                   _MediaOption(
-                    icon: Icons.attach_money,
+                    imageAsset: 'assets/images/transfer.png',
                     label: 'Send/Receive\nTokens',
                     color: AppColors.accent,
                     onTap: () {
@@ -298,7 +337,7 @@ class ActionPickerWidget extends StatelessWidget {
                       onSasazaRequested!();
                     },
                   ),
-                // Row 2: Voice Call, Video Call
+                // Calls
                 if (onVoiceCallRequested != null)
                   _MediaOption(
                     icon: Icons.phone,
@@ -332,6 +371,9 @@ class ActionPickerWidget extends StatelessWidget {
 /// Shows the action picker as a bottom sheet.
 void showActionPicker(
   BuildContext context, {
+  VoidCallback? onCameraRequested,
+  VoidCallback? onGalleryRequested,
+  VoidCallback? onDocumentRequested,
   VoidCallback? onVoiceNoteRequested,
   VoidCallback? onVideoNoteRequested,
   VoidCallback? onVoiceCallRequested,
@@ -342,6 +384,9 @@ void showActionPicker(
   showModalBottomSheet(
     context: context,
     builder: (ctx) => ActionPickerWidget(
+      onCameraRequested: onCameraRequested,
+      onGalleryRequested: onGalleryRequested,
+      onDocumentRequested: onDocumentRequested,
       onVoiceNoteRequested: onVoiceNoteRequested,
       onVideoNoteRequested: onVideoNoteRequested,
       onVoiceCallRequested: onVoiceCallRequested,

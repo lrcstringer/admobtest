@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/di/injection.dart';
 import '../../../core/error/failures.dart';
@@ -202,12 +205,6 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                       controller: _messageController,
                       isSending: state.isSending,
                       onSend: () => _sendMessage(context),
-                      onMediaAttachment:
-                          conv != null &&
-                              conv.isMessageRequestFor(currentUserId)
-                          ? null
-                          : () =>
-                                _showMediaPicker(context, state, currentUserId),
                       onAttachment:
                           conv != null &&
                               conv.isMessageRequestFor(currentUserId)
@@ -289,6 +286,31 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     }
 
     if (state.messages.isEmpty) {
+      // Show syncing indicator while background sync fetches and decrypts
+      // messages from Firestore (e.g. after reinstall).
+      if (state.isSyncingMessages) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              AppSpacing.verticalMd,
+              Text(
+                'Syncing messages...',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+        );
+      }
+
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -340,6 +362,10 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               messages[index + 1].createdAt,
             );
 
+        final otherName = state.selectedConversation
+            ?.getOtherParticipant(currentUserId)
+            .displayName;
+
         return Column(
           children: [
             if (showDate) DateSeparator(date: message.createdAt),
@@ -351,6 +377,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                   .selectedConversation
                   ?.participants[message.senderId]
                   ?.avatarUrl,
+              otherUserName: otherName,
               highlightQuery: state.messageSearchQuery,
               onLongPress: () => _onMessageLongPress(context, message, state),
               onTokenRequestAction: message.isTokenTransfer
@@ -441,39 +468,110 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     );
   }
 
-  void _showMediaPicker(
+  void _openMediaCompose(
+    BuildContext context,
+    String recipientId,
+    MediaPickerResult result,
+  ) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => MediaComposeScreen(
+          mediaFile: result.file,
+          mediaType: result.mediaType,
+          onSend: (caption) {
+            context.read<ConversationBloc>().add(
+              ConversationEvent.sendMediaMessage(
+                conversationId: widget.conversationId,
+                mediaFile: result.file,
+                mediaType: result.mediaType,
+                recipientId: recipientId,
+                caption: caption,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickFromCamera(
     BuildContext context,
     ConversationState state,
     String currentUserId,
-  ) {
+  ) async {
     final recipientId = state.getRecipientId(currentUserId);
     if (recipientId == null || recipientId.isEmpty) return;
 
-    showMediaPicker(
-      context,
-      onMediaSelected: (result) {
-        Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            fullscreenDialog: true,
-            builder: (_) => MediaComposeScreen(
-              mediaFile: result.file,
-              mediaType: result.mediaType,
-              onSend: (caption) {
-                context.read<ConversationBloc>().add(
-                  ConversationEvent.sendMediaMessage(
-                    conversationId: widget.conversationId,
-                    mediaFile: result.file,
-                    mediaType: result.mediaType,
-                    recipientId: recipientId,
-                    caption: caption,
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 85,
     );
+    if (image != null && mounted) {
+      _openMediaCompose(
+        context,
+        recipientId,
+        MediaPickerResult(file: File(image.path), mediaType: 'image'),
+      );
+    }
+  }
+
+  Future<void> _pickFromGallery(
+    BuildContext context,
+    ConversationState state,
+    String currentUserId,
+  ) async {
+    final recipientId = state.getRecipientId(currentUserId);
+    if (recipientId == null || recipientId.isEmpty) return;
+
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 85,
+    );
+    if (image != null && mounted) {
+      _openMediaCompose(
+        context,
+        recipientId,
+        MediaPickerResult(file: File(image.path), mediaType: 'image'),
+      );
+    }
+  }
+
+  Future<void> _pickDocument(
+    BuildContext context,
+    ConversationState state,
+    String currentUserId,
+  ) async {
+    final recipientId = state.getRecipientId(currentUserId);
+    if (recipientId == null || recipientId.isEmpty) return;
+
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: [
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv',
+        'zip',
+      ],
+      allowMultiple: false,
+    );
+    if (result != null &&
+        result.files.isNotEmpty &&
+        result.files.first.path != null &&
+        mounted) {
+      _openMediaCompose(
+        context,
+        recipientId,
+        MediaPickerResult(
+          file: File(result.files.first.path!),
+          mediaType: 'document',
+        ),
+      );
+    }
   }
 
   void _showActionPicker(
@@ -489,6 +587,10 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 
     showActionPicker(
       context,
+      onCameraRequested: () => _pickFromCamera(context, state, currentUserId),
+      onGalleryRequested: () => _pickFromGallery(context, state, currentUserId),
+      onDocumentRequested: () =>
+          _pickDocument(context, state, currentUserId),
       onVoiceNoteRequested: () =>
           _openVoiceRecorder(context, state, currentUserId),
       onVideoNoteRequested: () =>

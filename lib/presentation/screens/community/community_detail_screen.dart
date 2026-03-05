@@ -1,7 +1,11 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../domain/entities/community.dart';
 import '../../../domain/entities/community_member.dart';
@@ -208,7 +212,6 @@ class _ChatTab extends StatelessWidget {
               controller: messageController,
               isSending: state.isSending,
               onSend: () => _send(context),
-              onMediaAttachment: () => _showMediaPicker(context),
               onAttachment: () => _showActionPicker(context),
             ),
           ],
@@ -336,37 +339,89 @@ class _ChatTab extends StatelessWidget {
     }
   }
 
-  void _showMediaPicker(BuildContext context) {
+  void _openMediaCompose(BuildContext context, MediaPickerResult result) {
     final bloc = context.read<CommunityMessagingBloc>();
-    showMediaPicker(
-      context,
-      onMediaSelected: (result) {
-        // 8.1 Use showGeneralDialog instead of Navigator.push for fullscreen overlay
-        showGeneralDialog(
-          context: context,
-          barrierDismissible: false,
-          barrierColor: Colors.black,
-          pageBuilder: (ctx, _, __) => MediaComposeScreen(
-            mediaFile: result.file,
-            mediaType: result.mediaType,
-            onSend: (caption) {
-              bloc.add(
-                CommunityMessagingEvent.sendMediaMessage(
-                  mediaFile: result.file,
-                  mediaType: result.mediaType,
-                  caption: caption,
-                ),
-              );
-            },
-          ),
-        );
-      },
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black,
+      pageBuilder: (ctx, _, __) => MediaComposeScreen(
+        mediaFile: result.file,
+        mediaType: result.mediaType,
+        onSend: (caption) {
+          bloc.add(
+            CommunityMessagingEvent.sendMediaMessage(
+              mediaFile: result.file,
+              mediaType: result.mediaType,
+              caption: caption,
+            ),
+          );
+        },
+      ),
     );
+  }
+
+  Future<void> _pickFromCamera(BuildContext context) async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 85,
+    );
+    if (image != null && context.mounted) {
+      _openMediaCompose(
+        context,
+        MediaPickerResult(file: File(image.path), mediaType: 'image'),
+      );
+    }
+  }
+
+  Future<void> _pickFromGallery(BuildContext context) async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 85,
+    );
+    if (image != null && context.mounted) {
+      _openMediaCompose(
+        context,
+        MediaPickerResult(file: File(image.path), mediaType: 'image'),
+      );
+    }
+  }
+
+  Future<void> _pickDocument(BuildContext context) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: [
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv',
+        'zip',
+      ],
+      allowMultiple: false,
+    );
+    if (result != null &&
+        result.files.isNotEmpty &&
+        result.files.first.path != null &&
+        context.mounted) {
+      _openMediaCompose(
+        context,
+        MediaPickerResult(
+          file: File(result.files.first.path!),
+          mediaType: 'document',
+        ),
+      );
+    }
   }
 
   void _showActionPicker(BuildContext context) {
     showActionPicker(
       context,
+      onCameraRequested: () => _pickFromCamera(context),
+      onGalleryRequested: () => _pickFromGallery(context),
+      onDocumentRequested: () => _pickDocument(context),
       onVoiceNoteRequested: () => _openVoiceRecorder(context),
       onVideoNoteRequested: () => _openVideoRecorder(context),
       onSasazaRequested: () {
