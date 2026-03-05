@@ -762,6 +762,17 @@ class AppDatabase extends _$AppDatabase {
         .getSingleOrNull();
   }
 
+  /// Count messages in a conversation. Used to decide whether historical
+  /// backfill is needed (0 = fresh install, skip backfill otherwise).
+  Future<int> getMessageCount(String conversationId) async {
+    final count = countAll();
+    final query = selectOnly(localFullMessages)
+      ..addColumns([count])
+      ..where(localFullMessages.conversationId.equals(conversationId));
+    final row = await query.getSingle();
+    return row.read(count) ?? 0;
+  }
+
   /// Get undecrypted messages from a specific sender in a conversation.
   ///
   /// Used to retry decryption after a session is established with the sender.

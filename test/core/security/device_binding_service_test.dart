@@ -1,4 +1,3 @@
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -21,8 +20,6 @@ class MockDeviceRepository extends Mock implements DeviceRepository {}
 class MockFirebaseMessaging extends Mock implements FirebaseMessaging {}
 
 class MockAuditLogger extends Mock implements AuditLogger {}
-
-class MockFirebaseFunctions extends Mock implements FirebaseFunctions {}
 
 class MockMediaRecoveryService extends Mock implements MediaRecoveryService {}
 
@@ -108,7 +105,6 @@ void main() {
   late MockFirebaseMessaging mockFirebaseMessaging;
   late InMemorySecureStorage secureStorage;
   late MockAuditLogger mockAuditLogger;
-  late MockFirebaseFunctions mockFirebaseFunctions;
   late DeviceBindingService service;
 
   setUp(() {
@@ -117,15 +113,12 @@ void main() {
     mockFirebaseMessaging = MockFirebaseMessaging();
     secureStorage = InMemorySecureStorage();
     mockAuditLogger = MockAuditLogger();
-    mockFirebaseFunctions = MockFirebaseFunctions();
-
     service = DeviceBindingService(
       mockKeystoreService,
       mockDeviceRepository,
       mockFirebaseMessaging,
       secureStorage,
       mockAuditLogger,
-      mockFirebaseFunctions,
       MockMediaRecoveryService(),
     );
   });
@@ -222,7 +215,6 @@ void main() {
         mockFirebaseMessaging,
         throwingStorage,
         mockAuditLogger,
-        mockFirebaseFunctions,
         MockMediaRecoveryService(),
       );
 
@@ -328,7 +320,6 @@ void main() {
         mockFirebaseMessaging,
         throwingStorage,
         mockAuditLogger,
-        mockFirebaseFunctions,
         MockMediaRecoveryService(),
       );
 

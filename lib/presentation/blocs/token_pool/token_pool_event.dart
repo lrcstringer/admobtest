@@ -6,6 +6,7 @@ class TokenPoolEvent with _$TokenPoolEvent {
   const factory TokenPoolEvent.createPool({
     required PoolMode mode,
     required String title,
+    String? purpose,
     required String message,
     required GiftStyle style,
     String? recipientId,

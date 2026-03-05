@@ -34,6 +34,7 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
   late final PoolMode _mode;
   GiftStyle _style = GiftStyle.celebration;
   final _titleController = TextEditingController();
+  final _purposeController = TextEditingController();
   final _messageController = TextEditingController();
   final _recipientController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -45,7 +46,10 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
   void initState() {
     super.initState();
     _mode = widget.initialMode;
-    if (widget.recipientId != null) {
+    // Clear stale activePool so the BlocListener doesn't
+    // immediately fire from a previous pool's state.
+    context.read<TokenPoolBloc>().add(const TokenPoolEvent.reset());
+    if (widget.recipientId != null && widget.recipientId!.isNotEmpty) {
       _recipientId = widget.recipientId;
       _recipientController.text = widget.recipientName ?? '';
     }
@@ -54,6 +58,7 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
   @override
   void dispose() {
     _titleController.dispose();
+    _purposeController.dispose();
     _messageController.dispose();
     _recipientController.dispose();
     super.dispose();
@@ -62,7 +67,8 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_mode == PoolMode.sasaza && _recipientId == null) {
+    if (_mode == PoolMode.sasaza &&
+        (_recipientId == null || _recipientId!.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select a recipient')),
       );
@@ -79,6 +85,7 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
     context.read<TokenPoolBloc>().add(TokenPoolEvent.createPool(
           mode: _mode,
           title: _titleController.text.trim(),
+          purpose: _purposeController.text.trim(),
           message: _messageController.text.trim(),
           style: _style,
           recipientId: _mode == PoolMode.sasaza ? _recipientId : null,
@@ -107,7 +114,7 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            _mode == PoolMode.sasaza ? 'Create Sasaza' : 'Group Save',
+            _mode == PoolMode.sasaza ? 'Create Group Sasaza' : 'Group Save',
           ),
           leading: IconButton(
             icon: const Icon(Icons.close),
@@ -137,14 +144,16 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
               ),
               AppSpacing.verticalMd,
 
-              // Style picker
-              Text('Style', style: theme.textTheme.titleSmall),
-              AppSpacing.verticalSm,
-              GiftStylePicker(
-                selected: _style,
-                onChanged: (s) => setState(() => _style = s),
-              ),
-              AppSpacing.verticalMd,
+              // Style picker (sasaza only)
+              if (_mode == PoolMode.sasaza) ...[
+                Text('Style', style: theme.textTheme.titleSmall),
+                AppSpacing.verticalSm,
+                GiftStylePicker(
+                  selected: _style,
+                  onChanged: (s) => setState(() => _style = s),
+                ),
+                AppSpacing.verticalMd,
+              ],
 
               // Recipient (sasaza only)
               if (_mode == PoolMode.sasaza) ...[
@@ -160,6 +169,26 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
                     suffixIcon: const Icon(Icons.person_search),
                   ),
                   onTap: () => _pickRecipient(context),
+                ),
+                AppSpacing.verticalMd,
+              ],
+
+              // Purpose (save mode only)
+              if (_mode == PoolMode.save) ...[
+                TextFormField(
+                  controller: _purposeController,
+                  decoration: InputDecoration(
+                    labelText: 'Purpose',
+                    hintText: 'What is the savings goal?',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  maxLength: 200,
+                  maxLines: 2,
+                  validator: (v) => v == null || v.trim().isEmpty
+                      ? 'Purpose is required'
+                      : null,
                 ),
                 AppSpacing.verticalMd,
               ],
@@ -277,15 +306,26 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
     final result =
         await context.push<List<Map<String, String>>>('/chat/pick-contacts');
     if (result != null && mounted) {
+      var skippedRecipient = false;
       setState(() {
         for (final contact in result) {
-          // Avoid duplicates and exclude recipient
-          if (!_invitees.any((i) => i['id'] == contact['id']) &&
-              contact['id'] != _recipientId) {
+          if (contact['id'] == _recipientId) {
+            skippedRecipient = true;
+            continue;
+          }
+          // Avoid duplicates
+          if (!_invitees.any((i) => i['id'] == contact['id'])) {
             _invitees.add(contact);
           }
         }
       });
+      if (skippedRecipient && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('The recipient cannot also be an invitee'),
+          ),
+        );
+      }
     }
   }
 }

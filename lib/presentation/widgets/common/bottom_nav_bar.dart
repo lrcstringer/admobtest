@@ -32,12 +32,12 @@ class BottomNavBar extends StatelessWidget {
       assetPath: 'assets/botton_nav_bar_icons/Botton Nav - Chat icon.png',
     ),
     _NavItem(
-      label: 'Wallet',
-      assetPath: 'assets/botton_nav_bar_icons/Bottom Nav - Wallet icon.png',
-    ),
-    _NavItem(
       label: 'Buy',
       assetPath: 'assets/botton_nav_bar_icons/Bottom Nav - Buy icon.png',
+    ),
+    _NavItem(
+      label: 'Wallet',
+      assetPath: 'assets/botton_nav_bar_icons/Bottom Nav - Wallet icon.png',
     ),
   ];
 

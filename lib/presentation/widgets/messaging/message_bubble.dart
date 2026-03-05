@@ -52,6 +52,9 @@ class MessageBubble extends StatelessWidget {
   /// Optional search query to highlight matching text.
   final String? highlightQuery;
 
+  /// Display name of the other participant (for token request labels).
+  final String? otherUserName;
+
   const MessageBubble({
     super.key,
     required this.message,
@@ -64,6 +67,7 @@ class MessageBubble extends StatelessWidget {
     this.onReplyTap,
     this.onImageTap,
     this.highlightQuery,
+    this.otherUserName,
   });
 
   String? get _effectiveAvatarUrl {
@@ -681,9 +685,61 @@ class MessageBubble extends StatelessWidget {
   Widget _buildTokenCard(BuildContext context) {
     final isSend = message.type == MessageType.tokenSend;
     final isRequest = message.type == MessageType.tokenRequest;
+    final isPaid = message.status == MessageStatus.paid;
+    final isDeclined = message.status == MessageStatus.declined;
     final canAction = isRequest &&
         message.recipientId == currentUserId &&
         message.status == MessageStatus.pending;
+
+    final name = otherUserName ?? '';
+
+    // Build label text with participant name and outcome status
+    String label;
+    if (isSend) {
+      label = isMe
+          ? 'You sent'
+          : name.isNotEmpty
+              ? 'Sent to you by $name'
+              : 'Sent to you';
+    } else if (isMe) {
+      // Requester's view
+      if (isPaid) {
+        label = name.isNotEmpty
+            ? 'Request to $name accepted'
+            : 'Request accepted';
+      } else if (isDeclined) {
+        label = name.isNotEmpty
+            ? 'Request to $name declined'
+            : 'Request declined';
+      } else {
+        label = name.isNotEmpty
+            ? 'You requested from $name'
+            : 'You requested';
+      }
+    } else {
+      // Recipient's view
+      if (isPaid) {
+        label = name.isNotEmpty
+            ? 'Request from $name accepted'
+            : 'Request accepted';
+      } else if (isDeclined) {
+        label = name.isNotEmpty
+            ? 'Request from $name declined'
+            : 'Request declined';
+      } else {
+        label = name.isNotEmpty ? 'Request from $name' : 'Request from';
+      }
+    }
+
+    // Color reflects outcome: green for paid, red for declined, accent for pending
+    final Color accentColor;
+    if (isSend || isPaid) {
+      accentColor = AppColors.success;
+    } else if (isDeclined) {
+      accentColor = AppColors.error;
+    } else {
+      accentColor = AppColors.accent;
+    }
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -692,9 +748,7 @@ class MessageBubble extends StatelessWidget {
         color: AppColors.chatSurface,
         borderRadius: AppSpacing.borderRadiusMd,
         border: Border.all(
-          color: isSend
-              ? AppColors.success.withValues(alpha: 0.5)
-              : AppColors.accent.withValues(alpha: 0.5),
+          color: accentColor.withValues(alpha: 0.5),
         ),
       ),
       child: Column(
@@ -704,14 +758,12 @@ class MessageBubble extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: isSend
-                      ? AppColors.success.withValues(alpha: 0.1)
-                      : AppColors.accent.withValues(alpha: 0.1),
+                  color: accentColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   isSend ? Icons.send : Icons.call_received,
-                  color: isSend ? AppColors.success : AppColors.accent,
+                  color: accentColor,
                   size: 20,
                 ),
               ),
@@ -721,9 +773,7 @@ class MessageBubble extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isSend
-                          ? (isMe ? 'You sent' : 'Sent to you')
-                          : (isMe ? 'You requested' : 'Request from'),
+                      label,
                       style:
                           Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: AppColors.textSecondary,
@@ -734,9 +784,7 @@ class MessageBubble extends StatelessWidget {
                       style:
                           Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: isSend
-                                    ? AppColors.success
-                                    : AppColors.accent,
+                                color: accentColor,
                               ),
                     ),
                   ],

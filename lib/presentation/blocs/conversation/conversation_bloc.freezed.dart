@@ -10619,6 +10619,7 @@ mixin _$ConversationState {
   Conversation? get selectedConversation => throw _privateConstructorUsedError;
   bool get isLoadingMessages => throw _privateConstructorUsedError;
   bool get hasLoadedMessages => throw _privateConstructorUsedError;
+  bool get isSyncingMessages => throw _privateConstructorUsedError;
   bool get hasMoreMessages => throw _privateConstructorUsedError;
   bool get isSending => throw _privateConstructorUsedError;
   bool get isClearingChat => throw _privateConstructorUsedError;
@@ -10655,6 +10656,7 @@ abstract class $ConversationStateCopyWith<$Res> {
     Conversation? selectedConversation,
     bool isLoadingMessages,
     bool hasLoadedMessages,
+    bool isSyncingMessages,
     bool hasMoreMessages,
     bool isSending,
     bool isClearingChat,
@@ -10692,6 +10694,7 @@ class _$ConversationStateCopyWithImpl<$Res, $Val extends ConversationState>
     Object? selectedConversation = freezed,
     Object? isLoadingMessages = null,
     Object? hasLoadedMessages = null,
+    Object? isSyncingMessages = null,
     Object? hasMoreMessages = null,
     Object? isSending = null,
     Object? isClearingChat = null,
@@ -10729,6 +10732,10 @@ class _$ConversationStateCopyWithImpl<$Res, $Val extends ConversationState>
             hasLoadedMessages: null == hasLoadedMessages
                 ? _value.hasLoadedMessages
                 : hasLoadedMessages // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isSyncingMessages: null == isSyncingMessages
+                ? _value.isSyncingMessages
+                : isSyncingMessages // ignore: cast_nullable_to_non_nullable
                       as bool,
             hasMoreMessages: null == hasMoreMessages
                 ? _value.hasMoreMessages
@@ -10810,6 +10817,7 @@ abstract class _$$ConversationStateImplCopyWith<$Res>
     Conversation? selectedConversation,
     bool isLoadingMessages,
     bool hasLoadedMessages,
+    bool isSyncingMessages,
     bool hasMoreMessages,
     bool isSending,
     bool isClearingChat,
@@ -10847,6 +10855,7 @@ class __$$ConversationStateImplCopyWithImpl<$Res>
     Object? selectedConversation = freezed,
     Object? isLoadingMessages = null,
     Object? hasLoadedMessages = null,
+    Object? isSyncingMessages = null,
     Object? hasMoreMessages = null,
     Object? isSending = null,
     Object? isClearingChat = null,
@@ -10884,6 +10893,10 @@ class __$$ConversationStateImplCopyWithImpl<$Res>
         hasLoadedMessages: null == hasLoadedMessages
             ? _value.hasLoadedMessages
             : hasLoadedMessages // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isSyncingMessages: null == isSyncingMessages
+            ? _value.isSyncingMessages
+            : isSyncingMessages // ignore: cast_nullable_to_non_nullable
                   as bool,
         hasMoreMessages: null == hasMoreMessages
             ? _value.hasMoreMessages
@@ -10944,6 +10957,7 @@ class _$ConversationStateImpl extends _ConversationState {
     this.selectedConversation,
     this.isLoadingMessages = false,
     this.hasLoadedMessages = false,
+    this.isSyncingMessages = false,
     this.hasMoreMessages = false,
     this.isSending = false,
     this.isClearingChat = false,
@@ -10990,6 +11004,9 @@ class _$ConversationStateImpl extends _ConversationState {
   @override
   @JsonKey()
   final bool hasLoadedMessages;
+  @override
+  @JsonKey()
+  final bool isSyncingMessages;
   @override
   @JsonKey()
   final bool hasMoreMessages;
@@ -11042,7 +11059,7 @@ class _$ConversationStateImpl extends _ConversationState {
 
   @override
   String toString() {
-    return 'ConversationState(status: $status, conversations: $conversations, messages: $messages, selectedConversation: $selectedConversation, isLoadingMessages: $isLoadingMessages, hasLoadedMessages: $hasLoadedMessages, hasMoreMessages: $hasMoreMessages, isSending: $isSending, isClearingChat: $isClearingChat, totalUnreadCount: $totalUnreadCount, messageRequestCount: $messageRequestCount, errorMessage: $errorMessage, typingUsers: $typingUsers, messageSearchResults: $messageSearchResults, isSearchingMessages: $isSearchingMessages, messageSearchQuery: $messageSearchQuery, isForwarding: $isForwarding)';
+    return 'ConversationState(status: $status, conversations: $conversations, messages: $messages, selectedConversation: $selectedConversation, isLoadingMessages: $isLoadingMessages, hasLoadedMessages: $hasLoadedMessages, isSyncingMessages: $isSyncingMessages, hasMoreMessages: $hasMoreMessages, isSending: $isSending, isClearingChat: $isClearingChat, totalUnreadCount: $totalUnreadCount, messageRequestCount: $messageRequestCount, errorMessage: $errorMessage, typingUsers: $typingUsers, messageSearchResults: $messageSearchResults, isSearchingMessages: $isSearchingMessages, messageSearchQuery: $messageSearchQuery, isForwarding: $isForwarding)';
   }
 
   @override
@@ -11062,6 +11079,8 @@ class _$ConversationStateImpl extends _ConversationState {
                 other.isLoadingMessages == isLoadingMessages) &&
             (identical(other.hasLoadedMessages, hasLoadedMessages) ||
                 other.hasLoadedMessages == hasLoadedMessages) &&
+            (identical(other.isSyncingMessages, isSyncingMessages) ||
+                other.isSyncingMessages == isSyncingMessages) &&
             (identical(other.hasMoreMessages, hasMoreMessages) ||
                 other.hasMoreMessages == hasMoreMessages) &&
             (identical(other.isSending, isSending) ||
@@ -11099,6 +11118,7 @@ class _$ConversationStateImpl extends _ConversationState {
     selectedConversation,
     isLoadingMessages,
     hasLoadedMessages,
+    isSyncingMessages,
     hasMoreMessages,
     isSending,
     isClearingChat,
@@ -11132,6 +11152,7 @@ abstract class _ConversationState extends ConversationState {
     final Conversation? selectedConversation,
     final bool isLoadingMessages,
     final bool hasLoadedMessages,
+    final bool isSyncingMessages,
     final bool hasMoreMessages,
     final bool isSending,
     final bool isClearingChat,
@@ -11158,6 +11179,8 @@ abstract class _ConversationState extends ConversationState {
   bool get isLoadingMessages;
   @override
   bool get hasLoadedMessages;
+  @override
+  bool get isSyncingMessages;
   @override
   bool get hasMoreMessages;
   @override

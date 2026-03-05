@@ -63,9 +63,11 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
   }
 
   void _onUserSelected(String userId, String displayName) {
-    // Single-select return mode: pop immediately with contact data
+    // Single-select return mode: pop immediately with contact data.
+    // Use Navigator.pop directly (not GoRouter's context.pop) so the return
+    // value is delivered through the branch navigator that handled the push.
     if (widget.returnContact && !widget.multiSelect) {
-      context.pop<Map<String, String>>({'id': userId, 'name': displayName});
+      Navigator.of(context).pop({'id': userId, 'name': displayName});
       return;
     }
 
@@ -146,7 +148,7 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: () =>
-                      context.pop<List<Map<String, String>>>(_selected),
+                      Navigator.of(context).pop(_selected.toList()),
                   icon: const Icon(Icons.check, size: 20),
                   label: Text('Done (${_selected.length} selected)'),
                   style: FilledButton.styleFrom(

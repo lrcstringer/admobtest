@@ -10,6 +10,7 @@ import '../../../core/error/failures.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../../domain/entities/message.dart';
 import '../../../domain/enums/conversation_type.dart';
+import '../../../domain/enums/message_status.dart';
 import '../../../domain/enums/message_type.dart';
 import '../../../domain/repositories/conversation_repository.dart';
 
@@ -243,6 +244,10 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       selectedConversation: conversation,
       messages: initialMessages,
       hasLoadedMessages: true, // ALWAYS true — spinner stops here, deterministically
+      // If local DB was empty, the background sync may still be fetching and
+      // decrypting messages from Firestore. Show a syncing indicator instead
+      // of the premature "No messages yet" empty state.
+      isSyncingMessages: initialMessages.isEmpty,
     ));
 
     // 3. Subscribe to watch stream — real-time updates from here on
@@ -363,7 +368,12 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   ) {
     // Single source of truth: local DB stream delivers all messages
     // (including optimistic pending messages inserted by OutgoingMessageQueue).
-    emit(state.copyWith(messages: event.messages, hasLoadedMessages: true));
+    emit(state.copyWith(
+      messages: event.messages,
+      hasLoadedMessages: true,
+      // Clear syncing indicator once messages arrive from the sync service
+      isSyncingMessages: false,
+    ));
   }
 
   Future<void> _onSendTextMessage(
@@ -553,12 +563,33 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     _AcceptTokenRequest event,
     Emitter<ConversationState> emit,
   ) async {
+    // Optimistically update message status so buttons disappear immediately
+    final updatedMessages = state.messages.map((m) {
+      if (m.id == event.messageId) {
+        return m.copyWith(status: MessageStatus.paid);
+      }
+      return m;
+    }).toList();
+    emit(state.copyWith(messages: updatedMessages));
+
     final result = await _conversationRepository.acceptTokenRequest(
       messageId: event.messageId,
       conversationId: event.conversationId,
     );
     result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
+      (failure) {
+        // Revert optimistic update on failure
+        final revertedMessages = state.messages.map((m) {
+          if (m.id == event.messageId) {
+            return m.copyWith(status: MessageStatus.pending);
+          }
+          return m;
+        }).toList();
+        emit(state.copyWith(
+          messages: revertedMessages,
+          errorMessage: failure.displayMessage,
+        ));
+      },
       (_) {},
     );
   }
@@ -567,12 +598,33 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     _DeclineTokenRequest event,
     Emitter<ConversationState> emit,
   ) async {
+    // Optimistically update message status so buttons disappear immediately
+    final updatedMessages = state.messages.map((m) {
+      if (m.id == event.messageId) {
+        return m.copyWith(status: MessageStatus.declined);
+      }
+      return m;
+    }).toList();
+    emit(state.copyWith(messages: updatedMessages));
+
     final result = await _conversationRepository.declineTokenRequest(
       messageId: event.messageId,
       conversationId: event.conversationId,
     );
     result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.displayMessage)),
+      (failure) {
+        // Revert optimistic update on failure
+        final revertedMessages = state.messages.map((m) {
+          if (m.id == event.messageId) {
+            return m.copyWith(status: MessageStatus.pending);
+          }
+          return m;
+        }).toList();
+        emit(state.copyWith(
+          messages: revertedMessages,
+          errorMessage: failure.displayMessage,
+        ));
+      },
       (_) {},
     );
   }

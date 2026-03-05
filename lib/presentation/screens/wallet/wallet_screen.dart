@@ -319,7 +319,7 @@ class _WalletScreenState extends State<WalletScreen> {
               builder: (_) => const TokenActionsSheet(),
             ),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: AppColors.logoGradient,
@@ -340,7 +340,6 @@ class _WalletScreenState extends State<WalletScreen> {
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            letterSpacing: 0.3,
                           ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -352,9 +351,9 @@ class _WalletScreenState extends State<WalletScreen> {
           ),
         ),
         const SizedBox(width: 10),
-        // Streak badge — matches Home screen exactly
+        // Streak badge
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: AppColors.goldGradient,
@@ -371,10 +370,10 @@ class _WalletScreenState extends State<WalletScreen> {
               const SizedBox(width: 6),
               Text(
                 'STREAK: $streak DAYS',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: AppColors.textOnSecondary,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 1.0,
+                      letterSpacing: 0.5,
                     ),
               ),
             ],

@@ -145,7 +145,6 @@ import '../services/chat_analytics_service.dart' as _i550;
 import '../services/community_sync_service.dart' as _i310;
 import '../services/crypto_service.dart' as _i1024;
 import '../services/deep_link_service.dart' as _i391;
-import '../services/fcm_challenge_handler.dart' as _i830;
 import '../services/key_backup_service.dart' as _i946;
 import '../services/key_management_service.dart' as _i418;
 import '../services/media_recovery_service.dart' as _i124;
@@ -354,13 +353,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i483.AppDatabase>(),
       ),
     );
-    gh.lazySingleton<_i830.FcmChallengeHandler>(
-      () => _i830.FcmChallengeHandler(
-        gh<_i892.FirebaseMessaging>(),
-        gh<_i809.FirebaseFunctions>(),
-        gh<_i892.KeystoreService>(),
-      ),
-    );
     gh.lazySingleton<_i108.CallAnalyticsService>(
       () => _i108.CallAnalyticsService(gh<_i398.FirebaseAnalytics>()),
     );
@@ -478,17 +470,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i969.TokenPoolBloc>(
       () => _i969.TokenPoolBloc(gh<_i119.TokenPoolRepository>()),
     );
-    gh.lazySingleton<_i693.DeviceBindingService>(
-      () => _i693.DeviceBindingService(
-        gh<_i892.KeystoreService>(),
-        gh<_i454.DeviceRepository>(),
-        gh<_i892.FirebaseMessaging>(),
-        gh<_i558.FlutterSecureStorage>(),
-        gh<_i988.AuditLogger>(),
-        gh<_i809.FirebaseFunctions>(),
-        gh<_i124.MediaRecoveryService>(),
-      ),
-    );
     gh.lazySingleton<_i224.ChatRemoteDataSource>(
       () => _i224.ChatRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
@@ -515,6 +496,16 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i58.PotBloc>(
       () => _i58.PotBloc(gh<_i1010.GamificationRepository>()),
+    );
+    gh.lazySingleton<_i693.DeviceBindingService>(
+      () => _i693.DeviceBindingService(
+        gh<_i892.KeystoreService>(),
+        gh<_i454.DeviceRepository>(),
+        gh<_i892.FirebaseMessaging>(),
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i988.AuditLogger>(),
+        gh<_i124.MediaRecoveryService>(),
+      ),
     );
     gh.lazySingleton<_i742.PurchaseRepository>(
       () => _i1044.PurchaseRepositoryImpl(gh<_i267.PurchaseRemoteDataSource>()),
@@ -665,6 +656,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i124.MediaRecoveryService>(),
       ),
     );
+    gh.factory<_i141.AuthBloc>(
+      () => _i141.AuthBloc(
+        gh<_i1073.AuthRepository>(),
+        gh<_i271.UserRepository>(),
+        gh<_i693.DeviceBindingService>(),
+        gh<_i290.BiometricLoginService>(),
+        gh<_i418.KeyManagementService>(),
+        gh<_i161.SignalProtocolService>(),
+        gh<_i1034.MessageSyncService>(),
+        gh<_i340.OfflineActionQueue>(),
+        gh<_i310.CommunitySyncService>(),
+        gh<_i111.OutgoingMessageQueue>(),
+      ),
+    );
     gh.factory<_i775.EarnBloc>(
       () =>
           _i775.EarnBloc(gh<_i805.EarnRepository>(), gh<_i284.AdMobService>()),
@@ -700,21 +705,6 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.factory<_i66.GiftBloc>(() => _i66.GiftBloc(gh<_i533.GiftRepository>()));
-    gh.factory<_i141.AuthBloc>(
-      () => _i141.AuthBloc(
-        gh<_i1073.AuthRepository>(),
-        gh<_i271.UserRepository>(),
-        gh<_i693.DeviceBindingService>(),
-        gh<_i290.BiometricLoginService>(),
-        gh<_i830.FcmChallengeHandler>(),
-        gh<_i418.KeyManagementService>(),
-        gh<_i161.SignalProtocolService>(),
-        gh<_i1034.MessageSyncService>(),
-        gh<_i340.OfflineActionQueue>(),
-        gh<_i310.CommunitySyncService>(),
-        gh<_i111.OutgoingMessageQueue>(),
-      ),
-    );
     gh.lazySingleton<_i727.RaspService>(
       () => _i727.RaspService(gh<_i141.AuthBloc>()),
     );

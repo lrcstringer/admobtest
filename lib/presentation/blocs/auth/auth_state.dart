@@ -12,10 +12,9 @@ class AuthState with _$AuthState {
     @Default(0) int resendCountdown,
     @Default(false) bool isDeviceBound,
     String? deviceId,
-    // Push login state
-    @Default(false) bool isPushLoginLoading,
-    String? pushLoginChallengeId,
-    @Default(false) bool hasTrustedDevice,
+    /// True when E2EE key restore from backup failed and fresh keys were
+    /// generated. Some older messages may not be decryptable.
+    @Default(false) bool keyRestoreFailed,
   }) = _AuthState;
 
   const AuthState._();

@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../domain/value_objects/user_search_result.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
+import '../../blocs/user_search/user_search_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 
@@ -33,13 +33,20 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
   final _noteController = TextEditingController();
   final _searchController = TextEditingController();
   bool _isSending = true;
+  bool _isSubmitting = false;
 
   // Contact picker state (only used in standalone mode)
   _SelectedContact? _selectedContact;
-  List<_SearchResult> _searchResults = [];
-  bool _isSearching = false;
 
   bool get _isStandalone => widget.conversationId == null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isStandalone) {
+      context.read<UserSearchBloc>().add(const UserSearchEvent.clearSearch());
+    }
+  }
 
   @override
   void dispose() {
@@ -49,58 +56,15 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
     super.dispose();
   }
 
-  Future<void> _searchUsers(String query) async {
-    if (query.length < 2) {
-      setState(() {
-        _searchResults = [];
-        _isSearching = false;
-      });
-      return;
-    }
-
-    setState(() => _isSearching = true);
-
-    try {
-      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-      final queryLower = query.toLowerCase();
-
-      final snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('displayNameLower', isGreaterThanOrEqualTo: queryLower)
-          .where('displayNameLower', isLessThanOrEqualTo: '$queryLower\uf8ff')
-          .limit(10)
-          .get();
-
-      final results = <_SearchResult>[];
-      for (final doc in snapshot.docs) {
-        if (doc.id == currentUserId) continue;
-        final data = doc.data();
-        results.add(_SearchResult(
-          userId: doc.id,
-          displayName: data['displayName'] as String? ?? 'Unknown',
-          avatarUrl: data['avatarUrl'] as String?,
-        ));
-      }
-
-      if (!mounted) return;
-      setState(() {
-        _searchResults = results;
-        _isSearching = false;
-      });
-    } catch (_) {
-      if (mounted) setState(() => _isSearching = false);
-    }
-  }
-
-  void _selectContact(_SearchResult result) {
+  void _selectContact(UserSearchResult result) {
     setState(() {
       _selectedContact = _SelectedContact(
         userId: result.userId,
         displayName: result.displayName,
       );
-      _searchResults = [];
       _searchController.clear();
     });
+    context.read<UserSearchBloc>().add(const UserSearchEvent.clearSearch());
   }
 
   void _clearContact() {
@@ -109,15 +73,37 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Padding(
+    return BlocListener<ConversationBloc, ConversationState>(
+      listenWhen: (prev, curr) =>
+          prev.isSending && !curr.isSending && _isSubmitting,
+      listener: (context, state) {
+        setState(() => _isSubmitting = false);
+        if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errorMessage!)),
+          );
+          context
+              .read<ConversationBloc>()
+              .add(const ConversationEvent.clearError());
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text(_isSending ? 'Tokens sent!' : 'Token request sent!'),
+            ),
+          );
+          Navigator.pop(context);
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -152,9 +138,31 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
             if (_isStandalone) ...[
               if (_selectedContact != null)
                 _buildSelectedContactChip()
-              else
+              else ...[
                 _buildContactSearchField(),
-              if (_searchResults.isNotEmpty) _buildSearchResultsList(),
+                BlocBuilder<UserSearchBloc, UserSearchState>(
+                  builder: (context, searchState) {
+                    if (searchState.isSearching) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child:
+                                CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      );
+                    }
+                    if (searchState.searchResults.isNotEmpty) {
+                      return _buildSearchResultsList(
+                          searchState.searchResults);
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ],
               AppSpacing.verticalMd,
             ],
 
@@ -189,22 +197,32 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _submit,
+                onPressed: _isSubmitting ? null : _submit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
                       _isSending ? AppColors.success : AppColors.accent,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: Text(
-                  _isSending
-                      ? 'Send Instant Tokens'
-                      : 'Request Instant Tokens',
-                ),
+                child: _isSubmitting
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        _isSending
+                            ? 'Send Instant Tokens'
+                            : 'Request Instant Tokens',
+                      ),
               ),
             ),
             AppSpacing.verticalMd,
           ],
         ),
+      ),
       ),
     );
   }
@@ -257,20 +275,14 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
   Widget _buildContactSearchField() {
     return TextField(
       controller: _searchController,
-      onChanged: _searchUsers,
+      onChanged: (query) {
+        context
+            .read<UserSearchBloc>()
+            .add(UserSearchEvent.searchUsers(query));
+      },
       decoration: InputDecoration(
         labelText: 'To (search by name)',
         prefixIcon: const Icon(Icons.person_search_outlined),
-        suffixIcon: _isSearching
-            ? const Padding(
-                padding: EdgeInsets.all(12),
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              )
-            : null,
         border: OutlineInputBorder(
           borderRadius: AppSpacing.borderRadiusMd,
         ),
@@ -308,7 +320,7 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
     );
   }
 
-  Widget _buildSearchResultsList() {
+  Widget _buildSearchResultsList(List<UserSearchResult> results) {
     return Container(
       constraints: const BoxConstraints(maxHeight: 160),
       margin: const EdgeInsets.only(top: 4),
@@ -320,9 +332,9 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
       child: ListView.builder(
         shrinkWrap: true,
         padding: EdgeInsets.zero,
-        itemCount: _searchResults.length,
+        itemCount: results.length,
         itemBuilder: (context, index) {
-          final result = _searchResults[index];
+          final result = results[index];
           return ListTile(
             dense: true,
             leading: CircleAvatar(
@@ -377,6 +389,8 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
 
     final note = _noteController.text.trim();
 
+    setState(() => _isSubmitting = true);
+
     if (_isStandalone) {
       // Standalone mode: need to get/create a conversation first, then send
       context.read<ConversationBloc>().add(
@@ -409,21 +423,7 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
             );
       }
     }
-
-    Navigator.pop(context);
   }
-}
-
-class _SearchResult {
-  final String userId;
-  final String displayName;
-  final String? avatarUrl;
-
-  const _SearchResult({
-    required this.userId,
-    required this.displayName,
-    this.avatarUrl,
-  });
 }
 
 class _SelectedContact {

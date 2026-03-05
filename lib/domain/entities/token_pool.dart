@@ -63,6 +63,7 @@ class TokenPool with _$TokenPool {
 
     // Pool content
     required String title,
+    @Default('') String purpose,
     @Default('') String message,
     required GiftStyle style,
 

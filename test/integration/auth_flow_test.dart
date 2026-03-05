@@ -8,7 +8,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/core/security/device_binding_service.dart';
 import 'package:imalichat/core/services/biometric_login_service.dart';
-import 'package:imalichat/core/services/fcm_challenge_handler.dart';
 import 'package:imalichat/core/services/key_management_service.dart';
 import 'package:imalichat/core/services/community_sync_service.dart';
 import 'package:imalichat/core/services/message_sync_service.dart';
@@ -33,8 +32,6 @@ class MockUserRepository extends Mock implements UserRepository {}
 class MockDeviceBindingService extends Mock implements DeviceBindingService {}
 
 class MockBiometricLoginService extends Mock implements BiometricLoginService {}
-
-class MockFcmChallengeHandler extends Mock implements FcmChallengeHandler {}
 
 class MockKeyManagementService extends Mock implements KeyManagementService {}
 
@@ -91,7 +88,6 @@ void main() {
   late MockUserRepository mockUserRepository;
   late MockDeviceBindingService mockDeviceBindingService;
   late MockBiometricLoginService mockBiometricLoginService;
-  late MockFcmChallengeHandler mockFcmChallengeHandler;
   late MockKeyManagementService mockKeyManagementService;
   late MockSignalProtocolService mockSignalProtocolService;
   late StreamController<User?> authStateController;
@@ -101,7 +97,6 @@ void main() {
         mockUserRepository,
         mockDeviceBindingService,
         mockBiometricLoginService,
-        mockFcmChallengeHandler,
         mockKeyManagementService,
         mockSignalProtocolService,
         MockMessageSyncService(),
@@ -115,7 +110,6 @@ void main() {
     mockUserRepository = MockUserRepository();
     mockDeviceBindingService = MockDeviceBindingService();
     mockBiometricLoginService = MockBiometricLoginService();
-    mockFcmChallengeHandler = MockFcmChallengeHandler();
     mockKeyManagementService = MockKeyManagementService();
     mockSignalProtocolService = MockSignalProtocolService();
     authStateController = StreamController<User?>.broadcast();
@@ -416,41 +410,10 @@ void main() {
     );
 
     // =========================================================================
-    // 8. Push login flow: requestPushLogin -> authenticateWithPushToken ->
-    //    authenticated
+    // 8. Custom token auth (biometric login): authenticateWithPushToken -> authenticated
     // =========================================================================
     blocTest<AuthBloc, AuthState>(
-      '8. Push login flow: requestPushLogin -> authenticateWithPushToken -> authenticated',
-      build: () {
-        when(() => mockFcmChallengeHandler.requestLogin(any())).thenAnswer(
-            (_) async =>
-                (challengeId: 'challenge_abc', hasTrustedDevice: true));
-        when(() => mockAuthRepository.signInWithCustomToken(any()))
-            .thenAnswer((_) async => Right(_completeUser));
-        return createBloc();
-      },
-      act: (bloc) async {
-        bloc.add(const AuthEvent.requestPushLogin(
-            phoneNumber: '+27612345678'));
-        await Future.delayed(const Duration(milliseconds: 100));
-        bloc.add(const AuthEvent.authenticateWithPushToken(
-            customToken: 'custom_token_xyz'));
-        await Future.delayed(const Duration(milliseconds: 200));
-      },
-      wait: const Duration(milliseconds: 200),
-      verify: (bloc) {
-        expect(bloc.state.status, AuthStatus.authenticated);
-        expect(bloc.state.user, _completeUser);
-        verify(() => mockBiometricLoginService.recordSuccessfulAuth())
-            .called(1);
-      },
-    );
-
-    // =========================================================================
-    // 9. Custom token auth: authenticateWithPushToken -> authenticated
-    // =========================================================================
-    blocTest<AuthBloc, AuthState>(
-      '9. Custom token auth: authenticateWithPushToken -> authenticated',
+      '8. Custom token auth: authenticateWithPushToken -> authenticated',
       build: () {
         when(() => mockAuthRepository.signInWithCustomToken(any()))
             .thenAnswer((_) async => Right(_completeUser));
@@ -615,36 +578,10 @@ void main() {
     );
 
     // =========================================================================
-    // 14. ClearPushLogin: requestPushLogin -> clearPushLoginState ->
-    //     state cleared
+    // 14. SignOut resets state: authenticated -> signOut -> unauthenticated
     // =========================================================================
     blocTest<AuthBloc, AuthState>(
-      '14. ClearPushLogin: requestPushLogin -> clearPushLoginState -> state cleared',
-      build: () {
-        when(() => mockFcmChallengeHandler.requestLogin(any())).thenAnswer(
-            (_) async =>
-                (challengeId: 'challenge_clear', hasTrustedDevice: true));
-        return createBloc();
-      },
-      act: (bloc) async {
-        bloc.add(const AuthEvent.requestPushLogin(
-            phoneNumber: '+27612345678'));
-        await Future.delayed(const Duration(milliseconds: 100));
-        bloc.add(const AuthEvent.clearPushLoginState());
-        await Future.delayed(const Duration(milliseconds: 50));
-      },
-      verify: (bloc) {
-        expect(bloc.state.isPushLoginLoading, false);
-        expect(bloc.state.pushLoginChallengeId, isNull);
-        expect(bloc.state.hasTrustedDevice, false);
-      },
-    );
-
-    // =========================================================================
-    // 15. SignOut resets state: authenticated -> signOut -> unauthenticated
-    // =========================================================================
-    blocTest<AuthBloc, AuthState>(
-      '15. SignOut resets state: seed authenticated -> signOut -> unauthenticated, user=null',
+      '14. SignOut resets state: seed authenticated -> signOut -> unauthenticated, user=null',
       seed: () => AuthState(
         status: AuthStatus.authenticated,
         user: _completeUser,
@@ -672,7 +609,7 @@ void main() {
       verify: (_) {
         verify(() => mockAuthRepository.signOut()).called(1);
         // Device binding is NOT cleared on sign-out (only on forceReauth
-        // and deleteAccount) to preserve push login capability.
+        // and deleteAccount) to preserve biometric login capability.
         verifyNever(() => mockDeviceBindingService.clearBinding());
       },
     );

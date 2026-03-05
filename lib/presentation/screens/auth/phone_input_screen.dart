@@ -11,14 +11,11 @@ import '../../widgets/common/app_button.dart';
 import '../../widgets/common/numeric_keyboard.dart';
 
 class PhoneInputScreen extends StatefulWidget {
-  final bool skipPushLogin;
-
   /// Optional E.164 phone number to pre-fill (e.g. "+27812345678").
   final String? initialPhoneNumber;
 
   const PhoneInputScreen({
     super.key,
-    this.skipPushLogin = false,
     this.initialPhoneNumber,
   });
 
@@ -132,12 +129,9 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
     // when the SMS arrives (fixes timing issue on Play Store builds).
     SmsAutoFill().listenForCode();
 
-    // Dispatch push login request to BLoC (handles fallback to OTP internally)
+    // Send OTP via SMS
     context.read<AuthBloc>().add(
-          AuthEvent.requestPushLogin(
-            phoneNumber: phoneNumber,
-            skipPushLogin: widget.skipPushLogin,
-          ),
+          AuthEvent.sendOtp(phoneNumber: phoneNumber),
         );
   }
 
@@ -189,16 +183,10 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
           } else {
             setState(() => _errorText = state.errorMessage);
           }
-        } else if (state.hasTrustedDevice && state.pushLoginChallengeId != null) {
-          // Navigate to push login waiting screen
-          context.go('/auth/push-login', extra: {
-            'challengeId': state.pushLoginChallengeId,
-            'phoneNumber': state.phoneNumber ?? _getE164PhoneNumber() ?? '',
-          });
         }
       },
       builder: (context, state) {
-        final isLoading = state.isLoading || state.isPushLoginLoading;
+        final isLoading = state.isLoading;
 
         return Scaffold(
           body: Container(

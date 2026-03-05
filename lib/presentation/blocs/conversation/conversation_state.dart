@@ -12,6 +12,7 @@ class ConversationState with _$ConversationState {
     Conversation? selectedConversation,
     @Default(false) bool isLoadingMessages,
     @Default(false) bool hasLoadedMessages,
+    @Default(false) bool isSyncingMessages,
     @Default(false) bool hasMoreMessages,
     @Default(false) bool isSending,
     @Default(false) bool isClearingChat,

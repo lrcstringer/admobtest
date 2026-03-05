@@ -99,6 +99,12 @@ class PoolProgressCard extends StatelessWidget {
                   _buildStatusBanner(theme, colors)
                 else
                   _buildActionButtons(context, colors),
+
+                // Payout history (shown after distribution)
+                if (pool.payouts.isNotEmpty) ...[
+                  AppSpacing.verticalMd,
+                  _buildPayoutHistory(theme, colors),
+                ],
               ],
             ),
           ),
@@ -143,7 +149,9 @@ class PoolProgressCard extends StatelessWidget {
   Widget _buildRecipientRow(ThemeData theme) {
     final subtitle = pool.isSasaza
         ? 'Gift for ${pool.recipientName ?? 'Unknown'}'
-        : 'Shared Pool';
+        : pool.purpose.isNotEmpty
+            ? pool.purpose
+            : 'Shared Pool';
     return Row(
       children: [
         Icon(
@@ -152,10 +160,14 @@ class PoolProgressCard extends StatelessWidget {
           color: AppColors.textSecondary,
         ),
         const SizedBox(width: 6),
-        Text(
-          subtitle,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: AppColors.textSecondary,
+        Expanded(
+          child: Text(
+            subtitle,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
@@ -278,6 +290,66 @@ class PoolProgressCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPayoutHistory(ThemeData theme, GiftStyleColors colors) {
+    final sorted = [...pool.payouts]..sort((a, b) => b.amount.compareTo(a.amount));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.receipt_long, size: 16, color: colors.iconColor),
+            const SizedBox(width: 6),
+            Text(
+              'Payout Breakdown',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ...sorted.map((payout) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor: colors.iconColor.withValues(alpha: 0.15),
+                    child: Text(
+                      payout.displayName.isNotEmpty
+                          ? payout.displayName[0].toUpperCase()
+                          : '?',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: colors.iconColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      payout.displayName,
+                      style: theme.textTheme.bodyMedium,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Icon(Icons.toll, size: 14, color: AppColors.tokenGold),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${payout.amount}',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.tokenGold,
+                    ),
+                  ),
+                ],
+              ),
+            )),
+      ],
     );
   }
 

@@ -173,7 +173,7 @@ export const createTokenPool = onCall(
     const userId = requireAuth(request);
     requireAppCheck(request, "createTokenPool");
 
-    const { mode, title, message, style, recipientId, inviteeIds } = request.data;
+    const { mode, title, purpose, message, style, recipientId, inviteeIds, communityId } = request.data;
 
     // --- Validation ---
     if (!mode || !["sasaza", "save"].includes(mode)) {
@@ -182,6 +182,10 @@ export const createTokenPool = onCall(
 
     if (!title || typeof title !== "string" || title.trim().length === 0 || title.length > 100) {
       throw new HttpsError("invalid-argument", "title must be 1-100 characters");
+    }
+
+    if (purpose !== undefined && purpose !== null && typeof purpose === "string" && purpose.length > 200) {
+      throw new HttpsError("invalid-argument", "purpose must be 0-200 characters");
     }
 
     if (message !== undefined && message !== null && typeof message === "string" && message.length > 200) {
@@ -335,8 +339,10 @@ export const createTokenPool = onCall(
       organizerName,
       recipientId: recipientId || null,
       recipientName: recipientName || null,
+      communityId: communityId || null,
       conversationId: convId,
       title: title.trim(),
+      purpose: (purpose || "").trim(),
       message: (message || "").trim(),
       style,
       totalAmount: 0,
@@ -361,9 +367,12 @@ export const createTokenPool = onCall(
     await writeBatch.commit();
 
     // 4. Post system message
+    const purposeTrimmed = (purpose || "").trim();
     const systemText = mode === "sasaza"
       ? `${organizerName} started a Group Sasaza for ${recipientName}`
-      : `${organizerName} started a Group Save`;
+      : purposeTrimmed
+        ? `${organizerName} started a Group Save: ${purposeTrimmed}`
+        : `${organizerName} started a Group Save`;
 
     await postSystemMessage(convId, systemText, "pool_created", {
       poolId,
@@ -666,14 +675,13 @@ export const sendGroupGift = onCall(
     const deterministicConvId = `p2p_${sortedIds[0]}_${sortedIds[1]}`;
     const p2pConvRef = db.collection("conversations").doc(deterministicConvId);
 
-    const p2pConvDoc = await p2pConvRef.get();
-    if (!p2pConvDoc.exists) {
-      // Create P2P conversation
+    // Use create() to avoid race conditions — if doc already exists, catch and proceed.
+    try {
       const organizerProfile = await getUserProfile(userId);
       const recipientProfile = await getUserProfile(txResult.recipientId);
       const now = admin.firestore.FieldValue.serverTimestamp();
 
-      await p2pConvRef.set({
+      await p2pConvRef.create({
         id: deterministicConvId,
         type: "p2p",
         participantIds: [userId, txResult.recipientId],
@@ -701,6 +709,9 @@ export const sendGroupGift = onCall(
         createdAt: now,
         updatedAt: null,
       });
+    } catch (e: any) {
+      // Already exists (concurrent create or prior call) — safe to proceed
+      if (e.code !== 6 /* ALREADY_EXISTS */) throw e;
     }
 
     // 3b. Build visible contributor names (non-anonymous)

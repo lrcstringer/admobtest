@@ -15,10 +15,12 @@ abstract class TokenPoolRepository {
   Future<Either<Failure, TokenPool>> createPool({
     required PoolMode mode,
     required String title,
+    String? purpose,
     required String message,
     required GiftStyle style,
     String? recipientId,
     required List<String> inviteeIds,
+    String? communityId,
   });
 
   /// Contribute tokens to a pool

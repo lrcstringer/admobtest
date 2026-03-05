@@ -657,10 +657,9 @@ class AppRouter {
                             conversationId:
                                 state.pathParameters['conversationId'],
                             recipientId:
-                                extra['recipientId'] as String? ?? '',
+                                extra['recipientId'] as String?,
                             recipientName:
-                                extra['recipientName'] as String? ??
-                                    'User',
+                                extra['recipientName'] as String?,
                           );
                         },
                       ),
@@ -922,10 +921,9 @@ class AppRouter {
                           state.extra as Map<String, dynamic>? ?? {};
                       return GiftComposerScreen(
                         recipientId:
-                            extra['recipientId'] as String? ?? '',
+                            extra['recipientId'] as String?,
                         recipientName:
-                            extra['recipientName'] as String? ??
-                                'User',
+                            extra['recipientName'] as String?,
                       );
                     },
                   ),
@@ -944,7 +942,51 @@ class AppRouter {
             ],
           ),
 
-          // ---- Tab 3: Wallet ----
+          // ---- Tab 3: Buy ----
+          StatefulShellBranch(
+            navigatorKey: _buyNavKey,
+            routes: [
+              GoRoute(
+                path: '/buy',
+                name: 'buy',
+                builder: (context, state) => const BuyServicesScreen(),
+                routes: [
+                  // 10.1) Buy Wallet From Selection
+                  GoRoute(
+                    path: 'wallet-selection',
+                    name: 'buyWalletSelection',
+                    builder: (context, state) =>
+                        const BuyWalletSelectionScreen(),
+                    routes: [
+                      // 10.1.1) Buy Success
+                      GoRoute(
+                        path: 'success',
+                        name: 'buySuccess',
+                        builder: (context, state) =>
+                            const BuySuccessScreen(),
+                      ),
+                      // 10.1.2) Buy Failure
+                      GoRoute(
+                        path: 'failure',
+                        name: 'buyFailure',
+                        builder: (context, state) =>
+                            const BuyFailureScreen(),
+                      ),
+                    ],
+                  ),
+                  // 10.2) Buy Transactions
+                  GoRoute(
+                    path: 'transactions',
+                    name: 'buyTransactions',
+                    builder: (context, state) =>
+                        const BuyTransactionsScreen(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // ---- Tab 4: Wallet ----
           StatefulShellBranch(
             navigatorKey: _walletNavKey,
             routes: [
@@ -1066,50 +1108,6 @@ class AppRouter {
                         },
                       ),
                     ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          // ---- Tab 4: Buy ----
-          StatefulShellBranch(
-            navigatorKey: _buyNavKey,
-            routes: [
-              GoRoute(
-                path: '/buy',
-                name: 'buy',
-                builder: (context, state) => const BuyServicesScreen(),
-                routes: [
-                  // 10.1) Buy Wallet From Selection
-                  GoRoute(
-                    path: 'wallet-selection',
-                    name: 'buyWalletSelection',
-                    builder: (context, state) =>
-                        const BuyWalletSelectionScreen(),
-                    routes: [
-                      // 10.1.1) Buy Success
-                      GoRoute(
-                        path: 'success',
-                        name: 'buySuccess',
-                        builder: (context, state) =>
-                            const BuySuccessScreen(),
-                      ),
-                      // 10.1.2) Buy Failure
-                      GoRoute(
-                        path: 'failure',
-                        name: 'buyFailure',
-                        builder: (context, state) =>
-                            const BuyFailureScreen(),
-                      ),
-                    ],
-                  ),
-                  // 10.2) Buy Transactions
-                  GoRoute(
-                    path: 'transactions',
-                    name: 'buyTransactions',
-                    builder: (context, state) =>
-                        const BuyTransactionsScreen(),
                   ),
                 ],
               ),

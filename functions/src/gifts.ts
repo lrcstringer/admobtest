@@ -90,16 +90,63 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
   if (!style || !VALID_STYLES.includes(style)) {
     throw new HttpsError("invalid-argument", `Invalid style. Must be one of: ${VALID_STYLES.join(", ")}`);
   }
-  if (!conversationId && !communityId) {
-    throw new HttpsError("invalid-argument", "Must specify conversationId or communityId");
-  }
   if (recipientId === userId) {
     throw new HttpsError("invalid-argument", "Cannot send a gift to yourself");
   }
 
+  // --- Resolve conversation for P2P gifts ---
+  // When launched standalone (no conversationId), find or create the conversation.
+  let resolvedConversationId = conversationId as string | undefined;
+  if (!resolvedConversationId && !communityId) {
+    const sortedIds = [userId, recipientId].sort();
+    const deterministicId = `p2p_${sortedIds[0]}_${sortedIds[1]}`;
+    const convRef = db.collection("conversations").doc(deterministicId);
+    // Use create() to avoid race conditions — if two concurrent calls both
+    // find no doc, only one create() succeeds; the other catches and proceeds.
+    try {
+      const [senderProfile, recipientProfile] = await Promise.all([
+        getUserProfile(userId),
+        getUserProfile(recipientId),
+      ]);
+      const now = admin.firestore.FieldValue.serverTimestamp();
+      await convRef.create({
+        id: deterministicId,
+        type: "p2p",
+        participantIds: [userId, recipientId],
+        participants: {
+          [userId]: {
+            displayName: senderProfile.displayName || "Unknown",
+            avatarUrl: senderProfile.avatarUrl || senderProfile.profilePicThumbUrl || null,
+          },
+          [recipientId]: {
+            displayName: recipientProfile.displayName || "Unknown",
+            avatarUrl: recipientProfile.avatarUrl || recipientProfile.profilePicThumbUrl || null,
+          },
+        },
+        lastMessageText: null,
+        lastMessageSenderId: null,
+        lastMessageSenderName: null,
+        lastMessageType: null,
+        lastMessageAt: null,
+        unreadCounts: { [userId]: 0, [recipientId]: 0 },
+        accepted: { [userId]: true, [recipientId]: false },
+        archived: { [userId]: false, [recipientId]: false },
+        pinned: { [userId]: false, [recipientId]: false },
+        muted: { [userId]: false, [recipientId]: false },
+        disappearingMessagesDurationMs: null,
+        createdAt: now,
+        updatedAt: null,
+      });
+    } catch (e: any) {
+      // Already exists (concurrent create or prior call) — safe to proceed
+      if (e.code !== 6 /* ALREADY_EXISTS */) throw e;
+    }
+    resolvedConversationId = deterministicId;
+  }
+
   // --- Validate parent document exists ---
-  const collection = conversationId ? "conversations" : "communities";
-  const parentId = conversationId || communityId;
+  const collection = resolvedConversationId ? "conversations" : "communities";
+  const parentId = resolvedConversationId || communityId;
   const parentDoc = await db.collection(collection).doc(parentId!).get();
   if (!parentDoc.exists) {
     throw new HttpsError("not-found", `${collection === "conversations" ? "Conversation" : "Community"} not found`);
@@ -154,7 +201,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
     recipientId,
     recipientName: recipient.displayName || "Unknown",
     amount,
-    conversationId: conversationId || null,
+    conversationId: resolvedConversationId || null,
     communityId: communityId || null,
     messageId: msgRef.id,
     message: message.trim().substring(0, 100),
@@ -220,7 +267,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
   };
 
   // Increment unread for recipient(s)
-  if (conversationId) {
+  if (resolvedConversationId) {
     parentUpdate[`unreadCounts.${recipientId}`] = admin.firestore.FieldValue.increment(1);
   } else if (communityId) {
     const memberIds: string[] = parentDoc.data()?.memberIds || [];
@@ -248,7 +295,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
           type: "gift_received",
           giftId,
           senderId: userId,
-          conversationId: conversationId || "",
+          conversationId: resolvedConversationId || "",
           communityId: communityId || "",
         },
         android: {
@@ -274,7 +321,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
     recipientId,
     recipientName: recipient.displayName || "Unknown",
     amount,
-    conversationId: conversationId || null,
+    conversationId: resolvedConversationId || null,
     communityId: communityId || null,
     messageId: msgRef.id,
     message: message.trim().substring(0, 100),

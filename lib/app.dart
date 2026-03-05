@@ -11,7 +11,6 @@ import 'core/security/session_lock_service.dart';
 import 'core/security/sim_change_detector.dart';
 import 'core/services/call_notification_service.dart';
 import 'core/services/deep_link_service.dart';
-import 'core/services/fcm_challenge_handler.dart';
 import 'core/services/notification_service.dart';
 import 'presentation/blocs/auth/auth_bloc.dart';
 import 'presentation/blocs/call/call_bloc.dart';
@@ -66,9 +65,6 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   late final AppRouter _appRouter;
   late final SessionLockService _sessionLockService;
   late final SimChangeDetector _simChangeDetector;
-  late final FcmChallengeHandler _challengeHandler;
-
-  StreamSubscription<Map<String, dynamic>>? _challengeSubscription;
   StreamSubscription<AuthState>? _authStateSubscription;
   StreamSubscription<Uri>? _appLinksSubscription;
 
@@ -96,7 +92,6 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _tokenPoolBloc = getIt<TokenPoolBloc>();
     _sessionLockService = GetIt.instance<SessionLockService>();
     _simChangeDetector = GetIt.instance<SimChangeDetector>();
-    _challengeHandler = GetIt.instance<FcmChallengeHandler>();
     _appRouter = AppRouter(authBloc: _authBloc);
 
     // Wire up deep link handling
@@ -112,14 +107,13 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     getIt<NotificationService>()
         .setCallNotificationService(callNotificationService);
 
-    _setupChallengeNavigation();
+    _setupNotificationNavigation();
     _setupUserIdPropagation();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _challengeSubscription?.cancel();
     _authStateSubscription?.cancel();
     _appLinksSubscription?.cancel();
     _callBloc.close();
@@ -143,30 +137,8 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     });
   }
 
-  /// Listen to the FCM challenge stream and navigate to the approval screen
-  /// when an auth challenge push is received on this (trusted) device.
-  void _setupChallengeNavigation() {
-    // Foreground challenges
-    _challengeSubscription =
-        _challengeHandler.challengeStream.listen((data) {
-      debugPrint('========================================');
-      debugPrint('CHALLENGE STREAM: Received in app.dart');
-      debugPrint('  challengeId: ${data['challengeId']}');
-      debugPrint('  nonce present: ${data['nonce'] != null}');
-      debugPrint('========================================');
-      final challengeId = data['challengeId'] as String?;
-      final nonce = data['nonce'] as String?;
-      if (challengeId != null && nonce != null) {
-        debugPrint('CHALLENGE STREAM: Navigating to challenge-approval');
-        _appRouter.router.push('/auth/challenge-approval', extra: {
-          'challengeId': challengeId,
-          'nonce': nonce,
-        });
-      } else {
-        debugPrint('CHALLENGE STREAM: Missing challengeId or nonce, NOT navigating');
-      }
-    });
-
+  /// Handle notification taps to navigate to the appropriate screen.
+  void _setupNotificationNavigation() {
     // App opened from a background notification tap
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       _handleNotificationTap(message.data);
@@ -183,12 +155,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   /// Route notification taps to the appropriate screen.
   void _handleNotificationTap(Map<String, dynamic> data) {
     final type = data['type'];
-    if (type == 'auth_challenge') {
-      _appRouter.router.push('/auth/challenge-approval', extra: {
-        'challengeId': data['challengeId'],
-        'nonce': data['nonce'],
-      });
-    } else if (type == 'chat_message') {
+    if (type == 'chat_message') {
       final conversationId = data['conversationId'];
       if (conversationId != null) {
         _appRouter.router.push('/chat/$conversationId');
@@ -281,25 +248,45 @@ class _IMaliChatAppState extends State<IMaliChatApp>
         BlocProvider<GiftBloc>.value(value: _giftBloc),
         BlocProvider<TokenPoolBloc>.value(value: _tokenPoolBloc),
       ],
-      child: MaterialApp.router(
-        title: 'iMali',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        themeMode: ThemeMode.dark,
-        routerConfig: _appRouter.router,
-        builder: (context, child) {
-          return Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: AppColors.backgroundGradient,
+      child: BlocListener<AuthBloc, AuthState>(
+        listenWhen: (prev, curr) =>
+            !prev.keyRestoreFailed && curr.keyRestoreFailed,
+        listener: (context, state) {
+          // Show a one-time snackbar when E2EE key restore failed and fresh
+          // keys were generated. Some older messages may not be decryptable.
+          final messenger = ScaffoldMessenger.maybeOf(context);
+          if (messenger != null) {
+            messenger.showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Message encryption keys could not be restored. '
+                  'Some older messages may not be readable.',
+                ),
+                duration: Duration(seconds: 6),
               ),
-            ),
-            child: child,
-          );
+            );
+          }
         },
+        child: MaterialApp.router(
+          title: 'iMali',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: ThemeMode.dark,
+          routerConfig: _appRouter.router,
+          builder: (context, child) {
+            return Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: AppColors.backgroundGradient,
+                ),
+              ),
+              child: child,
+            );
+          },
+        ),
       ),
     );
   }

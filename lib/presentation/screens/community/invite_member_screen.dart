@@ -142,32 +142,36 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                     ),
                     AppSpacing.verticalLg,
 
-                    // Role selector
-                    Text(
-                      'Role',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    AppSpacing.verticalSm,
-                    RadioGroup<MemberRole>(
-                      groupValue: _selectedRole,
-                      onChanged: (v) {
-                        if (v != null) setState(() => _selectedRole = v);
-                      },
-                      child: Column(
-                        children: MemberRole.values
-                            .where((r) => r != MemberRole.owner)
-                            .map((role) => RadioListTile<MemberRole>(
-                                  title: Text(_roleLabel(role)),
-                                  subtitle: Text(_roleDescription(role)),
-                                  value: role,
-                                  toggleable: false,
-                                ))
-                            .toList(),
+                    // Role selector — only shown after a contact is selected
+                    if (_selectedContact != null) ...[
+                      Text(
+                        'Role',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
-                    ),
-                    AppSpacing.verticalLg,
+                      AppSpacing.verticalSm,
+                      RadioGroup<MemberRole>(
+                        groupValue: _selectedRole,
+                        onChanged: (v) {
+                          if (v != null) setState(() => _selectedRole = v);
+                        },
+                        child: Column(
+                          children: MemberRole.values
+                              .where((r) =>
+                                  r != MemberRole.owner &&
+                                  r != MemberRole.treasurer)
+                              .map((role) => RadioListTile<MemberRole>(
+                                    title: Text(_roleLabel(role)),
+                                    subtitle: Text(_roleDescription(role)),
+                                    value: role,
+                                    toggleable: false,
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                      AppSpacing.verticalLg,
+                    ],
 
                     // Submit
                     SizedBox(

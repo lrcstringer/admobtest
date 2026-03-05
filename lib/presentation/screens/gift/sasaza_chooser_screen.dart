@@ -38,11 +38,11 @@ class SasazaChooserScreen extends StatelessWidget {
                 title: 'One-to-One Sasaza',
                 subtitle: 'Send a personal gift to someone special',
                 gradientColors: AppColors.goldGradient,
-                onTap: () async {
+                onTap: () {
                   if (recipientId != null &&
                       recipientId!.isNotEmpty &&
                       conversationId != null) {
-                    // Launched from inside a conversation — go directly
+                    // Launched from inside a conversation — pre-fill recipient
                     context.push(
                       '/chat/conversation/$conversationId/send-gift',
                       extra: {
@@ -51,18 +51,14 @@ class SasazaChooserScreen extends StatelessWidget {
                       },
                     );
                   } else {
-                    // Launched from Chats tab — pick a contact first
-                    final contact = await context
-                        .push<Map<String, String>>('/chat/pick-contact');
-                    if (contact != null && context.mounted) {
-                      context.push(
-                        '/chat/send-gift',
-                        extra: {
-                          'recipientId': contact['id'] ?? '',
-                          'recipientName': contact['name'] ?? '',
-                        },
-                      );
-                    }
+                    // Standalone — gift composer has its own recipient picker
+                    context.push(
+                      '/chat/send-gift',
+                      extra: {
+                        'recipientId': recipientId,
+                        'recipientName': recipientName,
+                      },
+                    );
                   }
                 },
               ),

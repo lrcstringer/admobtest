@@ -22,6 +22,7 @@ mixin _$TokenPoolEvent {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -48,6 +49,7 @@ mixin _$TokenPoolEvent {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -73,6 +75,7 @@ mixin _$TokenPoolEvent {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -174,6 +177,7 @@ abstract class _$$CreatePoolImplCopyWith<$Res> {
   $Res call({
     PoolMode mode,
     String title,
+    String? purpose,
     String message,
     GiftStyle style,
     String? recipientId,
@@ -198,6 +202,7 @@ class __$$CreatePoolImplCopyWithImpl<$Res>
   $Res call({
     Object? mode = null,
     Object? title = null,
+    Object? purpose = freezed,
     Object? message = null,
     Object? style = null,
     Object? recipientId = freezed,
@@ -214,6 +219,10 @@ class __$$CreatePoolImplCopyWithImpl<$Res>
             ? _value.title
             : title // ignore: cast_nullable_to_non_nullable
                   as String,
+        purpose: freezed == purpose
+            ? _value.purpose
+            : purpose // ignore: cast_nullable_to_non_nullable
+                  as String?,
         message: null == message
             ? _value.message
             : message // ignore: cast_nullable_to_non_nullable
@@ -245,6 +254,7 @@ class _$CreatePoolImpl implements _CreatePool {
   const _$CreatePoolImpl({
     required this.mode,
     required this.title,
+    this.purpose,
     required this.message,
     required this.style,
     this.recipientId,
@@ -256,6 +266,8 @@ class _$CreatePoolImpl implements _CreatePool {
   final PoolMode mode;
   @override
   final String title;
+  @override
+  final String? purpose;
   @override
   final String message;
   @override
@@ -275,7 +287,7 @@ class _$CreatePoolImpl implements _CreatePool {
 
   @override
   String toString() {
-    return 'TokenPoolEvent.createPool(mode: $mode, title: $title, message: $message, style: $style, recipientId: $recipientId, inviteeIds: $inviteeIds, communityId: $communityId)';
+    return 'TokenPoolEvent.createPool(mode: $mode, title: $title, purpose: $purpose, message: $message, style: $style, recipientId: $recipientId, inviteeIds: $inviteeIds, communityId: $communityId)';
   }
 
   @override
@@ -285,6 +297,7 @@ class _$CreatePoolImpl implements _CreatePool {
             other is _$CreatePoolImpl &&
             (identical(other.mode, mode) || other.mode == mode) &&
             (identical(other.title, title) || other.title == title) &&
+            (identical(other.purpose, purpose) || other.purpose == purpose) &&
             (identical(other.message, message) || other.message == message) &&
             (identical(other.style, style) || other.style == style) &&
             (identical(other.recipientId, recipientId) ||
@@ -302,6 +315,7 @@ class _$CreatePoolImpl implements _CreatePool {
     runtimeType,
     mode,
     title,
+    purpose,
     message,
     style,
     recipientId,
@@ -323,6 +337,7 @@ class _$CreatePoolImpl implements _CreatePool {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -347,6 +362,7 @@ class _$CreatePoolImpl implements _CreatePool {
     return createPool(
       mode,
       title,
+      purpose,
       message,
       style,
       recipientId,
@@ -361,6 +377,7 @@ class _$CreatePoolImpl implements _CreatePool {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -384,6 +401,7 @@ class _$CreatePoolImpl implements _CreatePool {
     return createPool?.call(
       mode,
       title,
+      purpose,
       message,
       style,
       recipientId,
@@ -398,6 +416,7 @@ class _$CreatePoolImpl implements _CreatePool {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -423,6 +442,7 @@ class _$CreatePoolImpl implements _CreatePool {
       return createPool(
         mode,
         title,
+        purpose,
         message,
         style,
         recipientId,
@@ -499,6 +519,7 @@ abstract class _CreatePool implements TokenPoolEvent {
   const factory _CreatePool({
     required final PoolMode mode,
     required final String title,
+    final String? purpose,
     required final String message,
     required final GiftStyle style,
     final String? recipientId,
@@ -508,6 +529,7 @@ abstract class _CreatePool implements TokenPoolEvent {
 
   PoolMode get mode;
   String get title;
+  String? get purpose;
   String get message;
   GiftStyle get style;
   String? get recipientId;
@@ -617,6 +639,7 @@ class _$ContributeImpl implements _Contribute {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -647,6 +670,7 @@ class _$ContributeImpl implements _Contribute {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -676,6 +700,7 @@ class _$ContributeImpl implements _Contribute {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -856,6 +881,7 @@ class _$SendGroupGiftImpl implements _SendGroupGift {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -886,6 +912,7 @@ class _$SendGroupGiftImpl implements _SendGroupGift {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -915,6 +942,7 @@ class _$SendGroupGiftImpl implements _SendGroupGift {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -1111,6 +1139,7 @@ class _$DistributePoolImpl implements _DistributePool {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -1141,6 +1170,7 @@ class _$DistributePoolImpl implements _DistributePool {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -1170,6 +1200,7 @@ class _$DistributePoolImpl implements _DistributePool {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -1348,6 +1379,7 @@ class _$CancelPoolImpl implements _CancelPool {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -1378,6 +1410,7 @@ class _$CancelPoolImpl implements _CancelPool {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -1407,6 +1440,7 @@ class _$CancelPoolImpl implements _CancelPool {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -1581,6 +1615,7 @@ class _$OpenGroupGiftImpl implements _OpenGroupGift {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -1611,6 +1646,7 @@ class _$OpenGroupGiftImpl implements _OpenGroupGift {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -1640,6 +1676,7 @@ class _$OpenGroupGiftImpl implements _OpenGroupGift {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -1817,6 +1854,7 @@ class _$ClaimGroupGiftImpl implements _ClaimGroupGift {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -1847,6 +1885,7 @@ class _$ClaimGroupGiftImpl implements _ClaimGroupGift {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -1876,6 +1915,7 @@ class _$ClaimGroupGiftImpl implements _ClaimGroupGift {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2050,6 +2090,7 @@ class _$WatchPoolImpl implements _WatchPool {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2080,6 +2121,7 @@ class _$WatchPoolImpl implements _WatchPool {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2109,6 +2151,7 @@ class _$WatchPoolImpl implements _WatchPool {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2295,6 +2338,7 @@ class _$PoolUpdatedImpl implements _PoolUpdated {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2325,6 +2369,7 @@ class _$PoolUpdatedImpl implements _PoolUpdated {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2354,6 +2399,7 @@ class _$PoolUpdatedImpl implements _PoolUpdated {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2501,6 +2547,7 @@ class _$LoadMyPoolsImpl implements _LoadMyPools {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2531,6 +2578,7 @@ class _$LoadMyPoolsImpl implements _LoadMyPools {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2560,6 +2608,7 @@ class _$LoadMyPoolsImpl implements _LoadMyPools {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2699,6 +2748,7 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2729,6 +2779,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2758,6 +2809,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2897,6 +2949,7 @@ class _$ResetImpl implements _Reset {
     required TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2927,6 +2980,7 @@ class _$ResetImpl implements _Reset {
     TResult? Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,
@@ -2956,6 +3010,7 @@ class _$ResetImpl implements _Reset {
     TResult Function(
       PoolMode mode,
       String title,
+      String? purpose,
       String message,
       GiftStyle style,
       String? recipientId,

@@ -92,70 +92,124 @@ class KeyBackupService {
   /// Fetches the server secret and encrypted blob, derives the same key,
   /// decrypts the blob, and restores the key bundle.
   ///
+  /// Retries up to [maxAttempts] times with exponential backoff on transient
+  /// errors (network, Cloud Function timeouts). A single transient failure
+  /// must NOT cause irreversible fresh key generation — that would make all
+  /// existing messages permanently undecryptable.
+  ///
   /// Supports both v2 (random 16-byte salt prepended) and v1 (uid as salt).
-  Future<bool> autoRestore() async {
+  Future<bool> autoRestore({int maxAttempts = 3}) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) return false;
 
-    try {
-      // Fetch server secret
-      final serverSecret = await _getServerSecret(uid);
-      if (serverSecret == null) return false;
+    var backoff = const Duration(seconds: 2);
 
-      // Download encrypted blob
-      final callable = _functions.httpsCallable('getKeyBackup');
-      final result = await callable.call<dynamic>({});
-      final data = result.data as Map<String, dynamic>?;
-      if (data == null || data['encryptedBlob'] == null) return false;
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        final restored = await _attemptRestore(uid);
+        if (restored) return true;
 
-      final fullBlob = base64Decode(data['encryptedBlob'] as String);
-      final backupVersion = data['backupVersion'] as int? ?? 1;
+        // _attemptRestore returns false for definitive "no backup exists"
+        // — no point retrying.
+        return false;
+      } catch (e) {
+        CryptoService.e2eeLog(
+            'E2EE autoRestore attempt $attempt/$maxAttempts failed: $e');
 
-      // Extract salt based on backup version
-      final Uint8List salt;
-      final Uint8List encrypted;
-      if (backupVersion >= 2) {
-        // v2: salt(16) || nonce(12) || ciphertext || mac(16)
-        salt = Uint8List.fromList(fullBlob.sublist(0, 16));
-        encrypted = Uint8List.fromList(fullBlob.sublist(16));
-      } else {
-        // v1 legacy: uid as salt, no salt prefix in blob
-        salt = Uint8List.fromList(utf8.encode(uid));
-        encrypted = Uint8List.fromList(fullBlob);
+        // Don't retry on definitive non-transient errors
+        if (_isNonTransientError(e)) {
+          CryptoService.e2eeLog(
+              'E2EE autoRestore: non-transient error — giving up');
+          return false;
+        }
+
+        if (attempt < maxAttempts) {
+          CryptoService.e2eeLog(
+              'E2EE autoRestore: retrying in ${backoff.inSeconds}s');
+          await Future<void>.delayed(backoff);
+          backoff *= 2;
+        }
       }
-
-      final derivedKey = await _cryptoService.pbkdf2(
-        passphrase: serverSecret,
-        salt: salt,
-      );
-
-      // Decrypt — format: nonce(12) || ciphertext || mac(16)
-      final nonce = Uint8List.fromList(encrypted.sublist(0, 12));
-      final ciphertextWithMac = Uint8List.fromList(encrypted.sublist(12));
-      final plaintext = await _cryptoService.decrypt(
-        ciphertextWithMac,
-        derivedKey,
-        nonce: nonce,
-      );
-
-      // Parse and restore key bundle
-      final bundleJson =
-          jsonDecode(utf8.decode(plaintext)) as Map<String, dynamic>;
-      final bundle = KeyBundle.fromJson(bundleJson);
-      await _keyManagementService.storePrivateKeys(bundle);
-      await _keyManagementService.uploadKeyBundle(bundle);
-
-      // Cache locally
-      await _secureStorage.write(
-        key: _backupBlobKey,
-        value: data['encryptedBlob'] as String,
-      );
-
-      return true;
-    } catch (e) {
-      CryptoService.e2eeLog('E2EE autoRestore failed: $e');
-      return false;
     }
+
+    CryptoService.e2eeLog(
+        'E2EE autoRestore: all $maxAttempts attempts failed');
+    return false;
+  }
+
+  /// Single restore attempt. Returns true on success, false if no backup
+  /// exists. Throws on transient errors (network, timeout) so the caller
+  /// can retry.
+  Future<bool> _attemptRestore(String uid) async {
+    // Fetch server secret
+    final serverSecret = await _getServerSecret(uid);
+    if (serverSecret == null) return false;
+
+    // Download encrypted blob
+    final callable = _functions.httpsCallable('getKeyBackup');
+    final result = await callable.call<dynamic>({});
+    final data = result.data as Map<String, dynamic>?;
+    if (data == null || data['encryptedBlob'] == null) return false;
+
+    final fullBlob = base64Decode(data['encryptedBlob'] as String);
+    final backupVersion = data['backupVersion'] as int? ?? 1;
+
+    // Extract salt based on backup version
+    final Uint8List salt;
+    final Uint8List encrypted;
+    if (backupVersion >= 2) {
+      // v2: salt(16) || nonce(12) || ciphertext || mac(16)
+      salt = Uint8List.fromList(fullBlob.sublist(0, 16));
+      encrypted = Uint8List.fromList(fullBlob.sublist(16));
+    } else {
+      // v1 legacy: uid as salt, no salt prefix in blob
+      salt = Uint8List.fromList(utf8.encode(uid));
+      encrypted = Uint8List.fromList(fullBlob);
+    }
+
+    final derivedKey = await _cryptoService.pbkdf2(
+      passphrase: serverSecret,
+      salt: salt,
+    );
+
+    // Decrypt — format: nonce(12) || ciphertext || mac(16)
+    final nonce = Uint8List.fromList(encrypted.sublist(0, 12));
+    final ciphertextWithMac = Uint8List.fromList(encrypted.sublist(12));
+    final plaintext = await _cryptoService.decrypt(
+      ciphertextWithMac,
+      derivedKey,
+      nonce: nonce,
+    );
+
+    // Parse and restore key bundle
+    final bundleJson =
+        jsonDecode(utf8.decode(plaintext)) as Map<String, dynamic>;
+    final bundle = KeyBundle.fromJson(bundleJson);
+    await _keyManagementService.storePrivateKeys(bundle);
+    await _keyManagementService.uploadKeyBundle(bundle);
+
+    // Cache locally
+    await _secureStorage.write(
+      key: _backupBlobKey,
+      value: data['encryptedBlob'] as String,
+    );
+
+    return true;
+  }
+
+  /// Returns true for errors that indicate a definitive failure (bad data,
+  /// auth error) vs transient failures (network, timeout) that should be
+  /// retried.
+  bool _isNonTransientError(Object e) {
+    if (e is FormatException) return true;
+    if (e is TypeError) return true;
+    if (e is FirebaseFunctionsException) {
+      // permission-denied, unauthenticated = won't succeed on retry
+      // not-found = no backup exists
+      const nonTransient = {'permission-denied', 'unauthenticated', 'not-found'};
+      return nonTransient.contains(e.code);
+    }
+    return false;
   }
 
   /// Get or create the per-user server secret used for backup encryption.

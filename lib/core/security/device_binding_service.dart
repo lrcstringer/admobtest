@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -28,7 +27,6 @@ class DeviceBindingService {
   final FirebaseMessaging _firebaseMessaging;
   final FlutterSecureStorage _secureStorage;
   final AuditLogger _auditLogger;
-  final FirebaseFunctions _functions;
   final MediaRecoveryService _mediaRecoveryService;
   final DeviceInfoPlugin _deviceInfo;
 
@@ -42,7 +40,6 @@ class DeviceBindingService {
     this._firebaseMessaging,
     this._secureStorage,
     this._auditLogger,
-    this._functions,
     this._mediaRecoveryService,
   ) : _deviceInfo = DeviceInfoPlugin();
 
@@ -106,13 +103,7 @@ class DeviceBindingService {
                 userId: userId,
                 action: AuthAction.deviceBound,
               );
-              // Step 5: Notify existing devices of new login (non-blocking)
-              _notifyExistingDevices(
-                device.deviceId,
-                deviceModel: device.deviceModel,
-                platform: device.platform,
-              );
-              // Step 6: Initialize payload recovery (non-blocking).
+              // Step 5: Initialize payload recovery (non-blocking).
               // CRITICAL: After init, ensure the TEE-wrapped blob is stored
               // on the device doc. On first install, initialize() may have run
               // before the device doc existed (race with E2EE key init), so
@@ -271,22 +262,4 @@ class DeviceBindingService {
     };
   }
 
-  /// Notify existing trusted devices that a new device has logged in.
-  /// Non-blocking — failures are logged but do not affect the binding flow.
-  Future<void> _notifyExistingDevices(
-    String newDeviceId, {
-    String? deviceModel,
-    String? platform,
-  }) async {
-    try {
-      final callable = _functions.httpsCallable('notifyNewDeviceLogin');
-      await callable.call<Map<String, dynamic>>({
-        'excludeDeviceId': newDeviceId,
-        'newDeviceModel': deviceModel,
-        'newDevicePlatform': platform,
-      });
-    } catch (e) {
-      debugPrint('Failed to notify existing devices: $e');
-    }
-  }
 }

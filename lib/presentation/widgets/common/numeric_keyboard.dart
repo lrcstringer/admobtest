@@ -13,7 +13,7 @@ class NumericKeyboard extends StatelessWidget {
     super.key,
     required this.onKeyPressed,
     required this.onBackspace,
-    this.keyHeight = 44,
+    this.keyHeight = 56,
     this.horizontalPadding = 32,
   });
 

@@ -25,19 +25,23 @@ class TokenPoolRepositoryImpl implements TokenPoolRepository {
   Future<Either<Failure, TokenPool>> createPool({
     required PoolMode mode,
     required String title,
+    String? purpose,
     required String message,
     required GiftStyle style,
     String? recipientId,
     required List<String> inviteeIds,
+    String? communityId,
   }) async {
     try {
       final model = await _remoteDataSource.createPool(
         mode: mode.name,
         title: title,
+        purpose: purpose,
         message: message,
         style: style.name,
         recipientId: recipientId,
         inviteeIds: inviteeIds,
+        communityId: communityId,
       );
       return Right(model.toEntity());
     } on AuthException {

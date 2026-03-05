@@ -19,7 +19,6 @@ import 'core/di/injection.dart';
 import 'core/security/rasp_service.dart';
 import 'data/datasources/local/app_database.dart';
 //import 'core/security/screenshot_prevention_service.dart';
-import 'core/services/fcm_challenge_handler.dart';
 import 'firebase_options.dart';
 
 /// Top-level background message handler for FCM.
@@ -151,10 +150,6 @@ Future<void> main() async {
   //   final screenshotService = GetIt.instance<ScreenshotPreventionService>();
   //   await screenshotService.enable();
   // }
-
-  // Start listening for auth challenge push notifications
-  final challengeHandler = GetIt.instance<FcmChallengeHandler>();
-  challengeHandler.startListening();
 
   // Set up Bloc observer for debugging (only in debug mode)
   if (kDebugMode) {

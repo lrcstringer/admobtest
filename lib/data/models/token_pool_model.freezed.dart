@@ -29,6 +29,7 @@ mixin _$TokenPoolModel {
   String get conversationId =>
       throw _privateConstructorUsedError; // Pool content
   String get title => throw _privateConstructorUsedError;
+  String get purpose => throw _privateConstructorUsedError;
   String get message => throw _privateConstructorUsedError;
   String get style => throw _privateConstructorUsedError; // Financial
   int get totalAmount => throw _privateConstructorUsedError;
@@ -79,6 +80,7 @@ abstract class $TokenPoolModelCopyWith<$Res> {
     String? recipientName,
     String conversationId,
     String title,
+    String purpose,
     String message,
     String style,
     int totalAmount,
@@ -125,6 +127,7 @@ class _$TokenPoolModelCopyWithImpl<$Res, $Val extends TokenPoolModel>
     Object? recipientName = freezed,
     Object? conversationId = null,
     Object? title = null,
+    Object? purpose = null,
     Object? message = null,
     Object? style = null,
     Object? totalAmount = null,
@@ -182,6 +185,10 @@ class _$TokenPoolModelCopyWithImpl<$Res, $Val extends TokenPoolModel>
             title: null == title
                 ? _value.title
                 : title // ignore: cast_nullable_to_non_nullable
+                      as String,
+            purpose: null == purpose
+                ? _value.purpose
+                : purpose // ignore: cast_nullable_to_non_nullable
                       as String,
             message: null == message
                 ? _value.message
@@ -284,6 +291,7 @@ abstract class _$$TokenPoolModelImplCopyWith<$Res>
     String? recipientName,
     String conversationId,
     String title,
+    String purpose,
     String message,
     String style,
     int totalAmount,
@@ -329,6 +337,7 @@ class __$$TokenPoolModelImplCopyWithImpl<$Res>
     Object? recipientName = freezed,
     Object? conversationId = null,
     Object? title = null,
+    Object? purpose = null,
     Object? message = null,
     Object? style = null,
     Object? totalAmount = null,
@@ -386,6 +395,10 @@ class __$$TokenPoolModelImplCopyWithImpl<$Res>
         title: null == title
             ? _value.title
             : title // ignore: cast_nullable_to_non_nullable
+                  as String,
+        purpose: null == purpose
+            ? _value.purpose
+            : purpose // ignore: cast_nullable_to_non_nullable
                   as String,
         message: null == message
             ? _value.message
@@ -481,6 +494,7 @@ class _$TokenPoolModelImpl extends _TokenPoolModel {
     this.recipientName,
     required this.conversationId,
     required this.title,
+    this.purpose = '',
     this.message = '',
     required this.style,
     this.totalAmount = 0,
@@ -527,6 +541,9 @@ class _$TokenPoolModelImpl extends _TokenPoolModel {
   // Pool content
   @override
   final String title;
+  @override
+  @JsonKey()
+  final String purpose;
   @override
   @JsonKey()
   final String message;
@@ -606,7 +623,7 @@ class _$TokenPoolModelImpl extends _TokenPoolModel {
 
   @override
   String toString() {
-    return 'TokenPoolModel(id: $id, mode: $mode, status: $status, organizerId: $organizerId, organizerName: $organizerName, recipientId: $recipientId, recipientName: $recipientName, conversationId: $conversationId, title: $title, message: $message, style: $style, totalAmount: $totalAmount, contributionCount: $contributionCount, contributorCount: $contributorCount, contributions: $contributions, payouts: $payouts, giftMessageId: $giftMessageId, giftConversationId: $giftConversationId, inviteeIds: $inviteeIds, expiresAt: $expiresAt, createdAt: $createdAt, updatedAt: $updatedAt, sentAt: $sentAt, openedAt: $openedAt, completedAt: $completedAt, cancelledAt: $cancelledAt, groupAccountId: $groupAccountId, reminderSent: $reminderSent)';
+    return 'TokenPoolModel(id: $id, mode: $mode, status: $status, organizerId: $organizerId, organizerName: $organizerName, recipientId: $recipientId, recipientName: $recipientName, conversationId: $conversationId, title: $title, purpose: $purpose, message: $message, style: $style, totalAmount: $totalAmount, contributionCount: $contributionCount, contributorCount: $contributorCount, contributions: $contributions, payouts: $payouts, giftMessageId: $giftMessageId, giftConversationId: $giftConversationId, inviteeIds: $inviteeIds, expiresAt: $expiresAt, createdAt: $createdAt, updatedAt: $updatedAt, sentAt: $sentAt, openedAt: $openedAt, completedAt: $completedAt, cancelledAt: $cancelledAt, groupAccountId: $groupAccountId, reminderSent: $reminderSent)';
   }
 
   @override
@@ -628,6 +645,7 @@ class _$TokenPoolModelImpl extends _TokenPoolModel {
             (identical(other.conversationId, conversationId) ||
                 other.conversationId == conversationId) &&
             (identical(other.title, title) || other.title == title) &&
+            (identical(other.purpose, purpose) || other.purpose == purpose) &&
             (identical(other.message, message) || other.message == message) &&
             (identical(other.style, style) || other.style == style) &&
             (identical(other.totalAmount, totalAmount) ||
@@ -680,6 +698,7 @@ class _$TokenPoolModelImpl extends _TokenPoolModel {
     recipientName,
     conversationId,
     title,
+    purpose,
     message,
     style,
     totalAmount,
@@ -724,6 +743,7 @@ abstract class _TokenPoolModel extends TokenPoolModel {
     final String? recipientName,
     required final String conversationId,
     required final String title,
+    final String purpose,
     final String message,
     required final String style,
     final int totalAmount,
@@ -764,6 +784,8 @@ abstract class _TokenPoolModel extends TokenPoolModel {
   String get conversationId; // Pool content
   @override
   String get title;
+  @override
+  String get purpose;
   @override
   String get message;
   @override

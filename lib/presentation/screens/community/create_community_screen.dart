@@ -136,17 +136,19 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
                   AppSpacing.verticalLg,
 
                   // ── Financials Toggle (regular only) ──
-                  if (_selectedType == CommunityType.regular) ...[
-                    SwitchListTile(
-                      title: const Text('Enable Financials'),
-                      subtitle: const Text(
-                          'Allow contributions and withdrawals'),
-                      value: _enableFinancials,
-                      onChanged: (v) => setState(() => _enableFinancials = v),
-                      activeThumbColor: AppColors.primary,
-                    ),
-                    AppSpacing.verticalMd,
-                  ],
+                  // Hidden from UI but kept in code — financials toggle
+                  // is not shown for regular groups.
+                  // if (_selectedType == CommunityType.regular) ...[
+                  //   SwitchListTile(
+                  //     title: const Text('Enable Financials'),
+                  //     subtitle: const Text(
+                  //         'Allow contributions and withdrawals'),
+                  //     value: _enableFinancials,
+                  //     onChanged: (v) => setState(() => _enableFinancials = v),
+                  //     activeThumbColor: AppColors.primary,
+                  //   ),
+                  //   AppSpacing.verticalMd,
+                  // ],
 
                   // ── Stokvel Settings ──
                   if (_selectedType == CommunityType.stokvel ||
@@ -198,7 +200,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
           child: _TypeCard(
             label: 'Regular',
             icon: Icons.group,
-            description: 'Chat group with optional finances',
+            description: 'Chat group',
             isSelected: _selectedType == CommunityType.regular,
             color: AppColors.primary,
             onTap: () => setState(() {
@@ -441,7 +443,9 @@ class _TypeCard extends StatelessWidget {
               description,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textHint,
+                    color: isSelected
+                        ? AppColors.textPrimary
+                        : AppColors.textHint,
                   ),
             ),
           ],

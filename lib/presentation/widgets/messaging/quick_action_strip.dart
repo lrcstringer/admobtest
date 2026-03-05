@@ -25,11 +25,11 @@ class QuickActionStrip extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
-      height: visible ? 78 : 0,
+      height: visible ? 100 : 0,
       child: ClipRect(
         child: OverflowBox(
           alignment: Alignment.topCenter,
-          maxHeight: 78,
+          maxHeight: 100,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Row(
@@ -40,18 +40,21 @@ class QuickActionStrip extends StatelessWidget {
                   label: 'Sasaza',
                   color: AppColors.gold,
                   onTap: onSasaza,
+                  imageScale: 0.9,
                 ),
                 _ActionButton(
                   imageAsset: 'assets/images/groupts.png',
                   label: 'Group Save',
                   color: AppColors.secondary,
                   onTap: onGroupSave,
+                  imageScale: 1.5,
                 ),
                 _ActionButton(
                   imageAsset: 'assets/images/transfer.png',
-                  label: 'Tokens',
+                  label: 'Send/Request\nTokens',
                   color: AppColors.accent,
                   onTap: onTokens,
+                  imageScale: 1.2,
                 ),
               ],
             ),
@@ -67,40 +70,48 @@ class _ActionButton extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback onTap;
+  final double imageScale;
 
   const _ActionButton({
     required this.imageAsset,
     required this.label,
     required this.color,
     required this.onTap,
+    this.imageScale = 1.0,
   });
 
   @override
   Widget build(BuildContext context) {
+    const double size = 56;
+
     return GestureDetector(
       onTap: onTap,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: size,
+            height: size,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: ClipOval(
-              child: Image.asset(
-                imageAsset,
-                width: 44,
-                height: 44,
-                fit: BoxFit.cover,
+              child: Transform.scale(
+                scale: imageScale,
+                child: Image.asset(
+                  imageAsset,
+                  width: size,
+                  height: size,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,

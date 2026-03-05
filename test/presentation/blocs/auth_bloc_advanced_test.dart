@@ -8,7 +8,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/core/security/device_binding_service.dart';
 import 'package:imalichat/core/services/biometric_login_service.dart';
-import 'package:imalichat/core/services/fcm_challenge_handler.dart';
 import 'package:imalichat/core/services/key_management_service.dart';
 import 'package:imalichat/core/services/community_sync_service.dart';
 import 'package:imalichat/core/services/message_sync_service.dart';
@@ -31,8 +30,6 @@ class MockDeviceBindingService extends Mock implements DeviceBindingService {}
 
 class MockBiometricLoginService extends Mock implements BiometricLoginService {}
 
-class MockFcmChallengeHandler extends Mock implements FcmChallengeHandler {}
-
 class MockKeyManagementService extends Mock implements KeyManagementService {}
 
 class MockSignalProtocolService extends Mock implements SignalProtocolService {}
@@ -50,7 +47,6 @@ void main() {
   late MockUserRepository mockUserRepository;
   late MockDeviceBindingService mockDeviceBindingService;
   late MockBiometricLoginService mockBiometricLoginService;
-  late MockFcmChallengeHandler mockFcmChallengeHandler;
   late MockKeyManagementService mockKeyManagementService;
   late MockSignalProtocolService mockSignalProtocolService;
   late StreamController<User?> authStateController;
@@ -70,7 +66,6 @@ void main() {
         mockUserRepository,
         mockDeviceBindingService,
         mockBiometricLoginService,
-        mockFcmChallengeHandler,
         mockKeyManagementService,
         mockSignalProtocolService,
         MockMessageSyncService(),
@@ -84,7 +79,6 @@ void main() {
     mockUserRepository = MockUserRepository();
     mockDeviceBindingService = MockDeviceBindingService();
     mockBiometricLoginService = MockBiometricLoginService();
-    mockFcmChallengeHandler = MockFcmChallengeHandler();
     mockKeyManagementService = MockKeyManagementService();
     mockSignalProtocolService = MockSignalProtocolService();
     authStateController = StreamController<User?>.broadcast();
@@ -342,119 +336,6 @@ void main() {
     });
 
     // =========================================================================
-    // RequestPushLogin
-    // =========================================================================
-    group('RequestPushLogin', () {
-      blocTest<AuthBloc, AuthState>(
-        'emits challengeId and hasTrustedDevice when trusted device exists',
-        build: () {
-          when(() => mockFcmChallengeHandler.requestLogin(any())).thenAnswer(
-            (_) async =>
-                (challengeId: 'challenge_abc', hasTrustedDevice: true),
-          );
-          return createBloc();
-        },
-        act: (bloc) => bloc.add(
-          const AuthEvent.requestPushLogin(phoneNumber: '+27612345678'),
-        ),
-        expect: () => [
-          // First emission: isPushLoginLoading = true, reset state
-          isA<AuthState>()
-              .having((s) => s.isPushLoginLoading, 'isPushLoginLoading', true)
-              .having((s) => s.phoneNumber, 'phoneNumber', '+27612345678')
-              .having(
-                  (s) => s.pushLoginChallengeId, 'pushLoginChallengeId', isNull)
-              .having((s) => s.hasTrustedDevice, 'hasTrustedDevice', false),
-          // Second emission: loading done, challenge available
-          isA<AuthState>()
-              .having((s) => s.isPushLoginLoading, 'isPushLoginLoading', false)
-              .having((s) => s.pushLoginChallengeId, 'pushLoginChallengeId',
-                  'challenge_abc')
-              .having((s) => s.hasTrustedDevice, 'hasTrustedDevice', true),
-        ],
-        verify: (_) {
-          verify(() => mockFcmChallengeHandler.requestLogin('+27612345678'))
-              .called(1);
-        },
-      );
-
-      blocTest<AuthBloc, AuthState>(
-        'falls back to OTP when no trusted device found',
-        build: () {
-          when(() => mockFcmChallengeHandler.requestLogin(any())).thenAnswer(
-            (_) async => (challengeId: null, hasTrustedDevice: false),
-          );
-          when(() => mockAuthRepository.sendOtp(
-                  phoneNumber: any(named: 'phoneNumber')))
-              .thenAnswer((_) async => const Right('verification_id'));
-          return createBloc();
-        },
-        act: (bloc) => bloc.add(
-          const AuthEvent.requestPushLogin(phoneNumber: '+27612345678'),
-        ),
-        wait: const Duration(milliseconds: 100),
-        expect: () => [
-          // Push login loading starts
-          isA<AuthState>()
-              .having((s) => s.isPushLoginLoading, 'isPushLoginLoading', true),
-          // Push login done, no trusted device
-          isA<AuthState>()
-              .having((s) => s.isPushLoginLoading, 'isPushLoginLoading', false)
-              .having((s) => s.hasTrustedDevice, 'hasTrustedDevice', false),
-          // OTP fallback: loading
-          isA<AuthState>()
-              .having((s) => s.status, 'status', AuthStatus.loading)
-              .having((s) => s.isLoading, 'isLoading', true),
-          // OTP sent
-          isA<AuthState>()
-              .having((s) => s.status, 'status', AuthStatus.otpSent)
-              .having(
-                  (s) => s.verificationId, 'verificationId', 'verification_id'),
-          // Resend countdown
-          isA<AuthState>()
-              .having((s) => s.resendCountdown, 'resendCountdown', 60),
-        ],
-      );
-
-      blocTest<AuthBloc, AuthState>(
-        'skips push login and falls back to OTP when skipPushLogin is true',
-        build: () {
-          when(() => mockAuthRepository.sendOtp(
-                  phoneNumber: any(named: 'phoneNumber')))
-              .thenAnswer((_) async => const Right('verification_id'));
-          return createBloc();
-        },
-        act: (bloc) => bloc.add(
-          const AuthEvent.requestPushLogin(
-            phoneNumber: '+27612345678',
-            skipPushLogin: true,
-          ),
-        ),
-        wait: const Duration(milliseconds: 100),
-        expect: () => [
-          // Push login loading starts
-          isA<AuthState>()
-              .having((s) => s.isPushLoginLoading, 'isPushLoginLoading', true),
-          // Push login loading ends immediately (skip)
-          isA<AuthState>()
-              .having((s) => s.isPushLoginLoading, 'isPushLoginLoading', false),
-          // Falls back to sendOtp -> loading
-          isA<AuthState>()
-              .having((s) => s.status, 'status', AuthStatus.loading),
-          // OTP sent
-          isA<AuthState>()
-              .having((s) => s.status, 'status', AuthStatus.otpSent),
-          // Resend countdown
-          isA<AuthState>()
-              .having((s) => s.resendCountdown, 'resendCountdown', 60),
-        ],
-        verify: (_) {
-          verifyNever(() => mockFcmChallengeHandler.requestLogin(any()));
-        },
-      );
-    });
-
-    // =========================================================================
     // AuthenticateWithPushToken
     // =========================================================================
     group('AuthenticateWithPushToken', () {
@@ -564,42 +445,6 @@ void main() {
               .having((s) => s.isDeviceBound, 'isDeviceBound', true)
               .having((s) => s.deviceId, 'deviceId', 'mock_device'),
         ],
-      );
-    });
-
-    // =========================================================================
-    // ClearPushLoginState
-    // =========================================================================
-    group('ClearPushLoginState', () {
-      blocTest<AuthBloc, AuthState>(
-        'resets pushLoginChallengeId, isPushLoginLoading, and hasTrustedDevice',
-        build: () => createBloc(),
-        seed: () => const AuthState(
-          isPushLoginLoading: true,
-          pushLoginChallengeId: 'challenge_abc',
-          hasTrustedDevice: true,
-        ),
-        act: (bloc) => bloc.add(const AuthEvent.clearPushLoginState()),
-        expect: () => [
-          isA<AuthState>()
-              .having((s) => s.isPushLoginLoading, 'isPushLoginLoading', false)
-              .having(
-                  (s) => s.pushLoginChallengeId, 'pushLoginChallengeId', isNull)
-              .having((s) => s.hasTrustedDevice, 'hasTrustedDevice', false),
-        ],
-      );
-
-      blocTest<AuthBloc, AuthState>(
-        'works correctly when push login state is already cleared',
-        build: () => createBloc(),
-        seed: () => const AuthState(
-          isPushLoginLoading: false,
-          pushLoginChallengeId: null,
-          hasTrustedDevice: false,
-        ),
-        act: (bloc) => bloc.add(const AuthEvent.clearPushLoginState()),
-        // State does not change because the values are already default
-        expect: () => [],
       );
     });
 

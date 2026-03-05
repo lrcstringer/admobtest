@@ -8,7 +8,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/core/security/device_binding_service.dart';
 import 'package:imalichat/core/services/biometric_login_service.dart';
-import 'package:imalichat/core/services/fcm_challenge_handler.dart';
 import 'package:imalichat/core/services/key_management_service.dart';
 import 'package:imalichat/core/services/community_sync_service.dart';
 import 'package:imalichat/core/services/message_sync_service.dart';
@@ -31,8 +30,6 @@ class MockDeviceBindingService extends Mock implements DeviceBindingService {}
 
 class MockBiometricLoginService extends Mock implements BiometricLoginService {}
 
-class MockFcmChallengeHandler extends Mock implements FcmChallengeHandler {}
-
 class MockKeyManagementService extends Mock implements KeyManagementService {}
 
 class MockSignalProtocolService extends Mock implements SignalProtocolService {}
@@ -50,7 +47,6 @@ void main() {
   late MockUserRepository mockUserRepository;
   late MockDeviceBindingService mockDeviceBindingService;
   late MockBiometricLoginService mockBiometricLoginService;
-  late MockFcmChallengeHandler mockFcmChallengeHandler;
   late MockKeyManagementService mockKeyManagementService;
   late MockSignalProtocolService mockSignalProtocolService;
   late StreamController<User?> authStateController;
@@ -60,7 +56,6 @@ void main() {
         mockUserRepository,
         mockDeviceBindingService,
         mockBiometricLoginService,
-        mockFcmChallengeHandler,
         mockKeyManagementService,
         mockSignalProtocolService,
         MockMessageSyncService(),
@@ -74,7 +69,6 @@ void main() {
     mockUserRepository = MockUserRepository();
     mockDeviceBindingService = MockDeviceBindingService();
     mockBiometricLoginService = MockBiometricLoginService();
-    mockFcmChallengeHandler = MockFcmChallengeHandler();
     mockKeyManagementService = MockKeyManagementService();
     mockSignalProtocolService = MockSignalProtocolService();
     authStateController = StreamController<User?>.broadcast();

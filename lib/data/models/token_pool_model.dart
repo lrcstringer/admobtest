@@ -28,6 +28,7 @@ class TokenPoolModel with _$TokenPoolModel {
 
     // Pool content
     required String title,
+    @Default('') String purpose,
     @Default('') String message,
     required String style,
 
@@ -80,6 +81,7 @@ class TokenPoolModel with _$TokenPoolModel {
       recipientName: json['recipientName'] as String?,
       conversationId: json['conversationId'] as String? ?? '',
       title: json['title'] as String? ?? '',
+      purpose: json['purpose'] as String? ?? '',
       message: json['message'] as String? ?? '',
       style: json['style'] as String? ?? 'celebration',
       totalAmount: json['totalAmount'] as int? ?? 0,
@@ -120,6 +122,7 @@ class TokenPoolModel with _$TokenPoolModel {
       recipientName: recipientName,
       conversationId: conversationId,
       title: title,
+      purpose: purpose,
       message: message,
       style: _parseGiftStyle(style),
       totalAmount: totalAmount,

@@ -10,17 +10,21 @@ import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
 /// Screen for composing and sending a gift.
-/// Reached via /chat/conversation/:id/send-gift or /chat/community/:id/send-gift
+/// Reached via /chat/conversation/:id/send-gift or /chat/send-gift.
+///
+/// When launched from inside a conversation, recipientId/recipientName are
+/// pre-filled. When launched standalone (from SasazaChooserScreen without
+/// a conversation), they may be null and the user picks a recipient inline.
 class GiftComposerScreen extends StatefulWidget {
-  final String recipientId;
-  final String recipientName;
+  final String? recipientId;
+  final String? recipientName;
   final String? conversationId;
   final String? communityId;
 
   const GiftComposerScreen({
     super.key,
-    required this.recipientId,
-    required this.recipientName,
+    this.recipientId,
+    this.recipientName,
     this.conversationId,
     this.communityId,
   });
@@ -32,8 +36,10 @@ class GiftComposerScreen extends StatefulWidget {
 class _GiftComposerScreenState extends State<GiftComposerScreen> {
   final _amountController = TextEditingController();
   final _messageController = TextEditingController();
+  final _recipientController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   GiftStyle _selectedStyle = GiftStyle.celebration;
+  String? _recipientId;
 
   @override
   void initState() {
@@ -41,23 +47,35 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
     // Clear stale activeGift so the BlocConsumer listener doesn't
     // immediately fire from a previous gift's state.
     context.read<GiftBloc>().add(const GiftEvent.reset());
+    if (widget.recipientId != null && widget.recipientId!.isNotEmpty) {
+      _recipientId = widget.recipientId;
+      _recipientController.text = widget.recipientName ?? '';
+    }
   }
 
   @override
   void dispose() {
     _amountController.dispose();
     _messageController.dispose();
+    _recipientController.dispose();
     super.dispose();
   }
 
   void _onSend() {
     if (!_formKey.currentState!.validate()) return;
 
+    if (_recipientId == null || _recipientId!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a recipient')),
+      );
+      return;
+    }
+
     final amount = int.tryParse(_amountController.text.trim());
     if (amount == null || amount < 10) return;
 
     context.read<GiftBloc>().add(GiftEvent.sendGift(
-      recipientId: widget.recipientId,
+      recipientId: _recipientId!,
       amount: amount,
       message: _messageController.text.trim(),
       style: _selectedStyle,
@@ -66,10 +84,25 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
     ));
   }
 
+  Future<void> _pickRecipient() async {
+    final result =
+        await context.push<Map<String, String>>('/chat/pick-contact');
+    if (result != null && mounted) {
+      setState(() {
+        _recipientId = result['id'];
+        _recipientController.text = result['name'] ?? 'Unknown';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IMaliAppBar(title: 'Sasaza ${widget.recipientName}'),
+      appBar: IMaliAppBar(
+        title: _recipientId != null
+            ? 'Sasaza ${_recipientController.text}'
+            : 'One-to-One Sasaza',
+      ),
       body: WaveBackground(
         child: BlocConsumer<GiftBloc, GiftState>(
         listener: (context, state) {
@@ -92,6 +125,25 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.md),
               children: [
+                // Recipient picker (shown when no recipient pre-filled)
+                if (widget.recipientId == null ||
+                    widget.recipientId!.isEmpty) ...[
+                  TextFormField(
+                    controller: _recipientController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Recipient',
+                      hintText: 'Select who will receive the gift',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      suffixIcon: const Icon(Icons.person_search),
+                    ),
+                    onTap: _pickRecipient,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
+
                 // Gift style picker
                 Text(
                   'Choose a style',

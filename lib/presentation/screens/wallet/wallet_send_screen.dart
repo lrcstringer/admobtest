@@ -1,8 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../domain/value_objects/user_search_result.dart';
+import '../../blocs/user_search/user_search_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
@@ -19,57 +20,17 @@ class WalletSendScreen extends StatefulWidget {
 
 class _WalletSendScreenState extends State<WalletSendScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<_ContactResult> _searchResults = [];
-  bool _isSearching = false;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<UserSearchBloc>().add(const UserSearchEvent.clearSearch());
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
-  }
-
-  Future<void> _searchUsers(String query) async {
-    if (query.length < 2) {
-      setState(() {
-        _searchResults = [];
-        _isSearching = false;
-      });
-      return;
-    }
-
-    setState(() => _isSearching = true);
-
-    try {
-      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-      final queryLower = query.toLowerCase();
-
-      // Search by display name (prefix match)
-      final snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('displayNameLower', isGreaterThanOrEqualTo: queryLower)
-          .where('displayNameLower', isLessThanOrEqualTo: '$queryLower\uf8ff')
-          .limit(20)
-          .get();
-
-      final results = <_ContactResult>[];
-      for (final doc in snapshot.docs) {
-        if (doc.id == currentUserId) continue;
-        final data = doc.data();
-        results.add(_ContactResult(
-          userId: doc.id,
-          displayName: data['displayName'] as String? ?? 'Unknown',
-          phoneNumber: data['phoneNumber'] as String? ?? '',
-          avatarUrl: data['avatarUrl'] as String?,
-        ));
-      }
-
-      setState(() {
-        _searchResults = results;
-        _isSearching = false;
-      });
-    } catch (_) {
-      setState(() => _isSearching = false);
-    }
   }
 
   @override
@@ -84,7 +45,11 @@ class _WalletSendScreenState extends State<WalletSendScreen> {
               padding: const EdgeInsets.all(16),
               child: TextField(
                 controller: _searchController,
-                onChanged: _searchUsers,
+                onChanged: (query) {
+                  context
+                      .read<UserSearchBloc>()
+                      .add(UserSearchEvent.searchUsers(query));
+                },
                 decoration: InputDecoration(
                   hintText: 'Search by name...',
                   hintStyle: TextStyle(color: AppColors.textHint),
@@ -110,17 +75,23 @@ class _WalletSendScreenState extends State<WalletSendScreen> {
 
             // Results
             Expanded(
-              child: _isSearching
-                  ? const Center(child: CircularProgressIndicator())
-                  : _searchResults.isEmpty
-                      ? _buildEmptyState(context)
-                      : ListView.builder(
-                          itemCount: _searchResults.length,
-                          itemBuilder: (context, index) {
-                            return _buildContactTile(
-                                context, _searchResults[index]);
-                          },
-                        ),
+              child: BlocBuilder<UserSearchBloc, UserSearchState>(
+                builder: (context, state) {
+                  if (state.isSearching) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (state.searchResults.isEmpty) {
+                    return _buildEmptyState(context);
+                  }
+                  return ListView.builder(
+                    itemCount: state.searchResults.length,
+                    itemBuilder: (context, index) {
+                      return _buildContactTile(
+                          context, state.searchResults[index]);
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -164,7 +135,7 @@ class _WalletSendScreenState extends State<WalletSendScreen> {
     );
   }
 
-  Widget _buildContactTile(BuildContext context, _ContactResult contact) {
+  Widget _buildContactTile(BuildContext context, UserSearchResult contact) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: CircleAvatar(
@@ -189,12 +160,14 @@ class _WalletSendScreenState extends State<WalletSendScreen> {
               fontWeight: FontWeight.w600,
             ),
       ),
-      subtitle: Text(
-        _maskPhone(contact.phoneNumber),
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textSecondary,
-            ),
-      ),
+      subtitle: contact.username != null
+          ? Text(
+              '@${contact.username}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+            )
+          : null,
       trailing: Icon(
         Icons.chevron_right,
         color: AppColors.textTertiary,
@@ -211,23 +184,4 @@ class _WalletSendScreenState extends State<WalletSendScreen> {
       },
     );
   }
-
-  String _maskPhone(String phone) {
-    if (phone.length < 6) return phone;
-    return '${phone.substring(0, 3)}****${phone.substring(phone.length - 3)}';
-  }
-}
-
-class _ContactResult {
-  final String userId;
-  final String displayName;
-  final String phoneNumber;
-  final String? avatarUrl;
-
-  const _ContactResult({
-    required this.userId,
-    required this.displayName,
-    required this.phoneNumber,
-    this.avatarUrl,
-  });
 }

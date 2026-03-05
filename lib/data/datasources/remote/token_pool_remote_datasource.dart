@@ -15,10 +15,12 @@ abstract class TokenPoolRemoteDataSource {
   Future<TokenPoolModel> createPool({
     required String mode,
     required String title,
+    String? purpose,
     required String message,
     required String style,
     String? recipientId,
     required List<String> inviteeIds,
+    String? communityId,
   });
 
   Future<TokenPoolModel> contribute({
@@ -80,10 +82,12 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
   Future<TokenPoolModel> createPool({
     required String mode,
     required String title,
+    String? purpose,
     required String message,
     required String style,
     String? recipientId,
     required List<String> inviteeIds,
+    String? communityId,
   }) async {
     _requireUserId();
     try {
@@ -91,10 +95,12 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
       final result = await callable.call<Map<String, dynamic>>({
         'mode': mode,
         'title': title,
+        if (purpose != null && purpose.isNotEmpty) 'purpose': purpose,
         'message': message,
         'style': style,
         if (recipientId != null) 'recipientId': recipientId,
         'inviteeIds': inviteeIds,
+        if (communityId != null) 'communityId': communityId,
       });
 
       final data = deepConvertMap(result.data);

@@ -197,12 +197,45 @@ class MessageSyncService {
     _messageSubs.clear();
     _syncingConversationIds.clear();
     _latestConversationIds.clear();
+    _backfilledConversationIds.clear();
     _processingLock.clear();
   }
 
+  /// Set of conversation IDs that have completed their one-time historical
+  /// backfill. Prevents re-running backfill on every conversation list update.
+  final Set<String> _backfilledConversationIds = {};
+
   /// Start syncing messages for a specific conversation.
+  ///
+  /// On fresh install (empty local DB), performs a one-time historical backfill
+  /// that pages through ALL messages from Firestore before subscribing to the
+  /// live stream. This ensures messages older than the 50-message live window
+  /// are fetched, decrypted, and stored locally.
   void _startMessageSync(String conversationId) {
     _syncingConversationIds.add(conversationId);
+
+    // Kick off backfill before subscribing to the live stream.
+    // The live stream subscription starts after backfill completes (or skips
+    // if already backfilled).
+    _backfillAndSubscribe(conversationId);
+  }
+
+  /// Run one-time historical backfill then subscribe to live stream.
+  Future<void> _backfillAndSubscribe(String conversationId) async {
+    if (!_backfilledConversationIds.contains(conversationId)) {
+      try {
+        await _backfillHistoricalMessages(conversationId);
+      } catch (e) {
+        debugPrint('MessageSyncService: Backfill failed for '
+            '$conversationId: $e — continuing with live sync');
+      }
+      _backfilledConversationIds.add(conversationId);
+    }
+
+    // Don't subscribe if sync was stopped while backfilling
+    if (!_isSyncing || !_syncingConversationIds.contains(conversationId)) {
+      return;
+    }
 
     _messageSubs[conversationId] = _remoteDataSource
         .watchMessages(conversationId: conversationId, limit: 50)
@@ -227,6 +260,61 @@ class MessageSyncService {
         debugPrint('MessageSyncService: Message sync error for $conversationId: $e');
       },
     );
+  }
+
+  /// One-time paginated fetch of ALL historical messages from Firestore.
+  ///
+  /// Pages through messages oldest-first in batches of 50, processing each
+  /// batch through the decrypt-and-store pipeline. This ensures messages
+  /// beyond the 50-message live stream window are recovered after reinstall.
+  Future<void> _backfillHistoricalMessages(String conversationId) async {
+    // Check if local DB already has messages — skip backfill if so
+    final existingCount = await _appDatabase.getMessageCount(conversationId);
+    if (existingCount > 0) {
+      debugPrint('MessageSyncService: Backfill skip for $conversationId — '
+          '$existingCount messages already in local DB');
+      return;
+    }
+
+    debugPrint('MessageSyncService: Starting historical backfill for '
+        '$conversationId');
+
+    const pageSize = 50;
+    var totalFetched = 0;
+    DateTime? beforeCursor;
+
+    while (true) {
+      // Abort if sync was stopped
+      if (!_isSyncing) break;
+
+      final batch = await _remoteDataSource.getMessages(
+        conversationId: conversationId,
+        limit: pageSize,
+        before: beforeCursor,
+      );
+
+      if (batch.isEmpty) break;
+
+      totalFetched += batch.length;
+
+      // Process through the same decrypt-and-store pipeline
+      await _processingLock.protect(
+        conversationId,
+        () => _processIncomingMessages(conversationId, batch),
+      );
+
+      // Move cursor to the oldest message in this batch for next page
+      // (getMessages returns newest-first with descending createdAt)
+      beforeCursor = batch.last.createdAt;
+
+      // If we got fewer than pageSize, we've reached the end
+      if (batch.length < pageSize) break;
+    }
+
+    if (totalFetched > 0) {
+      debugPrint('MessageSyncService: Backfill complete for '
+          '$conversationId — fetched $totalFetched messages');
+    }
   }
 
   /// Stop syncing messages for a specific conversation.

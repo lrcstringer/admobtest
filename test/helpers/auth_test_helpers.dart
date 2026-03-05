@@ -9,7 +9,6 @@ import 'package:imalichat/core/security/device_capability_service.dart';
 import 'package:imalichat/core/security/keystore_service.dart';
 import 'package:imalichat/core/security/pin_manager.dart';
 import 'package:imalichat/core/services/biometric_login_service.dart';
-import 'package:imalichat/core/services/fcm_challenge_handler.dart';
 import 'package:imalichat/data/datasources/remote/auth_remote_datasource.dart';
 import 'package:imalichat/data/datasources/remote/user_remote_datasource.dart';
 import 'package:imalichat/domain/entities/auth_challenge.dart';
@@ -39,8 +38,6 @@ class MockNetworkInfo extends Mock implements NetworkInfo {}
 class MockDeviceBindingService extends Mock implements DeviceBindingService {}
 
 class MockBiometricLoginService extends Mock implements BiometricLoginService {}
-
-class MockFcmChallengeHandler extends Mock implements FcmChallengeHandler {}
 
 class MockDeviceCapabilityService extends Mock
     implements DeviceCapabilityService {}

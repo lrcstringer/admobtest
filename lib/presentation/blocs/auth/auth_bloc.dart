@@ -10,7 +10,6 @@ import '../../../data/datasources/local/app_database.dart';
 import '../../../core/error/failures.dart';
 import '../../../core/security/device_binding_service.dart';
 import '../../../core/services/biometric_login_service.dart';
-import '../../../core/services/fcm_challenge_handler.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/services/key_backup_service.dart';
 import '../../../core/services/media_recovery_service.dart';
@@ -36,7 +35,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UserRepository _userRepository;
   final DeviceBindingService _deviceBindingService;
   final BiometricLoginService _biometricLoginService;
-  final FcmChallengeHandler _fcmChallengeHandler;
   final KeyManagementService _keyManagementService;
   final SignalProtocolService _signalProtocolService;
   final MessageSyncService _messageSyncService;
@@ -46,13 +44,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   StreamSubscription<User?>? _authStateSubscription;
   Timer? _resendTimer;
   bool _e2eeInitInProgress = false;
+  bool _keyRestoreFailed = false;
 
   AuthBloc(
     this._authRepository,
     this._userRepository,
     this._deviceBindingService,
     this._biometricLoginService,
-    this._fcmChallengeHandler,
     this._keyManagementService,
     this._signalProtocolService,
     this._messageSyncService,
@@ -73,8 +71,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<_UnlockSession>(_onUnlockSession);
     on<_ForceReauth>(_onForceReauth);
     on<_AuthenticateWithPushToken>(_onAuthenticateWithPushToken);
-    on<_RequestPushLogin>(_onRequestPushLogin);
-    on<_ClearPushLoginState>(_onClearPushLoginState);
 
     // Listen to auth state changes
     _authStateSubscription = _authRepository.authStateChanges.listen(
@@ -573,69 +569,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _initializeNotifications();
   }
 
-  Future<void> _onRequestPushLogin(
-    _RequestPushLogin event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(
-      isPushLoginLoading: true,
-      phoneNumber: event.phoneNumber,
-      errorMessage: null,
-      pushLoginChallengeId: null,
-      hasTrustedDevice: false,
-    ));
-
-    // Skip push login if requested
-    if (event.skipPushLogin) {
-      debugPrint('========================================');
-      debugPrint('PUSH LOGIN: Skipped (skipPushLogin=true)');
-      debugPrint('========================================');
-      emit(state.copyWith(isPushLoginLoading: false));
-      // Fall back to OTP
-      add(AuthEvent.sendOtp(phoneNumber: event.phoneNumber));
-      return;
-    }
-
-    debugPrint('========================================');
-    debugPrint('PUSH LOGIN: Attempting for ${event.phoneNumber}');
-    debugPrint('========================================');
-
-    final result = await _fcmChallengeHandler.requestLogin(event.phoneNumber);
-
-    debugPrint('========================================');
-    debugPrint('PUSH LOGIN RESULT: hasTrustedDevice=${result.hasTrustedDevice}, challengeId=${result.challengeId}');
-    debugPrint('========================================');
-
-    if (result.hasTrustedDevice && result.challengeId != null) {
-      // Push login available - emit state with challengeId
-      emit(state.copyWith(
-        isPushLoginLoading: false,
-        pushLoginChallengeId: result.challengeId,
-        hasTrustedDevice: true,
-      ));
-      return;
-    }
-
-    // No trusted device - fall back to OTP
-    debugPrint('PUSH LOGIN: Falling back to SMS OTP');
-    emit(state.copyWith(
-      isPushLoginLoading: false,
-      hasTrustedDevice: false,
-    ));
-    add(AuthEvent.sendOtp(phoneNumber: event.phoneNumber));
-  }
-
-  Future<void> _onClearPushLoginState(
-    _ClearPushLoginState event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(
-      isPushLoginLoading: false,
-      pushLoginChallengeId: null,
-      hasTrustedDevice: false,
-    ));
-  }
-
   // =========================================================================
   // E2EE KEY INITIALIZATION
   // =========================================================================
@@ -670,7 +603,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         // Decryption uses local keys; server verification only affects
         // future senders and can run in parallel.
         debugPrint('E2EE INIT: Local keys loaded — starting message sync now');
-        _startMessageAndQueueServices();
+        await _startMessageAndQueueServices();
         // Initialize vault early so payloads are stored from the first message
         getIt<MediaRecoveryService>().initialize().catchError((e) {
           debugPrint('Media recovery init failed (early): $e');
@@ -720,8 +653,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           // they were derived from identity/OTK material we no longer hold and
           // would send messages without a valid x3dhHeader, causing permanent
           // decryption failure for the peer.
-          debugPrint('E2EE INIT: No backup found — clearing stale sessions '
-              'and generating fresh bundle');
+          final restoreWasAttempted = !restored;
+          debugPrint('E2EE INIT: ${restoreWasAttempted ? "Restore FAILED" : "No backup found"}'
+              ' — clearing stale sessions and generating fresh bundle');
           await _signalProtocolService.clearAllSessions();
           final bundle = await _keyManagementService.generateKeyBundle();
           await _keyManagementService.storePrivateKeys(bundle);
@@ -729,6 +663,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             () => _keyManagementService.uploadKeyBundle(bundle),
           );
           uploadConfirmed = true;
+          // Surface to UI so the user knows some messages may not decrypt
+          if (restoreWasAttempted) {
+            _keyRestoreFailed = true;
+          }
           debugPrint('E2EE INIT: Fresh bundle uploaded — '
               '${bundle.oneTimePreKeys.length} OTKs, '
               'identity=${bundle.identityKeyPair.split("|")[1].substring(0, 8)}…');
@@ -743,7 +681,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (uploadConfirmed) {
       debugPrint('E2EE INIT: Bundle upload confirmed — ensuring services started');
       // Idempotent — safe even if already started above for existing keys
-      _startMessageAndQueueServices();
+      await _startMessageAndQueueServices();
       // Auto-backup keys to server (don't block startup)
       getIt<KeyBackupService>().autoBackup().catchError((e) {
         debugPrint('E2EE auto-backup failed: $e');
@@ -754,6 +692,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         debugPrint('Media recovery init failed: $e');
         return false;
       });
+      // Surface key restore failure to the UI (one-time snackbar)
+      if (_keyRestoreFailed && !isClosed) {
+        // ignore: invalid_use_of_visible_for_testing_member
+        emit(state.copyWith(keyRestoreFailed: true));
+        _keyRestoreFailed = false;
+      }
     } else {
       debugPrint('E2EE INIT: Bundle upload NOT confirmed — '
           'message sync will NOT start until keys are on the server');
@@ -772,18 +716,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   /// Start all message/queue services. Idempotent — safe to call multiple times.
-  void _startMessageAndQueueServices() {
-    // Purge sentinel messages from local DB so the sync service retries them
-    // from Firestore (including vault recovery). Fire-and-forget — the stream
-    // from Firestore emits asynchronously so the purge completes first.
-    getIt<AppDatabase>().purgeUndecryptableMessages().then((count) {
+  ///
+  /// Purge must complete BEFORE message sync starts. If the Firestore stream
+  /// emits before purge deletes the sentinel rows, the sync service sees
+  /// "[Cannot decrypt]" rows in the local DB, skips them, and the messages
+  /// never get retried with the restored keys.
+  Future<void> _startMessageAndQueueServices() async {
+    try {
+      final count = await getIt<AppDatabase>().purgeUndecryptableMessages();
       if (count > 0) {
         debugPrint('E2EE INIT: Purged $count undecryptable messages — '
             'will retry from Firestore');
       }
-    }).catchError((e) {
+    } catch (e) {
       debugPrint('E2EE INIT: Purge failed: $e');
-    });
+    }
     _messageSyncService.startSync();
     _communitySyncService.startSync();
     _offlineActionQueue.startListening();

@@ -53,10 +53,12 @@ class TokenPoolBloc extends Bloc<TokenPoolEvent, TokenPoolState> {
     final result = await _tokenPoolRepository.createPool(
       mode: event.mode,
       title: event.title,
+      purpose: event.purpose,
       message: event.message,
       style: event.style,
       recipientId: event.recipientId,
       inviteeIds: event.inviteeIds,
+      communityId: event.communityId,
     );
 
     result.fold(
