@@ -118,10 +118,14 @@ class ConversationRepositoryImpl implements ConversationRepository {
 
   @override
   Future<Either<Failure, List<UserSearchResult>>> searchUsers(
-    String query,
-  ) async {
+    String query, {
+    String? accountTypeId,
+  }) async {
     try {
-      final results = await _remoteDataSource.searchUsers(query);
+      final results = await _remoteDataSource.searchUsers(
+        query,
+        accountTypeId: accountTypeId,
+      );
       return Right(
         results.map((json) => UserSearchResult.fromJson(json)).toList(),
       );
@@ -333,6 +337,7 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String recipientId,
     required int amount,
     String? message,
+    String? subAccountId,
   }) async {
     try {
       final msg = await _outgoingMessageQueue.enqueueTokenSend(
@@ -340,6 +345,7 @@ class ConversationRepositoryImpl implements ConversationRepository {
         recipientId: recipientId,
         amount: amount,
         message: message,
+        subAccountId: subAccountId,
       );
       return Right(msg);
     } catch (e) {
@@ -353,6 +359,7 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String recipientId,
     required int amount,
     String? message,
+    String? subAccountId,
   }) async {
     try {
       final msg = await _outgoingMessageQueue.enqueueTokenRequest(
@@ -360,6 +367,7 @@ class ConversationRepositoryImpl implements ConversationRepository {
         recipientId: recipientId,
         amount: amount,
         message: message,
+        subAccountId: subAccountId,
       );
       return Right(msg);
     } catch (e) {

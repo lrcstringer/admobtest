@@ -4,24 +4,36 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/value_objects/user_search_result.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
 import '../../blocs/user_search/user_search_bloc.dart';
+import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import 'wallet_picker.dart';
 
 /// Unified bottom sheet for sending or requesting tokens.
 ///
 /// When [conversationId] and [recipientId] are provided, the contact is
 /// pre-filled (used from inside a conversation). When omitted, a search
 /// field lets the user pick any iMaliChat user (used from the Wallet screen).
+///
+/// When [preSelectedSubAccountId] is provided (e.g. from a brand wallet detail
+/// screen), the wallet picker starts with that sub-account selected.
+///
+/// When [initialSendMode] is false, the sheet opens in Request mode instead of
+/// Send mode (used by the wallet detail "Request" button).
 class TokenActionsSheet extends StatefulWidget {
   final String? conversationId;
   final String? recipientId;
   final String? recipientName;
+  final String? preSelectedSubAccountId;
+  final bool initialSendMode;
 
   const TokenActionsSheet({
     super.key,
     this.conversationId,
     this.recipientId,
     this.recipientName,
+    this.preSelectedSubAccountId,
+    this.initialSendMode = true,
   });
 
   @override
@@ -38,11 +50,28 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
   // Contact picker state (only used in standalone mode)
   _SelectedContact? _selectedContact;
 
+  // Wallet picker state
+  String? _selectedSubAccountId;
+
   bool get _isStandalone => widget.conversationId == null;
+
+  /// Returns the accountTypeId to filter contacts by, if the selected
+  /// sub-account has p2pRestrictToSameAccountType enabled.
+  String? get _filterAccountTypeId {
+    if (_selectedSubAccountId == null) return null;
+    final walletState = context.read<WalletBloc>().state;
+    final sa = walletState.subAccounts
+        .where((s) => s.id == _selectedSubAccountId)
+        .firstOrNull;
+    if (sa == null || !sa.p2pRestrictToSameAccountType) return null;
+    return sa.accountTypeId;
+  }
 
   @override
   void initState() {
     super.initState();
+    _isSending = widget.initialSendMode;
+    _selectedSubAccountId = widget.preSelectedSubAccountId;
     if (_isStandalone) {
       context.read<UserSearchBloc>().add(const UserSearchEvent.clearSearch());
     }
@@ -133,6 +162,58 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
               ],
             ),
             AppSpacing.verticalLg,
+
+            // Wallet picker (only shown when user has eligible brand sub-accounts)
+            BlocBuilder<WalletBloc, WalletState>(
+              builder: (context, walletState) {
+                return WalletPicker(
+                  mainWalletBalance: walletState.mainWalletAvailable,
+                  subAccounts: walletState.subAccounts,
+                  isSendMode: _isSending,
+                  selectedSubAccountId: _selectedSubAccountId,
+                  onSelected: (id) {
+                    setState(() {
+                      _selectedSubAccountId = id;
+                      // Clear selected contact — they may not be eligible
+                      // for the newly selected wallet's restriction
+                      if (_isStandalone) _selectedContact = null;
+                    });
+                    // Re-trigger search with the new filter
+                    final query = _searchController.text.trim();
+                    if (_isStandalone && query.length >= 2) {
+                      context.read<UserSearchBloc>().add(
+                            UserSearchEvent.searchUsers(
+                              query,
+                              accountTypeId: _filterAccountTypeId,
+                            ),
+                          );
+                    }
+                  },
+                );
+              },
+            ),
+
+            // Info banner for in-conversation mode with restricted wallet
+            if (!_isStandalone && _filterAccountTypeId != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline,
+                        size: 16, color: AppColors.warning),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'This wallet requires the recipient to have a matching brand wallet.',
+                        style:
+                            Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppColors.warning,
+                                ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
             // Contact picker (standalone mode only)
             if (_isStandalone) ...[
@@ -235,7 +316,10 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
   ) {
     final isSelected = _isSending == isSendMode;
     return InkWell(
-      onTap: () => setState(() => _isSending = isSendMode),
+      onTap: () => setState(() {
+        _isSending = isSendMode;
+        _selectedSubAccountId = null;
+      }),
       borderRadius: AppSpacing.borderRadiusMd,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -276,9 +360,12 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
     return TextField(
       controller: _searchController,
       onChanged: (query) {
-        context
-            .read<UserSearchBloc>()
-            .add(UserSearchEvent.searchUsers(query));
+        context.read<UserSearchBloc>().add(
+              UserSearchEvent.searchUsers(
+                query,
+                accountTypeId: _filterAccountTypeId,
+              ),
+            );
       },
       decoration: InputDecoration(
         labelText: 'To (search by name)',
@@ -399,6 +486,7 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
               amount: amount,
               isSend: _isSending,
               message: note.isEmpty ? null : note,
+              subAccountId: _selectedSubAccountId,
             ),
           );
     } else {
@@ -410,6 +498,7 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
                 recipientId: recipientId!,
                 amount: amount,
                 message: note.isEmpty ? null : note,
+                subAccountId: _selectedSubAccountId,
               ),
             );
       } else {
@@ -419,6 +508,7 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
                 recipientId: recipientId!,
                 amount: amount,
                 message: note.isEmpty ? null : note,
+                subAccountId: _selectedSubAccountId,
               ),
             );
       }

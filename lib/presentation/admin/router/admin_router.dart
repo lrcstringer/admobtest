@@ -10,6 +10,7 @@ import '../screens/admin_login_screen.dart';
 import '../screens/admin_user_management_screen.dart';
 import '../screens/audit_log_screen.dart';
 import '../screens/cashout_approval_screen.dart';
+import '../screens/account_type_management_screen.dart';
 import '../screens/client_management_screen.dart';
 import '../screens/earn_management_screen.dart';
 import '../screens/pending_actions_screen.dart';
@@ -118,6 +119,14 @@ class AdminRouter {
             path: '/clients',
             name: 'adminClients',
             builder: (context, state) => const ClientManagementScreen(),
+          ),
+
+          // Account Type Management
+          GoRoute(
+            path: '/account-types',
+            name: 'adminAccountTypes',
+            builder: (context, state) =>
+                const AccountTypeManagementScreen(),
           ),
 
           // Earn Management (Campaigns, Threads, Opportunities)

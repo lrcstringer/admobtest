@@ -23,4 +23,7 @@ enum MessageStatus {
 
   /// Token request was declined
   declined,
+
+  /// Token request has expired (7-day TTL elapsed)
+  expired,
 }

@@ -252,6 +252,8 @@ class MessageModel with _$MessageModel {
         return MessageStatus.paid;
       case 'declined':
         return MessageStatus.declined;
+      case 'expired':
+        return MessageStatus.expired;
       default:
         return MessageStatus.sent;
     }

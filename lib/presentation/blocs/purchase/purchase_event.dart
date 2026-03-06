@@ -31,8 +31,9 @@ class PurchaseEvent with _$PurchaseEvent {
   /// Validate recipient number
   const factory PurchaseEvent.validateRecipient() = _ValidateRecipient;
 
-  /// Make a purchase
-  const factory PurchaseEvent.makePurchase() = _MakePurchase;
+  /// Make a purchase (optionally from a specific sub-account/wallet)
+  const factory PurchaseEvent.makePurchase({String? subAccountId}) =
+      _MakePurchase;
 
   /// Load purchase history
   const factory PurchaseEvent.loadHistory({

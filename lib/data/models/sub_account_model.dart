@@ -24,6 +24,11 @@ class SubAccountModel with _$SubAccountModel {
     required bool isDefault,
     @TimestampConverter() required DateTime createdAt,
     @TimestampConverter() required DateTime updatedAt,
+    @Default(true) bool allowP2pSend,
+    @Default(true) bool allowP2pReceive,
+    @Default(true) bool allowCashout,
+    @Default(false) bool p2pRestrictToSameAccountType,
+    @Default(["*"]) List<String> allowedOfframps,
   }) = _SubAccountModel;
 
   const SubAccountModel._();
@@ -56,6 +61,11 @@ class SubAccountModel with _$SubAccountModel {
         isDefault: isDefault,
         createdAt: createdAt,
         updatedAt: updatedAt,
+        allowP2pSend: allowP2pSend,
+        allowP2pReceive: allowP2pReceive,
+        allowCashout: allowCashout,
+        p2pRestrictToSameAccountType: p2pRestrictToSameAccountType,
+        allowedOfframps: allowedOfframps,
       );
 
   /// Create from domain entity
@@ -71,5 +81,10 @@ class SubAccountModel with _$SubAccountModel {
         isDefault: entity.isDefault,
         createdAt: entity.createdAt,
         updatedAt: entity.updatedAt,
+        allowP2pSend: entity.allowP2pSend,
+        allowP2pReceive: entity.allowP2pReceive,
+        allowCashout: entity.allowCashout,
+        p2pRestrictToSameAccountType: entity.p2pRestrictToSameAccountType,
+        allowedOfframps: entity.allowedOfframps,
       );
 }

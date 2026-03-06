@@ -263,7 +263,9 @@ class _ChatTab extends StatelessWidget {
       );
     }
 
-    final messages = state.messages.reversed.toList();
+    // Messages are newest-first from the DB. With reverse:true, index 0
+    // renders at the bottom — so newest messages appear at the bottom.
+    final messages = state.messages;
 
     return RefreshIndicator(
       onRefresh: () => _onRefresh(context),

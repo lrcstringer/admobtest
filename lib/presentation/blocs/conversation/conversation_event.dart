@@ -72,6 +72,7 @@ class ConversationEvent with _$ConversationEvent {
     required String recipientId,
     required int amount,
     String? message,
+    String? subAccountId,
   }) = _SendTokens;
 
   /// Request tokens from another user in a conversation
@@ -80,6 +81,7 @@ class ConversationEvent with _$ConversationEvent {
     required String recipientId,
     required int amount,
     String? message,
+    String? subAccountId,
   }) = _RequestTokens;
 
   /// Send or request tokens to/from a user (standalone — no conversation yet)
@@ -88,6 +90,7 @@ class ConversationEvent with _$ConversationEvent {
     required int amount,
     required bool isSend,
     String? message,
+    String? subAccountId,
   }) = _SendTokensToUser;
 
   /// Accept an incoming token request

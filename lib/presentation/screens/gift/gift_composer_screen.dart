@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/injection.dart';
+import '../../../core/security/play_integrity_service.dart';
 import '../../../domain/enums/gift_style.dart';
 import '../../blocs/gift/gift_bloc.dart';
 import '../../theme/app_spacing.dart';
@@ -44,6 +46,9 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
   @override
   void initState() {
     super.initState();
+    // Pre-fetch Play Integrity token in the background so it's cached
+    // by the time the user taps "Send" (avoids 3-10s blocking delay).
+    getIt<PlayIntegrityService>().warmUp();
     // Clear stale activeGift so the BlocConsumer listener doesn't
     // immediately fire from a previous gift's state.
     context.read<GiftBloc>().add(const GiftEvent.reset());

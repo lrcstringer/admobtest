@@ -24,7 +24,10 @@ abstract class ConversationRemoteDataSource {
   Future<ConversationModel?> getConversationById(String id);
 
   // User search (via Cloud Function)
-  Future<List<Map<String, dynamic>>> searchUsers(String query);
+  Future<List<Map<String, dynamic>>> searchUsers(
+    String query, {
+    String? accountTypeId,
+  });
 
   // Messages (read from subcollection, write via Cloud Functions)
   Future<List<MessageModel>> getMessages({
@@ -66,6 +69,7 @@ abstract class ConversationRemoteDataSource {
     String? encryptedMessage,
     Map<String, dynamic>? messageE2ee,
     Map<String, dynamic>? messageX3dh,
+    String? subAccountId,
   });
   Future<MessageModel> requestTokens({
     required String conversationId,
@@ -74,6 +78,7 @@ abstract class ConversationRemoteDataSource {
     String? encryptedMessage,
     Map<String, dynamic>? messageE2ee,
     Map<String, dynamic>? messageX3dh,
+    String? subAccountId,
   });
   Future<MessageModel> acceptTokenRequest({
     required String messageId,
@@ -372,12 +377,16 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
   // =========================================================================
 
   @override
-  Future<List<Map<String, dynamic>>> searchUsers(String query) async {
+  Future<List<Map<String, dynamic>>> searchUsers(
+    String query, {
+    String? accountTypeId,
+  }) async {
     _requireUserId();
     try {
       final callable = _functions.httpsCallable('searchUsers');
       final result = await callable.call<Map<String, dynamic>>({
         'query': query,
+        if (accountTypeId != null) 'accountTypeId': accountTypeId,
       });
 
       final data = result.data;
@@ -577,6 +586,7 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
     String? encryptedMessage,
     Map<String, dynamic>? messageE2ee,
     Map<String, dynamic>? messageX3dh,
+    String? subAccountId,
   }) async {
     final userId = _requireUserId();
     try {
@@ -592,6 +602,8 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
         if (encryptedMessage != null) 'encryptedMessage': encryptedMessage,
         if (messageE2ee != null) 'messageE2ee': messageE2ee,
         if (messageX3dh != null) 'messageX3dh': messageX3dh,
+        if (subAccountId != null)
+          'senderSubAccountId': subAccountId,
         if (integrityToken != null) 'integrityToken': integrityToken,
         if (integrityToken != null) 'integrityNonce': nonce,
       });
@@ -624,6 +636,7 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
     String? encryptedMessage,
     Map<String, dynamic>? messageE2ee,
     Map<String, dynamic>? messageX3dh,
+    String? subAccountId,
   }) async {
     final userId = _requireUserId();
     try {
@@ -635,6 +648,8 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
         if (encryptedMessage != null) 'encryptedMessage': encryptedMessage,
         if (messageE2ee != null) 'messageE2ee': messageE2ee,
         if (messageX3dh != null) 'messageX3dh': messageX3dh,
+        if (subAccountId != null)
+          'senderSubAccountId': subAccountId,
       });
 
       final data = deepConvertMap(result.data);

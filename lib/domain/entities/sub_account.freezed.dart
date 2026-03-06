@@ -33,7 +33,13 @@ mixin _$SubAccount {
   bool get isActive => throw _privateConstructorUsedError;
   bool get isDefault => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt =>
+      throw _privateConstructorUsedError; // Rule flags (populated by getSubAccounts Cloud Function)
+  bool get allowP2pSend => throw _privateConstructorUsedError;
+  bool get allowP2pReceive => throw _privateConstructorUsedError;
+  bool get allowCashout => throw _privateConstructorUsedError;
+  bool get p2pRestrictToSameAccountType => throw _privateConstructorUsedError;
+  List<String> get allowedOfframps => throw _privateConstructorUsedError;
 
   /// Serializes this SubAccount to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -64,6 +70,11 @@ abstract class $SubAccountCopyWith<$Res> {
     bool isDefault,
     DateTime createdAt,
     DateTime updatedAt,
+    bool allowP2pSend,
+    bool allowP2pReceive,
+    bool allowCashout,
+    bool p2pRestrictToSameAccountType,
+    List<String> allowedOfframps,
   });
 }
 
@@ -93,6 +104,11 @@ class _$SubAccountCopyWithImpl<$Res, $Val extends SubAccount>
     Object? isDefault = null,
     Object? createdAt = null,
     Object? updatedAt = null,
+    Object? allowP2pSend = null,
+    Object? allowP2pReceive = null,
+    Object? allowCashout = null,
+    Object? p2pRestrictToSameAccountType = null,
+    Object? allowedOfframps = null,
   }) {
     return _then(
       _value.copyWith(
@@ -140,6 +156,26 @@ class _$SubAccountCopyWithImpl<$Res, $Val extends SubAccount>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            allowP2pSend: null == allowP2pSend
+                ? _value.allowP2pSend
+                : allowP2pSend // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            allowP2pReceive: null == allowP2pReceive
+                ? _value.allowP2pReceive
+                : allowP2pReceive // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            allowCashout: null == allowCashout
+                ? _value.allowCashout
+                : allowCashout // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            p2pRestrictToSameAccountType: null == p2pRestrictToSameAccountType
+                ? _value.p2pRestrictToSameAccountType
+                : p2pRestrictToSameAccountType // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            allowedOfframps: null == allowedOfframps
+                ? _value.allowedOfframps
+                : allowedOfframps // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
           )
           as $Val,
     );
@@ -167,6 +203,11 @@ abstract class _$$SubAccountImplCopyWith<$Res>
     bool isDefault,
     DateTime createdAt,
     DateTime updatedAt,
+    bool allowP2pSend,
+    bool allowP2pReceive,
+    bool allowCashout,
+    bool p2pRestrictToSameAccountType,
+    List<String> allowedOfframps,
   });
 }
 
@@ -195,6 +236,11 @@ class __$$SubAccountImplCopyWithImpl<$Res>
     Object? isDefault = null,
     Object? createdAt = null,
     Object? updatedAt = null,
+    Object? allowP2pSend = null,
+    Object? allowP2pReceive = null,
+    Object? allowCashout = null,
+    Object? p2pRestrictToSameAccountType = null,
+    Object? allowedOfframps = null,
   }) {
     return _then(
       _$SubAccountImpl(
@@ -242,6 +288,26 @@ class __$$SubAccountImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        allowP2pSend: null == allowP2pSend
+            ? _value.allowP2pSend
+            : allowP2pSend // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        allowP2pReceive: null == allowP2pReceive
+            ? _value.allowP2pReceive
+            : allowP2pReceive // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        allowCashout: null == allowCashout
+            ? _value.allowCashout
+            : allowCashout // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        p2pRestrictToSameAccountType: null == p2pRestrictToSameAccountType
+            ? _value.p2pRestrictToSameAccountType
+            : p2pRestrictToSameAccountType // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        allowedOfframps: null == allowedOfframps
+            ? _value._allowedOfframps
+            : allowedOfframps // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
       ),
     );
   }
@@ -262,7 +328,13 @@ class _$SubAccountImpl extends _SubAccount {
     required this.isDefault,
     required this.createdAt,
     required this.updatedAt,
-  }) : super._();
+    this.allowP2pSend = true,
+    this.allowP2pReceive = true,
+    this.allowCashout = true,
+    this.p2pRestrictToSameAccountType = false,
+    final List<String> allowedOfframps = const ["*"],
+  }) : _allowedOfframps = allowedOfframps,
+       super._();
 
   factory _$SubAccountImpl.fromJson(Map<String, dynamic> json) =>
       _$$SubAccountImplFromJson(json);
@@ -291,10 +363,31 @@ class _$SubAccountImpl extends _SubAccount {
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
+  // Rule flags (populated by getSubAccounts Cloud Function)
+  @override
+  @JsonKey()
+  final bool allowP2pSend;
+  @override
+  @JsonKey()
+  final bool allowP2pReceive;
+  @override
+  @JsonKey()
+  final bool allowCashout;
+  @override
+  @JsonKey()
+  final bool p2pRestrictToSameAccountType;
+  final List<String> _allowedOfframps;
+  @override
+  @JsonKey()
+  List<String> get allowedOfframps {
+    if (_allowedOfframps is EqualUnmodifiableListView) return _allowedOfframps;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_allowedOfframps);
+  }
 
   @override
   String toString() {
-    return 'SubAccount(id: $id, userId: $userId, accountTypeId: $accountTypeId, name: $name, balance: $balance, lifetimeCredits: $lifetimeCredits, lifetimeDebits: $lifetimeDebits, isActive: $isActive, isDefault: $isDefault, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'SubAccount(id: $id, userId: $userId, accountTypeId: $accountTypeId, name: $name, balance: $balance, lifetimeCredits: $lifetimeCredits, lifetimeDebits: $lifetimeDebits, isActive: $isActive, isDefault: $isDefault, createdAt: $createdAt, updatedAt: $updatedAt, allowP2pSend: $allowP2pSend, allowP2pReceive: $allowP2pReceive, allowCashout: $allowCashout, p2pRestrictToSameAccountType: $p2pRestrictToSameAccountType, allowedOfframps: $allowedOfframps)';
   }
 
   @override
@@ -319,7 +412,23 @@ class _$SubAccountImpl extends _SubAccount {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.allowP2pSend, allowP2pSend) ||
+                other.allowP2pSend == allowP2pSend) &&
+            (identical(other.allowP2pReceive, allowP2pReceive) ||
+                other.allowP2pReceive == allowP2pReceive) &&
+            (identical(other.allowCashout, allowCashout) ||
+                other.allowCashout == allowCashout) &&
+            (identical(
+                  other.p2pRestrictToSameAccountType,
+                  p2pRestrictToSameAccountType,
+                ) ||
+                other.p2pRestrictToSameAccountType ==
+                    p2pRestrictToSameAccountType) &&
+            const DeepCollectionEquality().equals(
+              other._allowedOfframps,
+              _allowedOfframps,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -337,6 +446,11 @@ class _$SubAccountImpl extends _SubAccount {
     isDefault,
     createdAt,
     updatedAt,
+    allowP2pSend,
+    allowP2pReceive,
+    allowCashout,
+    p2pRestrictToSameAccountType,
+    const DeepCollectionEquality().hash(_allowedOfframps),
   );
 
   /// Create a copy of SubAccount
@@ -366,6 +480,11 @@ abstract class _SubAccount extends SubAccount {
     required final bool isDefault,
     required final DateTime createdAt,
     required final DateTime updatedAt,
+    final bool allowP2pSend,
+    final bool allowP2pReceive,
+    final bool allowCashout,
+    final bool p2pRestrictToSameAccountType,
+    final List<String> allowedOfframps,
   }) = _$SubAccountImpl;
   const _SubAccount._() : super._();
 
@@ -395,7 +514,17 @@ abstract class _SubAccount extends SubAccount {
   @override
   DateTime get createdAt;
   @override
-  DateTime get updatedAt;
+  DateTime get updatedAt; // Rule flags (populated by getSubAccounts Cloud Function)
+  @override
+  bool get allowP2pSend;
+  @override
+  bool get allowP2pReceive;
+  @override
+  bool get allowCashout;
+  @override
+  bool get p2pRestrictToSameAccountType;
+  @override
+  List<String> get allowedOfframps;
 
   /// Create a copy of SubAccount
   /// with the given fields replaced by the non-null parameter values.

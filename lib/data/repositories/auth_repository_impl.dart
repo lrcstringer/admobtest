@@ -34,8 +34,34 @@ class AuthRepositoryImpl implements AuthRepository {
     return _authRemoteDataSource.authStateChanges.asyncMap((firebaseUser) async {
       if (firebaseUser == null) return null;
 
-      final userModel = await _userRemoteDataSource.getUserById(firebaseUser.uid);
-      return userModel?.toEntity();
+      // After Android process death the Firebase Auth SDK may still be
+      // refreshing the ID token when this stream fires. A Firestore read
+      // at that moment fails with permission-denied. Retry once after a
+      // short delay to let the token refresh complete.
+      try {
+        final userModel =
+            await _userRemoteDataSource.getUserById(firebaseUser.uid);
+        return userModel?.toEntity();
+      } catch (_) {
+        // Force-refresh the ID token, then retry the Firestore read.
+        try {
+          await _authRemoteDataSource.getIdToken(forceRefresh: true);
+        } catch (_) {
+          // Token refresh failed — still try the Firestore read in case
+          // the original error was transient.
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        try {
+          final userModel =
+              await _userRemoteDataSource.getUserById(firebaseUser.uid);
+          return userModel?.toEntity();
+        } catch (_) {
+          // Both attempts failed — return a minimal User from the Firebase
+          // user so the app stays authenticated rather than signing out.
+          // The full profile will be fetched by checkAuthStatus.
+          return null;
+        }
+      }
     });
   }
 
@@ -47,8 +73,21 @@ class AuthRepositoryImpl implements AuthRepository {
         return const Right(null);
       }
 
-      final userModel = await _userRemoteDataSource.getUserById(firebaseUser.uid);
-      return Right(userModel?.toEntity());
+      // After process death the ID token may be stale. Try the Firestore
+      // read, and if it fails, force-refresh the token and retry once.
+      try {
+        final userModel =
+            await _userRemoteDataSource.getUserById(firebaseUser.uid);
+        return Right(userModel?.toEntity());
+      } catch (_) {
+        try {
+          await _authRemoteDataSource.getIdToken(forceRefresh: true);
+        } catch (_) {}
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        final userModel =
+            await _userRemoteDataSource.getUserById(firebaseUser.uid);
+        return Right(userModel?.toEntity());
+      }
     } on ServerException catch (e) {
       return Left(Failure.serverError(message: e.message));
     } catch (e) {

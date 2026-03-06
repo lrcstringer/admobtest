@@ -355,4 +355,5 @@ const _$MessageStatusEnumMap = {
   MessageStatus.failed: 'failed',
   MessageStatus.paid: 'paid',
   MessageStatus.declined: 'declined',
+  MessageStatus.expired: 'expired',
 };

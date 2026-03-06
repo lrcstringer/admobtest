@@ -20,9 +20,16 @@ import {
   createAccount,
 } from "./ledger/accounts";
 import { postJournal, getRecentJournals } from "./ledger/journals";
-import { AccountId, SystemAccounts, LedgerConfig } from "./ledger/types";
+import { AccountId, SystemAccounts, LedgerConfig, AccountTypeRules } from "./ledger/types";
 import { processClientSubAccountFunding } from "./ledger/index";
-import { getUserSubAccounts } from "./ledger/subAccounts";
+import {
+  getUserSubAccounts,
+  createAccountType,
+  listAccountTypes,
+  getAccountType,
+  updateAccountType,
+  deactivateAccountType,
+} from "./ledger/subAccounts";
 import {
   reconcileAllAccounts,
   verifySystemBalance,
@@ -1197,6 +1204,299 @@ export const adminListUserSubAccounts = onCall({ labels: { area: "admin" } }, as
 });
 
 // ============================================================================
+// ACCOUNT TYPE MANAGEMENT
+// ============================================================================
+
+/**
+ * List all account types (optionally including inactive).
+ * Enriches each with the advertiser's display name.
+ */
+export const adminListAccountTypes = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminListAccountTypes");
+    await requireAdminPermission(
+      request,
+      "accounts:listAccountTypes",
+      "adminListAccountTypes"
+    );
+
+    const { includeInactive = false } = request.data || {};
+
+    const accountTypes = await listAccountTypes(includeInactive === true);
+
+    // Enrich with advertiser display names
+    const advertiserIds = [
+      ...new Set(
+        accountTypes
+          .map((at) => at.advertiserId)
+          .filter((id): id is string => id !== null)
+      ),
+    ];
+
+    const advertiserNames = new Map<string, string>();
+    if (advertiserIds.length > 0) {
+      const clientDocs = await Promise.all(
+        advertiserIds.map((id) => db.collection("clients").doc(id).get())
+      );
+      for (const doc of clientDocs) {
+        if (doc.exists) {
+          const data = doc.data();
+          advertiserNames.set(
+            doc.id,
+            data?.displayName || data?.companyName || doc.id
+          );
+        }
+      }
+    }
+
+    return {
+      accountTypes: accountTypes.map((at) => ({
+        id: at.id,
+        advertiserId: at.advertiserId,
+        advertiserName: at.advertiserId
+          ? advertiserNames.get(at.advertiserId) || at.advertiserId
+          : null,
+        name: at.name,
+        description: at.description,
+        iconUrl: at.iconUrl,
+        isRestricted: at.isRestricted,
+        rules: at.rules,
+        isActive: at.isActive,
+        createdAt: at.createdAt,
+      })),
+    };
+  }
+);
+
+/**
+ * Get a single account type by ID.
+ */
+export const adminGetAccountType = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminGetAccountType");
+    await requireAdminPermission(
+      request,
+      "accounts:getAccountType",
+      "adminGetAccountType"
+    );
+
+    const { accountTypeId } = request.data as { accountTypeId: string };
+    if (!accountTypeId) {
+      throw new HttpsError("invalid-argument", "accountTypeId is required");
+    }
+
+    const accountType = await getAccountType(accountTypeId);
+    if (!accountType) {
+      throw new HttpsError("not-found", "Account type not found");
+    }
+
+    let advertiserName: string | null = null;
+    if (accountType.advertiserId) {
+      const clientDoc = await db
+        .collection("clients")
+        .doc(accountType.advertiserId)
+        .get();
+      if (clientDoc.exists) {
+        const data = clientDoc.data();
+        advertiserName =
+          data?.displayName || data?.companyName || accountType.advertiserId;
+      }
+    }
+
+    return {
+      accountType: {
+        ...accountType,
+        advertiserName,
+      },
+    };
+  }
+);
+
+/**
+ * Create a new account type with rules.
+ */
+export const adminCreateAccountType = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminCreateAccountType");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "accounts:createAccountType",
+      "adminCreateAccountType"
+    );
+
+    const { id, name, description, rules, advertiserId, iconUrl } =
+      request.data as {
+        id: string;
+        name: string;
+        description: string;
+        rules?: Partial<AccountTypeRules>;
+        advertiserId?: string;
+        iconUrl?: string;
+      };
+
+    if (!id || !name || !description) {
+      throw new HttpsError(
+        "invalid-argument",
+        "id, name, and description are required"
+      );
+    }
+
+    if (!/^[a-z0-9_]+$/.test(id)) {
+      throw new HttpsError(
+        "invalid-argument",
+        "ID must use lowercase letters, numbers, and underscores only"
+      );
+    }
+
+    const existing = await getAccountType(id);
+    if (existing) {
+      throw new HttpsError(
+        "already-exists",
+        `Account type "${id}" already exists`
+      );
+    }
+
+    if (advertiserId) {
+      const clientDoc = await db
+        .collection("clients")
+        .doc(advertiserId)
+        .get();
+      if (!clientDoc.exists || clientDoc.data()?.isDeleted === true) {
+        throw new HttpsError(
+          "not-found",
+          "Advertiser (client) not found or deleted"
+        );
+      }
+    }
+
+    const validatedRules: AccountTypeRules = {
+      allowedOfframps: rules?.allowedOfframps || ["*"],
+      allowP2pSend: rules?.allowP2pSend !== false,
+      allowP2pReceive: rules?.allowP2pReceive !== false,
+      allowCashout: rules?.allowCashout !== false,
+      expiryDays:
+        typeof rules?.expiryDays === "number" ? rules.expiryDays : null,
+      p2pRestrictToSameAccountType:
+        rules?.p2pRestrictToSameAccountType === true,
+    };
+
+    const accountType = await createAccountType(
+      id,
+      name,
+      description,
+      validatedRules,
+      { advertiserId, iconUrl }
+    );
+
+    logAdminAction(adminCtx.uid, "adminCreateAccountType", "success", {
+      id,
+      name,
+      advertiserId,
+    }).catch(() => {});
+
+    return { success: true, accountType };
+  }
+);
+
+/**
+ * Update an existing account type's fields and/or rules.
+ */
+export const adminUpdateAccountType = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminUpdateAccountType");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "accounts:updateAccountType",
+      "adminUpdateAccountType"
+    );
+
+    const { accountTypeId, updates } = request.data as {
+      accountTypeId: string;
+      updates: {
+        name?: string;
+        description?: string;
+        iconUrl?: string | null;
+        isActive?: boolean;
+        rules?: Partial<AccountTypeRules>;
+      };
+    };
+
+    if (!accountTypeId) {
+      throw new HttpsError("invalid-argument", "accountTypeId is required");
+    }
+
+    if (!updates || Object.keys(updates).length === 0) {
+      throw new HttpsError(
+        "invalid-argument",
+        "At least one field to update is required"
+      );
+    }
+
+    let updated;
+    try {
+      updated = await updateAccountType(accountTypeId, updates);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("ACCOUNT_TYPE_NOT_FOUND")) {
+        throw new HttpsError("not-found", "Account type not found");
+      }
+      throw err;
+    }
+
+    logAdminAction(adminCtx.uid, "adminUpdateAccountType", "success", {
+      accountTypeId,
+      updatedFields: Object.keys(updates),
+    }).catch(() => {});
+
+    return { success: true, accountType: updated };
+  }
+);
+
+/**
+ * Deactivate (soft-delete) an account type.
+ * Reactivation is done via adminUpdateAccountType with { isActive: true }.
+ */
+export const adminDeactivateAccountType = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminDeactivateAccountType");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "accounts:updateAccountType",
+      "adminDeactivateAccountType"
+    );
+
+    const { accountTypeId } = request.data as { accountTypeId: string };
+    if (!accountTypeId) {
+      throw new HttpsError("invalid-argument", "accountTypeId is required");
+    }
+
+    try {
+      await deactivateAccountType(accountTypeId);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("ACCOUNT_TYPE_NOT_FOUND")) {
+        throw new HttpsError("not-found", "Account type not found");
+      }
+      throw err;
+    }
+
+    logAdminAction(
+      adminCtx.uid,
+      "adminDeactivateAccountType",
+      "success",
+      { accountTypeId }
+    ).catch(() => {});
+
+    return { success: true };
+  }
+);
+
+// ============================================================================
 // SOFT-DELETE CLIENT
 // ============================================================================
 
@@ -1448,3 +1748,60 @@ export const backfillDisplayNameLower = onCall({ labels: { area: "admin" } }, as
 
   return { success: true, updated, skipped };
 });
+
+// ============================================================================
+// BACKFILL: activeAccountTypeIds
+// ============================================================================
+
+/**
+ * One-time backfill to populate activeAccountTypeIds on user documents.
+ * Scans all ledger accounts, collects active brand sub-account accountTypeIds,
+ * and writes the array to each user's document for fast search filtering.
+ */
+export const backfillActiveAccountTypeIds = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    const adminCtx = await requireAdminPermission(request, "platform:runMigration", "backfillActiveAccountTypeIds");
+
+    const ledgerDocs = await db.collection("ledgerAccounts").get();
+    let updated = 0;
+    let skipped = 0;
+
+    for (const doc of ledgerDocs.docs) {
+      // Only process user ledger accounts (format: "user:{uid}")
+      if (!doc.id.startsWith("user:")) {
+        skipped++;
+        continue;
+      }
+      const userId = doc.id.substring(5); // strip "user:" prefix
+
+      // Get all active sub-accounts with an accountTypeId
+      const subAccounts = await doc.ref
+        .collection("subAccounts")
+        .where("isActive", "==", true)
+        .get();
+
+      const accountTypeIds = [
+        ...new Set(
+          subAccounts.docs
+            .map((sa) => sa.data().accountTypeId as string | null)
+            .filter((id): id is string => !!id)
+        ),
+      ];
+
+      if (accountTypeIds.length > 0) {
+        await db.collection("users").doc(userId).update({
+          activeAccountTypeIds: accountTypeIds,
+        });
+        updated++;
+      } else {
+        skipped++;
+      }
+    }
+
+    logAdminAction(adminCtx.uid, "backfillActiveAccountTypeIds", "success", { updated, skipped }).catch(() => {});
+    logger.info(`backfillActiveAccountTypeIds: updated=${updated}, skipped=${skipped}`);
+
+    return { success: true, updated, skipped };
+  }
+);

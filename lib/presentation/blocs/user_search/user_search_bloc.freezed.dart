@@ -19,17 +19,17 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$UserSearchEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String query) searchUsers,
+    required TResult Function(String query, String? accountTypeId) searchUsers,
     required TResult Function() clearSearch,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String query)? searchUsers,
+    TResult? Function(String query, String? accountTypeId)? searchUsers,
     TResult? Function()? clearSearch,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String query)? searchUsers,
+    TResult Function(String query, String? accountTypeId)? searchUsers,
     TResult Function()? clearSearch,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
@@ -80,7 +80,7 @@ abstract class _$$SearchUsersImplCopyWith<$Res> {
     $Res Function(_$SearchUsersImpl) then,
   ) = __$$SearchUsersImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({String query});
+  $Res call({String query, String? accountTypeId});
 }
 
 /// @nodoc
@@ -96,13 +96,17 @@ class __$$SearchUsersImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? query = null}) {
+  $Res call({Object? query = null, Object? accountTypeId = freezed}) {
     return _then(
       _$SearchUsersImpl(
         null == query
             ? _value.query
             : query // ignore: cast_nullable_to_non_nullable
                   as String,
+        accountTypeId: freezed == accountTypeId
+            ? _value.accountTypeId
+            : accountTypeId // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -111,14 +115,16 @@ class __$$SearchUsersImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$SearchUsersImpl implements _SearchUsers {
-  const _$SearchUsersImpl(this.query);
+  const _$SearchUsersImpl(this.query, {this.accountTypeId});
 
   @override
   final String query;
+  @override
+  final String? accountTypeId;
 
   @override
   String toString() {
-    return 'UserSearchEvent.searchUsers(query: $query)';
+    return 'UserSearchEvent.searchUsers(query: $query, accountTypeId: $accountTypeId)';
   }
 
   @override
@@ -126,11 +132,13 @@ class _$SearchUsersImpl implements _SearchUsers {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$SearchUsersImpl &&
-            (identical(other.query, query) || other.query == query));
+            (identical(other.query, query) || other.query == query) &&
+            (identical(other.accountTypeId, accountTypeId) ||
+                other.accountTypeId == accountTypeId));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, query);
+  int get hashCode => Object.hash(runtimeType, query, accountTypeId);
 
   /// Create a copy of UserSearchEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -143,30 +151,30 @@ class _$SearchUsersImpl implements _SearchUsers {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String query) searchUsers,
+    required TResult Function(String query, String? accountTypeId) searchUsers,
     required TResult Function() clearSearch,
   }) {
-    return searchUsers(query);
+    return searchUsers(query, accountTypeId);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String query)? searchUsers,
+    TResult? Function(String query, String? accountTypeId)? searchUsers,
     TResult? Function()? clearSearch,
   }) {
-    return searchUsers?.call(query);
+    return searchUsers?.call(query, accountTypeId);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String query)? searchUsers,
+    TResult Function(String query, String? accountTypeId)? searchUsers,
     TResult Function()? clearSearch,
     required TResult orElse(),
   }) {
     if (searchUsers != null) {
-      return searchUsers(query);
+      return searchUsers(query, accountTypeId);
     }
     return orElse();
   }
@@ -204,9 +212,13 @@ class _$SearchUsersImpl implements _SearchUsers {
 }
 
 abstract class _SearchUsers implements UserSearchEvent {
-  const factory _SearchUsers(final String query) = _$SearchUsersImpl;
+  const factory _SearchUsers(
+    final String query, {
+    final String? accountTypeId,
+  }) = _$SearchUsersImpl;
 
   String get query;
+  String? get accountTypeId;
 
   /// Create a copy of UserSearchEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -258,7 +270,7 @@ class _$ClearSearchImpl implements _ClearSearch {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String query) searchUsers,
+    required TResult Function(String query, String? accountTypeId) searchUsers,
     required TResult Function() clearSearch,
   }) {
     return clearSearch();
@@ -267,7 +279,7 @@ class _$ClearSearchImpl implements _ClearSearch {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String query)? searchUsers,
+    TResult? Function(String query, String? accountTypeId)? searchUsers,
     TResult? Function()? clearSearch,
   }) {
     return clearSearch?.call();
@@ -276,7 +288,7 @@ class _$ClearSearchImpl implements _ClearSearch {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String query)? searchUsers,
+    TResult Function(String query, String? accountTypeId)? searchUsers,
     TResult Function()? clearSearch,
     required TResult orElse(),
   }) {

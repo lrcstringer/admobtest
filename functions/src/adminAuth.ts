@@ -50,6 +50,10 @@ export type AdminPermission =
   | "accounts:listUsers"
   | "accounts:listUserSubAccounts"
   | "accounts:softDeleteClient"
+  | "accounts:listAccountTypes"
+  | "accounts:getAccountType"
+  | "accounts:createAccountType"
+  | "accounts:updateAccountType"
   | "accounts:initializeLedger"
   // Earn management
   | "earn:createThread"
@@ -170,6 +174,10 @@ const financeAdminPerms: AdminPermission[] = [
   "accounts:listUsers",
   "accounts:listUserSubAccounts",
   "accounts:softDeleteClient",
+  "accounts:listAccountTypes",
+  "accounts:getAccountType",
+  "accounts:createAccountType",
+  "accounts:updateAccountType",
   "pots:distribute",
   "pots:viewEntries",
   "cashout:complete",
@@ -185,6 +193,8 @@ const campaignAdminPerms: AdminPermission[] = [
   "accounts:getClient",
   "accounts:updateClient",
   "accounts:listSubAccounts",
+  "accounts:listAccountTypes",
+  "accounts:getAccountType",
   "earn:createThread",
   "earn:createOpportunity",
   "earn:resetBudget",
@@ -224,6 +234,8 @@ const auditorPerms: AdminPermission[] = [
   "accounts:runRecon",
   "accounts:listUsers",
   "accounts:listUserSubAccounts",
+  "accounts:listAccountTypes",
+  "accounts:getAccountType",
   "earn:getTargeting",
   "earn:getClientStats",
   "earn:getThreadAnalytics",

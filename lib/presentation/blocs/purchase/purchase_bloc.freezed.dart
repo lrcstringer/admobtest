@@ -28,7 +28,7 @@ mixin _$PurchaseEvent {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -51,7 +51,7 @@ mixin _$PurchaseEvent {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -74,7 +74,7 @@ mixin _$PurchaseEvent {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -221,7 +221,7 @@ class _$LoadProvidersImpl implements _LoadProviders {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -248,7 +248,7 @@ class _$LoadProvidersImpl implements _LoadProviders {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -275,7 +275,7 @@ class _$LoadProvidersImpl implements _LoadProviders {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -455,7 +455,7 @@ class _$LoadProvidersByCategoryImpl implements _LoadProvidersByCategory {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -482,7 +482,7 @@ class _$LoadProvidersByCategoryImpl implements _LoadProvidersByCategory {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -509,7 +509,7 @@ class _$LoadProvidersByCategoryImpl implements _LoadProvidersByCategory {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -698,7 +698,7 @@ class _$SelectCategoryImpl implements _SelectCategory {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -725,7 +725,7 @@ class _$SelectCategoryImpl implements _SelectCategory {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -752,7 +752,7 @@ class _$SelectCategoryImpl implements _SelectCategory {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -953,7 +953,7 @@ class _$SelectProviderImpl implements _SelectProvider {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -980,7 +980,7 @@ class _$SelectProviderImpl implements _SelectProvider {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -1007,7 +1007,7 @@ class _$SelectProviderImpl implements _SelectProvider {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -1193,7 +1193,7 @@ class _$LoadProductsImpl implements _LoadProducts {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -1220,7 +1220,7 @@ class _$LoadProductsImpl implements _LoadProducts {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -1247,7 +1247,7 @@ class _$LoadProductsImpl implements _LoadProducts {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -1443,7 +1443,7 @@ class _$SelectProductImpl implements _SelectProduct {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -1470,7 +1470,7 @@ class _$SelectProductImpl implements _SelectProduct {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -1497,7 +1497,7 @@ class _$SelectProductImpl implements _SelectProduct {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -1685,7 +1685,7 @@ class _$SetRecipientNumberImpl implements _SetRecipientNumber {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -1712,7 +1712,7 @@ class _$SetRecipientNumberImpl implements _SetRecipientNumber {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -1739,7 +1739,7 @@ class _$SetRecipientNumberImpl implements _SetRecipientNumber {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -1897,7 +1897,7 @@ class _$ValidateRecipientImpl implements _ValidateRecipient {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -1924,7 +1924,7 @@ class _$ValidateRecipientImpl implements _ValidateRecipient {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -1951,7 +1951,7 @@ class _$ValidateRecipientImpl implements _ValidateRecipient {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -2054,6 +2054,8 @@ abstract class _$$MakePurchaseImplCopyWith<$Res> {
     _$MakePurchaseImpl value,
     $Res Function(_$MakePurchaseImpl) then,
   ) = __$$MakePurchaseImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String? subAccountId});
 }
 
 /// @nodoc
@@ -2067,26 +2069,52 @@ class __$$MakePurchaseImplCopyWithImpl<$Res>
 
   /// Create a copy of PurchaseEvent
   /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? subAccountId = freezed}) {
+    return _then(
+      _$MakePurchaseImpl(
+        subAccountId: freezed == subAccountId
+            ? _value.subAccountId
+            : subAccountId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
+  }
 }
 
 /// @nodoc
 
 class _$MakePurchaseImpl implements _MakePurchase {
-  const _$MakePurchaseImpl();
+  const _$MakePurchaseImpl({this.subAccountId});
+
+  @override
+  final String? subAccountId;
 
   @override
   String toString() {
-    return 'PurchaseEvent.makePurchase()';
+    return 'PurchaseEvent.makePurchase(subAccountId: $subAccountId)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$MakePurchaseImpl);
+        (other.runtimeType == runtimeType &&
+            other is _$MakePurchaseImpl &&
+            (identical(other.subAccountId, subAccountId) ||
+                other.subAccountId == subAccountId));
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode => Object.hash(runtimeType, subAccountId);
+
+  /// Create a copy of PurchaseEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$MakePurchaseImplCopyWith<_$MakePurchaseImpl> get copyWith =>
+      __$$MakePurchaseImplCopyWithImpl<_$MakePurchaseImpl>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -2100,7 +2128,7 @@ class _$MakePurchaseImpl implements _MakePurchase {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -2113,7 +2141,7 @@ class _$MakePurchaseImpl implements _MakePurchase {
     required TResult Function() clearError,
     required TResult Function() clearSuccess,
   }) {
-    return makePurchase();
+    return makePurchase(subAccountId);
   }
 
   @override
@@ -2127,7 +2155,7 @@ class _$MakePurchaseImpl implements _MakePurchase {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -2140,7 +2168,7 @@ class _$MakePurchaseImpl implements _MakePurchase {
     TResult? Function()? clearError,
     TResult? Function()? clearSuccess,
   }) {
-    return makePurchase?.call();
+    return makePurchase?.call(subAccountId);
   }
 
   @override
@@ -2154,7 +2182,7 @@ class _$MakePurchaseImpl implements _MakePurchase {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -2169,7 +2197,7 @@ class _$MakePurchaseImpl implements _MakePurchase {
     required TResult orElse(),
   }) {
     if (makePurchase != null) {
-      return makePurchase();
+      return makePurchase(subAccountId);
     }
     return orElse();
   }
@@ -2248,7 +2276,16 @@ class _$MakePurchaseImpl implements _MakePurchase {
 }
 
 abstract class _MakePurchase implements PurchaseEvent {
-  const factory _MakePurchase() = _$MakePurchaseImpl;
+  const factory _MakePurchase({final String? subAccountId}) =
+      _$MakePurchaseImpl;
+
+  String? get subAccountId;
+
+  /// Create a copy of PurchaseEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$MakePurchaseImplCopyWith<_$MakePurchaseImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -2350,7 +2387,7 @@ class _$LoadHistoryImpl implements _LoadHistory {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -2377,7 +2414,7 @@ class _$LoadHistoryImpl implements _LoadHistory {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -2404,7 +2441,7 @@ class _$LoadHistoryImpl implements _LoadHistory {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -2599,7 +2636,7 @@ class _$LoadRecentRecipientsImpl implements _LoadRecentRecipients {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -2626,7 +2663,7 @@ class _$LoadRecentRecipientsImpl implements _LoadRecentRecipients {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -2653,7 +2690,7 @@ class _$LoadRecentRecipientsImpl implements _LoadRecentRecipients {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -2842,7 +2879,7 @@ class _$SelectRecentRecipientImpl implements _SelectRecentRecipient {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -2869,7 +2906,7 @@ class _$SelectRecentRecipientImpl implements _SelectRecentRecipient {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -2896,7 +2933,7 @@ class _$SelectRecentRecipientImpl implements _SelectRecentRecipient {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -3054,7 +3091,7 @@ class _$ResetSelectionImpl implements _ResetSelection {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -3081,7 +3118,7 @@ class _$ResetSelectionImpl implements _ResetSelection {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -3108,7 +3145,7 @@ class _$ResetSelectionImpl implements _ResetSelection {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -3257,7 +3294,7 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -3284,7 +3321,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -3311,7 +3348,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -3460,7 +3497,7 @@ class _$ClearSuccessImpl implements _ClearSuccess {
     required TResult Function(ServiceProduct product) selectProduct,
     required TResult Function(String number) setRecipientNumber,
     required TResult Function() validateRecipient,
-    required TResult Function() makePurchase,
+    required TResult Function(String? subAccountId) makePurchase,
     required TResult Function(
       PurchaseCategory? category,
       int? limit,
@@ -3487,7 +3524,7 @@ class _$ClearSuccessImpl implements _ClearSuccess {
     TResult? Function(ServiceProduct product)? selectProduct,
     TResult? Function(String number)? setRecipientNumber,
     TResult? Function()? validateRecipient,
-    TResult? Function()? makePurchase,
+    TResult? Function(String? subAccountId)? makePurchase,
     TResult? Function(
       PurchaseCategory? category,
       int? limit,
@@ -3514,7 +3551,7 @@ class _$ClearSuccessImpl implements _ClearSuccess {
     TResult Function(ServiceProduct product)? selectProduct,
     TResult Function(String number)? setRecipientNumber,
     TResult Function()? validateRecipient,
-    TResult Function()? makePurchase,
+    TResult Function(String? subAccountId)? makePurchase,
     TResult Function(
       PurchaseCategory? category,
       int? limit,

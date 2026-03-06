@@ -12,6 +12,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
+import '../../widgets/messaging/token_actions_sheet.dart';
 
 class WalletDetailScreen extends StatelessWidget {
   final String subAccountId;
@@ -219,26 +220,68 @@ class WalletDetailScreen extends StatelessWidget {
             ? _getBrandRewards(rewardState, subAccount.name)
             : <RewardItem>[];
 
+        // Show Send for unrestricted wallets OR restricted wallets with P2P enabled
+        final showSend =
+            !subAccount.isRestricted || subAccount.allowP2pSend;
+        final showRequest =
+            subAccount.isRestricted && subAccount.allowP2pReceive;
+
         return Row(
           children: [
-            // Send button (only for unrestricted wallets)
-            if (!subAccount.isRestricted)
+            if (showSend)
               Expanded(
                 child: _buildActionButton(
                   context,
                   icon: Icons.send,
                   label: 'Send',
                   color: AppColors.secondary,
-                  onTap: () => context.go(
-                    '/wallet/send',
-                    extra: {'subAccountId': subAccount.id},
-                  ),
+                  onTap: () {
+                    if (subAccount.isRestricted) {
+                      // Brand wallet: open TokenActionsSheet with pre-selected sub-account
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => TokenActionsSheet(
+                          preSelectedSubAccountId: subAccount.id,
+                        ),
+                      );
+                    } else {
+                      context.go(
+                        '/wallet/send',
+                        extra: {'subAccountId': subAccount.id},
+                      );
+                    }
+                  },
                 ),
               ),
-            if (!subAccount.isRestricted) AppSpacing.horizontalMd,
+            if (showSend && (showRequest || subAccount.allowCashout || subAccount.isRestricted))
+              AppSpacing.horizontalMd,
 
-            // Cash Out button (only for default unrestricted)
-            if (subAccount.isDefault)
+            // Request button (brand wallets with P2P receive enabled)
+            if (showRequest)
+              Expanded(
+                child: _buildActionButton(
+                  context,
+                  icon: Icons.call_received,
+                  label: 'Request',
+                  color: AppColors.primary,
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (_) => TokenActionsSheet(
+                        preSelectedSubAccountId: subAccount.id,
+                        initialSendMode: false,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            if (showRequest && (subAccount.allowCashout || subAccount.isRestricted))
+              AppSpacing.horizontalMd,
+
+            // Cash Out button (shown when account rules allow cashout)
+            if (subAccount.allowCashout) ...[
               Expanded(
                 child: _buildActionButton(
                   context,
@@ -248,6 +291,8 @@ class WalletDetailScreen extends StatelessWidget {
                   onTap: () => context.go('/wallet/withdraw'),
                 ),
               ),
+              if (subAccount.isRestricted) AppSpacing.horizontalMd,
+            ],
 
             // Rewards or Use Tokens button (for brand wallets)
             if (subAccount.isRestricted)

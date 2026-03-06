@@ -381,20 +381,20 @@ export const createTokenPool = onCall(
       recipientName,
     });
 
-    // 5. FCM notifications to invitees
-    const fcmTokens = await getFcmTokens(filteredInviteeIds);
-    const fcmTitle = mode === "sasaza"
-      ? `Group Sasaza for ${recipientName}`
-      : "Group Save invitation";
-    const fcmBody = `${organizerName} invited you to contribute`;
-
-    for (const token of fcmTokens) {
-      await sendFcmNotification(token, fcmTitle, fcmBody, {
-        type: "pool_invite",
-        poolId,
-        conversationId: convId,
-      });
-    }
+    // 5. FCM notifications to invitees (fire-and-forget — don't block response)
+    getFcmTokens(filteredInviteeIds).then((fcmTokens) => {
+      const fcmTitle = mode === "sasaza"
+        ? `Group Sasaza for ${recipientName}`
+        : "Group Save invitation";
+      const fcmBody = `${organizerName} invited you to contribute`;
+      for (const token of fcmTokens) {
+        sendFcmNotification(token, fcmTitle, fcmBody, {
+          type: "pool_invite",
+          poolId,
+          conversationId: convId,
+        });
+      }
+    }).catch((e) => logger.warn("FCM notify failed for pool creation:", e));
 
     logger.info(`Created token pool ${poolId} (${mode}) by ${userId}`);
 

@@ -27,6 +27,12 @@ class SubAccount with _$SubAccount {
     required bool isDefault,
     required DateTime createdAt,
     required DateTime updatedAt,
+    // Rule flags (populated by getSubAccounts Cloud Function)
+    @Default(true) bool allowP2pSend,
+    @Default(true) bool allowP2pReceive,
+    @Default(true) bool allowCashout,
+    @Default(false) bool p2pRestrictToSameAccountType,
+    @Default(["*"]) List<String> allowedOfframps,
   }) = _SubAccount;
 
   const SubAccount._();
@@ -42,4 +48,8 @@ class SubAccount with _$SubAccount {
 
   /// Check if this is a restricted (brand) sub-account
   bool get isRestricted => accountTypeId != null;
+
+  /// Whether this wallet allows purchasing a given category
+  bool allowsPurchaseCategory(String category) =>
+      allowedOfframps.contains('*') || allowedOfframps.contains(category);
 }

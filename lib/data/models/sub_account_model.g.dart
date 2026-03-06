@@ -20,6 +20,16 @@ _$SubAccountModelImpl _$$SubAccountModelImplFromJson(
   isDefault: json['isDefault'] as bool,
   createdAt: const TimestampConverter().fromJson(json['createdAt']),
   updatedAt: const TimestampConverter().fromJson(json['updatedAt']),
+  allowP2pSend: json['allowP2pSend'] as bool? ?? true,
+  allowP2pReceive: json['allowP2pReceive'] as bool? ?? true,
+  allowCashout: json['allowCashout'] as bool? ?? true,
+  p2pRestrictToSameAccountType:
+      json['p2pRestrictToSameAccountType'] as bool? ?? false,
+  allowedOfframps:
+      (json['allowedOfframps'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const ["*"],
 );
 
 Map<String, dynamic> _$$SubAccountModelImplToJson(
@@ -36,4 +46,9 @@ Map<String, dynamic> _$$SubAccountModelImplToJson(
   'isDefault': instance.isDefault,
   'createdAt': const TimestampConverter().toJson(instance.createdAt),
   'updatedAt': const TimestampConverter().toJson(instance.updatedAt),
+  'allowP2pSend': instance.allowP2pSend,
+  'allowP2pReceive': instance.allowP2pReceive,
+  'allowCashout': instance.allowCashout,
+  'p2pRestrictToSameAccountType': instance.p2pRestrictToSameAccountType,
+  'allowedOfframps': instance.allowedOfframps,
 };

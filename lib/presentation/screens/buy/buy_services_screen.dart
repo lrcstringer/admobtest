@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/purchase.dart';
 import '../../../domain/entities/service_provider.dart';
 import '../../blocs/purchase/purchase_bloc.dart';
-import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
@@ -36,17 +36,6 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
             ),
           );
           context.read<PurchaseBloc>().add(const PurchaseEvent.clearError());
-        }
-        if (state.successMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.successMessage!),
-              backgroundColor: AppColors.success,
-            ),
-          );
-          context.read<PurchaseBloc>().add(const PurchaseEvent.clearSuccess());
-          // Refresh wallet balance after purchase
-          context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
         }
       },
       builder: (context, state) {
@@ -733,11 +722,7 @@ class PurchaseFloatingButton extends StatelessWidget {
         return FloatingActionButton.extended(
           onPressed: state.isPurchasing
               ? null
-              : () {
-                  context
-                      .read<PurchaseBloc>()
-                      .add(const PurchaseEvent.makePurchase());
-                },
+              : () => context.go('/buy/wallet-selection'),
           icon: state.isPurchasing
               ? const SizedBox(
                   width: 20,

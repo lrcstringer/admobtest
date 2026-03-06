@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/di/injection.dart';
 import '../../../core/services/notification_service.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
@@ -12,6 +14,13 @@ import '../../widgets/common/bottom_nav_bar.dart';
 /// Individual screens provide their own AppBar via IMaliAppBar.
 class MainShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
+
+  /// SharedPreferences key for persisting the last active tab index.
+  /// Used to restore the correct tab after Android process death.
+  static const lastTabKey = 'last_active_tab';
+
+  /// Tab root paths in branch order.
+  static const tabPaths = ['/home', '/earn', '/chat', '/buy', '/wallet'];
 
   const MainShell({
     super.key,
@@ -36,6 +45,8 @@ class MainShell extends StatelessWidget {
         currentIndex: navigationShell.currentIndex,
         chatUnreadCount: totalUnread,
         onTap: (index) {
+          // Persist the selected tab so we can restore it after process death.
+          getIt<SharedPreferences>().setInt(lastTabKey, index);
           navigationShell.goBranch(
             index,
             initialLocation: index == navigationShell.currentIndex,

@@ -15,6 +15,10 @@ import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
   processP2PTransfer,
   validateMainWalletBalance,
+  getSubAccount,
+  getAccountTypeRules,
+  getUserSubAccounts,
+  validateSubAccountBalance,
 } from "./ledger";
 
 const db = admin.firestore();
@@ -51,7 +55,7 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
   requireAppCheck(request, "sendConversationTokens");
   await requirePlayIntegrity(request.data, request, "sendConversationTokens", "HIGHEST");
 
-  const { conversationId, recipientId, amount, encryptedMessage, messageE2ee, messageX3dh } = request.data;
+  const { conversationId, recipientId, amount, encryptedMessage, messageE2ee, messageX3dh, senderSubAccountId } = request.data;
 
   if (!conversationId || !recipientId || !amount || amount <= 0) {
     throw new HttpsError("invalid-argument", "Invalid transfer data");
@@ -71,21 +75,33 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
     throw new HttpsError("permission-denied", "Not a participant in this conversation");
   }
 
-  // Validate sender balance (main ledger account IS the default wallet)
-  const mainCheck = await validateMainWalletBalance(userId, amount);
-  if (!mainCheck.sufficient) {
-    throw new HttpsError("failed-precondition", `Insufficient balance: has ${mainCheck.available}, needs ${amount}`);
+  // Validate sender balance — sub-account or main wallet
+  if (senderSubAccountId) {
+    const subAccount = await getSubAccount(userId, senderSubAccountId);
+    if (!subAccount) {
+      throw new HttpsError("failed-precondition", "Sub-account not found");
+    }
+    const balanceCheck = await validateSubAccountBalance(userId, senderSubAccountId, amount);
+    if (!balanceCheck.allowed) {
+      throw new HttpsError("failed-precondition", balanceCheck.reason || "Insufficient balance");
+    }
+  } else {
+    const mainCheck = await validateMainWalletBalance(userId, amount);
+    if (!mainCheck.sufficient) {
+      throw new HttpsError("failed-precondition", `Insufficient balance: has ${mainCheck.available}, needs ${amount}`);
+    }
   }
 
   // Process transfer through Trust Ledger
+  // processP2PTransfer handles p2pRestrictToSameAccountType enforcement internally
   const transferId = db.collection("p2pTransfers").doc().id;
   const ledgerResult = await processP2PTransfer(
     userId,
     recipientId,
     amount,
     transferId,
-    undefined, // main wallet — no sub-account needed
-    undefined,
+    senderSubAccountId || undefined,
+    undefined, // recipient sub-account determined by processP2PTransfer if restricted
     `P2P transfer: ${amount} tokens`,
     { conversationId, source: "conversation" }
   );
@@ -122,6 +138,7 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
     x3dhHeader: messageX3dh || null,
     tokenAmount: amount,
     recipientId,
+    senderSubAccountId: senderSubAccountId || null,
     ledgerJournalId: ledgerResult.journalId || null,
     media: null,
     reactions: {},
@@ -170,7 +187,7 @@ export const requestConversationTokens = onCall({ labels: { area: "social" } }, 
   const userId = requireAuth(request);
   requireAppCheck(request, "requestConversationTokens");
 
-  const { conversationId, recipientId, amount, encryptedMessage, messageE2ee, messageX3dh } = request.data;
+  const { conversationId, recipientId, amount, encryptedMessage, messageE2ee, messageX3dh, senderSubAccountId } = request.data;
 
   if (!conversationId || !recipientId || !amount || amount <= 0) {
     throw new HttpsError("invalid-argument", "Invalid request data");
@@ -216,6 +233,7 @@ export const requestConversationTokens = onCall({ labels: { area: "social" } }, 
     x3dhHeader: messageX3dh || null,
     tokenAmount: amount,
     recipientId,
+    senderSubAccountId: senderSubAccountId || null,
     ledgerJournalId: null,
     media: null,
     reactions: {},
@@ -306,22 +324,55 @@ export const acceptConversationTokenRequest = onCall({ labels: { area: "social" 
 
   const requesterId = msgData.senderId;
   const amount = msgData.tokenAmount;
+  const requesterSubAccountId: string | undefined = msgData.senderSubAccountId || undefined;
 
-  // Validate payer balance (main ledger account IS the default wallet)
-  const mainCheck = await validateMainWalletBalance(userId, amount);
-  if (!mainCheck.sufficient) {
-    throw new HttpsError("failed-precondition", `Insufficient balance: has ${mainCheck.available}, needs ${amount}`);
+  // Determine payer's source sub-account:
+  // If the requester specified a brand sub-account with p2pRestrictToSameAccountType,
+  // the payer must also have a matching brand sub-account — and pay from it.
+  let payerSubAccountId: string | undefined;
+  if (requesterSubAccountId) {
+    const requesterSubAccount = await getSubAccount(requesterId, requesterSubAccountId);
+    if (requesterSubAccount?.accountTypeId) {
+      const rules = await getAccountTypeRules(requesterSubAccount.accountTypeId);
+      if (rules.p2pRestrictToSameAccountType) {
+        const payerSubAccounts = await getUserSubAccounts(userId);
+        const matchingSub = payerSubAccounts.find(
+          (sa) => sa.accountTypeId === requesterSubAccount.accountTypeId && sa.isActive
+        );
+        if (!matchingSub) {
+          throw new HttpsError(
+            "failed-precondition",
+            "You do not have a matching brand wallet to pay this request"
+          );
+        }
+        payerSubAccountId = matchingSub.id;
+      }
+    }
+  }
+
+  // Validate payer balance — sub-account or main wallet
+  if (payerSubAccountId) {
+    const balanceCheck = await validateSubAccountBalance(userId, payerSubAccountId, amount);
+    if (!balanceCheck.allowed) {
+      throw new HttpsError("failed-precondition", balanceCheck.reason || "Insufficient balance");
+    }
+  } else {
+    const mainCheck = await validateMainWalletBalance(userId, amount);
+    if (!mainCheck.sufficient) {
+      throw new HttpsError("failed-precondition", `Insufficient balance: has ${mainCheck.available}, needs ${amount}`);
+    }
   }
 
   // Process transfer through Trust Ledger
+  // processP2PTransfer handles p2pRestrictToSameAccountType enforcement internally
   const transferId = `conv_request_${messageId}`;
   const ledgerResult = await processP2PTransfer(
     userId,
     requesterId,
     amount,
     transferId,
-    undefined, // main wallet — no sub-account needed
-    undefined,
+    payerSubAccountId,
+    requesterSubAccountId,
     "Paid token request",
     { conversationId, messageId, source: "conversationRequest" }
   );

@@ -45,7 +45,7 @@ function requireAuth(request: { auth?: { uid: string } }): string {
 export const searchUsers = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
 
-  const { query } = request.data;
+  const { query, accountTypeId } = request.data;
 
   if (!query || typeof query !== "string" || query.length < 2 || query.length > 50) {
     throw new HttpsError(
@@ -54,16 +54,28 @@ export const searchUsers = onCall({ labels: { area: "social" } }, async (request
     );
   }
 
+  if (accountTypeId !== undefined && (typeof accountTypeId !== "string" || accountTypeId.length === 0)) {
+    throw new HttpsError(
+      "invalid-argument",
+      "accountTypeId must be a non-empty string if provided"
+    );
+  }
+
   const queryLower = query.toLowerCase();
   const limit = 20;
 
   // Search by displayNameLower prefix (case-insensitive)
-  const nameResults = await db
+  // Optionally filter by activeAccountTypeIds if accountTypeId is provided
+  let userQuery = db
     .collection("users")
     .where("displayNameLower", ">=", queryLower)
-    .where("displayNameLower", "<=", queryLower + "\uf8ff")
-    .limit(limit)
-    .get();
+    .where("displayNameLower", "<=", queryLower + "\uf8ff");
+
+  if (accountTypeId) {
+    userQuery = userQuery.where("activeAccountTypeIds", "array-contains", accountTypeId);
+  }
+
+  const nameResults = await userQuery.limit(limit).get();
 
   // Get caller's blocked list for filtering
   const callerDoc = await db.collection("users").doc(userId).get();

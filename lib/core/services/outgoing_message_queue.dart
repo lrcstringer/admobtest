@@ -357,6 +357,7 @@ class OutgoingMessageQueue {
     required String recipientId,
     required int amount,
     String? message,
+    String? subAccountId,
   }) async {
     final id = 'pending_${_uuid.v4()}';
     final now = DateTime.now();
@@ -370,6 +371,7 @@ class OutgoingMessageQueue {
       payloadJson: Value(jsonEncode({
         'amount': amount,
         'message': message,
+        if (subAccountId != null) 'senderSubAccountId': subAccountId,
       })),
       status: const Value('pending'),
       createdAt: Value(now),
@@ -413,6 +415,7 @@ class OutgoingMessageQueue {
     required String recipientId,
     required int amount,
     String? message,
+    String? subAccountId,
   }) async {
     final id = 'pending_${_uuid.v4()}';
     final now = DateTime.now();
@@ -426,6 +429,7 @@ class OutgoingMessageQueue {
       payloadJson: Value(jsonEncode({
         'amount': amount,
         'message': message,
+        if (subAccountId != null) 'senderSubAccountId': subAccountId,
       })),
       status: const Value('pending'),
       createdAt: Value(now),
@@ -1020,6 +1024,7 @@ class OutgoingMessageQueue {
           : <String, dynamic>{};
       final amount = meta['amount'] as int? ?? 0;
       final message = meta['message'] as String?;
+      final subAccountId = meta['senderSubAccountId'] as String?;
 
       // Encrypt optional message text
       String? encryptedMsg;
@@ -1042,9 +1047,16 @@ class OutgoingMessageQueue {
         encryptedMessage: encryptedMsg,
         messageE2ee: msgE2ee,
         messageX3dh: msgX3dh,
+        subAccountId: subAccountId,
       );
 
-      final sentMessage = model.toEntity();
+      // Preserve the user's plaintext note on the local entity — the CF
+      // response has textContent: null (correct for E2EE) but the local
+      // row must keep the decrypted text so the UI continues to show it.
+      final sentMessage = (message != null && message.isNotEmpty)
+          ? model.toEntity().copyWith(textContent: message)
+          : model.toEntity();
+
       // Cache plaintext if present
       if (message != null && message.isNotEmpty) {
         try {
@@ -1081,6 +1093,7 @@ class OutgoingMessageQueue {
           : <String, dynamic>{};
       final amount = meta['amount'] as int? ?? 0;
       final message = meta['message'] as String?;
+      final subAccountId = meta['senderSubAccountId'] as String?;
 
       String? encryptedMsg;
       Map<String, dynamic>? msgE2ee;
@@ -1102,9 +1115,14 @@ class OutgoingMessageQueue {
         encryptedMessage: encryptedMsg,
         messageE2ee: msgE2ee,
         messageX3dh: msgX3dh,
+        subAccountId: subAccountId,
       );
 
-      final sentMessage = model.toEntity();
+      // Preserve the user's plaintext note — same as _processTokenSend.
+      final sentMessage = (message != null && message.isNotEmpty)
+          ? model.toEntity().copyWith(textContent: message)
+          : model.toEntity();
+
       if (message != null && message.isNotEmpty) {
         try {
           await _appDatabase

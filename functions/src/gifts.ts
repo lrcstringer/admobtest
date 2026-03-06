@@ -281,36 +281,31 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
   batch.update(db.collection(collection).doc(parentId!), parentUpdate);
   await batch.commit();
 
-  // --- Send FCM push to recipient ---
-  try {
-    const recipientFcmToken = recipient.fcmToken;
-    if (recipientFcmToken) {
-      await admin.messaging().send({
-        token: recipientFcmToken,
-        notification: {
-          title: "You received a Sasaza!",
-          body: `${sender.displayName || "Someone"} sent you ${amount} tokens`,
-        },
-        data: {
-          type: "gift_received",
-          giftId,
-          senderId: userId,
-          conversationId: resolvedConversationId || "",
-          communityId: communityId || "",
-        },
-        android: {
-          priority: "high",
-          notification: { channelId: "gifts", sound: "default" },
-        },
-        apns: {
-          headers: { "apns-priority": "10" },
-          payload: { aps: { sound: "default", badge: 1 } },
-        },
-      });
-    }
-  } catch (e) {
-    logger.warn("Failed to send gift FCM notification:", e);
-    // Non-fatal — gift is already created
+  // --- Send FCM push to recipient (fire-and-forget — don't block response) ---
+  const recipientFcmToken = recipient.fcmToken;
+  if (recipientFcmToken) {
+    admin.messaging().send({
+      token: recipientFcmToken,
+      notification: {
+        title: "You received a Sasaza!",
+        body: `${sender.displayName || "Someone"} sent you ${amount} tokens`,
+      },
+      data: {
+        type: "gift_received",
+        giftId,
+        senderId: userId,
+        conversationId: resolvedConversationId || "",
+        communityId: communityId || "",
+      },
+      android: {
+        priority: "high",
+        notification: { channelId: "gifts", sound: "default" },
+      },
+      apns: {
+        headers: { "apns-priority": "10" },
+        payload: { aps: { sound: "default", badge: 1 } },
+      },
+    }).catch((e) => logger.warn("Failed to send gift FCM notification:", e));
   }
 
   // --- Return the gift data for the client ---

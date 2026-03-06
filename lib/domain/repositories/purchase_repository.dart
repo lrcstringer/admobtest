@@ -26,6 +26,7 @@ abstract class PurchaseRepository {
   Future<Either<Failure, Purchase>> makePurchase({
     required String productId,
     required String recipientNumber,
+    String? subAccountId,
   });
 
   /// Get purchase history

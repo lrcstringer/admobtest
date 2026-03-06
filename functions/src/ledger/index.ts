@@ -57,6 +57,8 @@ export {
   deleteAllSubAccounts,
   createAccountType,
   listAccountTypes,
+  updateAccountType,
+  deactivateAccountType,
 } from "./subAccounts";
 
 // Re-export account functions
@@ -145,6 +147,9 @@ import { getOrCreateUserAccount, createSupplierAccount, ensureSystemAccounts } f
 import { postJournal, createEarningEntries, createReferralEntries, createTransferEntries, logJournalPostedAudit } from "./journals";
 import {
   getSubAccount,
+  getUserSubAccounts,
+  getAccountTypeRules,
+  validateSubAccountAllows,
   creditSubAccount,
   debitSubAccount,
   validateMainWalletBalance,
@@ -618,6 +623,18 @@ export async function processP2PTransfer(
       };
     }
     senderAccountTypeId = senderSubAccount.accountTypeId;
+
+    // Validate P2P send is allowed for this account type
+    if (senderAccountTypeId) {
+      const sendAllowed = await validateSubAccountAllows(senderAccountTypeId, "p2p_send");
+      if (!sendAllowed.allowed) {
+        return {
+          success: false,
+          error: sendAllowed.reason || "This account cannot send P2P transfers",
+          errorCode: "P2P_SEND_NOT_ALLOWED",
+        };
+      }
+    }
   } else {
     // Sending from main wallet — validate main wallet available balance
     const { sufficient, available } = await validateMainWalletBalance(senderId, amount);
@@ -630,8 +647,29 @@ export async function processP2PTransfer(
     }
   }
 
-  // Recipient always receives to main wallet (no default sub-account creation)
-  const finalRecipientSubAccountId = recipientSubAccountId || undefined;
+  // Determine recipient sub-account
+  let finalRecipientSubAccountId = recipientSubAccountId || undefined;
+
+  // Enforce p2pRestrictToSameAccountType: if sender is sending from a brand
+  // sub-account with this restriction, the recipient must have a matching
+  // sub-account of the same account type — and tokens go there automatically.
+  if (senderAccountTypeId) {
+    const senderRules = await getAccountTypeRules(senderAccountTypeId);
+    if (senderRules.p2pRestrictToSameAccountType) {
+      const recipientSubAccounts = await getUserSubAccounts(recipientId);
+      const matchingSub = recipientSubAccounts.find(
+        (sa) => sa.accountTypeId === senderAccountTypeId && sa.isActive
+      );
+      if (!matchingSub) {
+        return {
+          success: false,
+          error: "Recipient does not have a matching brand wallet for this transfer",
+          errorCode: "RECIPIENT_MISSING_MATCHING_ACCOUNT",
+        };
+      }
+      finalRecipientSubAccountId = matchingSub.id;
+    }
+  }
 
   const entries = createTransferEntries(
     AccountId.user(senderId),

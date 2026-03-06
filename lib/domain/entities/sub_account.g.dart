@@ -19,6 +19,16 @@ _$SubAccountImpl _$$SubAccountImplFromJson(Map<String, dynamic> json) =>
       isDefault: json['isDefault'] as bool,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
+      allowP2pSend: json['allowP2pSend'] as bool? ?? true,
+      allowP2pReceive: json['allowP2pReceive'] as bool? ?? true,
+      allowCashout: json['allowCashout'] as bool? ?? true,
+      p2pRestrictToSameAccountType:
+          json['p2pRestrictToSameAccountType'] as bool? ?? false,
+      allowedOfframps:
+          (json['allowedOfframps'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const ["*"],
     );
 
 Map<String, dynamic> _$$SubAccountImplToJson(_$SubAccountImpl instance) =>
@@ -34,4 +44,9 @@ Map<String, dynamic> _$$SubAccountImplToJson(_$SubAccountImpl instance) =>
       'isDefault': instance.isDefault,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
+      'allowP2pSend': instance.allowP2pSend,
+      'allowP2pReceive': instance.allowP2pReceive,
+      'allowCashout': instance.allowCashout,
+      'p2pRestrictToSameAccountType': instance.p2pRestrictToSameAccountType,
+      'allowedOfframps': instance.allowedOfframps,
     };

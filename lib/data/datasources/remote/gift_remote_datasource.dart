@@ -77,7 +77,10 @@ class GiftRemoteDataSourceImpl implements GiftRemoteDataSource {
     String? conversationId,
     String? communityId,
   }) async {
-    _requireUserId();
+    // No _requireUserId() — the Cloud Function validates auth via
+    // requireAuth(request). The local check fails transiently when
+    // Firebase Auth hasn't refreshed the token yet, blocking the user
+    // with "Please sign in to continue" even though they're authenticated.
     try {
       final integrityToken = await _playIntegrity.getIntegrityToken();
       final callable = _functions.httpsCallable('sendGift');
@@ -107,7 +110,7 @@ class GiftRemoteDataSourceImpl implements GiftRemoteDataSource {
 
   @override
   Future<GiftModel> openGift(String giftId) async {
-    _requireUserId();
+    // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
       final callable = _functions.httpsCallable('openGift');
       final result = await callable.call<Map<String, dynamic>>({
@@ -126,7 +129,7 @@ class GiftRemoteDataSourceImpl implements GiftRemoteDataSource {
 
   @override
   Future<GiftModel> claimGift(String giftId) async {
-    _requireUserId();
+    // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
       final integrityToken = await _playIntegrity.getIntegrityToken();
       final callable = _functions.httpsCallable('claimGift');

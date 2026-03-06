@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/value_objects/user_search_result.dart';
 import '../../blocs/user_search/user_search_bloc.dart';
+import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
@@ -20,6 +21,18 @@ class WalletSendScreen extends StatefulWidget {
 
 class _WalletSendScreenState extends State<WalletSendScreen> {
   final TextEditingController _searchController = TextEditingController();
+
+  /// Returns the accountTypeId to filter contacts by, if the sub-account
+  /// has p2pRestrictToSameAccountType enabled.
+  String? get _filterAccountTypeId {
+    if (widget.subAccountId == null) return null;
+    final walletState = context.read<WalletBloc>().state;
+    final sa = walletState.subAccounts
+        .where((s) => s.id == widget.subAccountId)
+        .firstOrNull;
+    if (sa == null || !sa.p2pRestrictToSameAccountType) return null;
+    return sa.accountTypeId;
+  }
 
   @override
   void initState() {
@@ -46,9 +59,12 @@ class _WalletSendScreenState extends State<WalletSendScreen> {
               child: TextField(
                 controller: _searchController,
                 onChanged: (query) {
-                  context
-                      .read<UserSearchBloc>()
-                      .add(UserSearchEvent.searchUsers(query));
+                  context.read<UserSearchBloc>().add(
+                        UserSearchEvent.searchUsers(
+                          query,
+                          accountTypeId: _filterAccountTypeId,
+                        ),
+                      );
                 },
                 decoration: InputDecoration(
                   hintText: 'Search by name...',

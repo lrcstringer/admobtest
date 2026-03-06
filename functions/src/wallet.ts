@@ -18,6 +18,7 @@ import {
   LedgerConfig,
   getSubAccount,
   getUserSubAccounts,
+  getAccountTypeRules,
   creditSubAccount,
   debitSubAccount,
   transferBetweenSubAccounts,
@@ -274,6 +275,7 @@ export const failCashoutRequest = onCall({ labels: { area: "wallet" } }, async (
 /**
  * Get all sub-accounts (wallets) for the current user.
  * Returns only user-created and brand sub-accounts (no default auto-creation).
+ * Each sub-account is enriched with P2P rule flags for the client UI.
  */
 export const getSubAccounts = onCall({ labels: { area: "wallet" } }, async (request) => {
   if (!request.auth) {
@@ -283,9 +285,28 @@ export const getSubAccounts = onCall({ labels: { area: "wallet" } }, async (requ
 
   const userId = request.auth.uid;
 
-  // Return all active sub-accounts (user-created + brand)
   const subAccounts = await getUserSubAccounts(userId);
-  return subAccounts;
+
+  // Enrich each sub-account with P2P rule flags for the client wallet picker
+  const enriched = await Promise.all(
+    subAccounts.map(async (sa) => {
+      if (!sa.accountTypeId) {
+        // Unrestricted (user-created) — default permissive rules
+        return { ...sa, allowP2pSend: true, allowP2pReceive: true, allowCashout: true, p2pRestrictToSameAccountType: false, allowedOfframps: ["*"] };
+      }
+      const rules = await getAccountTypeRules(sa.accountTypeId);
+      return {
+        ...sa,
+        allowP2pSend: rules.allowP2pSend,
+        allowP2pReceive: rules.allowP2pReceive,
+        allowCashout: rules.allowCashout,
+        p2pRestrictToSameAccountType: rules.p2pRestrictToSameAccountType ?? false,
+        allowedOfframps: rules.allowedOfframps,
+      };
+    })
+  );
+
+  return enriched;
 });
 
 /**

@@ -340,8 +340,9 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       );
     }
 
-    // Messages are newest-first from the API; reverse for the reversed ListView
-    final messages = state.messages.reversed.toList();
+    // Messages are newest-first from the DB. With reverse:true, index 0
+    // renders at the bottom — so newest messages appear at the bottom (WhatsApp style).
+    final messages = state.messages;
 
     return ListView.builder(
       controller: _scrollController,

@@ -53,6 +53,7 @@ mixin _$ConversationEvent {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -60,6 +61,7 @@ mixin _$ConversationEvent {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -67,6 +69,7 @@ mixin _$ConversationEvent {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -124,6 +127,7 @@ mixin _$ConversationEvent {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -131,6 +135,7 @@ mixin _$ConversationEvent {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -138,6 +143,7 @@ mixin _$ConversationEvent {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -193,6 +199,7 @@ mixin _$ConversationEvent {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -200,6 +207,7 @@ mixin _$ConversationEvent {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -207,6 +215,7 @@ mixin _$ConversationEvent {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -417,6 +426,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -424,6 +434,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -431,6 +442,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -492,6 +504,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -499,6 +512,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -506,6 +520,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -565,6 +580,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -572,6 +588,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -579,6 +596,7 @@ class _$WatchConversationsImpl implements _WatchConversations {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -834,6 +852,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -841,6 +860,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -848,6 +868,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -909,6 +930,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -916,6 +938,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -923,6 +946,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -982,6 +1006,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -989,6 +1014,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -996,6 +1022,7 @@ class _$ConversationsUpdatedImpl implements _ConversationsUpdated {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -1247,6 +1274,7 @@ class _$SelectConversationImpl implements _SelectConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -1254,6 +1282,7 @@ class _$SelectConversationImpl implements _SelectConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -1261,6 +1290,7 @@ class _$SelectConversationImpl implements _SelectConversation {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -1322,6 +1352,7 @@ class _$SelectConversationImpl implements _SelectConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -1329,6 +1360,7 @@ class _$SelectConversationImpl implements _SelectConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -1336,6 +1368,7 @@ class _$SelectConversationImpl implements _SelectConversation {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -1395,6 +1428,7 @@ class _$SelectConversationImpl implements _SelectConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -1402,6 +1436,7 @@ class _$SelectConversationImpl implements _SelectConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -1409,6 +1444,7 @@ class _$SelectConversationImpl implements _SelectConversation {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -1660,6 +1696,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -1667,6 +1704,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -1674,6 +1712,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -1735,6 +1774,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -1742,6 +1782,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -1749,6 +1790,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -1808,6 +1850,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -1815,6 +1858,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -1822,6 +1866,7 @@ class _$GetOrCreateConversationImpl implements _GetOrCreateConversation {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -2093,6 +2138,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -2100,6 +2146,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -2107,6 +2154,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -2168,6 +2216,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -2175,6 +2224,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -2182,6 +2232,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -2241,6 +2292,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -2248,6 +2300,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -2255,6 +2308,7 @@ class _$LoadMessagesImpl implements _LoadMessages {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -2518,6 +2572,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -2525,6 +2580,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -2532,6 +2588,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -2593,6 +2650,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -2600,6 +2658,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -2607,6 +2666,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -2666,6 +2726,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -2673,6 +2734,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -2680,6 +2742,7 @@ class _$MessagesUpdatedImpl implements _MessagesUpdated {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -2956,6 +3019,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -2963,6 +3027,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -2970,6 +3035,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -3031,6 +3097,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -3038,6 +3105,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -3045,6 +3113,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -3104,6 +3173,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -3111,6 +3181,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -3118,6 +3189,7 @@ class _$SendTextMessageImpl implements _SendTextMessage {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -3467,6 +3539,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -3474,6 +3547,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -3481,6 +3555,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -3551,6 +3626,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -3558,6 +3634,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -3565,6 +3642,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -3633,6 +3711,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -3640,6 +3719,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -3647,6 +3727,7 @@ class _$SendMediaMessageImpl implements _SendMediaMessage {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -3827,6 +3908,7 @@ abstract class _$$SendTokensImplCopyWith<$Res> {
     String recipientId,
     int amount,
     String? message,
+    String? subAccountId,
   });
 }
 
@@ -3848,6 +3930,7 @@ class __$$SendTokensImplCopyWithImpl<$Res>
     Object? recipientId = null,
     Object? amount = null,
     Object? message = freezed,
+    Object? subAccountId = freezed,
   }) {
     return _then(
       _$SendTokensImpl(
@@ -3867,6 +3950,10 @@ class __$$SendTokensImplCopyWithImpl<$Res>
             ? _value.message
             : message // ignore: cast_nullable_to_non_nullable
                   as String?,
+        subAccountId: freezed == subAccountId
+            ? _value.subAccountId
+            : subAccountId // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -3880,6 +3967,7 @@ class _$SendTokensImpl implements _SendTokens {
     required this.recipientId,
     required this.amount,
     this.message,
+    this.subAccountId,
   });
 
   @override
@@ -3890,10 +3978,12 @@ class _$SendTokensImpl implements _SendTokens {
   final int amount;
   @override
   final String? message;
+  @override
+  final String? subAccountId;
 
   @override
   String toString() {
-    return 'ConversationEvent.sendTokens(conversationId: $conversationId, recipientId: $recipientId, amount: $amount, message: $message)';
+    return 'ConversationEvent.sendTokens(conversationId: $conversationId, recipientId: $recipientId, amount: $amount, message: $message, subAccountId: $subAccountId)';
   }
 
   @override
@@ -3906,12 +3996,20 @@ class _$SendTokensImpl implements _SendTokens {
             (identical(other.recipientId, recipientId) ||
                 other.recipientId == recipientId) &&
             (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.message, message) || other.message == message));
+            (identical(other.message, message) || other.message == message) &&
+            (identical(other.subAccountId, subAccountId) ||
+                other.subAccountId == subAccountId));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, conversationId, recipientId, amount, message);
+  int get hashCode => Object.hash(
+    runtimeType,
+    conversationId,
+    recipientId,
+    amount,
+    message,
+    subAccountId,
+  );
 
   /// Create a copy of ConversationEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -3958,6 +4056,7 @@ class _$SendTokensImpl implements _SendTokens {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -3965,6 +4064,7 @@ class _$SendTokensImpl implements _SendTokens {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -3972,6 +4072,7 @@ class _$SendTokensImpl implements _SendTokens {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -3998,7 +4099,13 @@ class _$SendTokensImpl implements _SendTokens {
     forwardMessage,
     required TResult Function() clearError,
   }) {
-    return sendTokens(conversationId, recipientId, amount, message);
+    return sendTokens(
+      conversationId,
+      recipientId,
+      amount,
+      message,
+      subAccountId,
+    );
   }
 
   @override
@@ -4033,6 +4140,7 @@ class _$SendTokensImpl implements _SendTokens {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -4040,6 +4148,7 @@ class _$SendTokensImpl implements _SendTokens {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -4047,6 +4156,7 @@ class _$SendTokensImpl implements _SendTokens {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -4071,7 +4181,13 @@ class _$SendTokensImpl implements _SendTokens {
     forwardMessage,
     TResult? Function()? clearError,
   }) {
-    return sendTokens?.call(conversationId, recipientId, amount, message);
+    return sendTokens?.call(
+      conversationId,
+      recipientId,
+      amount,
+      message,
+      subAccountId,
+    );
   }
 
   @override
@@ -4106,6 +4222,7 @@ class _$SendTokensImpl implements _SendTokens {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -4113,6 +4230,7 @@ class _$SendTokensImpl implements _SendTokens {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -4120,6 +4238,7 @@ class _$SendTokensImpl implements _SendTokens {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -4146,7 +4265,13 @@ class _$SendTokensImpl implements _SendTokens {
     required TResult orElse(),
   }) {
     if (sendTokens != null) {
-      return sendTokens(conversationId, recipientId, amount, message);
+      return sendTokens(
+        conversationId,
+        recipientId,
+        amount,
+        message,
+        subAccountId,
+      );
     }
     return orElse();
   }
@@ -4257,12 +4382,14 @@ abstract class _SendTokens implements ConversationEvent {
     required final String recipientId,
     required final int amount,
     final String? message,
+    final String? subAccountId,
   }) = _$SendTokensImpl;
 
   String get conversationId;
   String get recipientId;
   int get amount;
   String? get message;
+  String? get subAccountId;
 
   /// Create a copy of ConversationEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -4283,6 +4410,7 @@ abstract class _$$RequestTokensImplCopyWith<$Res> {
     String recipientId,
     int amount,
     String? message,
+    String? subAccountId,
   });
 }
 
@@ -4304,6 +4432,7 @@ class __$$RequestTokensImplCopyWithImpl<$Res>
     Object? recipientId = null,
     Object? amount = null,
     Object? message = freezed,
+    Object? subAccountId = freezed,
   }) {
     return _then(
       _$RequestTokensImpl(
@@ -4323,6 +4452,10 @@ class __$$RequestTokensImplCopyWithImpl<$Res>
             ? _value.message
             : message // ignore: cast_nullable_to_non_nullable
                   as String?,
+        subAccountId: freezed == subAccountId
+            ? _value.subAccountId
+            : subAccountId // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -4336,6 +4469,7 @@ class _$RequestTokensImpl implements _RequestTokens {
     required this.recipientId,
     required this.amount,
     this.message,
+    this.subAccountId,
   });
 
   @override
@@ -4346,10 +4480,12 @@ class _$RequestTokensImpl implements _RequestTokens {
   final int amount;
   @override
   final String? message;
+  @override
+  final String? subAccountId;
 
   @override
   String toString() {
-    return 'ConversationEvent.requestTokens(conversationId: $conversationId, recipientId: $recipientId, amount: $amount, message: $message)';
+    return 'ConversationEvent.requestTokens(conversationId: $conversationId, recipientId: $recipientId, amount: $amount, message: $message, subAccountId: $subAccountId)';
   }
 
   @override
@@ -4362,12 +4498,20 @@ class _$RequestTokensImpl implements _RequestTokens {
             (identical(other.recipientId, recipientId) ||
                 other.recipientId == recipientId) &&
             (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.message, message) || other.message == message));
+            (identical(other.message, message) || other.message == message) &&
+            (identical(other.subAccountId, subAccountId) ||
+                other.subAccountId == subAccountId));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, conversationId, recipientId, amount, message);
+  int get hashCode => Object.hash(
+    runtimeType,
+    conversationId,
+    recipientId,
+    amount,
+    message,
+    subAccountId,
+  );
 
   /// Create a copy of ConversationEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -4414,6 +4558,7 @@ class _$RequestTokensImpl implements _RequestTokens {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -4421,6 +4566,7 @@ class _$RequestTokensImpl implements _RequestTokens {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -4428,6 +4574,7 @@ class _$RequestTokensImpl implements _RequestTokens {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -4454,7 +4601,13 @@ class _$RequestTokensImpl implements _RequestTokens {
     forwardMessage,
     required TResult Function() clearError,
   }) {
-    return requestTokens(conversationId, recipientId, amount, message);
+    return requestTokens(
+      conversationId,
+      recipientId,
+      amount,
+      message,
+      subAccountId,
+    );
   }
 
   @override
@@ -4489,6 +4642,7 @@ class _$RequestTokensImpl implements _RequestTokens {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -4496,6 +4650,7 @@ class _$RequestTokensImpl implements _RequestTokens {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -4503,6 +4658,7 @@ class _$RequestTokensImpl implements _RequestTokens {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -4527,7 +4683,13 @@ class _$RequestTokensImpl implements _RequestTokens {
     forwardMessage,
     TResult? Function()? clearError,
   }) {
-    return requestTokens?.call(conversationId, recipientId, amount, message);
+    return requestTokens?.call(
+      conversationId,
+      recipientId,
+      amount,
+      message,
+      subAccountId,
+    );
   }
 
   @override
@@ -4562,6 +4724,7 @@ class _$RequestTokensImpl implements _RequestTokens {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -4569,6 +4732,7 @@ class _$RequestTokensImpl implements _RequestTokens {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -4576,6 +4740,7 @@ class _$RequestTokensImpl implements _RequestTokens {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -4602,7 +4767,13 @@ class _$RequestTokensImpl implements _RequestTokens {
     required TResult orElse(),
   }) {
     if (requestTokens != null) {
-      return requestTokens(conversationId, recipientId, amount, message);
+      return requestTokens(
+        conversationId,
+        recipientId,
+        amount,
+        message,
+        subAccountId,
+      );
     }
     return orElse();
   }
@@ -4713,12 +4884,14 @@ abstract class _RequestTokens implements ConversationEvent {
     required final String recipientId,
     required final int amount,
     final String? message,
+    final String? subAccountId,
   }) = _$RequestTokensImpl;
 
   String get conversationId;
   String get recipientId;
   int get amount;
   String? get message;
+  String? get subAccountId;
 
   /// Create a copy of ConversationEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -4734,7 +4907,13 @@ abstract class _$$SendTokensToUserImplCopyWith<$Res> {
     $Res Function(_$SendTokensToUserImpl) then,
   ) = __$$SendTokensToUserImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({String recipientId, int amount, bool isSend, String? message});
+  $Res call({
+    String recipientId,
+    int amount,
+    bool isSend,
+    String? message,
+    String? subAccountId,
+  });
 }
 
 /// @nodoc
@@ -4755,6 +4934,7 @@ class __$$SendTokensToUserImplCopyWithImpl<$Res>
     Object? amount = null,
     Object? isSend = null,
     Object? message = freezed,
+    Object? subAccountId = freezed,
   }) {
     return _then(
       _$SendTokensToUserImpl(
@@ -4774,6 +4954,10 @@ class __$$SendTokensToUserImplCopyWithImpl<$Res>
             ? _value.message
             : message // ignore: cast_nullable_to_non_nullable
                   as String?,
+        subAccountId: freezed == subAccountId
+            ? _value.subAccountId
+            : subAccountId // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -4787,6 +4971,7 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
     required this.amount,
     required this.isSend,
     this.message,
+    this.subAccountId,
   });
 
   @override
@@ -4797,10 +4982,12 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
   final bool isSend;
   @override
   final String? message;
+  @override
+  final String? subAccountId;
 
   @override
   String toString() {
-    return 'ConversationEvent.sendTokensToUser(recipientId: $recipientId, amount: $amount, isSend: $isSend, message: $message)';
+    return 'ConversationEvent.sendTokensToUser(recipientId: $recipientId, amount: $amount, isSend: $isSend, message: $message, subAccountId: $subAccountId)';
   }
 
   @override
@@ -4812,12 +4999,20 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
                 other.recipientId == recipientId) &&
             (identical(other.amount, amount) || other.amount == amount) &&
             (identical(other.isSend, isSend) || other.isSend == isSend) &&
-            (identical(other.message, message) || other.message == message));
+            (identical(other.message, message) || other.message == message) &&
+            (identical(other.subAccountId, subAccountId) ||
+                other.subAccountId == subAccountId));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, recipientId, amount, isSend, message);
+  int get hashCode => Object.hash(
+    runtimeType,
+    recipientId,
+    amount,
+    isSend,
+    message,
+    subAccountId,
+  );
 
   /// Create a copy of ConversationEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -4867,6 +5062,7 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -4874,6 +5070,7 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -4881,6 +5078,7 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -4907,7 +5105,7 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
     forwardMessage,
     required TResult Function() clearError,
   }) {
-    return sendTokensToUser(recipientId, amount, isSend, message);
+    return sendTokensToUser(recipientId, amount, isSend, message, subAccountId);
   }
 
   @override
@@ -4942,6 +5140,7 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -4949,6 +5148,7 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -4956,6 +5156,7 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -4980,7 +5181,13 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
     forwardMessage,
     TResult? Function()? clearError,
   }) {
-    return sendTokensToUser?.call(recipientId, amount, isSend, message);
+    return sendTokensToUser?.call(
+      recipientId,
+      amount,
+      isSend,
+      message,
+      subAccountId,
+    );
   }
 
   @override
@@ -5015,6 +5222,7 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -5022,6 +5230,7 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -5029,6 +5238,7 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -5055,7 +5265,13 @@ class _$SendTokensToUserImpl implements _SendTokensToUser {
     required TResult orElse(),
   }) {
     if (sendTokensToUser != null) {
-      return sendTokensToUser(recipientId, amount, isSend, message);
+      return sendTokensToUser(
+        recipientId,
+        amount,
+        isSend,
+        message,
+        subAccountId,
+      );
     }
     return orElse();
   }
@@ -5166,12 +5382,14 @@ abstract class _SendTokensToUser implements ConversationEvent {
     required final int amount,
     required final bool isSend,
     final String? message,
+    final String? subAccountId,
   }) = _$SendTokensToUserImpl;
 
   String get recipientId;
   int get amount;
   bool get isSend;
   String? get message;
+  String? get subAccountId;
 
   /// Create a copy of ConversationEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -5299,6 +5517,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -5306,6 +5525,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -5313,6 +5533,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -5374,6 +5595,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -5381,6 +5603,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -5388,6 +5611,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -5447,6 +5671,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -5454,6 +5679,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -5461,6 +5687,7 @@ class _$AcceptTokenRequestImpl implements _AcceptTokenRequest {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -5727,6 +5954,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -5734,6 +5962,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -5741,6 +5970,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -5802,6 +6032,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -5809,6 +6040,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -5816,6 +6048,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -5875,6 +6108,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -5882,6 +6116,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -5889,6 +6124,7 @@ class _$DeclineTokenRequestImpl implements _DeclineTokenRequest {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -6144,6 +6380,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -6151,6 +6388,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -6158,6 +6396,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -6219,6 +6458,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -6226,6 +6466,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -6233,6 +6474,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -6292,6 +6534,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -6299,6 +6542,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -6306,6 +6550,7 @@ class _$AcceptConversationImpl implements _AcceptConversation {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -6557,6 +6802,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -6564,6 +6810,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -6571,6 +6818,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -6632,6 +6880,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -6639,6 +6888,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -6646,6 +6896,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -6705,6 +6956,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -6712,6 +6964,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -6719,6 +6972,7 @@ class _$UnreadCountUpdatedImpl implements _UnreadCountUpdated {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -6967,6 +7221,7 @@ class _$ClearChatImpl implements _ClearChat {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -6974,6 +7229,7 @@ class _$ClearChatImpl implements _ClearChat {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -6981,6 +7237,7 @@ class _$ClearChatImpl implements _ClearChat {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -7042,6 +7299,7 @@ class _$ClearChatImpl implements _ClearChat {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -7049,6 +7307,7 @@ class _$ClearChatImpl implements _ClearChat {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -7056,6 +7315,7 @@ class _$ClearChatImpl implements _ClearChat {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -7115,6 +7375,7 @@ class _$ClearChatImpl implements _ClearChat {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -7122,6 +7383,7 @@ class _$ClearChatImpl implements _ClearChat {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -7129,6 +7391,7 @@ class _$ClearChatImpl implements _ClearChat {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -7388,6 +7651,7 @@ class _$RetryMessageImpl implements _RetryMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -7395,6 +7659,7 @@ class _$RetryMessageImpl implements _RetryMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -7402,6 +7667,7 @@ class _$RetryMessageImpl implements _RetryMessage {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -7463,6 +7729,7 @@ class _$RetryMessageImpl implements _RetryMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -7470,6 +7737,7 @@ class _$RetryMessageImpl implements _RetryMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -7477,6 +7745,7 @@ class _$RetryMessageImpl implements _RetryMessage {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -7536,6 +7805,7 @@ class _$RetryMessageImpl implements _RetryMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -7543,6 +7813,7 @@ class _$RetryMessageImpl implements _RetryMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -7550,6 +7821,7 @@ class _$RetryMessageImpl implements _RetryMessage {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -7810,6 +8082,7 @@ class _$SetTypingImpl implements _SetTyping {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -7817,6 +8090,7 @@ class _$SetTypingImpl implements _SetTyping {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -7824,6 +8098,7 @@ class _$SetTypingImpl implements _SetTyping {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -7885,6 +8160,7 @@ class _$SetTypingImpl implements _SetTyping {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -7892,6 +8168,7 @@ class _$SetTypingImpl implements _SetTyping {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -7899,6 +8176,7 @@ class _$SetTypingImpl implements _SetTyping {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -7958,6 +8236,7 @@ class _$SetTypingImpl implements _SetTyping {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -7965,6 +8244,7 @@ class _$SetTypingImpl implements _SetTyping {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -7972,6 +8252,7 @@ class _$SetTypingImpl implements _SetTyping {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -8238,6 +8519,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -8245,6 +8527,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -8252,6 +8535,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -8313,6 +8597,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -8320,6 +8605,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -8327,6 +8613,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -8386,6 +8673,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -8393,6 +8681,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -8400,6 +8689,7 @@ class _$TypingStateUpdatedImpl implements _TypingStateUpdated {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -8662,6 +8952,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -8669,6 +8960,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -8676,6 +8968,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -8737,6 +9030,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -8744,6 +9038,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -8751,6 +9046,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -8810,6 +9106,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -8817,6 +9114,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -8824,6 +9122,7 @@ class _$SearchMessagesImpl implements _SearchMessages {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -9048,6 +9347,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -9055,6 +9355,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -9062,6 +9363,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -9123,6 +9425,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -9130,6 +9433,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -9137,6 +9441,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -9196,6 +9501,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -9203,6 +9509,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -9210,6 +9517,7 @@ class _$ClearMessageSearchImpl implements _ClearMessageSearch {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -9464,6 +9772,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -9471,6 +9780,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -9478,6 +9788,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -9539,6 +9850,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -9546,6 +9858,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -9553,6 +9866,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -9612,6 +9926,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -9619,6 +9934,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -9626,6 +9942,7 @@ class _$SetDisappearingMessagesImpl implements _SetDisappearingMessages {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -9914,6 +10231,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -9921,6 +10239,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -9928,6 +10247,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -9993,6 +10313,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -10000,6 +10321,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -10007,6 +10329,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -10070,6 +10393,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -10077,6 +10401,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -10084,6 +10409,7 @@ class _$ForwardMessageImpl implements _ForwardMessage {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?
@@ -10314,6 +10640,7 @@ class _$ClearErrorImpl implements _ClearError {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     sendTokens,
     required TResult Function(
@@ -10321,6 +10648,7 @@ class _$ClearErrorImpl implements _ClearError {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )
     requestTokens,
     required TResult Function(
@@ -10328,6 +10656,7 @@ class _$ClearErrorImpl implements _ClearError {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )
     sendTokensToUser,
     required TResult Function(String messageId, String conversationId)
@@ -10389,6 +10718,7 @@ class _$ClearErrorImpl implements _ClearError {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult? Function(
@@ -10396,6 +10726,7 @@ class _$ClearErrorImpl implements _ClearError {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult? Function(
@@ -10403,6 +10734,7 @@ class _$ClearErrorImpl implements _ClearError {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult? Function(String messageId, String conversationId)?
@@ -10462,6 +10794,7 @@ class _$ClearErrorImpl implements _ClearError {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     sendTokens,
     TResult Function(
@@ -10469,6 +10802,7 @@ class _$ClearErrorImpl implements _ClearError {
       String recipientId,
       int amount,
       String? message,
+      String? subAccountId,
     )?
     requestTokens,
     TResult Function(
@@ -10476,6 +10810,7 @@ class _$ClearErrorImpl implements _ClearError {
       int amount,
       bool isSend,
       String? message,
+      String? subAccountId,
     )?
     sendTokensToUser,
     TResult Function(String messageId, String conversationId)?

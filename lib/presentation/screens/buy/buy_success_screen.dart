@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/purchase.dart';
 import '../../blocs/purchase/purchase_bloc.dart';
+import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
@@ -130,6 +131,11 @@ class BuySuccessScreen extends StatelessWidget {
                         _buildDetailRow(
                           'Tokens Used',
                           '${purchase.tokenAmount} tokens',
+                        ),
+                        const Divider(height: 24),
+                        _buildDetailRow(
+                          'Paid from',
+                          _resolveWalletName(context, purchase.walletId),
                         ),
                         if (purchase.reference != null) ...[
                           const Divider(height: 24),
@@ -305,6 +311,13 @@ class BuySuccessScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _resolveWalletName(BuildContext context, String walletId) {
+    if (walletId.isEmpty) return 'Main Wallet';
+    final subAccounts = context.read<WalletBloc>().state.subAccounts;
+    final match = subAccounts.where((sa) => sa.id == walletId).firstOrNull;
+    return match?.name ?? 'Main Wallet';
   }
 
   IconData _getVoucherIcon(PurchaseCategory category) {

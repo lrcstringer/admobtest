@@ -12,6 +12,9 @@ import {
   reverseJournal,
   creditSubAccount,
   validateMainWalletBalance,
+  getSubAccount,
+  validatePurchaseAllowed,
+  validateSubAccountBalance,
 } from "./ledger";
 
 const db = admin.firestore();
@@ -28,7 +31,7 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
   await requirePlayIntegrity(request.data, request, "processPurchase", "HIGH");
 
   const userId = request.auth.uid;
-  const { productId, recipientNumber } = request.data;
+  const { productId, recipientNumber, subAccountId } = request.data;
 
   if (!productId) {
     throw new HttpsError("invalid-argument", "Product ID is required");
@@ -56,13 +59,47 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
   const zarAmount = product.priceZar || 0;
   const purchaseCategory = provider.category || "airtime";
 
-  // Validate user balance (main ledger account IS the default wallet)
-  const mainCheck = await validateMainWalletBalance(userId, tokenAmount);
-  if (!mainCheck.sufficient) {
-    throw new HttpsError(
-      "failed-precondition",
-      `Insufficient balance: has ${mainCheck.available}, needs ${tokenAmount}`
-    );
+  // Validate balance — either sub-account or main wallet
+  let resolvedAccountTypeId: string | null = null;
+
+  if (subAccountId) {
+    // Sub-account purchase: validate sub-account, offramp rules, and balance
+    const subAccount = await getSubAccount(userId, subAccountId);
+    if (!subAccount) {
+      throw new HttpsError("not-found", "Sub-account not found");
+    }
+    if (!subAccount.isActive) {
+      throw new HttpsError("failed-precondition", "Sub-account is inactive");
+    }
+
+    resolvedAccountTypeId = subAccount.accountTypeId || null;
+
+    // Enforce allowedOfframps restriction
+    const offrampCheck = await validatePurchaseAllowed(resolvedAccountTypeId, purchaseCategory);
+    if (!offrampCheck.allowed) {
+      throw new HttpsError(
+        "failed-precondition",
+        offrampCheck.reason || `This wallet cannot purchase ${purchaseCategory}`
+      );
+    }
+
+    // Validate sub-account balance
+    const balanceCheck = await validateSubAccountBalance(userId, subAccountId, tokenAmount);
+    if (!balanceCheck.allowed) {
+      throw new HttpsError(
+        "failed-precondition",
+        balanceCheck.reason || `Insufficient sub-account balance`
+      );
+    }
+  } else {
+    // Main wallet purchase
+    const mainCheck = await validateMainWalletBalance(userId, tokenAmount);
+    if (!mainCheck.sufficient) {
+      throw new HttpsError(
+        "failed-precondition",
+        `Insufficient balance: has ${mainCheck.available}, needs ${tokenAmount}`
+      );
+    }
   }
 
   // Create purchase document first
@@ -82,7 +119,7 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
       tokenAmount,
       zarAmount,
       recipientNumber,
-      subAccountId: null,
+      subAccountId: subAccountId || null,
       status: "processing",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       processedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -95,8 +132,8 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
       provider.name,
       tokenAmount,
       purchaseRef.id,
-      undefined, // main wallet — no sub-account needed
-      null, // no account type
+      subAccountId || undefined,
+      resolvedAccountTypeId,
       {
         productId,
         productName: product.name,
@@ -148,6 +185,7 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
         tokenAmount,
         zarAmount,
         recipientNumber,
+        subAccountId: subAccountId || null,
         status: "completed",
         voucherCode: result.voucherCode || null,
         voucherPin: result.voucherPin || null,

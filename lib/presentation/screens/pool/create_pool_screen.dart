@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/injection.dart';
+import '../../../core/security/play_integrity_service.dart';
 import '../../../domain/enums/gift_style.dart';
 import '../../../domain/enums/pool_mode.dart';
 import '../../blocs/token_pool/token_pool_bloc.dart';
@@ -46,6 +48,8 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
   void initState() {
     super.initState();
     _mode = widget.initialMode;
+    // Pre-fetch Play Integrity token in background while user fills form.
+    getIt<PlayIntegrityService>().warmUp();
     // Clear stale activePool so the BlocListener doesn't
     // immediately fire from a previous pool's state.
     context.read<TokenPoolBloc>().add(const TokenPoolEvent.reset());

@@ -471,6 +471,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       recipientId: event.recipientId,
       amount: event.amount,
       message: event.message,
+      subAccountId: event.subAccountId,
     );
 
     result.fold(
@@ -493,6 +494,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       recipientId: event.recipientId,
       amount: event.amount,
       message: event.message,
+      subAccountId: event.subAccountId,
     );
 
     result.fold(
@@ -534,6 +536,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
         recipientId: event.recipientId,
         amount: event.amount,
         message: event.message,
+        subAccountId: event.subAccountId,
       );
       result.fold(
         (failure) => emit(state.copyWith(
@@ -548,6 +551,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
         recipientId: event.recipientId,
         amount: event.amount,
         message: event.message,
+        subAccountId: event.subAccountId,
       );
       result.fold(
         (failure) => emit(state.copyWith(

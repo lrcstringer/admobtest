@@ -148,6 +148,11 @@ export async function getOrCreateBrandSubAccount(
 
   await subAccountRef.set(subAccount);
 
+  // Denormalize: add accountTypeId to user doc for fast search filtering
+  await db.collection("users").doc(userId).update({
+    activeAccountTypeIds: admin.firestore.FieldValue.arrayUnion([accountTypeId]),
+  });
+
   logger.info(`Created brand sub-account for user ${userId}: ${subAccountRef.id} (${accountTypeId})`);
 
   return { subAccountId: subAccountRef.id, isNew: true };
@@ -185,6 +190,7 @@ function getDefaultAccountTypeRules(): AccountTypeRules {
     allowP2pReceive: true,
     allowCashout: true,
     expiryDays: null, // Never expires
+    p2pRestrictToSameAccountType: false,
   };
 }
 
@@ -572,6 +578,25 @@ export async function deactivateSubAccount(
       isActive: false,
       updatedAt: admin.firestore.Timestamp.now(),
     });
+
+  // Denormalize: remove accountTypeId from user doc if no other active sub-accounts of same type
+  const accountTypeId = subAccount.accountTypeId;
+  if (accountTypeId) {
+    const remaining = await db
+      .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
+      .doc(AccountId.user(userId))
+      .collection(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS)
+      .where("accountTypeId", "==", accountTypeId)
+      .where("isActive", "==", true)
+      .limit(1)
+      .get();
+
+    if (remaining.empty) {
+      await db.collection("users").doc(userId).update({
+        activeAccountTypeIds: admin.firestore.FieldValue.arrayRemove([accountTypeId]),
+      });
+    }
+  }
 }
 
 /**
@@ -596,6 +621,11 @@ export async function deleteAllSubAccounts(userId: string): Promise<void> {
     .collection(SubAccountConfig.COLLECTION_LEDGER_ACCOUNTS)
     .doc(AccountId.user(userId))
     .delete();
+
+  // Denormalize: clear activeAccountTypeIds from user doc
+  await db.collection("users").doc(userId).update({
+    activeAccountTypeIds: admin.firestore.FieldValue.delete(),
+  });
 
   logger.info(`Deleted all sub-accounts for user ${userId}`);
 }
@@ -640,13 +670,94 @@ export async function createAccountType(
 }
 
 /**
- * List all active account types
+ * List account types. By default only active; pass includeInactive=true for all.
  */
-export async function listAccountTypes(): Promise<SubAccountTypeDefinition[]> {
-  const snapshot = await db
-    .collection(SubAccountConfig.COLLECTION_ACCOUNT_TYPES)
-    .where("isActive", "==", true)
-    .get();
+export async function listAccountTypes(
+  includeInactive = false
+): Promise<SubAccountTypeDefinition[]> {
+  let query: FirebaseFirestore.Query = db.collection(
+    SubAccountConfig.COLLECTION_ACCOUNT_TYPES
+  );
 
+  if (!includeInactive) {
+    query = query.where("isActive", "==", true);
+  }
+
+  const snapshot = await query.get();
   return snapshot.docs.map((doc) => doc.data() as SubAccountTypeDefinition);
+}
+
+/**
+ * Update an existing account type.
+ * Only updates provided fields; partial rules are merged into existing rules.
+ */
+export async function updateAccountType(
+  accountTypeId: string,
+  updates: {
+    name?: string;
+    description?: string;
+    iconUrl?: string | null;
+    rules?: Partial<AccountTypeRules>;
+    isActive?: boolean;
+  }
+): Promise<SubAccountTypeDefinition> {
+  const docRef = db
+    .collection(SubAccountConfig.COLLECTION_ACCOUNT_TYPES)
+    .doc(accountTypeId);
+
+  const doc = await docRef.get();
+  if (!doc.exists) {
+    throw new Error(
+      `${SubAccountErrorCodes.ACCOUNT_TYPE_NOT_FOUND}: ${accountTypeId}`
+    );
+  }
+
+  const existing = doc.data() as SubAccountTypeDefinition;
+
+  const payload: Record<string, unknown> = {};
+
+  if (updates.name !== undefined) payload.name = updates.name;
+  if (updates.description !== undefined)
+    payload.description = updates.description;
+  if (updates.iconUrl !== undefined) payload.iconUrl = updates.iconUrl;
+  if (updates.isActive !== undefined) payload.isActive = updates.isActive;
+
+  if (updates.rules) {
+    const mergedRules: AccountTypeRules = {
+      ...existing.rules,
+      ...updates.rules,
+    };
+    payload.rules = mergedRules;
+    payload.isRestricted = !mergedRules.allowedOfframps.includes("*");
+  }
+
+  if (Object.keys(payload).length === 0) {
+    return existing;
+  }
+
+  await docRef.update(payload);
+
+  const updatedDoc = await docRef.get();
+  return updatedDoc.data() as SubAccountTypeDefinition;
+}
+
+/**
+ * Deactivate an account type (soft delete).
+ * Existing sub-accounts continue to work — rules are read by doc ID regardless of isActive.
+ */
+export async function deactivateAccountType(
+  accountTypeId: string
+): Promise<void> {
+  const docRef = db
+    .collection(SubAccountConfig.COLLECTION_ACCOUNT_TYPES)
+    .doc(accountTypeId);
+
+  const doc = await docRef.get();
+  if (!doc.exists) {
+    throw new Error(
+      `${SubAccountErrorCodes.ACCOUNT_TYPE_NOT_FOUND}: ${accountTypeId}`
+    );
+  }
+
+  await docRef.update({ isActive: false });
 }

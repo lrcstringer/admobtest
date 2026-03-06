@@ -522,6 +522,9 @@ class MessageBubble extends StatelessWidget {
       case MessageStatus.declined:
         icon = Icons.cancel_outlined;
         color = AppColors.error;
+      case MessageStatus.expired:
+        icon = Icons.timer_off;
+        color = AppColors.textHint;
     }
 
     return Icon(icon, size: 14, color: color);
@@ -687,6 +690,7 @@ class MessageBubble extends StatelessWidget {
     final isRequest = message.type == MessageType.tokenRequest;
     final isPaid = message.status == MessageStatus.paid;
     final isDeclined = message.status == MessageStatus.declined;
+    final isExpired = message.status == MessageStatus.expired;
     final canAction = isRequest &&
         message.recipientId == currentUserId &&
         message.status == MessageStatus.pending;
@@ -711,6 +715,10 @@ class MessageBubble extends StatelessWidget {
         label = name.isNotEmpty
             ? 'Request to $name declined'
             : 'Request declined';
+      } else if (isExpired) {
+        label = name.isNotEmpty
+            ? 'Request to $name expired'
+            : 'Request expired';
       } else {
         label = name.isNotEmpty
             ? 'You requested from $name'
@@ -726,17 +734,23 @@ class MessageBubble extends StatelessWidget {
         label = name.isNotEmpty
             ? 'Request from $name declined'
             : 'Request declined';
+      } else if (isExpired) {
+        label = name.isNotEmpty
+            ? 'Request from $name expired'
+            : 'Request expired';
       } else {
         label = name.isNotEmpty ? 'Request from $name' : 'Request from';
       }
     }
 
-    // Color reflects outcome: green for paid, red for declined, accent for pending
+    // Color reflects outcome: green for paid, red for declined, grey for expired, accent for pending
     final Color accentColor;
     if (isSend || isPaid) {
       accentColor = AppColors.success;
     } else if (isDeclined) {
       accentColor = AppColors.error;
+    } else if (isExpired) {
+      accentColor = AppColors.textHint;
     } else {
       accentColor = AppColors.accent;
     }

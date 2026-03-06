@@ -46,8 +46,13 @@ abstract class ConversationRepository {
   /// Get a single conversation by ID
   Future<Either<Failure, Conversation>> getConversationById(String id);
 
-  /// Search for users by display name or username
-  Future<Either<Failure, List<UserSearchResult>>> searchUsers(String query);
+  /// Search for users by display name or username.
+  /// When [accountTypeId] is provided, only returns users who have an active
+  /// brand sub-account of the matching type (for P2P restriction filtering).
+  Future<Either<Failure, List<UserSearchResult>>> searchUsers(
+    String query, {
+    String? accountTypeId,
+  });
 
   // =========================================================================
   // MESSAGES
@@ -102,6 +107,7 @@ abstract class ConversationRepository {
     required String recipientId,
     required int amount,
     String? message,
+    String? subAccountId,
   });
 
   /// Request tokens from another user in a conversation
@@ -110,6 +116,7 @@ abstract class ConversationRepository {
     required String recipientId,
     required int amount,
     String? message,
+    String? subAccountId,
   });
 
   /// Accept an incoming token request

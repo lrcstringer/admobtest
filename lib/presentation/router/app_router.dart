@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/di/injection.dart';
 import '../../domain/enums/pool_mode.dart';
 import '../blocs/auth/auth_bloc.dart';
 
@@ -1147,13 +1149,22 @@ class AppRouter {
         return isOnSessionLock ? null : '/auth/session-lock';
       }
 
-      // If authenticated and on auth/onboarding pages, go to home
+      // If authenticated and on auth/onboarding pages, go to the last active
+      // tab (or home by default). This restores the correct tab after Android
+      // process death instead of always landing on Home.
       // Exceptions: step-up OTP and onboarding success (shown before redirect)
       final isOnOnboardingSuccess = currentPath == '/onboarding/success';
       if (isAuthenticated &&
           !isOnStepUpOtp &&
           !isOnOnboardingSuccess &&
           (isOnAuth || isOnOnboarding || isOnSplash)) {
+        final savedTab = getIt<SharedPreferences>()
+            .getInt(MainShell.lastTabKey);
+        if (savedTab != null &&
+            savedTab >= 0 &&
+            savedTab < MainShell.tabPaths.length) {
+          return MainShell.tabPaths[savedTab];
+        }
         return '/home';
       }
 

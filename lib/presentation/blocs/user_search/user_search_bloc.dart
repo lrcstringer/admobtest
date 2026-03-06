@@ -34,7 +34,10 @@ class UserSearchBloc extends Bloc<UserSearchEvent, UserSearchState> {
 
     emit(state.copyWith(isSearching: true));
 
-    final result = await _conversationRepository.searchUsers(event.query);
+    final result = await _conversationRepository.searchUsers(
+      event.query,
+      accountTypeId: event.accountTypeId,
+    );
     result.fold(
       (failure) => emit(state.copyWith(
         isSearching: false,

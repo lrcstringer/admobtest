@@ -39,7 +39,7 @@ class PurchaseModel with _$PurchaseModel {
 
     return PurchaseModel(
       id: json['id'] as String,
-      walletId: json['walletId'] as String,
+      walletId: (json['subAccountId'] ?? json['walletId'] ?? '') as String,
       userId: json['userId'] as String,
       providerId: json['providerId'] as String,
       providerName: json['providerName'] as String,

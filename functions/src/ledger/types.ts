@@ -561,6 +561,7 @@ export interface AccountTypeRules {
   allowP2pReceive: boolean;
   allowCashout: boolean;
   expiryDays: number | null; // Days until unused balance expires
+  p2pRestrictToSameAccountType: boolean; // When true, P2P only allowed with recipients who have the same account type
 }
 
 /**

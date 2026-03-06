@@ -81,7 +81,7 @@ class TokenSprayRemoteDataSourceImpl implements TokenSprayRemoteDataSource {
     required String message,
     int? targetAmount,
   }) async {
-    _requireUserId();
+    // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
       final callable = _functions.httpsCallable('createTokenSpray');
       final result = await callable.call<Map<String, dynamic>>({
@@ -112,7 +112,7 @@ class TokenSprayRemoteDataSourceImpl implements TokenSprayRemoteDataSource {
     required int amount,
     String? message,
   }) async {
-    _requireUserId();
+    // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
       final integrityToken = await _playIntegrity.getIntegrityToken();
       final callable = _functions.httpsCallable('contributeToSpray');
@@ -139,7 +139,7 @@ class TokenSprayRemoteDataSourceImpl implements TokenSprayRemoteDataSource {
 
   @override
   Future<TokenSprayModel> closeSpray(String sprayId) async {
-    _requireUserId();
+    // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
       final callable = _functions.httpsCallable('closeTokenSpray');
       final result = await callable.call<Map<String, dynamic>>({

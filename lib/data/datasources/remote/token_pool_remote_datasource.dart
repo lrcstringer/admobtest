@@ -89,7 +89,7 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
     required List<String> inviteeIds,
     String? communityId,
   }) async {
-    _requireUserId();
+    // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
       final callable = _functions.httpsCallable('createTokenPool');
       final result = await callable.call<Map<String, dynamic>>({
@@ -120,7 +120,7 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
     required int amount,
     required bool anonymous,
   }) async {
-    _requireUserId();
+    // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
       final callable = _functions.httpsCallable('contributeToPool');
       final result = await callable.call<Map<String, dynamic>>({
@@ -142,7 +142,7 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
 
   @override
   Future<TokenPoolModel> sendGroupGift(String poolId) async {
-    _requireUserId();
+    // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
       final callable = _functions.httpsCallable('sendGroupGift');
       final result = await callable.call<Map<String, dynamic>>({
@@ -165,7 +165,7 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
     required String poolId,
     required List<Map<String, dynamic>> payouts,
   }) async {
-    _requireUserId();
+    // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
       final callable = _functions.httpsCallable('distributePool');
       final result = await callable.call<Map<String, dynamic>>({
@@ -186,7 +186,7 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
 
   @override
   Future<TokenPoolModel> cancelPool(String poolId) async {
-    _requireUserId();
+    // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
       final callable = _functions.httpsCallable('cancelPool');
       final result = await callable.call<Map<String, dynamic>>({
@@ -210,7 +210,7 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
 
   @override
   Future<TokenPoolModel> openGroupGift(String poolId) async {
-    _requireUserId();
+    // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
       final callable = _functions.httpsCallable('openGroupGift');
       final result = await callable.call<Map<String, dynamic>>({
@@ -230,7 +230,7 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
 
   @override
   Future<TokenPoolModel> claimGroupGift(String poolId) async {
-    _requireUserId();
+    // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
       final callable = _functions.httpsCallable('claimGroupGift');
       final result = await callable.call<Map<String, dynamic>>({

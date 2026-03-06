@@ -187,6 +187,7 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
     final result = await _purchaseRepository.makePurchase(
       productId: state.selectedProduct!.id,
       recipientNumber: state.recipientNumber!,
+      subAccountId: event.subAccountId,
     );
 
     result.fold(

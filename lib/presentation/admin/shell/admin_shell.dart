@@ -16,6 +16,7 @@ const routeRoles = <String, List<String>>{
   '/accounts-actions': ['superAdmin', 'financeAdmin', 'platformAdmin'],
   '/suppliers': ['superAdmin', 'financeAdmin'],
   '/clients': ['superAdmin', 'financeAdmin', 'campaignAdmin', 'auditor'],
+  '/account-types': ['superAdmin', 'financeAdmin', 'campaignAdmin', 'auditor'],
   '/earn': ['superAdmin', 'campaignAdmin'],
   '/upload-reviews': ['superAdmin', 'campaignAdmin'],
   '/rewards': ['superAdmin', 'campaignAdmin', 'auditor'],
@@ -182,6 +183,7 @@ class _AdminSidebar extends StatelessWidget {
                       '/accounts-actions',
                       '/suppliers',
                       '/clients',
+                      '/account-types',
                     ]))
                       const _SectionHeader('ACCOUNT MANAGEMENT'),
                     if (isRouteAllowed('/accounts', roles))
@@ -223,6 +225,14 @@ class _AdminSidebar extends StatelessWidget {
                         label: 'Clients (Brands)',
                         path: '/clients',
                         isSelected: currentPath == '/clients',
+                      ),
+                    if (isRouteAllowed('/account-types', roles))
+                      _NavItem(
+                        icon: Icons.rule_outlined,
+                        selectedIcon: Icons.rule,
+                        label: 'Account Types',
+                        path: '/account-types',
+                        isSelected: currentPath == '/account-types',
                       ),
 
                     // ── EARN MANAGEMENT ──

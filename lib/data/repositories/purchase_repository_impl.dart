@@ -73,11 +73,13 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
   Future<Either<Failure, Purchase>> makePurchase({
     required String productId,
     required String recipientNumber,
+    String? subAccountId,
   }) async {
     try {
       final model = await _remoteDataSource.makePurchase(
         productId: productId,
         recipientNumber: recipientNumber,
+        subAccountId: subAccountId,
       );
       return Right(model.toEntity());
     } catch (e) {

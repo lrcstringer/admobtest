@@ -29,6 +29,7 @@ abstract class PurchaseRemoteDataSource {
   Future<PurchaseModel> makePurchase({
     required String productId,
     required String recipientNumber,
+    String? subAccountId,
   });
 
   /// Get purchase history
@@ -154,6 +155,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
   Future<PurchaseModel> makePurchase({
     required String productId,
     required String recipientNumber,
+    String? subAccountId,
   }) async {
     try {
       // Get Play Integrity token for this sensitive operation
@@ -164,6 +166,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
       final result = await callable.call<Map<String, dynamic>>({
         'productId': productId,
         'recipientNumber': recipientNumber,
+        if (subAccountId != null) 'subAccountId': subAccountId,
         if (integrityToken != null) 'integrityToken': integrityToken,
         if (integrityToken != null) 'integrityNonce': nonce,
       });

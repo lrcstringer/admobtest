@@ -219,6 +219,7 @@ export const createEarnThread = onCall({ labels: { area: "earn" } }, async (requ
       allowP2pReceive: rules.allowP2pReceive !== false,
       allowCashout: rules.allowCashout !== false,
       expiryDays: typeof rules.expiryDays === "number" ? rules.expiryDays : null,
+      p2pRestrictToSameAccountType: rules.p2pRestrictToSameAccountType === true,
     };
 
     await createAccountType(
