@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import 'igogo_tab.dart';
+import 'istokvel_tab.dart';
 
 /// Save screen with iGoGo and iStokvel tabs — placeholder for now.
 class SaveScreen extends StatefulWidget {
@@ -84,23 +85,8 @@ class _SaveScreenState extends State<SaveScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          Image.asset(
-            'assets/images/igogo.png',
-            fit: BoxFit.contain,
-            width: double.infinity,
-            height: double.infinity,
-          ),
-          WaveBackground(
-            child: Center(
-              child: FractionallySizedBox(
-                widthFactor: 0.9,
-                child: Image.asset(
-                  'assets/images/dragons.jpg',
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-          ),
+          const IGoGoTab(),
+          const IStokvelTab(),
         ],
       ),
     );

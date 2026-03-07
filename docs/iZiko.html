@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<!-- saved from url=(0067)file:///C:/Users/lance/OneDrive/Desktop/iMaliChat/iziko-screen.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iZiko</title>
+<link href="./iZiko_files/css2" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --gold-dim: #7a6430;
+    --green: #1B5E20;
+    --green-bright: #2E7D32;
+    --green-light: #4CAF50;
+    --ember: #E65100;
+    --ember-light: #FF8A50;
+    --ember-dim: rgba(230,81,0,0.15);
+    --white: #F5F0E8;
+    --white-dim: rgba(245,240,232,0.55);
+    --white-faint: rgba(245,240,232,0.12);
+    --card-bg: rgba(255,255,255,0.04);
+    --card-border: rgba(201,168,76,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .screen {
+    width: 390px;
+    min-height: 780px;
+    background: var(--black);
+    position: relative;
+    padding: 48px 28px 40px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Atmospheric glows */
+  .bg-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .bg-glow-ember {
+    width: 280px; height: 280px;
+    background: rgba(230,81,0,0.10);
+    top: -60px; left: -60px;
+  }
+  .bg-glow-gold {
+    width: 240px; height: 240px;
+    background: rgba(201,168,76,0.09);
+    top: 100px; right: -80px;
+  }
+  .bg-glow-green {
+    width: 300px; height: 300px;
+    background: rgba(46,125,50,0.08);
+    bottom: -60px; right: -60px;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .logo span.i { color: var(--white-dim); font-weight: 300; }
+  .logo span.zi { color: var(--ember-light); }
+  .logo span.ko { color: var(--gold); }
+
+  .members-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(230,81,0,0.12);
+    border: 1px solid rgba(230,81,0,0.25);
+    border-radius: 20px;
+    padding: 6px 12px;
+    margin-top: 4px;
+  }
+  .members-icon { font-size: 13px; }
+  .members-num {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ember-light);
+    letter-spacing: 0.3px;
+  }
+
+  /* Group identity */
+  .group-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .group-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white-dim);
+  }
+  .group-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.2;
+  }
+  .group-since {
+    font-size: 12px;
+    color: var(--white-dim);
+    margin-top: 2px;
+  }
+  .group-since strong { color: var(--ember-light); font-weight: 500; }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(230,81,0,0.3), rgba(201,168,76,0.3), transparent);
+  }
+
+  /* Pot card — the centrepiece */
+  .pot-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pot-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--ember), var(--gold), var(--ember-light));
+  }
+
+  /* Hearth flame visual */
+  .hearth {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .flame-wrap {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .flame-glow {
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(230,81,0,0.25) 0%, transparent 70%);
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  .flame-emoji { font-size: 32px; position: relative; z-index: 1; }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+
+  .pot-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .pot-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--gold-light);
+    text-align: center;
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: -1px;
+  }
+
+  .pot-sub {
+    font-size: 12px;
+    color: var(--white-dim);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .pot-sub strong { color: var(--white); font-weight: 500; }
+
+  /* Pot stats row */
+  .pot-stats {
+    display: flex;
+    gap: 1px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .pot-stat {
+    flex: 1;
+    padding: 12px 8px;
+    background: rgba(255,255,255,0.02);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .pot-stat:not(:last-child) {
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .pot-stat-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+  }
+  .pot-stat-label {
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    text-align: center;
+  }
+
+  /* My turn card */
+  .turn-card {
+    background: linear-gradient(135deg, rgba(230,81,0,0.12), rgba(201,168,76,0.08));
+    border: 1px solid rgba(230,81,0,0.25);
+    border-radius: 20px;
+    padding: 20px 22px;
+  }
+
+  .turn-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .turn-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white-dim);
+  }
+  .turn-position {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ember-light);
+    background: rgba(230,81,0,0.15);
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(230,81,0,0.2);
+  }
+
+  /* Rotation arc */
+  .rotation-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+
+  .rotation-track {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .rot-node {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .rot-node.done {
+    background: rgba(76,175,80,0.2);
+    border: 1px solid rgba(76,175,80,0.4);
+    color: var(--green-light);
+  }
+  .rot-node.next {
+    background: rgba(201,168,76,0.25);
+    border: 2px solid var(--gold-light);
+    color: var(--gold-light);
+    font-size: 8px;
+  }
+  .rot-node.mine {
+    background: linear-gradient(135deg, var(--ember), var(--gold-dim));
+    border: 2px solid var(--gold-light);
+    color: var(--black);
+    font-weight: 800;
+    font-size: 8px;
+    box-shadow: 0 0 12px rgba(230,81,0,0.4);
+  }
+  .rot-node.future {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--white-dim);
+  }
+
+  .rot-connector {
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+  }
+  .rot-connector.done-line {
+    background: rgba(76,175,80,0.3);
+  }
+
+  .turn-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .turn-detail-left {}
+  .turn-cycles {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--white);
+    font-family: 'Playfair Display', serif;
+    line-height: 1;
+  }
+  .turn-cycles span {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--white-dim);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .turn-date {
+    font-size: 12px;
+    color: var(--ember-light);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+  .turn-payout {
+    text-align: right;
+  }
+  .turn-payout-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    margin-bottom: 2px;
+  }
+  .turn-payout-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold-light);
+    font-family: 'Playfair Display', serif;
+  }
+
+  /* My contribution status */
+  .contrib-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 18px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .contrib-left {}
+  .contrib-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    margin-bottom: 4px;
+  }
+  .contrib-amount {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--white);
+    font-family: 'Playfair Display', serif;
+  }
+  .contrib-due {
+    font-size: 12px;
+    color: var(--white-dim);
+    margin-top: 2px;
+  }
+  .contrib-due strong { color: var(--gold-light); font-weight: 500; }
+
+  .contrib-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .status-paid {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(76,175,80,0.15);
+    border: 1px solid rgba(76,175,80,0.3);
+    border-radius: 20px;
+    padding: 6px 12px;
+  }
+  .status-paid-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green-light);
+    box-shadow: 0 0 6px rgba(76,175,80,0.6);
+  }
+  .status-paid-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green-light);
+  }
+
+  /* Group health */
+  .health-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .health-left {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .health-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--white-dim);
+  }
+  .health-stat {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+  }
+  .health-stat strong { color: var(--green-light); }
+
+  .health-bar-wrap {
+    flex: 1;
+  }
+  .health-bar-track {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .health-bar-fill {
+    height: 100%;
+    width: 87.5%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--green-bright), var(--green-light));
+  }
+  .health-bar-sub {
+    font-size: 10px;
+    color: var(--white-dim);
+    margin-top: 5px;
+    text-align: right;
+  }
+
+  /* Next meeting */
+  .meeting-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--white-faint);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .meeting-icon { font-size: 18px; }
+  .meeting-text {
+    font-size: 13px;
+    color: var(--white-dim);
+    line-height: 1.4;
+  }
+  .meeting-text strong { color: var(--white); font-weight: 600; }
+
+  /* Iziko quote */
+  .iziko-quote {
+    text-align: center;
+    padding: 0 12px;
+  }
+  .iziko-quote-text {
+    font-size: 11.5px;
+    color: rgba(245,240,232,0.3);
+    font-style: italic;
+    letter-spacing: 0.3px;
+    line-height: 1.6;
+  }
+
+  /* Animate in */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .content > * {
+    animation: fadeUp 0.5s ease forwards;
+    opacity: 0;
+  }
+  .content > *:nth-child(1) { animation-delay: 0.05s; }
+  .content > *:nth-child(2) { animation-delay: 0.12s; }
+  .content > *:nth-child(3) { animation-delay: 0.20s; }
+  .content > *:nth-child(4) { animation-delay: 0.28s; }
+  .content > *:nth-child(5) { animation-delay: 0.36s; }
+  .content > *:nth-child(6) { animation-delay: 0.44s; }
+  .content > *:nth-child(7) { animation-delay: 0.52s; }
+  .content > *:nth-child(8) { animation-delay: 0.60s; }
+  .content > *:nth-child(9) { animation-delay: 0.68s; }
+</style>
+</head>
+<body>
+
+<div class="screen">
+  <div class="bg-glow bg-glow-ember"></div>
+  <div class="bg-glow bg-glow-gold"></div>
+  <div class="bg-glow bg-glow-green"></div>
+
+  <div class="content">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <span class="i">i</span><span class="zi">Zi</span><span class="ko">ko</span>
+      </div>
+      <div class="members-badge">
+        <span class="members-icon">👥</span>
+        <span class="members-num">16 members</span>
+      </div>
+    </div>
+
+    <!-- Group identity -->
+    <div class="group-identity">
+      <span class="group-label">Your Stokvel</span>
+      <span class="group-name">Iziko laseKhayelitsha</span>
+      <span class="group-since">Together since <strong>January 2024</strong></span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Pot card -->
+    <div class="pot-card">
+      <div class="hearth">
+        <div class="flame-wrap">
+          <div class="flame-glow"></div>
+          <span class="flame-emoji">🔥</span>
+        </div>
+      </div>
+      <div class="pot-label">The Pot This Cycle</div>
+      <div class="pot-value">R 3 200</div>
+      <div class="pot-sub">of <strong>R 4 000</strong> expected total</div>
+
+      <div class="pot-stats">
+        <div class="pot-stat">
+          <span class="pot-stat-value">R200</span>
+          <span class="pot-stat-label">Per member</span>
+        </div>
+        <div class="pot-stat">
+          <span class="pot-stat-value">Cycle 4</span>
+          <span class="pot-stat-label">Current</span>
+        </div>
+        <div class="pot-stat">
+          <span class="pot-stat-value">12 left</span>
+          <span class="pot-stat-label">Cycles</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- My turn -->
+    <div class="turn-card">
+      <div class="turn-header">
+        <span class="turn-title">My Turn</span>
+        <span class="turn-position">#7 of 16</span>
+      </div>
+
+      <!-- Simplified rotation arc — showing positions 1-9 with Nomsa at 7 -->
+      <div class="rotation-track">
+        <div class="rot-node done">1</div>
+        <div class="rot-connector done-line"></div>
+        <div class="rot-node done">2</div>
+        <div class="rot-connector done-line"></div>
+        <div class="rot-node done">3</div>
+        <div class="rot-connector done-line"></div>
+        <div class="rot-node done">4</div>
+        <div class="rot-connector"></div>
+        <div class="rot-node next">5</div>
+        <div class="rot-connector"></div>
+        <div class="rot-node future">6</div>
+        <div class="rot-connector"></div>
+        <div class="rot-node mine">YOU</div>
+        <div class="rot-connector"></div>
+        <div class="rot-node future">8</div>
+        <div class="rot-connector"></div>
+        <div class="rot-node future">•••</div>
+      </div>
+
+      <div class="turn-detail">
+        <div class="turn-detail-left">
+          <div class="turn-cycles">3 <span>cycles away</span></div>
+          <div class="turn-date">~September 2025</div>
+        </div>
+        <div class="turn-payout">
+          <div class="turn-payout-label">You'll receive</div>
+          <div class="turn-payout-value">R 4 000</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My contribution status -->
+    <div class="contrib-card">
+      <div class="contrib-left">
+        <div class="contrib-label">My Contribution</div>
+        <div class="contrib-amount">R 200</div>
+        <div class="contrib-due">Due <strong>1st of every month</strong></div>
+      </div>
+      <div class="contrib-status">
+        <div class="status-paid">
+          <div class="status-paid-dot"></div>
+          <span class="status-paid-text">Paid ✓</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group health -->
+    <div class="health-card">
+      <div class="health-left">
+        <span class="health-label">Group Health</span>
+        <span class="health-stat"><strong>14</strong> of 16 paid</span>
+      </div>
+      <div class="health-bar-wrap">
+        <div class="health-bar-track">
+          <div class="health-bar-fill"></div>
+        </div>
+        <div class="health-bar-sub">2 pending</div>
+      </div>
+    </div>
+
+    <!-- Next meeting -->
+    <div class="meeting-row">
+      <span class="meeting-icon">📍</span>
+      <span class="meeting-text">Next meeting <strong>Saturday 5 July</strong> at Nomsa's place · 14:00</span>
+    </div>
+
+    <!-- Iziko quote -->
+    <div class="iziko-quote">
+      <p class="iziko-quote-text">Umlilo awucimi — the fire does not go out.<br>Everyone adds wood.</p>
+    </div>
+
+  </div>
+</div>
+
+
+
+</body></html>
