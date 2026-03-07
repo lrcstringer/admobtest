@@ -324,9 +324,9 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
   Future<List<TokenPoolModel>> getMyPools() async {
     final userId = _requireUserId();
     try {
-      // Query pools where user is organizer or invitee
-      // Firestore limitation: can't OR two different field conditions in one query,
-      // so we run two queries in parallel and merge results.
+      // Query pools where user is organizer, invitee, or recipient.
+      // Firestore limitation: can't OR different field conditions in one query,
+      // so we run three queries in parallel and merge results.
       final organizerFuture = _poolsCollection
           .where('organizerId', isEqualTo: userId)
           .orderBy('createdAt', descending: true)
@@ -337,7 +337,16 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
           .orderBy('createdAt', descending: true)
           .get();
 
-      final results = await Future.wait([organizerFuture, inviteeFuture]);
+      final recipientFuture = _poolsCollection
+          .where('recipientId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      final results = await Future.wait([
+        organizerFuture,
+        inviteeFuture,
+        recipientFuture,
+      ]);
 
       // Merge and deduplicate by ID
       final poolMap = <String, TokenPoolModel>{};

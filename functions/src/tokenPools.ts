@@ -507,11 +507,8 @@ export const contributeToPool = onCall(
     });
 
     // Phase 2: Ledger operation
-    let ledgerResult;
-    try {
-      ledgerResult = await processGroupContribution(poolId, userId, amount, contributionId);
-      if (!ledgerResult.success) {
-        // Rollback pool counters
+    const rollbackContribution = async () => {
+      try {
         await poolRef.update({
           [`contributions.${userId}.totalAmount`]: admin.firestore.FieldValue.increment(-amount),
           [`contributions.${userId}.contributionCount`]: admin.firestore.FieldValue.increment(-1),
@@ -520,19 +517,25 @@ export const contributeToPool = onCall(
           ...(txResult.wasNewContributor ? { contributorCount: admin.firestore.FieldValue.increment(-1) } : {}),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
+      } catch (rollbackErr) {
+        logger.error(
+          `CRITICAL: contributeToPool rollback failed for pool ${poolId}, user ${userId}, amount ${amount}. ` +
+          `Pool counters inflated. Manual intervention required.`,
+          rollbackErr
+        );
+      }
+    };
+
+    let ledgerResult;
+    try {
+      ledgerResult = await processGroupContribution(poolId, userId, amount, contributionId);
+      if (!ledgerResult.success) {
+        await rollbackContribution();
         throw new HttpsError("internal", ledgerResult.error || "Failed to process contribution");
       }
     } catch (e) {
       if (e instanceof HttpsError) throw e;
-      // Rollback pool counters
-      await poolRef.update({
-        [`contributions.${userId}.totalAmount`]: admin.firestore.FieldValue.increment(-amount),
-        [`contributions.${userId}.contributionCount`]: admin.firestore.FieldValue.increment(-1),
-        totalAmount: admin.firestore.FieldValue.increment(-amount),
-        contributionCount: admin.firestore.FieldValue.increment(-1),
-        ...(txResult.wasNewContributor ? { contributorCount: admin.firestore.FieldValue.increment(-1) } : {}),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      await rollbackContribution();
       logger.error("Contribution ledger error:", e);
       throw new HttpsError("internal", "Failed to process contribution");
     }
@@ -591,7 +594,9 @@ export const sendGroupGift = onCall(
     }
 
     const poolRef = db.collection("tokenPools").doc(poolId);
-    const sendTxId = `send_${poolId}_${Date.now()}`;
+    // Deterministic txId — pool can only be sent once, so poolId alone is sufficient.
+    // Using Date.now() would break idempotency on retry.
+    const sendTxId = `send_${poolId}`;
 
     // Phase 1: Firestore transaction — validate and update status
     const txResult: Record<string, any> = await db.runTransaction(async (tx) => {
@@ -654,21 +659,29 @@ export const sendGroupGift = onCall(
 
       if (!payoutResult.success) {
         // Rollback status
-        await poolRef.update({
-          status: "collecting",
-          sentAt: null,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
+        try {
+          await poolRef.update({
+            status: "collecting",
+            sentAt: null,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        } catch (rollbackErr) {
+          logger.error(`CRITICAL: sendGroupGift rollback failed for pool ${poolId}. Pool stuck as "sent" without payout. Manual intervention required.`, rollbackErr);
+        }
         throw new HttpsError("internal", payoutResult.error || "Failed to transfer tokens");
       }
     } catch (e) {
       if (e instanceof HttpsError) throw e;
       // Rollback status
-      await poolRef.update({
-        status: "collecting",
-        sentAt: null,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      try {
+        await poolRef.update({
+          status: "collecting",
+          sentAt: null,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      } catch (rollbackErr) {
+        logger.error(`CRITICAL: sendGroupGift rollback failed for pool ${poolId}. Pool stuck as "sent" without payout. Manual intervention required.`, rollbackErr);
+      }
       logger.error("Send group gift ledger error:", e);
       throw new HttpsError("internal", "Failed to transfer tokens");
     }
@@ -814,14 +827,16 @@ export const sendGroupGift = onCall(
     // 3g. FCM to contributors
     const contributorIds = Object.keys(contributions).filter((id) => id !== userId);
     const contributorTokens = await getFcmTokens(contributorIds);
-    for (const token of contributorTokens) {
-      await sendFcmNotification(
-        token,
-        "Group Sasaza sent!",
-        `The Group Sasaza for ${txResult.recipientName} has been sent!`,
-        { type: "pool_sasaza_sent", poolId, conversationId: txResult.conversationId }
-      );
-    }
+    await Promise.all(
+      contributorTokens.map((token) =>
+        sendFcmNotification(
+          token,
+          "Group Sasaza sent!",
+          `The Group Sasaza for ${txResult.recipientName} has been sent!`,
+          { type: "pool_sasaza_sent", poolId, conversationId: txResult.conversationId }
+        )
+      )
+    );
 
     logger.info(`Group gift sent: pool ${poolId}, ${txResult.totalAmount} tokens to ${txResult.recipientId}`);
 
@@ -1034,7 +1049,6 @@ export const distributePool = onCall(
     }
 
     const poolRef = db.collection("tokenPools").doc(poolId);
-    const distributeTxId = `distribute_${poolId}_${Date.now()}`;
 
     // Phase 1: Validate and update status
     const txResult: Record<string, any> = await db.runTransaction(async (tx) => {
@@ -1126,6 +1140,27 @@ export const distributePool = onCall(
     });
 
     // Phase 2: Ledger payout
+    // Deterministic txId — on retry (same state), previousPayouts.length is the same → dedup.
+    const distributeTxId = `distribute_${poolId}_${txResult.previousPayouts.length}`;
+
+    const rollbackDistribute = async () => {
+      try {
+        await poolRef.update({
+          status: txResult.previousStatus,
+          payouts: txResult.previousPayouts,
+          totalDistributed: txResult.previousTotalDistributed,
+          completedAt: null,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      } catch (rollbackErr) {
+        logger.error(
+          `CRITICAL: distributePool rollback failed for pool ${poolId}. ` +
+          `Pool state inconsistent. Manual intervention required.`,
+          rollbackErr
+        );
+      }
+    };
+
     try {
       const payoutEntries = payouts.map((p: { userId: string; amount: number }) => ({
         memberId: p.userId,
@@ -1135,25 +1170,12 @@ export const distributePool = onCall(
       const payoutResult = await processGroupPayout(poolId, payoutEntries, distributeTxId);
 
       if (!payoutResult.success) {
-        // Rollback to previous state
-        await poolRef.update({
-          status: txResult.previousStatus,
-          payouts: txResult.previousPayouts,
-          totalDistributed: txResult.previousTotalDistributed,
-          completedAt: null,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
+        await rollbackDistribute();
         throw new HttpsError("internal", payoutResult.error || "Failed to distribute tokens");
       }
     } catch (e) {
       if (e instanceof HttpsError) throw e;
-      await poolRef.update({
-        status: txResult.previousStatus,
-        payouts: txResult.previousPayouts,
-        totalDistributed: txResult.previousTotalDistributed,
-        completedAt: null,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      await rollbackDistribute();
       logger.error("Distribute pool ledger error:", e);
       throw new HttpsError("internal", "Failed to distribute tokens");
     }
@@ -1181,14 +1203,16 @@ export const distributePool = onCall(
     const fcmBody = isPartial
       ? `${txResult.payoutSum} tokens distributed (pool remains open)`
       : `${txResult.totalAmount} tokens have been distributed`;
-    for (const token of fcmTokens) {
-      await sendFcmNotification(
-        token,
-        fcmTitle,
-        fcmBody,
-        { type: messageType, poolId, conversationId: txResult.conversationId }
-      );
-    }
+    await Promise.all(
+      fcmTokens.map((token) =>
+        sendFcmNotification(
+          token,
+          fcmTitle,
+          fcmBody,
+          { type: messageType, poolId, conversationId: txResult.conversationId }
+        )
+      )
+    );
 
     logger.info(`Pool ${isPartial ? "partially " : ""}distributed: ${poolId}, ${txResult.payoutSum} tokens to ${payouts.length} recipients`);
 
@@ -1226,7 +1250,6 @@ export const requestPoolWithdrawal = onCall(
     }
 
     const poolRef = db.collection("tokenPools").doc(poolId);
-    const withdrawTxId = `withdraw_${poolId}_${userId}_${Date.now()}`;
 
     // Phase 1: Validate and update pool
     const txResult = await db.runTransaction(async (tx) => {
@@ -1267,6 +1290,16 @@ export const requestPoolWithdrawal = onCall(
         );
       }
 
+      // Check against pool's available balance (accounting for distributions)
+      const totalDistributed = pool.totalDistributed || 0;
+      const availableBalance = pool.totalAmount - totalDistributed;
+      if (amount > availableBalance) {
+        throw new HttpsError(
+          "failed-precondition",
+          `Pool only has ${availableBalance} tokens available (${totalDistributed} already distributed)`
+        );
+      }
+
       // Auto-approve: update pool balances
       const newUserTotal = userContribTotal - amount;
       const newContributorCount = newUserTotal === 0
@@ -1291,27 +1324,36 @@ export const requestPoolWithdrawal = onCall(
     });
 
     // Phase 2: Ledger withdrawal
-    try {
-      const result = await processGroupWithdrawal(poolId, userId, amount, withdrawTxId);
+    // Deterministic txId — on retry (same state), previousUserTotal is the same → dedup.
+    const withdrawTxId = `withdraw_${poolId}_${userId}_${txResult.previousUserTotal}`;
 
-      if (!result.success) {
-        // Rollback pool balances
+    const rollbackWithdrawal = async () => {
+      try {
         await poolRef.update({
           [`contributions.${userId}.totalAmount`]: txResult.previousUserTotal,
           totalAmount: txResult.previousTotalAmount,
           contributorCount: txResult.previousContributorCount,
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
+      } catch (rollbackErr) {
+        logger.error(
+          `CRITICAL: requestPoolWithdrawal rollback failed for pool ${poolId}, user ${userId}. ` +
+          `Pool balances inconsistent. Manual intervention required.`,
+          rollbackErr
+        );
+      }
+    };
+
+    try {
+      const result = await processGroupWithdrawal(poolId, userId, amount, withdrawTxId);
+
+      if (!result.success) {
+        await rollbackWithdrawal();
         throw new HttpsError("internal", result.error || "Failed to process withdrawal");
       }
     } catch (e) {
       if (e instanceof HttpsError) throw e;
-      await poolRef.update({
-        [`contributions.${userId}.totalAmount`]: txResult.previousUserTotal,
-        totalAmount: txResult.previousTotalAmount,
-        contributorCount: txResult.previousContributorCount,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      await rollbackWithdrawal();
       logger.error("Pool withdrawal ledger error:", e);
       throw new HttpsError("internal", "Failed to process withdrawal");
     }
@@ -1371,7 +1413,8 @@ export const cancelPool = onCall(
     }
 
     const poolRef = db.collection("tokenPools").doc(poolId);
-    const cancelTxId = `cancel_${poolId}_${Date.now()}`;
+    // Deterministic txId — pool can only be cancelled once.
+    const cancelTxId = `cancel_${poolId}`;
 
     // Phase 1: Validate and update status
     const txResult: Record<string, any> = await db.runTransaction(async (tx) => {
@@ -1400,18 +1443,52 @@ export const cancelPool = onCall(
       return {
         conversationId: pool.conversationId,
         totalAmount: pool.totalAmount,
+        totalDistributed: pool.totalDistributed || 0,
         contributions: pool.contributions || {},
         inviteeIds: pool.inviteeIds,
       };
     });
 
-    // Phase 2: Refund all contributions (if any)
-    if (txResult.totalAmount > 0) {
+    const rollbackCancel = async () => {
+      try {
+        await poolRef.update({
+          status: "collecting",
+          cancelledAt: null,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      } catch (rollbackErr) {
+        logger.error(
+          `CRITICAL: cancelPool rollback failed for pool ${poolId}. ` +
+          `Pool stuck as "cancelled" without refund. Manual intervention required.`,
+          rollbackErr
+        );
+      }
+    };
+
+    // Phase 2: Refund remaining balance (accounting for previous distributions)
+    const remainingBalance = txResult.totalAmount - txResult.totalDistributed;
+
+    if (remainingBalance > 0) {
       const refundPayouts: Array<{ memberId: string; amount: number }> = [];
+      const totalContributed = txResult.totalAmount;
+
       for (const [uid, contrib] of Object.entries(txResult.contributions)) {
         const c = contrib as { totalAmount: number };
         if (c.totalAmount > 0) {
-          refundPayouts.push({ memberId: uid, amount: c.totalAmount });
+          // Pro-rata share of remaining balance
+          const share = Math.floor((c.totalAmount / totalContributed) * remainingBalance);
+          if (share > 0) {
+            refundPayouts.push({ memberId: uid, amount: share });
+          }
+        }
+      }
+
+      // Distribute rounding residual to first refundee
+      if (refundPayouts.length > 0) {
+        const refundTotal = refundPayouts.reduce((sum, p) => sum + p.amount, 0);
+        const residual = remainingBalance - refundTotal;
+        if (residual > 0) {
+          refundPayouts[0].amount += residual;
         }
       }
 
@@ -1419,21 +1496,12 @@ export const cancelPool = onCall(
         try {
           const refundResult = await processGroupPayout(poolId, refundPayouts, cancelTxId);
           if (!refundResult.success) {
-            // Rollback status
-            await poolRef.update({
-              status: "collecting",
-              cancelledAt: null,
-              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            });
+            await rollbackCancel();
             throw new HttpsError("internal", refundResult.error || "Failed to refund contributions");
           }
         } catch (e) {
           if (e instanceof HttpsError) throw e;
-          await poolRef.update({
-            status: "collecting",
-            cancelledAt: null,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          });
+          await rollbackCancel();
           logger.error("Cancel pool refund error:", e);
           throw new HttpsError("internal", "Failed to refund contributions");
         }
@@ -1441,9 +1509,11 @@ export const cancelPool = onCall(
     }
 
     // Phase 3: Side effects
-    const refundMsg = txResult.totalAmount > 0
-      ? ` ${txResult.totalAmount} tokens refunded.`
-      : "";
+    const refundMsg = remainingBalance > 0
+      ? ` ${remainingBalance} tokens refunded.`
+      : txResult.totalDistributed > 0
+        ? " No refund needed (all tokens were already distributed)."
+        : "";
     await postSystemMessage(
       txResult.conversationId,
       `Collection cancelled.${refundMsg}`,
@@ -1451,16 +1521,18 @@ export const cancelPool = onCall(
       { poolId }
     );
 
-    // FCM to participants
+    // FCM to participants (parallel)
     const fcmTokens = await getFcmTokens(txResult.inviteeIds);
-    for (const token of fcmTokens) {
-      await sendFcmNotification(
-        token,
-        "Collection cancelled",
-        `The collection has been cancelled.${refundMsg}`,
-        { type: "pool_cancelled", poolId, conversationId: txResult.conversationId }
-      );
-    }
+    await Promise.all(
+      fcmTokens.map((token) =>
+        sendFcmNotification(
+          token,
+          "Collection cancelled",
+          `The collection has been cancelled.${refundMsg}`,
+          { type: "pool_cancelled", poolId, conversationId: txResult.conversationId }
+        )
+      )
+    );
 
     logger.info(`Pool cancelled: ${poolId}, refunded ${txResult.totalAmount} tokens`);
 
@@ -1506,72 +1578,121 @@ export const expireTokenPools = onSchedule(
     let errorCount = 0;
 
     for (const doc of expiredSnap.docs) {
-      const pool = doc.data();
       const pId = doc.id;
 
-      // Skip already-terminal pools
-      if (["completed", "cancelled", "expired"].includes(pool.status)) {
-        continue;
-      }
-
       try {
-        if (pool.status === "collecting") {
-          // 30-day collection window expired — refund all
-          const contributions = pool.contributions || {};
-          const refundPayouts: Array<{ memberId: string; amount: number }> = [];
+        // Use a transaction to atomically verify status and mark expired.
+        // Prevents race with concurrent contribute/claim operations.
+        const txResult = await db.runTransaction(async (tx) => {
+          const freshDoc = await tx.get(doc.ref);
+          if (!freshDoc.exists) return null;
+          const pool = freshDoc.data()!;
 
-          for (const [uid, contrib] of Object.entries(contributions)) {
-            const c = contrib as { totalAmount: number };
-            if (c.totalAmount > 0) {
-              refundPayouts.push({ memberId: uid, amount: c.totalAmount });
-            }
+          // Skip already-terminal pools
+          if (["completed", "cancelled", "expired"].includes(pool.status)) {
+            return null;
           }
 
-          if (refundPayouts.length > 0) {
-            const expireTxId = `expire_${pId}_${Date.now()}`;
-            const refundResult = await processGroupPayout(pId, refundPayouts, expireTxId);
-            if (!refundResult.success) {
-              logger.error(`Failed to refund pool ${pId}: ${refundResult.error}`);
-              errorCount++;
-              continue;
-            }
-          }
-
-          await doc.ref.update({
+          tx.update(doc.ref, {
             status: "expired",
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
 
+          // For sent pools, update message embed in the same transaction
+          if (pool.status === "sent" && pool.giftConversationId && pool.giftMessageId) {
+            const msgRef = db.collection("conversations")
+              .doc(pool.giftConversationId)
+              .collection("messages")
+              .doc(pool.giftMessageId);
+            tx.update(msgRef, { "groupGift.status": "expired" });
+          }
+
+          return {
+            originalStatus: pool.status as string,
+            totalAmount: pool.totalAmount as number,
+            totalDistributed: (pool.totalDistributed || 0) as number,
+            contributions: (pool.contributions || {}) as Record<string, { totalAmount: number }>,
+            conversationId: pool.conversationId as string,
+          };
+        });
+
+        if (!txResult) {
+          continue; // Terminal status or deleted, skip
+        }
+
+        if (txResult.originalStatus === "collecting") {
+          // 30-day collection window expired — refund remaining balance
+          const remainingBalance = txResult.totalAmount - txResult.totalDistributed;
+
+          if (remainingBalance > 0) {
+            const refundPayouts: Array<{ memberId: string; amount: number }> = [];
+            const totalContributed = txResult.totalAmount;
+
+            for (const [uid, contrib] of Object.entries(txResult.contributions)) {
+              if (contrib.totalAmount > 0) {
+                // Pro-rata share of remaining balance
+                const share = Math.floor((contrib.totalAmount / totalContributed) * remainingBalance);
+                if (share > 0) {
+                  refundPayouts.push({ memberId: uid, amount: share });
+                }
+              }
+            }
+
+            // Distribute rounding residual to first refundee
+            if (refundPayouts.length > 0) {
+              const refundTotal = refundPayouts.reduce((sum, p) => sum + p.amount, 0);
+              const residual = remainingBalance - refundTotal;
+              if (residual > 0) {
+                refundPayouts[0].amount += residual;
+              }
+            }
+
+            if (refundPayouts.length > 0) {
+              // Deterministic txId — pool can only expire once.
+              const expireTxId = `expire_${pId}`;
+              try {
+                const refundResult = await processGroupPayout(pId, refundPayouts, expireTxId);
+                if (!refundResult.success) {
+                  // Revert status so next run retries
+                  logger.error(`Failed to refund pool ${pId}: ${refundResult.error}`);
+                  try {
+                    await doc.ref.update({ status: txResult.originalStatus });
+                  } catch (revertErr) {
+                    logger.error(`CRITICAL: Pool ${pId} stuck as expired without refund. Manual intervention needed.`, revertErr);
+                  }
+                  errorCount++;
+                  continue;
+                }
+              } catch (refundErr) {
+                logger.error(`Refund failed for pool ${pId}, reverting status:`, refundErr);
+                try {
+                  await doc.ref.update({ status: txResult.originalStatus });
+                } catch (revertErr) {
+                  logger.error(`CRITICAL: Pool ${pId} stuck as expired without refund. Manual intervention needed.`, revertErr);
+                }
+                errorCount++;
+                continue;
+              }
+            }
+          }
+
           // System message
-          const refundMsg = pool.totalAmount > 0
-            ? ` ${pool.totalAmount} tokens refunded.`
-            : "";
+          const refundMsg = remainingBalance > 0
+            ? ` ${remainingBalance} tokens refunded.`
+            : txResult.totalDistributed > 0
+              ? " No refund needed (all tokens were already distributed)."
+              : "";
           await postSystemMessage(
-            pool.conversationId,
+            txResult.conversationId,
             `Collection expired.${refundMsg}`,
             "pool_expired",
             { poolId: pId }
           );
 
-        } else if (pool.status === "sent") {
+        } else if (txResult.originalStatus === "sent") {
           // 7-day gift claim expired — tokens already with recipient, no refund
-          await doc.ref.update({
-            status: "expired",
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          });
-
-          // Update message embed
-          if (pool.giftConversationId && pool.giftMessageId) {
-            await db
-              .collection("conversations")
-              .doc(pool.giftConversationId)
-              .collection("messages")
-              .doc(pool.giftMessageId)
-              .update({ "groupGift.status": "expired" });
-          }
-
           await postSystemMessage(
-            pool.conversationId,
+            txResult.conversationId,
             "The Group Sasaza expired. Tokens were already transferred to the recipient.",
             "pool_expired",
             { poolId: pId }

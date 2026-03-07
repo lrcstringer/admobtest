@@ -130,7 +130,9 @@ class _GiftOpeningDialogState extends State<_GiftOpeningDialog>
       case GiftStatus.pending:
         // Auto-trigger open — skip the redundant sealed "Tap to Open" phase.
         // The user already tapped "Tap to Open" in the chat bubble to get here.
-        WidgetsBinding.instance.addPostFrameCallback((_) => _onTapToOpen());
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _onTapToOpen();
+        });
     }
   }
 

@@ -172,7 +172,11 @@ class GiftBloc extends Bloc<GiftEvent, GiftState> {
     _GiftUpdated event,
     Emitter<GiftState> emit,
   ) {
-    emit(state.copyWith(activeGift: event.gift));
+    // Only update if the incoming gift matches the current activeGift.
+    // Prevents stale stream events from overwriting a different active gift.
+    if (state.activeGift == null || state.activeGift!.id == event.gift.id) {
+      emit(state.copyWith(activeGift: event.gift));
+    }
   }
 
   // =========================================================================

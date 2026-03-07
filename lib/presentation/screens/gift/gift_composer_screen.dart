@@ -42,6 +42,9 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
   final _formKey = GlobalKey<FormState>();
   GiftStyle _selectedStyle = GiftStyle.celebration;
   String? _recipientId;
+  /// Tracks whether _onSend was called this session.
+  /// Prevents the BlocConsumer listener from popping on stale activeGift.
+  bool _sendInitiated = false;
 
   @override
   void initState() {
@@ -79,6 +82,7 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
     final amount = int.tryParse(_amountController.text.trim());
     if (amount == null || amount < 10) return;
 
+    _sendInitiated = true;
     context.read<GiftBloc>().add(GiftEvent.sendGift(
       recipientId: _recipientId!,
       amount: amount,
@@ -111,7 +115,10 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
       body: WaveBackground(
         child: BlocConsumer<GiftBloc, GiftState>(
         listener: (context, state) {
-          if (state.activeGift != null && !state.isSending) {
+          // Only pop for the current send — _sendInitiated prevents
+          // stale activeGift from a previous session triggering a premature pop.
+          if (_sendInitiated && state.activeGift != null && !state.isSending) {
+            _sendInitiated = false;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Gift sent!')),
             );

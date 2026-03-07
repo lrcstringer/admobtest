@@ -276,7 +276,26 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
   }
 
   batch.update(db.collection(collection).doc(parentId!), parentUpdate);
-  await batch.commit();
+
+  try {
+    await batch.commit();
+  } catch (batchErr) {
+    // Batch write failed after debit succeeded — refund tokens from GIFT_ESCROW.
+    // processGiftRefund is idempotent via giftRefund:${giftId} key.
+    logger.error(`sendGift batch write failed for ${giftId}, initiating refund:`, batchErr);
+    try {
+      await processGiftRefund(
+        userId, amount, giftId, "Auto-refund: gift creation failed"
+      );
+    } catch (refundErr) {
+      logger.error(
+        `CRITICAL: sendGift refund also failed for ${giftId}. ` +
+        `${amount} tokens stuck in GIFT_ESCROW for user ${userId}. Manual intervention required.`,
+        refundErr
+      );
+    }
+    throw new HttpsError("internal", "Failed to create gift. Your tokens have been refunded.");
+  }
 
   // --- Send FCM push to recipient (fire-and-forget — don't block response) ---
   const recipientFcmToken = recipient.fcmToken;
@@ -498,23 +517,27 @@ export const claimGift = onCall({ labels: { area: "gifts" } }, async (request) =
       giftRef.update({ creditTransactionId: creditJournalId })
         .catch((e) => logger.warn("Failed to update creditTransactionId:", e));
     } catch (e) {
-      // If credit fails, we need to roll back the status change
+      // Credit failed — roll back status and message embed.
+      // Wrap entire rollback in try-catch: if rollback also fails,
+      // log CRITICAL so a reconciliation process can find stuck gifts.
       logger.error(`Gift credit failed for ${giftId}, rolling back status:`, e);
-      await giftRef.update({ status: "opened", claimedAt: null });
-
-      // Also roll back the message embed
-      if (gift.messageId) {
-        const msgCollection = gift.conversationId ? "conversations" : "communities";
-        const msgParentId = gift.conversationId || gift.communityId;
-        if (msgParentId) {
-          try {
-            await db.collection(msgCollection).doc(msgParentId).collection("messages").doc(gift.messageId).update({
-              "gift.status": "opened",
-            });
-          } catch (rollbackErr) {
-            logger.warn("Failed to rollback message gift status:", rollbackErr);
+      try {
+        await giftRef.update({ status: "opened", claimedAt: null });
+        if (gift.messageId) {
+          const msgCollection = gift.conversationId ? "conversations" : "communities";
+          const msgParentId = gift.conversationId || gift.communityId;
+          if (msgParentId) {
+            await db.collection(msgCollection).doc(msgParentId)
+              .collection("messages").doc(gift.messageId)
+              .update({ "gift.status": "opened" });
           }
         }
+      } catch (rollbackErr) {
+        logger.error(
+          `CRITICAL: claimGift rollback ALSO failed for ${giftId}. ` +
+          `Gift stuck as "claimed" without credit. Manual intervention required.`,
+          rollbackErr
+        );
       }
       throw new HttpsError("internal", "Failed to transfer tokens. Please try again.");
     }
@@ -562,41 +585,73 @@ export const expireGifts = onSchedule(
     let failCount = 0;
 
     for (const doc of expiredGifts.docs) {
-      const gift = doc.data();
-
-      // Refund sender from GIFT_ESCROW (idempotent via idempotency key)
       try {
-        await processGiftRefund(
-          gift.senderId,
-          gift.amount,
-          doc.id,
-          `Sasaza expired — refund to ${gift.senderName}`,
-        );
-      } catch (e) {
-        logger.error(`Failed to refund gift ${doc.id}:`, e);
-        failCount++;
-        continue; // Skip this gift, retry next hour
-      }
+        // Use a transaction to atomically verify status and mark expired.
+        // Prevents race with concurrent claimGift (which also uses a
+        // transaction on the same doc). Firestore serializes them.
+        const txResult = await db.runTransaction(async (tx) => {
+          const freshDoc = await tx.get(doc.ref);
+          if (!freshDoc.exists) return null;
+          const freshGift = freshDoc.data()!;
 
-      // Mark as expired + update message embed
-      const batch = db.batch();
-      batch.update(doc.ref, { status: "expired" });
+          // Re-check status — may have been claimed concurrently
+          if (!["pending", "opened"].includes(freshGift.status)) {
+            return null;
+          }
 
-      if (gift.messageId) {
-        const msgCollection = gift.conversationId ? "conversations" : "communities";
-        const msgParentId = gift.conversationId || gift.communityId;
-        if (msgParentId) {
-          const msgRef = db.collection(msgCollection).doc(msgParentId).collection("messages").doc(gift.messageId);
-          // Use set with merge in case message was deleted
-          batch.set(msgRef, { gift: { status: "expired" } }, { merge: true });
+          tx.update(doc.ref, { status: "expired" });
+
+          // Update message embed in the same transaction
+          if (freshGift.messageId) {
+            const msgCollection = freshGift.conversationId ? "conversations" : "communities";
+            const msgParentId = freshGift.conversationId || freshGift.communityId;
+            if (msgParentId) {
+              const msgRef = db.collection(msgCollection).doc(msgParentId)
+                .collection("messages").doc(freshGift.messageId);
+              tx.set(msgRef, { gift: { status: "expired" } }, { merge: true });
+            }
+          }
+
+          return {
+            originalStatus: freshGift.status as string,
+            senderId: freshGift.senderId as string,
+            senderName: freshGift.senderName as string,
+            amount: freshGift.amount as number,
+          };
+        });
+
+        if (!txResult) {
+          continue; // Status changed concurrently (e.g., claimed), skip
         }
-      }
 
-      try {
-        await batch.commit();
+        // Refund sender from GIFT_ESCROW (idempotent via giftRefund:giftId key).
+        // Done outside transaction because postJournal does its own writes.
+        try {
+          await processGiftRefund(
+            txResult.senderId,
+            txResult.amount,
+            doc.id,
+            `Sasaza expired — refund to ${txResult.senderName}`,
+          );
+        } catch (refundErr) {
+          // Refund failed — revert status so next hourly run retries
+          logger.error(`Refund failed for gift ${doc.id}, reverting status:`, refundErr);
+          try {
+            await doc.ref.update({ status: txResult.originalStatus });
+          } catch (revertErr) {
+            logger.error(
+              `CRITICAL: Gift ${doc.id} stuck as expired without refund. ` +
+              `${txResult.amount} tokens in GIFT_ESCROW for ${txResult.senderId}. Manual intervention needed.`,
+              revertErr
+            );
+          }
+          failCount++;
+          continue;
+        }
+
         successCount++;
       } catch (e) {
-        logger.error(`Failed to update expired gift ${doc.id}:`, e);
+        logger.error(`Failed to expire gift ${doc.id}:`, e);
         failCount++;
       }
     }
