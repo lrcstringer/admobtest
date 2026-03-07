@@ -222,13 +222,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i434.UploadService>(
       () => _i434.UploadService(gh<_i457.FirebaseStorage>()),
     );
-    gh.lazySingleton<_i684.TokenPoolRemoteDataSource>(
-      () => _i684.TokenPoolRemoteDataSourceImpl(
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i59.FirebaseAuth>(),
-        gh<_i809.FirebaseFunctions>(),
-      ),
-    );
     gh.lazySingleton<_i50.UserRemoteDataSource>(
       () => _i50.UserRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
@@ -367,10 +360,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i809.FirebaseFunctions>(),
       ),
     );
-    gh.lazySingleton<_i119.TokenPoolRepository>(
-      () =>
-          _i889.TokenPoolRepositoryImpl(gh<_i684.TokenPoolRemoteDataSource>()),
-    );
     gh.lazySingleton<_i351.PlayIntegrityService>(
       () => _i351.PlayIntegrityService(gh<_i809.FirebaseFunctions>()),
     );
@@ -467,9 +456,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i749.GamificationRemoteDataSource>(),
       ),
     );
-    gh.factory<_i969.TokenPoolBloc>(
-      () => _i969.TokenPoolBloc(gh<_i119.TokenPoolRepository>()),
-    );
     gh.lazySingleton<_i224.ChatRemoteDataSource>(
       () => _i224.ChatRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
@@ -496,6 +482,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i58.PotBloc>(
       () => _i58.PotBloc(gh<_i1010.GamificationRepository>()),
+    );
+    gh.lazySingleton<_i684.TokenPoolRemoteDataSource>(
+      () => _i684.TokenPoolRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i351.PlayIntegrityService>(),
+      ),
     );
     gh.lazySingleton<_i693.DeviceBindingService>(
       () => _i693.DeviceBindingService(
@@ -547,6 +541,10 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i809.FirebaseFunctions>(),
         gh<_i351.PlayIntegrityService>(),
       ),
+    );
+    gh.lazySingleton<_i119.TokenPoolRepository>(
+      () =>
+          _i889.TokenPoolRepositoryImpl(gh<_i684.TokenPoolRemoteDataSource>()),
     );
     gh.lazySingleton<_i720.StepUpAuthService>(
       () => _i720.StepUpAuthService(
@@ -626,6 +624,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i389.WalletRemoteDataSource>(),
         gh<_i932.NetworkInfo>(),
       ),
+    );
+    gh.factory<_i969.TokenPoolBloc>(
+      () => _i969.TokenPoolBloc(gh<_i119.TokenPoolRepository>()),
     );
     gh.factory<_i936.PurchaseBloc>(
       () => _i936.PurchaseBloc(gh<_i742.PurchaseRepository>()),

@@ -97,6 +97,21 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
     throw new HttpsError("invalid-argument", "Cannot send a gift to yourself");
   }
 
+  // --- Fetch profiles + check balance in parallel (single round-trip) ---
+  // Profiles are needed both for conversation resolution (P2P) and for the
+  // gift document, so we fetch them once and reuse.
+  const [sender, recipient, balanceCheck] = await Promise.all([
+    getUserProfile(userId),
+    getUserProfile(recipientId),
+    validateMainWalletBalance(userId, amount),
+  ]);
+  if (!balanceCheck.sufficient) {
+    throw new HttpsError(
+      "failed-precondition",
+      `Insufficient balance. You have ${balanceCheck.available} tokens but need ${amount}.`
+    );
+  }
+
   // --- Resolve conversation for P2P gifts ---
   // When launched standalone (no conversationId), find or create the conversation.
   let resolvedConversationId = conversationId as string | undefined;
@@ -104,13 +119,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
     const sortedIds = [userId, recipientId].sort();
     const deterministicId = `p2p_${sortedIds[0]}_${sortedIds[1]}`;
     const convRef = db.collection("conversations").doc(deterministicId);
-    // Use create() to avoid race conditions — if two concurrent calls both
-    // find no doc, only one create() succeeds; the other catches and proceeds.
     try {
-      const [senderProfile, recipientProfile] = await Promise.all([
-        getUserProfile(userId),
-        getUserProfile(recipientId),
-      ]);
       const now = admin.firestore.FieldValue.serverTimestamp();
       await convRef.create({
         id: deterministicId,
@@ -118,12 +127,12 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
         participantIds: [userId, recipientId],
         participants: {
           [userId]: {
-            displayName: senderProfile.displayName || "Unknown",
-            avatarUrl: senderProfile.avatarUrl || senderProfile.profilePicThumbUrl || null,
+            displayName: sender.displayName || "Unknown",
+            avatarUrl: sender.avatarUrl || sender.profilePicThumbUrl || null,
           },
           [recipientId]: {
-            displayName: recipientProfile.displayName || "Unknown",
-            avatarUrl: recipientProfile.avatarUrl || recipientProfile.profilePicThumbUrl || null,
+            displayName: recipient.displayName || "Unknown",
+            avatarUrl: recipient.avatarUrl || recipient.profilePicThumbUrl || null,
           },
         },
         lastMessageText: null,
@@ -147,23 +156,12 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
     resolvedConversationId = deterministicId;
   }
 
-  // --- Validate parent + get profiles + check balance (parallel) ---
+  // --- Validate parent doc exists ---
   const collection = resolvedConversationId ? "conversations" : "communities";
   const parentId = resolvedConversationId || communityId;
-  const [parentDoc, sender, recipient, balanceCheck] = await Promise.all([
-    db.collection(collection).doc(parentId!).get(),
-    getUserProfile(userId),
-    getUserProfile(recipientId),
-    validateMainWalletBalance(userId, amount),
-  ]);
+  const parentDoc = await db.collection(collection).doc(parentId!).get();
   if (!parentDoc.exists) {
     throw new HttpsError("not-found", `${collection === "conversations" ? "Conversation" : "Community"} not found`);
-  }
-  if (!balanceCheck.sufficient) {
-    throw new HttpsError(
-      "failed-precondition",
-      `Insufficient balance. You have ${balanceCheck.available} tokens but need ${amount}.`
-    );
   }
 
   // --- Generate IDs ---
@@ -496,8 +494,9 @@ export const claimGift = onCall({ labels: { area: "gifts" } }, async (request) =
         `Sasaza claimed from ${gift.senderName}`,
       );
 
-      // Update gift with credit transaction ID
-      await giftRef.update({ creditTransactionId: creditJournalId });
+      // Update gift with credit transaction ID (fire-and-forget — just metadata)
+      giftRef.update({ creditTransactionId: creditJournalId })
+        .catch((e) => logger.warn("Failed to update creditTransactionId:", e));
     } catch (e) {
       // If credit fails, we need to roll back the status change
       logger.error(`Gift credit failed for ${giftId}, rolling back status:`, e);

@@ -27,6 +27,11 @@ class PlayIntegrityService {
   /// How long a cached token remains valid.
   static const _cacheTtl = Duration(minutes: 5);
 
+  /// Max wait when fetching a token without a specific nonce (advisory mode).
+  /// Most Cloud Functions use Play Integrity in fire-and-forget advisory mode,
+  /// so a missing token is acceptable. Prevents 3-10s blocking on cache miss.
+  static const _advisoryTimeout = Duration(milliseconds: 500);
+
   /// Cached token + timestamp.
   String? _cachedToken;
   DateTime? _cachedAt;
@@ -65,6 +70,11 @@ class PlayIntegrityService {
   ///
   /// Returns the cached token if still valid, otherwise fetches a fresh one.
   /// Returns `null` on non-Android platforms or if the request fails.
+  ///
+  /// When no [nonce] is provided (advisory mode), the fetch is capped at
+  /// [_advisoryTimeout] to avoid blocking callers for 3-10s. Most Cloud
+  /// Functions use Play Integrity in fire-and-forget advisory mode, so a
+  /// missing token is acceptable.
   Future<String?> getIntegrityToken({String? nonce}) async {
     if (!defaultTargetPlatform.isAndroid) {
       return null;
@@ -80,9 +90,9 @@ class PlayIntegrityService {
     if (_isCacheValid) return _cachedToken;
 
     // If a fetch is already in flight, await it instead of starting another.
-    if (_pendingFetch != null) return _pendingFetch;
-
-    return _fetchAndCache();
+    // Cap at _advisoryTimeout so callers aren't blocked for 3-10s.
+    final future = _pendingFetch ?? _fetchAndCache();
+    return future.timeout(_advisoryTimeout, onTimeout: () => null);
   }
 
   /// Fetches a fresh token with an auto-generated nonce and caches it.

@@ -20,7 +20,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
-import { requireAppCheck } from "./security";
+import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
   getOrCreateGroupAccount,
   processGroupContribution,
@@ -422,6 +422,8 @@ export const contributeToPool = onCall(
   async (request) => {
     const userId = requireAuth(request);
     requireAppCheck(request, "contributeToPool");
+    requirePlayIntegrity(request.data, request, "contributeToPool", "HIGHEST")
+      .catch((e) => logger.warn("[contributeToPool] Play integrity check error:", e));
 
     const { poolId, amount, anonymous } = request.data;
 
@@ -579,6 +581,8 @@ export const sendGroupGift = onCall(
   async (request) => {
     const userId = requireAuth(request);
     requireAppCheck(request, "sendGroupGift");
+    requirePlayIntegrity(request.data, request, "sendGroupGift", "HIGHEST")
+      .catch((e) => logger.warn("[sendGroupGift] Play integrity check error:", e));
 
     const { poolId } = request.data;
 
@@ -894,6 +898,8 @@ export const claimGroupGift = onCall(
   async (request) => {
     const userId = requireAuth(request);
     requireAppCheck(request, "claimGroupGift");
+    requirePlayIntegrity(request.data, request, "claimGroupGift", "HIGHEST")
+      .catch((e) => logger.warn("[claimGroupGift] Play integrity check error:", e));
 
     const { poolId } = request.data;
 
@@ -941,43 +947,51 @@ export const claimGroupGift = onCall(
       };
     });
 
-    // Update the groupGift message embed status
-    if (txResult.giftConversationId && txResult.giftMessageId) {
-      await db
-        .collection("conversations")
-        .doc(txResult.giftConversationId)
-        .collection("messages")
-        .doc(txResult.giftMessageId)
-        .update({ "groupGift.status": "completed" });
-    }
-
-    // System message in collection room
-    await postSystemMessage(
-      txResult.conversationId,
-      `${txResult.recipientName} claimed the Group Sasaza! ${txResult.totalAmount} tokens`,
-      "pool_sasaza_claimed",
-      { poolId, recipientName: txResult.recipientName, amount: txResult.totalAmount }
-    );
-
-    // FCM to organizer + contributors
-    const allContributorIds = Object.keys(txResult.contributions);
-    if (!allContributorIds.includes(txResult.organizerId)) {
-      allContributorIds.push(txResult.organizerId);
-    }
-    const fcmTokens = await getFcmTokens(allContributorIds);
-    for (const token of fcmTokens) {
-      await sendFcmNotification(
-        token,
-        "Group Sasaza claimed!",
-        `${txResult.recipientName} claimed the ${txResult.totalAmount} token gift!`,
-        { type: "pool_sasaza_claimed", poolId, conversationId: txResult.conversationId }
-      );
-    }
-
     logger.info(`Group gift claimed: pool ${poolId} by ${userId}`);
 
-    const poolDoc = await poolRef.get();
-    return { success: true, pool: { ...poolDoc.data(), id: poolId } };
+    // Fire-and-forget: message embed update, system message, and FCM
+    // notifications don't need to block the response. The transaction already
+    // committed the status change, so the client's Firestore watcher picks it up.
+    const postTxWork = async () => {
+      // Update the groupGift message embed status
+      if (txResult.giftConversationId && txResult.giftMessageId) {
+        await db
+          .collection("conversations")
+          .doc(txResult.giftConversationId)
+          .collection("messages")
+          .doc(txResult.giftMessageId)
+          .update({ "groupGift.status": "completed" });
+      }
+
+      // System message in collection room
+      await postSystemMessage(
+        txResult.conversationId,
+        `${txResult.recipientName} claimed the Group Sasaza! ${txResult.totalAmount} tokens`,
+        "pool_sasaza_claimed",
+        { poolId, recipientName: txResult.recipientName, amount: txResult.totalAmount }
+      );
+
+      // FCM to organizer + contributors (parallel, not sequential loop)
+      const allContributorIds = Object.keys(txResult.contributions);
+      if (!allContributorIds.includes(txResult.organizerId)) {
+        allContributorIds.push(txResult.organizerId);
+      }
+      const fcmTokens = await getFcmTokens(allContributorIds);
+      await Promise.all(
+        fcmTokens.map((token) =>
+          sendFcmNotification(
+            token,
+            "Group Sasaza claimed!",
+            `${txResult.recipientName} claimed the ${txResult.totalAmount} token gift!`,
+            { type: "pool_sasaza_claimed", poolId, conversationId: txResult.conversationId }
+          )
+        )
+      );
+    };
+    postTxWork().catch((e) => logger.warn("claimGroupGift post-tx work failed:", e));
+
+    // Return immediately — no need to re-read the pool doc
+    return { success: true, pool: { ...txResult, id: poolId, status: "completed" } };
   }
 );
 
@@ -996,6 +1010,8 @@ export const distributePool = onCall(
   async (request) => {
     const userId = requireAuth(request);
     requireAppCheck(request, "distributePool");
+    requirePlayIntegrity(request.data, request, "distributePool", "HIGHEST")
+      .catch((e) => logger.warn("[distributePool] Play integrity check error:", e));
 
     const { poolId, payouts, keepOpen = false } = request.data;
 
@@ -1196,6 +1212,8 @@ export const requestPoolWithdrawal = onCall(
   async (request) => {
     const userId = requireAuth(request);
     requireAppCheck(request, "requestPoolWithdrawal");
+    requirePlayIntegrity(request.data, request, "requestPoolWithdrawal", "HIGHEST")
+      .catch((e) => logger.warn("[requestPoolWithdrawal] Play integrity check error:", e));
 
     const { poolId, amount } = request.data;
 
@@ -1343,6 +1361,8 @@ export const cancelPool = onCall(
   async (request) => {
     const userId = requireAuth(request);
     requireAppCheck(request, "cancelPool");
+    requirePlayIntegrity(request.data, request, "cancelPool", "HIGHEST")
+      .catch((e) => logger.warn("[cancelPool] Play integrity check error:", e));
 
     const { poolId } = request.data;
 

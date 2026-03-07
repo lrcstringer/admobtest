@@ -102,7 +102,7 @@ class _GroupGiftOpeningDialogState extends State<GroupGiftOpeningDialog>
             _phase == _Phase.claiming) {
           setState(() => _phase = _Phase.claimed);
           final navigator = Navigator.of(context);
-          Future.delayed(const Duration(seconds: 2), () {
+          Future.delayed(const Duration(milliseconds: 1200), () {
             if (mounted) navigator.pop();
           });
         }

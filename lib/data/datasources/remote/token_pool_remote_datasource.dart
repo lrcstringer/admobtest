@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/exceptions.dart';
+import '../../../core/security/play_integrity_service.dart';
 import '../../../core/utils/firestore_helpers.dart';
 import '../../models/token_pool_model.dart';
 
@@ -59,11 +60,13 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
   final FirebaseFirestore _firestore;
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final FirebaseFunctions _functions;
+  final PlayIntegrityService _playIntegrity;
 
   TokenPoolRemoteDataSourceImpl(
     this._firestore,
     this._firebaseAuth,
     this._functions,
+    this._playIntegrity,
   );
 
   CollectionReference<Map<String, dynamic>> get _poolsCollection =>
@@ -128,11 +131,13 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
   }) async {
     // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
+      final integrityToken = await _playIntegrity.getIntegrityToken();
       final callable = _functions.httpsCallable('contributeToPool');
       final result = await callable.call<Map<String, dynamic>>({
         'poolId': poolId,
         'amount': amount,
         'anonymous': anonymous,
+        if (integrityToken != null) 'integrityToken': integrityToken,
       });
 
       final data = deepConvertMap(result.data);
@@ -150,9 +155,11 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
   Future<TokenPoolModel> sendGroupGift(String poolId) async {
     // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
+      final integrityToken = await _playIntegrity.getIntegrityToken();
       final callable = _functions.httpsCallable('sendGroupGift');
       final result = await callable.call<Map<String, dynamic>>({
         'poolId': poolId,
+        if (integrityToken != null) 'integrityToken': integrityToken,
       });
 
       final data = deepConvertMap(result.data);
@@ -174,11 +181,13 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
   }) async {
     // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
+      final integrityToken = await _playIntegrity.getIntegrityToken();
       final callable = _functions.httpsCallable('distributePool');
       final result = await callable.call<Map<String, dynamic>>({
         'poolId': poolId,
         'payouts': payouts,
         'keepOpen': keepOpen,
+        if (integrityToken != null) 'integrityToken': integrityToken,
       });
 
       final data = deepConvertMap(result.data);
@@ -198,10 +207,12 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
     required int amount,
   }) async {
     try {
+      final integrityToken = await _playIntegrity.getIntegrityToken();
       final callable = _functions.httpsCallable('requestPoolWithdrawal');
       final result = await callable.call<Map<String, dynamic>>({
         'poolId': poolId,
         'amount': amount,
+        if (integrityToken != null) 'integrityToken': integrityToken,
       });
 
       final data = deepConvertMap(result.data);
@@ -219,9 +230,11 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
   Future<TokenPoolModel> cancelPool(String poolId) async {
     // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
+      final integrityToken = await _playIntegrity.getIntegrityToken();
       final callable = _functions.httpsCallable('cancelPool');
       final result = await callable.call<Map<String, dynamic>>({
         'poolId': poolId,
+        if (integrityToken != null) 'integrityToken': integrityToken,
       });
 
       final data = deepConvertMap(result.data);
@@ -263,9 +276,11 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
   Future<TokenPoolModel> claimGroupGift(String poolId) async {
     // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
+      final integrityToken = await _playIntegrity.getIntegrityToken();
       final callable = _functions.httpsCallable('claimGroupGift');
       final result = await callable.call<Map<String, dynamic>>({
         'poolId': poolId,
+        if (integrityToken != null) 'integrityToken': integrityToken,
       });
 
       final data = deepConvertMap(result.data);

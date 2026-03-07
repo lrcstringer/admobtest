@@ -209,8 +209,8 @@ class _GiftOpeningDialogState extends State<_GiftOpeningDialog>
         setState(() => _phase = _DialogPhase.claimed);
         _claimedController.forward();
         _blocSubscription?.cancel();
-        // Auto-dismiss after showing success
-        Future.delayed(const Duration(seconds: 2), () {
+        // Auto-dismiss after showing success (600ms animation + 600ms hold)
+        Future.delayed(const Duration(milliseconds: 1200), () {
           if (mounted) Navigator.of(context).pop();
         });
         return;
