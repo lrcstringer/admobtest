@@ -26,6 +26,25 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Placeholder: show dragon2.png until Buy is fully implemented
+    return Scaffold(
+      appBar: const IMaliAppBar(title: 'Buy'),
+      body: WaveBackground(
+        child: Center(
+          child: FractionallySizedBox(
+            widthFactor: 0.75,
+            child: Image.asset(
+              'assets/images/dragon2.png',
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ignore: unused_element
+  Widget _buildOriginal(BuildContext context) {
     return BlocConsumer<PurchaseBloc, PurchaseState>(
       listener: (context, state) {
         if (state.errorMessage != null) {

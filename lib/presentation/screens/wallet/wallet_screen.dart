@@ -16,7 +16,11 @@ import '../../widgets/common/wave_background.dart';
 import '../../widgets/messaging/token_actions_sheet.dart';
 
 class WalletScreen extends StatefulWidget {
-  const WalletScreen({super.key});
+  /// When true, omits the Scaffold + AppBar wrapper (used when embedded
+  /// inside HomeScreen's TabBarView to avoid a double AppBar).
+  final bool embedded;
+
+  const WalletScreen({super.key, this.embedded = false});
 
   @override
   State<WalletScreen> createState() => _WalletScreenState();
@@ -108,112 +112,127 @@ class _WalletScreenState extends State<WalletScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final body = _buildBody(context);
+    if (widget.embedded) return body;
+
     return Scaffold(
       appBar: const IMaliAppBar(title: 'Wallet'),
-      body: BlocListener<WalletBloc, WalletState>(
-        listenWhen: (prev, curr) =>
-            prev.successMessage != curr.successMessage ||
-            prev.errorMessage != curr.errorMessage,
-        listener: (context, state) {
-          if (state.successMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.successMessage!),
-                backgroundColor: AppColors.success,
-              ),
-            );
-            context.read<WalletBloc>().add(const WalletEvent.clearMessages());
-          }
-          if (state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: AppColors.error,
-              ),
-            );
-            context.read<WalletBloc>().add(const WalletEvent.clearMessages());
-          }
-        },
-        child: BlocBuilder<WalletBloc, WalletState>(
+      body: body,
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return BlocListener<WalletBloc, WalletState>(
+      listenWhen: (prev, curr) =>
+          prev.successMessage != curr.successMessage ||
+          prev.errorMessage != curr.errorMessage,
+      listener: (context, state) {
+        if (state.successMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.successMessage!),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          context.read<WalletBloc>().add(const WalletEvent.clearMessages());
+        }
+        if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage!),
+              backgroundColor: AppColors.error,
+            ),
+          );
+          context.read<WalletBloc>().add(const WalletEvent.clearMessages());
+        }
+      },
+      child: BlocBuilder<WalletBloc, WalletState>(
         builder: (context, state) {
           final isLoading = state.status == WalletStatus.loading;
 
           return RefreshIndicator(
-          onRefresh: () async {
-            context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
-            context.read<RewardBloc>().add(const RewardEvent.refreshItems());
-          },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: WaveBackground(
-              child: Padding(
-                padding: AppSpacing.pagePadding,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Portfolio balance card
-                    _buildPortfolioCard(context, state, isLoading),
-                    AppSpacing.verticalMd,
+            onRefresh: () async {
+              context
+                  .read<WalletBloc>()
+                  .add(const WalletEvent.refreshLedger());
+              context
+                  .read<RewardBloc>()
+                  .add(const RewardEvent.refreshItems());
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: WaveBackground(
+                child: Padding(
+                  padding: AppSpacing.pagePadding,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Portfolio balance card
+                      _buildPortfolioCard(context, state, isLoading),
+                      AppSpacing.verticalMd,
 
-                    // Send/Request + Streak row
-                    _buildActionAndStreakRow(context, state),
-                    AppSpacing.verticalXl,
+                      // Send/Request + Streak row
+                      _buildActionAndStreakRow(context, state),
+                      AppSpacing.verticalXl,
 
-                    // My Wallets section
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'My Wallets',
-                          style: Theme.of(context).textTheme.headlineSmall,
+                      // My Wallets section
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'My Wallets',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add_circle_outline,
+                                size: 24),
+                            tooltip: 'Create Wallet',
+                            onPressed: () =>
+                                _showCreateWalletDialog(context),
+                          ),
+                        ],
+                      ),
+                      AppSpacing.verticalMd,
+
+                      // Wallet cards — always show main wallet first
+                      if (isLoading &&
+                          state.subAccounts.isEmpty &&
+                          state.ledgerAccount == null)
+                        _buildLoadingWallets()
+                      else ...[
+                        // Main wallet card (always present)
+                        _buildWalletCard(
+                          context,
+                          SubAccount(
+                            id: 'main',
+                            userId: '',
+                            name: 'Main Wallet',
+                            balance: state.mainWalletAvailable,
+                            lifetimeCredits: 0,
+                            lifetimeDebits: 0,
+                            isActive: true,
+                            isDefault: true,
+                            createdAt: DateTime.now(),
+                            updatedAt: DateTime.now(),
+                          ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline, size: 24),
-                          tooltip: 'Create Wallet',
-                          onPressed: () => _showCreateWalletDialog(context),
+                        // User-created and brand sub-accounts
+                        ...state.subAccounts.map(
+                          (sa) => _buildWalletCard(context, sa),
                         ),
                       ],
-                    ),
-                    AppSpacing.verticalMd,
 
-                    // Wallet cards — always show main wallet first
-                    if (isLoading && state.subAccounts.isEmpty && state.ledgerAccount == null)
-                      _buildLoadingWallets()
-                    else ...[
-                      // Main wallet card (always present)
-                      _buildWalletCard(
-                        context,
-                        SubAccount(
-                          id: 'main',
-                          userId: '',
-                          name: 'Main Wallet',
-                          balance: state.mainWalletAvailable,
-                          lifetimeCredits: 0,
-                          lifetimeDebits: 0,
-                          isActive: true,
-                          isDefault: true,
-                          createdAt: DateTime.now(),
-                          updatedAt: DateTime.now(),
-                        ),
-                      ),
-                      // User-created and brand sub-accounts
-                      ...state.subAccounts.map(
-                        (sa) => _buildWalletCard(context, sa),
-                      ),
+                      AppSpacing.verticalXl,
+
+                      // My Rewards section
+                      _buildRewardsSection(context),
                     ],
-
-                    AppSpacing.verticalXl,
-
-                    // My Rewards section
-                    _buildRewardsSection(context),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
+          );
         },
-      ),
       ),
     );
   }

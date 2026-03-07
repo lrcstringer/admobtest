@@ -48,10 +48,14 @@ class _HomeScreenState extends State<HomeScreen>
   OverlayEntry? _highlightOverlay;
   final _scrollController = ScrollController();
 
+  // Dynamic AppBar title based on selected tab
+  String _title = 'Home';
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_onTabChanged);
     context.read<WalletBloc>().add(const WalletEvent.loadLedger());
     final potBloc = context.read<PotBloc>();
     potBloc.add(const PotEvent.watchDailyPot());
@@ -61,6 +65,14 @@ class _HomeScreenState extends State<HomeScreen>
     // Keep overlay in sync with scroll position
     _scrollController.addListener(() => _highlightOverlay?.markNeedsBuild());
     _initVideoIfFirstVisit();
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) {
+      setState(() {
+        _title = _tabController.index == 0 ? 'Home' : 'Wallet';
+      });
+    }
   }
 
   Future<void> _initVideoIfFirstVisit() async {
@@ -217,6 +229,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     _disposeVideo();
     _scrollController.dispose();
@@ -245,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IMaliAppBar(
-        title: 'Home',
+        title: _title,
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
@@ -306,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen>
         controller: _tabController,
         children: [
           _buildHomeTab(),
-          const WalletScreen(),
+          const WalletScreen(embedded: true),
         ],
       ),
     );

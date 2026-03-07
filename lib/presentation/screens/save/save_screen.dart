@@ -93,7 +93,7 @@ class _SaveScreenState extends State<SaveScreen>
           WaveBackground(
             child: Center(
               child: FractionallySizedBox(
-                widthFactor: 0.75,
+                widthFactor: 0.9,
                 child: Image.asset(
                   'assets/images/dragons.jpg',
                   fit: BoxFit.contain,

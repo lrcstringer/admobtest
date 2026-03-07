@@ -1051,7 +1051,19 @@ class AppRouter {
             ],
           ),
 
-          // ---- Tab 3: Buy ----
+          // ---- Tab 3: Save ----
+          StatefulShellBranch(
+            navigatorKey: _saveNavKey,
+            routes: [
+              GoRoute(
+                path: '/save',
+                name: 'save',
+                builder: (context, state) => const SaveScreen(),
+              ),
+            ],
+          ),
+
+          // ---- Tab 4: Buy ----
           StatefulShellBranch(
             navigatorKey: _buyNavKey,
             routes: [
@@ -1091,18 +1103,6 @@ class AppRouter {
                         const BuyTransactionsScreen(),
                   ),
                 ],
-              ),
-            ],
-          ),
-
-          // ---- Tab 4: Save ----
-          StatefulShellBranch(
-            navigatorKey: _saveNavKey,
-            routes: [
-              GoRoute(
-                path: '/save',
-                name: 'save',
-                builder: (context, state) => const SaveScreen(),
               ),
             ],
           ),

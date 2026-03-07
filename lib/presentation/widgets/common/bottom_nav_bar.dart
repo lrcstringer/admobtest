@@ -25,8 +25,7 @@ class BottomNavBar extends StatelessWidget {
     ),
     _NavItem(
       label: 'Earn',
-      // TODO: Replace with custom PNG matching the other nav icons
-      icon: Icons.emoji_events_rounded,
+      assetPath: 'assets/botton_nav_bar_icons/Bottom Nav - Cup2.png',
     ),
     _NavItem(
       label: 'Chat',
