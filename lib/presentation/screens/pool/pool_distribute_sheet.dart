@@ -8,7 +8,7 @@ import '../../theme/app_spacing.dart';
 /// Bottom sheet for distributing pool tokens (save mode).
 class PoolDistributeSheet extends StatefulWidget {
   final TokenPool pool;
-  final void Function(List<Map<String, dynamic>> payouts) onDistribute;
+  final void Function(List<Map<String, dynamic>> payouts, bool keepOpen) onDistribute;
 
   const PoolDistributeSheet({
     super.key,
@@ -23,6 +23,7 @@ class PoolDistributeSheet extends StatefulWidget {
 class _PoolDistributeSheetState extends State<PoolDistributeSheet> {
   late final Map<String, TextEditingController> _controllers;
   late final List<_ParticipantEntry> _participants;
+  bool _keepOpen = false;
 
   @override
   void initState() {
@@ -65,10 +66,15 @@ class _PoolDistributeSheetState extends State<PoolDistributeSheet> {
     return sum;
   }
 
-  bool get _isValid => _totalAllocated == widget.pool.totalAmount;
+  int get _available => widget.pool.availableBalance;
+
+  bool get _isValid =>
+      _totalAllocated > 0 && _totalAllocated <= _available;
+
+  bool get _isFullDistribution => _totalAllocated == _available;
 
   void _equalSplit() {
-    final total = widget.pool.totalAmount;
+    final total = _available;
     final count = _participants.length;
     final base = total ~/ count;
     final remainder = total % count;
@@ -91,14 +97,14 @@ class _PoolDistributeSheetState extends State<PoolDistributeSheet> {
         .where((p) => (p['amount'] as int) > 0)
         .toList();
 
-    widget.onDistribute(payouts);
+    widget.onDistribute(payouts, _keepOpen);
     Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final total = widget.pool.totalAmount;
+    final available = _available;
 
     return SafeArea(
       child: Padding(
@@ -132,7 +138,7 @@ class _PoolDistributeSheetState extends State<PoolDistributeSheet> {
             AppSpacing.verticalSm,
 
             // Running total
-            _buildTotalIndicator(theme, total),
+            _buildTotalIndicator(theme, available),
             AppSpacing.verticalSm,
 
             // Quick actions
@@ -160,6 +166,22 @@ class _PoolDistributeSheetState extends State<PoolDistributeSheet> {
                 },
               ),
             ),
+
+            // Keep-open toggle (shown when distributing full available balance)
+            if (_isFullDistribution)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: CheckboxListTile(
+                  value: _keepOpen,
+                  onChanged: (v) => setState(() => _keepOpen = v ?? false),
+                  title: Text(
+                    'Keep pool open for next round',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
             AppSpacing.verticalMd,
 
             // Confirm button
@@ -173,7 +195,9 @@ class _PoolDistributeSheetState extends State<PoolDistributeSheet> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Confirm Distribution'),
+                child: Text(_isFullDistribution && !_keepOpen
+                    ? 'Distribute & Close'
+                    : 'Distribute'),
               ),
             ),
           ],
@@ -182,15 +206,15 @@ class _PoolDistributeSheetState extends State<PoolDistributeSheet> {
     );
   }
 
-  Widget _buildTotalIndicator(ThemeData theme, int total) {
+  Widget _buildTotalIndicator(ThemeData theme, int available) {
     final allocated = _totalAllocated;
-    final isOver = allocated > total;
-    final isExact = allocated == total;
+    final isOver = allocated > available;
+    final isValid = allocated > 0 && allocated <= available;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isExact
+        color: isValid
             ? AppColors.success.withValues(alpha: 0.1)
             : isOver
                 ? AppColors.error.withValues(alpha: 0.1)
@@ -201,9 +225,9 @@ class _PoolDistributeSheetState extends State<PoolDistributeSheet> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            isExact ? Icons.check_circle : Icons.info_outline,
+            isValid ? Icons.check_circle : Icons.info_outline,
             size: 18,
-            color: isExact
+            color: isValid
                 ? AppColors.success
                 : isOver
                     ? AppColors.error
@@ -211,10 +235,10 @@ class _PoolDistributeSheetState extends State<PoolDistributeSheet> {
           ),
           const SizedBox(width: 8),
           Text(
-            '$allocated / $total tokens',
+            '$allocated / $available available',
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: isExact
+              color: isValid
                   ? AppColors.success
                   : isOver
                       ? AppColors.error

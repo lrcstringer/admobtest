@@ -142,6 +142,8 @@ import {
   PostJournalInput,
   PostJournalResult,
   JournalEntryInput,
+  SubAccount,
+  SubAccountConfig,
 } from "./types";
 import { getOrCreateUserAccount, createSupplierAccount, ensureSystemAccounts } from "./accounts";
 import { postJournal, createEarningEntries, createReferralEntries, createTransferEntries, logJournalPostedAudit } from "./journals";
@@ -668,6 +670,21 @@ export async function processP2PTransfer(
         };
       }
       finalRecipientSubAccountId = matchingSub.id;
+    }
+  }
+
+  // Validate P2P receive is allowed on the recipient's sub-account
+  if (finalRecipientSubAccountId) {
+    const recipientSubAccount = await getSubAccount(recipientId, finalRecipientSubAccountId);
+    if (recipientSubAccount?.accountTypeId) {
+      const receiveAllowed = await validateSubAccountAllows(recipientSubAccount.accountTypeId, "p2p_receive");
+      if (!receiveAllowed.allowed) {
+        return {
+          success: false,
+          error: receiveAllowed.reason || "Recipient's wallet cannot receive P2P transfers",
+          errorCode: "P2P_RECEIVE_NOT_ALLOWED",
+        };
+      }
     }
   }
 
@@ -1270,4 +1287,126 @@ export async function processEscrowCompletion(
       errorCode: "TRANSACTION_FAILED",
     };
   }
+}
+
+// ============================================================================
+// TOKEN EXPIRY
+// ============================================================================
+
+/**
+ * Process expired sub-account tokens.
+ *
+ * Scans all active account types with `expiryDays` set and finds sub-accounts
+ * whose `lastCreditAt` is older than the expiry window. Expired balances are
+ * refunded to the brand client account via double-entry journal.
+ *
+ * Designed to be called from a scheduled Cloud Function (daily).
+ */
+export async function processSubAccountExpiry(): Promise<{
+  expired: number;
+  failed: number;
+}> {
+  const now = admin.firestore.Timestamp.now();
+  let expired = 0;
+  let failed = 0;
+
+  // 1. Find all active account types with expiryDays configured
+  const accountTypesSnap = await db
+    .collection(SubAccountConfig.COLLECTION_ACCOUNT_TYPES)
+    .where("isActive", "==", true)
+    .get();
+
+  const typesWithExpiry = accountTypesSnap.docs.filter((doc) => {
+    const rules = doc.data().rules;
+    return rules?.expiryDays != null && rules.expiryDays > 0;
+  });
+
+  if (typesWithExpiry.length === 0) {
+    logger.info("No account types with expiryDays — nothing to expire");
+    return { expired: 0, failed: 0 };
+  }
+
+  // 2. For each account type, find sub-accounts past expiry
+  for (const typeDoc of typesWithExpiry) {
+    const accountType = typeDoc.data();
+    const expiryDays: number = accountType.rules.expiryDays;
+    const cutoffDate = new Date(now.toDate().getTime() - expiryDays * 86_400_000);
+    const cutoff = admin.firestore.Timestamp.fromDate(cutoffDate);
+
+    const expiredSubs = await db
+      .collectionGroup(SubAccountConfig.SUBCOLLECTION_SUB_ACCOUNTS)
+      .where("accountTypeId", "==", typeDoc.id)
+      .where("isActive", "==", true)
+      .where("lastCreditAt", "<", cutoff)
+      .limit(100)
+      .get();
+
+    for (const subDoc of expiredSubs.docs) {
+      const sub = subDoc.data() as SubAccount;
+
+      // Skip zero-balance or null lastCreditAt
+      if (sub.balance <= 0 || !sub.lastCreditAt) continue;
+
+      try {
+        // Determine refund target: brand client account
+        const advertiserId = accountType.advertiserId;
+        const refundAccountId = advertiserId
+          ? `client:${advertiserId}`
+          : SystemAccounts.CBOOK_BUS;
+
+        // Create expiry journal: DR user, CR client
+        const entries = createTransferEntries(
+          AccountId.user(sub.userId),
+          refundAccountId,
+          sub.balance,
+          `Token expiry: ${sub.balance} tokens from ${sub.name} (${expiryDays}-day expiry)`
+        );
+
+        const dateKey = cutoffDate.toISOString().slice(0, 10);
+        const journalInput: PostJournalInput = {
+          idempotencyKey: `token_expiry:${sub.id}:${dateKey}`,
+          type: "token_expiry",
+          description: `Token expiry: ${sub.balance} tokens from user ${sub.userId} (${sub.name})`,
+          entries,
+          referenceType: "sub_account_expiry",
+          referenceId: sub.id,
+          initiatedBy: "system",
+          subAccountId: sub.id,
+          accountTypeId: sub.accountTypeId,
+          metadata: {
+            userId: sub.userId,
+            expiryDays,
+            advertiserId: advertiserId || null,
+            amount: sub.balance,
+            lastCreditAt: sub.lastCreditAt.toDate().toISOString(),
+          },
+        };
+
+        const expiredBalance = sub.balance;
+
+        await db.runTransaction(async (tx) => {
+          // Re-read inside transaction to get current balance
+          const freshDoc = await tx.get(subDoc.ref);
+          if (!freshDoc.exists) return;
+          const freshSub = freshDoc.data() as SubAccount;
+          if (freshSub.balance <= 0) return;
+
+          const result = await postJournal(journalInput, tx);
+          if (result.success && !result.isDuplicate) {
+            await debitSubAccount(sub.userId, sub.id, freshSub.balance, tx);
+          }
+        });
+
+        logger.info(
+          `Expired ${expiredBalance} tokens from sub-account ${sub.id} (user ${sub.userId}, type ${typeDoc.id})`
+        );
+        expired++;
+      } catch (e) {
+        logger.error(`Failed to expire sub-account ${sub.id}:`, e);
+        failed++;
+      }
+    }
+  }
+
+  return { expired, failed };
 }

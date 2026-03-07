@@ -113,7 +113,8 @@ export type JournalType =
   | "group_withdrawal" // Member withdraws from group
   | "group_payout" // Scheduled payout from group to member
   | "group_penalty" // Penalty charged to member
-  | "group_transfer"; // Transfer in/out of group
+  | "group_transfer" // Transfer in/out of group
+  | "token_expiry"; // Sub-account token expiry refund to brand client
 
 /**
  * Journal status
@@ -162,7 +163,8 @@ export interface LedgerJournal {
     | "pot_draw"
     | "pot_entry"
     | "client_fund" // Client funding/refund operations
-    | "group"; // Group transactions
+    | "group" // Group transactions
+    | "sub_account_expiry"; // Token expiry refund to brand client
   referenceId?: string;
 
   // Sub-account tracking
@@ -532,6 +534,7 @@ export interface SubAccount {
   lifetimeDebits: number; // Total ever debited
   isActive: boolean;
   isDefault: boolean; // true for the primary unrestricted sub-account
+  lastCreditAt: Timestamp | null; // Timestamp of last credit to this sub-account (for expiryDays)
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -674,6 +677,7 @@ export const SubAccountErrorCodes = {
   INSUFFICIENT_SUB_ACCOUNT_BALANCE: "INSUFFICIENT_SUB_ACCOUNT_BALANCE",
   SUB_ACCOUNT_INACTIVE: "SUB_ACCOUNT_INACTIVE",
   OFFRAMP_NOT_ALLOWED: "OFFRAMP_NOT_ALLOWED",
+  P2P_RECEIVE_NOT_ALLOWED: "P2P_RECEIVE_NOT_ALLOWED",
 } as const;
 
 // ============================================================================

@@ -39,7 +39,10 @@ mixin _$SubAccount {
   bool get allowP2pReceive => throw _privateConstructorUsedError;
   bool get allowCashout => throw _privateConstructorUsedError;
   bool get p2pRestrictToSameAccountType => throw _privateConstructorUsedError;
-  List<String> get allowedOfframps => throw _privateConstructorUsedError;
+  List<String> get allowedOfframps =>
+      throw _privateConstructorUsedError; // Expiry fields (populated by getSubAccounts Cloud Function)
+  int? get expiryDays => throw _privateConstructorUsedError;
+  DateTime? get lastCreditAt => throw _privateConstructorUsedError;
 
   /// Serializes this SubAccount to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -75,6 +78,8 @@ abstract class $SubAccountCopyWith<$Res> {
     bool allowCashout,
     bool p2pRestrictToSameAccountType,
     List<String> allowedOfframps,
+    int? expiryDays,
+    DateTime? lastCreditAt,
   });
 }
 
@@ -109,6 +114,8 @@ class _$SubAccountCopyWithImpl<$Res, $Val extends SubAccount>
     Object? allowCashout = null,
     Object? p2pRestrictToSameAccountType = null,
     Object? allowedOfframps = null,
+    Object? expiryDays = freezed,
+    Object? lastCreditAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -176,6 +183,14 @@ class _$SubAccountCopyWithImpl<$Res, $Val extends SubAccount>
                 ? _value.allowedOfframps
                 : allowedOfframps // ignore: cast_nullable_to_non_nullable
                       as List<String>,
+            expiryDays: freezed == expiryDays
+                ? _value.expiryDays
+                : expiryDays // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            lastCreditAt: freezed == lastCreditAt
+                ? _value.lastCreditAt
+                : lastCreditAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -208,6 +223,8 @@ abstract class _$$SubAccountImplCopyWith<$Res>
     bool allowCashout,
     bool p2pRestrictToSameAccountType,
     List<String> allowedOfframps,
+    int? expiryDays,
+    DateTime? lastCreditAt,
   });
 }
 
@@ -241,6 +258,8 @@ class __$$SubAccountImplCopyWithImpl<$Res>
     Object? allowCashout = null,
     Object? p2pRestrictToSameAccountType = null,
     Object? allowedOfframps = null,
+    Object? expiryDays = freezed,
+    Object? lastCreditAt = freezed,
   }) {
     return _then(
       _$SubAccountImpl(
@@ -308,6 +327,14 @@ class __$$SubAccountImplCopyWithImpl<$Res>
             ? _value._allowedOfframps
             : allowedOfframps // ignore: cast_nullable_to_non_nullable
                   as List<String>,
+        expiryDays: freezed == expiryDays
+            ? _value.expiryDays
+            : expiryDays // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        lastCreditAt: freezed == lastCreditAt
+            ? _value.lastCreditAt
+            : lastCreditAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -333,6 +360,8 @@ class _$SubAccountImpl extends _SubAccount {
     this.allowCashout = true,
     this.p2pRestrictToSameAccountType = false,
     final List<String> allowedOfframps = const ["*"],
+    this.expiryDays,
+    this.lastCreditAt,
   }) : _allowedOfframps = allowedOfframps,
        super._();
 
@@ -385,9 +414,15 @@ class _$SubAccountImpl extends _SubAccount {
     return EqualUnmodifiableListView(_allowedOfframps);
   }
 
+  // Expiry fields (populated by getSubAccounts Cloud Function)
+  @override
+  final int? expiryDays;
+  @override
+  final DateTime? lastCreditAt;
+
   @override
   String toString() {
-    return 'SubAccount(id: $id, userId: $userId, accountTypeId: $accountTypeId, name: $name, balance: $balance, lifetimeCredits: $lifetimeCredits, lifetimeDebits: $lifetimeDebits, isActive: $isActive, isDefault: $isDefault, createdAt: $createdAt, updatedAt: $updatedAt, allowP2pSend: $allowP2pSend, allowP2pReceive: $allowP2pReceive, allowCashout: $allowCashout, p2pRestrictToSameAccountType: $p2pRestrictToSameAccountType, allowedOfframps: $allowedOfframps)';
+    return 'SubAccount(id: $id, userId: $userId, accountTypeId: $accountTypeId, name: $name, balance: $balance, lifetimeCredits: $lifetimeCredits, lifetimeDebits: $lifetimeDebits, isActive: $isActive, isDefault: $isDefault, createdAt: $createdAt, updatedAt: $updatedAt, allowP2pSend: $allowP2pSend, allowP2pReceive: $allowP2pReceive, allowCashout: $allowCashout, p2pRestrictToSameAccountType: $p2pRestrictToSameAccountType, allowedOfframps: $allowedOfframps, expiryDays: $expiryDays, lastCreditAt: $lastCreditAt)';
   }
 
   @override
@@ -428,7 +463,11 @@ class _$SubAccountImpl extends _SubAccount {
             const DeepCollectionEquality().equals(
               other._allowedOfframps,
               _allowedOfframps,
-            ));
+            ) &&
+            (identical(other.expiryDays, expiryDays) ||
+                other.expiryDays == expiryDays) &&
+            (identical(other.lastCreditAt, lastCreditAt) ||
+                other.lastCreditAt == lastCreditAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -451,6 +490,8 @@ class _$SubAccountImpl extends _SubAccount {
     allowCashout,
     p2pRestrictToSameAccountType,
     const DeepCollectionEquality().hash(_allowedOfframps),
+    expiryDays,
+    lastCreditAt,
   );
 
   /// Create a copy of SubAccount
@@ -485,6 +526,8 @@ abstract class _SubAccount extends SubAccount {
     final bool allowCashout,
     final bool p2pRestrictToSameAccountType,
     final List<String> allowedOfframps,
+    final int? expiryDays,
+    final DateTime? lastCreditAt,
   }) = _$SubAccountImpl;
   const _SubAccount._() : super._();
 
@@ -524,7 +567,11 @@ abstract class _SubAccount extends SubAccount {
   @override
   bool get p2pRestrictToSameAccountType;
   @override
-  List<String> get allowedOfframps;
+  List<String> get allowedOfframps; // Expiry fields (populated by getSubAccounts Cloud Function)
+  @override
+  int? get expiryDays;
+  @override
+  DateTime? get lastCreditAt;
 
   /// Create a copy of SubAccount
   /// with the given fields replaced by the non-null parameter values.

@@ -33,9 +33,14 @@ mixin _$TokenPoolEvent {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -59,9 +64,14 @@ mixin _$TokenPoolEvent {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -85,9 +95,14 @@ mixin _$TokenPoolEvent {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -104,6 +119,7 @@ mixin _$TokenPoolEvent {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -119,6 +135,7 @@ mixin _$TokenPoolEvent {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -134,6 +151,7 @@ mixin _$TokenPoolEvent {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -348,9 +366,14 @@ class _$CreatePoolImpl implements _CreatePool {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -387,9 +410,14 @@ class _$CreatePoolImpl implements _CreatePool {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -426,9 +454,14 @@ class _$CreatePoolImpl implements _CreatePool {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -461,6 +494,7 @@ class _$CreatePoolImpl implements _CreatePool {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -480,6 +514,7 @@ class _$CreatePoolImpl implements _CreatePool {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -499,6 +534,7 @@ class _$CreatePoolImpl implements _CreatePool {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -650,9 +686,14 @@ class _$ContributeImpl implements _Contribute {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -680,9 +721,14 @@ class _$ContributeImpl implements _Contribute {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -710,9 +756,14 @@ class _$ContributeImpl implements _Contribute {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -736,6 +787,7 @@ class _$ContributeImpl implements _Contribute {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -755,6 +807,7 @@ class _$ContributeImpl implements _Contribute {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -774,6 +827,7 @@ class _$ContributeImpl implements _Contribute {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -892,9 +946,14 @@ class _$SendGroupGiftImpl implements _SendGroupGift {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -922,9 +981,14 @@ class _$SendGroupGiftImpl implements _SendGroupGift {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -952,9 +1016,14 @@ class _$SendGroupGiftImpl implements _SendGroupGift {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -978,6 +1047,7 @@ class _$SendGroupGiftImpl implements _SendGroupGift {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -997,6 +1067,7 @@ class _$SendGroupGiftImpl implements _SendGroupGift {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -1016,6 +1087,7 @@ class _$SendGroupGiftImpl implements _SendGroupGift {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -1051,7 +1123,7 @@ abstract class _$$DistributePoolImplCopyWith<$Res> {
     $Res Function(_$DistributePoolImpl) then,
   ) = __$$DistributePoolImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({String poolId, List<Map<String, dynamic>> payouts});
+  $Res call({String poolId, List<Map<String, dynamic>> payouts, bool keepOpen});
 }
 
 /// @nodoc
@@ -1067,7 +1139,11 @@ class __$$DistributePoolImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? poolId = null, Object? payouts = null}) {
+  $Res call({
+    Object? poolId = null,
+    Object? payouts = null,
+    Object? keepOpen = null,
+  }) {
     return _then(
       _$DistributePoolImpl(
         poolId: null == poolId
@@ -1078,6 +1154,10 @@ class __$$DistributePoolImplCopyWithImpl<$Res>
             ? _value._payouts
             : payouts // ignore: cast_nullable_to_non_nullable
                   as List<Map<String, dynamic>>,
+        keepOpen: null == keepOpen
+            ? _value.keepOpen
+            : keepOpen // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -1089,6 +1169,7 @@ class _$DistributePoolImpl implements _DistributePool {
   const _$DistributePoolImpl({
     required this.poolId,
     required final List<Map<String, dynamic>> payouts,
+    this.keepOpen = false,
   }) : _payouts = payouts;
 
   @override
@@ -1102,8 +1183,12 @@ class _$DistributePoolImpl implements _DistributePool {
   }
 
   @override
+  @JsonKey()
+  final bool keepOpen;
+
+  @override
   String toString() {
-    return 'TokenPoolEvent.distributePool(poolId: $poolId, payouts: $payouts)';
+    return 'TokenPoolEvent.distributePool(poolId: $poolId, payouts: $payouts, keepOpen: $keepOpen)';
   }
 
   @override
@@ -1112,7 +1197,9 @@ class _$DistributePoolImpl implements _DistributePool {
         (other.runtimeType == runtimeType &&
             other is _$DistributePoolImpl &&
             (identical(other.poolId, poolId) || other.poolId == poolId) &&
-            const DeepCollectionEquality().equals(other._payouts, _payouts));
+            const DeepCollectionEquality().equals(other._payouts, _payouts) &&
+            (identical(other.keepOpen, keepOpen) ||
+                other.keepOpen == keepOpen));
   }
 
   @override
@@ -1120,6 +1207,7 @@ class _$DistributePoolImpl implements _DistributePool {
     runtimeType,
     poolId,
     const DeepCollectionEquality().hash(_payouts),
+    keepOpen,
   );
 
   /// Create a copy of TokenPoolEvent
@@ -1150,9 +1238,14 @@ class _$DistributePoolImpl implements _DistributePool {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -1161,7 +1254,7 @@ class _$DistributePoolImpl implements _DistributePool {
     required TResult Function() clearError,
     required TResult Function() reset,
   }) {
-    return distributePool(poolId, payouts);
+    return distributePool(poolId, payouts, keepOpen);
   }
 
   @override
@@ -1180,9 +1273,14 @@ class _$DistributePoolImpl implements _DistributePool {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -1191,7 +1289,7 @@ class _$DistributePoolImpl implements _DistributePool {
     TResult? Function()? clearError,
     TResult? Function()? reset,
   }) {
-    return distributePool?.call(poolId, payouts);
+    return distributePool?.call(poolId, payouts, keepOpen);
   }
 
   @override
@@ -1210,9 +1308,14 @@ class _$DistributePoolImpl implements _DistributePool {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -1223,7 +1326,7 @@ class _$DistributePoolImpl implements _DistributePool {
     required TResult orElse(),
   }) {
     if (distributePool != null) {
-      return distributePool(poolId, payouts);
+      return distributePool(poolId, payouts, keepOpen);
     }
     return orElse();
   }
@@ -1236,6 +1339,7 @@ class _$DistributePoolImpl implements _DistributePool {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -1255,6 +1359,7 @@ class _$DistributePoolImpl implements _DistributePool {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -1274,6 +1379,7 @@ class _$DistributePoolImpl implements _DistributePool {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -1294,10 +1400,12 @@ abstract class _DistributePool implements TokenPoolEvent {
   const factory _DistributePool({
     required final String poolId,
     required final List<Map<String, dynamic>> payouts,
+    final bool keepOpen,
   }) = _$DistributePoolImpl;
 
   String get poolId;
   List<Map<String, dynamic>> get payouts;
+  bool get keepOpen;
 
   /// Create a copy of TokenPoolEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -1390,9 +1498,14 @@ class _$CancelPoolImpl implements _CancelPool {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -1420,9 +1533,14 @@ class _$CancelPoolImpl implements _CancelPool {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -1450,9 +1568,14 @@ class _$CancelPoolImpl implements _CancelPool {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -1476,6 +1599,7 @@ class _$CancelPoolImpl implements _CancelPool {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -1495,6 +1619,7 @@ class _$CancelPoolImpl implements _CancelPool {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -1514,6 +1639,7 @@ class _$CancelPoolImpl implements _CancelPool {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -1539,6 +1665,274 @@ abstract class _CancelPool implements TokenPoolEvent {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$CancelPoolImplCopyWith<_$CancelPoolImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$RequestWithdrawalImplCopyWith<$Res> {
+  factory _$$RequestWithdrawalImplCopyWith(
+    _$RequestWithdrawalImpl value,
+    $Res Function(_$RequestWithdrawalImpl) then,
+  ) = __$$RequestWithdrawalImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String poolId, int amount});
+}
+
+/// @nodoc
+class __$$RequestWithdrawalImplCopyWithImpl<$Res>
+    extends _$TokenPoolEventCopyWithImpl<$Res, _$RequestWithdrawalImpl>
+    implements _$$RequestWithdrawalImplCopyWith<$Res> {
+  __$$RequestWithdrawalImplCopyWithImpl(
+    _$RequestWithdrawalImpl _value,
+    $Res Function(_$RequestWithdrawalImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of TokenPoolEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? poolId = null, Object? amount = null}) {
+    return _then(
+      _$RequestWithdrawalImpl(
+        poolId: null == poolId
+            ? _value.poolId
+            : poolId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        amount: null == amount
+            ? _value.amount
+            : amount // ignore: cast_nullable_to_non_nullable
+                  as int,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$RequestWithdrawalImpl implements _RequestWithdrawal {
+  const _$RequestWithdrawalImpl({required this.poolId, required this.amount});
+
+  @override
+  final String poolId;
+  @override
+  final int amount;
+
+  @override
+  String toString() {
+    return 'TokenPoolEvent.requestWithdrawal(poolId: $poolId, amount: $amount)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RequestWithdrawalImpl &&
+            (identical(other.poolId, poolId) || other.poolId == poolId) &&
+            (identical(other.amount, amount) || other.amount == amount));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, poolId, amount);
+
+  /// Create a copy of TokenPoolEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$RequestWithdrawalImplCopyWith<_$RequestWithdrawalImpl> get copyWith =>
+      __$$RequestWithdrawalImplCopyWithImpl<_$RequestWithdrawalImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(
+      PoolMode mode,
+      String title,
+      String? purpose,
+      String message,
+      GiftStyle style,
+      String? recipientId,
+      List<String> inviteeIds,
+      String? communityId,
+    )
+    createPool,
+    required TResult Function(String poolId, int amount, bool anonymous)
+    contribute,
+    required TResult Function(String poolId) sendGroupGift,
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
+    distributePool,
+    required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
+    required TResult Function(String poolId) openGroupGift,
+    required TResult Function(String poolId) claimGroupGift,
+    required TResult Function(String poolId) watchPool,
+    required TResult Function(TokenPool pool) poolUpdated,
+    required TResult Function() loadMyPools,
+    required TResult Function() clearError,
+    required TResult Function() reset,
+  }) {
+    return requestWithdrawal(poolId, amount);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(
+      PoolMode mode,
+      String title,
+      String? purpose,
+      String message,
+      GiftStyle style,
+      String? recipientId,
+      List<String> inviteeIds,
+      String? communityId,
+    )?
+    createPool,
+    TResult? Function(String poolId, int amount, bool anonymous)? contribute,
+    TResult? Function(String poolId)? sendGroupGift,
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
+    distributePool,
+    TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
+    TResult? Function(String poolId)? openGroupGift,
+    TResult? Function(String poolId)? claimGroupGift,
+    TResult? Function(String poolId)? watchPool,
+    TResult? Function(TokenPool pool)? poolUpdated,
+    TResult? Function()? loadMyPools,
+    TResult? Function()? clearError,
+    TResult? Function()? reset,
+  }) {
+    return requestWithdrawal?.call(poolId, amount);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(
+      PoolMode mode,
+      String title,
+      String? purpose,
+      String message,
+      GiftStyle style,
+      String? recipientId,
+      List<String> inviteeIds,
+      String? communityId,
+    )?
+    createPool,
+    TResult Function(String poolId, int amount, bool anonymous)? contribute,
+    TResult Function(String poolId)? sendGroupGift,
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
+    distributePool,
+    TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
+    TResult Function(String poolId)? openGroupGift,
+    TResult Function(String poolId)? claimGroupGift,
+    TResult Function(String poolId)? watchPool,
+    TResult Function(TokenPool pool)? poolUpdated,
+    TResult Function()? loadMyPools,
+    TResult Function()? clearError,
+    TResult Function()? reset,
+    required TResult orElse(),
+  }) {
+    if (requestWithdrawal != null) {
+      return requestWithdrawal(poolId, amount);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_CreatePool value) createPool,
+    required TResult Function(_Contribute value) contribute,
+    required TResult Function(_SendGroupGift value) sendGroupGift,
+    required TResult Function(_DistributePool value) distributePool,
+    required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
+    required TResult Function(_OpenGroupGift value) openGroupGift,
+    required TResult Function(_ClaimGroupGift value) claimGroupGift,
+    required TResult Function(_WatchPool value) watchPool,
+    required TResult Function(_PoolUpdated value) poolUpdated,
+    required TResult Function(_LoadMyPools value) loadMyPools,
+    required TResult Function(_ClearError value) clearError,
+    required TResult Function(_Reset value) reset,
+  }) {
+    return requestWithdrawal(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_CreatePool value)? createPool,
+    TResult? Function(_Contribute value)? contribute,
+    TResult? Function(_SendGroupGift value)? sendGroupGift,
+    TResult? Function(_DistributePool value)? distributePool,
+    TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
+    TResult? Function(_OpenGroupGift value)? openGroupGift,
+    TResult? Function(_ClaimGroupGift value)? claimGroupGift,
+    TResult? Function(_WatchPool value)? watchPool,
+    TResult? Function(_PoolUpdated value)? poolUpdated,
+    TResult? Function(_LoadMyPools value)? loadMyPools,
+    TResult? Function(_ClearError value)? clearError,
+    TResult? Function(_Reset value)? reset,
+  }) {
+    return requestWithdrawal?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_CreatePool value)? createPool,
+    TResult Function(_Contribute value)? contribute,
+    TResult Function(_SendGroupGift value)? sendGroupGift,
+    TResult Function(_DistributePool value)? distributePool,
+    TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
+    TResult Function(_OpenGroupGift value)? openGroupGift,
+    TResult Function(_ClaimGroupGift value)? claimGroupGift,
+    TResult Function(_WatchPool value)? watchPool,
+    TResult Function(_PoolUpdated value)? poolUpdated,
+    TResult Function(_LoadMyPools value)? loadMyPools,
+    TResult Function(_ClearError value)? clearError,
+    TResult Function(_Reset value)? reset,
+    required TResult orElse(),
+  }) {
+    if (requestWithdrawal != null) {
+      return requestWithdrawal(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _RequestWithdrawal implements TokenPoolEvent {
+  const factory _RequestWithdrawal({
+    required final String poolId,
+    required final int amount,
+  }) = _$RequestWithdrawalImpl;
+
+  String get poolId;
+  int get amount;
+
+  /// Create a copy of TokenPoolEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$RequestWithdrawalImplCopyWith<_$RequestWithdrawalImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -1626,9 +2020,14 @@ class _$OpenGroupGiftImpl implements _OpenGroupGift {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -1656,9 +2055,14 @@ class _$OpenGroupGiftImpl implements _OpenGroupGift {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -1686,9 +2090,14 @@ class _$OpenGroupGiftImpl implements _OpenGroupGift {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -1712,6 +2121,7 @@ class _$OpenGroupGiftImpl implements _OpenGroupGift {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -1731,6 +2141,7 @@ class _$OpenGroupGiftImpl implements _OpenGroupGift {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -1750,6 +2161,7 @@ class _$OpenGroupGiftImpl implements _OpenGroupGift {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -1865,9 +2277,14 @@ class _$ClaimGroupGiftImpl implements _ClaimGroupGift {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -1895,9 +2312,14 @@ class _$ClaimGroupGiftImpl implements _ClaimGroupGift {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -1925,9 +2347,14 @@ class _$ClaimGroupGiftImpl implements _ClaimGroupGift {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -1951,6 +2378,7 @@ class _$ClaimGroupGiftImpl implements _ClaimGroupGift {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -1970,6 +2398,7 @@ class _$ClaimGroupGiftImpl implements _ClaimGroupGift {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -1989,6 +2418,7 @@ class _$ClaimGroupGiftImpl implements _ClaimGroupGift {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -2101,9 +2531,14 @@ class _$WatchPoolImpl implements _WatchPool {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -2131,9 +2566,14 @@ class _$WatchPoolImpl implements _WatchPool {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -2161,9 +2601,14 @@ class _$WatchPoolImpl implements _WatchPool {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -2187,6 +2632,7 @@ class _$WatchPoolImpl implements _WatchPool {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -2206,6 +2652,7 @@ class _$WatchPoolImpl implements _WatchPool {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -2225,6 +2672,7 @@ class _$WatchPoolImpl implements _WatchPool {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -2349,9 +2797,14 @@ class _$PoolUpdatedImpl implements _PoolUpdated {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -2379,9 +2832,14 @@ class _$PoolUpdatedImpl implements _PoolUpdated {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -2409,9 +2867,14 @@ class _$PoolUpdatedImpl implements _PoolUpdated {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -2435,6 +2898,7 @@ class _$PoolUpdatedImpl implements _PoolUpdated {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -2454,6 +2918,7 @@ class _$PoolUpdatedImpl implements _PoolUpdated {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -2473,6 +2938,7 @@ class _$PoolUpdatedImpl implements _PoolUpdated {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -2558,9 +3024,14 @@ class _$LoadMyPoolsImpl implements _LoadMyPools {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -2588,9 +3059,14 @@ class _$LoadMyPoolsImpl implements _LoadMyPools {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -2618,9 +3094,14 @@ class _$LoadMyPoolsImpl implements _LoadMyPools {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -2644,6 +3125,7 @@ class _$LoadMyPoolsImpl implements _LoadMyPools {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -2663,6 +3145,7 @@ class _$LoadMyPoolsImpl implements _LoadMyPools {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -2682,6 +3165,7 @@ class _$LoadMyPoolsImpl implements _LoadMyPools {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -2759,9 +3243,14 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -2789,9 +3278,14 @@ class _$ClearErrorImpl implements _ClearError {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -2819,9 +3313,14 @@ class _$ClearErrorImpl implements _ClearError {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -2845,6 +3344,7 @@ class _$ClearErrorImpl implements _ClearError {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -2864,6 +3364,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -2883,6 +3384,7 @@ class _$ClearErrorImpl implements _ClearError {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -2960,9 +3462,14 @@ class _$ResetImpl implements _Reset {
     required TResult Function(String poolId, int amount, bool anonymous)
     contribute,
     required TResult Function(String poolId) sendGroupGift,
-    required TResult Function(String poolId, List<Map<String, dynamic>> payouts)
+    required TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )
     distributePool,
     required TResult Function(String poolId) cancelPool,
+    required TResult Function(String poolId, int amount) requestWithdrawal,
     required TResult Function(String poolId) openGroupGift,
     required TResult Function(String poolId) claimGroupGift,
     required TResult Function(String poolId) watchPool,
@@ -2990,9 +3497,14 @@ class _$ResetImpl implements _Reset {
     createPool,
     TResult? Function(String poolId, int amount, bool anonymous)? contribute,
     TResult? Function(String poolId)? sendGroupGift,
-    TResult? Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult? Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult? Function(String poolId)? cancelPool,
+    TResult? Function(String poolId, int amount)? requestWithdrawal,
     TResult? Function(String poolId)? openGroupGift,
     TResult? Function(String poolId)? claimGroupGift,
     TResult? Function(String poolId)? watchPool,
@@ -3020,9 +3532,14 @@ class _$ResetImpl implements _Reset {
     createPool,
     TResult Function(String poolId, int amount, bool anonymous)? contribute,
     TResult Function(String poolId)? sendGroupGift,
-    TResult Function(String poolId, List<Map<String, dynamic>> payouts)?
+    TResult Function(
+      String poolId,
+      List<Map<String, dynamic>> payouts,
+      bool keepOpen,
+    )?
     distributePool,
     TResult Function(String poolId)? cancelPool,
+    TResult Function(String poolId, int amount)? requestWithdrawal,
     TResult Function(String poolId)? openGroupGift,
     TResult Function(String poolId)? claimGroupGift,
     TResult Function(String poolId)? watchPool,
@@ -3046,6 +3563,7 @@ class _$ResetImpl implements _Reset {
     required TResult Function(_SendGroupGift value) sendGroupGift,
     required TResult Function(_DistributePool value) distributePool,
     required TResult Function(_CancelPool value) cancelPool,
+    required TResult Function(_RequestWithdrawal value) requestWithdrawal,
     required TResult Function(_OpenGroupGift value) openGroupGift,
     required TResult Function(_ClaimGroupGift value) claimGroupGift,
     required TResult Function(_WatchPool value) watchPool,
@@ -3065,6 +3583,7 @@ class _$ResetImpl implements _Reset {
     TResult? Function(_SendGroupGift value)? sendGroupGift,
     TResult? Function(_DistributePool value)? distributePool,
     TResult? Function(_CancelPool value)? cancelPool,
+    TResult? Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult? Function(_OpenGroupGift value)? openGroupGift,
     TResult? Function(_ClaimGroupGift value)? claimGroupGift,
     TResult? Function(_WatchPool value)? watchPool,
@@ -3084,6 +3603,7 @@ class _$ResetImpl implements _Reset {
     TResult Function(_SendGroupGift value)? sendGroupGift,
     TResult Function(_DistributePool value)? distributePool,
     TResult Function(_CancelPool value)? cancelPool,
+    TResult Function(_RequestWithdrawal value)? requestWithdrawal,
     TResult Function(_OpenGroupGift value)? openGroupGift,
     TResult Function(_ClaimGroupGift value)? claimGroupGift,
     TResult Function(_WatchPool value)? watchPool,
@@ -3115,6 +3635,7 @@ mixin _$TokenPoolState {
   bool get isDistributing => throw _privateConstructorUsedError;
   bool get isCancelling => throw _privateConstructorUsedError;
   bool get isClaiming => throw _privateConstructorUsedError;
+  bool get isWithdrawing => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
   String? get successMessage => throw _privateConstructorUsedError;
 
@@ -3142,6 +3663,7 @@ abstract class $TokenPoolStateCopyWith<$Res> {
     bool isDistributing,
     bool isCancelling,
     bool isClaiming,
+    bool isWithdrawing,
     String? errorMessage,
     String? successMessage,
   });
@@ -3173,6 +3695,7 @@ class _$TokenPoolStateCopyWithImpl<$Res, $Val extends TokenPoolState>
     Object? isDistributing = null,
     Object? isCancelling = null,
     Object? isClaiming = null,
+    Object? isWithdrawing = null,
     Object? errorMessage = freezed,
     Object? successMessage = freezed,
   }) {
@@ -3213,6 +3736,10 @@ class _$TokenPoolStateCopyWithImpl<$Res, $Val extends TokenPoolState>
             isClaiming: null == isClaiming
                 ? _value.isClaiming
                 : isClaiming // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isWithdrawing: null == isWithdrawing
+                ? _value.isWithdrawing
+                : isWithdrawing // ignore: cast_nullable_to_non_nullable
                       as bool,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
@@ -3261,6 +3788,7 @@ abstract class _$$TokenPoolStateImplCopyWith<$Res>
     bool isDistributing,
     bool isCancelling,
     bool isClaiming,
+    bool isWithdrawing,
     String? errorMessage,
     String? successMessage,
   });
@@ -3292,6 +3820,7 @@ class __$$TokenPoolStateImplCopyWithImpl<$Res>
     Object? isDistributing = null,
     Object? isCancelling = null,
     Object? isClaiming = null,
+    Object? isWithdrawing = null,
     Object? errorMessage = freezed,
     Object? successMessage = freezed,
   }) {
@@ -3333,6 +3862,10 @@ class __$$TokenPoolStateImplCopyWithImpl<$Res>
             ? _value.isClaiming
             : isClaiming // ignore: cast_nullable_to_non_nullable
                   as bool,
+        isWithdrawing: null == isWithdrawing
+            ? _value.isWithdrawing
+            : isWithdrawing // ignore: cast_nullable_to_non_nullable
+                  as bool,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -3359,6 +3892,7 @@ class _$TokenPoolStateImpl implements _TokenPoolState {
     this.isDistributing = false,
     this.isCancelling = false,
     this.isClaiming = false,
+    this.isWithdrawing = false,
     this.errorMessage,
     this.successMessage,
   }) : _myPools = myPools;
@@ -3396,13 +3930,16 @@ class _$TokenPoolStateImpl implements _TokenPoolState {
   @JsonKey()
   final bool isClaiming;
   @override
+  @JsonKey()
+  final bool isWithdrawing;
+  @override
   final String? errorMessage;
   @override
   final String? successMessage;
 
   @override
   String toString() {
-    return 'TokenPoolState(myPools: $myPools, activePool: $activePool, isLoading: $isLoading, isCreating: $isCreating, isContributing: $isContributing, isSending: $isSending, isDistributing: $isDistributing, isCancelling: $isCancelling, isClaiming: $isClaiming, errorMessage: $errorMessage, successMessage: $successMessage)';
+    return 'TokenPoolState(myPools: $myPools, activePool: $activePool, isLoading: $isLoading, isCreating: $isCreating, isContributing: $isContributing, isSending: $isSending, isDistributing: $isDistributing, isCancelling: $isCancelling, isClaiming: $isClaiming, isWithdrawing: $isWithdrawing, errorMessage: $errorMessage, successMessage: $successMessage)';
   }
 
   @override
@@ -3427,6 +3964,8 @@ class _$TokenPoolStateImpl implements _TokenPoolState {
                 other.isCancelling == isCancelling) &&
             (identical(other.isClaiming, isClaiming) ||
                 other.isClaiming == isClaiming) &&
+            (identical(other.isWithdrawing, isWithdrawing) ||
+                other.isWithdrawing == isWithdrawing) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage) &&
             (identical(other.successMessage, successMessage) ||
@@ -3445,6 +3984,7 @@ class _$TokenPoolStateImpl implements _TokenPoolState {
     isDistributing,
     isCancelling,
     isClaiming,
+    isWithdrawing,
     errorMessage,
     successMessage,
   );
@@ -3472,6 +4012,7 @@ abstract class _TokenPoolState implements TokenPoolState {
     final bool isDistributing,
     final bool isCancelling,
     final bool isClaiming,
+    final bool isWithdrawing,
     final String? errorMessage,
     final String? successMessage,
   }) = _$TokenPoolStateImpl;
@@ -3494,6 +4035,8 @@ abstract class _TokenPoolState implements TokenPoolState {
   bool get isCancelling;
   @override
   bool get isClaiming;
+  @override
+  bool get isWithdrawing;
   @override
   String? get errorMessage;
   @override

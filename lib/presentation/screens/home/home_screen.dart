@@ -15,6 +15,7 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
+import '../wallet/wallet_screen.dart';
 
 /// Highlight zones synced to intro video playback timestamps.
 enum _HighlightZone { none, potCards, streakDays, inviteFriends, helpIcon }
@@ -26,7 +27,11 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with TickerProviderStateMixin {
+  // Home | Wallet tab controller
+  late final TabController _tabController;
+
   // Intro video (first visit to Home only)
   static const _kHomeVideoKey = 'home_video_shown';
   VideoPlayerController? _videoController;
@@ -46,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     context.read<WalletBloc>().add(const WalletEvent.loadLedger());
     final potBloc = context.read<PotBloc>();
     potBloc.add(const PotEvent.watchDailyPot());
@@ -211,6 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _tabController.dispose();
     _disposeVideo();
     _scrollController.dispose();
     super.dispose();
@@ -236,6 +243,76 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: IMaliAppBar(
+        title: 'Home',
+        bottom: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          indicator: BoxDecoration(
+            gradient: const LinearGradient(colors: AppColors.logoGradient),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicatorPadding:
+              const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          labelColor: Colors.white,
+          unselectedLabelColor: AppColors.textSecondary,
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 14,
+            letterSpacing: 0.3,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+          dividerColor: Colors.transparent,
+          splashBorderRadius: BorderRadius.circular(20),
+          tabs: [
+            Tab(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ImageIcon(
+                    const AssetImage(
+                        'assets/botton_nav_bar_icons/Bottom Nav - Home icon.png'),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 6),
+                  const Text('Home'),
+                ],
+              ),
+            ),
+            Tab(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ImageIcon(
+                    const AssetImage(
+                        'assets/botton_nav_bar_icons/Bottom Nav - Wallet icon.png'),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 6),
+                  const Text('Wallet'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildHomeTab(),
+          const WalletScreen(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHomeTab() {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, authState) {
         final user = authState.user;
@@ -244,50 +321,47 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context, walletState) {
             return BlocBuilder<PotBloc, PotState>(
               builder: (context, potState) {
-                return Scaffold(
-                  appBar: const IMaliAppBar(title: 'Home'),
-                  body: RefreshIndicator(
-                        onRefresh: () async {
-                          context
-                              .read<WalletBloc>()
-                              .add(const WalletEvent.refreshLedger());
-                          final potBloc = context.read<PotBloc>();
-                          potBloc.add(const PotEvent.loadDailyPot());
-                          potBloc.add(const PotEvent.loadWeeklyPot());
-                          potBloc.add(const PotEvent.loadCurrentUserScore(
-                              PotType.daily));
-                          potBloc.add(const PotEvent.loadCurrentUserScore(
-                              PotType.weekly));
-                        },
-                        child: SingleChildScrollView(
-                          controller: _scrollController,
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          child: WaveBackground(
-                            child: Padding(
-                                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _buildHeader(context, user, walletState),
-                                    const SizedBox(height: 12),
-                                    _buildTokenBalanceCard(context, walletState),
-                                    const SizedBox(height: 16),
-                                    _buildDailyProgressCard(context),
-                                    // Intro video (first visit only)
-                                    if (_showVideo && _videoController != null)
-                                      _buildIntroVideo(),
-                                    const SizedBox(height: 24),
-                                    _buildPotCardsRow(context, potState),
-                                    const SizedBox(height: 24),
-                                    _buildInviteFriendsButton(context),
-                                    const SizedBox(height: 16),
-                                    _buildHowItWorksLink(context),
-                                  ],
-                                ),
-                              ),
-                          ),
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    context
+                        .read<WalletBloc>()
+                        .add(const WalletEvent.refreshLedger());
+                    final potBloc = context.read<PotBloc>();
+                    potBloc.add(const PotEvent.loadDailyPot());
+                    potBloc.add(const PotEvent.loadWeeklyPot());
+                    potBloc.add(const PotEvent.loadCurrentUserScore(
+                        PotType.daily));
+                    potBloc.add(const PotEvent.loadCurrentUserScore(
+                        PotType.weekly));
+                  },
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: WaveBackground(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildHeader(context, user, walletState),
+                            const SizedBox(height: 12),
+                            _buildTokenBalanceCard(context, walletState),
+                            const SizedBox(height: 16),
+                            _buildDailyProgressCard(context),
+                            // Intro video (first visit only)
+                            if (_showVideo && _videoController != null)
+                              _buildIntroVideo(),
+                            const SizedBox(height: 24),
+                            _buildPotCardsRow(context, potState),
+                            const SizedBox(height: 24),
+                            _buildInviteFriendsButton(context),
+                            const SizedBox(height: 16),
+                            _buildHowItWorksLink(context),
+                          ],
                         ),
                       ),
+                    ),
+                  ),
                 );
               },
             );

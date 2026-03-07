@@ -12,6 +12,7 @@ class TokenPoolState with _$TokenPoolState {
     @Default(false) bool isDistributing,
     @Default(false) bool isCancelling,
     @Default(false) bool isClaiming,
+    @Default(false) bool isWithdrawing,
     String? errorMessage,
     String? successMessage,
   }) = _TokenPoolState;

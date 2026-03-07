@@ -39,6 +39,9 @@ mixin _$SubAccountModel {
   bool get allowCashout => throw _privateConstructorUsedError;
   bool get p2pRestrictToSameAccountType => throw _privateConstructorUsedError;
   List<String> get allowedOfframps => throw _privateConstructorUsedError;
+  int? get expiryDays => throw _privateConstructorUsedError;
+  @NullableTimestampConverter()
+  DateTime? get lastCreditAt => throw _privateConstructorUsedError;
 
   /// Serializes this SubAccountModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -74,6 +77,8 @@ abstract class $SubAccountModelCopyWith<$Res> {
     bool allowCashout,
     bool p2pRestrictToSameAccountType,
     List<String> allowedOfframps,
+    int? expiryDays,
+    @NullableTimestampConverter() DateTime? lastCreditAt,
   });
 }
 
@@ -108,6 +113,8 @@ class _$SubAccountModelCopyWithImpl<$Res, $Val extends SubAccountModel>
     Object? allowCashout = null,
     Object? p2pRestrictToSameAccountType = null,
     Object? allowedOfframps = null,
+    Object? expiryDays = freezed,
+    Object? lastCreditAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -175,6 +182,14 @@ class _$SubAccountModelCopyWithImpl<$Res, $Val extends SubAccountModel>
                 ? _value.allowedOfframps
                 : allowedOfframps // ignore: cast_nullable_to_non_nullable
                       as List<String>,
+            expiryDays: freezed == expiryDays
+                ? _value.expiryDays
+                : expiryDays // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            lastCreditAt: freezed == lastCreditAt
+                ? _value.lastCreditAt
+                : lastCreditAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -207,6 +222,8 @@ abstract class _$$SubAccountModelImplCopyWith<$Res>
     bool allowCashout,
     bool p2pRestrictToSameAccountType,
     List<String> allowedOfframps,
+    int? expiryDays,
+    @NullableTimestampConverter() DateTime? lastCreditAt,
   });
 }
 
@@ -240,6 +257,8 @@ class __$$SubAccountModelImplCopyWithImpl<$Res>
     Object? allowCashout = null,
     Object? p2pRestrictToSameAccountType = null,
     Object? allowedOfframps = null,
+    Object? expiryDays = freezed,
+    Object? lastCreditAt = freezed,
   }) {
     return _then(
       _$SubAccountModelImpl(
@@ -307,6 +326,14 @@ class __$$SubAccountModelImplCopyWithImpl<$Res>
             ? _value._allowedOfframps
             : allowedOfframps // ignore: cast_nullable_to_non_nullable
                   as List<String>,
+        expiryDays: freezed == expiryDays
+            ? _value.expiryDays
+            : expiryDays // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        lastCreditAt: freezed == lastCreditAt
+            ? _value.lastCreditAt
+            : lastCreditAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -332,6 +359,8 @@ class _$SubAccountModelImpl extends _SubAccountModel {
     this.allowCashout = true,
     this.p2pRestrictToSameAccountType = false,
     final List<String> allowedOfframps = const ["*"],
+    this.expiryDays,
+    @NullableTimestampConverter() this.lastCreditAt,
   }) : _allowedOfframps = allowedOfframps,
        super._();
 
@@ -384,8 +413,14 @@ class _$SubAccountModelImpl extends _SubAccountModel {
   }
 
   @override
+  final int? expiryDays;
+  @override
+  @NullableTimestampConverter()
+  final DateTime? lastCreditAt;
+
+  @override
   String toString() {
-    return 'SubAccountModel(id: $id, userId: $userId, accountTypeId: $accountTypeId, name: $name, balance: $balance, lifetimeCredits: $lifetimeCredits, lifetimeDebits: $lifetimeDebits, isActive: $isActive, isDefault: $isDefault, createdAt: $createdAt, updatedAt: $updatedAt, allowP2pSend: $allowP2pSend, allowP2pReceive: $allowP2pReceive, allowCashout: $allowCashout, p2pRestrictToSameAccountType: $p2pRestrictToSameAccountType, allowedOfframps: $allowedOfframps)';
+    return 'SubAccountModel(id: $id, userId: $userId, accountTypeId: $accountTypeId, name: $name, balance: $balance, lifetimeCredits: $lifetimeCredits, lifetimeDebits: $lifetimeDebits, isActive: $isActive, isDefault: $isDefault, createdAt: $createdAt, updatedAt: $updatedAt, allowP2pSend: $allowP2pSend, allowP2pReceive: $allowP2pReceive, allowCashout: $allowCashout, p2pRestrictToSameAccountType: $p2pRestrictToSameAccountType, allowedOfframps: $allowedOfframps, expiryDays: $expiryDays, lastCreditAt: $lastCreditAt)';
   }
 
   @override
@@ -426,7 +461,11 @@ class _$SubAccountModelImpl extends _SubAccountModel {
             const DeepCollectionEquality().equals(
               other._allowedOfframps,
               _allowedOfframps,
-            ));
+            ) &&
+            (identical(other.expiryDays, expiryDays) ||
+                other.expiryDays == expiryDays) &&
+            (identical(other.lastCreditAt, lastCreditAt) ||
+                other.lastCreditAt == lastCreditAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -449,6 +488,8 @@ class _$SubAccountModelImpl extends _SubAccountModel {
     allowCashout,
     p2pRestrictToSameAccountType,
     const DeepCollectionEquality().hash(_allowedOfframps),
+    expiryDays,
+    lastCreditAt,
   );
 
   /// Create a copy of SubAccountModel
@@ -486,6 +527,8 @@ abstract class _SubAccountModel extends SubAccountModel {
     final bool allowCashout,
     final bool p2pRestrictToSameAccountType,
     final List<String> allowedOfframps,
+    final int? expiryDays,
+    @NullableTimestampConverter() final DateTime? lastCreditAt,
   }) = _$SubAccountModelImpl;
   const _SubAccountModel._() : super._();
 
@@ -526,6 +569,11 @@ abstract class _SubAccountModel extends SubAccountModel {
   bool get p2pRestrictToSameAccountType;
   @override
   List<String> get allowedOfframps;
+  @override
+  int? get expiryDays;
+  @override
+  @NullableTimestampConverter()
+  DateTime? get lastCreditAt;
 
   /// Create a copy of SubAccountModel
   /// with the given fields replaced by the non-null parameter values.

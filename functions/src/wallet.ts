@@ -292,7 +292,7 @@ export const getSubAccounts = onCall({ labels: { area: "wallet" } }, async (requ
     subAccounts.map(async (sa) => {
       if (!sa.accountTypeId) {
         // Unrestricted (user-created) — default permissive rules
-        return { ...sa, allowP2pSend: true, allowP2pReceive: true, allowCashout: true, p2pRestrictToSameAccountType: false, allowedOfframps: ["*"] };
+        return { ...sa, allowP2pSend: true, allowP2pReceive: true, allowCashout: true, p2pRestrictToSameAccountType: false, allowedOfframps: ["*"], expiryDays: null };
       }
       const rules = await getAccountTypeRules(sa.accountTypeId);
       return {
@@ -302,6 +302,7 @@ export const getSubAccounts = onCall({ labels: { area: "wallet" } }, async (requ
         allowCashout: rules.allowCashout,
         p2pRestrictToSameAccountType: rules.p2pRestrictToSameAccountType ?? false,
         allowedOfframps: rules.allowedOfframps,
+        expiryDays: rules.expiryDays ?? null,
       };
     })
   );
@@ -354,6 +355,17 @@ export const transferBetweenWallets = onCall({ labels: { area: "wallet" } }, asy
           `Insufficient main wallet balance: has ${available}, needs ${amount}`
         );
       }
+      // Validate destination sub-account allows receiving
+      const toSubAccount = await getSubAccount(userId, toSubAccountId);
+      if (toSubAccount?.accountTypeId) {
+        const allowed = await validateSubAccountAllows(toSubAccount.accountTypeId, "p2p_receive");
+        if (!allowed.allowed) {
+          throw new HttpsError(
+            "failed-precondition",
+            allowed.reason || "This wallet does not allow receiving transfers"
+          );
+        }
+      }
       await creditSubAccount(userId, toSubAccountId, amount);
     } else if (toIsMain) {
       // Sub-account → main wallet: validate source, debit source only.
@@ -370,7 +382,7 @@ export const transferBetweenWallets = onCall({ labels: { area: "wallet" } }, asy
       }
       await debitSubAccount(userId, fromSubAccountId, amount);
     } else {
-      // Sub-account → sub-account: enforce account type rules on source
+      // Sub-account → sub-account: enforce account type rules on source and destination
       const fromSubAccount = await getSubAccount(userId, fromSubAccountId);
       if (fromSubAccount?.accountTypeId) {
         const allowed = await validateSubAccountAllows(fromSubAccount.accountTypeId, "p2p_send");
@@ -378,6 +390,17 @@ export const transferBetweenWallets = onCall({ labels: { area: "wallet" } }, asy
           throw new HttpsError(
             "failed-precondition",
             allowed.reason || "This wallet does not allow outbound transfers"
+          );
+        }
+      }
+      // Validate destination sub-account allows receiving
+      const toSubAccount = await getSubAccount(userId, toSubAccountId);
+      if (toSubAccount?.accountTypeId) {
+        const allowed = await validateSubAccountAllows(toSubAccount.accountTypeId, "p2p_receive");
+        if (!allowed.allowed) {
+          throw new HttpsError(
+            "failed-precondition",
+            allowed.reason || "This wallet does not allow receiving transfers"
           );
         }
       }

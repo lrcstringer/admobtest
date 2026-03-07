@@ -34,7 +34,7 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   void _navigateToRewards(BuildContext context) {
-    context.go('/wallet/rewards');
+    context.go('/home/wallet-rewards');
   }
 
   Future<void> _loadRewardFlag() async {
@@ -622,7 +622,7 @@ class _WalletScreenState extends State<WalletScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
-        onTap: () => context.go('/wallet/rewards/${item.id}'),
+        onTap: () => context.go('/home/wallet-rewards/${item.id}'),
         borderRadius: AppSpacing.borderRadiusMd,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -752,7 +752,7 @@ class _WalletScreenState extends State<WalletScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () => context.go('/wallet/detail/${subAccount.id}'),
+        onTap: () => context.go('/home/wallet-detail/${subAccount.id}'),
         borderRadius: AppSpacing.borderRadiusMd,
         child: Container(
           decoration: BoxDecoration(

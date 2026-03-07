@@ -25,6 +25,7 @@ import {
   getOrCreateGroupAccount,
   processGroupContribution,
   processGroupPayout,
+  processGroupWithdrawal,
 } from "./ledger/groupAccounts";
 import { validateMainWalletBalance } from "./ledger";
 
@@ -996,7 +997,7 @@ export const distributePool = onCall(
     const userId = requireAuth(request);
     requireAppCheck(request, "distributePool");
 
-    const { poolId, payouts } = request.data;
+    const { poolId, payouts, keepOpen = false } = request.data;
 
     if (!poolId || typeof poolId !== "string") {
       throw new HttpsError("invalid-argument", "poolId is required");
@@ -1045,14 +1046,19 @@ export const distributePool = onCall(
         throw new HttpsError("failed-precondition", "Pool has no contributions");
       }
 
-      // Validate payout sum
+      // Validate payout sum against available balance
       const payoutSum = payouts.reduce((sum: number, p: { amount: number }) => sum + p.amount, 0);
-      if (payoutSum !== pool.totalAmount) {
+      const totalDistributed = pool.totalDistributed || 0;
+      const availableBalance = pool.totalAmount - totalDistributed;
+      if (payoutSum <= 0 || payoutSum > availableBalance) {
         throw new HttpsError(
           "invalid-argument",
-          `Payout sum (${payoutSum}) must equal pool total (${pool.totalAmount})`
+          `Payout sum (${payoutSum}) must be between 1 and available balance (${availableBalance})`
         );
       }
+
+      const isFullDistribution = payoutSum === availableBalance;
+      const newStatus = (isFullDistribution && !keepOpen) ? "completed" : "collecting";
 
       // Validate all payout recipients are participants
       const allParticipants = [pool.organizerId, ...pool.inviteeIds];
@@ -1073,18 +1079,33 @@ export const distributePool = onCall(
         });
       }
 
-      tx.update(poolRef, {
-        status: "completed",
-        payouts: payoutRecords,
-        completedAt: admin.firestore.FieldValue.serverTimestamp(),
+      const existingPayouts = pool.payouts || [];
+      const allPayouts = [...existingPayouts, ...payoutRecords];
+      const newTotalDistributed = totalDistributed + payoutSum;
+
+      const updateData: Record<string, any> = {
+        status: newStatus,
+        payouts: allPayouts,
+        totalDistributed: newTotalDistributed,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      };
+      if (newStatus === "completed") {
+        updateData.completedAt = admin.firestore.FieldValue.serverTimestamp();
+      }
+
+      tx.update(poolRef, updateData);
 
       return {
         conversationId: pool.conversationId,
         totalAmount: pool.totalAmount,
         inviteeIds: pool.inviteeIds,
         payoutRecords,
+        payoutSum,
+        isFullDistribution,
+        newStatus,
+        previousStatus: pool.status,
+        previousTotalDistributed: totalDistributed,
+        previousPayouts: existingPayouts,
       };
     });
 
@@ -1098,10 +1119,11 @@ export const distributePool = onCall(
       const payoutResult = await processGroupPayout(poolId, payoutEntries, distributeTxId);
 
       if (!payoutResult.success) {
-        // Rollback status
+        // Rollback to previous state
         await poolRef.update({
-          status: "collecting",
-          payouts: [],
+          status: txResult.previousStatus,
+          payouts: txResult.previousPayouts,
+          totalDistributed: txResult.previousTotalDistributed,
           completedAt: null,
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
@@ -1110,8 +1132,9 @@ export const distributePool = onCall(
     } catch (e) {
       if (e instanceof HttpsError) throw e;
       await poolRef.update({
-        status: "collecting",
-        payouts: [],
+        status: txResult.previousStatus,
+        payouts: txResult.previousPayouts,
+        totalDistributed: txResult.previousTotalDistributed,
         completedAt: null,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
@@ -1124,29 +1147,185 @@ export const distributePool = onCall(
       .map((p: { displayName: string; amount: number }) => `${p.displayName}: ${p.amount} tokens`)
       .join(", ");
 
+    const isPartial = !txResult.isFullDistribution || keepOpen;
+    const messagePrefix = isPartial ? "Partial distribution" : "Pool distributed!";
+    const messageType = isPartial ? "pool_partially_distributed" : "pool_distributed";
+
     await postSystemMessage(
       txResult.conversationId,
-      `Pool distributed! ${payoutLines}`,
-      "pool_distributed",
-      { poolId, payouts: txResult.payoutRecords }
+      `${messagePrefix} ${payoutLines}`,
+      messageType,
+      { poolId, payouts: txResult.payoutRecords, isPartial }
     );
 
     // FCM to all participants
     const allParticipantIds = [userId, ...txResult.inviteeIds];
     const fcmTokens = await getFcmTokens(allParticipantIds.filter((id: string) => id !== userId));
+    const fcmTitle = isPartial ? "Partial distribution" : "Pool distributed!";
+    const fcmBody = isPartial
+      ? `${txResult.payoutSum} tokens distributed (pool remains open)`
+      : `${txResult.totalAmount} tokens have been distributed`;
     for (const token of fcmTokens) {
       await sendFcmNotification(
         token,
-        "Pool distributed!",
-        `${txResult.totalAmount} tokens have been distributed`,
-        { type: "pool_distributed", poolId, conversationId: txResult.conversationId }
+        fcmTitle,
+        fcmBody,
+        { type: messageType, poolId, conversationId: txResult.conversationId }
       );
     }
 
-    logger.info(`Pool distributed: ${poolId}, ${txResult.totalAmount} tokens to ${payouts.length} recipients`);
+    logger.info(`Pool ${isPartial ? "partially " : ""}distributed: ${poolId}, ${txResult.payoutSum} tokens to ${payouts.length} recipients`);
 
     const poolDoc = await poolRef.get();
     return { success: true, pool: { ...poolDoc.data(), id: poolId } };
+  }
+);
+
+// ============================================================================
+// REQUEST POOL WITHDRAWAL
+// ============================================================================
+
+/**
+ * Request a withdrawal from a Group Save pool.
+ *
+ * Auto-approved up to the member's own contribution total.
+ * Only available for save-mode pools in collecting status.
+ */
+export const requestPoolWithdrawal = onCall(
+  { labels: { area: "pools" } },
+  async (request) => {
+    const userId = requireAuth(request);
+    requireAppCheck(request, "requestPoolWithdrawal");
+
+    const { poolId, amount } = request.data;
+
+    if (!poolId || typeof poolId !== "string") {
+      throw new HttpsError("invalid-argument", "poolId is required");
+    }
+
+    if (!Number.isInteger(amount) || amount <= 0) {
+      throw new HttpsError("invalid-argument", "amount must be a positive integer");
+    }
+
+    const poolRef = db.collection("tokenPools").doc(poolId);
+    const withdrawTxId = `withdraw_${poolId}_${userId}_${Date.now()}`;
+
+    // Phase 1: Validate and update pool
+    const txResult = await db.runTransaction(async (tx) => {
+      const poolDoc = await tx.get(poolRef);
+
+      if (!poolDoc.exists) {
+        throw new HttpsError("not-found", "Pool not found");
+      }
+
+      const pool = poolDoc.data()!;
+
+      if (pool.mode !== "save") {
+        throw new HttpsError("failed-precondition", "Withdrawals are only available for Group Save pools");
+      }
+
+      if (pool.status !== "collecting") {
+        throw new HttpsError("failed-precondition", "Pool is not in collecting status");
+      }
+
+      // Validate user is a participant
+      const allParticipants = [pool.organizerId, ...pool.inviteeIds];
+      if (!allParticipants.includes(userId)) {
+        throw new HttpsError("permission-denied", "You are not a participant in this pool");
+      }
+
+      // Validate withdrawal amount against user's contribution total
+      const userContrib = pool.contributions?.[userId];
+      const userContribTotal = userContrib?.totalAmount || 0;
+
+      if (userContribTotal <= 0) {
+        throw new HttpsError("failed-precondition", "You have no contributions to withdraw");
+      }
+
+      if (amount > userContribTotal) {
+        throw new HttpsError(
+          "invalid-argument",
+          `Withdrawal amount (${amount}) exceeds your contribution total (${userContribTotal})`
+        );
+      }
+
+      // Auto-approve: update pool balances
+      const newUserTotal = userContribTotal - amount;
+      const newContributorCount = newUserTotal === 0
+        ? Math.max((pool.contributorCount || 1) - 1, 0)
+        : pool.contributorCount;
+
+      tx.update(poolRef, {
+        [`contributions.${userId}.totalAmount`]: newUserTotal,
+        totalAmount: admin.firestore.FieldValue.increment(-amount),
+        contributorCount: newContributorCount,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return {
+        conversationId: pool.conversationId,
+        inviteeIds: pool.inviteeIds,
+        organizerId: pool.organizerId,
+        previousTotalAmount: pool.totalAmount,
+        previousUserTotal: userContribTotal,
+        previousContributorCount: pool.contributorCount,
+      };
+    });
+
+    // Phase 2: Ledger withdrawal
+    try {
+      const result = await processGroupWithdrawal(poolId, userId, amount, withdrawTxId);
+
+      if (!result.success) {
+        // Rollback pool balances
+        await poolRef.update({
+          [`contributions.${userId}.totalAmount`]: txResult.previousUserTotal,
+          totalAmount: txResult.previousTotalAmount,
+          contributorCount: txResult.previousContributorCount,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        throw new HttpsError("internal", result.error || "Failed to process withdrawal");
+      }
+    } catch (e) {
+      if (e instanceof HttpsError) throw e;
+      await poolRef.update({
+        [`contributions.${userId}.totalAmount`]: txResult.previousUserTotal,
+        totalAmount: txResult.previousTotalAmount,
+        contributorCount: txResult.previousContributorCount,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      logger.error("Pool withdrawal ledger error:", e);
+      throw new HttpsError("internal", "Failed to process withdrawal");
+    }
+
+    // Phase 3: Side effects
+    const profile = await getUserProfile(userId);
+    const displayName = profile.displayName || "A member";
+
+    await postSystemMessage(
+      txResult.conversationId,
+      `${displayName} withdrew ${amount} tokens`,
+      "pool_withdrawal",
+      { poolId, userId, amount }
+    );
+
+    // FCM to organizer (if not the withdrawer)
+    if (txResult.organizerId !== userId) {
+      const fcmTokens = await getFcmTokens([txResult.organizerId]);
+      for (const token of fcmTokens) {
+        await sendFcmNotification(
+          token,
+          "Pool withdrawal",
+          `${displayName} withdrew ${amount} tokens`,
+          { type: "pool_withdrawal", poolId, conversationId: txResult.conversationId }
+        );
+      }
+    }
+
+    logger.info(`Pool withdrawal: ${poolId}, ${amount} tokens by ${userId}`);
+
+    const poolDoc = await poolRef.get();
+    return { success: true, autoApproved: true, pool: { ...poolDoc.data(), id: poolId } };
   }
 );
 

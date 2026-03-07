@@ -23,7 +23,8 @@ import '../../widgets/messaging/community_list_tile.dart';
 import '../../widgets/messaging/conversation_list_tile.dart';
 import '../../widgets/messaging/quick_action_strip.dart';
 import '../../widgets/messaging/token_actions_sheet.dart';
-import '../../widgets/pool/collection_room_list_tile.dart';
+import '../../blocs/token_pool/token_pool_bloc.dart';
+import '../../widgets/pool/pool_list_tile.dart';
 
 /// Messaging screen with three tabs: Chats, Communities, Contacts.
 /// Each tab has a context-aware FAB with relevant actions.
@@ -58,7 +59,7 @@ class _MessagingScreenState extends State<MessagingScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) return;
       setState(() {
@@ -70,8 +71,14 @@ class _MessagingScreenState extends State<MessagingScreen>
           _searchController.clear();
         }
       });
-      // Refresh pending invitations every time Communities tab is selected
+      // Refresh collections when Collections tab is selected
       if (_tabController.index == 1) {
+        context
+            .read<TokenPoolBloc>()
+            .add(const TokenPoolEvent.loadMyPools());
+      }
+      // Refresh pending invitations every time Communities tab is selected
+      if (_tabController.index == 2) {
         context
             .read<CommunityBloc>()
             .add(const CommunityEvent.loadPendingInvitations());
@@ -90,6 +97,11 @@ class _MessagingScreenState extends State<MessagingScreen>
     context
         .read<CommunityBloc>()
         .add(const CommunityEvent.loadPendingInvitations());
+
+    // Pre-load collections for the Collections tab
+    context
+        .read<TokenPoolBloc>()
+        .add(const TokenPoolEvent.loadMyPools());
 
     // Start watching contacts and contact requests
     context
@@ -177,6 +189,7 @@ class _MessagingScreenState extends State<MessagingScreen>
         controller: _tabController,
         children: [
           _buildChatsTab(context, currentUserId),
+          _buildCollectionsTab(context, currentUserId),
           _buildCommunitiesTab(context, currentUserId),
         ],
       ),
@@ -190,9 +203,11 @@ class _MessagingScreenState extends State<MessagingScreen>
   // =========================================================================
 
   PreferredSizeWidget _buildSearchAppBar() {
-    final hintText = _currentTab == 1
-        ? 'Search communities...'
-        : 'Search conversations...';
+    final hintText = switch (_currentTab) {
+      1 => 'Search collections...',
+      2 => 'Search communities...',
+      _ => 'Search conversations...',
+    };
 
     return AppBar(
       backgroundColor: AppColors.chatAppBar,
@@ -274,6 +289,16 @@ class _MessagingScreenState extends State<MessagingScreen>
             builder: (context, convState) {
               return _buildBadgedTab(
                   Icons.chat_bubble_rounded, 'Chats', convState.totalUnreadCount);
+            },
+          ),
+          // Collections tab with active pool count badge
+          BlocBuilder<TokenPoolBloc, TokenPoolState>(
+            builder: (context, poolState) {
+              final activeCount = poolState.myPools
+                  .where((p) => p.isCollecting || p.isSent)
+                  .length;
+              return _buildBadgedTab(
+                  Icons.savings_rounded, 'Collections', activeCount);
             },
           ),
           // Communities tab with unread + pending invites badge
@@ -434,6 +459,8 @@ class _MessagingScreenState extends State<MessagingScreen>
     for (final conv in convState.sortedConversations(currentUserId)) {
       if (conv.isArchivedFor(currentUserId)) continue;
       if (conv.isMessageRequestFor(currentUserId)) continue;
+      // Collection rooms now live in the Collections tab
+      if (conv.type == ConversationType.collection) continue;
       if (_searchQuery.isNotEmpty &&
           !conv
               .displayNameFor(currentUserId)
@@ -443,16 +470,7 @@ class _MessagingScreenState extends State<MessagingScreen>
       }
 
       final Widget tile;
-      if (conv.type == ConversationType.collection &&
-          conv.tokenPoolId != null) {
-        tile = CollectionRoomListTile(
-          conversation: conv,
-          currentUserId: currentUserId,
-          onTap: () {
-            context.push('/chat/pool/${conv.tokenPoolId}');
-          },
-        );
-      } else {
+      {
         tile = ConversationListTile(
           conversation: conv,
           currentUserId: currentUserId,
@@ -565,7 +583,156 @@ class _MessagingScreenState extends State<MessagingScreen>
   }
 
   // =========================================================================
-  // COMMUNITIES TAB (Tab 1)
+  // COLLECTIONS TAB (Tab 1) — Group Sasaza + Group Save pools
+  // =========================================================================
+
+  Widget _buildCollectionsTab(BuildContext context, String currentUserId) {
+    return BlocBuilder<TokenPoolBloc, TokenPoolState>(
+      builder: (context, poolState) {
+        return Stack(
+          children: [
+            const Positioned.fill(child: ChatBackground()),
+            _buildCollectionsList(context, poolState, currentUserId),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCollectionsList(
+    BuildContext context,
+    TokenPoolState poolState,
+    String currentUserId,
+  ) {
+    if (poolState.isLoading && poolState.myPools.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final allPools = poolState.myPools;
+    final filtered = _searchQuery.isEmpty
+        ? allPools
+        : allPools
+            .where((p) => p.title.toLowerCase().contains(_searchQuery))
+            .toList();
+
+    final active =
+        filtered.where((p) => p.isCollecting || p.isSent).toList();
+    final completed = filtered
+        .where((p) => p.isCompleted || p.isCancelled || p.isExpired)
+        .toList();
+
+    if (active.isEmpty && completed.isEmpty && _searchQuery.isEmpty) {
+      return _buildCollectionsEmptyState(context);
+    }
+
+    if (active.isEmpty && completed.isEmpty) {
+      return Center(
+        child: Text(
+          'No results for "$_searchQuery"',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context
+            .read<TokenPoolBloc>()
+            .add(const TokenPoolEvent.loadMyPools());
+      },
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          if (active.isNotEmpty) ...[
+            _buildSectionHeader(context, 'Active'),
+            for (var i = 0; i < active.length; i++) ...[
+              PoolListTile(
+                pool: active[i],
+                currentUserId: currentUserId,
+                onTap: () => context.push('/chat/pool/${active[i].id}'),
+              ),
+              if (i < active.length - 1)
+                Divider(
+                  height: 0.5,
+                  thickness: 0.5,
+                  color: AppColors.chatSurface.withValues(alpha: 0.3),
+                  indent: 76,
+                ),
+            ],
+          ],
+          if (completed.isNotEmpty) ...[
+            _buildSectionHeader(context, 'Completed'),
+            for (var i = 0; i < completed.length; i++) ...[
+              PoolListTile(
+                pool: completed[i],
+                currentUserId: currentUserId,
+                onTap: () =>
+                    context.push('/chat/pool/${completed[i].id}'),
+              ),
+              if (i < completed.length - 1)
+                Divider(
+                  height: 0.5,
+                  thickness: 0.5,
+                  color: AppColors.chatSurface.withValues(alpha: 0.3),
+                  indent: 76,
+                ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.textSecondary,
+            ),
+      ),
+    );
+  }
+
+  Widget _buildCollectionsEmptyState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: AppSpacing.pagePadding,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.savings_outlined, size: 80, color: AppColors.textHint),
+            AppSpacing.verticalLg,
+            Text(
+              'No collections yet',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            AppSpacing.verticalSm,
+            Text(
+              'Start a Group Save or Group Sasaza to collect tokens together',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            AppSpacing.verticalXl,
+            ElevatedButton.icon(
+              onPressed: () => context.push('/chat/create-group-save'),
+              icon: const Icon(Icons.savings),
+              label: const Text('Start a Group Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // =========================================================================
+  // COMMUNITIES TAB (Tab 2)
   // =========================================================================
 
   Widget _buildCommunitiesTab(BuildContext context, String currentUserId) {
@@ -851,6 +1018,8 @@ class _MessagingScreenState extends State<MessagingScreen>
       case 0:
         icon = Icons.edit;
       case 1:
+        icon = Icons.savings;
+      case 2:
         icon = Icons.group_add;
       default:
         icon = Icons.add;
@@ -866,6 +1035,8 @@ class _MessagingScreenState extends State<MessagingScreen>
       case 0:
         _showChatsSheet(context);
       case 1:
+        context.push('/chat/create-group-save');
+      case 2:
         context.push('/chat/create-community');
     }
   }

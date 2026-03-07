@@ -29,6 +29,8 @@ class SubAccountModel with _$SubAccountModel {
     @Default(true) bool allowCashout,
     @Default(false) bool p2pRestrictToSameAccountType,
     @Default(["*"]) List<String> allowedOfframps,
+    int? expiryDays,
+    @NullableTimestampConverter() DateTime? lastCreditAt,
   }) = _SubAccountModel;
 
   const SubAccountModel._();
@@ -66,6 +68,8 @@ class SubAccountModel with _$SubAccountModel {
         allowCashout: allowCashout,
         p2pRestrictToSameAccountType: p2pRestrictToSameAccountType,
         allowedOfframps: allowedOfframps,
+        expiryDays: expiryDays,
+        lastCreditAt: lastCreditAt,
       );
 
   /// Create from domain entity
@@ -86,5 +90,7 @@ class SubAccountModel with _$SubAccountModel {
         allowCashout: entity.allowCashout,
         p2pRestrictToSameAccountType: entity.p2pRestrictToSameAccountType,
         allowedOfframps: entity.allowedOfframps,
+        expiryDays: entity.expiryDays,
+        lastCreditAt: entity.lastCreditAt,
       );
 }

@@ -34,6 +34,7 @@ class TokenPoolModel with _$TokenPoolModel {
 
     // Financial
     @Default(0) int totalAmount,
+    @Default(0) int totalDistributed,
     @Default(0) int contributionCount,
     @Default(0) int contributorCount,
 
@@ -85,6 +86,7 @@ class TokenPoolModel with _$TokenPoolModel {
       message: json['message'] as String? ?? '',
       style: json['style'] as String? ?? 'celebration',
       totalAmount: json['totalAmount'] as int? ?? 0,
+      totalDistributed: json['totalDistributed'] as int? ?? 0,
       contributionCount: json['contributionCount'] as int? ?? 0,
       contributorCount: json['contributorCount'] as int? ?? 0,
       contributions: _parseContributionsRaw(json['contributions']),
@@ -126,6 +128,7 @@ class TokenPoolModel with _$TokenPoolModel {
       message: message,
       style: _parseGiftStyle(style),
       totalAmount: totalAmount,
+      totalDistributed: totalDistributed,
       contributionCount: contributionCount,
       contributorCount: contributorCount,
       contributions: _parseContributions(contributions),

@@ -98,7 +98,7 @@ class _RewardsListScreenState extends State<RewardsListScreen>
 
   Widget _buildRewardCard(BuildContext context, RewardItem item) {
     return InkWell(
-      onTap: () => context.go('/wallet/rewards/${item.id}'),
+      onTap: () => context.go('/home/wallet-rewards/${item.id}'),
       borderRadius: AppSpacing.borderRadiusMd,
       child: Container(
         padding: const EdgeInsets.all(16),

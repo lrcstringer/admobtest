@@ -34,6 +34,12 @@ abstract class TokenPoolRemoteDataSource {
   Future<TokenPoolModel> distributePool({
     required String poolId,
     required List<Map<String, dynamic>> payouts,
+    bool keepOpen = false,
+  });
+
+  Future<TokenPoolModel> requestWithdrawal({
+    required String poolId,
+    required int amount,
   });
 
   Future<TokenPoolModel> cancelPool(String poolId);
@@ -164,6 +170,7 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
   Future<TokenPoolModel> distributePool({
     required String poolId,
     required List<Map<String, dynamic>> payouts,
+    bool keepOpen = false,
   }) async {
     // No _requireUserId() — CF validates auth via requireAuth(request).
     try {
@@ -171,6 +178,7 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
       final result = await callable.call<Map<String, dynamic>>({
         'poolId': poolId,
         'payouts': payouts,
+        'keepOpen': keepOpen,
       });
 
       final data = deepConvertMap(result.data);
@@ -178,6 +186,29 @@ class TokenPoolRemoteDataSourceImpl implements TokenPoolRemoteDataSource {
       return TokenPoolModel.fromJson(pool);
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to distribute pool');
+    } catch (e) {
+      if (e is AuthException) rethrow;
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<TokenPoolModel> requestWithdrawal({
+    required String poolId,
+    required int amount,
+  }) async {
+    try {
+      final callable = _functions.httpsCallable('requestPoolWithdrawal');
+      final result = await callable.call<Map<String, dynamic>>({
+        'poolId': poolId,
+        'amount': amount,
+      });
+
+      final data = deepConvertMap(result.data);
+      final pool = data['pool'] as Map<String, dynamic>? ?? data;
+      return TokenPoolModel.fromJson(pool);
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(message: e.message ?? 'Failed to process withdrawal');
     } catch (e) {
       if (e is AuthException) rethrow;
       throw ServerException(message: e.toString());

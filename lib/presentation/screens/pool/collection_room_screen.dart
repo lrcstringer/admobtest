@@ -11,6 +11,7 @@ import '../../widgets/messaging/message_bubble.dart';
 import '../../widgets/messaging/message_input_bar.dart';
 import '../../widgets/pool/contribute_sheet.dart';
 import '../../widgets/pool/pool_progress_card.dart';
+import '../../widgets/pool/withdrawal_request_sheet.dart';
 import 'pool_distribute_sheet.dart';
 
 /// Main screen for a Collection Room (pool conversation).
@@ -72,10 +73,28 @@ class _CollectionRoomScreenState extends State<CollectionRoomScreen> {
       isScrollControlled: true,
       builder: (ctx) => PoolDistributeSheet(
         pool: pool,
-        onDistribute: (payouts) {
+        onDistribute: (payouts, keepOpen) {
           context.read<TokenPoolBloc>().add(TokenPoolEvent.distributePool(
                 poolId: pool.id,
                 payouts: payouts,
+                keepOpen: keepOpen,
+              ));
+        },
+      ),
+    );
+  }
+
+  void _showWithdrawalSheet(TokenPool pool) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => WithdrawalRequestSheet(
+        pool: pool,
+        currentUserId: _currentUserId,
+        onWithdraw: (amount) {
+          context.read<TokenPoolBloc>().add(TokenPoolEvent.requestWithdrawal(
+                poolId: pool.id,
+                amount: amount,
               ));
         },
       ),
@@ -208,6 +227,7 @@ class _CollectionRoomScreenState extends State<CollectionRoomScreen> {
                       onSend: () => _confirmSendGift(pool),
                       onDistribute: () => _showDistributeSheet(pool),
                       onCancel: () => _confirmCancel(pool),
+                      onRequestWithdrawal: () => _showWithdrawalSheet(pool),
                     ),
 
                     // Messages list (from conversation)

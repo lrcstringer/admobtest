@@ -25,6 +25,7 @@ class TokenPoolBloc extends Bloc<TokenPoolEvent, TokenPoolState> {
     on<_SendGroupGift>(_onSendGroupGift);
     on<_DistributePool>(_onDistributePool);
     on<_CancelPool>(_onCancelPool);
+    on<_RequestWithdrawal>(_onRequestWithdrawal);
     on<_OpenGroupGift>(_onOpenGroupGift);
     on<_ClaimGroupGift>(_onClaimGroupGift);
     on<_WatchPool>(_onWatchPool);
@@ -144,6 +145,7 @@ class TokenPoolBloc extends Bloc<TokenPoolEvent, TokenPoolState> {
     final result = await _tokenPoolRepository.distributePool(
       poolId: event.poolId,
       payouts: event.payouts,
+      keepOpen: event.keepOpen,
     );
 
     result.fold(
@@ -154,7 +156,9 @@ class TokenPoolBloc extends Bloc<TokenPoolEvent, TokenPoolState> {
       (pool) => emit(state.copyWith(
         isDistributing: false,
         activePool: pool,
-        successMessage: 'Pool distributed!',
+        successMessage: event.keepOpen
+            ? 'Tokens distributed! Pool remains open.'
+            : 'Pool distributed!',
       )),
     );
   }
@@ -181,6 +185,35 @@ class TokenPoolBloc extends Bloc<TokenPoolEvent, TokenPoolState> {
         isCancelling: false,
         activePool: pool,
         successMessage: 'Collection cancelled. Contributions refunded.',
+      )),
+    );
+  }
+
+  Future<void> _onRequestWithdrawal(
+    _RequestWithdrawal event,
+    Emitter<TokenPoolState> emit,
+  ) async {
+    if (state.isWithdrawing) return;
+    emit(state.copyWith(
+      isWithdrawing: true,
+      errorMessage: null,
+      successMessage: null,
+    ));
+
+    final result = await _tokenPoolRepository.requestWithdrawal(
+      poolId: event.poolId,
+      amount: event.amount,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isWithdrawing: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (pool) => emit(state.copyWith(
+        isWithdrawing: false,
+        activePool: pool,
+        successMessage: 'Withdrew ${event.amount} tokens!',
       )),
     );
   }

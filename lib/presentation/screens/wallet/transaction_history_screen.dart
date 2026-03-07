@@ -278,7 +278,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     }
 
     return InkWell(
-      onTap: () => context.go('/wallet/rewards/${item.id}'),
+      onTap: () => context.go('/home/wallet-rewards/${item.id}'),
       borderRadius: AppSpacing.borderRadiusMd,
       child: Container(
         padding: AppSpacing.cardPadding,

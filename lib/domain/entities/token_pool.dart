@@ -69,6 +69,7 @@ class TokenPool with _$TokenPool {
 
     // Financial summary
     @Default(0) int totalAmount,
+    @Default(0) int totalDistributed,
     @Default(0) int contributionCount,
     @Default(0) int contributorCount,
 
@@ -140,6 +141,12 @@ class TokenPool with _$TokenPool {
   bool get hasContributions => totalAmount > 0;
   double get totalAmountZar => totalAmount / 100;
 
+  /// Balance available for distribution (total minus already distributed)
+  int get availableBalance => totalAmount - totalDistributed;
+
+  /// Whether the pool has had partial distributions but is still collecting
+  bool get hasDistributedPartially => totalDistributed > 0 && isCollecting;
+
   /// Whether a specific user has contributed to this pool
   bool hasContributed(String userId) => contributions.containsKey(userId);
 
@@ -168,9 +175,9 @@ class TokenPool with _$TokenPool {
   bool canSend(String userId) =>
       isSasaza && isOrganizer(userId) && isCollecting && hasContributions;
 
-  /// Whether the user can distribute (organizer + save + collecting + has contributions)
+  /// Whether the user can distribute (organizer + save + collecting + has available balance)
   bool canDistribute(String userId) =>
-      isSave && isOrganizer(userId) && isCollecting && hasContributions;
+      isSave && isOrganizer(userId) && isCollecting && availableBalance > 0;
 
   /// Whether the user can cancel (organizer + collecting)
   bool canCancel(String userId) => isOrganizer(userId) && isCollecting;

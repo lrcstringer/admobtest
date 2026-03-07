@@ -25,9 +25,15 @@ class TokenPoolEvent with _$TokenPoolEvent {
   const factory TokenPoolEvent.distributePool({
     required String poolId,
     required List<Map<String, dynamic>> payouts,
+    @Default(false) bool keepOpen,
   }) = _DistributePool;
 
   const factory TokenPoolEvent.cancelPool(String poolId) = _CancelPool;
+
+  const factory TokenPoolEvent.requestWithdrawal({
+    required String poolId,
+    required int amount,
+  }) = _RequestWithdrawal;
 
   // Recipient actions
   const factory TokenPoolEvent.openGroupGift(String poolId) = _OpenGroupGift;

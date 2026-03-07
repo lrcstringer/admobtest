@@ -93,11 +93,13 @@ class TokenPoolRepositoryImpl implements TokenPoolRepository {
   Future<Either<Failure, TokenPool>> distributePool({
     required String poolId,
     required List<Map<String, dynamic>> payouts,
+    bool keepOpen = false,
   }) async {
     try {
       final model = await _remoteDataSource.distributePool(
         poolId: poolId,
         payouts: payouts,
+        keepOpen: keepOpen,
       );
       return Right(model.toEntity());
     } on AuthException {
@@ -113,6 +115,26 @@ class TokenPoolRepositoryImpl implements TokenPoolRepository {
   Future<Either<Failure, TokenPool>> cancelPool(String poolId) async {
     try {
       final model = await _remoteDataSource.cancelPool(poolId);
+      return Right(model.toEntity());
+    } on AuthException {
+      return const Left(Failure.unauthenticated());
+    } on ServerException catch (e) {
+      return Left(Failure.serverError(message: e.message));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, TokenPool>> requestWithdrawal({
+    required String poolId,
+    required int amount,
+  }) async {
+    try {
+      final model = await _remoteDataSource.requestWithdrawal(
+        poolId: poolId,
+        amount: amount,
+      );
       return Right(model.toEntity());
     } on AuthException {
       return const Left(Failure.unauthenticated());

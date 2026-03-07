@@ -37,10 +37,17 @@ abstract class TokenPoolRepository {
   Future<Either<Failure, TokenPool>> distributePool({
     required String poolId,
     required List<Map<String, dynamic>> payouts,
+    bool keepOpen = false,
   });
 
   /// Cancel the pool and refund all contributions
   Future<Either<Failure, TokenPool>> cancelPool(String poolId);
+
+  /// Request a withdrawal from a Group Save pool (auto-approved up to own contribution)
+  Future<Either<Failure, TokenPool>> requestWithdrawal({
+    required String poolId,
+    required int amount,
+  });
 
   // ===========================================================================
   // RECIPIENT ACTIONS (sasaza mode)

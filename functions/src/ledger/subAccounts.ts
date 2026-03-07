@@ -142,6 +142,7 @@ export async function getOrCreateBrandSubAccount(
     lifetimeDebits: 0,
     isActive: true,
     isDefault: false,
+    lastCreditAt: null,
     createdAt: now,
     updatedAt: now,
   };
@@ -358,6 +359,7 @@ export async function creditSubAccount(
     tx.update(subAccountRef, {
       balance: admin.firestore.FieldValue.increment(amount),
       lifetimeCredits: admin.firestore.FieldValue.increment(amount),
+      lastCreditAt: now,
       updatedAt: now,
     });
     tx.update(ledgerAccountRef, {
@@ -370,6 +372,7 @@ export async function creditSubAccount(
       transaction.update(subAccountRef, {
         balance: admin.firestore.FieldValue.increment(amount),
         lifetimeCredits: admin.firestore.FieldValue.increment(amount),
+        lastCreditAt: now,
         updatedAt: now,
       });
       transaction.update(ledgerAccountRef, {

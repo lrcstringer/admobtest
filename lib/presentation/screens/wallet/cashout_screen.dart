@@ -625,7 +625,7 @@ class _CashoutScreenState extends State<CashoutScreen> {
             onPressed: () {
               Navigator.pop(context); // close dialog
               context.read<CashoutBloc>().add(const CashoutEvent.reset());
-              if (context.mounted) context.go('/wallet');
+              if (context.mounted) context.go('/home');
             },
             child: const Text('Done'),
           ),

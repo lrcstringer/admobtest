@@ -69,7 +69,7 @@ class WalletSendSuccessScreen extends StatelessWidget {
               AppSpacing.verticalXxl,
               AppButton(
                 text: 'Back to Wallet',
-                onPressed: () => context.go('/wallet'),
+                onPressed: () => context.go('/home'),
                 size: AppButtonSize.large,
               ),
             ],

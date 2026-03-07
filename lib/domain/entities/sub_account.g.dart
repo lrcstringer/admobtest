@@ -29,6 +29,10 @@ _$SubAccountImpl _$$SubAccountImplFromJson(Map<String, dynamic> json) =>
               ?.map((e) => e as String)
               .toList() ??
           const ["*"],
+      expiryDays: (json['expiryDays'] as num?)?.toInt(),
+      lastCreditAt: json['lastCreditAt'] == null
+          ? null
+          : DateTime.parse(json['lastCreditAt'] as String),
     );
 
 Map<String, dynamic> _$$SubAccountImplToJson(_$SubAccountImpl instance) =>
@@ -49,4 +53,6 @@ Map<String, dynamic> _$$SubAccountImplToJson(_$SubAccountImpl instance) =>
       'allowCashout': instance.allowCashout,
       'p2pRestrictToSameAccountType': instance.p2pRestrictToSameAccountType,
       'allowedOfframps': instance.allowedOfframps,
+      'expiryDays': instance.expiryDays,
+      'lastCreditAt': instance.lastCreditAt?.toIso8601String(),
     };

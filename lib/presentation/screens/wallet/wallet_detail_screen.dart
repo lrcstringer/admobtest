@@ -103,6 +103,12 @@ class WalletDetailScreen extends StatelessWidget {
                     children: [
                       // Balance card
                       _buildBalanceCard(context, subAccount, accentColor),
+
+                      // Token expiry info (brand wallets with expiryDays)
+                      if (subAccount.expiryDays != null &&
+                          subAccount.lastCreditAt != null &&
+                          subAccount.balance > 0)
+                        _buildExpiryInfo(context, subAccount),
                       AppSpacing.verticalXl,
 
                       // Action buttons
@@ -123,7 +129,7 @@ class WalletDetailScreen extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () =>
-                                context.go('/wallet/transactions'),
+                                context.go('/home/wallet-transactions'),
                             child: const Text('View All'),
                           ),
                         ],
@@ -208,6 +214,48 @@ class WalletDetailScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildExpiryInfo(BuildContext context, SubAccount subAccount) {
+    final expiresAt = subAccount.lastCreditAt!
+        .add(Duration(days: subAccount.expiryDays!));
+    final daysLeft = expiresAt.difference(DateTime.now()).inDays;
+
+    final Color color;
+    final IconData icon;
+    final String text;
+
+    if (daysLeft <= 0) {
+      color = AppColors.error;
+      icon = Icons.warning_amber_rounded;
+      text = 'Tokens expired — pending sweep';
+    } else if (daysLeft <= 7) {
+      color = AppColors.warning;
+      icon = Icons.timer;
+      text = 'Expires in $daysLeft day${daysLeft == 1 ? '' : 's'}';
+    } else {
+      color = AppColors.textSecondary;
+      icon = Icons.schedule;
+      text = 'Expires in $daysLeft days';
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: color,
+                  fontWeight:
+                      daysLeft <= 7 ? FontWeight.w600 : FontWeight.normal,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildActionButtons(
     BuildContext context,
     SubAccount subAccount,
@@ -247,7 +295,7 @@ class WalletDetailScreen extends StatelessWidget {
                       );
                     } else {
                       context.go(
-                        '/wallet/send',
+                        '/home/wallet-send',
                         extra: {'subAccountId': subAccount.id},
                       );
                     }
@@ -288,7 +336,7 @@ class WalletDetailScreen extends StatelessWidget {
                   icon: Icons.arrow_upward,
                   label: 'Cash Out',
                   color: AppColors.success,
-                  onTap: () => context.go('/wallet/withdraw'),
+                  onTap: () => context.go('/home/wallet-withdraw'),
                 ),
               ),
               if (subAccount.isRestricted) AppSpacing.horizontalMd,
@@ -303,7 +351,7 @@ class WalletDetailScreen extends StatelessWidget {
                         icon: Icons.card_giftcard,
                         label: 'Rewards (${brandRewards.length})',
                         color: accentColor,
-                        onTap: () => context.go('/wallet/rewards'),
+                        onTap: () => context.go('/home/wallet-rewards'),
                       )
                     : _buildActionButton(
                         context,
@@ -394,7 +442,7 @@ class WalletDetailScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 GestureDetector(
-                  onTap: () => context.go('/wallet/rewards'),
+                  onTap: () => context.go('/home/wallet-rewards'),
                   child: Text(
                     'View All',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -441,7 +489,7 @@ class WalletDetailScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
-        onTap: () => context.go('/wallet/rewards/${item.id}'),
+        onTap: () => context.go('/home/wallet-rewards/${item.id}'),
         borderRadius: AppSpacing.borderRadiusMd,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

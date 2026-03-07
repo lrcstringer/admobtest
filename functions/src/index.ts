@@ -118,6 +118,23 @@ export const runLedgerReconciliation = onSchedule(
   }
 );
 
+// Sub-account token expiry — runs daily at 2 AM SAST
+export const expireSubAccountTokens = onSchedule(
+  {
+    schedule: "0 2 * * *",
+    timeZone: "Africa/Johannesburg",
+    region: "europe-west1",
+    timeoutSeconds: 300,
+    memory: "512MiB",
+    labels: { area: "subaccounts" },
+  },
+  async () => {
+    const { processSubAccountExpiry } = await import("./ledger");
+    const result = await processSubAccountExpiry();
+    logger.info(`Sub-account token expiry: ${result.expired} expired, ${result.failed} failures`);
+  }
+);
+
 // Security cleanup function
 export const cleanupSecurityData = onSchedule(
   { schedule: "0 3 * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "auth" } },

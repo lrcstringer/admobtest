@@ -33,6 +33,9 @@ class SubAccount with _$SubAccount {
     @Default(true) bool allowCashout,
     @Default(false) bool p2pRestrictToSameAccountType,
     @Default(["*"]) List<String> allowedOfframps,
+    // Expiry fields (populated by getSubAccounts Cloud Function)
+    int? expiryDays,
+    DateTime? lastCreditAt,
   }) = _SubAccount;
 
   const SubAccount._();

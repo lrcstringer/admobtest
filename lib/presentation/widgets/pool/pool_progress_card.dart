@@ -15,6 +15,7 @@ class PoolProgressCard extends StatelessWidget {
   final VoidCallback? onSend;
   final VoidCallback? onDistribute;
   final VoidCallback? onCancel;
+  final VoidCallback? onRequestWithdrawal;
 
   const PoolProgressCard({
     super.key,
@@ -24,6 +25,7 @@ class PoolProgressCard extends StatelessWidget {
     this.onSend,
     this.onDistribute,
     this.onCancel,
+    this.onRequestWithdrawal,
   });
 
   @override
@@ -175,34 +177,61 @@ class PoolProgressCard extends StatelessWidget {
   }
 
   Widget _buildAmountRow(ThemeData theme, GiftStyleColors colors) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
-        Icon(Icons.toll, size: 20, color: AppColors.tokenGold),
-        const SizedBox(width: 6),
-        Text(
-          '${pool.totalAmount}',
-          style: theme.textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: AppColors.tokenGold,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.toll, size: 20, color: AppColors.tokenGold),
+            const SizedBox(width: 6),
+            Text(
+              '${pool.totalAmount}',
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: AppColors.tokenGold,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              'tokens',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const Spacer(),
+            Icon(Icons.people_outline, size: 16, color: AppColors.textSecondary),
+            const SizedBox(width: 4),
+            Text(
+              '${pool.contributorCount} contributor${pool.contributorCount != 1 ? 's' : ''}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 4),
-        Text(
-          'tokens',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: AppColors.textSecondary,
+        if (pool.totalDistributed > 0)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '${pool.totalDistributed} distributed',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppColors.success,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '${pool.availableBalance} available',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppColors.tokenGold,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        const Spacer(),
-        Icon(Icons.people_outline, size: 16, color: AppColors.textSecondary),
-        const SizedBox(width: 4),
-        Text(
-          '${pool.contributorCount} contributor${pool.contributorCount != 1 ? 's' : ''}',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: AppColors.textSecondary,
-          ),
-        ),
       ],
     );
   }
@@ -384,6 +413,18 @@ class PoolProgressCard extends StatelessWidget {
             icon: Icons.account_balance_wallet,
             color: AppColors.success,
             onTap: onDistribute,
+          ),
+
+        // Withdraw button (save, non-organizer members who have contributed)
+        if (pool.isSave &&
+            pool.isCollecting &&
+            !pool.isOrganizer(currentUserId) &&
+            pool.hasContributed(currentUserId))
+          _ActionButton(
+            label: 'Withdraw',
+            icon: Icons.output,
+            color: AppColors.warning,
+            onTap: onRequestWithdrawal,
           ),
       ],
     );

@@ -25,19 +25,20 @@ class BottomNavBar extends StatelessWidget {
     ),
     _NavItem(
       label: 'Earn',
-      assetPath: 'assets/botton_nav_bar_icons/Bottom Icon - Earn icon.png',
+      // TODO: Replace with custom PNG matching the other nav icons
+      icon: Icons.emoji_events_rounded,
     ),
     _NavItem(
       label: 'Chat',
       assetPath: 'assets/botton_nav_bar_icons/Botton Nav - Chat icon.png',
     ),
     _NavItem(
-      label: 'Buy',
-      assetPath: 'assets/botton_nav_bar_icons/Bottom Nav - Buy icon.png',
+      label: 'Save',
+      assetPath: 'assets/botton_nav_bar_icons/Bottom Icon - Earn icon.png',
     ),
     _NavItem(
-      label: 'Wallet',
-      assetPath: 'assets/botton_nav_bar_icons/Bottom Nav - Wallet icon.png',
+      label: 'Buy',
+      assetPath: 'assets/botton_nav_bar_icons/Bottom Nav - Buy icon.png',
     ),
   ];
 
@@ -105,12 +106,18 @@ class BottomNavBar extends StatelessWidget {
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 200),
                     opacity: isActive ? 1.0 : 0.45,
-                    child: Image.asset(
-                      item.assetPath,
-                      width: 28,
-                      height: 28,
-                      fit: BoxFit.contain,
-                    ),
+                    child: item.assetPath != null
+                        ? Image.asset(
+                            item.assetPath!,
+                            width: 28,
+                            height: 28,
+                            fit: BoxFit.contain,
+                          )
+                        : Icon(
+                            item.icon,
+                            size: 28,
+                            color: Colors.white,
+                          ),
                   ),
                 ),
                 if (badgeCount > 0)
@@ -160,10 +167,12 @@ class BottomNavBar extends StatelessWidget {
 
 class _NavItem {
   final String label;
-  final String assetPath;
+  final String? assetPath;
+  final IconData? icon;
 
   const _NavItem({
     required this.label,
-    required this.assetPath,
-  });
+    this.assetPath,
+    this.icon,
+  }) : assert(assetPath != null || icon != null);
 }

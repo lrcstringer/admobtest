@@ -545,7 +545,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(12),
                                         onTap: () => context.push(
-                                          '/wallet/rewards/${earnState.rewardItemId}',
+                                          '/home/wallet-rewards/${earnState.rewardItemId}',
                                         ),
                                         child: Padding(
                                           padding:
@@ -833,6 +833,6 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
     context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
     // Refresh inbox so completed opportunity shows updated state
     context.read<EarnInboxBloc>().add(const EarnInboxEvent.loadInbox());
-    context.go('/wallet');
+    context.go('/home');
   }
 }

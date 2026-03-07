@@ -33,6 +33,7 @@ mixin _$TokenPoolModel {
   String get message => throw _privateConstructorUsedError;
   String get style => throw _privateConstructorUsedError; // Financial
   int get totalAmount => throw _privateConstructorUsedError;
+  int get totalDistributed => throw _privateConstructorUsedError;
   int get contributionCount => throw _privateConstructorUsedError;
   int get contributorCount =>
       throw _privateConstructorUsedError; // Per-user contributions (raw maps)
@@ -84,6 +85,7 @@ abstract class $TokenPoolModelCopyWith<$Res> {
     String message,
     String style,
     int totalAmount,
+    int totalDistributed,
     int contributionCount,
     int contributorCount,
     Map<String, Map<String, dynamic>> contributions,
@@ -131,6 +133,7 @@ class _$TokenPoolModelCopyWithImpl<$Res, $Val extends TokenPoolModel>
     Object? message = null,
     Object? style = null,
     Object? totalAmount = null,
+    Object? totalDistributed = null,
     Object? contributionCount = null,
     Object? contributorCount = null,
     Object? contributions = null,
@@ -201,6 +204,10 @@ class _$TokenPoolModelCopyWithImpl<$Res, $Val extends TokenPoolModel>
             totalAmount: null == totalAmount
                 ? _value.totalAmount
                 : totalAmount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalDistributed: null == totalDistributed
+                ? _value.totalDistributed
+                : totalDistributed // ignore: cast_nullable_to_non_nullable
                       as int,
             contributionCount: null == contributionCount
                 ? _value.contributionCount
@@ -295,6 +302,7 @@ abstract class _$$TokenPoolModelImplCopyWith<$Res>
     String message,
     String style,
     int totalAmount,
+    int totalDistributed,
     int contributionCount,
     int contributorCount,
     Map<String, Map<String, dynamic>> contributions,
@@ -341,6 +349,7 @@ class __$$TokenPoolModelImplCopyWithImpl<$Res>
     Object? message = null,
     Object? style = null,
     Object? totalAmount = null,
+    Object? totalDistributed = null,
     Object? contributionCount = null,
     Object? contributorCount = null,
     Object? contributions = null,
@@ -411,6 +420,10 @@ class __$$TokenPoolModelImplCopyWithImpl<$Res>
         totalAmount: null == totalAmount
             ? _value.totalAmount
             : totalAmount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalDistributed: null == totalDistributed
+            ? _value.totalDistributed
+            : totalDistributed // ignore: cast_nullable_to_non_nullable
                   as int,
         contributionCount: null == contributionCount
             ? _value.contributionCount
@@ -498,6 +511,7 @@ class _$TokenPoolModelImpl extends _TokenPoolModel {
     this.message = '',
     required this.style,
     this.totalAmount = 0,
+    this.totalDistributed = 0,
     this.contributionCount = 0,
     this.contributorCount = 0,
     final Map<String, Map<String, dynamic>> contributions = const {},
@@ -553,6 +567,9 @@ class _$TokenPoolModelImpl extends _TokenPoolModel {
   @override
   @JsonKey()
   final int totalAmount;
+  @override
+  @JsonKey()
+  final int totalDistributed;
   @override
   @JsonKey()
   final int contributionCount;
@@ -623,7 +640,7 @@ class _$TokenPoolModelImpl extends _TokenPoolModel {
 
   @override
   String toString() {
-    return 'TokenPoolModel(id: $id, mode: $mode, status: $status, organizerId: $organizerId, organizerName: $organizerName, recipientId: $recipientId, recipientName: $recipientName, conversationId: $conversationId, title: $title, purpose: $purpose, message: $message, style: $style, totalAmount: $totalAmount, contributionCount: $contributionCount, contributorCount: $contributorCount, contributions: $contributions, payouts: $payouts, giftMessageId: $giftMessageId, giftConversationId: $giftConversationId, inviteeIds: $inviteeIds, expiresAt: $expiresAt, createdAt: $createdAt, updatedAt: $updatedAt, sentAt: $sentAt, openedAt: $openedAt, completedAt: $completedAt, cancelledAt: $cancelledAt, groupAccountId: $groupAccountId, reminderSent: $reminderSent)';
+    return 'TokenPoolModel(id: $id, mode: $mode, status: $status, organizerId: $organizerId, organizerName: $organizerName, recipientId: $recipientId, recipientName: $recipientName, conversationId: $conversationId, title: $title, purpose: $purpose, message: $message, style: $style, totalAmount: $totalAmount, totalDistributed: $totalDistributed, contributionCount: $contributionCount, contributorCount: $contributorCount, contributions: $contributions, payouts: $payouts, giftMessageId: $giftMessageId, giftConversationId: $giftConversationId, inviteeIds: $inviteeIds, expiresAt: $expiresAt, createdAt: $createdAt, updatedAt: $updatedAt, sentAt: $sentAt, openedAt: $openedAt, completedAt: $completedAt, cancelledAt: $cancelledAt, groupAccountId: $groupAccountId, reminderSent: $reminderSent)';
   }
 
   @override
@@ -650,6 +667,8 @@ class _$TokenPoolModelImpl extends _TokenPoolModel {
             (identical(other.style, style) || other.style == style) &&
             (identical(other.totalAmount, totalAmount) ||
                 other.totalAmount == totalAmount) &&
+            (identical(other.totalDistributed, totalDistributed) ||
+                other.totalDistributed == totalDistributed) &&
             (identical(other.contributionCount, contributionCount) ||
                 other.contributionCount == contributionCount) &&
             (identical(other.contributorCount, contributorCount) ||
@@ -702,6 +721,7 @@ class _$TokenPoolModelImpl extends _TokenPoolModel {
     message,
     style,
     totalAmount,
+    totalDistributed,
     contributionCount,
     contributorCount,
     const DeepCollectionEquality().hash(_contributions),
@@ -747,6 +767,7 @@ abstract class _TokenPoolModel extends TokenPoolModel {
     final String message,
     required final String style,
     final int totalAmount,
+    final int totalDistributed,
     final int contributionCount,
     final int contributorCount,
     final Map<String, Map<String, dynamic>> contributions,
@@ -792,6 +813,8 @@ abstract class _TokenPoolModel extends TokenPoolModel {
   String get style; // Financial
   @override
   int get totalAmount;
+  @override
+  int get totalDistributed;
   @override
   int get contributionCount;
   @override

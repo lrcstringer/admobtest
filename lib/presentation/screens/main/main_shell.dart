@@ -20,7 +20,7 @@ class MainShell extends StatelessWidget {
   static const lastTabKey = 'last_active_tab';
 
   /// Tab root paths in branch order.
-  static const tabPaths = ['/home', '/earn', '/chat', '/buy', '/wallet'];
+  static const tabPaths = ['/home', '/earn', '/chat', '/save', '/buy'];
 
   const MainShell({
     super.key,

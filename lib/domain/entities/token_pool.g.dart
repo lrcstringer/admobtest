@@ -57,6 +57,7 @@ _$TokenPoolImpl _$$TokenPoolImplFromJson(Map<String, dynamic> json) =>
       message: json['message'] as String? ?? '',
       style: $enumDecode(_$GiftStyleEnumMap, json['style']),
       totalAmount: (json['totalAmount'] as num?)?.toInt() ?? 0,
+      totalDistributed: (json['totalDistributed'] as num?)?.toInt() ?? 0,
       contributionCount: (json['contributionCount'] as num?)?.toInt() ?? 0,
       contributorCount: (json['contributorCount'] as num?)?.toInt() ?? 0,
       contributions:
@@ -115,6 +116,7 @@ Map<String, dynamic> _$$TokenPoolImplToJson(_$TokenPoolImpl instance) =>
       'message': instance.message,
       'style': _$GiftStyleEnumMap[instance.style]!,
       'totalAmount': instance.totalAmount,
+      'totalDistributed': instance.totalDistributed,
       'contributionCount': instance.contributionCount,
       'contributorCount': instance.contributorCount,
       'contributions': instance.contributions,

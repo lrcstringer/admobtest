@@ -513,6 +513,7 @@ mixin _$TokenPool {
   GiftStyle get style =>
       throw _privateConstructorUsedError; // Financial summary
   int get totalAmount => throw _privateConstructorUsedError;
+  int get totalDistributed => throw _privateConstructorUsedError;
   int get contributionCount => throw _privateConstructorUsedError;
   int get contributorCount =>
       throw _privateConstructorUsedError; // Per-user contributions
@@ -565,6 +566,7 @@ abstract class $TokenPoolCopyWith<$Res> {
     String message,
     GiftStyle style,
     int totalAmount,
+    int totalDistributed,
     int contributionCount,
     int contributorCount,
     Map<String, PoolContribution> contributions,
@@ -612,6 +614,7 @@ class _$TokenPoolCopyWithImpl<$Res, $Val extends TokenPool>
     Object? message = null,
     Object? style = null,
     Object? totalAmount = null,
+    Object? totalDistributed = null,
     Object? contributionCount = null,
     Object? contributorCount = null,
     Object? contributions = null,
@@ -682,6 +685,10 @@ class _$TokenPoolCopyWithImpl<$Res, $Val extends TokenPool>
             totalAmount: null == totalAmount
                 ? _value.totalAmount
                 : totalAmount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalDistributed: null == totalDistributed
+                ? _value.totalDistributed
+                : totalDistributed // ignore: cast_nullable_to_non_nullable
                       as int,
             contributionCount: null == contributionCount
                 ? _value.contributionCount
@@ -776,6 +783,7 @@ abstract class _$$TokenPoolImplCopyWith<$Res>
     String message,
     GiftStyle style,
     int totalAmount,
+    int totalDistributed,
     int contributionCount,
     int contributorCount,
     Map<String, PoolContribution> contributions,
@@ -822,6 +830,7 @@ class __$$TokenPoolImplCopyWithImpl<$Res>
     Object? message = null,
     Object? style = null,
     Object? totalAmount = null,
+    Object? totalDistributed = null,
     Object? contributionCount = null,
     Object? contributorCount = null,
     Object? contributions = null,
@@ -892,6 +901,10 @@ class __$$TokenPoolImplCopyWithImpl<$Res>
         totalAmount: null == totalAmount
             ? _value.totalAmount
             : totalAmount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalDistributed: null == totalDistributed
+            ? _value.totalDistributed
+            : totalDistributed // ignore: cast_nullable_to_non_nullable
                   as int,
         contributionCount: null == contributionCount
             ? _value.contributionCount
@@ -979,6 +992,7 @@ class _$TokenPoolImpl extends _TokenPool {
     this.message = '',
     required this.style,
     this.totalAmount = 0,
+    this.totalDistributed = 0,
     this.contributionCount = 0,
     this.contributorCount = 0,
     final Map<String, PoolContribution> contributions = const {},
@@ -1037,6 +1051,9 @@ class _$TokenPoolImpl extends _TokenPool {
   @override
   @JsonKey()
   final int totalAmount;
+  @override
+  @JsonKey()
+  final int totalDistributed;
   @override
   @JsonKey()
   final int contributionCount;
@@ -1107,7 +1124,7 @@ class _$TokenPoolImpl extends _TokenPool {
 
   @override
   String toString() {
-    return 'TokenPool(id: $id, mode: $mode, status: $status, organizerId: $organizerId, organizerName: $organizerName, recipientId: $recipientId, recipientName: $recipientName, conversationId: $conversationId, title: $title, purpose: $purpose, message: $message, style: $style, totalAmount: $totalAmount, contributionCount: $contributionCount, contributorCount: $contributorCount, contributions: $contributions, payouts: $payouts, giftMessageId: $giftMessageId, giftConversationId: $giftConversationId, inviteeIds: $inviteeIds, expiresAt: $expiresAt, createdAt: $createdAt, updatedAt: $updatedAt, sentAt: $sentAt, openedAt: $openedAt, completedAt: $completedAt, cancelledAt: $cancelledAt, groupAccountId: $groupAccountId, reminderSent: $reminderSent)';
+    return 'TokenPool(id: $id, mode: $mode, status: $status, organizerId: $organizerId, organizerName: $organizerName, recipientId: $recipientId, recipientName: $recipientName, conversationId: $conversationId, title: $title, purpose: $purpose, message: $message, style: $style, totalAmount: $totalAmount, totalDistributed: $totalDistributed, contributionCount: $contributionCount, contributorCount: $contributorCount, contributions: $contributions, payouts: $payouts, giftMessageId: $giftMessageId, giftConversationId: $giftConversationId, inviteeIds: $inviteeIds, expiresAt: $expiresAt, createdAt: $createdAt, updatedAt: $updatedAt, sentAt: $sentAt, openedAt: $openedAt, completedAt: $completedAt, cancelledAt: $cancelledAt, groupAccountId: $groupAccountId, reminderSent: $reminderSent)';
   }
 
   @override
@@ -1134,6 +1151,8 @@ class _$TokenPoolImpl extends _TokenPool {
             (identical(other.style, style) || other.style == style) &&
             (identical(other.totalAmount, totalAmount) ||
                 other.totalAmount == totalAmount) &&
+            (identical(other.totalDistributed, totalDistributed) ||
+                other.totalDistributed == totalDistributed) &&
             (identical(other.contributionCount, contributionCount) ||
                 other.contributionCount == contributionCount) &&
             (identical(other.contributorCount, contributorCount) ||
@@ -1187,6 +1206,7 @@ class _$TokenPoolImpl extends _TokenPool {
     message,
     style,
     totalAmount,
+    totalDistributed,
     contributionCount,
     contributorCount,
     const DeepCollectionEquality().hash(_contributions),
@@ -1234,6 +1254,7 @@ abstract class _TokenPool extends TokenPool {
     final String message,
     required final GiftStyle style,
     final int totalAmount,
+    final int totalDistributed,
     final int contributionCount,
     final int contributorCount,
     final Map<String, PoolContribution> contributions,
@@ -1282,6 +1303,8 @@ abstract class _TokenPool extends TokenPool {
   GiftStyle get style; // Financial summary
   @override
   int get totalAmount;
+  @override
+  int get totalDistributed;
   @override
   int get contributionCount;
   @override
