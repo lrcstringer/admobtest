@@ -192,6 +192,10 @@ class _IMaliChatAppState extends State<IMaliChatApp>
       case AppLifecycleState.hidden:
         _sessionLockService.onAppPaused();
       case AppLifecycleState.resumed:
+        // Clear notification tray — user is in the app now. The badge
+        // notification is re-created with the correct unread count on
+        // the next MainShell rebuild (via updateBadgeCount).
+        NotificationService.clearDeliveredNotifications();
         _handleAppResumed();
       case AppLifecycleState.inactive:
       case AppLifecycleState.detached:

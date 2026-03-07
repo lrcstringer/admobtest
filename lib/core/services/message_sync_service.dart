@@ -9,6 +9,7 @@ import '../../data/datasources/local/app_database.dart';
 import '../../data/datasources/remote/conversation_remote_datasource.dart';
 import '../../data/mappers/local_conversation_mapper.dart';
 import '../../data/mappers/local_message_mapper.dart';
+import '../../data/models/conversation_model.dart';
 import '../../data/models/message_model.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/enums/message_type.dart';
@@ -87,51 +88,7 @@ class MessageSyncService {
     _conversationListSub = _remoteDataSource.watchConversations().listen(
       (conversationModels) {
         _convListLock.protect('_', () async {
-          final conversations =
-              conversationModels.map((m) => m.toEntity()).toList();
-          final currentIds = conversations.map((c) => c.id).toSet();
-          _latestConversationIds
-            ..clear()
-            ..addAll(currentIds);
-
-          // Store/update conversation metadata locally.
-          // Preserve local lastMessageText when Firestore sends null (E2EE
-          // messages have lastMessageText=null on the server — the decrypted
-          // preview is only available locally after MessageSyncService decrypts).
-          for (final conv in conversations) {
-            try {
-              var convToStore = conv;
-              if (conv.lastMessageText == null && conv.lastMessageAt != null) {
-                final existing =
-                    await _appDatabase.getLocalConversation(conv.id);
-                if (existing != null && existing.lastMessageText != null) {
-                  convToStore = conv.copyWith(
-                    lastMessageText: existing.lastMessageText,
-                  );
-                }
-              }
-              await _appDatabase.upsertLocalConversation(
-                LocalConversationMapper.toCompanion(convToStore),
-              );
-            } catch (e) {
-              debugPrint(
-                  'MessageSyncService: Failed to store conv ${conv.id}: $e');
-            }
-          }
-
-          // Start message-level sync only if full sync is active (E2EE ready)
-          if (_isSyncing) {
-            for (final convId in currentIds) {
-              if (!_syncingConversationIds.contains(convId)) {
-                _startMessageSync(convId);
-              }
-            }
-
-            final removedIds = _syncingConversationIds.difference(currentIds);
-            for (final convId in removedIds) {
-              _stopMessageSync(convId);
-            }
-          }
+          await _syncConversationSnapshot(conversationModels);
         }).catchError((Object e) {
           debugPrint('MessageSyncService: Conversation list error: $e');
         });
@@ -140,6 +97,98 @@ class MessageSyncService {
         debugPrint('MessageSyncService: Conversation list error: $e');
       },
     );
+  }
+
+  /// Whether the first conversation sync has completed its authoritative
+  /// server prune. Reset on [stopSync].
+  bool _initialPruneDone = false;
+
+  /// Process a conversation list snapshot: upsert current conversations,
+  /// prune stale ones, and start/stop message-level sync as needed.
+  Future<void> _syncConversationSnapshot(
+    List<ConversationModel> conversationModels,
+  ) async {
+    final conversations =
+        conversationModels.map((m) => m.toEntity()).toList();
+    final currentIds = conversations.map((c) => c.id).toSet();
+    _latestConversationIds
+      ..clear()
+      ..addAll(currentIds);
+
+    // Store/update conversation metadata locally.
+    // Preserve local lastMessageText when Firestore sends null (E2EE
+    // messages have lastMessageText=null on the server — the decrypted
+    // preview is only available locally after MessageSyncService decrypts).
+    for (final conv in conversations) {
+      try {
+        var convToStore = conv;
+        if (conv.lastMessageText == null && conv.lastMessageAt != null) {
+          final existing =
+              await _appDatabase.getLocalConversation(conv.id);
+          if (existing != null && existing.lastMessageText != null) {
+            convToStore = conv.copyWith(
+              lastMessageText: existing.lastMessageText,
+            );
+          }
+        }
+        await _appDatabase.upsertLocalConversation(
+          LocalConversationMapper.toCompanion(convToStore),
+        );
+      } catch (e) {
+        debugPrint(
+            'MessageSyncService: Failed to store conv ${conv.id}: $e');
+      }
+    }
+
+    // Prune local conversations that no longer exist on the server.
+    //
+    // On the FIRST sync after startup, the stream emission may come from
+    // Firestore's local cache — which still contains deleted documents.
+    // Using the stream's own currentIds for pruning would be wrong because
+    // currentIds would include those deleted docs. Instead, fetch the
+    // authoritative list directly from the Firestore server via a one-shot
+    // .get() call (which hits the server when online, falls back to cache
+    // when offline). On subsequent syncs, the stream data is server-confirmed
+    // so currentIds is trustworthy.
+    try {
+      final Set<String> authoritativeIds;
+      if (!_initialPruneDone) {
+        final serverModels = await _remoteDataSource.getConversations();
+        authoritativeIds = serverModels.map((m) => m.id).toSet();
+        _initialPruneDone = true;
+      } else {
+        authoritativeIds = currentIds;
+      }
+
+      final localRows = await _appDatabase.getLocalConversations();
+      final localIds = localRows.map((r) => r.id).toSet();
+      final staleIds = localIds.difference(authoritativeIds);
+      if (staleIds.isNotEmpty) {
+        debugPrint(
+            'MessageSyncService: Pruning ${staleIds.length} stale '
+            'conversations: $staleIds');
+        for (final id in staleIds) {
+          await _appDatabase.deleteLocalConversation(id);
+        }
+      }
+    } catch (e, st) {
+      debugPrint(
+          'MessageSyncService: Failed to prune stale conversations: $e\n$st');
+    }
+
+    // Start message-level sync only if full sync is active (E2EE ready)
+    if (_isSyncing) {
+      for (final convId in currentIds) {
+        if (!_syncingConversationIds.contains(convId)) {
+          _startMessageSync(convId);
+        }
+      }
+
+      final removedIds = _syncingConversationIds.difference(currentIds);
+      for (final convId in removedIds) {
+        _stopMessageSync(convId);
+      }
+    }
   }
 
   /// Start full message syncing (decryption + storage).
@@ -198,6 +247,7 @@ class MessageSyncService {
     _syncingConversationIds.clear();
     _latestConversationIds.clear();
     _backfilledConversationIds.clear();
+    _initialPruneDone = false;
     _processingLock.clear();
   }
 

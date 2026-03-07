@@ -27,8 +27,18 @@ import 'firebase_options.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Handle incoming call push in background/killed state
   final type = message.data['type'] as String?;
+
+  // Handle call cancellation — dismiss CallKit UI and stop ringing
+  if (type == 'call_ended') {
+    final callId = message.data['callId'] as String? ?? '';
+    if (callId.isNotEmpty) {
+      await FlutterCallkitIncoming.endCall(callId);
+    }
+    return;
+  }
+
+  // Handle incoming call push in background/killed state
   if (type == 'incoming_call') {
     final callId = message.data['callId'] as String? ?? '';
     final callerName = message.data['callerName'] as String? ?? 'Unknown';

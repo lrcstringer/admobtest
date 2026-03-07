@@ -52,7 +52,9 @@ class ConversationRepositoryImpl implements ConversationRepository {
       // Offline-first: read from local Drift DB for instant display.
       // MessageSyncService keeps this in sync with Firestore in the background.
       final rows = await _appDatabase.getLocalConversations();
-      return Right(rows.map(LocalConversationMapper.toEntity).toList());
+      final conversations =
+          rows.map(LocalConversationMapper.toEntity).toList();
+      return Right(_deduplicateP2P(conversations));
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -66,13 +68,45 @@ class ConversationRepositoryImpl implements ConversationRepository {
       try {
         final conversations =
             rows.map(LocalConversationMapper.toEntity).toList();
-        return Right<Failure, List<Conversation>>(conversations);
+        return Right<Failure, List<Conversation>>(
+            _deduplicateP2P(conversations));
       } catch (e) {
         return Left<Failure, List<Conversation>>(
           Failure.serverError(message: e.toString()),
         );
       }
     });
+  }
+
+  /// Deduplicate P2P conversations that share the same participant pair.
+  /// Keeps the one with the most recent message. This is a safety net
+  /// for stale local DB entries that the sync service hasn't pruned yet.
+  List<Conversation> _deduplicateP2P(List<Conversation> conversations) {
+    final userId = currentUserId ?? '';
+    if (userId.isEmpty) return conversations;
+
+    final seen = <String, Conversation>{};
+    for (final conv in conversations) {
+      if (conv.type != ConversationType.p2p) {
+        seen[conv.id] = conv;
+        continue;
+      }
+      final otherIds =
+          conv.participantIds.where((id) => id != userId);
+      final key = otherIds.isNotEmpty ? otherIds.first : conv.id;
+      final existing = seen[key];
+      if (existing == null) {
+        seen[key] = conv;
+      } else {
+        final existingTime =
+            existing.lastMessageAt ?? existing.createdAt;
+        final convTime = conv.lastMessageAt ?? conv.createdAt;
+        if (convTime.isAfter(existingTime)) {
+          seen[key] = conv;
+        }
+      }
+    }
+    return seen.values.toList();
   }
 
   @override

@@ -357,6 +357,31 @@ export const endCall = onCall(
       console.error("RTDB signaling cleanup failed:", e);
     }
 
+    // Notify the OTHER participant via FCM so their CallKit UI dismisses
+    // immediately — even if their app has no Firestore listener yet.
+    if (!result.alreadyEnded) {
+      const call = result.callData;
+      const otherUid = call.callerId === userId ? call.calleeId : call.callerId;
+      try {
+        const otherDoc = await db.collection("users").doc(otherUid).get();
+        const otherFcm = otherDoc.data()?.fcmToken as string | undefined;
+        if (otherFcm) {
+          await admin.messaging().send({
+            token: otherFcm,
+            data: { type: "call_ended", callId },
+            android: { priority: "high" },
+            apns: {
+              headers: { "apns-priority": "10" },
+              payload: { aps: { contentAvailable: true } },
+            },
+          });
+        }
+      } catch (e) {
+        // Best-effort — Firestore listener and CallKit timeout are fallbacks
+        console.error("FCM call_ended send failed:", e);
+      }
+    }
+
     // Only write system message if this was the first endCall
     if (!result.alreadyEnded) {
       const call = result.callData;

@@ -108,6 +108,18 @@ class CallNotificationService {
     );
 
     await FlutterCallkitIncoming.showCallkitIncoming(params);
+
+    // Immediately notify BLoC so Firestore listener starts — this ensures
+    // we detect caller cancellation even before the user taps Accept/Decline.
+    final ct = callType == 'video' ? CallType.video : CallType.voice;
+    _callBloc?.add(CallEvent.incomingCall(
+      callId: callId,
+      callerName: callerName,
+      callerAvatarUrl: callerAvatarUrl,
+      callType: ct,
+      conversationId: conversationId,
+      callerId: callerId,
+    ));
   }
 
   /// Listen for CallKit events: accepted, declined, missed, ended.
@@ -172,8 +184,9 @@ class CallNotificationService {
         _callBloc?.add(const CallEvent.rejectCall());
 
       case callkit.Event.actionCallTimeout:
-        // Ring timeout — let the scheduled CF handle marking as missed
+        // Ring timeout — notify BLoC to end the call as missed
         debugPrint('CallNotification: call timed out: $callId');
+        _callBloc?.add(const CallEvent.endCall());
 
       case callkit.Event.actionCallEnded:
         // CallKit ended the call (e.g., via system UI)

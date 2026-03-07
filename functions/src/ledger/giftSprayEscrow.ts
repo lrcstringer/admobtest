@@ -20,8 +20,8 @@ export async function processGiftDebit(
   giftId: string,
   description: string
 ): Promise<string> {
-  await ensureSystemAccounts();
-  await getOrCreateUserAccount(senderId);
+  // Independent — run in parallel to save ~150ms
+  await Promise.all([ensureSystemAccounts(), getOrCreateUserAccount(senderId)]);
 
   const senderAccountId = AccountId.user(senderId);
   const escrowAccountId = SystemAccounts.GIFT_ESCROW;
@@ -57,8 +57,7 @@ export async function processGiftCredit(
   giftId: string,
   description: string
 ): Promise<string> {
-  await ensureSystemAccounts();
-  await getOrCreateUserAccount(recipientId);
+  await Promise.all([ensureSystemAccounts(), getOrCreateUserAccount(recipientId)]);
 
   const recipientAccountId = AccountId.user(recipientId);
   const escrowAccountId = SystemAccounts.GIFT_ESCROW;
@@ -94,8 +93,7 @@ export async function processGiftRefund(
   giftId: string,
   description: string
 ): Promise<string> {
-  await ensureSystemAccounts();
-  await getOrCreateUserAccount(senderId);
+  await Promise.all([ensureSystemAccounts(), getOrCreateUserAccount(senderId)]);
 
   const senderAccountId = AccountId.user(senderId);
   const escrowAccountId = SystemAccounts.GIFT_ESCROW;
@@ -131,8 +129,7 @@ export async function processSprayContributionDebit(
   sprayId: string,
   description: string
 ): Promise<string> {
-  await ensureSystemAccounts();
-  await getOrCreateUserAccount(contributorId);
+  await Promise.all([ensureSystemAccounts(), getOrCreateUserAccount(contributorId)]);
 
   const contributorAccountId = AccountId.user(contributorId);
   const escrowAccountId = SystemAccounts.SPRAY_ESCROW;
@@ -168,8 +165,7 @@ export async function processSprayPayout(
   sprayId: string,
   description: string
 ): Promise<string> {
-  await ensureSystemAccounts();
-  await getOrCreateUserAccount(recipientId);
+  await Promise.all([ensureSystemAccounts(), getOrCreateUserAccount(recipientId)]);
 
   const recipientAccountId = AccountId.user(recipientId);
   const escrowAccountId = SystemAccounts.SPRAY_ESCROW;

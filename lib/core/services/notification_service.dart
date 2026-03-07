@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
@@ -132,6 +133,21 @@ class NotificationService {
   /// Notification ID reserved for the silent badge-count notification.
   static const _badgeNotificationId = 0;
 
+  /// Clear all delivered notifications from the system tray.
+  ///
+  /// Call when the app comes to foreground — the user is in the app and no
+  /// longer needs notification banners. On Android this uses
+  /// `NotificationManager.cancelAll()` which clears both local and FCM
+  /// notifications. The badge notification is immediately re-shown by
+  /// [updateBadgeCount] on the next [MainShell] rebuild.
+  static Future<void> clearDeliveredNotifications() async {
+    try {
+      await _badgePlugin.cancelAll();
+    } catch (e) {
+      debugPrint('NotificationService: clearNotifications failed: $e');
+    }
+  }
+
   /// Update the launcher icon badge count. On Android, the badge is driven
   /// by the `number` field on an active notification. We maintain a single
   /// silent, zero-priority notification whose sole purpose is carrying the
@@ -195,6 +211,15 @@ class NotificationService {
   void _handleForegroundMessage(RemoteMessage message) {
     final type = message.data['type'] as String?;
 
+    // Handle call cancellation — dismiss CallKit UI and stop ringing
+    if (type == 'call_ended') {
+      final callId = message.data['callId'] as String?;
+      if (callId != null && callId.isNotEmpty) {
+        FlutterCallkitIncoming.endCall(callId);
+      }
+      return;
+    }
+
     // Handle incoming call data messages (no notification payload)
     if (type == 'incoming_call') {
       _callNotificationService?.showIncomingCall(
@@ -242,8 +267,15 @@ class NotificationService {
         channelName = _defaultChannelName;
     }
 
+    // Use a conversation/community-based ID so new messages in the same chat
+    // replace the previous notification instead of stacking. This also lets
+    // Samsung launchers show an accurate badge count (= distinct conversations
+    // with unread messages) rather than total accumulated notifications.
+    final notificationId =
+        (relevantId ?? notification.hashCode.toString()).hashCode;
+
     _localNotifications.show(
-      notification.hashCode,
+      notificationId,
       notification.title,
       notification.body,
       NotificationDetails(

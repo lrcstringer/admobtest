@@ -304,21 +304,24 @@ export async function initializeSystemAccounts(): Promise<void> {
     },
   ];
 
-  const batch = db.batch();
   const now = admin.firestore.Timestamp.now();
 
-  for (const accountDef of systemAccountsToCreate) {
-    const accountRef = db
-      .collection(LedgerConfig.COLLECTION_ACCOUNTS)
-      .doc(accountDef.id);
+  // Read all 10 system accounts in parallel instead of sequentially.
+  // Sequential reads: 10 × ~150ms = ~1.5s. Parallel: ~150ms total.
+  const refs = systemAccountsToCreate.map((a) =>
+    db.collection(LedgerConfig.COLLECTION_ACCOUNTS).doc(a.id)
+  );
+  const docs = await Promise.all(refs.map((ref) => ref.get()));
 
-    // Check if exists
-    const existing = await accountRef.get();
-    if (existing.exists) {
-      logger.info(`System account ${accountDef.id} already exists, skipping`);
+  const batch = db.batch();
+  let createCount = 0;
+
+  for (let i = 0; i < systemAccountsToCreate.length; i++) {
+    if (docs[i].exists) {
       continue;
     }
 
+    const accountDef = systemAccountsToCreate[i];
     const account: LedgerAccount = {
       id: accountDef.id,
       type: accountDef.type,
@@ -336,12 +339,15 @@ export async function initializeSystemAccounts(): Promise<void> {
       version: 1,
     };
 
-    batch.set(accountRef, account);
+    batch.set(refs[i], account);
+    createCount++;
     logger.info(`Creating system account: ${accountDef.id}`);
   }
 
-  await batch.commit();
-  logger.info("System accounts initialization complete");
+  if (createCount > 0) {
+    await batch.commit();
+  }
+  logger.info(`System accounts initialization complete (${createCount} created, ${systemAccountsToCreate.length - createCount} existed)`);
 }
 
 // Module-level promise to ensure system accounts are initialized once per cold start.

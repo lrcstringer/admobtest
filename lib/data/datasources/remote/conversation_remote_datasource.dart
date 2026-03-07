@@ -228,12 +228,11 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
         .orderBy('lastMessageAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      final conversations = _deduplicateConversations(
-        snapshot.docs
-            .map((doc) => ConversationModel.fromFirestore(doc))
-            .toList(),
-        userId,
-      );
+      final raw = snapshot.docs
+          .map((doc) => ConversationModel.fromFirestore(doc))
+          .toList();
+
+      final conversations = _deduplicateConversations(raw, userId);
 
       // Self-heal on first snapshot (fire-and-forget)
       _healStaleParticipants(conversations);

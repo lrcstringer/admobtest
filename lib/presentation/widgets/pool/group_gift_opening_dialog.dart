@@ -52,6 +52,10 @@ class _GroupGiftOpeningDialogState extends State<GroupGiftOpeningDialog>
     context
         .read<TokenPoolBloc>()
         .add(TokenPoolEvent.watchPool(widget.giftData.poolId));
+
+    // Auto-trigger open — skip the redundant sealed "Tap to Open" phase.
+    // The user already tapped "Tap to Open" in the chat bubble to get here.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onTapOpen());
   }
 
   @override

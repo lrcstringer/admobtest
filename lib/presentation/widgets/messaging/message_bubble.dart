@@ -1,5 +1,9 @@
+import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:crypto/crypto.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -1166,6 +1170,13 @@ class _EncryptedImageThumbnail extends StatefulWidget {
 }
 
 class _EncryptedImageThumbnailState extends State<_EncryptedImageThumbnail> {
+  /// Two-tier cache for decrypted image bytes:
+  /// L1 = in-memory LRU (instant, lost on app restart)
+  /// L2 = disk files in app cache dir (survives restarts, OS can reclaim)
+  static const _maxMemEntries = 100;
+  static final LinkedHashMap<String, Uint8List> _memCache = LinkedHashMap();
+  static String? _diskCacheDir;
+
   Uint8List? _bytes;
   bool _isLoading = true;
   bool _hasError = false;
@@ -1176,18 +1187,75 @@ class _EncryptedImageThumbnailState extends State<_EncryptedImageThumbnail> {
     _loadImage();
   }
 
+  /// SHA-1 hash of URL → hex string, used as disk cache filename.
+  static String _cacheKey(String url) =>
+      sha1.convert(utf8.encode(url)).toString();
+
+  /// Lazily resolve and create the disk cache directory.
+  static Future<String> _ensureDiskCacheDir() async {
+    if (_diskCacheDir != null) return _diskCacheDir!;
+    final cacheRoot = await getTemporaryDirectory();
+    final dir = Directory('${cacheRoot.path}/encrypted_media');
+    if (!dir.existsSync()) dir.createSync(recursive: true);
+    _diskCacheDir = dir.path;
+    return _diskCacheDir!;
+  }
+
   Future<void> _loadImage() async {
+    // L1: in-memory cache — instant
+    final memHit = _memCache[widget.url];
+    if (memHit != null) {
+      _memCache.remove(widget.url);
+      _memCache[widget.url] = memHit;
+      if (mounted) setState(() { _bytes = memHit; _isLoading = false; });
+      return;
+    }
+
+    // L2: disk cache — fast, no network/decrypt
+    try {
+      final dir = await _ensureDiskCacheDir();
+      final file = File('$dir/${_cacheKey(widget.url)}');
+      if (file.existsSync()) {
+        final bytes = await file.readAsBytes();
+        _promoteToMemCache(widget.url, bytes);
+        if (mounted) setState(() { _bytes = bytes; _isLoading = false; });
+        return;
+      }
+    } catch (_) {
+      // Disk read failed — fall through to network
+    }
+
+    // L3: network download + decrypt
     try {
       final datasource = getIt<MediaUploadDatasource>();
       final bytes = await datasource.downloadAndDecrypt(
         url: widget.url,
         mediaKeyBase64: widget.mediaKeyBase64,
       );
+      _promoteToMemCache(widget.url, bytes);
+      // Write to disk cache (fire-and-forget)
+      _writeDiskCache(widget.url, bytes);
       if (mounted) setState(() { _bytes = bytes; _isLoading = false; });
     } catch (e) {
-      // Fix #14: Log encrypted image load errors
       debugPrint('EncryptedImageThumbnail: load failed: $e');
       if (mounted) setState(() { _hasError = true; _isLoading = false; });
+    }
+  }
+
+  static void _promoteToMemCache(String url, Uint8List bytes) {
+    _memCache.remove(url);
+    if (_memCache.length >= _maxMemEntries) {
+      _memCache.remove(_memCache.keys.first);
+    }
+    _memCache[url] = bytes;
+  }
+
+  static Future<void> _writeDiskCache(String url, Uint8List bytes) async {
+    try {
+      final dir = await _ensureDiskCacheDir();
+      await File('$dir/${_cacheKey(url)}').writeAsBytes(bytes, flush: true);
+    } catch (_) {
+      // Non-critical — image will just re-download next cold start
     }
   }
 

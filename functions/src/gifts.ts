@@ -67,7 +67,10 @@ const GIFT_EXPIRY_DAYS = 7;
 export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) => {
   const userId = requireAuth(request);
   requireAppCheck(request, "sendGift");
-  await requirePlayIntegrity(request.data, request, "sendGift", "HIGHEST");
+  // Advisory mode (enforce=false): fire-and-forget — don't block the request
+  // with the 1-3s Google Play Integrity API decode + Firestore audit log.
+  requirePlayIntegrity(request.data, request, "sendGift", "HIGHEST")
+    .catch((e) => logger.warn("[sendGift] Play integrity check error:", e));
 
   const { recipientId, amount, message, style, conversationId, communityId } = request.data;
 
@@ -144,22 +147,18 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
     resolvedConversationId = deterministicId;
   }
 
-  // --- Validate parent document exists ---
+  // --- Validate parent + get profiles + check balance (parallel) ---
   const collection = resolvedConversationId ? "conversations" : "communities";
   const parentId = resolvedConversationId || communityId;
-  const parentDoc = await db.collection(collection).doc(parentId!).get();
+  const [parentDoc, sender, recipient, balanceCheck] = await Promise.all([
+    db.collection(collection).doc(parentId!).get(),
+    getUserProfile(userId),
+    getUserProfile(recipientId),
+    validateMainWalletBalance(userId, amount),
+  ]);
   if (!parentDoc.exists) {
     throw new HttpsError("not-found", `${collection === "conversations" ? "Conversation" : "Community"} not found`);
   }
-
-  // --- Get user profiles ---
-  const [sender, recipient] = await Promise.all([
-    getUserProfile(userId),
-    getUserProfile(recipientId),
-  ]);
-
-  // --- Validate sender balance ---
-  const balanceCheck = await validateMainWalletBalance(userId, amount);
   if (!balanceCheck.sufficient) {
     throw new HttpsError(
       "failed-precondition",
@@ -424,7 +423,9 @@ export const openGift = onCall({ labels: { area: "gifts" } }, async (request) =>
 export const claimGift = onCall({ labels: { area: "gifts" } }, async (request) => {
   const userId = requireAuth(request);
   requireAppCheck(request, "claimGift");
-  await requirePlayIntegrity(request.data, request, "claimGift", "HIGHEST");
+  // Advisory mode (enforce=false): fire-and-forget — don't block the request.
+  requirePlayIntegrity(request.data, request, "claimGift", "HIGHEST")
+    .catch((e) => logger.warn("[claimGift] Play integrity check error:", e));
 
   const { giftId } = request.data;
   if (!giftId || typeof giftId !== "string") {

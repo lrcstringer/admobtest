@@ -26,7 +26,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Placeholder: show dragon2.png until Buy is fully implemented
+    // Placeholder: show dragons.jpg until Buy is fully implemented
     return Scaffold(
       appBar: const IMaliAppBar(title: 'Buy'),
       body: WaveBackground(
@@ -34,7 +34,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
           child: FractionallySizedBox(
             widthFactor: 0.75,
             child: Image.asset(
-              'assets/images/dragon2.png',
+              'assets/images/dragons.jpg',
               fit: BoxFit.contain,
             ),
           ),

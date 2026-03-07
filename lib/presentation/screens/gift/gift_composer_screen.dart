@@ -196,7 +196,7 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.sm),
 
                 // Personal message
                 Text(
@@ -219,7 +219,7 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.lg),
 
                 // Send button
                 SizedBox(

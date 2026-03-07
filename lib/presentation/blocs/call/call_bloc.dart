@@ -312,6 +312,10 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     _IncomingCall event,
     Emitter<CallState> emit,
   ) async {
+    // If already handling this exact call, skip (prevents duplicate setup
+    // when CallKit accept/decline fires after showIncomingCall already started).
+    if (state.callId == event.callId) return;
+
     // Reject second incoming call if one is already active/ringing
     if (state.status != CallStatus.idle) {
       debugPrint('CallBloc: ignoring incoming call — already in call '

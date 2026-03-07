@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/di/injection.dart';
+import '../../../core/security/play_integrity_service.dart';
 import '../../../domain/entities/message.dart';
 import '../../../domain/enums/gift_status.dart';
 import '../../../domain/enums/gift_style.dart';
@@ -77,6 +79,10 @@ class _GiftOpeningDialogState extends State<_GiftOpeningDialog>
   void initState() {
     super.initState();
 
+    // Pre-fetch Play Integrity token so it's cached when user taps "Claim".
+    // Without this, claimGift() blocks 3-10s fetching a fresh token.
+    getIt<PlayIntegrityService>().warmUp();
+
     // Pulse animation for the sealed state
     _sealedPulse = AnimationController(
       vsync: this,
@@ -122,7 +128,9 @@ class _GiftOpeningDialogState extends State<_GiftOpeningDialog>
         _phase = _DialogPhase.expired;
         _sealedPulse.stop();
       case GiftStatus.pending:
-        break;
+        // Auto-trigger open — skip the redundant sealed "Tap to Open" phase.
+        // The user already tapped "Tap to Open" in the chat bubble to get here.
+        WidgetsBinding.instance.addPostFrameCallback((_) => _onTapToOpen());
     }
   }
 

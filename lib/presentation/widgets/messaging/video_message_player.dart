@@ -125,7 +125,7 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
 
       // Initialize player
       _videoController = VideoPlayerController.file(tempFile)
-        ..setLooping(true);
+        ..setLooping(false);
       await _videoController!.initialize();
       await _videoController!.play();
 
