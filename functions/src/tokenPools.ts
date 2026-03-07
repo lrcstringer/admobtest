@@ -438,14 +438,18 @@ export const contributeToPool = onCall(
       );
     }
 
-    // Pre-check balance before transaction
-    const balanceCheck = await validateMainWalletBalance(userId, amount);
+    // Pre-check balance + fetch profile in parallel (both are independent reads)
+    const [balanceCheck, userProfile] = await Promise.all([
+      validateMainWalletBalance(userId, amount),
+      getUserProfile(userId),
+    ]);
     if (!balanceCheck.sufficient) {
       throw new HttpsError(
         "failed-precondition",
         `Insufficient balance: have ${balanceCheck.available}, need ${amount}`
       );
     }
+    const displayName = userProfile.displayName || "Unknown";
 
     const poolRef = db.collection("tokenPools").doc(poolId);
     const contributionId = db.collection("_ids").doc().id; // unique ID for idempotency
@@ -469,11 +473,7 @@ export const contributeToPool = onCall(
         throw new HttpsError("permission-denied", "You are not a participant in this pool");
       }
 
-      // Get user profile for display name
-      const userProfile = await getUserProfile(userId);
-      const displayName = userProfile.displayName || "Unknown";
-
-      // Build updated contribution data
+      // Build updated contribution data (displayName fetched before transaction)
       const existingContrib = pool.contributions?.[userId];
       const updatedContrib = {
         userId,
@@ -497,7 +497,6 @@ export const contributeToPool = onCall(
       });
 
       return {
-        displayName,
         conversationId: pool.conversationId,
         organizerId: pool.organizerId,
         mode: pool.mode,
@@ -540,27 +539,29 @@ export const contributeToPool = onCall(
       throw new HttpsError("internal", "Failed to process contribution");
     }
 
-    // Phase 3: Side effects
-    const contributorLabel = anonymous === true ? "Someone" : txResult.displayName;
-    await postSystemMessage(
-      txResult.conversationId,
-      `${contributorLabel} contributed ${amount} tokens`,
-      "pool_contribution",
-      { poolId, userId, amount, anonymous: anonymous === true }
-    );
-
-    // FCM to organizer (if contributor is not the organizer)
-    if (userId !== txResult.organizerId) {
-      const organizerToken = await getFcmToken(txResult.organizerId);
-      if (organizerToken) {
-        await sendFcmNotification(
-          organizerToken,
-          "New contribution",
-          `${contributorLabel} contributed ${amount} tokens`,
-          { type: "pool_contribution", poolId, conversationId: txResult.conversationId }
-        );
+    // Phase 3: Side effects (fire-and-forget — prevents double-charge on retry
+    // if system message throws after successful ledger debit)
+    const contributorLabel = anonymous === true ? "Someone" : displayName;
+    const sideEffects = async () => {
+      await postSystemMessage(
+        txResult.conversationId,
+        `${contributorLabel} contributed ${amount} tokens`,
+        "pool_contribution",
+        { poolId, userId, amount, anonymous: anonymous === true }
+      );
+      if (userId !== txResult.organizerId) {
+        const organizerToken = await getFcmToken(txResult.organizerId);
+        if (organizerToken) {
+          await sendFcmNotification(
+            organizerToken,
+            "New contribution",
+            `${contributorLabel} contributed ${amount} tokens`,
+            { type: "pool_contribution", poolId, conversationId: txResult.conversationId }
+          );
+        }
       }
-    }
+    };
+    sideEffects().catch((e) => logger.warn("contributeToPool side effects failed:", e));
 
     logger.info(`Contribution ${contributionId}: ${amount} tokens from ${userId} to pool ${poolId}`);
 
@@ -612,6 +613,11 @@ export const sendGroupGift = onCall(
         throw new HttpsError("failed-precondition", "Only sasaza pools can send a group gift");
       }
 
+      // Idempotent: already sent or completed — return success on retry
+      if (pool.status === "sent" || pool.status === "completed") {
+        return { alreadySent: true };
+      }
+
       if (pool.status !== "collecting") {
         throw new HttpsError("failed-precondition", "Pool is not in collecting status");
       }
@@ -636,6 +642,7 @@ export const sendGroupGift = onCall(
       });
 
       return {
+        alreadySent: false,
         recipientId: pool.recipientId,
         recipientName: pool.recipientName,
         organizerName: pool.organizerName,
@@ -648,6 +655,12 @@ export const sendGroupGift = onCall(
         title: pool.title,
       };
     });
+
+    // Idempotent: already sent — skip Phase 2/3
+    if (txResult.alreadySent) {
+      const poolDoc = await poolRef.get();
+      return { success: true, pool: { ...poolDoc.data(), id: poolId } };
+    }
 
     // Phase 2: Ledger payout — group → recipient
     try {
@@ -686,159 +699,164 @@ export const sendGroupGift = onCall(
       throw new HttpsError("internal", "Failed to transfer tokens");
     }
 
-    // Phase 3: Side effects
-
-    // 3a. Get or create organizer↔recipient P2P conversation
-    const sortedIds = [userId, txResult.recipientId].sort();
-    const deterministicConvId = `p2p_${sortedIds[0]}_${sortedIds[1]}`;
-    const p2pConvRef = db.collection("conversations").doc(deterministicConvId);
-
-    // Use create() to avoid race conditions — if doc already exists, catch and proceed.
-    try {
-      const organizerProfile = await getUserProfile(userId);
-      const recipientProfile = await getUserProfile(txResult.recipientId);
-      const now = admin.firestore.FieldValue.serverTimestamp();
-
-      await p2pConvRef.create({
-        id: deterministicConvId,
-        type: "p2p",
-        participantIds: [userId, txResult.recipientId],
-        participants: {
-          [userId]: {
-            displayName: organizerProfile.displayName || "Unknown",
-            avatarUrl: organizerProfile.avatarUrl || organizerProfile.profilePicThumbUrl || null,
-          },
-          [txResult.recipientId]: {
-            displayName: recipientProfile.displayName || "Unknown",
-            avatarUrl: recipientProfile.avatarUrl || recipientProfile.profilePicThumbUrl || null,
-          },
-        },
-        lastMessageText: null,
-        lastMessageSenderId: null,
-        lastMessageSenderName: null,
-        lastMessageType: null,
-        lastMessageAt: null,
-        unreadCounts: { [userId]: 0, [txResult.recipientId]: 0 },
-        accepted: { [userId]: true, [txResult.recipientId]: true },
-        archived: { [userId]: false, [txResult.recipientId]: false },
-        pinned: { [userId]: false, [txResult.recipientId]: false },
-        muted: { [userId]: false, [txResult.recipientId]: false },
-        disappearingMessagesDurationMs: null,
-        createdAt: now,
-        updatedAt: null,
-      });
-    } catch (e: any) {
-      // Already exists (concurrent create or prior call) — safe to proceed
-      if (e.code !== 6 /* ALREADY_EXISTS */) throw e;
-    }
-
-    // 3b. Build visible contributor names (non-anonymous)
-    const contributions = txResult.contributions as Record<string, any>;
-    const visibleContributorNames: string[] = [];
-    let anonymousCount = 0;
-    for (const contrib of Object.values(contributions)) {
-      if (contrib.anonymous) {
-        anonymousCount++;
-      } else {
-        visibleContributorNames.push(contrib.displayName || "Unknown");
-      }
-    }
-
-    // 3c. Write groupGift message in P2P conversation
-    const giftMsgRef = p2pConvRef.collection("messages").doc();
-    const msgNow = admin.firestore.FieldValue.serverTimestamp();
-
-    await giftMsgRef.set({
-      id: giftMsgRef.id,
-      senderId: userId,
-      senderName: txResult.organizerName,
-      type: "groupGift",
-      status: "sent",
-      textContent: txResult.message || null,
-      groupGift: {
-        poolId,
-        amount: txResult.totalAmount,
-        message: txResult.message || "",
-        style: txResult.style,
-        organizerId: userId,
-        organizerName: txResult.organizerName,
-        contributorCount: txResult.contributorCount,
-        visibleContributorNames,
-        anonymousCount,
-        status: "sent",
-      },
-      createdAt: msgNow,
-      reactions: {},
-      readBy: {},
-      deletedFor: [],
-      deletedForEveryone: false,
-    });
-
-    // Update P2P conversation last message
-    const othersText = txResult.contributorCount > 1
-      ? ` and ${txResult.contributorCount - 1} others`
-      : "";
-    const previewText = `Group Sasaza from ${txResult.organizerName}${othersText}`;
-    await p2pConvRef.update({
-      lastMessageId: giftMsgRef.id,
-      "lastMessage.text": previewText,
-      "lastMessage.senderId": userId,
-      "lastMessage.senderName": txResult.organizerName,
-      "lastMessage.type": "groupGift",
-      "lastMessage.timestamp": msgNow,
-      lastMessageText: previewText,
-      lastMessageSenderId: userId,
-      lastMessageSenderName: txResult.organizerName,
-      lastMessageType: "groupGift",
-      lastMessageAt: msgNow,
-      [`unreadCounts.${txResult.recipientId}`]: admin.firestore.FieldValue.increment(1),
-      updatedAt: msgNow,
-    });
-
-    // 3d. Update pool with delivery references
-    await poolRef.update({
-      giftConversationId: deterministicConvId,
-      giftMessageId: giftMsgRef.id,
-    });
-
-    // 3e. System message in collection room
-    await postSystemMessage(
-      txResult.conversationId,
-      `Group Sasaza sent to ${txResult.recipientName}! ${txResult.totalAmount} tokens`,
-      "pool_sasaza_sent",
-      { poolId, recipientName: txResult.recipientName, amount: txResult.totalAmount }
-    );
-
-    // 3f. FCM to recipient
-    const recipientToken = await getFcmToken(txResult.recipientId);
-    if (recipientToken) {
-      await sendFcmNotification(
-        recipientToken,
-        "You received a Group Sasaza!",
-        `${txResult.organizerName}${othersText} sent you ${txResult.totalAmount} tokens`,
-        {
-          type: "group_gift_received",
-          poolId,
-          conversationId: deterministicConvId,
-        }
-      );
-    }
-
-    // 3g. FCM to contributors
-    const contributorIds = Object.keys(contributions).filter((id) => id !== userId);
-    const contributorTokens = await getFcmTokens(contributorIds);
-    await Promise.all(
-      contributorTokens.map((token) =>
-        sendFcmNotification(
-          token,
-          "Group Sasaza sent!",
-          `The Group Sasaza for ${txResult.recipientName} has been sent!`,
-          { type: "pool_sasaza_sent", poolId, conversationId: txResult.conversationId }
-        )
-      )
-    );
-
     logger.info(`Group gift sent: pool ${poolId}, ${txResult.totalAmount} tokens to ${txResult.recipientId}`);
+
+    // Phase 3: Fire-and-forget side effects — don't block the response or cause
+    // double-charge on retry. The ledger debit already committed in Phase 2.
+    const sideEffects = async () => {
+      // 3a. Get or create organizer↔recipient P2P conversation
+      const sortedIds = [userId, txResult.recipientId].sort();
+      const deterministicConvId = `p2p_${sortedIds[0]}_${sortedIds[1]}`;
+      const p2pConvRef = db.collection("conversations").doc(deterministicConvId);
+
+      // Use create() to avoid race conditions — if doc already exists, catch and proceed.
+      try {
+        const [organizerProfile, recipientProfile] = await Promise.all([
+          getUserProfile(userId),
+          getUserProfile(txResult.recipientId),
+        ]);
+        const now = admin.firestore.FieldValue.serverTimestamp();
+
+        await p2pConvRef.create({
+          id: deterministicConvId,
+          type: "p2p",
+          participantIds: [userId, txResult.recipientId],
+          participants: {
+            [userId]: {
+              displayName: organizerProfile.displayName || "Unknown",
+              avatarUrl: organizerProfile.avatarUrl || organizerProfile.profilePicThumbUrl || null,
+            },
+            [txResult.recipientId]: {
+              displayName: recipientProfile.displayName || "Unknown",
+              avatarUrl: recipientProfile.avatarUrl || recipientProfile.profilePicThumbUrl || null,
+            },
+          },
+          lastMessageText: null,
+          lastMessageSenderId: null,
+          lastMessageSenderName: null,
+          lastMessageType: null,
+          lastMessageAt: null,
+          unreadCounts: { [userId]: 0, [txResult.recipientId]: 0 },
+          accepted: { [userId]: true, [txResult.recipientId]: true },
+          archived: { [userId]: false, [txResult.recipientId]: false },
+          pinned: { [userId]: false, [txResult.recipientId]: false },
+          muted: { [userId]: false, [txResult.recipientId]: false },
+          disappearingMessagesDurationMs: null,
+          createdAt: now,
+          updatedAt: null,
+        });
+      } catch (e: any) {
+        // Already exists (concurrent create or prior call) — safe to proceed
+        if (e.code !== 6 /* ALREADY_EXISTS */) throw e;
+      }
+
+      // 3b. Build visible contributor names (non-anonymous)
+      const contributions = txResult.contributions as Record<string, any>;
+      const visibleContributorNames: string[] = [];
+      let anonymousCount = 0;
+      for (const contrib of Object.values(contributions)) {
+        if (contrib.anonymous) {
+          anonymousCount++;
+        } else {
+          visibleContributorNames.push(contrib.displayName || "Unknown");
+        }
+      }
+
+      // 3c. Write groupGift message in P2P conversation
+      const giftMsgRef = p2pConvRef.collection("messages").doc();
+      const msgNow = admin.firestore.FieldValue.serverTimestamp();
+
+      await giftMsgRef.set({
+        id: giftMsgRef.id,
+        senderId: userId,
+        senderName: txResult.organizerName,
+        type: "groupGift",
+        status: "sent",
+        textContent: txResult.message || null,
+        groupGift: {
+          poolId,
+          amount: txResult.totalAmount,
+          message: txResult.message || "",
+          style: txResult.style,
+          organizerId: userId,
+          organizerName: txResult.organizerName,
+          contributorCount: txResult.contributorCount,
+          visibleContributorNames,
+          anonymousCount,
+          status: "sent",
+        },
+        createdAt: msgNow,
+        reactions: {},
+        readBy: {},
+        deletedFor: [],
+        deletedForEveryone: false,
+      });
+
+      // Update P2P conversation last message
+      const othersText = txResult.contributorCount > 1
+        ? ` and ${txResult.contributorCount - 1} others`
+        : "";
+      const previewText = `Group Sasaza from ${txResult.organizerName}${othersText}`;
+      await p2pConvRef.update({
+        lastMessageId: giftMsgRef.id,
+        "lastMessage.text": previewText,
+        "lastMessage.senderId": userId,
+        "lastMessage.senderName": txResult.organizerName,
+        "lastMessage.type": "groupGift",
+        "lastMessage.timestamp": msgNow,
+        lastMessageText: previewText,
+        lastMessageSenderId: userId,
+        lastMessageSenderName: txResult.organizerName,
+        lastMessageType: "groupGift",
+        lastMessageAt: msgNow,
+        [`unreadCounts.${txResult.recipientId}`]: admin.firestore.FieldValue.increment(1),
+        updatedAt: msgNow,
+      });
+
+      // 3d. Update pool with delivery references
+      await poolRef.update({
+        giftConversationId: deterministicConvId,
+        giftMessageId: giftMsgRef.id,
+      });
+
+      // 3e. System message in collection room
+      await postSystemMessage(
+        txResult.conversationId,
+        `Group Sasaza sent to ${txResult.recipientName}! ${txResult.totalAmount} tokens`,
+        "pool_sasaza_sent",
+        { poolId, recipientName: txResult.recipientName, amount: txResult.totalAmount }
+      );
+
+      // 3f. FCM to recipient
+      const recipientToken = await getFcmToken(txResult.recipientId);
+      if (recipientToken) {
+        await sendFcmNotification(
+          recipientToken,
+          "You received a Group Sasaza!",
+          `${txResult.organizerName}${othersText} sent you ${txResult.totalAmount} tokens`,
+          {
+            type: "group_gift_received",
+            poolId,
+            conversationId: deterministicConvId,
+          }
+        );
+      }
+
+      // 3g. FCM to contributors
+      const contributorIds = Object.keys(contributions).filter((id) => id !== userId);
+      const contributorTokens = await getFcmTokens(contributorIds);
+      await Promise.all(
+        contributorTokens.map((token) =>
+          sendFcmNotification(
+            token,
+            "Group Sasaza sent!",
+            `The Group Sasaza for ${txResult.recipientName} has been sent!`,
+            { type: "pool_sasaza_sent", poolId, conversationId: txResult.conversationId }
+          )
+        )
+      );
+    };
+    sideEffects().catch((e) => logger.warn("sendGroupGift side effects failed:", e));
 
     const poolDoc = await poolRef.get();
     return { success: true, pool: { ...poolDoc.data(), id: poolId } };
@@ -937,6 +955,11 @@ export const claimGroupGift = onCall(
         throw new HttpsError("permission-denied", "Only the recipient can claim the gift");
       }
 
+      // Idempotent: already claimed — return success on retry
+      if (pool.status === "completed") {
+        return { alreadyClaimed: true };
+      }
+
       if (pool.status !== "sent") {
         throw new HttpsError("failed-precondition", "Gift is not in sent status");
       }
@@ -952,6 +975,7 @@ export const claimGroupGift = onCall(
       });
 
       return {
+        alreadyClaimed: false,
         conversationId: pool.conversationId,
         organizerId: pool.organizerId,
         recipientName: pool.recipientName,
@@ -961,6 +985,12 @@ export const claimGroupGift = onCall(
         contributions: pool.contributions || {},
       };
     });
+
+    // Idempotent: already claimed — skip side effects
+    if (txResult.alreadyClaimed) {
+      const poolDoc = await poolRef.get();
+      return { success: true, pool: { ...poolDoc.data(), id: poolId } };
+    }
 
     logger.info(`Group gift claimed: pool ${poolId} by ${userId}`);
 
@@ -1050,6 +1080,15 @@ export const distributePool = onCall(
 
     const poolRef = db.collection("tokenPools").doc(poolId);
 
+    // Pre-fetch display names outside the transaction to avoid side effects inside tx
+    const profileMap = new Map<string, string>();
+    await Promise.all(
+      payouts.map(async (p: { userId: string }) => {
+        const profile = await getUserProfile(p.userId);
+        profileMap.set(p.userId, profile.displayName || "Unknown");
+      })
+    );
+
     // Phase 1: Validate and update status
     const txResult: Record<string, any> = await db.runTransaction(async (tx) => {
       const poolDoc = await tx.get(poolRef);
@@ -1098,16 +1137,12 @@ export const distributePool = onCall(
         }
       }
 
-      // Get display names for payouts
-      const payoutRecords = [];
-      for (const p of payouts) {
-        const profile = await getUserProfile(p.userId);
-        payoutRecords.push({
-          userId: p.userId,
-          displayName: profile.displayName || "Unknown",
-          amount: p.amount,
-        });
-      }
+      // Build payout records using pre-fetched display names
+      const payoutRecords = payouts.map((p: { userId: string; amount: number }) => ({
+        userId: p.userId,
+        displayName: profileMap.get(p.userId) || "Unknown",
+        amount: p.amount,
+      }));
 
       const existingPayouts = pool.payouts || [];
       const allPayouts = [...existingPayouts, ...payoutRecords];
@@ -1148,7 +1183,9 @@ export const distributePool = onCall(
         await poolRef.update({
           status: txResult.previousStatus,
           payouts: txResult.previousPayouts,
-          totalDistributed: txResult.previousTotalDistributed,
+          // Use increment(-payoutSum) instead of absolute value to avoid erasing
+          // concurrent contributions that may have changed totalDistributed
+          totalDistributed: admin.firestore.FieldValue.increment(-txResult.payoutSum),
           completedAt: null,
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
@@ -1180,41 +1217,44 @@ export const distributePool = onCall(
       throw new HttpsError("internal", "Failed to distribute tokens");
     }
 
-    // Phase 3: Side effects
-    const payoutLines = txResult.payoutRecords
-      .map((p: { displayName: string; amount: number }) => `${p.displayName}: ${p.amount} tokens`)
-      .join(", ");
+    logger.info(`Pool ${!txResult.isFullDistribution || keepOpen ? "partially " : ""}distributed: ${poolId}, ${txResult.payoutSum} tokens to ${payouts.length} recipients`);
 
-    const isPartial = !txResult.isFullDistribution || keepOpen;
-    const messagePrefix = isPartial ? "Partial distribution" : "Pool distributed!";
-    const messageType = isPartial ? "pool_partially_distributed" : "pool_distributed";
+    // Phase 3: Fire-and-forget side effects
+    const sideEffects = async () => {
+      const payoutLines = txResult.payoutRecords
+        .map((p: { displayName: string; amount: number }) => `${p.displayName}: ${p.amount} tokens`)
+        .join(", ");
 
-    await postSystemMessage(
-      txResult.conversationId,
-      `${messagePrefix} ${payoutLines}`,
-      messageType,
-      { poolId, payouts: txResult.payoutRecords, isPartial }
-    );
+      const isPartial = !txResult.isFullDistribution || keepOpen;
+      const messagePrefix = isPartial ? "Partial distribution" : "Pool distributed!";
+      const messageType = isPartial ? "pool_partially_distributed" : "pool_distributed";
 
-    // FCM to all participants
-    const allParticipantIds = [userId, ...txResult.inviteeIds];
-    const fcmTokens = await getFcmTokens(allParticipantIds.filter((id: string) => id !== userId));
-    const fcmTitle = isPartial ? "Partial distribution" : "Pool distributed!";
-    const fcmBody = isPartial
-      ? `${txResult.payoutSum} tokens distributed (pool remains open)`
-      : `${txResult.totalAmount} tokens have been distributed`;
-    await Promise.all(
-      fcmTokens.map((token) =>
-        sendFcmNotification(
-          token,
-          fcmTitle,
-          fcmBody,
-          { type: messageType, poolId, conversationId: txResult.conversationId }
+      await postSystemMessage(
+        txResult.conversationId,
+        `${messagePrefix} ${payoutLines}`,
+        messageType,
+        { poolId, payouts: txResult.payoutRecords, isPartial }
+      );
+
+      // FCM to all participants
+      const allParticipantIds = [userId, ...txResult.inviteeIds];
+      const fcmTokens = await getFcmTokens(allParticipantIds.filter((id: string) => id !== userId));
+      const fcmTitle = isPartial ? "Partial distribution" : "Pool distributed!";
+      const fcmBody = isPartial
+        ? `${txResult.payoutSum} tokens distributed (pool remains open)`
+        : `${txResult.totalAmount} tokens have been distributed`;
+      await Promise.all(
+        fcmTokens.map((token) =>
+          sendFcmNotification(
+            token,
+            fcmTitle,
+            fcmBody,
+            { type: messageType, poolId, conversationId: txResult.conversationId }
+          )
         )
-      )
-    );
-
-    logger.info(`Pool ${isPartial ? "partially " : ""}distributed: ${poolId}, ${txResult.payoutSum} tokens to ${payouts.length} recipients`);
+      );
+    };
+    sideEffects().catch((e) => logger.warn("distributePool side effects failed:", e));
 
     const poolDoc = await poolRef.get();
     return { success: true, pool: { ...poolDoc.data(), id: poolId } };
@@ -1329,9 +1369,11 @@ export const requestPoolWithdrawal = onCall(
 
     const rollbackWithdrawal = async () => {
       try {
+        // Use increment to reverse the withdrawal atomically — absolute values
+        // would erase any concurrent contributions that happened between Phase 1 and rollback.
         await poolRef.update({
-          [`contributions.${userId}.totalAmount`]: txResult.previousUserTotal,
-          totalAmount: txResult.previousTotalAmount,
+          [`contributions.${userId}.totalAmount`]: admin.firestore.FieldValue.increment(amount),
+          totalAmount: admin.firestore.FieldValue.increment(amount),
           contributorCount: txResult.previousContributorCount,
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
@@ -1358,31 +1400,36 @@ export const requestPoolWithdrawal = onCall(
       throw new HttpsError("internal", "Failed to process withdrawal");
     }
 
-    // Phase 3: Side effects
-    const profile = await getUserProfile(userId);
-    const displayName = profile.displayName || "A member";
+    logger.info(`Pool withdrawal: ${poolId}, ${amount} tokens by ${userId}`);
 
-    await postSystemMessage(
-      txResult.conversationId,
-      `${displayName} withdrew ${amount} tokens`,
-      "pool_withdrawal",
-      { poolId, userId, amount }
-    );
+    // Phase 3: Fire-and-forget side effects
+    const sideEffects = async () => {
+      const profile = await getUserProfile(userId);
+      const displayName = profile.displayName || "A member";
 
-    // FCM to organizer (if not the withdrawer)
-    if (txResult.organizerId !== userId) {
-      const fcmTokens = await getFcmTokens([txResult.organizerId]);
-      for (const token of fcmTokens) {
-        await sendFcmNotification(
-          token,
-          "Pool withdrawal",
-          `${displayName} withdrew ${amount} tokens`,
-          { type: "pool_withdrawal", poolId, conversationId: txResult.conversationId }
+      await postSystemMessage(
+        txResult.conversationId,
+        `${displayName} withdrew ${amount} tokens`,
+        "pool_withdrawal",
+        { poolId, userId, amount }
+      );
+
+      // FCM to organizer (if not the withdrawer)
+      if (txResult.organizerId !== userId) {
+        const fcmTokens = await getFcmTokens([txResult.organizerId]);
+        await Promise.all(
+          fcmTokens.map((token) =>
+            sendFcmNotification(
+              token,
+              "Pool withdrawal",
+              `${displayName} withdrew ${amount} tokens`,
+              { type: "pool_withdrawal", poolId, conversationId: txResult.conversationId }
+            )
+          )
         );
       }
-    }
-
-    logger.info(`Pool withdrawal: ${poolId}, ${amount} tokens by ${userId}`);
+    };
+    sideEffects().catch((e) => logger.warn("requestPoolWithdrawal side effects failed:", e));
 
     const poolDoc = await poolRef.get();
     return { success: true, autoApproved: true, pool: { ...poolDoc.data(), id: poolId } };
@@ -1426,12 +1473,17 @@ export const cancelPool = onCall(
 
       const pool = poolDoc.data()!;
 
-      if (pool.status !== "collecting") {
-        throw new HttpsError("failed-precondition", "Pool can only be cancelled while collecting");
-      }
-
       if (pool.organizerId !== userId) {
         throw new HttpsError("permission-denied", "Only the organizer can cancel the pool");
+      }
+
+      // Idempotent: already cancelled — return success on retry
+      if (pool.status === "cancelled") {
+        return { alreadyCancelled: true };
+      }
+
+      if (pool.status !== "collecting") {
+        throw new HttpsError("failed-precondition", "Pool can only be cancelled while collecting");
       }
 
       tx.update(poolRef, {
@@ -1441,6 +1493,7 @@ export const cancelPool = onCall(
       });
 
       return {
+        alreadyCancelled: false,
         conversationId: pool.conversationId,
         totalAmount: pool.totalAmount,
         totalDistributed: pool.totalDistributed || 0,
@@ -1448,6 +1501,12 @@ export const cancelPool = onCall(
         inviteeIds: pool.inviteeIds,
       };
     });
+
+    // Idempotent: already cancelled — skip Phase 2/3
+    if (txResult.alreadyCancelled) {
+      const poolDoc = await poolRef.get();
+      return { success: true, pool: { ...poolDoc.data(), id: poolId } };
+    }
 
     const rollbackCancel = async () => {
       try {
@@ -1508,33 +1567,36 @@ export const cancelPool = onCall(
       }
     }
 
-    // Phase 3: Side effects
-    const refundMsg = remainingBalance > 0
-      ? ` ${remainingBalance} tokens refunded.`
-      : txResult.totalDistributed > 0
-        ? " No refund needed (all tokens were already distributed)."
-        : "";
-    await postSystemMessage(
-      txResult.conversationId,
-      `Collection cancelled.${refundMsg}`,
-      "pool_cancelled",
-      { poolId }
-    );
+    logger.info(`Pool cancelled: ${poolId}, refunded ${remainingBalance} tokens`);
 
-    // FCM to participants (parallel)
-    const fcmTokens = await getFcmTokens(txResult.inviteeIds);
-    await Promise.all(
-      fcmTokens.map((token) =>
-        sendFcmNotification(
-          token,
-          "Collection cancelled",
-          `The collection has been cancelled.${refundMsg}`,
-          { type: "pool_cancelled", poolId, conversationId: txResult.conversationId }
+    // Phase 3: Fire-and-forget side effects
+    const sideEffects = async () => {
+      const refundMsg = remainingBalance > 0
+        ? ` ${remainingBalance} tokens refunded.`
+        : txResult.totalDistributed > 0
+          ? " No refund needed (all tokens were already distributed)."
+          : "";
+      await postSystemMessage(
+        txResult.conversationId,
+        `Collection cancelled.${refundMsg}`,
+        "pool_cancelled",
+        { poolId }
+      );
+
+      // FCM to participants (parallel)
+      const fcmTokens = await getFcmTokens(txResult.inviteeIds);
+      await Promise.all(
+        fcmTokens.map((token) =>
+          sendFcmNotification(
+            token,
+            "Collection cancelled",
+            `The collection has been cancelled.${refundMsg}`,
+            { type: "pool_cancelled", poolId, conversationId: txResult.conversationId }
+          )
         )
-      )
-    );
-
-    logger.info(`Pool cancelled: ${poolId}, refunded ${txResult.totalAmount} tokens`);
+      );
+    };
+    sideEffects().catch((e) => logger.warn("cancelPool side effects failed:", e));
 
     const poolDoc = await poolRef.get();
     return { success: true, pool: { ...poolDoc.data(), id: poolId } };
@@ -1563,9 +1625,10 @@ export const expireTokenPools = onSchedule(
   async () => {
     const now = admin.firestore.Timestamp.now();
 
-    // Query pools that need expiring
+    // Query pools that need expiring — only non-terminal statuses
     const expiredSnap = await db
       .collection("tokenPools")
+      .where("status", "in", ["collecting", "sent"])
       .where("expiresAt", "<=", now)
       .get();
 

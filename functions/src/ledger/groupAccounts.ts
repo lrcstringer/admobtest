@@ -186,12 +186,13 @@ export async function processGroupContribution(
   amount: number,
   transactionId: string
 ): Promise<PostJournalResult> {
-  await ensureSystemAccounts();
-  await getOrCreateUserAccount(memberId);
-
-  // Ensure group account exists
-  const { accountId: groupAccountId, subAccountId: groupSubAccountId } =
-    await getOrCreateGroupAccount(groupId);
+  // Independent — run in parallel to save ~150ms
+  const [, , groupAccount] = await Promise.all([
+    ensureSystemAccounts(),
+    getOrCreateUserAccount(memberId),
+    getOrCreateGroupAccount(groupId),
+  ]);
+  const { accountId: groupAccountId, subAccountId: groupSubAccountId } = groupAccount;
 
   // Validate member has sufficient balance (main wallet)
   const mainCheck = await validateMainWalletBalance(memberId, amount);
@@ -265,8 +266,7 @@ export async function processGroupWithdrawal(
   amount: number,
   transactionId: string
 ): Promise<PostJournalResult> {
-  await ensureSystemAccounts();
-  await getOrCreateUserAccount(memberId);
+  await Promise.all([ensureSystemAccounts(), getOrCreateUserAccount(memberId)]);
 
   // Get group account
   const groupTreasury = await getGroupTreasurySubAccount(groupId);
@@ -345,10 +345,11 @@ export async function processGroupPayout(
   payouts: Array<{ memberId: string; amount: number }>,
   transactionId: string
 ): Promise<PostJournalResult> {
-  await ensureSystemAccounts();
-  for (const payout of payouts) {
-    await getOrCreateUserAccount(payout.memberId);
-  }
+  // Independent — run all account creations in parallel
+  await Promise.all([
+    ensureSystemAccounts(),
+    ...payouts.map((p) => getOrCreateUserAccount(p.memberId)),
+  ]);
 
   // Get group account
   const groupTreasury = await getGroupTreasurySubAccount(groupId);
@@ -530,14 +531,10 @@ async function creditGroupSubAccount(
       updatedAt: now,
     });
 
-  // Also update the main account balance
-  await db
-    .collection(LedgerConfig.COLLECTION_ACCOUNTS)
-    .doc(accountId)
-    .update({
-      balance: admin.firestore.FieldValue.increment(amount),
-      updatedAt: now,
-    });
+  // NOTE: Main account balance is already updated atomically by postJournal.
+  // Do NOT also update it here — that caused double-counting (main = 2x actual).
+  // Existing group accounts may have inflated main balances from the old bug;
+  // sub-account balance is the source of truth for available funds.
 }
 
 /**
@@ -562,14 +559,8 @@ async function debitGroupSubAccount(
       updatedAt: now,
     });
 
-  // Also update the main account balance
-  await db
-    .collection(LedgerConfig.COLLECTION_ACCOUNTS)
-    .doc(accountId)
-    .update({
-      balance: admin.firestore.FieldValue.increment(-amount),
-      updatedAt: now,
-    });
+  // NOTE: Main account balance is already updated atomically by postJournal.
+  // Do NOT also update it here — that caused double-counting (main = 2x actual).
 }
 
 /**

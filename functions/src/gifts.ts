@@ -293,6 +293,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
         `${amount} tokens stuck in GIFT_ESCROW for user ${userId}. Manual intervention required.`,
         refundErr
       );
+      throw new HttpsError("internal", "Failed to create gift. Please contact support — your tokens may need manual recovery.");
     }
     throw new HttpsError("internal", "Failed to create gift. Your tokens have been refunded.");
   }
@@ -564,7 +565,7 @@ export const claimGift = onCall({ labels: { area: "gifts" } }, async (request) =
  * GIFT_ESCROW back to sender, and mark them expired.
  */
 export const expireGifts = onSchedule(
-  { schedule: "0 * * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", labels: { area: "gifts" } },
+  { schedule: "0 * * * *", timeZone: "Africa/Johannesburg", region: "europe-west1", timeoutSeconds: 300, memory: "512MiB", labels: { area: "gifts" } },
   async () => {
     const now = admin.firestore.Timestamp.now();
 

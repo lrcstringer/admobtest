@@ -292,6 +292,12 @@ class TokenPoolBloc extends Bloc<TokenPoolEvent, TokenPoolState> {
     _PoolUpdated event,
     Emitter<TokenPoolState> emit,
   ) {
+    // Guard: only update if this event matches the currently active pool.
+    // Stale stream events from a previously watched pool could overwrite
+    // the active pool state after the user navigates to a different pool.
+    if (state.activePool != null && state.activePool!.id != event.pool.id) {
+      return;
+    }
     emit(state.copyWith(activePool: event.pool));
   }
 
