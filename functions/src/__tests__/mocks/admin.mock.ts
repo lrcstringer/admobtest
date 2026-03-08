@@ -132,6 +132,22 @@ function createMockDocRef(
     return { writeTime: new Date() };
   });
 
+  docRef.create = jest.fn().mockImplementation(async (data: unknown) => {
+    // create() fails with ALREADY_EXISTS (code 6) if the doc already exists
+    const existing = mockCollections.get(collectionName)?.get(docId);
+    if (existing !== undefined) {
+      const err: any = new Error(`Document already exists: ${collectionName}/${docId}`);
+      err.code = 6;
+      throw err;
+    }
+    mockOperations.sets.push({ collection: collectionName, doc: docId, data });
+    if (!mockCollections.has(collectionName)) {
+      mockCollections.set(collectionName, new Map());
+    }
+    mockCollections.get(collectionName)!.set(docId, data);
+    return { writeTime: new Date() };
+  });
+
   docRef.delete = jest.fn().mockImplementation(async () => {
     mockOperations.deletes.push({ collection: collectionName, doc: docId });
     mockCollections.get(collectionName)?.delete(docId);

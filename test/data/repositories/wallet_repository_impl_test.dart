@@ -657,6 +657,50 @@ void main() {
 
       expect(result, const Left(Failure.unauthenticated()));
     });
+
+    test('returns Left(serverError) on ServerException', () async {
+      setNetworkConnected();
+      when(() => mockDataSource.sendP2PTransfer(
+            recipientUserId: 'user456',
+            amount: 100,
+            subAccountId: 'main',
+          )).thenThrow(const ServerException(message: 'Transfer failed'));
+
+      final result = await repository.sendP2PTransfer(
+        recipientUserId: 'user456',
+        amount: 100,
+        subAccountId: 'main',
+      );
+
+      expect(
+        result,
+        const Left(Failure.serverError(message: 'Transfer failed')),
+      );
+    });
+
+    test('returns Left(serverError) on generic exception', () async {
+      setNetworkConnected();
+      when(() => mockDataSource.sendP2PTransfer(
+            recipientUserId: 'user456',
+            amount: 100,
+            subAccountId: 'main',
+          )).thenThrow(Exception('unexpected'));
+
+      final result = await repository.sendP2PTransfer(
+        recipientUserId: 'user456',
+        amount: 100,
+        subAccountId: 'main',
+      );
+
+      expect(result.isLeft(), true);
+      result.fold(
+        (failure) => failure.maybeMap(
+          serverError: (e) => expect(e.message, contains('unexpected')),
+          orElse: () => fail('Expected serverError'),
+        ),
+        (_) => fail('Expected Left'),
+      );
+    });
   });
 
   // ===========================================================================

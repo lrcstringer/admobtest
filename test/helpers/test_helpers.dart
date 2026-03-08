@@ -11,7 +11,9 @@ import 'package:imalichat/domain/entities/ledger_journal.dart';
 import 'package:imalichat/domain/entities/sub_account.dart';
 import 'package:imalichat/domain/entities/cashout.dart';
 import 'package:imalichat/domain/entities/user_engagement_stats.dart';
+import 'package:imalichat/domain/entities/gift.dart';
 import 'package:imalichat/domain/entities/token_pool.dart';
+import 'package:imalichat/domain/enums/gift_status.dart';
 import 'package:imalichat/domain/enums/user_status.dart';
 import 'package:imalichat/domain/enums/engagement_status.dart';
 import 'package:imalichat/domain/enums/pot_type.dart';
@@ -1061,6 +1063,56 @@ class TestData {
         collectingSavePool,
         sentSasazaPool,
       ];
+
+  // ==================== GIFTS ====================
+
+  static final _giftBaseTime = DateTime(2024, 6, 1);
+
+  static Gift get pendingGift => Gift(
+        id: 'gift_1',
+        senderId: 'user_sender',
+        senderName: 'Test Sender',
+        recipientId: 'user_recipient',
+        recipientName: 'Test Recipient',
+        amount: 500,
+        conversationId: 'conv_1',
+        messageId: 'msg_gift_1',
+        message: 'Happy birthday!',
+        style: GiftStyle.birthday,
+        status: GiftStatus.pending,
+        createdAt: _giftBaseTime,
+        expiresAt: _giftBaseTime.add(const Duration(days: 7)),
+      );
+
+  static Gift get openedGift => pendingGift.copyWith(
+        status: GiftStatus.opened,
+        openedAt: _giftBaseTime.add(const Duration(hours: 2)),
+      );
+
+  static Gift get claimedGift => pendingGift.copyWith(
+        status: GiftStatus.claimed,
+        openedAt: _giftBaseTime.add(const Duration(hours: 2)),
+        claimedAt: _giftBaseTime.add(const Duration(hours: 3)),
+        creditTransactionId: 'txn_credit_1',
+      );
+
+  static Gift get expiredGift => pendingGift.copyWith(
+        status: GiftStatus.expired,
+        expiresAt: _giftBaseTime.subtract(const Duration(days: 1)),
+      );
+
+  static Gift get communityGift => pendingGift.copyWith(
+        id: 'gift_community_1',
+        conversationId: null,
+        communityId: 'community_1',
+      );
+
+  static const GiftStats testGiftStats = GiftStats(
+    totalSent: 5,
+    totalReceived: 3,
+    totalAmountSent: 2500,
+    totalAmountReceived: 1500,
+  );
 
   // ==================== VALIDATION DATA ====================
 

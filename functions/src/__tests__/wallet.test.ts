@@ -78,11 +78,12 @@ jest.mock("../security", () => ({
 
 // ── Import module under test ────────────────────────────────────────────────
 
-import { cancelCashout as _cancelCashout, transferBetweenWallets as _transferBetweenWallets } from "../wallet";
+import { cancelCashout as _cancelCashout, transferBetweenWallets as _transferBetweenWallets, sendP2PTransfer as _sendP2PTransfer } from "../wallet";
 
 // onCall mock returns the raw handler — cast to callable
 const cancelCashout = _cancelCashout as unknown as (data: Record<string, unknown>, context: unknown) => Promise<Record<string, unknown>>;
 const transferBetweenWallets = _transferBetweenWallets as unknown as (data: Record<string, unknown>, context: unknown) => Promise<Record<string, unknown>>;
+const sendP2PTransfer = _sendP2PTransfer as unknown as (data: Record<string, unknown>, context: unknown) => Promise<Record<string, unknown>>;
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -369,5 +370,149 @@ describe("transferBetweenWallets", () => {
     );
 
     expect(mockRequireAppCheck).toHaveBeenCalledWith(expect.objectContaining(authContext), "transferBetweenWallets");
+  });
+});
+
+// ── sendP2PTransfer Tests ─────────────────────────────────────────────────
+
+describe("sendP2PTransfer", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    resetMocks();
+    mockProcessP2PTransfer.mockResolvedValue({ success: true, journalId: "j_p2p_001" });
+    mockValidateMainWalletBalance.mockResolvedValue({ available: 5000, sufficient: true });
+    mockGetSubAccount.mockResolvedValue({ accountTypeId: null, balance: 1000 });
+    mockValidateSubAccountAllows.mockResolvedValue({ allowed: true });
+    mockValidateSubAccountBalance.mockResolvedValue({ allowed: true });
+  });
+
+  it("throws unauthenticated when not logged in", async () => {
+    await expect(
+      sendP2PTransfer({ recipientUserId: "user_002", amount: 100 }, unauthContext)
+    ).rejects.toThrow("User must be authenticated");
+  });
+
+  it("calls requireAppCheck", async () => {
+    await sendP2PTransfer(
+      { recipientUserId: "user_002", amount: 100 },
+      authContext
+    ).catch(() => {});
+    expect(mockRequireAppCheck).toHaveBeenCalled();
+  });
+
+  it("throws if recipientUserId is missing", async () => {
+    await expect(
+      sendP2PTransfer({ amount: 100 }, authContext)
+    ).rejects.toThrow("recipientUserId and amount are required");
+  });
+
+  it("throws if amount is missing", async () => {
+    await expect(
+      sendP2PTransfer({ recipientUserId: "user_002" }, authContext)
+    ).rejects.toThrow("recipientUserId and amount are required");
+  });
+
+  it("throws if amount is zero (falsy, caught by required check)", async () => {
+    await expect(
+      sendP2PTransfer({ recipientUserId: "user_002", amount: 0 }, authContext)
+    ).rejects.toThrow("recipientUserId and amount are required");
+  });
+
+  it("throws if amount is negative", async () => {
+    await expect(
+      sendP2PTransfer({ recipientUserId: "user_002", amount: -50 }, authContext)
+    ).rejects.toThrow("Amount must be positive");
+  });
+
+  it("throws if sending to yourself", async () => {
+    await expect(
+      sendP2PTransfer({ recipientUserId: "user_001", amount: 100 }, authContext)
+    ).rejects.toThrow("Cannot send to yourself");
+  });
+
+  it("throws if main wallet has insufficient balance", async () => {
+    mockValidateMainWalletBalance.mockResolvedValueOnce({ available: 50, sufficient: false });
+
+    await expect(
+      sendP2PTransfer({ recipientUserId: "user_002", amount: 100 }, authContext)
+    ).rejects.toThrow("Insufficient balance");
+  });
+
+  it("throws if sub-account balance is insufficient", async () => {
+    mockValidateSubAccountBalance.mockResolvedValueOnce({
+      allowed: false,
+      reason: "Insufficient sub-account balance",
+    });
+
+    await expect(
+      sendP2PTransfer({
+        recipientUserId: "user_002",
+        amount: 100,
+        subAccountId: "sub_001",
+      }, authContext)
+    ).rejects.toThrow("Insufficient");
+  });
+
+  it("throws if sub-account p2p_send is not allowed", async () => {
+    mockValidateSubAccountAllows.mockResolvedValueOnce({
+      allowed: false,
+      reason: "This wallet cannot send tokens",
+    });
+
+    await expect(
+      sendP2PTransfer({
+        recipientUserId: "user_002",
+        amount: 100,
+        subAccountId: "sub_001",
+      }, authContext)
+    ).rejects.toThrow("cannot send tokens");
+  });
+
+  it("calls processP2PTransfer with correct args on success (main wallet)", async () => {
+    const result = await sendP2PTransfer(
+      { recipientUserId: "user_002", amount: 200, note: "Thanks!" },
+      authContext
+    );
+
+    expect(result.success).toBe(true);
+    expect(mockProcessP2PTransfer).toHaveBeenCalledWith(
+      "user_001",          // senderId
+      "user_002",          // recipientId
+      200,                 // amount
+      expect.any(String),  // transferId
+      undefined,           // senderSubAccountId (main wallet)
+      undefined,           // recipientSubAccountId
+      "Thanks!",           // note
+      expect.any(Object),  // metadata
+    );
+  });
+
+  it("calls processP2PTransfer with sub-account when specified", async () => {
+    await sendP2PTransfer(
+      { recipientUserId: "user_002", amount: 100, subAccountId: "sub_001" },
+      authContext
+    );
+
+    expect(mockProcessP2PTransfer).toHaveBeenCalledWith(
+      "user_001",
+      "user_002",
+      100,
+      expect.any(String),
+      "sub_001",           // senderSubAccountId
+      undefined,
+      expect.any(String),
+      expect.any(Object),
+    );
+  });
+
+  it("throws internal error when processP2PTransfer fails", async () => {
+    mockProcessP2PTransfer.mockResolvedValueOnce({
+      success: false,
+      error: "Transfer processing failed",
+    });
+
+    await expect(
+      sendP2PTransfer({ recipientUserId: "user_002", amount: 100 }, authContext)
+    ).rejects.toThrow("Transfer processing failed");
   });
 });

@@ -95,8 +95,10 @@ jest.mock("../ledger", () => ({
 }));
 
 const mockRequireAppCheck = jest.fn();
+const mockRequirePlayIntegrity = jest.fn().mockResolvedValue(undefined);
 jest.mock("../security", () => ({
   requireAppCheck: (...args: unknown[]) => mockRequireAppCheck(...args),
+  requirePlayIntegrity: (...args: unknown[]) => mockRequirePlayIntegrity(...args),
 }));
 
 // ── Import module under test ──────────────────────────────────────────────
