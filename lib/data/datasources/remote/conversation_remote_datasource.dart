@@ -152,6 +152,13 @@ abstract class ConversationRemoteDataSource {
     Map<String, dynamic>? x3dhHeader,
   });
 
+  // E2EE session renegotiation
+  Future<void> requestSessionReset({
+    required String conversationId,
+    required String targetUserId,
+  });
+  Future<void> clearSessionReset({required String conversationId});
+
   // E2EE key lookup
   Future<String?> getUserE2eeIdentityKey(String userId);
 }
@@ -976,6 +983,46 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
         .get();
     if (!doc.exists) return null;
     return doc.data()?['identityKey'] as String?;
+  }
+
+  // =========================================================================
+  // E2EE SESSION RENEGOTIATION
+  // =========================================================================
+
+  @override
+  Future<void> requestSessionReset({
+    required String conversationId,
+    required String targetUserId,
+  }) async {
+    _requireUserId();
+    try {
+      final callable = _functions.httpsCallable('requestSessionReset');
+      await callable.call<Map<String, dynamic>>({
+        'conversationId': conversationId,
+        'targetUserId': targetUserId,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(
+        message: e.message ?? 'Failed to request session reset',
+        code: e.code,
+      );
+    }
+  }
+
+  @override
+  Future<void> clearSessionReset({required String conversationId}) async {
+    _requireUserId();
+    try {
+      final callable = _functions.httpsCallable('clearSessionReset');
+      await callable.call<Map<String, dynamic>>({
+        'conversationId': conversationId,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw ServerException(
+        message: e.message ?? 'Failed to clear session reset',
+        code: e.code,
+      );
+    }
   }
 
   // =========================================================================

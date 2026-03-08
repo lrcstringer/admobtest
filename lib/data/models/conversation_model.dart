@@ -37,6 +37,9 @@ class ConversationModel with _$ConversationModel {
     // Per-user acceptance status (message request system)
     @Default({}) Map<String, bool> accepted,
 
+    // E2EE: per-user session reset requested flags
+    @Default({}) Map<String, bool> sessionResetRequested,
+
     // Token pool back-reference (for collection-type conversations)
     String? tokenPoolId,
 
@@ -89,6 +92,7 @@ class ConversationModel with _$ConversationModel {
           _parseStringMap(json['lastMessageEncryptedPreviews']),
       chatClearedAt: _parseDateTimeMap(json['chatClearedAt']),
       accepted: _parseBoolMap(json['accepted']),
+      sessionResetRequested: _parseBoolMap(json['sessionResetRequested']),
       tokenPoolId: json['tokenPoolId'] as String?,
       poolTitle: json['poolTitle'] as String?,
       poolMode: json['poolMode'] as String?,
@@ -130,6 +134,7 @@ class ConversationModel with _$ConversationModel {
       lastMessageEncryptedPreviews: lastMessageEncryptedPreviews,
       chatClearedAt: chatClearedAt,
       accepted: accepted,
+      sessionResetRequested: sessionResetRequested,
       tokenPoolId: tokenPoolId,
       poolTitle: poolTitle,
       poolMode: poolMode,
@@ -165,6 +170,7 @@ class ConversationModel with _$ConversationModel {
       lastMessageEncryptedPreviews: entity.lastMessageEncryptedPreviews,
       chatClearedAt: entity.chatClearedAt,
       accepted: entity.accepted,
+      sessionResetRequested: entity.sessionResetRequested,
       tokenPoolId: entity.tokenPoolId,
       poolTitle: entity.poolTitle,
       poolMode: entity.poolMode,

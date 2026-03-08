@@ -51,6 +51,9 @@ class Conversation with _$Conversation {
     // Per-user acceptance status (message request system)
     @Default({}) Map<String, bool> accepted,
 
+    // E2EE: per-user session reset requested flags
+    @Default({}) Map<String, bool> sessionResetRequested,
+
     /// Token pool ID (for collection-type conversations)
     String? tokenPoolId,
 

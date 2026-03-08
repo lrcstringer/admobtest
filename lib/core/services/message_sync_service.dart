@@ -13,6 +13,7 @@ import '../../data/models/conversation_model.dart';
 import '../../data/models/message_model.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/enums/message_type.dart';
+import 'crypto_service.dart';
 import 'media_recovery_service.dart';
 import 'message_decryption_service.dart';
 
@@ -137,6 +138,35 @@ class MessageSyncService {
       } catch (e) {
         debugPrint(
             'MessageSyncService: Failed to store conv ${conv.id}: $e');
+      }
+    }
+
+    // Check for E2EE session reset signals addressed to us.
+    // When a peer's decryption permanently fails, they set
+    // sessionResetRequested[ourUserId]=true on the conversation doc.
+    // We detect that here, reset our local session, and clear the flag.
+    final currentUserId = _remoteDataSource.currentUserId;
+    if (currentUserId != null) {
+      for (final model in conversationModels) {
+        if (model.sessionResetRequested[currentUserId] == true) {
+          final peerId = model.participantIds
+              .where((id) => id != currentUserId)
+              .firstOrNull;
+          if (peerId != null) {
+            CryptoService.e2eeLog('E2EE SESSION RESET: Peer $peerId '
+                'requested session reset in conv ${model.id}');
+            _decryptionService.resetSessionForPeer(peerId).then((_) {
+              _remoteDataSource.clearSessionReset(
+                conversationId: model.id,
+              ).catchError((_) {});
+              CryptoService.e2eeLog('E2EE SESSION RESET: Reset complete '
+                  'for peer $peerId — next send will re-establish');
+            }).catchError((e) {
+              CryptoService.e2eeLog(
+                  'E2EE SESSION RESET failed for $peerId: $e');
+            });
+          }
+        }
       }
     }
 
@@ -504,6 +534,7 @@ class MessageSyncService {
           final plaintext = await _decryptionService.decryptMessage(
             msg,
             currentUserId,
+            conversationId: conversationId,
             protectSession: protectSession,
           );
           if (plaintext != null) {
@@ -670,6 +701,7 @@ class MessageSyncService {
           final plaintext = await _decryptionService.decryptMessage(
             msg,
             currentUserId,
+            conversationId: conversationId,
             protectSession: true, // session was established — protect it
           );
           if (plaintext != null) {

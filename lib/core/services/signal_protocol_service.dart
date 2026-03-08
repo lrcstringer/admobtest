@@ -366,8 +366,10 @@ class SignalProtocolService {
         CryptoService.e2eeLog('E2EE: Using previous SPK (grace period) '
             'for $senderUserId');
       } else {
-        CryptoService.e2eeLog('E2EE WARN: SPK ID $spkId not found — '
-            'using current SPK as fallback');
+        CryptoService.e2eeLog('E2EE WARN: SPK ID $spkId not found '
+            '(current=${ourBundle.signedPreKeyId}, '
+            'prev=${ourBundle.previousSignedPreKeyId}) — '
+            'using current SPK as fallback → likely shared secret mismatch');
       }
     }
 
@@ -390,7 +392,8 @@ class SignalProtocolService {
       }
       if (ourOtkPrivate == null) {
         CryptoService.e2eeLog('E2EE WARN [$senderUserId]: OTK ID $otkId '
-            'not found — continuing without DH4');
+            'not found (have ${ourBundle.oneTimePreKeys.length} OTKs) '
+            '— continuing without DH4 → likely shared secret mismatch');
       }
     }
 

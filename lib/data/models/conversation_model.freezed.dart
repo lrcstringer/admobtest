@@ -39,6 +39,8 @@ mixin _$ConversationModel {
   Map<String, DateTime> get chatClearedAt =>
       throw _privateConstructorUsedError; // Per-user acceptance status (message request system)
   Map<String, bool> get accepted =>
+      throw _privateConstructorUsedError; // E2EE: per-user session reset requested flags
+  Map<String, bool> get sessionResetRequested =>
       throw _privateConstructorUsedError; // Token pool back-reference (for collection-type conversations)
   String? get tokenPoolId =>
       throw _privateConstructorUsedError; // Pool title (denormalized for collection-type conversations)
@@ -83,6 +85,7 @@ abstract class $ConversationModelCopyWith<$Res> {
     Map<String, String> lastMessageEncryptedPreviews,
     Map<String, DateTime> chatClearedAt,
     Map<String, bool> accepted,
+    Map<String, bool> sessionResetRequested,
     String? tokenPoolId,
     String? poolTitle,
     String? poolMode,
@@ -124,6 +127,7 @@ class _$ConversationModelCopyWithImpl<$Res, $Val extends ConversationModel>
     Object? lastMessageEncryptedPreviews = null,
     Object? chatClearedAt = null,
     Object? accepted = null,
+    Object? sessionResetRequested = null,
     Object? tokenPoolId = freezed,
     Object? poolTitle = freezed,
     Object? poolMode = freezed,
@@ -201,6 +205,10 @@ class _$ConversationModelCopyWithImpl<$Res, $Val extends ConversationModel>
                 ? _value.accepted
                 : accepted // ignore: cast_nullable_to_non_nullable
                       as Map<String, bool>,
+            sessionResetRequested: null == sessionResetRequested
+                ? _value.sessionResetRequested
+                : sessionResetRequested // ignore: cast_nullable_to_non_nullable
+                      as Map<String, bool>,
             tokenPoolId: freezed == tokenPoolId
                 ? _value.tokenPoolId
                 : tokenPoolId // ignore: cast_nullable_to_non_nullable
@@ -259,6 +267,7 @@ abstract class _$$ConversationModelImplCopyWith<$Res>
     Map<String, String> lastMessageEncryptedPreviews,
     Map<String, DateTime> chatClearedAt,
     Map<String, bool> accepted,
+    Map<String, bool> sessionResetRequested,
     String? tokenPoolId,
     String? poolTitle,
     String? poolMode,
@@ -299,6 +308,7 @@ class __$$ConversationModelImplCopyWithImpl<$Res>
     Object? lastMessageEncryptedPreviews = null,
     Object? chatClearedAt = null,
     Object? accepted = null,
+    Object? sessionResetRequested = null,
     Object? tokenPoolId = freezed,
     Object? poolTitle = freezed,
     Object? poolMode = freezed,
@@ -376,6 +386,10 @@ class __$$ConversationModelImplCopyWithImpl<$Res>
             ? _value._accepted
             : accepted // ignore: cast_nullable_to_non_nullable
                   as Map<String, bool>,
+        sessionResetRequested: null == sessionResetRequested
+            ? _value._sessionResetRequested
+            : sessionResetRequested // ignore: cast_nullable_to_non_nullable
+                  as Map<String, bool>,
         tokenPoolId: freezed == tokenPoolId
             ? _value.tokenPoolId
             : tokenPoolId // ignore: cast_nullable_to_non_nullable
@@ -427,6 +441,7 @@ class _$ConversationModelImpl extends _ConversationModel {
     final Map<String, String> lastMessageEncryptedPreviews = const {},
     final Map<String, DateTime> chatClearedAt = const {},
     final Map<String, bool> accepted = const {},
+    final Map<String, bool> sessionResetRequested = const {},
     this.tokenPoolId,
     this.poolTitle,
     this.poolMode,
@@ -442,6 +457,7 @@ class _$ConversationModelImpl extends _ConversationModel {
        _lastMessageEncryptedPreviews = lastMessageEncryptedPreviews,
        _chatClearedAt = chatClearedAt,
        _accepted = accepted,
+       _sessionResetRequested = sessionResetRequested,
        super._();
 
   @override
@@ -545,6 +561,18 @@ class _$ConversationModelImpl extends _ConversationModel {
     return EqualUnmodifiableMapView(_accepted);
   }
 
+  // E2EE: per-user session reset requested flags
+  final Map<String, bool> _sessionResetRequested;
+  // E2EE: per-user session reset requested flags
+  @override
+  @JsonKey()
+  Map<String, bool> get sessionResetRequested {
+    if (_sessionResetRequested is EqualUnmodifiableMapView)
+      return _sessionResetRequested;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_sessionResetRequested);
+  }
+
   // Token pool back-reference (for collection-type conversations)
   @override
   final String? tokenPoolId;
@@ -565,7 +593,7 @@ class _$ConversationModelImpl extends _ConversationModel {
 
   @override
   String toString() {
-    return 'ConversationModel(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageId: $lastMessageId, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, accepted: $accepted, tokenPoolId: $tokenPoolId, poolTitle: $poolTitle, poolMode: $poolMode, disappearingMessagesDurationMs: $disappearingMessagesDurationMs, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ConversationModel(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageId: $lastMessageId, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, accepted: $accepted, sessionResetRequested: $sessionResetRequested, tokenPoolId: $tokenPoolId, poolTitle: $poolTitle, poolMode: $poolMode, disappearingMessagesDurationMs: $disappearingMessagesDurationMs, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -611,6 +639,10 @@ class _$ConversationModelImpl extends _ConversationModel {
               _chatClearedAt,
             ) &&
             const DeepCollectionEquality().equals(other._accepted, _accepted) &&
+            const DeepCollectionEquality().equals(
+              other._sessionResetRequested,
+              _sessionResetRequested,
+            ) &&
             (identical(other.tokenPoolId, tokenPoolId) ||
                 other.tokenPoolId == tokenPoolId) &&
             (identical(other.poolTitle, poolTitle) ||
@@ -649,6 +681,7 @@ class _$ConversationModelImpl extends _ConversationModel {
     const DeepCollectionEquality().hash(_lastMessageEncryptedPreviews),
     const DeepCollectionEquality().hash(_chatClearedAt),
     const DeepCollectionEquality().hash(_accepted),
+    const DeepCollectionEquality().hash(_sessionResetRequested),
     tokenPoolId,
     poolTitle,
     poolMode,
@@ -688,6 +721,7 @@ abstract class _ConversationModel extends ConversationModel {
     final Map<String, String> lastMessageEncryptedPreviews,
     final Map<String, DateTime> chatClearedAt,
     final Map<String, bool> accepted,
+    final Map<String, bool> sessionResetRequested,
     final String? tokenPoolId,
     final String? poolTitle,
     final String? poolMode,
@@ -730,7 +764,9 @@ abstract class _ConversationModel extends ConversationModel {
   @override
   Map<String, DateTime> get chatClearedAt; // Per-user acceptance status (message request system)
   @override
-  Map<String, bool> get accepted; // Token pool back-reference (for collection-type conversations)
+  Map<String, bool> get accepted; // E2EE: per-user session reset requested flags
+  @override
+  Map<String, bool> get sessionResetRequested; // Token pool back-reference (for collection-type conversations)
   @override
   String? get tokenPoolId; // Pool title (denormalized for collection-type conversations)
   @override

@@ -58,6 +58,11 @@ _$ConversationImpl _$$ConversationImplFromJson(Map<String, dynamic> json) =>
             (k, e) => MapEntry(k, e as bool),
           ) ??
           const {},
+      sessionResetRequested:
+          (json['sessionResetRequested'] as Map<String, dynamic>?)?.map(
+            (k, e) => MapEntry(k, e as bool),
+          ) ??
+          const {},
       tokenPoolId: json['tokenPoolId'] as String?,
       poolTitle: json['poolTitle'] as String?,
       poolMode: json['poolMode'] as String?,
@@ -94,6 +99,7 @@ Map<String, dynamic> _$$ConversationImplToJson(_$ConversationImpl instance) =>
         (k, e) => MapEntry(k, e.toIso8601String()),
       ),
       'accepted': instance.accepted,
+      'sessionResetRequested': instance.sessionResetRequested,
       'tokenPoolId': instance.tokenPoolId,
       'poolTitle': instance.poolTitle,
       'poolMode': instance.poolMode,

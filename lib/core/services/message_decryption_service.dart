@@ -50,6 +50,9 @@ class MessageDecryptionService {
 
   /// Decrypt a single message. Returns plaintext or null on failure.
   ///
+  /// [conversationId] is the conversation this message belongs to — used to
+  /// signal the sender to reset their session on permanent decrypt failure.
+  ///
   /// When [protectSession] is true, destructive recovery (session reset +
   /// retry) is skipped. This is used when a newer message from the same sender
   /// already decrypted successfully — resetting the session would overwrite
@@ -57,6 +60,7 @@ class MessageDecryptionService {
   Future<String?> decryptMessage(
     Message msg,
     String currentUserId, {
+    String? conversationId,
     bool protectSession = false,
   }) async {
     // Sender's own messages: use sent plaintext cache or DB cache
@@ -147,7 +151,11 @@ class MessageDecryptionService {
       return plaintext;
     } on PermanentDecryptionError catch (e) {
       CryptoService.e2eeLog('E2EE SYNC [${msg.id}]: PERMANENT decrypt failure: $e');
-      _markPermanentlyFailed(msg.id);
+      _markPermanentlyFailed(msg.id,
+        senderId: msg.senderId,
+        conversationId: conversationId,
+        hasX3dhHeader: msg.x3dhHeader != null,
+      );
       if (e.message.contains('OTK mismatch')) {
         try {
           await _signalProtocolService.resetSession(msg.senderId);
@@ -162,7 +170,11 @@ class MessageDecryptionService {
       if (protectSession) {
         CryptoService.e2eeLog('E2EE SYNC [${msg.id}]: Skipping destructive recovery — '
             'protecting working session from older message');
-        _markPermanentlyFailed(msg.id);
+        _markPermanentlyFailed(msg.id,
+          senderId: msg.senderId,
+          conversationId: conversationId,
+          hasX3dhHeader: msg.x3dhHeader != null,
+        );
         return null;
       }
 
@@ -179,7 +191,11 @@ class MessageDecryptionService {
           return plaintext;
         } on PermanentDecryptionError catch (e2) {
           CryptoService.e2eeLog('E2EE SYNC [${msg.id}]: PERMANENT after reset: $e2');
-          _markPermanentlyFailed(msg.id);
+          _markPermanentlyFailed(msg.id,
+            senderId: msg.senderId,
+            conversationId: conversationId,
+            hasX3dhHeader: true,
+          );
         } catch (retryError) {
           CryptoService.e2eeLog('E2EE SYNC [${msg.id}]: Recovery FAILED: $retryError');
           try {
@@ -239,9 +255,28 @@ class MessageDecryptionService {
   }
 
   /// Mark a message as permanently failed (max attempts reached).
-  void _markPermanentlyFailed(String messageId) {
+  ///
+  /// If [senderId], [conversationId], and x3dhHeader context are provided,
+  /// signals the sender to reset their stale session via the conversation
+  /// document so the next message can succeed.
+  void _markPermanentlyFailed(
+    String messageId, {
+    String? senderId,
+    String? conversationId,
+    bool hasX3dhHeader = false,
+  }) {
     _evictFailuresIfNeeded();
     decryptFailures[messageId] = maxDecryptAttempts;
+
+    // Signal the sender to reset their stale session
+    if (hasX3dhHeader && senderId != null && conversationId != null) {
+      _remoteDataSource.requestSessionReset(
+        conversationId: conversationId,
+        targetUserId: senderId,
+      ).catchError((_) {}); // fire-and-forget
+      CryptoService.e2eeLog('E2EE SESSION: Requested session reset '
+          'from ${senderId.substring(0, 8)}… for conv $conversationId');
+    }
   }
 
   /// Reset failure counters for specific message IDs.
@@ -252,6 +287,16 @@ class MessageDecryptionService {
     for (final id in messageIds) {
       decryptFailures.remove(id);
     }
+  }
+
+  /// Reset the local Signal Protocol session for a peer.
+  ///
+  /// Called when we detect a session reset signal on the conversation
+  /// document — the peer's decryption failed and they asked us to
+  /// re-establish. Clears all failure counters so retries can succeed.
+  Future<void> resetSessionForPeer(String peerId) async {
+    await _signalProtocolService.resetSession(peerId);
+    decryptFailures.clear();
   }
 
   void _evictFailuresIfNeeded() {

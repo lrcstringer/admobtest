@@ -523,6 +523,66 @@ export const archiveConversation = onCall({ labels: { area: "social" } }, async 
 });
 
 // ============================================================================
+// E2EE SESSION RENEGOTIATION
+// ============================================================================
+
+/**
+ * Request that a peer resets their E2EE session with us.
+ *
+ * Called by the receiver when decryption permanently fails — the peer's
+ * session references stale SPK/OTK IDs. Setting the flag on the conversation
+ * document triggers the peer to reset their local session via the Firestore
+ * conversation stream.
+ */
+export const requestSessionReset = onCall({ labels: { area: "e2ee" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "requestSessionReset");
+
+  const { conversationId, targetUserId } = request.data;
+
+  if (!conversationId || typeof conversationId !== "string") {
+    throw new HttpsError("invalid-argument", "conversationId (string) is required");
+  }
+  if (!targetUserId || typeof targetUserId !== "string") {
+    throw new HttpsError("invalid-argument", "targetUserId (string) is required");
+  }
+  if (targetUserId === userId) {
+    throw new HttpsError("invalid-argument", "Cannot request session reset from yourself");
+  }
+
+  await db.collection("conversations").doc(conversationId).update({
+    [`sessionResetRequested.${targetUserId}`]: true,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { success: true };
+});
+
+/**
+ * Clear a session reset signal after the sender has reset their session.
+ *
+ * Called by the sender after they detect the signal in the conversation
+ * stream and reset their local Signal Protocol session.
+ */
+export const clearSessionReset = onCall({ labels: { area: "e2ee" } }, async (request) => {
+  const userId = requireAuth(request);
+  requireAppCheck(request, "clearSessionReset");
+
+  const { conversationId } = request.data;
+
+  if (!conversationId || typeof conversationId !== "string") {
+    throw new HttpsError("invalid-argument", "conversationId (string) is required");
+  }
+
+  await db.collection("conversations").doc(conversationId).update({
+    [`sessionResetRequested.${userId}`]: admin.firestore.FieldValue.delete(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { success: true };
+});
+
+// ============================================================================
 // DISAPPEARING MESSAGES
 // ============================================================================
 
